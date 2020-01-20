@@ -8,7 +8,7 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "IOVDbTestAlg/IOVDbTestCoolDCS.h"
+#include "IOVDbTestCoolDCS.h"
 
 IOVDbTestCoolDCS::IOVDbTestCoolDCS(const std::string& name,
 				   ISvcLocator* pSvcLocator) :

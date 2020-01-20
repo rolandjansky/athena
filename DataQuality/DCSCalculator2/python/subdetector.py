@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from __future__ import with_statement, division, print_function
@@ -6,6 +6,7 @@ from __future__ import with_statement, division, print_function
 from DQUtils import process_iovs
 from DQUtils.sugar import IOVSet, define_iov_type
 from DQUtils.ext import tally
+import six
 
 import DCSCalculator2.config as config
 from .variable import GoodIOV, DCSC_Variable_With_Mapping, DefectIOV
@@ -33,7 +34,7 @@ class DCSC_Subdetector(object):
             # NOTE: this breaks silently if an input channel was accidentally
             # mapped to more than one output channel. Maybe I should add a check.
             inverse = dict((value, key) 
-                           for key, values in self.mapping.iteritems() 
+                           for key, values in six.iteritems(self.mapping) 
                            for value in values)
                            
             self.input_to_output_map = inverse
@@ -187,7 +188,7 @@ class DCSC_Subdetector(object):
             def pretty(state):
                 return "/".join(x[0] for x in state)
             
-            chans, iovs = zip(*sorted(info_states.by_channel.iteritems()))
+            chans, iovs = zip(*sorted(six.iteritems(info_states.by_channel)))
             for since, until, states in process_iovs(self.run_iovs, *iovs):
                 if states[0]._is_empty:
                     # Not inside a run
@@ -457,7 +458,7 @@ class DCSC_Subdetector(object):
         """
         global_iov_sets = []
         for input_global in input_globals:
-            for channel, iovs in sorted(input_global.by_channel.iteritems()):
+            for channel, iovs in sorted(six.iteritems(input_global.by_channel)):
                 global_iov_sets.append(iovs)
             
         return global_iov_sets
@@ -471,7 +472,7 @@ class DCSC_Subdetector(object):
         result = IOVSet(iov_type=DCSOFL_IOV)
         
         # loop over output channel dictionary
-        for channel, input_iovs in sorted(inputs_by_output.iteritems()):
+        for channel, input_iovs in sorted(six.iteritems(inputs_by_output)):
             these_globals = self.select_globals(channel, global_variables)
             args = channel, input_iovs, these_globals
             result.extend(self.calculate_result_for_output(*args))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTRatesFromCool import TrigHltRates
 import unittest
@@ -82,7 +82,8 @@ class TestTrigHltRates(unittest.TestCase):
 
         return_code, chainratedict =  self.hltrates.getRates(runno=319018,chains=[".*rp_Cosm.*"],iov=5)
         expected = ['grp_CosmicSlice', 'grp_Cosmic_Calo', 'grp_Cosmic_LArCalibration', 'grp_Cosmic_MinBias', 'grp_Cosmic_Muon', 'grp_Cosmic_TileCalibration', 'grp_Cosmic_Tracking']
-        result = chainratedict.keys(); result.sort()
+        result = list(chainratedict.keys())
+        result.sort()
         self.assertEqual(result,expected)
 
     def testReturnCodes(self):

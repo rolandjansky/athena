@@ -5,17 +5,17 @@
 #ifndef OVERLAYCOPYALGS_COPYTRACKRECORDCOLLECTION_H
 #define OVERLAYCOPYALGS_COPYTRACKRECORDCOLLECTION_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
-class CopyTrackRecordCollection : public AthAlgorithm
+class CopyTrackRecordCollection : public AthReentrantAlgorithm
 {
 public:
 
   CopyTrackRecordCollection(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
   SG::ReadHandleKey<TrackRecordCollection> m_signalInputKey{ this, "SignalInputKey", "", "ReadHandleKey for Signal TrackRecordCollection" };

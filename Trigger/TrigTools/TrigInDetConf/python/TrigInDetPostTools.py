@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 """
 #
 # the configuration of tools for postprocessing
@@ -24,7 +26,7 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 #                                                       )
 # ToolSvc += InDetTrigFastTrackSummaryTool
 # if (InDetTrigFlags.doPrintConfigurables()):
-#     print      InDetTrigFastTrackSummaryTool
+#     print      (InDetTrigFastTrackSummaryTool)
 
 
 # from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
@@ -36,7 +38,7 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 #                                                       )
 # ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
 # if (InDetTrigFlags.doPrintConfigurables()):
-#     print      InDetTrigTrackSummaryToolWithHoleSearch
+#     print      (InDetTrigTrackSummaryToolWithHoleSearch)
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
@@ -56,7 +58,7 @@ InDetTrigParticleCreatorTool = \
 
 ToolSvc += InDetTrigParticleCreatorTool
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorTool
+    print (InDetTrigParticleCreatorTool)
 
 InDetTrigParticleCreatorToolWithSummary = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummary",
@@ -69,7 +71,7 @@ InDetTrigParticleCreatorToolWithSummary = \
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummary
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolWithSummary
+    print (InDetTrigParticleCreatorToolWithSummary)
 
 InDetTrigParticleCreatorToolWithSummaryTRTPid = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummaryTRTPid",
@@ -82,7 +84,7 @@ InDetTrigParticleCreatorToolWithSummaryTRTPid = \
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummaryTRTPid
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolWithSummaryTRTPid
+    print (InDetTrigParticleCreatorToolWithSummaryTRTPid)
 
 
 InDetTrigParticleCreatorToolParams = \
@@ -95,7 +97,7 @@ InDetTrigParticleCreatorToolParams = \
 
 ToolSvc += InDetTrigParticleCreatorToolParams
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolParams
+    print (InDetTrigParticleCreatorToolParams)
 
 InDetTrigParticleCreatorToolFTF = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
@@ -108,5 +110,5 @@ InDetTrigParticleCreatorToolFTF = \
 
 ToolSvc += InDetTrigParticleCreatorToolFTF
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigParticleCreatorToolFTF
+    print (InDetTrigParticleCreatorToolFTF)
 

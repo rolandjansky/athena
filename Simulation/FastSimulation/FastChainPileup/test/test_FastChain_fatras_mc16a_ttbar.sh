@@ -3,8 +3,9 @@
 # art-description: Run AFII simulation and full digitization of an MC16a ttbar sample with 2016a geometry and conditions, 25ns pile-up
 # art-type: grid
 # art-include: 21.3/Athena
-# art-output: RDO.pool.root
+# art-output: *.root
 # art-output: config.txt
+# art-output: dcube-rdo-truth
 
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
@@ -35,13 +36,33 @@ FastChain_tf.py \
     --numberOfCavernBkg 0 \
     --imf False
 rc=$?
-rc2=-9999
 echo  "art-result: $rc EVNTtoRDO"
-if [ $rc -eq 0 ]
+
+inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_FastChain_fatras_mc16a_ttbar"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
+art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
+dcubeName="FastChain_fatras_mc16a_ttbar"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
+dcubeRefRDO="${inputRefDir}/RDO_truth.root"
+
+rc2=-9999
+rc3=-9999
+if [ ${rc} -eq 0 ]
 then
+    # Regression test
     ArtPackage=$1
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc2=$?
+
+
+    # Histogram comparison with DCube
+    bash ${art_dcube} ${dcubeName} RDO_truth.root ${dcubeXmlRDO} ${dcubeRefRDO}
+    rc3=$?
+    if [ -d "dcube" ]
+    then
+       mv "dcube" "dcube-rdo-truth"
+    fi
 fi
-echo  "art-result: $rc2 regression"
+echo  "art-result: ${rc2} regression"
+echo  "art-result: ${rc3} dcubeRDO"

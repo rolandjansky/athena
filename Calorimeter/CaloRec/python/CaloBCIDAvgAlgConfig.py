@@ -5,13 +5,14 @@
 # Purpose: Configure CaloBCIDAvgAlg.
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def CaloBCIDAvgAlgCfg (flags):
     from IOVDbSvc.IOVDbSvcConfig import addFolderList
-    from CaloRec.CaloRecConf import CaloBCIDAvgAlg
+    CaloBCIDAvgAlg=CompFactory.CaloBCIDAvgAlg
 
     result = ComponentAccumulator()
 

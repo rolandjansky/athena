@@ -29,5 +29,4 @@ atlas_add_test( flake8
 atlas_add_test( DCSCRun
    SCRIPT dcsc.py -r348885 -d 'sqlite://$<SEMICOLON>schema=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthDataQuality/dcscalc_input_348885.db$<SEMICOLON>dbname=CONDBR2'
    PROPERTIES TIMEOUT 360
-   EXTRA_PATTERNS "warn  [frontier.c:"
    )

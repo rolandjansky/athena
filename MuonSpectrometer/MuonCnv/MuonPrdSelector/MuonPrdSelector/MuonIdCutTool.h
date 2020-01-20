@@ -21,11 +21,6 @@
 class MsgStream;
 class MuonStationIntersectSvc;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-
 
   /** 
       Implementation of an IMuonIdCutTool. 

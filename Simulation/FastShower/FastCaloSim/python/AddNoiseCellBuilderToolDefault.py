@@ -12,7 +12,8 @@ def AddNoiseCellBuilderToolDefault (name = 'AddNoiseCellBuilderTool', **kwargs):
 
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg ('electronicNoise')
-
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvcMT())
     from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
     return AddNoiseCellBuilderTool (name,
                                     NoiseKey = 'electronicNoise',

@@ -81,6 +81,8 @@ protected:
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names
    StringArrayProperty      m_excludeList;
+   /// Vector of item names
+   StringArrayProperty      m_compressionList;
    /// List of items that are known to be present in the transient store
    /// (and hence we can make input dependencies on them).
    StringArrayProperty      m_transientItems;
@@ -88,6 +90,8 @@ protected:
    ToolHandle<SG::IFolder>  m_p2BWritten;
    /// the top-level folder with items to be written
    ToolHandle<SG::IFolder>  m_decoder;
+   /// the top-level folder with items to be written
+   ToolHandle<SG::IFolder>  m_compressionDecoder;
    /// Decoded list of transient ids.
    ToolHandle<SG::IFolder>  m_transient;
    /// map of (clid,key) pairs to be excluded (comes from m_excludeList)
@@ -141,6 +145,8 @@ protected:
    void itemListHandler(Property& /* theProp */);
    /// Handler for ItemNames Property
    void excludeListHandler(Property& /* theProp */);
+   /// Handler for ItemNames Property
+   void compressionListHandler(Property& /* theProp */);
 
 public:
    typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;

@@ -62,7 +62,7 @@ def extract_pmon_infos(fname, only_summary=False):
 
     def dict_from_shelve(fname):
         db = {}
-        if open(fname, 'r').read(1024).startswith('SQLite format'):
+        if open(fname, 'rb').read(1024).startswith(b'SQLite format'):
             import PyUtils.dbsqlite as dbs
             db = dbs.open(fname, 'r')
         else:

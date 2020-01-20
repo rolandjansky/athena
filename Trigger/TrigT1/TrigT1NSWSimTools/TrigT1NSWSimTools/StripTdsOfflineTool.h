@@ -73,9 +73,10 @@ namespace NSWL1 {
 
     virtual StatusCode initialize() override;
 
-    virtual void handle (const Incident& inc);
+    virtual void handle (const Incident& inc) override;
 
-    StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers);
+    virtual
+    StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) override;
  
 
   private:

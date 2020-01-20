@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
@@ -47,6 +46,7 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
+#include "GeoModelUtilities/GeoGetIds.h"
 #include "GaudiKernel/MsgStream.h"
 
 //root includes
@@ -185,7 +185,6 @@ StatusCode MdtRawDataValAlg::initialize()
 {
 
   //initialize to stop coverity bugs
-   p_MuonDetectorManager=0;
    //mdtevents_RPCtrig = 0;
    //mdtevents_TGCtrig=0;
    m_MdtNHitsvsRpcNHits = 0;
@@ -244,15 +243,8 @@ StatusCode MdtRawDataValAlg::initialize()
   //If online monitoring turn off chamber by chamber hists
   if(m_isOnline) m_doChamberHists = false;
 
-  std::string managerName="Muon";
-  sc = detStore()->retrieve(p_MuonDetectorManager);
-  if (sc.isFailure()) {
-    ATH_MSG_INFO("Could not find the MuonGeoModel Manager: " << managerName << " ! " );
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG(" Found the MuonGeoModel Manager " );
-  }
+// MuonDetectorManager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   sc = m_muonIdHelperTool.retrieve();
   if (sc.isFailure()) {
@@ -323,6 +315,15 @@ StatusCode MdtRawDataValAlg::initialize()
 
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
 
+  // MuonDetectorManager from the Detector Store
+  std::string managerName="Muon";
+  const MuonGM::MuonDetectorManager* MuonDetMgrDS;
+  sc = detStore()->retrieve(MuonDetMgrDS);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO("Could not find the MuonGeoModel Manager: " << managerName << " from the Detector Store! " );
+    return StatusCode::FAILURE;
+  } else { ATH_MSG_DEBUG(" Found the MuonGeoModel Manager from the Detector Store" );}
+
   m_BMGpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
   if(m_BMGpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
@@ -330,10 +331,10 @@ StatusCode MdtRawDataValAlg::initialize()
     for(int phi=6; phi<8; phi++) { // phi sectors
       for(int eta=1; eta<4; eta++) { // eta sectors
         for(int side=-1; side<2; side+=2) { // side
-          if( !p_MuonDetectorManager->getMuonStation("BMG", side*eta, phi) ) continue;
-          for(int roe=1; roe<=( p_MuonDetectorManager->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+          if( !MuonDetMgrDS->getMuonStation("BMG", side*eta, phi) ) continue;
+          for(int roe=1; roe<=( MuonDetMgrDS->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
             const MuonGM::MdtReadoutElement* mdtRE =
-                  dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( p_MuonDetectorManager->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+                  dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( MuonDetMgrDS->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
             if(mdtRE) initDeadChannels(mdtRE);
           }
         }
@@ -1938,7 +1939,15 @@ StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
   std::string hardware_name = getChamberName( mdtCollection );
   bool isNoisy = m_masked_tubes->isNoisy( mdtCollection );
 
-  const MuonGM::MdtReadoutElement* pReadoutElementMDT = p_MuonDetectorManager->getMdtReadoutElement(digcoll_id);
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
+
+  const MuonGM::MdtReadoutElement* pReadoutElementMDT = MuonDetMgr->getMdtReadoutElement(digcoll_id);
   const Amg::Vector3D mdtgPos = pReadoutElementMDT->tubePos(digcoll_id); //global position of the wire                  
   float mdt_tube_eta   = mdtgPos.eta();     
   float mdt_tube_x = mdtgPos.x();
@@ -2012,6 +2021,14 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
   std::string type="MDT";
   std::set<TubeTraversedBySegment, TubeTraversedBySegment_cmp> store_effTubes;
   std::set<Identifier> store_ROTs;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
 
   // LOOP OVER SEGMENTS  
   for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
@@ -2146,7 +2163,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         std::string hardware_name = getChamberName(station_id); 
 
         // SEGMENT track
-        const MuonGM::MdtReadoutElement* detEl = p_MuonDetectorManager->getMdtReadoutElement(station_id);
+        const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(station_id);
         Amg::Transform3D gToStation = detEl->GlobalToAmdbLRSTransform();
         Amg::Vector3D  segPosG(segment->globalPosition());
         Amg::Vector3D  segDirG(segment->globalDirection());
@@ -2164,7 +2181,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
           CorrectLayerMax(hardware_name, tubeLayerMax);
           for(int i_tube=m_muonIdHelperTool->mdtIdHelper().tubeMin(newId); i_tube<=tubeMax; i_tube++) {
             for(int i_layer=m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(newId); i_layer<=tubeLayerMax; i_layer++) {
-              const MuonGM::MdtReadoutElement* MdtRoEl = p_MuonDetectorManager->getMdtReadoutElement( newId );
+              const MuonGM::MdtReadoutElement* MdtRoEl = MuonDetMgr->getMdtReadoutElement( newId );
               if(m_BMGpresent && m_muonIdHelperTool->mdtIdHelper().stationName(newId) == m_BMGid ) {
                 std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(MdtRoEl->identify());
                 if( myIt != m_DeadChannels.end() ){
@@ -2273,6 +2290,10 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
   int nGrandchildren = cv->getNChildVols();
   if(nGrandchildren <= 0) return;
 
+  std::vector<int> tubes;
+  geoGetIds ([&] (int id) { tubes.push_back (id); }, &*cv);
+  std::sort (tubes.begin(), tubes.end());
+
   Identifier detElId = mydetEl->identify();
 
   int name = m_muonIdHelperTool->mdtIdHelper().stationName(detElId);
@@ -2281,24 +2302,25 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
   int ml = m_muonIdHelperTool->mdtIdHelper().multilayer(detElId);
   std::vector<Identifier> deadTubes;
 
+  std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      bool tubefound = false;
-      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
-        if( tubegeo == tube && layergeo == layer ) {
-          tubefound=true;
-          break;
-        }
-        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      int want_id = layer*100 + tube;
+      if (it != tubes.end() && *it == want_id) {
+        ++it;
       }
-      if(!tubefound) {
-        Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
-        deadTubes.push_back( deadTubeId );
-        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
-                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
-                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      else {
+        it = std::lower_bound (tubes.begin(), tubes.end(), want_id);
+        if (it != tubes.end() && *it == want_id) {
+          ++it;
+        }
+        else {
+          Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
+          deadTubes.push_back( deadTubeId );
+          ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                          << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                          << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+        }
       }
     }
   }

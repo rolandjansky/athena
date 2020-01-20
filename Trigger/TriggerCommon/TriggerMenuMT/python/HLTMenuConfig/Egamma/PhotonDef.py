@@ -65,9 +65,13 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             key+=addInfo
             
         log.debug('photon key = ' + key)
-        steps=stepDictionary[key]
+        if key in stepDictionary:
+            steps=stepDictionary[key]
+        else:
+            raise RuntimeError("Chain configuration unknown for photon chain with key: " + key )
 
         chainSteps = []
+
         for step in steps:
             log.debug('Adding photon trigger step ' + str(step))
             chainSteps+=[step]

@@ -2,6 +2,8 @@
    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "MissingETMonitoring/METMonitorAlgorithm.h" 
+#include "xAODMissingET/MissingET.h" 
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODJet/Jet.h" 
 
 
@@ -16,7 +18,6 @@ static const std::map<std::string, std::pair<std::string, std::string> > key2Sub
     { "MET_RefJet_JVFCut", { "MET_Reference_AntiKt4EMTopo", "RefJet" } }, // RefJet_JVFCut   
     { "MET_RefJet", { "MET_Reference_AntiKt4EMTopo", "RefJet" } },    
     { "MET_Muon", { "MET_Reference_AntiKt4EMTopo", "Muons" } },    
-      //    { "MET_PFlow_RefFinal", { "MET_Reference_AntiKt4EMPFlow", "FinalClus" } }, // add track 
     { "MET_PFlow", { "MET_Reference_AntiKt4EMPFlow", "FinalTrk" } }, // add track 
     { "MET_PFlow_RefEle", { "MET_Reference_AntiKt4EMPFlow", "RefEle" } },  
     { "MET_PFlow_RefGamma", { "MET_Reference_AntiKt4EMPFlow", "RefGamma" } },    
@@ -151,7 +152,7 @@ bool METMonitoringAlg::isGoodEvent( const EventContext& ctx ) const {
   SG::ReadHandle<xAOD::JetContainer> jetContainer(m_jetContainerKey, ctx);
   if (! jetContainer.isValid() ) {
     ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
-    return false;;///StatusCode::FAILURE;
+    return false;///StatusCode::FAILURE;
   }
   
   for (const xAOD::Jet* jet : *jetContainer) {

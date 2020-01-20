@@ -11,7 +11,9 @@ if metadata['eventTypes'][0] == 'IS_SIMULATION' \
 
 # ESD
 recoMetadataItemList = CfgItemList("RecoMetadata",
-                                    items = ["IOVMetaDataContainer#*",
+                                    items = ["xAOD::TriggerMenuContainer#*",
+                                             "xAOD::TriggerMenuAuxContainer#*",
+                                             "IOVMetaDataContainer#*",
                                              "xAOD::LumiBlockRangeContainer#*",
 	                                     "xAOD::LumiBlockRangeAuxContainer#*",
 #                                             "xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers",
@@ -27,9 +29,7 @@ recoMetadataItemList = CfgItemList("RecoMetadata",
 
 # AOD extra
 dfMetadataItemList = CfgItemList("DerivedMetadata",
-                                 items = ["xAOD::TriggerMenuContainer#*",
-                                          "xAOD::TriggerMenuAuxContainer#*",
-                                          "xAOD::FileMetaData#FileMetaData",
+                                 items = ["xAOD::FileMetaData#FileMetaData",
                                           "xAOD::FileMetaDataAuxInfo#FileMetaDataAux.",
                                           "xAOD::TruthMetaDataContainer#TruthMetaData",
                                           "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux."],

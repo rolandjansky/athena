@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ factory function to return the objects that carry fex args
 according to the fex class. """
@@ -68,7 +68,7 @@ class _JetFexParams(object):
                 str(merge_param))
             raise RuntimeError(m)
 
-        if not merge_param in (2, 3, 4, 10):
+        if merge_param not in (2, 3, 4, 10):
             m = '%s._check_args: unsupported merge_param %d' % (
                 self.__class__.__name__,
                 merge_param)

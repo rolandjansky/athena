@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.JetFitterNtupleWriterNNConfig import JetFitterNtupleWriterNNCfg
 from JetTagTools.JetFitterNNToolConfig import JetFitterNNToolCfg
 
 # import the JetFitterTag configurable
-from JetTagTools.JetTagToolsConf import Analysis__JetFitterTag
+Analysis__JetFitterTag=CompFactory.Analysis__JetFitterTag
 
 def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = False, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterTagNN tool and returns it.

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/src/AuxVectorData.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -230,6 +228,8 @@ const SG::auxid_set_t& AuxVectorData::getWritableAuxIDs() const
  */
 bool AuxVectorData::isAvailableOol (auxid_t id) const
 {
+  guard_t guard (m_mutex);
+
   const SG::IConstAuxStore* store = getConstStore();
   if (!store) return false;
 

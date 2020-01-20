@@ -33,7 +33,6 @@ private:
   SG::ReadHandleKey<MdtDigitContainer> m_signalInputKey{this, "SignalInputKey", "Sig_MDT_DIGITS", "ReadHandleKey for Signal Input MdtDigitContainer"};
   SG::WriteHandleKey<MdtDigitContainer> m_outputKey{this, "OutputKey", "MDT_DIGITS", "WriteHandleKey for Output MdtDigitContainer"};
 
-  BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
   FloatProperty m_adcIntegrationWindow { this, "IntegrationWindow", 20.0, "ADC Integration Window" };
 
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <xercesc/dom/DOM.hpp>
@@ -590,10 +590,14 @@ void Args2Container::writeXMLContent(std::vector<std::string>& argv)
 #endif
    }
    catch (const SAXException& e) {
-      m_log << coral::Error << "xml error: " << e.getMessage( ) << corENDL;
+      char* s = XMLString::transcode(e.getMessage( ));
+      m_log << coral::Error << "xml error: " << s << corENDL;
+      XMLString::release (&s);
    } 
    catch (const DOMException& e) {
-      m_log << coral::Error << "xml error: " << e.getMessage( ) << corENDL;
+      char* s = XMLString::transcode(e.getMessage( ));
+      m_log << coral::Error << "xml error: " << s << corENDL;
+      XMLString::release (&s);
    }
    catch( const XMLException& e ) {
       m_log << coral::Warning << "Failed writing XML options file: " << toNative(e.getMessage()) << coral::MessageStream::endmsg;
@@ -640,8 +644,10 @@ std::vector<std::string> Args2Container::fillCmdLineArgsFromXML(std::string file
    }
    catch (const XMLException& e)
    {
+      char* s = XMLString::transcode(e.getMessage( ));
       m_log << coral::Error << "An error occurred during parsing" << endl
-	  << " Message: " << e.getMessage() << corENDL;
+	  << " Message: " << s << corENDL;
+      XMLString::release (&s);
       errorsOccured = true;
    }
 
@@ -653,8 +659,11 @@ std::vector<std::string> Args2Container::fillCmdLineArgsFromXML(std::string file
       m_log << coral::Error  << "\nDOM Error during parsing: '" << file << endl
 	  << "DOMException code is:  " << e.code << corENDL;
 
-      if( DOMImplementation::loadDOMExceptionMsg(e.code, errText, maxChars) )
-	 m_log << coral::Error << "Message is: " << errText << corENDL;
+      if( DOMImplementation::loadDOMExceptionMsg(e.code, errText, maxChars) ) {
+         char* s = XMLString::transcode(errText);
+	 m_log << coral::Error << "Message is: " << s << corENDL;
+         XMLString::release (&s);
+      }
 
       errorsOccured = true;
    }

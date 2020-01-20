@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OVERLAYCOPYALGS_COPYMCEVENTCOLLECTION_H
 #define OVERLAYCOPYALGS_COPYMCEVENTCOLLECTION_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-class CopyMcEventCollection : public AthAlgorithm
+class CopyMcEventCollection : public AthReentrantAlgorithm
 {
 public:
 
   CopyMcEventCollection(const std::string &name, ISvcLocator *pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
   SG::ReadHandleKey<McEventCollection> m_bkgInputKey{ this, "BkgInputKey", "Bkg_TruthEvent", "ReadHandleKey for Background McEventCollection" };

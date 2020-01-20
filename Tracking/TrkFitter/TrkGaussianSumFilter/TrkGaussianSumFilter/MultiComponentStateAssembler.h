@@ -6,8 +6,7 @@
                         MultiComponentStateAssembler.h  -  description
                         -----------------------------------------------
 begin                : Monday 20th December 2004
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
+author               : atkinson,morley,anastopoulos
 description          : This is a helper class to collect components of a
                         multi-component state and put them all into a
                         MultiComponentState. The addition of components can be
@@ -23,76 +22,79 @@ description          : This is a helper class to collect components of a
 #ifndef MultiComponentStateAssembler_H
 #define MultiComponentStateAssembler_H
 
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
-
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include <memory>
+#include <vector>
+
 
 namespace Trk {
 
-class MultiComponentStateAssembler
-  : public AthAlgTool
-  , virtual public IMultiComponentStateAssembler
+namespace MultiComponentStateAssembler {
+struct Cache
 {
-public:
-  /** Constructor with AlgTool parameters */
-  MultiComponentStateAssembler(const std::string&, const std::string&, const IInterface*);
-
-  /** Virtual destructor */
-  virtual ~MultiComponentStateAssembler();
-
-  /** AlgTool initialise method */
-  virtual StatusCode initialize() override;
-
-  /** AlgTool finalise method */
-  virtual StatusCode finalize() override;
-
-  typedef IMultiComponentStateAssembler::Cache Cache;
-
-  /** Resets the AlgTool */
-  virtual void reset(Cache& cache) const override final;
-
-  /** Print the status of the assembler */
-  virtual void status(const Cache& cache) const override final;
-
-  /** Method to add a single set of Trk::ComponentParameters to the cached Trk::MultiComponentState object under
-   * construction */
-  virtual bool addComponent(Cache& cache, SimpleComponentParameters&&) const override final;
-
-  /** Method to add a new Trk::MultiComponentState to the cached Trk::MultiComponentState object under construction */
-  virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&&) const override final;
-
-  /** Method to include the weights of states that are invalid */
-  virtual bool addInvalidComponentWeight(Cache& cache, const double) const override final;
-
-  /** Method to return the cached state object - it performs a reweighting before returning the object based on the
-   * valid and invaid weights */
-  virtual std::unique_ptr<MultiComponentState> assembledState(Cache& cache) const override final;
-
-  /** Method to return the cached state object - it performs a reweighting based on the input parameter  */
-  virtual std::unique_ptr<MultiComponentState> assembledState(Cache& cache, const double) const override final;
-
-private:
-  /** Method to Check component entries before full assembly */
-  bool prepareStateForAssembly(Cache& cache) const;
-
-  /** Method to assemble state with correct weightings */
-  std::unique_ptr<MultiComponentState> doStateAssembly(Cache& cache, const double) const;
-
-  /** Method to check the validity of of the cached state */
-  bool isStateValid(const Cache& cache) const;
-
-  // Private data members
-  Gaudi::Property<double> m_minimumFractionalWeight{ this,
-                                                     "minimumFractionalWeight",
-                                                     1.e-9,
-                                                     "Minimum Fractional Weight" };
-  Gaudi::Property<double> m_minimumValidFraction{ this, "minimumValidFraction", 0.01, " Minimum Valid Fraction" };
+  Cache()
+    : multiComponentState{}
+    , validWeightSum{ 0 }
+    , invalidWeightSum{ 0 }
+    , minimumValidFraction{ 0.01 }
+    , minimumFractionalWeight{ 1e-09 }
+    , assemblyDone{ false } { multiComponentState.reserve(72); }
+  Trk::MultiComponentState multiComponentState;
+  double validWeightSum;
+  double invalidWeightSum;
+  const double minimumValidFraction;
+  const double minimumFractionalWeight;
+  bool assemblyDone;
 };
+
+/** Resets the cache */
+void
+reset(Cache& cache);
+
+/** Method to add a single set of Trk::ComponentParameters to the cached Trk::MultiComponentState 
+ * object under construction */
+bool
+addComponent(Cache& cache, ComponentParameters&&);
+
+/** Method to add a new Trk::MultiComponentState to the cached Trk::MultiComponentState o
+ * bject under construction */
+bool
+addMultiState(Cache& cache, Trk::MultiComponentState&&);
+
+/** Method to include the weights of states that are invalid */
+bool
+addInvalidComponentWeight(Cache& cache, const double);
+
+/** Method to return the cached state object -
+ * it performs a reweighting before returning the object based on the
+ * valid and invaid weights */
+std::unique_ptr<MultiComponentState>
+assembledState(Cache& cache);
+
+/** Method to return the cached state object - 
+ * it performs a reweighting based on the input parameter  */
+std::unique_ptr<MultiComponentState>
+assembledState(Cache& cache, const double);
+
+/** Method to Check component entries before full assembly */
+bool
+prepareStateForAssembly(Cache& cache) ;
+
+/** Method to assemble state with correct weightings */
+std::unique_ptr<MultiComponentState>
+doStateAssembly(Cache& cache, const double);
+
+/** Method to check the validity of of the cached state */
+bool
+isStateValid(const Cache& cache);
+
+}//End MultiComponentStateAssembler namespace
+
+typedef MultiComponentStateAssembler::Cache Cache;
 } // End Trk namepace
 
 inline bool
-Trk::MultiComponentStateAssembler::isStateValid(const Cache& cache) const
+Trk::MultiComponentStateAssembler::isStateValid(const Cache& cache)
 {
   return !cache.multiComponentState.empty();
 }

@@ -18,10 +18,6 @@ errorRegex = [
     '^Exception\:',
     '^Caught signal',
     '^Core dump',
-    'Traceback',
-    'Shortened traceback',
-    'stack trace',
-    '^Algorithm stack\:',
     'inconsistent use of tabs and spaces in indentation',
     'glibc detected',
     'tcmalloc\: allocation failed',
@@ -46,9 +42,11 @@ errorRegex.extend(builtinErrors)
 traceback = [
     'Traceback',
     'Shortened traceback',
+    'stack trace',
     '^Algorithm stack',
     '^#\d+\s*0x\w+ in '
 ]
+errorRegex.extend(traceback)
 
 # Warning keywords
 warningRegex = ['WARNING ']
@@ -71,6 +69,11 @@ def parseOptions():
     action = 'store_true',
     default = False,
     help ='print a summary table of the number of times each of the exclude patterns was matched (default False)'
+    )
+    parser.add_argument('--printpatterns',
+    action = 'store_true',
+    default = False,
+    help ='print the list of warning/error patterns being searched for (default False)'
     )
     parser.add_argument('--warnings',
     action = 'store_true',
@@ -160,7 +163,8 @@ def scanLogfile():
 
 def printResults():
     global pattern
-    print('check_log.py - Checking for: '+ str(pattern) +' in log.\n')
+    if args.printpatterns:
+        print('check_log.py - Checking for: '+ str(pattern) +' in '+logFileAddress+'\n')
     if args.showexcludestats and not noConfig:
         print('Ignored:')
         for s in ignoreDict:

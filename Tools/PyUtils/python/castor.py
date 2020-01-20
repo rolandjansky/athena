@@ -21,7 +21,6 @@
 # date:   May 2006
 # @author: Sebastien Binet <binet@cern.ch>
 from __future__ import print_function
-from past.builtins import xrange
 import commands
 import os
 import fnmatch
@@ -37,7 +36,7 @@ def group(iterator, count):
     """
     itr = iter(iterator)
     while True:
-        yield tuple([itr.next() for i in xrange(count)])
+        yield tuple([itr.next() for i in range(count)])
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision$"
@@ -91,7 +90,7 @@ def nsls(files, prefix=None):
     if not (os.path.basename(files) in ['', '*']): # no need to filter
         pattern = fnmatch.translate(os.path.basename(files))
         flist = filter(lambda x: re.search(pattern, x), flist)
-    if prefix and isinstance(prefix, basestring):
+    if prefix and isinstance(prefix, str):
         return [os.path.join(prefix+path, p) for p in flist]
     else:
         return [os.path.join(path, p) for p in flist]
@@ -165,7 +164,7 @@ def _old_nsls(path) :
     if wildcards :
         flist = fnmatch.filter(ut,tail)
 
-    for i in xrange(0,len(output)) :
+    for i in range(0,len(output)) :
         if output[i].count(path) < 1:
             output[i] = path+"/"+output[i]
         output[i] = output[i].replace('//','/')
@@ -179,7 +178,7 @@ def pool_nsls( path ) :
     """
     _prefix = 'root://castoratlas/'
     files = nsls(path)
-    for i in xrange(len(files)) :
+    for i in range(len(files)) :
         files[i] = _prefix+files[i]
         pass
 

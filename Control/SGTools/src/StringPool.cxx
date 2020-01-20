@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: StringPool.cxx,v 1.3 2007-12-10 22:20:03 ssnyder Exp $
 /**
  * @file  SGTools/StringPool.cxx
  * @author scott snyder
@@ -180,6 +178,8 @@ StringPool::StringPool (const StringPool& other)
 StringPool::StringPool (StringPool&& other)
   : m_impl (std::move (other.m_impl))
 {
+  // False positive:
+  // cppcheck-suppress useInitializationList
   other.m_impl = std::make_unique<StringPoolImpl>();
 }
 

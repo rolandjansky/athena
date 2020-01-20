@@ -4,22 +4,24 @@
 
 def DQTDataFlowMonAlgConfig(flags):
     from AthenaMonitoring import AthMonitorCfgHelper
+    from AthenaConfiguration.ComponentFactory import CompFactory
     helper = AthMonitorCfgHelper(flags, 'DQTDataFlowMonAlgCfg')
-    _DQTDataFlowMonAlgConfigCore(helper, flags.Input.isMC)
+    _DQTDataFlowMonAlgConfigCore(helper, CompFactory.DQTDataFlowMonAlg, flags.Input.isMC)
     return helper.result()
 
 def DQTDataFlowMonAlgConfigOld(flags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
+    from .DataQualityToolsConf import DQTDataFlowMonAlg
     from AthenaCommon.GlobalFlags import globalflags
     helper = AthMonitorCfgHelperOld(flags, 'DQTDataFlowMonAlgCfg')
-    _DQTDataFlowMonAlgConfigCore(helper, globalflags.DataSource() == 'geant4')
+    _DQTDataFlowMonAlgConfigCore(helper, DQTDataFlowMonAlg,
+                                globalflags.DataSource() == 'geant4')
     return helper.result()
 
-def _DQTDataFlowMonAlgConfigCore(helper, isMC):
-    from .DataQualityToolsConf import DQTDataFlowMonAlg
+def _DQTDataFlowMonAlgConfigCore(helper, algConfObj, isMC):
     from ROOT import EventInfo
 
-    monAlg = helper.addAlgorithm(DQTDataFlowMonAlg,'DQTDataFlowMonAlg')
+    monAlg = helper.addAlgorithm(algConfObj,'DQTDataFlowMonAlg')
 
     # arguments are: algorithm, name of group used to access it from the alg,
     # the 'top level path' to put outputs in, and the default duration of

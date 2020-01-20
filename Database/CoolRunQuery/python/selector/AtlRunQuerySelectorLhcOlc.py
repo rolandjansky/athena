@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 from CoolRunQuery.utils.AtlRunQueryIOV   import IOVTime, IOVRange
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, runsOnServer, GetRanges, SmartRangeCalulator
@@ -47,7 +48,7 @@ class LHCCondition(TimeBasedCondition):
                 key = 'lhc:' + lhcargs[0].strip().lower()
                 # does it exist?
                 if not key in self.ResultKey():
-                    print 'ERROR: unknown LHC variable "%s"' % key
+                    print ('ERROR: unknown LHC variable "%s"' % key)
                     sys.exit(1)                
 
                 cond = lhcargs[1].strip()
@@ -59,7 +60,7 @@ class LHCCondition(TimeBasedCondition):
                         self.lhc[key] = [[cond]]
                         pass
             else:
-                print 'ERROR: unknown condition format for LHC: "%s" -> need two arguments separated by blank' % lhcargs
+                print ('ERROR: unknown condition format for LHC: "%s" -> need two arguments separated by blank' % lhcargs)
                 sys.exit(1)                                    
 
 
@@ -153,9 +154,9 @@ class OLCFillParamsCondition(TimeBasedCondition):
                 xb1 = run.stats['olc:beam1bunches']['blocks']
                 xb2 = run.stats['olc:beam2bunches']['blocks']
                 xbc = run.stats['olc:collbunches']['blocks']
-                #print "JOERG XB1 ",xb1
-                #print "JOERG XB2 ",xb2
-                #print "JOERG XBC ",xbc
+                #print ("JOERG XB1 ",xb1)
+                #print ("JOERG XB2 ",xb2)
+                #print ("JOERG XBC ",xbc)
                 
                 # loop over BCID mask
                 bcidmask = run.stats['olc:bcidmask']['blocks']
@@ -175,14 +176,14 @@ class OLCFillParamsCondition(TimeBasedCondition):
                     if bcidBlobLength == 3564:
                         # run 2
                         beam1, beam2, beam12 = unpackRun2BCIDMask(bcidblob)
-                        #print "BC beam 1: %i, beam 2: %i, coll: %i" % (len(beam1), len(beam2), len(beam12))
+                        #print ("BC beam 1: %i, beam 2: %i, coll: %i" % (len(beam1), len(beam2), len(beam12)))
                     else:
                         # unpack BCID mask
                         if len(bcidblob) == 2 * (nb1 + nb2 + nbc):
                             beam1, beam2, beam12 = unpackRun1BCIDMask( bcidblob, nb1, nb2, nbc )
-                            #print "BC beam 1: %i, beam 2: %i, coll: %i" % (len(beam1), len(beam2), len(beam12))
+                            #print ("BC beam 1: %i, beam 2: %i, coll: %i" % (len(beam1), len(beam2), len(beam12)))
                         else:
-                            print "WARNING, bcidMask inconsistent",nb1, nb2, nbc,"should add up to half of",len(bcidblob)
+                            print ("WARNING, bcidMask inconsistent",nb1, nb2, nbc,"should add up to half of",len(bcidblob))
                             beam1, beam2, beam12 = ([],[],[])
 
                     # refill run stats
@@ -262,7 +263,7 @@ class OLCLumiCondition(RunLBBasedCondition):
                     c = c.replace('-','').strip()
                     self.complumi = float(c)
             except ValueError:
-                print "ERROR: in 'olc' condition: %s" % self.condition
+                print ("ERROR: in 'olc' condition: %s" % self.condition)
                 sys.exit(1)
         self.complumi *= f # in ub-1
 
@@ -318,7 +319,7 @@ class OLCLumiCondition(RunLBBasedCondition):
                 yvecInt += len(lbs)*[val]
                     
                 # check LBs with stable beam
-                print run.data[kst].atLB(entry.startlb)
+                print (run.data[kst].atLB(entry.startlb))
                 stable_beam = run.data[kst].atLB(entry.startlb)[0].value
                 if 'true' in stable_beam.lower():
                     xvecStb += lbs
@@ -394,7 +395,7 @@ class LuminositySelector(RunLBBasedCondition):
         self._channelKeys = [(channel,'ofllumi:%i:%s' % (channel,condtag), 'LBAvInstLumi')]
 
     def initialize(self):
-        print "Setting channelkeys",self._channelKeys
+        print ("Setting channelkeys",self._channelKeys)
         self.setSchemaFolderTag(self._dbfolderkey)
         self.setChannelKeys(self._channelKeys)
 
@@ -420,11 +421,11 @@ class LuminositySelector(RunLBBasedCondition):
                 updLumiTag = fld.resolveTag(cur.replace('*','ST'))
             
                 condtag = updLumiTag
-            except ImportError, ex:
-                print "WARNING: ImportError, can not read conditions tag (likely an afs permission issue): ",ex
+            except ImportError as ex:
+                print ("WARNING: ImportError, can not read conditions tag (likely an afs permission issue): ",ex)
                 condtag = "OflPrefLumi-RUN2-UPD4-04"
 
-            print condtag
+            print (condtag)
 
         else:
             condtag = "OflLumi-UPD2-006"

@@ -3,6 +3,7 @@
 """Define method to construct configured Tile Fit raw channel builder tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile Fit raw channel builder tool
@@ -28,7 +29,7 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
         timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
         kwargs['TileCondToolTiming'] = timingTool
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
+    TileRawChannelBuilderFitFilter=CompFactory.TileRawChannelBuilderFitFilter
     from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
     rawChanBuilder = acc.popToolsAndMerge(TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilderFitFilter, **kwargs))
     acc.setPrivateTools(rawChanBuilder)
@@ -68,4 +69,4 @@ if __name__ == "__main__":
     print( acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelBuilderFit.pkl','w') )
+    acc.store( open('TileRawChannelBuilderFit.pkl','wb') )

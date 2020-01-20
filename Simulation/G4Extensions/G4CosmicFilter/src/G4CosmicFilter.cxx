@@ -45,7 +45,7 @@ namespace G4UA
         counter=0;
         for (const auto& a_tr : *coll)
           {
-            if (m_config.PDGId!=0 && m_config.PDGId != fabs(a_tr.GetPDGCode())) continue;
+            if (m_config.PDGId!=0 && m_config.PDGId != std::abs(a_tr.GetPDGCode())) continue;
             if (m_config.ptMin>0 && m_config.ptMin > a_tr.GetMomentum().perp() ) continue;
             if (m_config.ptMax>0 && m_config.ptMax < a_tr.GetMomentum().perp() ) continue;
             counter++;

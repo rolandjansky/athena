@@ -15,7 +15,7 @@
 #ifndef TRT_TrackExtensionTool_xk_H
 #define TRT_TrackExtensionTool_xk_H
 
-#include <vector>
+
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -26,8 +26,11 @@
 #include "TRT_TrackExtensionTool_xk/TRT_Trajectory_xk.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include <iosfwd>
+#include <vector>
 
 class MsgStream;
+class TRT_ID;
 
 namespace InDet{
 
@@ -59,8 +62,8 @@ namespace InDet{
       TRT_TrackExtensionTool_xk
 	(const std::string&,const std::string&,const IInterface*);
       virtual ~TRT_TrackExtensionTool_xk();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track extension to TRT
@@ -80,8 +83,8 @@ namespace InDet{
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump(MsgStream&    out) const;
-      std::ostream& dump(std::ostream& out) const;
+      virtual MsgStream&    dump(MsgStream&    out) const override;
+      virtual std::ostream& dump(std::ostream& out) const override;
 
     protected:
 
@@ -135,7 +138,6 @@ namespace InDet{
       double                           m_scale_error    ; // Scalefactor for hit uncertainty
       std::string                      m_fieldmode      ; // Mode of magnetic field
       std::string                      m_trtmanager     ; // Name of TRT det. manager 
-      //std::string                      m_trtname        ; // Name container with TRT clusters
 
       Trk::MagneticFieldProperties     m_fieldprop      ; // Magnetic field properties
       SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircleContainer"};

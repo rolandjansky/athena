@@ -57,7 +57,7 @@ msg.info( "ESD item list: %r",StreamESD.ItemList )
 caught = False
 try:
     esdList += AthenaPoolOutputStream( "FooFoo" )
-except TypeError,err:
+except TypeError as err:
     caught = True
     msg.info( err )
     msg.info( "Error has been caught, good" )

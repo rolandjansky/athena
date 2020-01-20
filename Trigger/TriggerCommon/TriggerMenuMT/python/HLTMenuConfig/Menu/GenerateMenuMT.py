@@ -164,16 +164,16 @@ class GenerateMenuMT(object):
         chainCounter = 0
 
         for chain in chainsInMenu:
-            log.debug("Currently processing chain: %s ", chain)
+            log.debug("Now processing chain: %s ", chain) 
             chainDict = dictFromChainName(chain)
 
             chainCounter += 1
             chainDict['chainCounter'] = chainCounter
 
-            log.debug("Next: getting chain configuration for chain %s ", chain)
+            log.debug("Next: getting chain configuration for chain %s ", chain.name) 
             chainConfig= self.__generateChainConfig(chainDict)
 
-            log.debug("Finished with retrieving chain configuration for chain %s", chain)
+            log.debug("Finished with retrieving chain configuration for chain %s", chain.name) 
             TriggerConfigHLT.registerChain( chainDict, chainConfig )
 
 
@@ -200,7 +200,6 @@ class GenerateMenuMT(object):
                 log.debug("Adding %s chains to the list of chains to be configured", sig)
                 chains+= eval('TriggerFlags.' + sig + 'Slice.signatures()')
                 self.signaturesToGenerate.append(sig)
-                log.debug('Signatures to generate %s', sig)
             else:
                 log.debug('Signature %s is not switched on (no chains in menu or disabled by flag)', sig)
 
@@ -209,10 +208,10 @@ class GenerateMenuMT(object):
         if len(chains) == 0:
             log.warning("There seem to be no chains in the menu - please check")
         else:
-            log.debug("The following chains were found in the menu %s", chains)
-
-        return chains
-
+            log.debug("The following chains were found in the menu: \n %s", '\n '.join(map(str,(chains) )))
+            
+        return chains 
+                                
 
     def __generateChainConfig(self, mainChainDict):
         """
@@ -220,7 +219,6 @@ class GenerateMenuMT(object):
         """
         # check if all the signature files can be imported files can be imported
         for sig in self.signaturesToGenerate:
-            log.debug("current sig %s", sig)
             try:
                 if eval('self.do' + sig + 'Chains'):
                     if sig == 'Egamma':
@@ -242,6 +240,8 @@ class GenerateMenuMT(object):
 
             except ImportError:
                 log.exception('Problems when importing ChainDef generating code for %s', sig)
+                import traceback
+                traceback.print_exc()
 
         log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
 
@@ -265,7 +265,7 @@ class GenerateMenuMT(object):
             chainConfigs = None
             currentSig = chainDict['signature']
             chainName = chainDict['chainName']
-            log.debug('Checking chainDict for chain %s' , currentSig)
+            log.debug('Checking chainDict for chain %s in signature %s' , chainName, currentSig)
 
             sigFolder = ''
             if currentSig == 'Electron' or currentSig == 'Photon':
@@ -276,23 +276,21 @@ class GenerateMenuMT(object):
                 sigFolder = currentSig
 
             if currentSig in self.availableSignatures and currentSig != 'Combined':
-                try:
-                    log.debug("Trying to get chain config for %s", currentSig)
-                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)'
+                try:                    
+                    log.debug("Trying to get chain config for %s in folder %s", currentSig, sigFolder)
+                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
                     chainConfigs = eval(functionToCall)
                 except RuntimeError:
                     log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
                     continue
             else:
                 log.error('Chain %s ignored - Signature not available', chainDict['chainName'])
-
-            log.debug('ChainConfigs  %s ', chainConfigs)
             listOfChainConfigs.append(chainConfigs)
 
-        if log.isEnabledFor(logging.DEBUG):
-            import pprint
-            pp = pprint.PrettyPrinter(indent=4, depth=8)
-            log.debug('mainChainDict dictionary: %s', pp.pformat(mainChainDict))
+        ## if log.isEnabledFor(logging.DEBUG):
+        ##     import pprint
+        ##     pp = pprint.PrettyPrinter(indent=4, depth=8)
+        ##     log.debug('mainChainDict dictionary: %s', pp.pformat(mainChainDict))
 
 
         # This part is to deal with combined chains between different signatures
@@ -319,6 +317,7 @@ class GenerateMenuMT(object):
             from TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup import addEventBuildingSequence
             addEventBuildingSequence(theChainConfig, eventBuildType)
 
+        log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig
 
     @memoize

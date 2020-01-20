@@ -4,6 +4,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -70,7 +71,7 @@ def TileInfoLoaderCfg(flags, **kwargs):
             msg.info("Switching OFF noise in Tile Digitization" )
 
 
-    from TileConditions.TileConditionsConf import TileInfoLoader
+    TileInfoLoader=CompFactory.TileInfoLoader
     acc.addService(TileInfoLoader(**kwargs), primary = True)
 
     return acc
@@ -96,6 +97,6 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('TileInfoLoader'))
-    acc.store( open('TileInfoLoader.pkl','w') )
+    acc.store( open('TileInfoLoader.pkl','wb') )
 
     print('All OK')

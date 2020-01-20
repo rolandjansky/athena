@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: App.py
 # @purpose: a set of classes to post-process/analyze a (set of) perfmon tuples
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 """ A set of classes and utilities to post-process/analyze a (set of)
     perfmon tuples.
@@ -19,6 +21,7 @@ import os
 import logging
 from array import array
 import numpy
+import six
 
 #import pyximport
 #pyximport.install(pyimport=True)
@@ -31,15 +34,13 @@ os.environ['MPLCONFIGDIR'] = mplconfig_dir
 
 import atexit
 def del_mplconfig_dir():
-    #print "... removing [%s] ..." % mplconfig_dir
-    import commands
-    sc, out = commands.getstatusoutput('/bin/rm -rf %s' % mplconfig_dir)
-    if sc:
-        print "** could not remove temporary $MPLCONFIGDIR ** (sc=%s)" % (sc,)
-        print out
+    #print ("... removing [%s] ..." % mplconfig_dir)
+    import os
+    if os.system('/bin/rm -rf %s' % mplconfig_dir):
+        print ("** could not remove temporary $MPLCONFIGDIR ** (sc=%s)" % (sc,))
     return
 atexit.register(del_mplconfig_dir)
-#print "===>",os.environ['MPLCONFIGDIR']
+#print ("===>",os.environ['MPLCONFIGDIR'])
 
 import matplotlib
 if not 'matplotlib.backends' in sys.modules:
@@ -63,7 +64,7 @@ _rc['figure.subplot.wspace'] = 0.3
 
 _pyplot_legend = pyplot.legend
 def my_legend(*args, **kwargs):
-    print "====>"
+    print ("====>")
     kwargs['alpha'] = 0.
     return _pyplot_legend(*args, **kwargs)
 pyplot.legend = my_legend
@@ -71,7 +72,7 @@ import pylab
 pylab.legend = my_legend
 del my_legend
  
-from DataLoader import DataLoader
+from .DataLoader import DataLoader
 
 __do_monitoring = False
 #__do_monitoring = True
@@ -82,10 +83,10 @@ def _monitor(tag):
         cpu = getrusage( RUSAGE_SELF )
         from time import time
         start = time() * 1e3
-        print "===>",tag
-        print "cpu: u=",cpu.ru_utime * 1e3
-        print "cpu: s=",cpu.ru_stime * 1e3
-        print "time:    ",start
+        print ("===>",tag)
+        print ("cpu: u=",cpu.ru_utime * 1e3)
+        print ("cpu: s=",cpu.ru_stime * 1e3)
+        print ("time:    ",start)
     return
 
 def _installLogger( lvl = logging.INFO ):
@@ -164,9 +165,9 @@ class AppMgr(object):
             try: fitSlice = float(fitSlice)
             except ValueError: raise
             if fitSlice <= 0. or fitSlice > 1.:
-                raise ValueError, \
-                      "You have to give a fitSlice in (0.,1.] (got: %r)" % \
-                      fitSlice
+                raise ValueError (
+                      "You have to give a fitSlice in (0.,1.] (got: %r)" % 
+                      fitSlice)
             # get the last x percent of the total range,
             _ratio = (1.- float(fitSlice))*nbins
             # convert into a suitable python slice object
@@ -193,7 +194,7 @@ class AppMgr(object):
         self.msg.info( "running app..." )
         ## check everybody has the same bins
         for i in range(len(self.anaMgrs)):
-            ## print "-->",self.anaMgrs[i].name,len(self.anaMgrs[i].bins)
+            ## print ("-->",self.anaMgrs[i].name,len(self.anaMgrs[i].bins))
             for j in range(i+1,len(self.anaMgrs)):
                 if len(self.anaMgrs[i].bins) != len(self.anaMgrs[j].bins):
                     self.msg.warning( "Not running on same number of evts !" )
@@ -205,7 +206,7 @@ class AppMgr(object):
                                       self.anaMgrs[j].bins )
                     
         self.msg.info( "nbr of datasets: %i", len(DataSetMgr.instances.keys()) )
-        import Analyzer
+        from . import Analyzer
         self.msg.info( "running analyzers..." )
         for monComp in self.monComps.values():
             self.msg.debug( " ==> [%s]... (%s)", monComp.name, monComp.type )
@@ -222,7 +223,7 @@ class AppMgr(object):
 
         self.msg.info( "creating summary..." )
         ## create the summary
-        import SummaryCreator
+        from . import SummaryCreator
         self.summary = SummaryCreator.SummaryCreator( fitSlice= self._fitSlice )
         self.summary.process( DataSetMgr.instances,
                               MonitoredComponent.instances )
@@ -238,13 +239,13 @@ class AppMgr(object):
     def __filter(self, monComp):
         """hook for the user to filter out some MonitoredComponent"""
         ## user filtering fct
-        from UserFct import FilterFct
+        from .UserFct import FilterFct
         fct = FilterFct()
         return fct(monComp)
 
     def __writeRootFile(self):
         self.msg.debug( "create ROOT file..." )
-        from PyRootLib import importRoot
+        from .PyRootLib import importRoot
         ROOT = importRoot( batch = True )
         outName = self.outputFile+".root"
         outFile = ROOT.fopen( outName, 'RECREATE' )
@@ -273,14 +274,14 @@ class AppMgr(object):
 
         figs = []
         for k in [ 'ini', '1st', 'evt', 'fin', 'io' ]:
-            if self.summary.sum[k].has_key('fig'):
+            if 'fig' in self.summary.sum[k]:
                 f = self.summary.sum[k]['fig']
                 if type(f) == type([]): figs.extend(f)
                 else: figs += [ f ]
         jobSlice = MonitoredComponent.instances['PerfMonSlice']
         for k in [ 'cpu', 'mem', 'io' ]:
             fig = 'evt/%s' % k
-            if jobSlice.figs.has_key( fig ):
+            if fig in jobSlice.figs:
                 figs.append( jobSlice.figs[fig] )
             pass
         algFigs = [ ]
@@ -312,15 +313,15 @@ class AppMgr(object):
         outName = self.outputFile+".summary.txt" 
         o = open( outName, 'w' )
         _txt = self.summary.txt
-        print >> o,  ":"*80
+        print (":"*80, file=o)
         for c in ( 'slice', 'comps' ):
             for i in ( 'ini','1st','evt','fin'):
-                print >> o, "=== [%s - %s] ===" % (i,c)
+                print ("=== [%s - %s] ===" % (i,c), file=o)
                 for j in ( 'mem', 'cpu', 'allocs', ):
                     for l in _txt[i][j][c]:
-                        print >> o, l
-            print >> o, ":"*80
-        print >> o, "="*80
+                        print (l, file=o)
+            print (":"*80, file=o)
+        print ("="*80, file=o)
         o.close()
         
         if os.path.exists( outName ):
@@ -337,7 +338,7 @@ class AnaMgr(object):
     def __init__(self, name, inputFileName, dsLabel):
         object.__init__(self)
 
-        if isinstance(name, basestring):
+        if isinstance(name, str):
             self.name = name
         else:
             self.name = str(name).zfill(3)
@@ -359,21 +360,21 @@ class AnaMgr(object):
 
         _monitor('3')
         storeNames = set()
-        compNames  = set( data['meta']['components'  ].keys() +
+        compNames  = set( list(data['meta']['components'  ].keys()) +
                           data['meta']['iocontainers']        )
-        storeNames = [ k for k in data['data'].iterkeys() if k != 'meta' ]
+        storeNames = [ k for k in six.iterkeys(data['data']) if k != 'meta' ]
         compNames  = [ c for c in compNames ]
         
         _monitor('4')
         dataSetName = self.name
-        ## print ">>>",len(compNames),len(data.keys())
-        _data_keys = data.keys()
+        ## print (">>>",len(compNames),len(data.keys()))
+        _data_keys = list(data.keys())
         for compName in compNames:
-            ## print ":::::::::",compName
+            ## print (":::::::::",compName)
             monComp = MonitoredComponent(compName, dataSetName)
             monData = monComp.data[dataSetName]
             for storeName in storeNames:
-                ## print "--",storeName
+                ## print ("--",storeName)
                 try:
                     monData[storeName] = data['data'][storeName][compName]
                 except KeyError:
@@ -386,7 +387,7 @@ class AnaMgr(object):
         _monitor('5')
 
         _compsDb = data['meta']['components'  ]
-        _comps   = data['meta']['components'  ].keys()
+        _comps   = list(data['meta']['components'  ].keys())
         _ioconts = data['meta']['iocontainers']
         for monComp in MonitoredComponent.instances.values():
             if monComp.type != None:
@@ -456,11 +457,11 @@ class MonitoredComponent(object):
         if not self.figs:
             self.figs = {}
             
-        if not self.data.has_key(dataSetName):
+        if dataSetName not in  self.data:
             self.data[dataSetName] = {}
 
         for k in ['histos']:
-            if not self.data[dataSetName].has_key(k):
+            if k not in self.data[dataSetName]:
                 self.data[dataSetName][k] = {}
 
         return
@@ -512,13 +513,13 @@ class DataSetMgr(object):
     @staticmethod
     def labels( keys = None ):
         if keys == None:
-            keys = DataSetMgr.instances.keys()
+            keys = list(DataSetMgr.instances.keys())
             keys.sort()
         return [DataSetMgr.instances[k].label for k in keys]
     
     @staticmethod
     def names():
-        keys = DataSetMgr.instances.keys()
+        keys = list(DataSetMgr.instances.keys())
         keys.sort()
         return keys
 
@@ -526,7 +527,7 @@ class DataSetMgr(object):
     def colorIter():
         import pylab
         # skip indigo...
-        color = iter(pylab.cm.colors.cnames.keys()[1:])
+        color = iter(list(pylab.cm.colors.cnames.keys())[1:])
         return color
         
     def __init__(self, name, data, label=None):
@@ -614,7 +615,7 @@ def legend(*args, **kwargs):
 
     The args and kwargs are forwarded to the pylab legend function
     \"""
-    if kwargs.has_key('loc'):
+    if 'loc in kwargs:
         loc = kwargs['loc']
         loc = loc.split()
 

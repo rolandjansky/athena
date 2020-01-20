@@ -70,11 +70,6 @@ StatusCode STGC_Overlay::initialize()
 {
   ATH_MSG_DEBUG("Initializing...");
 
-  if (!m_includeBkg) {
-    ATH_MSG_DEBUG("Disabling use of background RDOs...");
-    ATH_CHECK( m_bkgInputKey.assign("") );
-  }
-
   // Check and initialize keys
   ATH_CHECK( m_bkgInputKey.initialize(!m_bkgInputKey.key().empty()) );
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_bkgInputKey );
@@ -92,7 +87,7 @@ StatusCode STGC_Overlay::execute(const EventContext& ctx) const {
 
 
   const sTgcDigitContainer *bkgContainerPtr = nullptr;
-  if (m_includeBkg) {
+  if (!m_bkgInputKey.empty()) {
     SG::ReadHandle<sTgcDigitContainer> bkgContainer (m_bkgInputKey, ctx);
     if (!bkgContainer.isValid()) {
       ATH_MSG_ERROR("Could not get background sTGC container " << bkgContainer.name() << " from store " << bkgContainer.store());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,31 +21,42 @@ HLT.
 @section SCT_Cabling_SCT_CablingOverview Class Overview
   SCT_Cabling contains the following classes:
   
-   - ISCT_CablingSvc: Pure Abstract Baseclass giving accessor methods for SCT_CablingSvc. This is
+   - ISCT_CablingTool: Pure Abstract Baseclass giving accessor methods for SCT_CablingTool. This is
    the main interface for clients.
     
-   - SCT_CablingSvc: Inheriting from ISCT_CablingSvc, IIncidentListener and Service: Provides both 
-   accessor methods and filling methods for the data structures it holds.
+   - SCT_CablingTool: Inheriting from ISCT_CablingTool and AthAlgTool: Provides
+   accessor methods for the data structures it reads using SG::ReadCondHandle.
+   The data are prepared by SCT_CablingCondAlgFromCoraCool or SCT_CablingCondAlgFromText.
    
-   - ISCT_FillCabling: Interface for the SCT_Fillxxxx methods which are used to fill the data structures
-   in SCT_CablingSvc.
+   - SCT_CablingToolInc: Inheriting from ISCT_CablingTool, IIncidentListener and
+   AthAlgTool: Provides accessor methods for the data structures it holds using
+   incident of ISCT_FillCabling. This class is now used only by RegSelSvc.
    
-   - SCT_FillCablingFromText: Inheriting from ISCT_FillCabling and Service, this is used to fill the 
-   cabling data from a text file.
+   - ISCT_FillCabling: Interface for the SCT_Fillxxxx classes which are used to fill the data structures
+   in SCT_CablingToolInc.
    
-   - SCT_FillCablingFromCoraCool: Inheriting from ISCT_FillCabling and Service, this is used to fill the
+   - SCT_FillCablingFromCoraCool: Inheriting from ISCT_FillCabling and AthAlgTool, this is used to fill the
    cabling from the database, in CoraCool or Cool Vector Payload format.
    
-   - SCT_FillCablingFromCoolVector: Inheriting from ISCT_FillCabling and Service, this is used to fill the
-   cabling from the database, in Cool Vector Payload format. In fact this is currently redundant, since the 
-   necessary changes were accommodated in the SCT_FillCablingFromCoraCool class.
+   - SCT_FillCablingFromText: Inheriting from ISCT_FillCabling and AthAlgTool, this is used to fill the 
+   cabling data from a text file.
    
    - SCT_OnlineId: A stand-alone class for the online id, which is an encoding of the rod and fibre used
    to readout a particular module.
    
    - SCT_SerialNumber: A stand-alone class for the serial number, which is a 14 digit code associated with
    each SCT module at its manufactire.
-   
+
+   - SCT_CablingData: A class to hold the data necessary for SCT_CablingTool and SCT_CablingToolInc.
+   This class is filled by SCT_CablingCondAlgFromCoraCool or SCT_CablingCondAlgFromText for
+   SCT_CablingTool, and SCT_CablingCondAlgFromCoraCool or SCT_FillCablingFromText for SCT_CablingToolInc.
+
+   - SCT_CablingCondAlgFromCoraCool: A condition algorithm for SCT_CablingTool and corresponds to
+   SCT_FillCablingFromCoraCool for SCT_CablingToolInc. This is used to fill the cabling from the database.
+
+   - SCT_CablingCondAlgFromText: A condition algorithm for SCT_CablingTool and corresponds to
+   SCT_FillCablingFromText for SCT_CablingToolInc. This is used to fill the cabling from a text file.
+
    - SCT_TestCablingAlg: A test algorithm which instantiates the cabling service and loops over all possible
    modules, calling methods to show the online Id and serial number for each one.
  
@@ -53,9 +64,11 @@ HLT.
 @image html structureDiag.png "SCT_Cabling class structure" width=8cm
 @endinternal
    
-@section SCT_Cabling_SCT_CablingSvcDetail SCT_CablingSvc in Detail
-  SCT_CablingSvc is accessed by clients through its ISCT_CablingSvc interface. This provides access only to the 'getter' methods. In addition, it inherits from the IIncidentListener so that it can fill data (if appropriate) at the BeginRun incident. The 'setter' method is only accessible to users of the full class, in this case the fillers: SCT_FillCablingFromText and SCT_FillCablingFromCoraCool. These share a common baseclass and they are passed a pointer to the full SCT_CablingSvc to enable them to fill it. The decision as to which filler is to be instantiated is made by job options: the property 'DataSource' may be set to CORACOOL, in which case the database filler is used, or to a text filename, in which case the text filler is used.
-  The filler classes may report whether they can fill during the initialize phase, or need to wait for 'BeginRun'. 
+@section SCT_Cabling_SCT_CablingToolDetail SCT_CablingTool in Detail
+  SCT_CablingTool is accessed by clients through its ISCT_CablingTool interface. This provides access only to the 'getter' methods. The cabling data are prepared by a condition algorithm (SCT_CablingCondAlgFromCoraCool or SCT_CablingCondAlgFromText)from the database or a text file and the data are read by SCT_CablingTool using SG::ReadCondHandle.
+  
+@section SCT_Cabling_SCT_CablingToolIncDetail SCT_CablingToolInc in Detail
+  SCT_CablingToolInc is accessed by clients through its ISCT_CablingTool interface. This provides access only to the 'getter' methods. In addition, it inherits from the IIncidentListener so that it can fill data (if appropriate) at the BeginRun incident. The 'setter' method is only accessible to users of the full class, in this case the fillers: SCT_FillCablingFromText and SCT_FillCablingFromCoraCool. These share a common baseclass and they are passed a pointer to the full SCT_CablingSvc to enable them to fill it. The decision as to which filler is to be instantiated is made by job options: the property 'DataSource' may be set to CORACOOL, in which case the database filler is used, or to a text filename, in which case the text filler is used. The filler classes may report whether they can fill during the initialize phase, or need to wait for 'BeginRun'. This class is now used only by RegSelSvc. Retrieve SCT_CablingToolInc in initialize of RegSelSvc so that SCT_RegionSelectorTable can use ready SCT_CablingToolInc in BeginRun incident.
 
    
    **/

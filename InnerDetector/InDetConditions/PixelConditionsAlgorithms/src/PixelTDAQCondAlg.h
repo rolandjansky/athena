@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
+/**
+ * @file PixelConditionsAlgorithms/PixelTDAQCondAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Store pixel TDAQ module state to PixelTDAQData.
+ */
 
 #ifndef PIXELTDAQCONDALG
 #define PIXELTDAQCONDALG
@@ -12,6 +18,7 @@
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelTDAQData.h"
 
 #include "InDetIdentifier/PixelID.h"
 
@@ -25,15 +32,20 @@ class PixelTDAQCondAlg : public AthReentrantAlgorithm {
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
-    virtual StatusCode finalize() override;
 
   private:
-    const PixelID* m_pixelID;
+    const PixelID* m_pixelID{nullptr};
+    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules", "Input key of TDAQ deadmap conditions folder"};
-    SG::WriteCondHandleKey<PixelModuleData> m_writeKey{this, "WriteKey", "PixelTDAQCondData", "Output key of pixel module data"};
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+    {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
+    {this, "ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules", "Input key of TDAQ deadmap conditions folder"};
+
+    SG::WriteCondHandleKey<PixelTDAQData> m_writeKey
+    {this, "WriteKey", "PixelTDAQCondData", "Output key of pixel module data"};
+
 };
 
-#endif // PIXELDEADMAPCONDALG
+#endif

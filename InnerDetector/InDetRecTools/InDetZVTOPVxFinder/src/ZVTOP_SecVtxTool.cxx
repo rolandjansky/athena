@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ StatusCode InDet::ZVTOP_SecVtxTool::finalize()
 //===========================================================================================
 // TrackParticle
 //===========================================================================================
-const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVertex & primaryVertex,
+Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVertex & primaryVertex,
 								const TLorentzVector & jetMomentum,
 								const std::vector<const Trk::TrackParticleBase*> & inputTracks) const
 {
@@ -396,7 +396,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::Re
 //for xAOD::IParticle --David S.
 //Added purely to satisfy new inheritance in ISecVertexInJetFinder, not yet implemented
 /////////////////////////////////////////////////////////////////////////////////////////
-const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const xAOD::Vertex & /*primaryVertex*/, const TLorentzVector & /*jetMomentum*/,const std::vector<const xAOD::IParticle*> & /*inputTracks*/) const {
+Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const xAOD::Vertex & /*primaryVertex*/, const TLorentzVector & /*jetMomentum*/,const std::vector<const xAOD::IParticle*> & /*inputTracks*/) const {
 
   if(msgLvl(MSG::DEBUG)){
     msg(MSG::DEBUG) << "No ZVTOP_SecVtxTool implementation for xAOD::IParticle" << endmsg;
@@ -411,7 +411,7 @@ const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const xAOD::V
 ////////////////////////////////////////////////////////////
 //for Trk::Track
 ///////////////////////////////////////////////////////////
-const Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVertex & primaryVertex,const TLorentzVector & jetMomentum, const std::vector<const Trk::Track*> & inputTracks) const
+Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVertex & primaryVertex,const TLorentzVector & jetMomentum, const std::vector<const Trk::Track*> & inputTracks) const
 {
   //std::vector<Trk::VxCandidate*> secVertices; --David S.
   std::vector<xAOD::Vertex*> secVertices;

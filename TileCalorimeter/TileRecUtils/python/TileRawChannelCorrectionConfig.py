@@ -3,6 +3,7 @@
 """Define method to construct configured Tile correction tools and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileRawChannelOF1CorrectorCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile OF1 raw channel correction tool
@@ -44,7 +45,7 @@ def TileRawChannelOF1CorrectorCfg(flags, **kwargs):
             kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
 
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector
+    TileRawChannelOF1Corrector=CompFactory.TileRawChannelOF1Corrector
     acc.setPrivateTools( TileRawChannelOF1Corrector(**kwargs) )
 
     return acc
@@ -81,7 +82,7 @@ def TileRawChannelNoiseFilterCfg(flags, **kwargs):
         badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
         kwargs['TileBadChanTool'] = badChanTool
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
+    TileRawChannelNoiseFilter=CompFactory.TileRawChannelNoiseFilter
     acc.setPrivateTools( TileRawChannelNoiseFilter(**kwargs) )
 
     return acc
@@ -128,7 +129,7 @@ def TileRawChannelCorrectionAlgCfg(flags, **kwargs):
     if 'NoiseFilterTools' not in kwargs:
         kwargs['NoiseFilterTools'] = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelCorrectionAlg
+    TileRawChannelCorrectionAlg=CompFactory.TileRawChannelCorrectionAlg
     acc.addEventAlgo(TileRawChannelCorrectionAlg(**kwargs), primary = True)
 
     return acc
@@ -164,7 +165,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelCorrection.pkl','w') )
+    acc.store( open('TileRawChannelCorrection.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -95,7 +95,7 @@ condSeq+=CondAlgY("CondAlgY1", OutputLevel=DEBUG, Key_CH1="Y1", Key_CH2="Y2", Ke
 condDbFile = "condDb.txt"
 import os
 import string
-for dir in string.split( (".:"+os.environ.get('DATAPATH')),":"):
+for dir in (".:"+os.environ.get('DATAPATH')).split (':'):
    cdb = os.path.join(dir,condDbFile)
    if (os.path.isfile( cdb ) ) :
       found = 1
@@ -146,7 +146,7 @@ if (nProc > 0) :
 
 
 
-print "==========================================================================================\n"
+printfunc ("==========================================================================================\n")
 
 #
 ## set which Algorithms can be cloned

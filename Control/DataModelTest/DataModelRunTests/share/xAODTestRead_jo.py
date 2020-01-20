@@ -33,15 +33,6 @@ include ('DataModelRunTests/loadReadDicts.py')
 #--------------------------------------------------------------
 svcMgr.EventSelector.InputCollections        = [ "xaoddata.root" ]
 
-from IOVSvc.IOVSvcConf import MetaInputLoader
-metain = MetaInputLoader()
-metain.Dump = True
-metain.Load = [('DMTest::S1', 'MetaS1'),
-               ('DMTest::C', 'MetaC'),
-               ('DMTest::CInfoAuxContainer', 'MetaCAux.'),
-              ]
-topSequence += metain
-
 #--------------------------------------------------------------
 # Define output
 #--------------------------------------------------------------
@@ -114,8 +105,7 @@ theApp.EvtMax = 20
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__xAODTestReadCVec, \
-     DMTest__xAODTestDecor, \
-     DMTest__MetaReaderAlg
+     DMTest__xAODTestDecor
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCInfo, \
      DMTest__xAODTestRead, \
@@ -125,14 +115,14 @@ from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestShallowCopy
 
 
-topSequence += DMTest__MetaReaderAlg()
-
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
                                          WriteKey = 'copy_cvec')
 topSequence += DMTest__xAODTestReadCInfo ('xAODTestReadCInfo',
                                           WriteKey = 'copy_cinfo')
 topSequence += DMTest__xAODTestRead ('xAODTestRead',
-                                     WritePrefix = 'copy_')
+                                     CTrigWriteKey = 'copy_ctrig',
+                                     GVecWriteKey = 'copy_gvec',
+                                     CVecWDWriteKey = 'copy_cvecWD')
 topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView',
                                           WriteKey = 'copy_cview')
 topSequence += DMTest__xAODTestReadHVec ('xAODTestReadHVec',
@@ -161,21 +151,7 @@ Stream1.ItemList   += fullItemList # List of DO's to write out
 theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
-#svcMgr.ExceptionSvc.Catch = "None"
-
 # Avoid races when running tests in parallel.
 FILECATALOG = 'xAODTestRead_catalog.xml'
-include ('DataModelRunTests/setCatalog.py')
+
+include ('DataModelRunTests/commonTrailer.py')

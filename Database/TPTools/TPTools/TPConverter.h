@@ -887,7 +887,7 @@ public:
   // It's an error if the non-key versions get called.
   virtual void persToTrans(const PERS* /*persObj*/,
                            TRANS* /*transObj*/,
-                           MsgStream& /*log*/) const override /*final*/
+                           MsgStream& /*log*/) const override final
   {
     throw std::runtime_error ("persToTrans called where persToTransWithKey required.");
   }
@@ -1266,11 +1266,10 @@ public:
 template<class TRANS, class PERS, class CONV>
 class TPCnvVectorConst : public TPConverterConstBase<TRANS, PERS> {
 public:
+  TPCnvVectorConst() {}
+
   using TPConverterConstBase<TRANS, PERS>::transToPers;
   using TPConverterConstBase<TRANS, PERS>::persToTrans;
-
-
-  TPCnvVectorConst() {}
 
   /// @copydoc TPPtrVectorCnv::persToTrans()
   virtual void persToTrans(const PERS* persVect, TRANS* transVect, MsgStream &log) const override;

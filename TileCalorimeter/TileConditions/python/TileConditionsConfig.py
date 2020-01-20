@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 def tileCondCfg( flags ):
 
     acc = ComponentAccumulator()
@@ -10,14 +11,14 @@ def tileCondCfg( flags ):
     def __addFolder(f):        
         acc.merge( addFolders( flags, '%s <key>%s</key>' %(f,f),   'TILE_OFL' if '/OFL' in f else 'TILE_ONL',  className="CondAttrListCollection") )
 
-    # from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
-    # from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerBch_ as TileCondProxyFileBch
-    from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
-    from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerBch_ as TileCondProxyCoolBch
-    # from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerOfc_ as TileCondProxyCoolOfc
+    #TileCondProxyFileFlt=CompFactory.TileCondProxyFile_TileCalibDrawerFlt_
+    #TileCondProxyFileBch=CompFactory.TileCondProxyFile_TileCalibDrawerBch_
+    TileCondProxyCoolFlt=CompFactory.TileCondProxyFile_TileCalibDrawerFlt_
+    TileCondProxyCoolBch=CompFactory.TileCondProxyCool_TileCalibDrawerBch_
+    #TileCondProxyCoolOfc=CompFactory.TileCondProxyCool_TileCalibDrawerOfc_
 
     emScale = 'TileEMScale'
-    from TileConditions.TileConditionsConf import TileEMScaleCondAlg
+    TileEMScaleCondAlg=CompFactory.TileEMScaleCondAlg
     emScaleCondAlg = TileEMScaleCondAlg(name = emScale + 'CondAlg', TileEMScale = emScale)
 
     # Defaults for offline data
@@ -45,12 +46,11 @@ def tileCondCfg( flags ):
 
     acc.addCondAlgo( emScaleCondAlg )
 
-    from TileConditions.TileConditionsConf import TileCondToolEmscale
+    TileCondToolEmscale=CompFactory.TileCondToolEmscale
     emScaleTool = TileCondToolEmscale(name = 'TileCondToolEmscale', TileEMScale = emScale)
     acc.addPublicTool( emScaleTool )
 
-
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.TileCalibCondAlg_TileCalibDrawerFlt_
     def __addCondAlg(calibData, proxy):
         calibCondAlg = calibData + 'CondAlg'
         condAlg = TileCalibFltCondAlg( name = calibCondAlg, ConditionsProxy = proxy, TileCalibData = calibData)
@@ -61,7 +61,7 @@ def tileCondCfg( flags ):
     sampleNoiseProxy = getTileCondProxyCoolFlt( 'TileCondProxyCool_NoiseSample', '/TILE/OFL02/NOISE/SAMPLE' )
     __addCondAlg(sampleNoise, sampleNoiseProxy)
 
-    from TileConditions.TileConditionsConf import TileCondToolNoiseSample
+    TileCondToolNoiseSample=CompFactory.TileCondToolNoiseSample
     noiseSampleTool = TileCondToolNoiseSample(name = 'TileCondToolNoiseSample', 
                                               TileSampleNoise = sampleNoise)
 
@@ -77,7 +77,7 @@ def tileCondCfg( flags ):
     timingProxy = getTileCondProxyCoolFlt('TileCondProxyCool_AdcOffset', '/TILE/OFL02/TIME/CHANNELOFFSET/PHY' )
     __addCondAlg(timing, timingProxy)
 
-    from TileConditions.TileConditionsConf import TileCondToolTiming
+    TileCondToolTiming=CompFactory.TileCondToolTiming
     timingTool = TileCondToolTiming(name = 'TileCondToolTiming', TileTiming = timing)
     acc.addPublicTool( timingTool )
 
@@ -87,13 +87,13 @@ def tileCondCfg( flags ):
 
 
     badChannels = 'TileBadChannels'
-    from TileConditions.TileConditionsConf import TileBadChannelsCondAlg
+    TileBadChannelsCondAlg=CompFactory.TileBadChannelsCondAlg
     badChannelsCondAlg = TileBadChannelsCondAlg( name = badChannels + 'CondAlg', TileBadChannels = badChannels)
     badChannelsCondAlg.OflBchProxy = getTileCondProxyCoolBch('TileCondProxyCool_OflBch', '/TILE/OFL02/STATUS/ADC' )
     badChannelsCondAlg.OnlBchProxy = getTileCondProxyCoolBch('TileCondProxyCool_OnlBch', '/TILE/ONL01/STATUS/ADC' )
     acc.addCondAlgo( badChannelsCondAlg )
 
-    from TileConditions.TileConditionsConf import TileBadChanTool
+    TileBadChanTool=CompFactory.TileBadChanTool
     badChanTool = TileBadChanTool(name = 'TileBadChanTool', TileBadChannels = badChannels)
     acc.addPublicTool( badChanTool )
 
@@ -108,7 +108,7 @@ def tileCondCfg( flags ):
                                   '/LAR/'+badchannelsfolder+'/MissingFEBs'], dbname))
     
 
-    from TileConditions.TileConditionsConf import TileInfoLoader, TileCablingSvc
+    TileInfoLoader, TileCablingSvc=CompFactory.getComps("TileInfoLoader","TileCablingSvc",)
     infoLoaderSvc = TileInfoLoader()
     infoLoaderSvc.NoiseScaleIndex= 2
     acc.addService( infoLoaderSvc ) 

@@ -3,7 +3,6 @@
 */
 #include "SimpleMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 
 using namespace Muon;
@@ -94,6 +93,9 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     MMflag[i] = 1;
     mergeIndices.push_back(i);
     mergeStrips.push_back(strip);
+    mergeStripsTime.push_back(MMprds[i].time()-MMprds[i].globalPosition().norm()/299.792);
+    mergeStripsCharge.push_back(MMprds[i].charge());
+
     unsigned int nmergeStrips = 1;
     unsigned int nmergeStripsMax = 50;
     for (unsigned int k=0; k < nmergeStripsMax; ++k) {
@@ -114,7 +116,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
-      mergeStripsTime.push_back(MMprds[j].time());
+      mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
       mergeStripsCharge.push_back(MMprds[j].charge());
 	    nmergeStrips++;
 	  }
@@ -174,8 +176,10 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
-    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, rdoList, covN, MMprds[j].detectorElement(),
-                                      (short int)0,int(totalCharge),mergeStrips,mergeStripsTime,mergeStripsCharge);
+    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, 
+				      rdoList, covN, MMprds[j].detectorElement(),
+                                      (short int)0,int(totalCharge),(float)0.0,
+				      mergeStrips,mergeStripsTime,mergeStripsCharge);
     clustersVect.push_back(prdN);
   } // end loop MMprds[i]
   //clear vector and delete elements

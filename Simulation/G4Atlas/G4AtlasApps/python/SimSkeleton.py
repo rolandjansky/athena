@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from G4AtlasApps import AtlasG4Eng
 
 from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
@@ -314,8 +316,8 @@ class SimSkeleton(object):
             try:
                 AtlasG4Eng.G4Eng.log.debug('SimSkeleton._do_PreInit :: evaluating method ' + k)
                 getattr(cls, k).__call__()
-            except Exception, err:
-                print "Error: %s" % str(err)
+            except Exception as err:
+                print ("Error: %s" % str(err))
                 import traceback,sys
                 traceback.print_exc(file=sys.stdout)
                 raise RuntimeError('SimSkeleton._do_PreInit :: found problems with the method  %s' % k)
@@ -343,8 +345,8 @@ class SimSkeleton(object):
             try:
                 AtlasG4Eng.G4Eng.log.debug('SimSkeleton :: evaluating method ' +k)
                 getattr(cls, k).__call__()
-            except Exception, err:
-                print "Error: %s" % str(err)
+            except Exception as err:
+                print ("Error: %s" % str(err))
                 import traceback, sys
                 traceback.print_exc(file = sys.stdout)
                 raise RuntimeError('SimSkeleton: found problems with the method  %s' % k)
@@ -354,8 +356,8 @@ class SimSkeleton(object):
                try:
                    AtlasG4Eng.G4Eng.log.debug('SimSkeleton :: evaluating method %s' % i)
                    getattr(cls, i).__call__()
-               except Exception, err:
-                   print "Error: %s" % str(err)
+               except Exception as err:
+                   print ("Error: %s" % str(err))
                    import traceback, sys
                    traceback.print_exc(file=sys.stdout)
                    raise RuntimeError('SimSkeleton: found problems with the method %s' % i)

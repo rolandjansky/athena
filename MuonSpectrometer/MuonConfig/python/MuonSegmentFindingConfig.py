@@ -6,6 +6,7 @@
 # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py
 # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py
 # from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/CscTools.py
+from AthenaConfiguration.ComponentFactory import CompFactory
 #
 # and algorithms which are defined in several places:
 # 
@@ -17,10 +18,10 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Muon
-# from CscSegmentMakers.CscSegmentMakersConf import Csc2dSegmentMaker, Csc4dSegmentMaker
-from DCMathSegmentMaker.DCMathSegmentMakerConf import Muon__DCMathSegmentMaker, Muon__MdtMathSegmentFinder, Muon__MuonSegmentFittingTool, Muon__MuonClusterSegmentFinderTool
-from MuonSegmentSelectionTools.MuonSegmentSelectionToolsConf import Muon__MuonSegmentSelectionTool
-from MuonClusterSegmentMakerTools.MuonClusterSegmentMakerToolsConf import Muon__MuonClusterSegmentFinder
+# Csc2dSegmentMaker, Csc4dSegmentMaker=CompFactory.getComps("Csc2dSegmentMaker","Csc4dSegmentMaker",)
+Muon__DCMathSegmentMaker, Muon__MdtMathSegmentFinder, Muon__MuonSegmentFittingTool, Muon__MuonClusterSegmentFinderTool=CompFactory.getComps("Muon__DCMathSegmentMaker","Muon__MdtMathSegmentFinder","Muon__MuonSegmentFittingTool","Muon__MuonClusterSegmentFinderTool",)
+Muon__MuonSegmentSelectionTool=CompFactory.Muon__MuonSegmentSelectionTool
+Muon__MuonClusterSegmentFinder=CompFactory.Muon__MuonClusterSegmentFinder
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should maybe move this somewhere else?
 
 #Local
@@ -30,7 +31,7 @@ from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, M
 def MuonHoughPatternFinderTool(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173     from MuonHoughPatternTools/MuonHoughPatternToolsConf import Muon__MuonHoughPatternFinderTool
 
-    from MuonHoughPatternTools.MuonHoughPatternToolsConf import Muon__MuonHoughPatternFinderTool
+    Muon__MuonHoughPatternFinderTool=CompFactory.Muon__MuonHoughPatternFinderTool
     
     # TODO
     # getPublicTool("MuonCombinePatternTool")
@@ -44,7 +45,7 @@ def MuonCurvedSegmentCombiner(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L74
     # The original code seems very odd. The default MissedHitsCut is 100 by default, and the rest of it is a bit tortuous.
     # I've tried to clean it up, but might have made mistakes. 
-    from MuonCurvedSegmentCombiner.MuonCurvedSegmentCombinerConf import Muon__MuonCurvedSegmentCombiner 
+    Muon__MuonCurvedSegmentCombiner =CompFactory.Muon__MuonCurvedSegmentCombiner
     if flags.Beam.Type!= 'collisions' :
         kwargs.setdefault( "AddUnassociatedMiddleEndcapSegments", False )
     elif flags.Input.isMC:
@@ -73,7 +74,7 @@ def AdjustableT0Tool(flags,**kwargs):
     else: # collisions simulation final precise cuts
         kwargs.setdefault("DoTof", 1)
         
-    from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import AdjT0__AdjustableT0Tool
+    AdjT0__AdjustableT0Tool=CompFactory.AdjT0__AdjustableT0Tool
     return AdjT0__AdjustableT0Tool(**kwargs)
 
 def MdtMathSegmentFinder(flags,name="MdtMathSegmentFinder", **kwargs):
@@ -133,7 +134,7 @@ def MuonSegmentFittingToolCfg(flags, **kwargs):
     return result
 
 def DCMathSegmentMakerCfg(flags, **kwargs):    
-    from MdtSegmentT0Fitter.MdtSegmentT0FitterConf import TrkDriftCircleMath__MdtSegmentT0Fitter
+    TrkDriftCircleMath__MdtSegmentT0Fitter=CompFactory.TrkDriftCircleMath__MdtSegmentT0Fitter
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, MuonClusterOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg
      
@@ -250,7 +251,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
 
 
 def MuonPatternSegmentMakerCfg(flags, **kwargs):
-    from MuonPatternSegmentMaker.MuonPatternSegmentMakerConf import Muon__MuonPatternSegmentMaker
+    Muon__MuonPatternSegmentMaker=CompFactory.Muon__MuonPatternSegmentMaker
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, MuonClusterOnTrackCreatorCfg
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L49
     
@@ -297,7 +298,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
     
 def CscAlignmentTool(flags, **kwargs):
 
-    from CscClusterization.CscClusterizationConf import CscAlignmentTool
+    CscAlignmentTool=CompFactory.CscAlignmentTool
     etaposAlignConsts = [ # 1st, 2nd, 3rd, 4th layer 
         0.0,   -0.0902347,   -0.0984321,    -0.141175, #sector -16
         0.0,    -0.166412,    -0.150399,     -0.18592, #sector -15
@@ -376,7 +377,7 @@ def CscAlignmentTool(flags, **kwargs):
 
 def QratCscClusterFitterCfg(flags, **kwargs):
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/CscTools.py#L151
-    from CscClusterization.CscClusterizationConf import QratCscClusterFitter
+    QratCscClusterFitter=CompFactory.QratCscClusterFitter
     result=ComponentAccumulator()
     qratcor_css_eta = [
         0.000000, 0.000000, 0.000000, 0.000000, 0.0699381, 0.178291, 0.271303, 0.345611, 
@@ -406,7 +407,7 @@ def QratCscClusterFitterCfg(flags, **kwargs):
     return result
 
 def CalibCscStripFitterCfg(flags, name = "CalibCscStripFitter",**kwargs):
-    from CscClusterization.CscClusterizationConf import CalibCscStripFitter
+    CalibCscStripFitter=CompFactory.CalibCscStripFitter
     from MuonConfig.MuonCalibConfig import CscCalibToolCfg
     result = CscCalibToolCfg(flags)
     kwargs.setdefault("cscCalibTool", result.popPrivateTools() )
@@ -414,7 +415,7 @@ def CalibCscStripFitterCfg(flags, name = "CalibCscStripFitter",**kwargs):
     return result
 
 def CscClusterUtilToolCfg(flags, name='CscClusterUtilTool', **kwargs):
-    from CscClusterization.CscClusterizationConf import CscClusterUtilTool
+    CscClusterUtilTool=CompFactory.CscClusterUtilTool
     
     result = CalibCscStripFitterCfg(flags)
     kwargs.setdefault("strip_fitter", result.popPrivateTools() )
@@ -426,7 +427,7 @@ def CscClusterUtilToolCfg(flags, name='CscClusterUtilTool', **kwargs):
     return result
 
 def CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool', **kwargs):
-    from CscSegmentMakers.CscSegmentMakersConf import CscSegmentUtilTool
+    CscSegmentUtilTool=CompFactory.CscSegmentUtilTool
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg
     from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
     
@@ -442,7 +443,7 @@ def CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool', **kwargs):
     return result
 
 def Csc2dSegmentMakerCfg(flags, name= "Csc2dSegmentMaker", **kwargs):
-    from CscSegmentMakers.CscSegmentMakersConf import Csc2dSegmentMaker
+    Csc2dSegmentMaker=CompFactory.Csc2dSegmentMaker
     result=ComponentAccumulator()
     if 'segmentTool' not in kwargs:
         acc  = CscSegmentUtilToolCfg(flags)
@@ -457,7 +458,7 @@ def Csc2dSegmentMakerCfg(flags, name= "Csc2dSegmentMaker", **kwargs):
     return result
 
 def Csc4dSegmentMakerCfg(flags, name= "Csc4dSegmentMaker", **kwargs):
-    from CscSegmentMakers.CscSegmentMakersConf import Csc4dSegmentMaker
+    Csc4dSegmentMaker=CompFactory.Csc4dSegmentMaker
     
     result=ComponentAccumulator()
     acc= CscSegmentUtilToolCfg(flags)
@@ -474,9 +475,9 @@ def Csc4dSegmentMakerCfg(flags, name= "Csc4dSegmentMaker", **kwargs):
 def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L99 
     
-    from MuonHoughPatternTools.MuonHoughPatternToolsConf import Muon__MuonLayerHoughTool
-    from MuonSegmentOverlapRemovalTools.MuonSegmentOverlapRemovalToolsConf import Muon__MuonSegmentCombinationCleanerTool
-    from MooSegmentCombinationFinder.MooSegmentCombinationFinderConf import Muon__MooSegmentCombinationFinder
+    Muon__MuonLayerHoughTool=CompFactory.Muon__MuonLayerHoughTool
+    Muon__MuonSegmentCombinationCleanerTool=CompFactory.Muon__MuonSegmentCombinationCleanerTool
+    Muon__MooSegmentCombinationFinder=CompFactory.Muon__MooSegmentCombinationFinder
 
     result=ComponentAccumulator()
 
@@ -607,7 +608,7 @@ def MuonClusterSegmentFinderCfg(flags, **kwargs):
 
 def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py#L113
-    from MooSegmentCombinationFinder.MooSegmentCombinationFinderConf import MooSegmentFinderAlg
+    MooSegmentFinderAlg=CompFactory.MooSegmentFinderAlg
     result=ComponentAccumulator()
     
     if 'SegmentFinder' not in kwargs:
@@ -694,7 +695,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
 
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 
@@ -774,14 +775,14 @@ if __name__=="__main__":
     if args.threads>1 and args.forceclone:
         log.info('Forcing segment finding cardinality to be equal to '+str(args.threads))
         # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
-        from GaudiHive.GaudiHiveConf import AlgResourcePool
+        AlgResourcePool=CompFactory.AlgResourcePool
         cfg.addService(AlgResourcePool( OverrideUnClonable=True ) )
         segment_finder = acc.getPrimary()
         segment_finder.Cardinality=args.threads
 
     # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
     # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
-    from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
     pps = ProxyProviderSvc()
     ars=AddressRemappingSvc()
     pps.ProviderNames += [ 'AddressRemappingSvc' ]

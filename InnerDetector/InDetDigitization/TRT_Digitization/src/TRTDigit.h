@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTDIGIT_H
-#define TRTDIGIT_H
+#ifndef TRT_DIGITIZATION_TRTDIGIT_H
+#define TRT_DIGITIZATION_TRTDIGIT_H
 
 /**
  * Class for TRT digits

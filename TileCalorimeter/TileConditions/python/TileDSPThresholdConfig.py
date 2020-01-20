@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile DSP threshold conditions tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def TileDSP_ThresholdCondAlgCfg(flags, **kwargs):
@@ -74,7 +75,7 @@ def TileCondToolDspThresholdCfg(flags, **kwargs):
 
     acc.merge( TileDSP_ThresholdCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolDspThreshold
+    TileCondToolDspThreshold=CompFactory.TileCondToolDspThreshold
     acc.setPrivateTools( TileCondToolDspThreshold(TileDSP_Threshold = dspThreshold) )
 
     return acc
@@ -102,7 +103,7 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileDSP_Threshold.pkl','w') )
+    acc.store( open('TileDSP_Threshold.pkl','wb') )
 
     print('All OK')
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_TDDigiCollection_p1_h
@@ -24,7 +24,6 @@ public:
 	const std::string&  name() const { return m_name; }
 	const HitVector&    getVector() const {return m_cont;}
 
-private:
 	std::string m_name;
 	std::vector<AFP_TDDigi_p1> m_cont;
 };

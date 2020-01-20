@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSELECTORATHENAPOOL_H
@@ -21,15 +21,13 @@
 #include "AthenaKernel/IAthenaSelectorTool.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
+#include "AthenaKernel/ISecondaryEventSelector.h"
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <map>
 
 // Forward declarations
-namespace pool {
-   class ICollectionCursor;
-}
 class IIncidentSvc;
 class IOpaqueAddress;
 class ISvcLocator;
@@ -37,12 +35,15 @@ class EventContextAthenaPool;
 class PoolCollectionConverter;
 class ActiveStoreSvc;
 class StoreGateSvc;
+namespace pool {
+   class ICollectionCursor;
+}
 
 /** @class EventSelectorAthenaPool
  *  @brief This class is the EventSelector for event data.
  **/
 class EventSelectorAthenaPool :
-  public extends<::AthService, IEvtSelector, IEvtSelectorSeek, IEventShare, IIoComponent, IIncidentListener>
+  public extends<::AthService, IEvtSelector, IEvtSelectorSeek, IEventShare, IIoComponent, IIncidentListener, ISecondaryEventSelector>
 {
 
 public: // Constructor and Destructor
@@ -59,6 +60,9 @@ public: // Constructor and Destructor
    /// Does this object satisfy a given interface?  See Gaudi documentation for details.
    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
+   //-------------------------------------------------
+   // IEventSelector
+   /// @brief create context
    virtual StatusCode createContext(IEvtSelector::Context*& ctxt) const override;
 
    /// @param ctxt [IN/OUT] current event context is interated to next event.
@@ -91,6 +95,8 @@ public: // Constructor and Destructor
    /// @param ctxt [IN] current event context.
    virtual StatusCode resetCriteria(const std::string& criteria, IEvtSelector::Context& ctxt) const override;
 
+   //-------------------------------------------------
+   // IEventSelectorSeek
    /// Seek to a given event number.
    /// @param ctxt [IN/OUT] current event context.
    /// @param evtnum [IN]  The event number to which to seek.
@@ -100,6 +106,12 @@ public: // Constructor and Destructor
    /// @param ctxt [IN/OUT] current event context.
    virtual int curEvent (const Context& ctxt) const override;
 
+   /// Return the size of the collection.
+   /// @param ctxt [IN/OUT] current event context.
+   virtual int size (Context& ctxt) const override;
+
+   //-------------------------------------------------
+   // IEventShare
    /// Make this a server.
    virtual StatusCode makeServer(int num) override;
 
@@ -114,17 +126,31 @@ public: // Constructor and Destructor
    /// @param evtnum [IN]  The number of events to read.
    virtual StatusCode readEvent(int maxevt) override;
 
-   /// Return the size of the collection.
-   /// @param ctxt [IN/OUT] current event context.
-   virtual int size (Context& ctxt) const override;
-
+   //-------------------------------------------------
+   // IIoComponent
    /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
    virtual StatusCode io_reinit() override;
    /// Callback method to finalize the internal state of the component for I/O purposes (e.g. before @c fork(2))
    virtual StatusCode io_finalize() override;
 
+   //-------------------------------------------------
+   // IIncidentListener
    /// Incident service handle listening for BeginProcessing and EndProcessing
    virtual void handle(const Incident& incident) override;
+
+protected:
+   //-------------------------------------------------
+   // ISecondaryEventSelector
+   /// Handle file transition at the next iteration
+   virtual StatusCode nextHandleFileTransition(IEvtSelector::Context& ctxt) const override;
+   /// Sync event count
+   virtual void syncEventCount(int count) const override;
+   /// Record AttributeList in StoreGate
+   virtual StatusCode recordAttributeList() const override;
+   /// Fill AttributeList with specific items from the selector and a suffix
+   virtual StatusCode fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool copySource) const override;
+   // Disconnect DB if all events from the source FID were processed and the Selector moved to another file
+   virtual bool disconnectIfFinished(SG::SourceID fid) const override;
 
 private: // internal member functions
    /// Return pointer to active event SG
@@ -133,16 +159,10 @@ private: // internal member functions
    StatusCode reinit();
    /// Return pointer to new PoolCollectionConverter
    PoolCollectionConverter* getCollectionCnv(bool throwIncidents = false) const;
-   /// Record AttributeList in StoreGate
-   StatusCode recordAttributeList() const;
-   /// Search for event number evtNum.
+   /// Search for event with number evtNum.
    int findEvent(int evtNum) const;
-
    /// Fires the EndInputFile incident (if there is an open file) at end of selector
    void fireEndFileIncidents(bool isLastFile) const;
-
-   // Disconnect DB if all events from the source FID were processed and the Selector moved to another file
-   bool disconnectIfFinished( SG::SourceID fid ) const;
 
 private: // data
    mutable EventContextAthenaPool* m_beginIter{};
@@ -159,6 +179,8 @@ private: // data
    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
 
 private: // properties
+   /// IsSecondary, know if this is an instance of secondary event selector
+   Gaudi::Property<bool> m_isSecondary{this, "IsSecondary", false, ""};
    /// ProcessMetadata, switch on firing of FileIncidents which will trigger processing of metadata: default = true.
    Gaudi::Property<bool> m_processMetadata{this, "ProcessMetadata", true, ""};
    /// CollectionType, type of the collection: default = "ImplicitROOT".
@@ -218,6 +240,10 @@ private: // properties
 
    typedef std::mutex CallMutex;
    mutable CallMutex m_callLock;
+
+   /// @brief make the @c DoubleEventSelectorAthenaPool a friend so it can access the 
+   ///        internal @c EventSelectorAthenaPool methods and members
+   friend class DoubleEventSelectorAthenaPool;
 };
 
 #endif

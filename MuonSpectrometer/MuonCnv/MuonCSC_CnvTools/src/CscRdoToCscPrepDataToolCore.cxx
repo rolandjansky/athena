@@ -130,6 +130,12 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
     return StatusCode::SUCCESS;
   }
 
+  //These collections can be empty for the trigger
+  if(!m_outputCollection || m_outputCollection->size()==0){
+    ATH_MSG_DEBUG("Stored empty collection.");
+    return StatusCode::SUCCESS;
+  }
+
   // identifiers of collections already decoded and stored in the container will be skipped
   if (m_outputCollection->indexFind(givenHashId) != m_outputCollection->end()) {
     decodedIdhs.push_back(givenHashId);

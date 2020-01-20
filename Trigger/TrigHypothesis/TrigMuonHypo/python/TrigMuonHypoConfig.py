@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from TrigMuonHypo.TrigMuonHypoConf import *
 from TrigMuonHypo.TrigMuonHypoMonitoring import *
 from AthenaCommon.SystemOfUnits import GeV
@@ -7,6 +9,7 @@ from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from functools import reduce
 import re
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
@@ -416,8 +419,8 @@ class MufastHypoConfig(MufastHypo) :
                 self.PtThresholdForECWeakBRegionA = spThres[0] * GeV
                 self.PtThresholdForECWeakBRegionB = spThres[1] * GeV
             else:
-                print 'MufastHypoConfig: No special thresholds for EC weak Bfield regions for',threshold
-                print 'MufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
+                print ('MufastHypoConfig: No special thresholds for EC weak Bfield regions for',threshold)
+                print ('MufastHypoConfig: -> Copy EC1 for region A, EC2 for region B')
                 spThres = values[0][1]
                 if threshold == '2GeV' or threshold == '3GeV':
                     self.PtThresholdForECWeakBRegionA = spThres[0] * GeV
@@ -425,7 +428,7 @@ class MufastHypoConfig(MufastHypo) :
                 else:
                     self.PtThresholdForECWeakBRegionA = spThres[1] * GeV
                     self.PtThresholdForECWeakBRegionB = spThres[2] * GeV
-                print 'MufastHypoConfig: -> Thresholds for A/B=',self.PtThresholdForECWeakBRegionA,'/',self.PtThresholdForECWeakBRegionB
+                print ('MufastHypoConfig: -> Thresholds for A/B=',self.PtThresholdForECWeakBRegionA,'/',self.PtThresholdForECWeakBRegionB)
             
         except LookupError:
             if (threshold=='passthrough'):
@@ -443,7 +446,7 @@ class MufastHypoConfig(MufastHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class MufastStauHypoConfig(MufastStauHypo) :
@@ -479,13 +482,13 @@ class MufastStauHypoConfig(MufastStauHypo) :
 	
         self.AthenaMonTools = [ validation, online, cosmic ]
         if (args[0]=='Tight'):
-            print "sofia OK"
+            print ("sofia OK")
             self.EtaCut = True
  
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class MufastPEBHypoConfig(MufastPEBHypo) :
@@ -564,7 +567,7 @@ class MucombHypoConfig(MucombHypo) :
         super( MucombHypoConfig, self ).__init__( name )
 
         threshold = args[1]
-        print 'MucombHypoConfig configured for threshold: ',threshold
+        print ('MucombHypoConfig configured for threshold: ',threshold)
 
         try:
             values = muCombThresholds[threshold]
@@ -594,7 +597,7 @@ class MucombHypoConfig(MucombHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class MucombStauHypoConfig(MucombStauHypo) :
@@ -635,7 +638,7 @@ class MucombStauHypoConfig(MucombStauHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class MuisoHypoConfig(MuisoHypo):
@@ -663,7 +666,7 @@ class MuisoHypoConfig(MuisoHypo):
         if len(args) == 2:
             if (args[1]=='passthrough'):
                 self.AcceptAll = True
-                print 'MuisoHypoConfig configured in pasthrough mode'
+                print ('MuisoHypoConfig configured in pasthrough mode')
 
         if "FTK" in name: # allows us to use different working points in FTK mode
             self.IDConeSize   = 2;
@@ -676,7 +679,7 @@ class MuisoHypoConfig(MuisoHypo):
             self.MaxIDIso_2   = 0.1
             self.MaxIDIso_3   = 0.1
 
-        print 'MuisoHypoConfig configuration done'
+        print ('MuisoHypoConfig configuration done')
 
 
 class TrigMooreHypoConfig(TrigMooreHypo) :
@@ -710,7 +713,7 @@ class TrigMooreHypoConfig(TrigMooreHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class TrigMuonEFSegmentFinderHypoConfig(TrigMuonEFSegmentFinderHypo):
@@ -780,7 +783,7 @@ class TrigMuonEFTrackBuilderHypoConfig(TrigMuonEFTrackBuilderHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 
@@ -821,7 +824,7 @@ class TrigMuonEFExtrapolatorHypoConfig(TrigMuonEFExtrapolatorHypo) :
         def setDefaults(cls,handle):
             if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
                 if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                    print handle.name," eta bins doesn't match the Pt thresholds!"             
+                    print (handle.name," eta bins doesn't match the Pt thresholds!"             )
 
 
 
@@ -862,7 +865,7 @@ class TrigMuonEFCombinerHypoConfig(TrigMuonEFCombinerHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 #AOH
@@ -922,7 +925,7 @@ class TrigMuonEFCombinerMultiHypoConfig(TrigMuonEFCombinerMultiHypo) :
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins') and hasattr(handle,'PtMultiplicity'):
             nmult = max(handle.PtMultiplicity) - min(handle.PtMultiplicity) + 1
             if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 class TrigMuonEFSegmentHypoConfig(TrigMuonEFSegmentHypo) :
 
@@ -958,7 +961,7 @@ class TrigMuonEFSegmentHypoConfig(TrigMuonEFSegmentHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 class TrigMuonEFExtrapolatorMultiHypoConfig(TrigMuonEFExtrapolatorMultiHypo) :
 
@@ -1005,7 +1008,7 @@ class TrigMuonEFExtrapolatorMultiHypoConfig(TrigMuonEFExtrapolatorMultiHypo) :
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins') and hasattr(handle,'PtMultiplicity'):
             nmult = max(handle.PtMultiplicity) - min(handle.PtMultiplicity) + 1
             if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class TrigMuonEFTrackBuilderMultiHypoConfig(TrigMuonEFTrackBuilderMultiHypo) :
@@ -1053,7 +1056,7 @@ class TrigMuonEFTrackBuilderMultiHypoConfig(TrigMuonEFTrackBuilderMultiHypo) :
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins') and hasattr(handle,'PtMultiplicity'):
             nmult = max(handle.PtMultiplicity) - min(handle.PtMultiplicity) + 1
             if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class StauHypoConfig(StauHypo) :
@@ -1161,7 +1164,7 @@ class TrigMuGirlHypoConfig(TrigMuGirlHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class TrigMuGirlStauHypoConfig(TrigMuGirlStauHypo) :
@@ -1199,7 +1202,7 @@ class TrigMuGirlStauHypoConfig(TrigMuGirlStauHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 
@@ -1238,7 +1241,7 @@ class TrigMuTagIMOHypoConfig(TrigMuTagIMOHypo) :
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
-                print handle.name," eta bins doesn't match the Pt thresholds!"
+                print (handle.name," eta bins doesn't match the Pt thresholds!")
 
 
 class MuonRoiFexConfig(MuonRoiFex) :
@@ -1381,10 +1384,10 @@ class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
                 self.useVarIso = False                                
         except LookupError:
             if(args[1]=='passthrough') :
-                print 'Setting passthrough'
+                print ('Setting passthrough')
                 self.AcceptAll = True
             else:
-                print 'args[1] = ', args[1]
+                print ('args[1] = ', args[1])
                 raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
         
 
@@ -1440,10 +1443,10 @@ class TrigMuonEFTrackIsolationMultiHypoConfig(TrigMuonEFTrackIsolationMultiHypo)
                 self.useVarIso = False                                
         except LookupError:
             if(args[1]=='passthrough') :
-                print 'Setting passthrough'
+                print ('Setting passthrough')
                 self.AcceptAll = True
             else:
-                print 'args[1] = ', args[1]
+                print ('args[1] = ', args[1])
                 raise Exception('TrigMuonEFTrackIsolation Hypo Misconfigured')
         
 
@@ -1481,7 +1484,7 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
             if len(args) == 2:
                 if (args[1]=='passthrough'):
                     self.AcceptAll = True
-                    print 'TrigMuonEFCaloIsolationConfig configured in passthrough mode'
+                    print ('TrigMuonEFCaloIsolationConfig configured in passthrough mode')
 
             #Default cuts (more than 95% eff on Z->mumu) tuned on 2011 run 178044 data <beta>~6
             #These probably should be updated!
@@ -1497,10 +1500,10 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
                                             
         except LookupError:
             if(args[1]=='passthrough') :
-                print 'Setting passthrough'
+                print ('Setting passthrough')
                 self.AcceptAll = True
             else:
-                print 'args[1] = ', args[1]
+                print ('args[1] = ', args[1])
                 raise Exception('TrigMuonEFCaloIsolation Hypo Misconfigured')
         
 
@@ -1550,15 +1553,15 @@ class TrigMuonEFCombinerDiMuonMassHypoConfig(TrigMuonEFCombinerDiMuonMassHypo) :
             elif 'SS' in args[1] :
                 self.signRequirement =  1
             else :
-                print 'args[1] = ', args[1]
+                print ('args[1] = ', args[1])
                 raise Exception('TrigMuonEFCombinerDiMuonMass Hypo Misconfigured')
                                             
         except LookupError:
             if(args[0]=='passthrough') :
-                print 'Setting passthrough'
+                print ('Setting passthrough')
                 self.AcceptAll = True
             else:
-                print 'args[0] = ', args[0]
+                print ('args[0] = ', args[0])
                 raise Exception('TrigMuonEFCombinerDiMuonMass Hypo Misconfigured')
         
 
@@ -1598,10 +1601,10 @@ class TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig(TrigMuonEFCombinerDiMuonMa
                                             
         except LookupError:
             if(args[0]=='passthrough') :
-                print 'Setting passthrough'
+                print ('Setting passthrough')
                 self.AcceptAll = True
             else:
-                print 'args[0] = ', args[0]
+                print ('args[0] = ', args[0])
                 raise Exception('TrigMuonEFCombinerDiMuonMassPtImpacts Hypo Misconfigured')
         
         online     = TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring()
@@ -1699,7 +1702,7 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
                     self.UseMuRoiDrOnly = True
                     pass
                 else:
-                    print 'args[1] = ', args[1]
+                    print ('args[1] = ', args[1])
                     raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
 
                 split_args = args[0].split("_")
@@ -1765,7 +1768,7 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
 
                                             
         except LookupError:
-            print 'args[0] = ', args[0]
+            print ('args[0] = ', args[0])
             raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
         
         online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()

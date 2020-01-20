@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1EmTauTools.h, 
@@ -20,7 +20,7 @@
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
 #include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -92,7 +92,7 @@ namespace LVL1
     private:
       
       /** pointer to LVL1ConfigSvc */
-      ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
 
      /** member variables for algorithm properties: */

@@ -18,14 +18,9 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class RegionSelectionSvc;
-
-
-namespace MuonGM {
-class MuonDetectorManager;
-}
 
 namespace MuonCalib {
 class IIdToFixedIdTool;
@@ -59,7 +54,12 @@ class SegmentRawdataSelector : public AthAlgTool, virtual public CalibSegmentPre
   std::string m_idToFixedIdToolName; // name of the muon fixed id tool
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon detector manager
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   const MuonCalib::IIdToFixedIdTool *m_id_tool;// identifier converter
   //store segments, because we have to delete them
   std::set<MuonCalibSegment *> m_segments;

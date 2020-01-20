@@ -22,10 +22,6 @@ namespace Muon {
   class IMuonSegmentHitSummaryTool;
 }
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 namespace Muon {
   
 

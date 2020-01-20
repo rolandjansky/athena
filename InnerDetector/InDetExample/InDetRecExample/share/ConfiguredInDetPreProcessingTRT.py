@@ -93,7 +93,7 @@ class ConfiguredInDetPreProcessingTRT:
 
          ToolSvc += InDetTRT_DriftFunctionTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_DriftFunctionTool
+            printfunc (InDetTRT_DriftFunctionTool)
 
          # Straw status DB Tool
          from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
@@ -128,7 +128,6 @@ class ConfiguredInDetPreProcessingTRT:
 
          InDetTRT_DriftCircleTool = InDet__TRT_DriftCircleTool(name                            = prefix+"DriftCircleTool",
                                                                TRTDriftFunctionTool            = InDetTRT_DriftFunctionTool,
-                                                               TrtDescrManageLocation          = InDetKeys.TRT_Manager(),
                                                                ConditionsSummaryTool           = InDetTRTStrawStatusSummaryTool,
                                                                UseConditionsStatus             = True,
                                                                UseConditionsHTStatus           = True,
@@ -153,7 +152,9 @@ class ConfiguredInDetPreProcessingTRT:
                                                                MaskMiddleHTBitArgon                 = False,
                                                                MaskLastHTBitArgon                   = False,
                                                                useDriftTimeHTCorrection        = True,
-                                                               useDriftTimeToTCorrection       = True) # reenable ToT
+                                                               useDriftTimeToTCorrection       = True,
+                                                               # LumiDataKey                     = 'LuminosityCondData' # @TODO undo out-commenting to re-enable mu-correction for TRT error scaling
+                                                               )
 
          from AthenaCommon.BeamFlags import jobproperties 
          if InDetFlags.InDet25nsec() and jobproperties.Beam.beamType()=="collisions": 
@@ -165,7 +166,7 @@ class ConfiguredInDetPreProcessingTRT:
 
          ToolSvc += InDetTRT_DriftCircleTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_DriftCircleTool
+            printfunc (InDetTRT_DriftCircleTool)
          
          #
          # --- TRT_RIO_Maker Algorithm
@@ -178,7 +179,7 @@ class ConfiguredInDetPreProcessingTRT:
                                                    TRTRIOLocation         = collection)
          topSequence += InDetTRT_RIO_Maker
          if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_RIO_Maker
+            printfunc (InDetTRT_RIO_Maker)
          if InDetFlags.doSplitReco() :
             InDetTRT_RIO_MakerPU = InDet__TRT_RIO_Maker(name                   = prefix+"RIO_MakerPU",
                                                         TRT_DriftCircleTool    = InDetTRT_DriftCircleTool,
@@ -187,7 +188,7 @@ class ConfiguredInDetPreProcessingTRT:
                                                         TRTRIOLocation         = collectionPU)
             topSequence += InDetTRT_RIO_MakerPU
             if (InDetFlags.doPrintConfigurables()):
-               print InDetTRT_RIO_MakerPU
+               printfunc (InDetTRT_RIO_MakerPU)
 
          #
          #    Include alg to save the local occupancy inside xAOD::EventInfo
@@ -201,7 +202,7 @@ class ConfiguredInDetPreProcessingTRT:
 
           ToolSvc += InDetTRT_LocalOccupancy
           if (InDetFlags.doPrintConfigurables()):
-              print InDetTRT_LocalOccupancy
+              printfunc (InDetTRT_LocalOccupancy)
 
 
           from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTOccupancyInclude
@@ -210,7 +211,7 @@ class ConfiguredInDetPreProcessingTRT:
          
           topSequence += TRTOccupancyInclude
           if (InDetFlags.doPrintConfigurables()):
-                  print TRTOccupancyInclude
+                  printfunc (TRTOccupancyInclude)
 
        
          #
@@ -230,7 +231,7 @@ class ConfiguredInDetPreProcessingTRT:
                                                                       TruthNameTRT                = InDetKeys.TRT_DriftCirclesTruth())
             topSequence += InDetPRD_MultiTruthMakerTRT
             if (InDetFlags.doPrintConfigurables()):
-               print InDetPRD_MultiTruthMakerTRT
+               printfunc (InDetPRD_MultiTruthMakerTRT)
 
             if InDetFlags.doSplitReco() :
                InDetPRD_MultiTruthMakerTRTPU = InDet__PRD_MultiTruthMaker (name                        = prefix+"PRD_MultiTruthMakerPU",
@@ -245,4 +246,4 @@ class ConfiguredInDetPreProcessingTRT:
                                                                            TruthNameTRT                = InDetKeys.TRT_PU_DriftCirclesTruth())
                topSequence += InDetPRD_MultiTruthMakerTRTPU
                if (InDetFlags.doPrintConfigurables()):
-                  print InDetPRD_MultiTruthMakerTRTPU
+                  printfunc (InDetPRD_MultiTruthMakerTRTPU)

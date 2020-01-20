@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg, HLTTest__TestHypoAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigUpgradeTest.HLTSignatureHypoTools import MuTestHypoTool, ElTestHypoTool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
@@ -8,11 +8,13 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import sys
 
+HLTTest__TestRecoAlg, HLTTest__TestHypoAlg=CompFactory.getComps("HLTTest__TestRecoAlg","HLTTest__TestHypoAlg",)
+
 UseThisLinkName="initialRoI"
 #UseThisLinkName="feature"
 
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+HLTTest__TestInputMaker=CompFactory.HLTTest__TestInputMaker
 def InputMakerForInitialRoIAlg(name):
     return HLTTest__TestInputMaker(name, RoIsLink="initialRoI", LinkName="initialRoI")
 

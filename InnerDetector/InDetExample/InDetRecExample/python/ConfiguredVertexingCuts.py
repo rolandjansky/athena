@@ -1,4 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 
 ##############################################################################
 # ConfiguredVertexingCuts class
@@ -302,42 +305,42 @@ class ConfiguredVertexingCuts :
 #
   
   def printInfo( self ) :
-    print '****** Inner Detector Primary Vertex Reconstruction Cuts ****************************'
-    print '*'
-    print '* mode is                                           : ', self.__mode
-    print '* cut level for primary vertexing is                : ', self.__indetflags.priVtxCutLevel()
-    print '*'
-    print '* Track Cut Level                                   : ', self.__TrackCutLevel
-    print '*'
-    print '* min pT                                            : ', self.__minPT, ' MeV'
-    print '* Max IP d0                                         : ', self.__IPd0Max
-    print '* Max IP Z0                                         : ', self.__IPz0Max
-    print '* Max z0                                            : ', self.__z0Max
-    print '* Max Sig IP d0                                     : ', self.__sigIPd0Max
-    print '* Max Sig IP z0                                     : ', self.__sigIPz0Max
-    print '* Max Sig d0                                        : ', self.__d0significanceMax
-    print '* Max Sig z0                                        : ', self.__z0significanceMax
-    print '* Max eta                                           : ', self.__etaMax
+    print('****** Inner Detector Primary Vertex Reconstruction Cuts ****************************')
+    print('*')
+    print('* mode is                                           : ', self.__mode)
+    print('* cut level for primary vertexing is                : ', self.__indetflags.priVtxCutLevel())
+    print('*')
+    print('* Track Cut Level                                   : ', self.__TrackCutLevel)
+    print('*')
+    print('* min pT                                            : ', self.__minPT, ' MeV')
+    print('* Max IP d0                                         : ', self.__IPd0Max)
+    print('* Max IP Z0                                         : ', self.__IPz0Max)
+    print('* Max z0                                            : ', self.__z0Max)
+    print('* Max Sig IP d0                                     : ', self.__sigIPd0Max)
+    print('* Max Sig IP z0                                     : ', self.__sigIPz0Max)
+    print('* Max Sig d0                                        : ', self.__d0significanceMax)
+    print('* Max Sig z0                                        : ', self.__z0significanceMax)
+    print('* Max eta                                           : ', self.__etaMax)
    
 #cluster and track quality cuts  
-    print '* Use TrackSummary                                  : ', self.__useTrackSummaryInfo
-    print '* Min N Innermost Layer Hits                        : ', self.__nHitInnermostLayer
-    print '* Min N Pix Hit                                     : ', self.__nHitPix
-    print '* Max N Pix Holes                                   : ', self.__nHolesPix
-    print '* Min N SCT Hits                                    : ', self.__nHitSct
-    print '* Min N Si Hits                                     : ', self.__nHitSi
-    print '* Min N TRT Hits                                    : ', self.__nHitTrt
-    print '* Min N high threshold hits TRT                     : ', self.__nHitTrtHighEFractionMax
-    print '* Min N high threshold hits TRT  (incl. outliers)   : ', self.__nHitTrtHighEFractionWithOutliersMax
-    print '* Use shared hit info                               : ', self.__useSharedHitInfo
-    print '* Use Track Quality info                            : ', self.__useTrackQualityInfo
-    print '* Chi2/ndf of the fit                               : ', self.__fitChi2OnNdfMax
-    print '* TRT Max  eta                                      : ', self.__TrtMaxEtaAcceptance
-    print '*'
-    print '* Chi2 cut method                                   : ', self.__chi2CutMethod 
-    print '* Enable Multiple Vertices                          : ', self.__enableMultipleVertices 
-    print '*'
-    print '************************************************************************************'
+    print('* Use TrackSummary                                  : ', self.__useTrackSummaryInfo)
+    print('* Min N Innermost Layer Hits                        : ', self.__nHitInnermostLayer)
+    print('* Min N Pix Hit                                     : ', self.__nHitPix)
+    print('* Max N Pix Holes                                   : ', self.__nHolesPix)
+    print('* Min N SCT Hits                                    : ', self.__nHitSct)
+    print('* Min N Si Hits                                     : ', self.__nHitSi)
+    print('* Min N TRT Hits                                    : ', self.__nHitTrt)
+    print('* Min N high threshold hits TRT                     : ', self.__nHitTrtHighEFractionMax)
+    print('* Min N high threshold hits TRT  (incl. outliers)   : ', self.__nHitTrtHighEFractionWithOutliersMax)
+    print('* Use shared hit info                               : ', self.__useSharedHitInfo)
+    print('* Use Track Quality info                            : ', self.__useTrackQualityInfo)
+    print('* Chi2/ndf of the fit                               : ', self.__fitChi2OnNdfMax)
+    print('* TRT Max  eta                                      : ', self.__TrtMaxEtaAcceptance)
+    print('*')
+    print('* Chi2 cut method                                   : ', self.__chi2CutMethod )
+    print('* Enable Multiple Vertices                          : ', self.__enableMultipleVertices )
+    print('*')
+    print('************************************************************************************')
 
 
 #-------------------------------------------------------------------------

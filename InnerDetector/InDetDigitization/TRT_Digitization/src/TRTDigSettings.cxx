@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -290,8 +290,8 @@ void TRTDigSettings::printFlagsForOverrideableParameters(const std::string& fron
     std::cout << front << "Alg. Property: Override_"<<itd->first<<std::endl;
     std::cout << front << "  Type: Double"<<std::endl;
     std::cout << front << "  Range: ["<<itd->second.okrange_low/itd->second.unit<<" "
-	      << itd->second.unitname<<", "
-	      << itd->second.okrange_high/itd->second.unit<<" "<<itd->second.unitname<<"]"<<std::endl;
+              << itd->second.unitname<<", "
+              << itd->second.okrange_high/itd->second.unit<<" "<<itd->second.unitname<<"]"<<std::endl;
     std::cout << front << "  Description: "<<itd->second.description<<std::endl;
   }
 
@@ -303,7 +303,7 @@ void TRTDigSettings::printFlagsForOverrideableParameters(const std::string& fron
     std::cout << front << "Alg. Property: Override_"<<itib->first<<std::endl;
     std::cout << front << "  Type: Int"<<std::endl;
     std::cout << front << "  Range: ["<<itib->second.okrange_low<<", "
-	      << itib->second.okrange_high<<"]"<<std::endl;
+              << itib->second.okrange_high<<"]"<<std::endl;
     std::cout << front << "  Description: "<<itib->second.description<<std::endl;
   }
 
@@ -314,7 +314,7 @@ void TRTDigSettings::printFlagsForOverrideableParameters(const std::string& fron
 
 //_________________________________________________________________________________________________________
 void TRTDigSettings::defineNewVariable(std::string name, double * datamember,std::string description,
-					std::string unitname,double unitval,double lowrange,double highrange) {
+                                       std::string unitname,double unitval,double lowrange,double highrange) {
 
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
@@ -339,7 +339,7 @@ void TRTDigSettings::defineNewVariable(std::string name, double * datamember,std
 
 //_________________________________________________________________________________________________________
 void TRTDigSettings::defineNewUIntVariable(std::string name,unsigned int * datamember,std::string description,
-			   unsigned int lowrange, unsigned int highrange) {
+                                           unsigned int lowrange, unsigned int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
     std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
@@ -364,7 +364,7 @@ void TRTDigSettings::defineNewUIntVariable(std::string name,unsigned int * datam
 
 //_________________________________________________________________________________________________________
 void TRTDigSettings::defineNewIntVariable(std::string name,int * datamember,std::string description,
-			  int lowrange, int highrange) {
+                                          int lowrange, int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
     std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
@@ -427,8 +427,8 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
 
   // After TRT_Digitization-00-10-74 (end of Run1) we will no longer support m_digversion<11
   if (m_digversion<11) {
-      if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endmsg;
-      throw;
+    if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endmsg;
+    throw;
   }
 
   bool gasok = false;
@@ -601,7 +601,7 @@ void TRTDigSettings::processOverrides() {
   for (;itd!=itdE;++itd) {
     if (itd->second.valueSetByUser != m_propertyNotSetMagicNumber) {
       if (itd->second.valueSetByUser < itd->second.okrange_low || itd->second.valueSetByUser > itd->second.okrange_high) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itd->first<<" : New value outside allowed range" << endmsg;
+        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itd->first<<" : New value outside allowed range" << endmsg;
       } else {
         if ( static_cast<float>(*(itd->second.directvaraddress)) != static_cast<float>(itd->second.valueSetByUser) ) {
           if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itd->first<<" flag ("
@@ -620,35 +620,35 @@ void TRTDigSettings::processOverrides() {
   for (;itib!=itibE;++itib) {
     if (itib->second.valueSetByUser != m_propertyNotSetMagicNumber_int) {
       if (itib->second.valueSetByUser < itib->second.okrange_low || itib->second.valueSetByUser > itib->second.okrange_high) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itib->first<<" : New value outside allowed range" << endmsg;
+        if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itib->first<<" : New value outside allowed range" << endmsg;
       } else {
-	if (itib->second.directvaraddress_int) {
-	  //int
+        if (itib->second.directvaraddress_int) {
+          //int
           if ( (*(itib->second.directvaraddress_int)) != itib->second.valueSetByUser ) {
-	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-	  						  << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
-	    *(itib->second.directvaraddress_int) = itib->second.valueSetByUser;
+            if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
+                                                          << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
+            *(itib->second.directvaraddress_int) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
-	} else if (itib->second.directvaraddress_uint) {
-	  //unsigned int
-         if ( (*(itib->second.directvaraddress_uint)) != static_cast<unsigned int>(itib->second.valueSetByUser) ) {
-	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-						 	  << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
-	    *(itib->second.directvaraddress_uint) = itib->second.valueSetByUser;
+        } else if (itib->second.directvaraddress_uint) {
+          //unsigned int
+          if ( (*(itib->second.directvaraddress_uint)) != static_cast<unsigned int>(itib->second.valueSetByUser) ) {
+            if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
+                                                          << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
+            *(itib->second.directvaraddress_uint) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
-	} else {
-	  //bool
-	  assert(itib->second.directvaraddress_bool);
+        } else {
+          //bool
+          assert(itib->second.directvaraddress_bool);
           if ( (*(itib->second.directvaraddress_bool)) != itib->second.valueSetByUser ) {
-	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-							  << (*(itib->second.directvaraddress_bool)?1:0)<<" -> "
-							  << (itib->second.valueSetByUser?1:0)<<")"<<endmsg;
-	    *(itib->second.directvaraddress_bool) = itib->second.valueSetByUser == 1;
+            if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
+                                                          << (*(itib->second.directvaraddress_bool)?1:0)<<" -> "
+                                                          << (itib->second.valueSetByUser?1:0)<<")"<<endmsg;
+            *(itib->second.directvaraddress_bool) = itib->second.valueSetByUser == 1;
             anyoverrides = true;
-	  }
-	}
+          }
+        }
       }
     }
   }

@@ -3,7 +3,7 @@
 */
 
 #include "CaloBCIDAvgAlg.h" 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 //#define DONTDO
 

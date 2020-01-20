@@ -7,10 +7,10 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createSimConfigFlags():
     scf=AthConfigFlags()
 
-    scf.addFlag("Sim.ISF.Run",False)
+    scf.addFlag("Sim.ISFRun",False)
     scf.addFlag("Sim.ISF.HITSMergingRequired", True)
     scf.addFlag("Sim.ParticleID",False)
-    scf.addFlag("Sim.CalibrationRun", "DeadLAr") # "LAr", "Tile", "LAr+Tile", "DeadLAr"
+    scf.addFlag("Sim.CalibrationRun", False) # "LAr", "Tile", "LAr+Tile", "DeadLAr"
 
     scf.addFlag("Sim.CavernBG",False) #"Write" , "Read" , "Signal" , "WriteWorld" , "SignalWorld"
     scf.addFlag("Sim.ReadTR",False)
@@ -51,6 +51,20 @@ def createSimConfigFlags():
     scf.addFlag('Sim.RecordStepInfo',False) 
     scf.addFlag('Sim.StoppedParticleFile', False) 
 
+    #For BeameffectsAlg
+    scf.addFlag('Sim.Vertex.Source', 'CondDB' ) #'CondDB', 'VertexOverrideEventFile.txt', 'VertexOverride.txt',"LongBeamspot"
 
+    #for G4UserActions
+    scf.addFlag('Sim.Layout','ATLAS-R2-2015-03-01-00')
+    scf.addFlag('Sim.NRRThreshold', False)
+    scf.addFlag('Sim.NRRWeight', False)
+    scf.addFlag('Sim.PRRThreshold', False)
+    scf.addFlag('Sim.PRRWeight', False)
+
+    # For G4FieldConfigNew
+    scf.addFlag('Sim.G4Stepper', 'AtlasRK4')
+    scf.addFlag('Sim.G4EquationOfMotion', '')
+
+    scf.addFlag('Sim.UsingGeant4', True)
     return scf
 

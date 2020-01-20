@@ -20,6 +20,7 @@ namespace xAOD {
   enum JetConstitScale {
     UncalibratedJetConstituent      =  0,
     CalibratedJetConstituent        =  1,
+    UnknownConstitScale             =  99,
   };
   
   enum JetScale {

@@ -14,6 +14,7 @@
 
 #include <vector>
 #include <map>
+#include <string>
 
 namespace lwtDev {
   enum class Activation {NONE, LINEAR, SIGMOID, RECTIFIED, SOFTMAX, TANH,

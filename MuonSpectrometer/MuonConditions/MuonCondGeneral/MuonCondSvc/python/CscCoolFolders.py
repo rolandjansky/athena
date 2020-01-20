@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 Define all csc calibration cool constant folders for easy reference.
@@ -6,18 +8,18 @@ Define all csc calibration cool constant folders for easy reference.
 Usage:
   from MuonCondSvc import CscCoolFolders
 
-  print CscCoolFolders.ped
+  print (CscCoolFolders.ped)
   >> "PED"
-  print CscCoolFolders.dict("ped")
+  print (CscCoolFolders.dict("ped"))
   >> "PED"
 
   folderKeys = ["ped","f001","rms"]
   folders = folderList(folderKeys)
-  print folders
+  print (folders)
   >> ["/CSC/PED","/CSC/FTHOLD","/CSC/RMS"]
   
   folders = folderList(folderKeys,True)
-  print folders
+  print (folders)
   >> ["/CSC/ONL/PED","/CSC/ONL/FTHOLD","/CSC/ONL/RMS"]
 
 """
@@ -54,8 +56,8 @@ def folderList(folderKeys, getOnline = False):
   folders = []
   for folderKey in folderKeys:
     if not (folderKey in dict):
-      print "WARNING folder key " + folderKey + " not recognized! All keys and folder pairs are: "
-      print dict
+      print("WARNING folder key " + folderKey + " not recognized! All keys and folder pairs are: ")
+      print(dict)
     else:
       if(getOnline):
         folders += ['/CSC/ONL/'+ dict[folderKey]]

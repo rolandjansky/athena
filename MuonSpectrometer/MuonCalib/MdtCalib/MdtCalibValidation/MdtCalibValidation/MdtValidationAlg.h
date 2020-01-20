@@ -31,12 +31,9 @@
 #include "MdtCalibData/MdtTubeFitContainer.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class RegionSelectionSvc;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace MuonCalib {
 
@@ -114,8 +111,10 @@ namespace MuonCalib {
     ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
       "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
-    const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
-    // detector manager
+    // MuonDetectorManager from the conditions store
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
   
     CalibDbConnection * m_db;
     CalibT0DbOperations * m_t0_op;

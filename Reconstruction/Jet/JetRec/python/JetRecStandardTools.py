@@ -172,28 +172,16 @@ else:
 #--------------------------------------------------------------
 # Track-vertex association.
 #--------------------------------------------------------------
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
-jtm += CP__TightTrackVertexAssociationTool("jetTightTVAtool", dzSinTheta_cut=3, doPV=True)
 
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__LooseTrackVertexAssociationTool
-jtm += CP__LooseTrackVertexAssociationTool("jetLooseTVAtool")
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
+jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint='Loose')
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
   TrackParticleContainer  = jtm.trackContainer,
   TrackVertexAssociation  = "JetTrackVtxAssoc",
   VertexContainer         = jtm.vertexContainer,
-  TrackVertexAssoTool     = jtm.jetTightTVAtool,
-)
-
-jtm += TrackVertexAssociationTool(
-  "tvassoc_old",
-  TrackParticleContainer  = jtm.trackContainer,
-  TrackVertexAssociation  = "JetTrackVtxAssoc_old",
-  VertexContainer         = jtm.vertexContainer,
-  MaxTransverseDistance   = 1.5,
-  MaxLongitudinalDistance = 1.0e7,
-  MaxZ0SinTheta = 1.5
+  TrackVertexAssoTool     = jtm.jetLooseTVAtool,
 )
 
 #--------------------------------------------------------------

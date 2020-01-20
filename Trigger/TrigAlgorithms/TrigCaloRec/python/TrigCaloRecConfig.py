@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMakerMT
 from TrigCaloRec.TrigCaloRecConf import TrigCaloTowerMakerMT
 from TrigCaloRec.TrigCaloRecConf import TrigCaloCellMaker
@@ -445,7 +447,7 @@ class TrigCaloTowerMaker_eGamma (TrigCaloTowerMakerBase):
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
         except:
             mlog.error("TrigCaloTowerMaker: could not get handle to LArTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         
@@ -477,7 +479,7 @@ class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
             from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
         except:
             mlog.error("could not get handle to TileTowerBuilderTool Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         # input to LArTowerBuilder:  cells in LArEM and LARHEC 
@@ -485,7 +487,7 @@ class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
         except:
             mlog.error("TrigCaloTowerMaker: could not get handle to LArTowerBuilderTool or/and LArFCalTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
 
@@ -541,7 +543,7 @@ class TrigCaloTowerMaker_tau (TrigCaloTowerMakerBase):
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
         except:
             mlog.error("TrigCaloTowerMaker: could not get handle to LArTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",
@@ -572,7 +574,7 @@ class TrigCaloClusterMaker_slw (TrigCaloClusterMakerBase):
             from CaloRec.CaloRecMakers import make_CaloClusterBuilderSW
         except:
             mlog.error("TrigCaloRec: could not get handle to make_CaloClusterBuilderSW Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         
@@ -604,7 +606,7 @@ class TrigCaloClusterMaker_slw (TrigCaloClusterMakerBase):
                 self.ClusterCorrectionTools += [tool.getFullName()]
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloSwCorrections_compat Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
 class TrigCaloClusterMaker_slw_fullcalo (TrigFullCaloClusterMakerBase):
@@ -616,7 +618,7 @@ class TrigCaloClusterMaker_slw_fullcalo (TrigFullCaloClusterMakerBase):
             from CaloRec.CaloRecMakers import make_CaloClusterBuilderSW
         except:
             mlog.error("TrigCaloRec: could not get handle to make_CaloClusterBuilderSW Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         
@@ -648,7 +650,7 @@ class TrigCaloClusterMaker_slw_fullcalo (TrigFullCaloClusterMakerBase):
                 self.ClusterCorrectionTools += [tool.getFullName()]
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloSwCorrections_compat Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
 class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
@@ -669,10 +671,10 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
             from AthenaCommon.GlobalFlags import globalflags
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloTopoClusterMaker and/or CaloTopoClusterSplitter. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
-        print jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib()
+        print (jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib())
         # tools used by tools
         #from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
         #theCaloNoiseTool=CaloNoiseToolDefault() #flag='tool', name='myCaloNoiseToolDefault')
@@ -926,7 +928,7 @@ class TrigCaloTopoTowerMaker_jet (TrigCaloTopoTowerMakerBase):
             theCaloTopoTowerBuilderTool=CaloTopoTowerBuilderTool("TrigTopoTowerTwrBldr")
         except:
             mlog.error("could not get handle to CaloTopoTowerBuilderTool Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         self.TowerBuilderTools= [ theCaloTopoTowerBuilderTool] 
@@ -962,7 +964,7 @@ class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
             emtoposplitter = CaloTopoClusterSplitter("EMTrigTopoSplitter")
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloTopoClusterMaker and/or CaloTopoClusterSplitter. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         emtopocluster.CellsNames=["RoIEMCalo"]
@@ -1016,7 +1018,7 @@ class TrigCaloClusterMaker_EMtopo (TrigCaloClusterMakerBase):
             emtopomoments = CaloClusterMomentsMaker("EMTrigTopoMoments")
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloClusterMomentsMaker. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         emtopomoments.OutputLevel = INFO
@@ -1166,7 +1168,7 @@ class TrigCaloTowerMakerMT_eGamma (TrigCaloTowerMakerMTBase):
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
         except:
             mlog.error("TrigCaloTowerMaker: could not get handle to LArTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         
@@ -1199,7 +1201,7 @@ class TrigCaloTowerMakerMT_jet (TrigCaloTowerMakerMTBase):
             from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
         except:
             mlog.error("could not get handle to TileTowerBuilderTool Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         # input to LArTowerBuilder:  cells in LArEM and LARHEC 
@@ -1207,7 +1209,7 @@ class TrigCaloTowerMakerMT_jet (TrigCaloTowerMakerMTBase):
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
         except:
             mlog.error("TrigCaloTowerMaker: could not get handle to LArTowerBuilderTool or/and LArFCalTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
 
@@ -1263,7 +1265,7 @@ class TrigCaloTowerMakerMT_tau (TrigCaloTowerMakerMTBase):
             from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
         except:
             mlog.error("TrigCaloTowerMaker: could not get handle to LArTowerBuilderTool. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",
@@ -1295,7 +1297,7 @@ class TrigCaloClusterMakerMT_slw (TrigCaloClusterMakerMTBase):
             from CaloRec.CaloRecMakers import make_CaloClusterBuilderSW
         except:
             mlog.error("TrigCaloRec: could not get handle to make_CaloClusterBuilderSW Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         
@@ -1322,14 +1324,14 @@ class TrigCaloClusterMakerMT_slw (TrigCaloClusterMakerMTBase):
             for tool in make_CaloSwCorrections ("ele37"):
                 self += tool
                 self.ClusterCorrectionTools += [tool.getFullName()]
-                print " Adding tool ", tool.getFullName()
+                print (" Adding tool ", tool.getFullName())
             for tool in make_CaloSwCorrections ("ele55"):
                 self += tool
                 self.ClusterCorrectionTools += [tool.getFullName()]
-                print " Adding tool ", tool.getFullName()
+                print (" Adding tool ", tool.getFullName())
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloSwCorrections_compat Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
 
@@ -1353,10 +1355,10 @@ class TrigCaloClusterMakerMT_topo (TrigCaloClusterMakerMTBase):
             from AthenaCommon.GlobalFlags import globalflags
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloTopoClusterMaker and/or CaloTopoClusterSplitter. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
-        print jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib()
+        print (jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib())
         # tools used by tools
 
         if doLC:
@@ -1611,7 +1613,7 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
             emtoposplitter = CaloTopoClusterSplitter("EMTrigTopoSplitter")
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloTopoClusterMaker and/or CaloTopoClusterSplitter. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         emtopocluster.CellsNames=["RoIEMCalo"]
@@ -1665,7 +1667,7 @@ class TrigCaloClusterMakerMT_EMtopo (TrigCaloClusterMakerMTBase):
             emtopomoments = CaloClusterMomentsMaker("EMTrigTopoMoments")
         except:
             mlog.error("TrigCaloRec: could not get handle to CaloClusterMomentsMaker. Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         emtopomoments.OutputLevel = INFO

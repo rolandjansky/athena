@@ -1,4 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 
 # ------------------------------------------------------------------------------------
 #
@@ -43,7 +46,7 @@ class ConfiguredSecVertexFinding:
                                                  useThetaCnst        = VertexCuts.useThetaCnst())
     ToolSvc += InDetSecVxFitterTool 
     if (printConfig):
-      print InDetSecVxFitterTool
+      print(InDetSecVxFitterTool)
     #
     # --- Distance of minimum approach utility
     #
@@ -51,7 +54,7 @@ class ConfiguredSecVertexFinding:
     InDetSecVxTrkDistanceFinder = Trk__SeedNewtonTrkDistanceFinder(name = prefix+'TrkDistanceFinder')
     ToolSvc += InDetSecVxTrkDistanceFinder 
     if (printConfig):
-      print InDetSecVxTrkDistanceFinder
+      print(InDetSecVxTrkDistanceFinder)
     #
     # --- Helper Tool
     #
@@ -59,7 +62,7 @@ class ConfiguredSecVertexFinding:
     InDetSecVxHelper = InDet__ConversionFinderUtils(name = prefix+"FinderUtils")
     ToolSvc += InDetSecVxHelper
     if (printConfig):
-      print InDetSecVxHelper
+      print(InDetSecVxHelper)
     #
     # --- Track selector tool
     #
@@ -82,7 +85,7 @@ class ConfiguredSecVertexFinding:
     
     ToolSvc += InDetSecVxTrackSelector
     if (printConfig):
-      print InDetSecVxTrackSelector
+      print(InDetSecVxTrackSelector)
     #
     # Track pairs selector
     #
@@ -97,7 +100,7 @@ class ConfiguredSecVertexFinding:
                                                              MinTrackAngle              = VertexCuts.TrkPairSel_MinTrackAngle())
     ToolSvc += InDetSecVxTrackPairsSelector
     if (printConfig):
-      print InDetSecVxTrackPairsSelector
+      print(InDetSecVxTrackPairsSelector)
     #
     # Vertex point estimator
     #
@@ -108,7 +111,7 @@ class ConfiguredSecVertexFinding:
                                                             MaxPhi    = VertexCuts.VtxPt_MaxPhi())
     ToolSvc += InDetSecVtxPointEstimator
     if (printConfig):
-      print InDetSecVtxPointEstimator
+      print(InDetSecVtxPointEstimator)
     #
     # Secondary Vertex post selector
     #
@@ -123,7 +126,7 @@ class ConfiguredSecVertexFinding:
                                                             MaxPhiVtxTrk     = VertexCuts.SecVtxPost_MaxPhiVtxTrk())
     ToolSvc += InDetSecVtxPostSelector
     if (printConfig):
-      print InDetSecVtxPostSelector
+      print(InDetSecVtxPostSelector)
     #
     # Single track secondary vertex tool
     #
@@ -138,7 +141,7 @@ class ConfiguredSecVertexFinding:
                                                               MinRatioOfHLhits           = VertexCuts.SingleTrk_MinRatioOfHLhits())
     ToolSvc += InDetSingleTrackSecVtx
     if (printConfig):
-      print InDetSingleTrackSecVtx
+      print(InDetSingleTrackSecVtx)
     #
     # conversion finder tool
     #
@@ -160,7 +163,7 @@ class ConfiguredSecVertexFinding:
                                                               MinInitVtxR                = VertexCuts.Finder_MinInitVtxR())
     ToolSvc += InDetSecVtxFinderTool
     if (printConfig):
-      print InDetSecVtxFinderTool
+      print(InDetSecVtxFinderTool)
 
     # --- remember instances
     self.__prefix                = prefix 
@@ -187,5 +190,5 @@ class ConfiguredSecVertexFinding:
                                                 InDetConversionOutputName = self.__SecVertices)
     self.__topSequence += InDetSecVtxFinder
     if (self.__printConfig):
-      print InDetSecVtxFinder
+      print(InDetSecVtxFinder)
 

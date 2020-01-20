@@ -55,7 +55,7 @@ namespace MuonCombined {
   m_trackQuery("Rec::MuonTrackQuery/MuonTrackQuery"),
   m_momentumBalanceTool("Rec::MuonMomentumBalanceSignificanceTool/MuonMomentumBalanceSignifTool"),
   m_muonRecovery(""),
-  m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality"),
+  m_matchQuality("Rec::MuonMatchQuality/MuonMatchQuality", this),
   m_trackScoringTool("Muon::MuonTrackScoringTool/MuonTrackScoringTool"),
   m_magFieldSvc("AtlasFieldSvc",name),
   m_DetID(0)

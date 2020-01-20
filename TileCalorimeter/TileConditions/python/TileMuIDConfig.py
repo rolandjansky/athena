@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile MuID conditions tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileMuIDCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile MuID conditions algorithm
@@ -71,7 +72,7 @@ def TileCondToolMuIDCfg(flags, **kwargs):
 
     acc.merge( TileMuIDCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolMuID
+    TileCondToolMuID=CompFactory.TileCondToolMuID
     acc.setPrivateTools( TileCondToolMuID(name, TileMuID = muID) )
 
     return acc
@@ -99,7 +100,7 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileMuID.pkl','w') )
+    acc.store( open('TileMuID.pkl','wb') )
 
     print('All OK')
 

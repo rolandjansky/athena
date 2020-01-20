@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -1622,7 +1622,7 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   double angle2=ComputeAngle(0.0,1.0,m_OmegaEndStavePointX-midSidePt_omega.x(),m_OmegaEndStavePointY-midSidePt_omega.y());
   double angle3=ComputeAngle(0.0,1.0,m_FoamEdgePointX-midSidePt.x(),m_FoamEdgePointY-midSidePt.y());
 
-  m_gmt_mgr->msg(MSG::DEBUG)<< "Verfi angles : "<<angle1<<" "<<angle2<<" "<<angle3<<"  / "<<angle1*180.0/M_PI<<" "<<angle2*180.0/M_PI<<endmsg;
+  m_gmt_mgr->msg(MSG::DEBUG)<< "Verfi angles : "<<angle1<<" "<<angle2<<" "<<angle3<<"  / "<<angle1*m_oneDegree<<" "<<angle2*m_oneDegree<<endmsg;
 
   // Compute mid stave side point
   GeoTrf::Vector3D midSidePoint(0.0,0.0,0.0);

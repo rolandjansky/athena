@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------------------------
 # class LArCondDataDumper
@@ -7,6 +7,7 @@
 #  
 #----------------------------------------------------------------
 # python for LArConditionsContainer
+from __future__ import print_function
 from LArRawConditions.LArConditionsContainer import *
 # pyKernel access
 from PyKernel import PyKernel
@@ -192,7 +193,7 @@ class LArCondDataDumper(object) :
         print(" accessing ",key," failed ")
         typ, value, traceBack = sys.exc_info()
         #_logger.error("resetDefinedJobs : %s %s" % (typ,value))
-        print(traceback.format_exc())
+        traceback.print_exc()
 
 
 
@@ -239,7 +240,7 @@ class LArCondDataDumper(object) :
       # Assume a complex type, loop over attributes and print them out
       else:
         attrNames = dir(obj)
-        #print "found attributes:",attrNames
+        #print ("found attributes:",attrNames)
         newTab = tab + " "
         for attrName in attrNames:
           # Select attributes that begin with m_ or get

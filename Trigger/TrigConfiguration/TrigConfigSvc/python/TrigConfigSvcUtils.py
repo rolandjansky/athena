@@ -738,7 +738,7 @@ def getBunchGroupContent(connection, bgsk):
 
     res = executeQuery(cursor, output, condition, schemaname, tables, bindvars) 
 
-    bg = dict( enumerate( [[] for x in xrange(16)] ) )
+    bg = dict( enumerate( [[] for x in range(16)] ) )
 
     for e in res:
         bg[e[0]] += [e[1]]
@@ -754,7 +754,7 @@ def getL1Prescales(connection, l1prescalekey):
     maxitems = 512 if isrun2 else 256
     tables = { 'L' : 'L1_PRESCALE_SET' } 
 
-    output = ['L.L1PS_NAME'] + ['L.L1PS_VAL%i' % i for i in xrange(1,maxitems+1)] 
+    output = ['L.L1PS_NAME'] + ['L.L1PS_VAL%i' % i for i in range(1,maxitems+1)] 
 
     condition = [ "L.L1PS_ID = '%i'" % l1prescalekey ] 
 

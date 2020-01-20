@@ -42,6 +42,7 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "MuonCondData/MdtCondDbData.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
@@ -51,6 +52,8 @@
 // New Small Wheel
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
+
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "IRegionSelector/RegSelEnums.h"
@@ -78,10 +81,6 @@ class ITrackingGeometrySvc;
 class MuonStationIntersectSvc;
 class MdtCondDbData;
 
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Trk {
   class Track;
@@ -163,7 +162,9 @@ namespace Muon {
 
     const Trk::Track* findHoles( const Trk::Track& track, MuonData& data ) const;
     
-    const MuonGM::MuonDetectorManager*  m_detMgr;
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
     
     ToolHandle<IMuonSeededSegmentFinder>        m_seededSegmentFinder
       {this, "SeededSegmentFinder", "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};            //!< seeded segment finder
@@ -188,6 +189,7 @@ namespace Muon {
       "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer
         {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects    
+    ToolHandle<Trk::ITrackSummaryHelperTool>         m_trackSummaryTool;
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
     Gaudi::Property<double>                                 m_deta        {this, "DeltaEtaRegion", 0.05}; 

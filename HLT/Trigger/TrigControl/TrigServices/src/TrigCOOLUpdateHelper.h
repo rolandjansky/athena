@@ -20,7 +20,7 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
 #include "EventInfo/EventID.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"

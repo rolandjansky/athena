@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: CaloTopoEMphioff.py,v 1.5 2008-01-25 04:14:22 ssnyder Exp $
@@ -105,5 +105,6 @@ class CaloTopoEMphioff_v1_parms:
 class CaloTopoEMphioff_v2_parms:
     pass
 for (k,v) in CaloTopoEMphioff_v1_parms.__dict__.items():
-    setattr (CaloTopoEMphioff_v2_parms, k, v)
+    if k[0] != '_':
+        setattr (CaloTopoEMphioff_v2_parms, k, v)
 CaloTopoEMphioff_v2_parms.EndcapOffset = 0

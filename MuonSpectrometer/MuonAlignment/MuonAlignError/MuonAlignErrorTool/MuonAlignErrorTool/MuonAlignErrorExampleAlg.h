@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNERRORTOOL_MUONALIGNERROREXAMPLEALG_H
@@ -7,9 +7,10 @@
 
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 
 // For debugging
@@ -36,7 +37,7 @@ namespace MuonAlign {
       TFile* m_debug;
       TH1F* m_cham_per_dev;
       TH1F* m_dev_per_track;
-      ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool;
       std::string hardwareName(MuonCalib::MuonFixedId calibId) const;
       std::string side(MuonCalib::MuonFixedId calibId) const;

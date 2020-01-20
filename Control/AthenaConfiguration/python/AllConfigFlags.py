@@ -26,11 +26,15 @@ def _createCfgFlags():
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
     def _inputCollections(inputFile):
+        if not inputFile:
+            return []
+
         rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
         collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
         return collections
 
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
+    acf.addFlag('Input.SecondaryCollections', lambda prevFlags : _inputCollections(prevFlags.Input.SecondaryFiles) )
 
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0)
@@ -67,12 +71,14 @@ def _createCfgFlags():
     acf.addFlag('Output.EVNTFileName', '')
     acf.addFlag('Output.HITSFileName', '')
     acf.addFlag('Output.RDOFileName',  '')
+    acf.addFlag('Output.RDO_SGNLFileName', '')
     acf.addFlag('Output.ESDFileName',  '')
     acf.addFlag('Output.AODFileName',  '')
     acf.addFlag('Output.HISTFileName', '')
     
 
     acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
+    acf.addFlag('Output.doWriteRDO_SGNL', lambda prevFlags: bool(prevFlags.Output.RDO_SGNLFileName)) # write out RDO_SGNL file
     acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
     acf.addFlag('Output.doESD',      lambda prevFlags: prevFlags.Output.doWriteESD) # produce ESD containers
     acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file

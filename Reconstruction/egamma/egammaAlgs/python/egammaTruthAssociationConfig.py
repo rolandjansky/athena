@@ -3,8 +3,9 @@
 __doc__ = "Configure egammaTruthAssociation"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaAlgs.egammaAlgsConf import egammaTruthAssociationAlg
+egammaTruthAssociationAlg=CompFactory.egammaTruthAssociationAlg
 from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCaloTruthMatchCfg
 
 

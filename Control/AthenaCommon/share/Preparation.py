@@ -220,8 +220,11 @@ if ( (opts.threads and (opts.threads != 0)) or (opts.concurrent_events and (opts
       _msg.error ("ConcurrencyFlags.NumProcs() cannot == -1 !!")
       sys.exit()
 
+   if (opts.event_service_mt == True) :
+      import AthenaCommon.AtlasThreadedEsJob
+   else:
+      import AthenaCommon.AtlasThreadedJob
 
-   import AthenaCommon.AtlasThreadedJob
 
 
 

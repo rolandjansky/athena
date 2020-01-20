@@ -95,7 +95,7 @@ class  ConfiguredInDetValidation:
         
       topSequence += InDetRecStatistics
       if (InDetFlags.doPrintConfigurables()):
-        print InDetRecStatistics
+        printfunc (InDetRecStatistics)
             
     #
     # --- load cluster validation alg
@@ -139,5 +139,5 @@ class  ConfiguredInDetValidation:
  
       topSequence += InDetTrackClusterAssValidation
       if (InDetFlags.doPrintConfigurables()):
-        print InDetTrackClusterAssValidation
+        printfunc (InDetTrackClusterAssValidation)
 

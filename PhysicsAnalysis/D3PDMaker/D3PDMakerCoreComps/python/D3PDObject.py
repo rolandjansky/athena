@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: D3PDObject.py 528970 2012-12-05 11:23:27Z ssnyder $
 #
@@ -9,11 +9,11 @@
 #
 
 
-from Block import Block
-from reset_props import reset_props
+from .Block import Block
+from .reset_props import reset_props
 import D3PDMakerCoreComps
 from AthenaCommon.Logging import logging
-from StackedDict import StackedDict
+from .StackedDict import StackedDict
 
 
 def _make_name (name, prefix, name_prefix, parent_prefix, default_prefix):
@@ -276,7 +276,7 @@ class D3PDObject:
         """Add a new block name N to the list of all names.
         Raises an exception if a block name is duplicated.
 """
-        if self._all_blocknames.has_key (n):
+        if n in self._all_blocknames:
             if warnonly:
                 log = logging.getLogger ('D3PDObject')
                 log.warn ('Duplicate block name: %s (%s %s %s)' %
@@ -380,7 +380,7 @@ class D3PDObject:
             kk = k.split('_')
             for i in range(1, len(kk)):
                 this_key = '_'.join (kk[:i])
-                if self._all_blocknames.has_key (this_key):
+                if this_key in self._all_blocknames:
                     this_var = '_'.join (kk[i:])
                     blockargs.setdefault(this_key,{})[this_var] = kw[k]
                     del kw[k]
@@ -389,7 +389,7 @@ class D3PDObject:
         # Don't pass extra args listed in allow_args to the maker function.
         kw2 = kw.copy()
         for k in self._allow_args:
-            if kw2.has_key(k): del kw2[k]
+            if k in kw2: del kw2[k]
 
         # Call the maker function.  We actually do this twice.
         # This is going to be a private tool, so the name need not
@@ -523,7 +523,7 @@ Should be run by the D3PD maker algorithm; not for general use.
                 fillername = parent_name + '_' + b.name
                 if isinstance (b.func, D3PDObject): # ugly!
                     for k in self._allow_args:
-                        if hookargs.has_key (k):
+                        if k in hookargs:
                             args[k] = hookargs[k]
                     bf = b.func (level, fillername,
                                  parent_prefix = parent_prefix,

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 # Configure L2 and EF monitoring chains
@@ -245,16 +245,16 @@ class L2EFChain_Monitoring(L2EFChainDef):
             from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScanA, TrigL2SiTrackFinder_FullScanB
             theTrigL2SiTrackFinder_FullScanA = TrigL2SiTrackFinder_FullScanA()
             theTrigL2SiTrackFinder_FullScanB = TrigL2SiTrackFinder_FullScanB()
-        except:
+        except Exception:
             theTrigL2SiTrackFinder_FullScanA = None
             theTrigL2SiTrackFinder_FullScanB = None
 
 
         try:
             from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScanBC
-            theTrigL2SiTrackFInder_FullScanBC = TrigL2SiTrackFinder_FullScanBC()
-        except:
-            theTrigL2SiTrackFInder_FullScanBC = None
+            theTrigL2SiTrackFinder_FullScanBC = TrigL2SiTrackFinder_FullScanBC()
+        except Exception:
+            theTrigL2SiTrackFinder_FullScanBC = None
 
 
             

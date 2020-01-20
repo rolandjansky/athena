@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies LArRawChannels getting
 
@@ -30,7 +30,8 @@ class LArRawChannelGetter_DigiHSTruth ( Configured )  :
                 theLArRawChannelBuilder_DigiHSTruth = getLArRawChannelBuilder_DigiHSTruth()
                 topSequence += theLArRawChannelBuilder_DigiHSTruth
             except Exception as cfgException:
-                print cfgException
+                import traceback
+                mlog.error(traceback.format_exc())
                 mlog.error("Failed to retrieve LArRawChannelBuilder_DigiHSTruth. Quit")
                 return False
 

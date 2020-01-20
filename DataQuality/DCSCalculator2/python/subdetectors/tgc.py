@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from ..lib import DCSC_DefectTranslate_Subdetector, DCSC_Variable
 
@@ -22,8 +22,8 @@ class TGC(DCSC_DefectTranslate_Subdetector):
     #     print id, name
     #
     mapping = {
-        TGCEA: range(3733, 5593) + range(7459, 7465),
-        TGCEC: range(5593, 7459),
+        TGCEA: list(range(3733, 5593)) + list(range(7459, 7465)),
+        TGCEC: list(range(5593, 7459)),
     }
 
     variables = [

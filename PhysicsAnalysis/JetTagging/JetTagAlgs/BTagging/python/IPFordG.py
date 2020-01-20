@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 def add_ipfordg(ToolSvc, calibration_tool, BTaggingFlags, 
@@ -14,7 +16,7 @@ def add_ipfordg(ToolSvc, calibration_tool, BTaggingFlags,
         )
     ToolSvc += likelihood_tool
     if BTaggingFlags.OutputLevel < 3:
-      print likelihood_tool
+      print (likelihood_tool)
     
     # each tagger needs own instance, can't be shared! ( -> not sure here ... ask Laurent, JB)
     from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
@@ -26,7 +28,7 @@ def add_ipfordg(ToolSvc, calibration_tool, BTaggingFlags,
         )
     ToolSvc += track_selector
     if BTaggingFlags.OutputLevel < 3:
-      print track_selector
+      print (track_selector)
     
     from JetTagTools.JetTagToolsConf import Analysis__SVForIPTool
     sv_for_ip_tool = Analysis__SVForIPTool(
@@ -35,7 +37,7 @@ def add_ipfordg(ToolSvc, calibration_tool, BTaggingFlags,
     
     ToolSvc += sv_for_ip_tool
     if BTaggingFlags.OutputLevel < 3:
-      print sv_for_ip_tool
+      print (sv_for_ip_tool)
     
     from JetTagTools.JetTagToolsConf import (
         Analysis__DetailedTrackGradeFactory)
@@ -50,8 +52,8 @@ def add_ipfordg(ToolSvc, calibration_tool, BTaggingFlags,
     ToolSvc += detailed_track_grade_factory
     
     if BTaggingFlags.OutputLevel < 3:
-      print basic_track_grade_factory
-      print detailed_track_grade_factory
+      print (basic_track_grade_factory)
+      print (detailed_track_grade_factory)
 
     if do_neg: 
         flip_args = dict(
@@ -112,9 +114,9 @@ def add_ipfordg(ToolSvc, calibration_tool, BTaggingFlags,
     vx_in_jet_tool.CutPixelHits=1 
 
     if BTaggingFlags.OutputLevel < 3:
-      print vx_in_jet_tool
+      print (vx_in_jet_tool)
 
     ToolSvc += ip3d_tool
     if BTaggingFlags.OutputLevel < 3:
-      print ip3d_tool
+      print (ip3d_tool)
     return ip3d_tool

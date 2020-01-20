@@ -10,7 +10,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigT1Interfaces/RecJetRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "RoIsUnpackingToolBase.h"

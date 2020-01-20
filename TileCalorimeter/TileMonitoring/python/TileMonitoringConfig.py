@@ -31,9 +31,20 @@ def TileMonitoringCfg(flags):
     if environment in ('online', 'tier0', 'tier0ESD'):
         msg.info('Setup Tile Monitoring for ESD data due to environment: %s', environment)
 
+        from TileMonitoring.TileCellMonitorAlgorithm import TileCellMonitoringConfig
+        acc.merge( TileCellMonitoringConfig(flags) )
+
+        from TileMonitoring.TileTowerMonitorAlgorithm import TileTowerMonitoringConfig
+        acc.merge( TileTowerMonitoringConfig(flags) )
+
+        from TileMonitoring.TileClusterMonitorAlgorithm import TileClusterMonitoringConfig
+        acc.merge( TileClusterMonitoringConfig(flags) )
+
+        from TileMonitoring.TileMuIdMonitorAlgorithm import TileMuIdMonitoringConfig
+        acc.merge( TileMuIdMonitoringConfig(flags) )
+
         from TileMonitoring.TileJetMonitorAlgorithm import TileJetMonitoringConfig
         acc.merge( TileJetMonitoringConfig(flags) )
-
 
     return acc
 

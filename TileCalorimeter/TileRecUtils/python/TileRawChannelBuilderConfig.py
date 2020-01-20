@@ -3,6 +3,7 @@
 """Define method to construct configured base Tile raw channel builder tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 _runTypes = {'PHY' : 1, 'LAS' : 2, 'BILAS' : 2, 'PED' : 4, 'CIS' : 8, 'MONOCIS' : 8}
 
@@ -83,13 +84,13 @@ if __name__ == "__main__":
 
     acc = ComponentAccumulator()
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
+    TileRawChannelBuilderFitFilter=CompFactory.TileRawChannelBuilderFitFilter
     rchBuilderFitAcc = TileRawChannelBuilderCfg(ConfigFlags,
                                                 name = 'TileRawChannelBuilderFit',
                                                 TileRawChannelBuilder = TileRawChannelBuilderFitFilter)
     print( acc.popToolsAndMerge(rchBuilderFitAcc) )
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
+    TileRawChannelBuilderOpt2Filter=CompFactory.TileRawChannelBuilderOpt2Filter
     rchBuilderOpt2Acc = TileRawChannelBuilderCfg(ConfigFlags,
                                                  name = 'TileRawChannelBuilderOpt2',
                                                  TileRawChannelBuilder = TileRawChannelBuilderOpt2Filter)
@@ -97,6 +98,6 @@ if __name__ == "__main__":
 
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelBuilder.pkl','w') )
+    acc.store( open('TileRawChannelBuilder.pkl','wb') )
 
 

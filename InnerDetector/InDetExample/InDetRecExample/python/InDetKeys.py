@@ -1,4 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 
 ##
 ## @file InDetRecExample/python/InDetKeys.py
@@ -1071,10 +1074,10 @@ class InDetContainerKeys(JobPropertyContainer):
 
     def lockAllExceptAlias(self):
         # Lock everything except AliasToTracks (do it this way to avoid a warning when unlocking AliasToTracks)
-        print "InDetKeys: Locking all keys except aliases"
+        print("InDetKeys: Locking all keys except aliases")
         # InDetKeys.lock_JobProperties()
         # InDetKeys.AliasToTracks.unlock()
-        [k.lock() for k in InDetKeys.__dict__.values() if hasattr(k,'is_locked') and not isinstance(k,type(InDetKeys.AliasToTracks))]
+        [k.lock() for k in list(InDetKeys.__dict__.values()) if hasattr(k,'is_locked') and not isinstance(k,type(InDetKeys.AliasToTracks))]
         return 
     pass
 

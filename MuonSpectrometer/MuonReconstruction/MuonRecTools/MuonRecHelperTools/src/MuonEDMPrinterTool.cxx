@@ -77,6 +77,8 @@ namespace Muon {
       ATH_MSG_WARNING("Could not get " << m_summaryHelper); 
       return StatusCode::FAILURE;
     }
+ 
+    ATH_CHECK(m_DetectorManagerKey.initialize());
   
     return StatusCode::SUCCESS;
   }
@@ -697,16 +699,18 @@ namespace Muon {
 
 	if( isMdt && detEls.empty() ){
 
-          const MuonGM::MuonDetectorManager* detMgr = 0;
-          if( !detStore()->retrieve( detMgr ) || !detMgr ){
-            ATH_MSG_DEBUG("Cannot retrieve DetectorManager ");
-          }else{
+	  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+	  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+	  if(MuonDetMgr==nullptr){
+	    ATH_MSG_DEBUG("Cannot retrieve DetectorManager ");
+	  } else {
+
             Identifier idml1 = m_idHelper->mdtIdHelper().channelID(id,1,1,1);
             Identifier idml2 = m_idHelper->mdtIdHelper().channelID(id,2,1,1);
-            const MuonGM::MdtReadoutElement* detEl1 = detMgr->getMdtReadoutElement( idml1 );
+            const MuonGM::MdtReadoutElement* detEl1 = MuonDetMgr->getMdtReadoutElement( idml1 );
             const MuonGM::MdtReadoutElement* detEl2 = 0;
             if (m_idHelper->mdtIdHelper().numberOfMultilayers(id) == 2){
-              detEl2 = detMgr->getMdtReadoutElement( idml2 );
+              detEl2 = MuonDetMgr->getMdtReadoutElement( idml2 );
             }else{
               ATH_MSG_DEBUG("A single multilayer for this station " << m_idHelper->toString(id));
             }	

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloClusterMatchingTool.cxx 
@@ -15,7 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
+#include "StoreGate/WriteDecorHandle.h"
 #include <algorithm>
 #include <utility>
 
@@ -23,28 +23,9 @@ namespace ClusterMatching {
 
   using namespace xAOD;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  // Constructors
-  ////////////////
-  CaloClusterMatchingTool::CaloClusterMatchingTool( const std::string& name ) : 
-    AsgTool  ( name ),
-    m_elementLinkDec("TopoClusterLinks")
-  {
-    //
-    // Property declaration
-    // 
-    declareProperty( "RequirePositiveE",       m_reqPosE         = true );
-    declareProperty( "MinSharedEfrac",         m_minSharedEfrac  = 0.2  );
-    declareProperty( "ElementLinkName",        m_elementLinkName = "constituentClusterLinks" );
-  }
-
   // Destructor
   ///////////////
-  CaloClusterMatchingTool::~CaloClusterMatchingTool()
-  {}
+  CaloClusterMatchingTool::~CaloClusterMatchingTool() {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -55,11 +36,9 @@ namespace ClusterMatching {
     if(m_elementLinkName.empty()) {
       ATH_MSG_ERROR("Empty name provided for TopoCluster ElementLinks -- aborting");
       return StatusCode::FAILURE;
-    } else {
-      m_elementLinkDec = SG::AuxElement::Decorator<std::vector<ElementLink<CaloClusterContainer> > >(m_elementLinkName);
     }
-
     ATH_CHECK( m_clustersIn.initialize() );
+    ATH_CHECK( m_elementLinkName.initialize() );
 
     return StatusCode::SUCCESS;
   }
@@ -223,11 +202,7 @@ namespace ClusterMatching {
 							  bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
 									  const std::pair<const xAOD::CaloCluster*,float>& pair2)) const
   {
-    if(m_elementLinkName.empty()) {
-      ATH_MSG_WARNING("No valid ElementLink name specified -- cannot decorate with empty branch name");
-      return StatusCode::FAILURE;
-    }
-
+    SG::WriteDecorHandle<xAOD::CaloClusterContainer,std::vector<ElementLink<xAOD::CaloClusterContainer> > >elementLinkDec(m_elementLinkName); 
     std::vector<std::pair<const CaloCluster*,float> > matchedClustersAndE;
     std::vector<ElementLink<CaloClusterContainer> > tcLinks;
     std::vector<float> tcSharedE;
@@ -242,8 +217,8 @@ namespace ClusterMatching {
       }
     }
     // apply the decoration -- no exceptions
-    m_elementLinkDec(refCluster) = tcLinks;
-    ATH_MSG_VERBOSE("Decorate cluster " << refCluster.index() << " with " << m_elementLinkDec(refCluster).size() << " tc links");
+    elementLinkDec(refCluster) = tcLinks;
+    ATH_MSG_VERBOSE("Decorate cluster " << refCluster.index() << " with " << elementLinkDec(refCluster).size() << " tc links");
 
     return StatusCode::SUCCESS;
   }
@@ -257,11 +232,7 @@ namespace ClusterMatching {
 							  bool (*gtrthan)(const std::pair<const xAOD::CaloCluster*,float>& pair1,
 									  const std::pair<const xAOD::CaloCluster*,float>& pair2)) const
   {
-    if(m_elementLinkName.empty()) {
-      ATH_MSG_WARNING("No valid ElementLink name specified -- cannot decorate with empty branch name");
-      return StatusCode::FAILURE;
-    }
-
+    SG::WriteDecorHandle<xAOD::CaloClusterContainer,std::vector<ElementLink<xAOD::CaloClusterContainer> > > elementLinkDec(m_elementLinkName); 
     std::vector<std::pair<const CaloCluster*,float> > matchedClustersAndE;
     std::vector<ElementLink<CaloClusterContainer> > tcLinks;
     std::vector<float> tcSharedE;
@@ -275,27 +246,9 @@ namespace ClusterMatching {
       }
     }
     // apply the decoration -- no exceptions
-    m_elementLinkDec(refCluster) = tcLinks;
-    ATH_MSG_VERBOSE("Decorate cluster " << refCluster.index() << " with " << m_elementLinkDec(refCluster).size() << " tc links");
+    elementLinkDec(refCluster) = tcLinks;
+    ATH_MSG_VERBOSE("Decorate cluster " << refCluster.index() << " with " << elementLinkDec(refCluster).size() << " tc links");
 
     return StatusCode::SUCCESS;
   }
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-
 }

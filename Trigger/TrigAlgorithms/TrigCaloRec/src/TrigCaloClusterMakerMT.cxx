@@ -23,7 +23,7 @@
 #include "GaudiKernel/ListItem.h"
 #include "CaloInterface/ISetCaloCellContainerName.h"
 //
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 //

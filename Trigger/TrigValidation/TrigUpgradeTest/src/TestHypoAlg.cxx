@@ -40,10 +40,10 @@ namespace HLTTest {
       return StatusCode::SUCCESS;      
     }
     
-    ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+    ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" decisions from the input implicit ReadHandle");
 
     auto recoInput = SG::makeHandle(m_recoInput, context);
-    ATH_MSG_DEBUG( "and with "<< recoInput->size() <<" reco inputs");
+    ATH_MSG_DEBUG( "             and with "<< recoInput->size() <<" reco inputs");
     
     // new output decisions
     SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
@@ -58,7 +58,7 @@ namespace HLTTest {
       const FeatureOBJ* feature = *featureLink;
       featureFromDecision.push_back( feature);
     }       
-    ATH_MSG_DEBUG("Found "<<featureFromDecision.size()<<" features "<<m_linkName.value() <<" mapped from previous decisions");
+    ATH_MSG_DEBUG("Found "<<featureFromDecision.size()<<" features "<<m_linkName.value() <<" mapped from input decisions");
     
     //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
     size_t reco_counter = 0;
@@ -110,10 +110,10 @@ namespace HLTTest {
       TrigCompositeUtils::DecisionIDContainer objDecisions;      
       TrigCompositeUtils::decisionIDs( outh, objDecisions );
 
-      ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size() );
+      ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
 
       for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
-        ATH_MSG_DEBUG( " --- found new decision " << HLT::Identifier( id ) );
+        ATH_MSG_DEBUG( " --- found decision " << HLT::Identifier( id ) );
       }  
     }
   

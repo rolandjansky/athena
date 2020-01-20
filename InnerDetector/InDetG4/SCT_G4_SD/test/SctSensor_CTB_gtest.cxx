@@ -105,7 +105,7 @@ TEST_F( SctSensor_CTBtest, ProcessHits )
   ASSERT_EQ(a->begin()->particleLink(), plink);
   ASSERT_EQ(a->begin()->identify(),4093651781);
 
-  ASSERT_EQ(a->size(), 1); //test the size of the Hit container, it should be 1 since just 1 Hit was stored in it
+  ASSERT_EQ(a->size(), 1u); //test the size of the Hit container, it should be 1 since just 1 Hit was stored in it
 }
 
 TEST_F( SctSensor_CTBtest, AddHit )
@@ -151,8 +151,8 @@ TEST_F( SctSensor_CTBtest, AddHit )
   ASSERT_EQ(a->begin()->energyLoss(), 2.0);
   ASSERT_EQ(a->begin()->meanTime(), 1.0);
   ASSERT_EQ(a->begin()->particleLink(), plink);
-  ASSERT_EQ(a->begin()->identify(), 10245);
-  ASSERT_EQ(a->size(), 1); //test the current size of the Hit container
+  ASSERT_EQ(a->begin()->identify(), 10245u);
+  ASSERT_EQ(a->size(), 1u); //test the current size of the Hit container
 
 }
 

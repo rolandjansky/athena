@@ -11,7 +11,6 @@ from PyUtils.xmldict import import_etree
 etree = import_etree()
 import xml.etree.cElementTree as ET
 
-from string import split
 from os.path import exists, join, abspath
 
 from AthenaCommon.Logging import logging  # loads logger
@@ -44,7 +43,7 @@ def findFileInXMLPATH(filename):
             return filename
 
         xmlpath = environ['XMLPATH']
-        paths = split(xmlpath, ":")
+        paths = xmlpath.split(":")
         for path in paths:
 
             test = join(path, filename)

@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoToolInc
-from TrigL2CaloHypoCutDefs import L2CaloCutMaps
+from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2CaloHypoTool')

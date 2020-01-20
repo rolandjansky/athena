@@ -115,7 +115,7 @@ class useCalibHitTruth(JobProperty):
     StoredValue = False
 
 class usePFEGammaPFOAssoc(JobProperty):
-    """ Flag to toggle use of linking between electrons and PFOs
+    """ Flag to toggle use of linking between Egamma objects and PFOs
     """
     statusOn = True
     allowedTypes = ['bool']

@@ -3,6 +3,7 @@
 """Define method to construct configured Tile Cell maker algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from CaloCellCorrection.CaloCellCorrectionConfig import CaloCellNeighborsAverageCorrCfg
 
@@ -22,7 +23,7 @@ def CaloCellContainerCheckerToolCfg(flags):
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge(TileGMCfg(flags))
 
-    from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
+    CaloCellContainerCheckerTool=CompFactory.CaloCellContainerCheckerTool
     acc.setPrivateTools( CaloCellContainerCheckerTool() )
 
     return acc
@@ -64,7 +65,7 @@ def TileCellMakerCfg(flags, **kwargs):
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
         acc.merge( TileRawChannelMakerCfg(flags) )
 
-    from CaloRec.CaloRecConf import CaloCellMaker, CaloCellContainerFinalizerTool
+    CaloCellMaker, CaloCellContainerFinalizerTool=CompFactory.getComps("CaloCellMaker","CaloCellContainerFinalizerTool",)
     from TileRecUtils.TileCellBuilderConfig import TileCellBuilderCfg
     tileCellBuilder = acc.popToolsAndMerge( TileCellBuilderCfg(flags, SkipGain = skipGain) )
 
@@ -143,7 +144,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileCellMaker.pkl','w') )
+    acc.store( open('TileCellMaker.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

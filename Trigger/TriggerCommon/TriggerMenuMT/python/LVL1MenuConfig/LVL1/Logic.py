@@ -4,7 +4,7 @@ __all__ = ['Logic', 'Not']
 
 from copy import copy
 
-from Lvl1MenuUtil import log
+from .Lvl1MenuUtil import log
 
 
 class Logic(object):
@@ -127,7 +127,7 @@ class Logic(object):
     def thresholdNames(self, include_bgrp=False):
         names = set([])
         if self.condition is not None:
-            from Lvl1Condition import Lvl1InternalTrigger
+            from .Lvl1Condition import Lvl1InternalTrigger
             if isinstance(self.condition, Lvl1InternalTrigger):
                 if include_bgrp:
                     names.add(self.condition.name())
@@ -142,7 +142,7 @@ class Logic(object):
     def conditions(self, include_internal=False):
         cond = set([])
         if self.condition is not None:
-            from Lvl1Condition import Lvl1InternalTrigger
+            from .Lvl1Condition import Lvl1InternalTrigger
             if isinstance(self.condition, Lvl1InternalTrigger):
                 if include_internal:
                     cond.add(self.condition)
@@ -151,7 +151,7 @@ class Logic(object):
         else:
             for sc in self.subConditions:
                 cond.update( sc.conditions(include_internal) )
-        return sorted(list(cond))
+        return sorted(list(cond), key = lambda x: x.name())
 
 
     def normalize(self):

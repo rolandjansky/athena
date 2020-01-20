@@ -40,14 +40,14 @@ atlas_install_joboptions( share/*.py share/tests/*.py )
 atlas_add_test( PyClidsTestWriter
                 SCRIPT test/PyClidsTestWriter.sh
                 PROPERTIES TIMEOUT 300
-                EXTRA_PATTERNS "running|XMLCatalog" )
+                LOG_IGNORE_PATTERN "running|XMLCatalog" )
 
 atlas_add_test( SgProducerConsumer
                 SCRIPT test/SgProducerConsumer.sh
                 PROPERTIES TIMEOUT 300
-                EXTRA_PATTERNS "running|XMLCatalog" )
+                LOG_IGNORE_PATTERN "running|XMLCatalog" )
 
 atlas_add_test( SgProducerConsumerDataPool
                 SCRIPT test/SgProducerConsumerDataPool.sh
                 PROPERTIES TIMEOUT 600
-                EXTRA_PATTERNS "running|XMLCatalog" )
+                LOG_IGNORE_PATTERN "running|XMLCatalog" )

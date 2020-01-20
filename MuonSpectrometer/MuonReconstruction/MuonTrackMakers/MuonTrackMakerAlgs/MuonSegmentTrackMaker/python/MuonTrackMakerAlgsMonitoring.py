@@ -1,7 +1,7 @@
 # Author: Laurynas Mince
 # Created on 15.10.2019
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class MuPatTrackBuilderMonitoring(GenericMonitoringTool):
     def __init__ (self, name="MuPatTrackBuilderMonitoring"):

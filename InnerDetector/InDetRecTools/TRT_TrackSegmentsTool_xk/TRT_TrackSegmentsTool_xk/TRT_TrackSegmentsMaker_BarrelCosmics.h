@@ -14,24 +14,20 @@
 #ifndef TRT_TrackSegmentsMaker_BarrelCosmics_H
 #define TRT_TrackSegmentsMaker_BarrelCosmics_H
 
-#include <list>
-#include <map>
-#include "GaudiKernel/ToolHandle.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 #include "TrkEventUtils/EventDataBase.h"
-#include "TrkParameters/TrackParameters.h"
-#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "TrkEventPrimitives/LocalParameters.h"
-#include "TrkEventPrimitives/FitQuality.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include <vector>
+#include <string>
+#include <memory>
+#include <iosfwd>
 
 class MsgStream;
-
+class TRT_ID;
 
 namespace InDet{
 
@@ -69,8 +65,10 @@ namespace InDet{
       virtual void find(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
       virtual Trk::TrackSegment *next(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
 
-      MsgStream&    dump          (MsgStream   & out) const { return out; };
-      std::ostream& dump          (std::ostream& out) const { return out; };
+      virtual MsgStream&    dump          (MsgStream   & out) const override
+      { return out; };
+      virtual std::ostream& dump          (std::ostream& out) const override
+      { return out; };
 
 
     protected:

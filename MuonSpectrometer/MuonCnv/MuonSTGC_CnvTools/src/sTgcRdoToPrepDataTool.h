@@ -26,7 +26,6 @@ class ITGCcablingSvc;
 
 namespace MuonGM 
 {
-  class MuonDetectorManager;
   class TgcReadoutElement; 
 }
 

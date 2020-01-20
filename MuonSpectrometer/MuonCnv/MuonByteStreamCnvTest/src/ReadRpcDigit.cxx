@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadRpcDigit.h"
@@ -63,7 +63,7 @@ StatusCode ReadRpcDigit::execute()
 
   std::string key = "RPC_DIGITS";
 
-  const DataHandle<RpcDigitContainer> rpc_container;
+  const RpcDigitContainer* rpc_container = nullptr;
   ATH_CHECK( (*m_activeStore)->retrieve(rpc_container, key) );
   
   ATH_MSG_DEBUG("****** rpc->size() : " << rpc_container->size() );

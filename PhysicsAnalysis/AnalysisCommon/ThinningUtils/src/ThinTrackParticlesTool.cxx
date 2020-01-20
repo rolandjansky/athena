@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /******************************************************************************
@@ -27,6 +27,9 @@ Created:     July 2013
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/StackElement.h"
+#include "StoreGate/ThinningHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // EDM includes
 #include "xAODBase/IParticle.h"
@@ -65,38 +68,15 @@ ThinTrackParticlesTool::ThinTrackParticlesTool( const std::string& type,
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
 #endif
   m_parser(0),
-  m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_tauConversion(false),
   m_tauWide(false),
   m_tauOther(false),
   m_nElectronPTMax(-1),
-  m_nTotalTrackParts(0),
   m_nEventsProcessed(0),
   m_nTrackPartsKept(0),
   m_nTrackPartsProcessed(0)
 {
   declareInterface< DerivationFramework::IThinningTool >(this);
-
-  // Properties go here
-  declareProperty("ThinningSvc",          m_thinningSvc,
-                  "The ThinningSvc instance for a particular output stream" );
-  declareProperty("TrackParticlesToThin", m_trackParticleKey = "InDetTrackParticles",
-                  "The xAOD::TrackParticleContainer to be thinned" );
-  declareProperty("InputContainerList",   m_inCollKeyList,
-                  "Containers from which to extract the information which xAOD::TrackParticles should be kept" );
-
-  declareProperty("Selection",            m_selection="",
-                  "The selection string that defines which xAOD::IParticles to select from the container" );
-
-  declareProperty("KeepTauConversions",   m_tauConversion=false,
-                  "Flag to steer if one should also keep conversion track particles from taus" );
-  declareProperty("KeepTauWide",          m_tauWide=false,
-                  "Flag to steer if one should also keep 'wide track particles' from taus" );
-  declareProperty("KeepTauOther",         m_tauOther=false,
-                  "Flag to steer if one should also keep 'other' track particles from taus" );
-
-  declareProperty("NMaxElectronTrackParticles", m_nElectronPTMax,
-                  "Set the maximum number of TrackParticles from each electron to keep (default: -1 means all are kept");
 }
 
 
@@ -117,7 +97,7 @@ StatusCode ThinTrackParticlesTool::initialize()
   // Print the used configuration
   ATH_MSG_DEBUG ( "==> initialize " << name() << "..." );
   // Print out the used configuration
-  ATH_MSG_DEBUG ( " using " << m_thinningSvc );
+  ATH_MSG_DEBUG ( " using " << m_streamName );
   ATH_MSG_DEBUG ( " using " << m_trackParticleKey );
   ATH_MSG_DEBUG ( " using " << m_inCollKeyList );
   ATH_MSG_DEBUG ( " using " << m_selection );
@@ -126,9 +106,12 @@ StatusCode ThinTrackParticlesTool::initialize()
   ATH_MSG_DEBUG ( " using " << m_tauOther );
   ATH_MSG_DEBUG ( " using " << m_nElectronPTMax );
 
-  // Get pointer to ThinningSvc and cache it :
-  // m_thinningSvc is of type IThinningSvc
-  ATH_CHECK ( m_thinningSvc.retrieve() );
+  if (m_streamName.empty()) {
+    ATH_MSG_ERROR( "StreamName property has not been initialized" );
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( m_trackParticleKey.initialize (m_streamName) );
+  ATH_CHECK( m_inCollKeyList.initialize() );
 
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
@@ -144,7 +127,6 @@ StatusCode ThinTrackParticlesTool::initialize()
   m_parser->loadExpression( m_selection.value() );
 
   // Initialize the counters
-  m_nTotalTrackParts = 0;
   m_nEventsProcessed = 0;
   m_nTrackPartsKept = 0;
   m_nTrackPartsProcessed = 0;
@@ -182,128 +164,114 @@ StatusCode ThinTrackParticlesTool::finalize()
 //=============================================================================
 StatusCode ThinTrackParticlesTool::doThinning() const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   ++m_nEventsProcessed;
   // Simple status message at the beginning of each event
   ATH_MSG_DEBUG ( "==> doThinning " << name() << " on " << m_nEventsProcessed << ". event..." );
 
-  // retrive the TrackParticle Container
-  const xAOD::TrackParticleContainer* trackParticleContainer;
-  ATH_CHECK( evtStore()->retrieve(trackParticleContainer, m_trackParticleKey.value()) );
-  ATH_MSG_DEBUG ( "Container '" << m_trackParticleKey.value() << "' retrieved from StoreGate" );
-  m_nTotalTrackParts  = trackParticleContainer->size();
+  // retrieve the TrackParticle Container
+  SG::ThinningHandle<xAOD::TrackParticleContainer> trackParticleContainer (m_trackParticleKey, ctx);
+  ATH_MSG_DEBUG ( "Container '" << m_trackParticleKey.key() << "' retrieved from StoreGate" );
+  size_t nTotalTrackParts  = trackParticleContainer->size();
 
   // Create the mask to be used for thinning
-  std::vector<bool> mask(m_nTotalTrackParts, false);
+  std::vector<bool> mask(nTotalTrackParts, false);
 
   // Now, retrieve the other containers that are holding the information which
   // TrackParticles should be kept
-  for ( const auto& inKey : m_inCollKeyList.value() ) {
+  for ( const SG::ReadHandleKey<SG::AuxVectorBase>& inKey : m_inCollKeyList ) {
+
+    SG::ReadHandle<SG::AuxVectorBase> inObj (inKey, ctx);
 
     // First check for an xAOD::IParticleLinkContainer
-    if ( evtStore()->contains< xAOD::IParticleLinkContainer >( inKey ) ) {
-      const xAOD::IParticleLinkContainer* inLinkContainer;
-      ATH_CHECK( evtStore()->retrieve( inLinkContainer , inKey ) );
-      ATH_MSG_DEBUG ( "Input link collection = '" << inKey
+    if (const auto* inLinkContainer = dynamic_cast<const xAOD::IParticleLinkContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input link collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inLinkContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const xAOD::IParticleLink& partLink : *inLinkContainer ) {
-        ATH_CHECK( this->selectFromIParticleLink( mask, trackParticleContainer, partLink ) );
+        ATH_CHECK( this->selectFromIParticleLink( mask, trackParticleContainer.cptr(), partLink ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::ElectronContainer >( inKey ) ) {
-      // This file holds an xAOD::ElectronContainer
-      const xAOD::ElectronContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::ElectronContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromElectron( mask, trackParticleContainer, part ) );
+        ATH_CHECK( this->selectFromElectron( mask, trackParticleContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::PhotonContainer >( inKey ) ) {
-      // This file holds an xAOD::PhotonContainer
-      const xAOD::PhotonContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::PhotonContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromPhoton( mask, trackParticleContainer, part ) );
+        ATH_CHECK( this->selectFromPhoton( mask, trackParticleContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::MuonContainer >( inKey ) ) {
-      // This file holds an xAOD::MuonContainer
-      const xAOD::MuonContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::MuonContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromMuon( mask, trackParticleContainer, part ) );
+        ATH_CHECK( this->selectFromMuon( mask, trackParticleContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::TauJetContainer >( inKey ) ) {
-      // This file holds an xAOD::TauJetContainer
-      const xAOD::TauJetContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::TauJetContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromTauJet( mask, trackParticleContainer, part ) );
+        ATH_CHECK( this->selectFromTauJet( mask, trackParticleContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::JetContainer >( inKey ) ) {
-      // This file holds an xAOD::JetContainer
-      const xAOD::JetContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::JetContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromJet( mask, trackParticleContainer, part ) );
+        ATH_CHECK( this->selectFromJet( mask, trackParticleContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::CompositeParticleContainer >( inKey ) ) {
-      // This file holds an xAOD::CompositeParticleContainer
-      const xAOD::CompositeParticleContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::CompositeParticleContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromCompositeParticle( mask, trackParticleContainer, part ) );
+        ATH_CHECK( this->selectFromCompositeParticle( mask, trackParticleContainer.cptr(), part ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::VertexContainer >( inKey ) ) {
-      // This file holds an xAOD::VertexContainer
-      const xAOD::VertexContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::VertexContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* vertex : *inContainer ) {
-        ATH_CHECK( this->selectFromVertex( mask, trackParticleContainer, vertex ) );
+        ATH_CHECK( this->selectFromVertex( mask, trackParticleContainer.cptr(), vertex ) );
       }
     }
 
-    else if ( evtStore()->contains< xAOD::IParticleContainer >( inKey ) ) {
-      // This container holds an xAOD::IParticleContainer
-      const xAOD::IParticleContainer* inContainer;
-      ATH_CHECK( evtStore()->retrieve( inContainer, inKey ) );
-      ATH_MSG_DEBUG ( "Input collection = '" << inKey
+    else if (const auto* inContainer = dynamic_cast<const xAOD::IParticleContainer*> (inObj.cptr()))
+    {
+      ATH_MSG_DEBUG ( "Input collection = '" << inKey.key()
                       << "' retrieved from StoreGate which has " << inContainer->size() << " entries." );
       // Iterate over all given inputs and find their associated TrackParticles
       for ( const auto* part : *inContainer ) {
-        ATH_CHECK( this->selectFromIParticle( mask, trackParticleContainer, part ) );
+        ATH_CHECK( this->selectFromIParticle( mask, trackParticleContainer.cptr(), part ) );
       }
     }
 
@@ -323,7 +291,7 @@ StatusCode ThinTrackParticlesTool::doThinning() const
 
   // Try to fill the thinning mask based on the selection string, if given
   if ( !(m_selection.value().empty()) ) {
-    ATH_CHECK( this->selectFromString( mask, trackParticleContainer ) );
+    ATH_CHECK( this->selectFromString( mask, trackParticleContainer.cptr() ) );
   }
 
   // Some final debug printout
@@ -338,7 +306,7 @@ StatusCode ThinTrackParticlesTool::doThinning() const
   }
 
   // Perform the actual thinning
-  ATH_CHECK ( m_thinningSvc->filter(*trackParticleContainer, mask, IThinningSvc::Operator::Or) );
+  trackParticleContainer.keep (mask);
 
   return StatusCode::SUCCESS;
 }
@@ -370,8 +338,8 @@ ThinTrackParticlesTool::selectFromIParticleLink( std::vector<bool>& mask,
     std::size_t index = partLink.index();
 
     // Fill the thinning mask at this place and increment the counter
-    if ( index >= m_nTotalTrackParts ) {
-      ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+    if ( index >= mask.size() ) {
+      ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
       return StatusCode::SUCCESS;
     }
     mask[index] = true;
@@ -414,8 +382,8 @@ ThinTrackParticlesTool::selectFromIParticle( std::vector<bool>& mask,
       std::size_t index = part->index();
 
       // Fill the thinning mask at this place and increment the counter
-      if ( index >= m_nTotalTrackParts ) {
-        ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+      if ( index >= mask.size() ) {
+        ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
         return StatusCode::SUCCESS;
       }
       mask[index] = true;
@@ -511,8 +479,8 @@ ThinTrackParticlesTool::selectFromElectron( std::vector<bool>& mask,
     }
 
     // Fill the thinning mask at this place and increment the counter
-    if ( index >= m_nTotalTrackParts ) {
-      ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+    if ( index >= mask.size() ) {
+      ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
       continue;
     }
     mask[index] = true;
@@ -586,8 +554,8 @@ ThinTrackParticlesTool::selectFromPhoton( std::vector<bool>& mask,
       }
 
       // Fill the thinning mask at this place and increment the counter
-      if ( index >= m_nTotalTrackParts ) {
-        ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+      if ( index >= mask.size() ) {
+        ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
         continue;
       }
       mask[index] = true;
@@ -650,8 +618,8 @@ ThinTrackParticlesTool::selectFromMuon( std::vector<bool>& mask,
   }
 
   // Fill the thinning mask at this place and increment the counter
-  if ( index >= static_cast<int>(m_nTotalTrackParts) ) {
-    ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+  if ( index >= static_cast<int>(mask.size()) ) {
+    ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
     return StatusCode::SUCCESS;
   }
   if ( index >= 0 ) {
@@ -702,8 +670,8 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
     std::size_t index = partLink.index();
 
     // Fill the thinning mask at this place and increment the counter
-    if ( index >= m_nTotalTrackParts ) {
-      ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+    if ( index >= mask.size() ) {
+      ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
       continue;
     }
     mask[index] = true;
@@ -729,8 +697,8 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
   //     std::size_t index = partLink.index();
 
   //     // Fill the thinning mask at this place and increment the counter
-  //     if ( index >= m_nTotalTrackParts ) {
-  //       ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+  //     if ( index >= mask.size() ) {
+  //       ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
   //       continue;
   //     }
   //     mask[index] = true;
@@ -761,8 +729,8 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
       std::size_t index = partLink.index();
 
       // Fill the thinning mask at this place and increment the counter
-      if ( index >= m_nTotalTrackParts ) {
-        ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+      if ( index >= mask.size() ) {
+        ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
         continue;
       }
       mask[index] = true;
@@ -792,8 +760,8 @@ ThinTrackParticlesTool::selectFromTauJet( std::vector<bool>& mask,
       std::size_t index = partLink.index();
 
       // Fill the thinning mask at this place and increment the counter
-      if ( index >= m_nTotalTrackParts ) {
-        ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+      if ( index >= mask.size() ) {
+        ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
         continue;
       }
       mask[index] = true;
@@ -892,8 +860,8 @@ ThinTrackParticlesTool::selectFromVertex( std::vector<bool>& mask,
     std::size_t index = partLink.index();
 
     // Fill the thinning mask at this place and increment the counter
-    if ( index >= m_nTotalTrackParts ) {
-      ATH_MSG_WARNING("We got an index " << index << "out of container range " << m_nTotalTrackParts );
+    if ( index >= mask.size() ) {
+      ATH_MSG_WARNING("We got an index " << index << "out of container range " << mask.size() );
       continue;
     }
     mask[index] = true;
