@@ -29,6 +29,8 @@
 #include <functional>
 #include <atomic>
 #include <mutex>
+#include <algorithm>
+#include <array>
 
 #include "TrackPtr.h"
 
@@ -49,8 +51,8 @@ namespace Trk {
 
   class SimpleAmbiguityProcessorTool : public AthAlgTool, virtual public ITrackAmbiguityProcessorTool 
     {
+      struct Counter;
     public:
-
       // public types
       typedef std::multimap< TrackScore, TrackPtr > TrackScoreMap;
     
@@ -88,16 +90,19 @@ namespace Trk {
 	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
       void addNewTracks(const std::vector<const Track*> &tracks,
                         TrackScoreMap& trackScoreTrackMap,
-                        Trk::PRDtoTrackMap &prd_to_track_map) const;
+                        Trk::PRDtoTrackMap &prd_to_track_map,
+                        Trk::SimpleAmbiguityProcessorTool::Counter &stat) const;
 
       void addTrack(Track* track, const bool fitted,
                     TrackScoreMap &trackScoreMap,
                     Trk::PRDtoTrackMap &prd_to_track_map,
-                    std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks) const;
+                    std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
+                    Trk::SimpleAmbiguityProcessorTool::Counter &stat) const;
 
       TrackCollection *solveTracks(TrackScoreMap &trackScoreTrackMap,
                                    Trk::PRDtoTrackMap &prd_to_track_map,
-                                   std::vector<std::unique_ptr<const Trk::Track> > &cleanup_tracks) const;
+                                   std::vector<std::unique_ptr<const Trk::Track> > &cleanup_tracks,
+                                   Trk::SimpleAmbiguityProcessorTool::Counter &stat) const;
 
       /** add subtrack to map */
       void addSubTrack( const std::vector<const TrackStateOnSurface*>& tsos) const;
@@ -106,13 +111,16 @@ namespace Trk {
       void refitTrack( const Trk::Track* track,
                        TrackScoreMap &trackScoreMap,
                        Trk::PRDtoTrackMap &prd_to_track_map,
-                       std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks) const;
+                       std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
+                       Trk::SimpleAmbiguityProcessorTool::Counter &stat) const;
 
       /** refit PRDs */
-      Track* refitPrds( const Track* track, Trk::PRDtoTrackMap &prd_to_track_map) const;
+      Track* refitPrds( const Track* track, Trk::PRDtoTrackMap &prd_to_track_map,
+                        Trk::SimpleAmbiguityProcessorTool::Counter &stat) const;
 
       /** refit ROTs corresponding to PRDs */
-      Track* refitRots( const Track* track) const;
+      Track* refitRots( const Track* track,
+                        Trk::SimpleAmbiguityProcessorTool::Counter &stat) const;
 
       /** print out tracks and their scores for debugging*/
       void dumpTracks(const TrackCollection& tracks) const;
@@ -169,18 +177,51 @@ namespace Trk {
       ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
       /** monitoring statistics */
+      enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iDBM = 4, kNRegions=5};
+      std::vector<float> m_etabounds;           //!< eta intervals for internal monitoring
+      struct Counter {
+         enum ECounter {kNcandidates, kNcandScoreZero, kNcandDouble,
+                        kNscoreOk,kNscoreZeroBremRefit,kNscoreZeroBremRefitFailed,kNscoreZeroBremRefitScoreZero,kNscoreZero,
+                        kNaccepted,kNsubTrack,kNnoSubTrack,kNacceptedBrem,
+                        kNbremFits,kNfits,kNrecoveryBremFits,kNgoodFits,kNfailedFits, kNCounter};
+         Counter() {init(); }
+         void init() {
+            for (unsigned int stat_i=0; stat_i < kNCounter; ++stat_i) {
+               std::fill(m_counter[stat_i].begin(),m_counter[stat_i].end(),0);
+            }
+         }
+         void increment(ECounter stat_i, unsigned int eta_bin_i) {
+            if (eta_bin_i>=kNRegions) return;
+            if (stat_i<kNCounter && eta_bin_i < m_counter[stat_i].size()) {} else {  throw std::range_error("out of range"); }
+            ++m_counter[stat_i][eta_bin_i];
+         }
+         void operator +=(const Counter &a) {
+            for (unsigned int stat_i=0; stat_i < kNCounter; ++stat_i) {
+               for (unsigned int eta_bin_i=0; eta_bin_i < a.m_counter[stat_i].size(); ++eta_bin_i) {
+                  m_counter[stat_i][eta_bin_i] += a.m_counter[stat_i][eta_bin_i];
+               }
+            }
+         }
+
+         std::array<int,SimpleAmbiguityProcessorTool::kNRegions> m_counter[kNCounter];
+      };
       mutable std::atomic<int> m_Nevents;
       mutable std::mutex m_statMutex;
-      mutable std::vector<int> m_Ncandidates, m_NcandScoreZero, m_NcandDouble,
-	m_NscoreOk,m_NscoreZeroBremRefit,m_NscoreZeroBremRefitFailed,m_NscoreZeroBremRefitScoreZero,m_NscoreZero,
-	m_Naccepted,m_NsubTrack,m_NnoSubTrack,m_NacceptedBrem,
-	m_NbremFits,m_Nfits,m_NrecoveryBremFits,m_NgoodFits,m_NfailedFits;
+      mutable Counter m_stat;
       /** internal monitoring: categories for counting different types of extension results*/
-      enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iDBM = 4};
-      std::vector<float>  m_etabounds;           //!< eta intervals for internal monitoring
 
       /** helper for monitoring and validation: does success/failure counting */
-      void increment_by_eta(std::vector<int>&,const Track*,bool=true) const;
+      void increment_by_eta(SimpleAmbiguityProcessorTool::Counter::ECounter counter,
+                            SimpleAmbiguityProcessorTool::Counter &stat,
+                            const Track*,
+                            bool update_all=true) const;
+
+      SimpleAmbiguityProcessorTool::StatIndex etaIndex(double eta) const;
+      void missingTrackOrParameters(const Track* track) const;
+
+      void dumpRegions(MsgStream &out,
+                       const char *head,
+                       SimpleAmbiguityProcessorTool::Counter::ECounter stat_i) const;
 
 //==================================================================================================
 //
@@ -219,6 +260,45 @@ namespace Trk {
 
 #endif // DebugCode
     };
+
+    inline
+    SimpleAmbiguityProcessorTool::StatIndex SimpleAmbiguityProcessorTool::etaIndex(double eta) const {
+       eta=std::abs(eta);
+       if (eta < m_etabounds[0]) return Trk::SimpleAmbiguityProcessorTool::iBarrel;
+       else if (eta < m_etabounds[1]) return Trk::SimpleAmbiguityProcessorTool::iTransi;
+       else if (eta < m_etabounds[2]) return Trk::SimpleAmbiguityProcessorTool::iEndcap;
+       else if ((eta > m_etabounds[3]) && (eta < m_etabounds[4])) return Trk::SimpleAmbiguityProcessorTool::iDBM;
+       return Trk::SimpleAmbiguityProcessorTool::kNRegions;
+    }
+
+    inline void SimpleAmbiguityProcessorTool::increment_by_eta(SimpleAmbiguityProcessorTool::Counter::ECounter stat_i,
+                                                               SimpleAmbiguityProcessorTool::Counter &stat,
+                                                               const Track* track,
+                                                               bool updateAll) const
+    {
+       if (updateAll) stat.increment(stat_i,Trk::SimpleAmbiguityProcessorTool::iAll);
+       // test
+       if (track && track->trackParameters() ) {
+          // @TODO make sure that list of track parameters is not empty
+          stat.increment(stat_i, etaIndex(track->trackParameters()->front()->eta()) );
+       }
+       else {
+          missingTrackOrParameters(track);
+       }
+    }
+
+   inline
+   void SimpleAmbiguityProcessorTool::dumpRegions(MsgStream &out,
+                                                  const char *head,
+                                                  SimpleAmbiguityProcessorTool::Counter::ECounter stat_i) const {
+      const int iw=9;
+      out << head;
+      for (unsigned int eta_bin_i=0; eta_bin_i < kNRegions; ++eta_bin_i) {
+         assert( eta_bin_i < m_counter[stat_i].size() );
+         out << std::setiosflags(std::ios::dec) << std::setw(iw) << m_stat.m_counter[stat_i][eta_bin_i];
+      }
+      out << std::endl;
+   }
 
 } //end ns
 
