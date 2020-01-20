@@ -20,6 +20,7 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.opt = setting["opt"];
   result.convention = setting["convention"];
   result.weight = setting["weight"];
+  result.cutMask = setting["cutMask"];
 
   result.xvar = setting["xvar"];
   result.xbins = setting["xbins"];

@@ -45,8 +45,8 @@ DQTDataFlowMonAlg::fillHistograms( const EventContext& ctx ) const
         fill(group, weight, lb);
       }
 
-      std::vector<int> detstatevec(EventInfo::nDets+1);
-      std::vector<int> detstatevec_idx(EventInfo::nDets+1);
+      std::vector<int> detstatevec(xAOD::EventInfo::nDets+1);
+      std::vector<int> detstatevec_idx(xAOD::EventInfo::nDets+1);
       std::iota(detstatevec_idx.begin(), detstatevec_idx.end(), 0);
 
       auto detstates = Collection("detstates", detstatevec);
