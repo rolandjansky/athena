@@ -1734,7 +1734,7 @@ double TRT_ToT_dEdx::TrackOccupancyCorrection(const Trk::Track* track,  bool use
 	
   //Function of the from f(x)=a+b*x+c*x^2 was used as a fitting function, separately for tracks with and excluding HT hits
   if (!useHThits){corr=Dedxcorrection->TrackOccPar0[ijk]+Dedxcorrection->TrackOccPar1[ijk]*trackOcc+Dedxcorrection->TrackOccPar2[ijk]*pow(trackOcc,2);}
-  else{corr=Dedxcorrection->TrackOccPar0NoHT[ijk]+Dedxcorrection->TrackOccPar1NoHT[ijk]*trackOcc+Dedxcorrection->TrackOccPar2NoHT[ijk]*pow(trackOcc,2);}
+  else{corr=Dedxcorrection->TrackOccPar0NoHt[ijk]+Dedxcorrection->TrackOccPar1NoHt[ijk]*trackOcc+Dedxcorrection->TrackOccPar2NoHt[ijk]*pow(trackOcc,2);}
 
   return corr;
 }
