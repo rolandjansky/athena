@@ -20,8 +20,4 @@ atlas_add_library( TrigConfHLTData
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data )
 
-atlas_add_executable( trigconf_string2hash
-   util/trigconf_string2hash.cxx
-   LINK_LIBRARIES TrigConfHLTData )
-
 atlas_install_python_modules( python/*.py )
