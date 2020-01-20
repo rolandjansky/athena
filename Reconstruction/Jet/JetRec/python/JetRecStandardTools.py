@@ -417,7 +417,7 @@ jtm += PFlowPseudoJetGetter(
 jtm += PFlowPseudoJetGetter(
   "pflowcustomvtxget",
   Label = "PFlowCustomVtx",
-  InputContainer = "CHSParticleFlowObjects",
+  InputContainer = "CustomVtxParticleFlowObjects",
   OutputContainer = "PseudoJetPFlowCustomVtx",
   SkipNegativeEnergy = True,
   GhostScale = 0.0,
