@@ -6,3 +6,5 @@ nikola 4
 nikola 5
 nikola 6
 nikola 7
+
+If you can read this, then it works! 
