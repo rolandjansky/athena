@@ -53,7 +53,7 @@ class WriteDAOD_PHYS2Stream(JobProperty):
     StreamName   = "StreamDAOD_PHYS2"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworePhys/PHYS2.py"
+    DPDMakerScript = "DerivationFrameworkPhys/PHYS2.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYS2Stream)
 listAODtoDPD.append(WriteDAOD_PHYS2Stream.StreamName)
