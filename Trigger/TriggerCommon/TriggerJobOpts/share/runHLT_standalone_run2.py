@@ -263,7 +263,6 @@ else:           # More data modifiers
                                 #'disablePixels',
                                 #'disableSCTBarrel',
                                 'useDynamicAlignFolders',
-                                'enableALFAMon',
     ]
 
 #make some more common trig cost operations easier to setup
