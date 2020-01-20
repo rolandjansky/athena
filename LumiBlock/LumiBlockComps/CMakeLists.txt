@@ -99,15 +99,15 @@ atlas_add_test( TrigLiveFractionCondAlg_test
 
 atlas_add_test( LuminosityCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 atlas_add_test( LBDurationCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.LBDurationCondAlgConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 atlas_add_test( TrigLiveFractionCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
 
 atlas_add_test( BunchCrossingCondAlg 

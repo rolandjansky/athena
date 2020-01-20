@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
@@ -350,7 +350,7 @@ RootAuxDynReader::getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInte
 }
 
 
-void RootAuxDynReader::addReaderToObject(void* object, size_t ttree_row, std::mutex* iomtx)
+void RootAuxDynReader::addReaderToObject(void* object, size_t ttree_row, std::recursive_mutex* iomtx)
 {
    auto store_holder = reinterpret_cast<SG::IAuxStoreHolder*>((char*)object + m_storeHolderOffset);
    bool standalone { store_holder->getStoreType()==SG::IAuxStoreHolder::AST_ObjectStore };

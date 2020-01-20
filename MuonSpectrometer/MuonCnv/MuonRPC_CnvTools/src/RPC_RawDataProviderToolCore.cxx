@@ -4,7 +4,6 @@
 #include "RPC_RawDataProviderToolCore.h"
 
 #include "MuonRPC_CnvTools/IRpcROD_Decoder.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
 #include "eformat/SourceIdentifier.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
@@ -37,29 +36,13 @@ StatusCode Muon::RPC_RawDataProviderToolCore::initialize()
   ATH_CHECK( m_containerKey.initialize() );
   ATH_CHECK( m_sec.initialize() );
 
-  // get cabling svc
-  const IRPCcablingServerSvc* RpcCabGet = 0;
-  StatusCode sc = service("RPCcablingServerSvc", RpcCabGet);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get RPCcablingServerSvc !" );
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_VERBOSE( " RPCcablingServerSvc retrieved" );
-  
-  sc = RpcCabGet->giveCabling(m_rpcCabling);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get RPCcablingSvc from the Server !" );
-    m_rpcCabling = 0;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_VERBOSE( " RPCcablingSvc obtained " );
-  }
-
   // get ROB data provider service
   ATH_CHECK(m_robDataProvider.retrieve());
 
-  return sc;
+  ATH_CHECK(m_readKey.initialize());
+
+  return StatusCode::SUCCESS;
+
 }
 
 StatusCode Muon::RPC_RawDataProviderToolCore::convertIntoContainers(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,  const std::vector<IdentifierHash>& collections,
@@ -100,14 +83,16 @@ StatusCode Muon::RPC_RawDataProviderToolCore::convertIntoContainers(const std::v
 std::vector<IdentifierHash> Muon::RPC_RawDataProviderToolCore::to_be_converted(const ROBFragment& robFrag,
                                                                                const std::vector<IdentifierHash>& coll) const
 {
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    const RpcCablingCondData* readCdo{*readHandle};
+
     std::vector<IdentifierHash> to_return;
     if(coll.empty())
     {
     // get SubdetectorId and ModuleId
         uint32_t source_id = robFrag.rod_source_id();
         SourceIdentifier sid(source_id);
-        to_return =
-            (m_rpcCabling->padHashFunction())->rod2hash(sid.subdetector_id(), sid.module_id() ); 
+        to_return = (readCdo->rod2hash(sid.subdetector_id(), sid.module_id()));
     }
     else
     {
@@ -116,8 +101,7 @@ std::vector<IdentifierHash> Muon::RPC_RawDataProviderToolCore::to_be_converted(c
         to_return.reserve(coll.size());
         for ( ; it!= coll.end() ; ++it)
         {
-            if( source_id == (m_rpcCabling->padHashFunction())->hash2source(*it) ) 
-                to_return.push_back(IdentifierHash(*it));
+          if( source_id == readCdo->hash2source(*it) ) to_return.push_back(IdentifierHash(*it));
         }
     }
 

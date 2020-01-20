@@ -4,7 +4,7 @@
 
 #include "TrigMuonEFInvMassHypoTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class ISvcLocator;
 TrigMuonEFInvMassHypoTool::TrigMuonEFInvMassHypoTool(const std::string & type, const std::string & name, const IInterface* parent):

@@ -26,8 +26,8 @@ def TileTopoClusterCfg(flags, **kwargs):
     acc.merge(CaloNoiseCondAlgCfg(flags, 'totalNoise'))
 
     # Configure Tile topo cluster maker
-    from CaloRec.CaloRecConf import CaloTopoClusterMaker
-    topoClusterMaker = CaloTopoClusterMaker()
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    topoClusterMaker = CompFactory.CaloTopoClusterMaker()
     topoClusterMaker.CellsName = 'AllCalo'
     topoClusterMaker.CalorimeterNames = ['TILE']
     # Cells from the following samplings will be able to form seeds.
@@ -49,8 +49,7 @@ def TileTopoClusterCfg(flags, **kwargs):
     kwargs['ClusterMakerTools'] = [topoClusterMaker]
 
     # Configure Tile topo cluster splitter
-    from CaloRec.CaloRecConf import CaloTopoClusterSplitter
-    topoClusterSpliter = CaloTopoClusterSplitter()
+    topoClusterSpliter = CompFactory.CaloTopoClusterSplitter()
     topoClusterSpliter.SamplingNames = ['TileBar0', 'TileBar1', 'TileBar2',
                                         'TileExt0', 'TileExt1', 'TileExt2' ,
                                         'TileGap1', 'TileGap2', 'TileGap3']
@@ -61,8 +60,7 @@ def TileTopoClusterCfg(flags, **kwargs):
     kwargs['ClusterMakerTools'] += [topoClusterSpliter]
 
     # Configure Tile topo cluster moments maker
-    from CaloRec.CaloRecConf import CaloClusterMomentsMaker
-    clsuterMomentsMaker = CaloClusterMomentsMaker()
+    clsuterMomentsMaker = CompFactory.CaloClusterMomentsMaker()
     clsuterMomentsMaker.MaxAxisAngle = 30 * deg
     clsuterMomentsMaker.MomentsNames = ['FIRST_PHI'
                                         , 'FIRST_ETA'
@@ -102,8 +100,7 @@ def TileTopoClusterCfg(flags, **kwargs):
 
     kwargs['ClusterCorrectionTools'] = [clsuterMomentsMaker]
 
-    from CaloRec.CaloRecConf import CaloClusterMaker
-    acc.addEventAlgo(CaloClusterMaker(**kwargs), primary = True)
+    acc.addEventAlgo(CompFactory.CaloClusterMaker(**kwargs), primary = True)
 
     return acc
 

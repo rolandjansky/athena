@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSimHit/FastHitConv.h"
@@ -28,8 +28,6 @@
 
 FastHitConv::FastHitConv(const std::string& name, ISvcLocator* pSvcLocator ) :
   AthAlgorithm(name, pSvcLocator),
-  m_fastHitCont(nullptr),
-  m_fastTileHits(nullptr),
   m_embHitContainer("LArHitEMB"),
   m_emecHitContainer("LArHitEMEC"),
   m_fcalHitContainer("LArHitFCAL"),

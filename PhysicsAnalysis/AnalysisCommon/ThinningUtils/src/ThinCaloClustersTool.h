@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,7 +27,6 @@
 
 // Framework includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 // AthAnalysisBase doesn't currently include the Trigger Service
@@ -45,6 +44,11 @@
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
 #include "xAODParticleEvent/CompositeParticle.h"
+#include "CaloEvent/CaloClusterContainer.h"
+#include "AthContainers/DataVector.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "StoreGate/ThinningHandleKey.h"
+#include <atomic>
 
 // Forward declarations
 namespace ExpressionParsing {
@@ -135,28 +139,28 @@ private:
   /// The expression parser
   ExpressionParsing::ExpressionParser *m_parser;
 
-  /// Pointer to IThinningSvc
-  ServiceHandle<IThinningSvc> m_thinningSvc;
-
-
   /// Name of the CaloClusterContainer to thin
-  StringProperty m_caloClusKey;
+  SG::ThinningHandleKey<xAOD::CaloClusterContainer> m_caloClusKey
+  {this, "CaloClustersToThin", "CaloCalTopoCluster", "The xAOD::CaloClusterContainer to be thinned" };
+
+  StringProperty m_streamName
+  { this, "StreamName", "", "Name of the stream being thinned" };
 
   /// List of names of the object collections
-  StringArrayProperty m_inCollKeyList;
+  /// This can be used to read any DataVector type.
+  SG::ReadHandleKeyArray<SG::AuxVectorBase> m_inCollKeyList
+  { this, "InputContainerList", {}, "Containers from which to extract the information which CaloCells should be kept" };
 
 
   /// The selection string that will select which xAOD::IParticles to keep from
   /// an xAOD::IParticleContainer
-  StringProperty m_selection;
+  StringProperty m_selection
+  { this, "Selection", "", "The selection string that defines which xAOD::CaloClusters to select from the container" };
 
-
-  /// The number of given CaloClusters in the current event
-  mutable std::size_t m_nTotalCaloClusters;
 
   // Declare some counters and initialize them to zero
   /// Event counter
-  mutable unsigned long m_nEventsProcessed;
+  mutable std::atomic<unsigned long> m_nEventsProcessed;
 
 };
 

@@ -303,37 +303,23 @@ public:
   /** Return 'true' if this surface is own by the detector element */
   bool isActive() const;
 
-  /** Set ownership
-   * Athena MT note : This should not be really used
-   * as it  modifies a const object.
-   * The non-const overload below is fine.
-   */
-  void setOwner ATLAS_NOT_THREAD_SAFE(SurfaceOwner x) const { const_cast<SurfaceOwner&>(m_owner) = x; }
+  /** Set ownership for const*/
+  void setOwner ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const;
 
-  /* set Ownership */
-  void setOwner(SurfaceOwner x) { m_owner = x; }
+  /** set Ownership */
+  void setOwner(SurfaceOwner x);
 
   /** return ownership */
-  SurfaceOwner owner() const { return m_owner; }
+  SurfaceOwner owner() const;
 
   /** set material layer */
-  void setMaterialLayer(const Layer& mlay) { m_materialLayer = (&mlay); }
+  void setMaterialLayer(const Layer& mlay);
 
-  void setMaterialLayer(const Layer* mlay) { m_materialLayer = mlay; }
+  void setMaterialLayer(const Layer* mlay);
 
-  /** set material layer
-   * Athena MT note : This should not be really used
-   * as it  modifies a const object.
-   * The non-const overload above is fine.
-   */
-  void setMaterialLayer ATLAS_NOT_THREAD_SAFE(const Layer& mlay) const
-  {
-    const_cast<Surface*>(this)->m_materialLayer = (&mlay);
-  }
-  void setMaterialLayer ATLAS_NOT_THREAD_SAFE(const Layer* mlay) const
-  {
-    const_cast<Surface*>(this)->m_materialLayer = mlay;
-  }
+  /** set material layer const */
+  void setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer& mlay) const;
+  void setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer* mlay) const;
 
   /** Output Method for MsgStream, to be overloaded by child classes */
   virtual MsgStream& dump(MsgStream& sl) const;
@@ -352,25 +338,21 @@ public:
   /** method to associate the associated Trk::Layer which is alreay owned
      - only allowed by LayerBuilder
      - only done if no Layer is set already  */
-  void associateLayer(const Layer& lay) { m_associatedLayer = (&lay); }
+  void associateLayer(const Layer& lay);
 
-  /* Athena MT note : This should not be really used
-   * as it  modifies a const object.
-   * The non-const overload above is fine
-   */
-  void associateLayer ATLAS_NOT_THREAD_SAFE(const Layer& lay) const
-  {
-    const_cast<Surface*>(this)->m_associatedLayer = (&lay);
-  }
+    /** const method to associate the associated Trk::Layer which is alreay owned
+     - only allowed by LayerBuilder
+     - only done if no Layer is set already  */
+    void associateLayer ATLAS_NOT_CONST_THREAD_SAFE(const Layer& lay) const;
 
 protected:
   friend class ::SurfaceCnv_p1;
 
-  /** Private members are in principle implemented as mutable pointers to objects for easy checks
-    if they are already declared or not */
-  CxxUtils::CachedUniquePtrT<Amg::Transform3D> m_transform; //!< Transform3D to orient surface w.r.t to global frame
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_center;       //!< center position of the surface
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_normal;       //!< normal vector of the surface
+  /** Private members are in principle implemented as pointers to
+   * objects for easy checks if they are already declared or not */
+  std::unique_ptr<Amg::Transform3D> m_transform;           //!< Transform3D to orient surface w.r.t to global frame
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_center;       //!< center position of the surface
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_normal;       //!< normal vector of the surface
 
   /** Pointers to the a TrkDetElementBase */
   const TrkDetElementBase* m_associatedDetElement;
@@ -400,207 +382,6 @@ protected:
   static std::atomic<unsigned int> s_numberOfFreeInstantiations;
 #endif
 };
-
-inline bool
-Surface::operator!=(const Surface& sf) const
-{
-  return !((*this) == sf);
-}
-
-inline const Amg::Transform3D*
-Surface::cachedTransform() const
-{
-  return m_transform.get();
-}
-
-inline const Amg::Transform3D&
-Surface::transform() const
-{
-  if (m_transform)
-    return (*m_transform);
-  if (m_associatedDetElement && m_associatedDetElementId.is_valid())
-    return m_associatedDetElement->transform(m_associatedDetElementId);
-  if (m_associatedDetElement)
-    return m_associatedDetElement->transform();
-  return s_idTransform;
-}
-
-inline const Amg::Vector3D&
-Surface::center() const
-{
-  if (m_transform && !m_center) {
-    return *(m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation())));
-  }
-  if (m_center)
-    return (*m_center);
-  if (m_associatedDetElement && m_associatedDetElementId.is_valid())
-    return m_associatedDetElement->center(m_associatedDetElementId);
-  if (m_associatedDetElement)
-    return m_associatedDetElement->center();
-  return s_origin;
-}
-
-inline const Amg::Vector3D&
-Surface::normal() const
-{
-  if (m_transform && !m_normal) {
-    return *(m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2))));
-  }
-  if (m_normal)
-    return (*m_normal);
-  if (m_associatedDetElement && m_associatedDetElementId.is_valid())
-    return m_associatedDetElement->normal(m_associatedDetElementId);
-  if (m_associatedDetElement)
-    return m_associatedDetElement->normal();
-  return s_zAxis;
-}
-
-// standard is to set non-defined parameters to 0, but can be changed for surface type
-inline const Amg::Vector2D
-Surface::localParametersToPosition(const LocalParameters& locpars) const
-{
-  if (locpars.contains(Trk::loc1) && locpars.contains(Trk::loc2))
-    return Amg::Vector2D(locpars[Trk::loc1], locpars[loc2]);
-  if (locpars.contains(Trk::loc1))
-    return Amg::Vector2D(locpars[Trk::loc1], 0.);
-  if (locpars.contains(Trk::loc2))
-    return Amg::Vector2D(0., locpars[loc2]);
-  return Amg::Vector2D(0., 0.);
-}
-
-// common to planar surfaces
-inline double
-Surface::pathCorrection(const Amg::Vector3D&, const Amg::Vector3D& mom) const
-{
-  Amg::Vector3D dir(mom.unit());
-  double cosAlpha = dir.dot(normal());
-  return (cosAlpha != 0 ? fabs(1. / cosAlpha) : 1.); // ST undefined for cosAlpha=0
-}
-
-//* the templated parameters on Surface method */
-template<class T>
-bool
-Surface::onSurface(const T& pars, const Trk::BoundaryCheck& bcheck) const
-{
-  // surface pointer comparison as a first fast check (w/o transform)
-  if ((&pars.associatedSurface() == this)) {
-    return (bcheck ? insideBoundsCheck(pars.localPosition(), bcheck) : true);
-  }
-  return isOnSurface(pars.position(), bcheck);
-}
-
-// common to all surface, uses memory optized method
-inline const Amg::Vector3D*
-Surface::localToGlobal(const Amg::Vector2D& locpos) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
-  localToGlobal(locpos, Amg::Vector3D(1., 1., 1.), *gPosition);
-  return gPosition;
-}
-// common to all surfaces uses memory optimized method
-inline const Amg::Vector3D*
-Surface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D& glomom) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
-  localToGlobal(locpos, glomom, *gPosition);
-  return gPosition;
-}
-// common to all surface, uses memory optized method
-inline const Amg::Vector3D*
-Surface::localToGlobal(const LocalParameters& locpars) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
-  localToGlobal(localParametersToPosition(locpars), Amg::Vector3D(1., 1., 1.), *gPosition);
-  return gPosition;
-}
-// common to all surfaces uses memory optimized method
-inline const Amg::Vector3D*
-Surface::localToGlobal(const LocalParameters& locpars, const Amg::Vector3D& glomom) const
-{
-  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
-  localToGlobal(localParametersToPosition(locpars), glomom, *gPosition);
-  return gPosition;
-}
-// common to all surfaces, uses memory optized method
-inline const Amg::Vector2D*
-Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
-{
-  Amg::Vector2D* lPosition = new Amg::Vector2D(0., 0.);
-  if (globalToLocal(glopos, Amg::Vector3D(1., 1., 1.), *lPosition))
-    return lPosition;
-  delete lPosition;
-  return 0;
-}
-// common to all surfaces, uses memory optized method
-inline const Amg::Vector2D*
-Surface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const
-{
-  Amg::Vector2D* lPosition = new Amg::Vector2D(0., 0.);
-  if (globalToLocal(glopos, glomom, *lPosition))
-    return lPosition;
-  delete lPosition;
-  return nullptr;
-}
-
-// take local position and return global direction
-inline const Amg::Vector3D*
-Surface::normal(const Amg::Vector2D&) const
-{
-  return new Amg::Vector3D(normal());
-}
-
-inline const Amg::Vector3D&
-Surface::globalReferencePoint() const
-{
-  return center();
-}
-
-inline const TrkDetElementBase*
-Surface::associatedDetectorElement() const
-{
-  return m_associatedDetElement;
-}
-
-inline const Identifier
-Surface::associatedDetectorElementIdentifier() const
-{
-  if (!m_associatedDetElement)
-    return Identifier(); // in invalid state
-  if (m_associatedDetElementId.is_valid())
-    return m_associatedDetElementId;
-  return m_associatedDetElement->identify();
-}
-
-inline const Layer*
-Surface::associatedLayer() const
-{
-  return (m_associatedLayer);
-}
-
-inline const Layer*
-Surface::materialLayer() const
-{
-  return m_materialLayer;
-}
-
-inline const Surface*
-Surface::baseSurface() const
-{
-  return (this);
-}
-
-inline bool
-Surface::isActive() const
-{
-  return (m_associatedDetElement != 0);
-}
-
-inline bool
-Surface::isFree() const
-{
-  return (m_owner == Trk::noOwn);
-}
-
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/
 MsgStream&
 operator<<(MsgStream& sl, const Surface& sf);
@@ -609,7 +390,6 @@ operator<<(std::ostream& sl, const Surface& sf);
 
 typedef SurfaceUniquePtrT<Trk::Surface> SurfaceUniquePtr;
 typedef SurfaceUniquePtrT<const Trk::Surface> ConstSurfaceUniquePtr;
-
-} // end of namespace Trk
-
+}//
+#include "Surface.icc"
 #endif // TRKSURFACES_SURFACE_H

@@ -19,7 +19,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "TH1.h"

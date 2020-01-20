@@ -133,16 +133,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM9Ker
                                                                        )
 
 
-#============ Create Derivation EGAM9 cell collection ==================
-
-# Keep only calo cells associated with the egammaClusters collection
-from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
-theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["egammaClusters"],
-                                       outputCellKey="DFEGAMCellContainer")
-
-#========================================================================
-
-
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -162,6 +152,17 @@ from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="EGAM9ThinningSvc", outStreams=[evtStream] )
+
+#============ Thin cells for EGAM9 ==================
+
+# Keep only calo cells associated with the egammaClusters collection
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+thinCaloCellsForDF (inputClusterKeys=["egammaClusters"],
+                    streamName = EGAM9Stream.Name,
+                    outputCellKey = "DFEGAMCellContainer")
+
+#========================================================================
+
 
 #====================================================================
 # CONTENT LIST
@@ -201,4 +202,3 @@ EGAM9SlimmingHelper.AppendContentToStream(EGAM9Stream)
 
 # Add AODCellContainer (thinned)
 EGAM9Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-EGAM9Stream.AddItem("CaloCellContainer#DFEGAMCellContainer")

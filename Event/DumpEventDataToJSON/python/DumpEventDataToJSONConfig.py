@@ -13,7 +13,7 @@ def DumpEventDataToJSONAlgCfg(configFlags, doExtrap=False, **kwargs):
       gmsAcc=GeoModelCfg( configFlags )
       result.merge(gmsAcc)
       
-      from TrkExEngine.AtlasExtrapolationEngineConfig import AtlasExtrapolationEngineCfg
+      from TrkConfig.AtlasExtrapolationEngineConfig import AtlasExtrapolationEngineCfg
       extrapAcc = AtlasExtrapolationEngineCfg(configFlags)
       extrapolationEngine = extrapAcc.getPrimary()
       result.merge(extrapAcc)

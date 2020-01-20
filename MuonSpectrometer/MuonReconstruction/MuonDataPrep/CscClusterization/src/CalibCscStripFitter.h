@@ -15,16 +15,13 @@
 #include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "CscClusterization/ICscStripFitter.h"
 
 class ICscCalibTool;
 class CscIdHelper;
 namespace Muon {
   class CscStripPrepData;
-}
-namespace MuonGM 
-{
-    class MuonDetectorManager;
 }
 
 
@@ -75,9 +72,8 @@ private:  // data
   std::string m_noiseOptionStr;
   NoiseOption m_noiseOption;
 
-  // Pointer to muon geometry manager.
-  const MuonGM::MuonDetectorManager* m_pmuon_detmgr;
-  const CscIdHelper* m_phelper;
+  // Pointer to MuonIdHelperSvc.
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   // Calibration tool.
   ToolHandle<ICscCalibTool> m_cscCalibTool;

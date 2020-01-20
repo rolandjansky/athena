@@ -198,7 +198,7 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     
 def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=True, **kwargs):
     Muon__MooCandidateMatchingTool=CompFactory.Muon__MooCandidateMatchingTool
-    from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
     
     result = ComponentAccumulator()

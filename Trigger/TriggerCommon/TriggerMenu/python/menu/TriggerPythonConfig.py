@@ -355,7 +355,7 @@ class TriggerPythonConfig:
             for key,outTE in seq_list1:
                 key = renameKey(key, teRenaming)
                 # This is actually slightly faster than dict.get(outTE,outTE)
-                outTE2 = outTE if not outTE in teRenaming else teRenaming[outTE]
+                outTE2 = outTE if outTE not in teRenaming else teRenaming[outTE]
 
                 seq_to_outTEs[key].append(outTE2)
                 seq_list2.add( (key, outTE2) )
@@ -415,7 +415,7 @@ class TriggerPythonConfig:
         seqDict is dictionary {sequence outout te: sequence obj}
         """
         neededtes = reduce(lambda x,y: x+y, [s.tes for s in chain.siglist], [])
-        if alsorecursive == True:
+        if alsorecursive is True:
             seqs = []
             for te in neededtes:
                 seqs += self.findSequencesRecursively(seqDict, te)

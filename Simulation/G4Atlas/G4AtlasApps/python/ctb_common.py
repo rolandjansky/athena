@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 - This module contains the common volumes, sub-detector envelopes,
@@ -927,7 +929,7 @@ class MuonAncillary:
           muosystemOn=1 ---> Muon system on from DetFlags.
         """
         if(muosystemOn==0):
-            print 'WARNING :: Not Implemented yet !!'
+            print ('WARNING :: Not Implemented yet !!')
         elif(muosystemOn==1):
             AtlasG4Eng.G4Eng.add_DetFacility(scdump,\
                      AtlasG4Eng.G4Eng.Dict_DetFacility.get('Muon:Muon'))

@@ -5,7 +5,8 @@
 #-----------------------------------------------------
 
 #from AthenaCommon.Configurable import *
-from TriggerJobOpts.TriggerFlags import *
+from AthenaCommon.Logging import logging
+from TriggerJobOpts.TriggerFlags import * # noqa: F401 F403
 from TriggerMenu.menu.ChainDef import ChainDef
 
 log = logging.getLogger( 'TriggerMenu.menu.HltConfig.py' )
@@ -14,7 +15,7 @@ log = logging.getLogger( 'TriggerMenu.menu.HltConfig.py' )
 class HltSeq:
     def __init__(self, inputTEs, algos, outputTE, topo_start_from=None):
         self.inputTEs = inputTEs
-        if type(inputTEs)==type(''): self.inputTEs = [inputTEs]
+        if isinstance(inputTEs, str): self.inputTEs = [inputTEs]
         self.algos = algos
         self.outputTE = outputTE
         self.topo_start_from = topo_start_from
@@ -93,7 +94,7 @@ class HltChainDef:
     def renameTE(self, te_name):
         try:
             return self.TErenamingMap[te_name]
-        except:
+        except Exception:
             return te_name
 
     def addSequence(self, inputTEs, algos, outputTE, topo_start_from=None):
@@ -189,7 +190,7 @@ class HltChainDef:
         log.debug("HltConfig: all signatures %s" % self.signatures)
         log.debug("HltConfig: self.sequecnes %s" % self.sequences)
         for sequence in self.sequences:
-            chainDef.addSequence(list(filter(lambda x: x!=None, sequence.algos)),
+            chainDef.addSequence(list(filter(lambda x: x is not None, sequence.algos)),
                                  list(map(lambda x: self.renameTE(x), sequence.inputTEs)),
                                  self.renameTE(sequence.outputTE))
 
@@ -324,7 +325,7 @@ def chainConfig(cls, config, inputTEs):
     return c
 
 def checkHypoType(configurable, class_name):
-    if configurable==None:
+    if configurable is None:
         # bad, object is null
         pass
     elif configurable.getType() != class_name:

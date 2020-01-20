@@ -8,7 +8,7 @@
 #define SiSpacePointFormation_SI_POINT_FINDER_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthContainers/DataVector.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"

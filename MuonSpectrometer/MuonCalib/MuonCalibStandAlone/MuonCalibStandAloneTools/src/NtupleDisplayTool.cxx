@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -26,10 +26,7 @@
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 // MuonReadoutGeometry //
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-
-
 
 #include "Identifier/IdentifierHash.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
@@ -137,7 +134,8 @@ StatusCode NtupleDisplayTool::initialize() {
 
     ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    //retrieve detector manager from the conditions store
+    ATH_CHECK(m_DetectorManagerKey.initialize());
 
     //retrieve fixed id tool   
     std::string idToFixedIdToolType("MuonCalib::IdToFixedIdTool");
@@ -252,10 +250,17 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     //working correctly, otherwise also for the first multilayer, the second is returned 
     Mid.setMdtMultilayer(1);
     
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return StatusCode::FAILURE; 
+    } 
+
     Identifier station_id = m_id_tool->fixedIdToId(Mid);
     NtupleStationId st_id((segment.mdtHOT()[0])->identify());
     st_id.SetMultilayer(0);
-    if (!st_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr))
+    if (!st_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr))
     	return StatusCode::SUCCESS;
 
     if(m_nb_multilayers<0){  
@@ -278,7 +283,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
         for (int multilayer=1; multilayer<m_nb_multilayers+1; multilayer++) {
             
             const MuonGM::MdtReadoutElement* MdtRoEl = 
-                m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
+                MuonDetMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
              
             //loop over layers
             for (int layer=st_id.LayerMin(multilayer-1); layer<=st_id.LayerMax(multilayer-1); layer++) {

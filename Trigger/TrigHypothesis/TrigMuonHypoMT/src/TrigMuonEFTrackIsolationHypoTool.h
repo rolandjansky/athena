@@ -10,7 +10,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "xAODMuon/MuonContainer.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 class StoreGateSvc;

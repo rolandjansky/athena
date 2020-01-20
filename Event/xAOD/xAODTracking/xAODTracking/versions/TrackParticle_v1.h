@@ -333,9 +333,9 @@ namespace xAOD {
  
 private:
 
-      enum covMatrixIndex{d0_index, z0_index, phi_index, th_index, qp_index};
-      enum covMatrixOffDiagVecComprIndex{d0_phi_index, z0_th_index, d0_qp_index, z0_qp_index, phi_qp_index, th_qp_index};
-      const int m_covMatrixOffDiagVecComprSize = 6;
+      enum covMatrixIndex{d0_index=0, z0_index=1, phi_index=2, th_index=3, qp_index=4};
+      enum covMatrixOffDiagVecComprIndex{d0_phi_index=0, z0_th_index=1, d0_qp_index=2, z0_qp_index=3, phi_qp_index=4, th_qp_index=5};
+      static const std::size_t COVMATRIX_OFFDIAG_VEC_COMPR_SIZE = 6;
 
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(__CLING__) )

@@ -32,7 +32,7 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
         from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
         CaloExtensionBuilder("NoCut", 500.) #Arguments are cutLevel and minPt for track selection
     except Exception:
-        pass
+        treatException("Cannot include CaloExtensionBuilder !")
 
 #
 # functionality : electron photon identification

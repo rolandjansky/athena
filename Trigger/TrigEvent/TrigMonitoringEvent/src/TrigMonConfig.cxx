@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -313,7 +313,7 @@ const std::vector<TrigConfVar> TrigMonConfig::getConfVar() const
 
   if(m_var_name.size() == m_var_id.size()) {
     //
-    // Iterate over keys abd values
+    // Iterate over keys and values
     //
     var.reserve(m_var_name.size());
 

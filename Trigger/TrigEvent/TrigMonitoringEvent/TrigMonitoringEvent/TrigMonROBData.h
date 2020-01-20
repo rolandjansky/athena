@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_ROBDATA_H
@@ -64,6 +64,8 @@ class TrigMonROBData
   void print(std::ostream &os = std::cout) const;
   
  private:
+  friend class TrigMonROBDataCnv_p1;
+  friend class TrigMonROBDataCnv_p2;
   
   uint32_t    m_rob_id;        // ROB source id
   uint32_t    m_word;          // Size, history enum and status enum

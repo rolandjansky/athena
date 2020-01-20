@@ -18,12 +18,12 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkParameters
                           Trigger/TrigTools/TrigTimeAlgs
                           Event/xAOD/xAODTrigger
-                          Control/AthenaMonitoring)
+                          Control/AthenaMonitoringKernel)
 
 # Component(s) in the package:
 atlas_add_component( TrigMinBias
                      src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES DecisionHandlingLib AthenaMonitoringLib xAODTracking xAODTrigMinBias TrkTrack TrigInDetEvent TrigInterfacesLib StoreGateLib GaudiKernel TrkParameters TrigTimeAlgsLib)
+                     LINK_LIBRARIES DecisionHandlingLib AthenaMonitoringKernelLib xAODTracking xAODTrigMinBias TrkTrack TrigInDetEvent TrigInterfacesLib StoreGateLib GaudiKernel TrkParameters TrigTimeAlgsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

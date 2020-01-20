@@ -21,11 +21,6 @@
 #include "TFitResultPtr.h"
 #include "TMatrixDSym.h"
 
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
-
 // 
 // Simple clusterization tool for MicroMegas
 //

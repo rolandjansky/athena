@@ -33,8 +33,8 @@ def getConfig_MU():
     confObj["exclusionLists"]["rpcFeet"].append( odict([("sectorName", "B32"), ("rois",[1, 2, 3, 4, 5, 6, 7, 8])]) )
     
     confObj["roads"] = odict()
-    confObj["roads"]["rpc"] = odict(zip([0,4,6,8,10,15,20],[0]+range(0,6)))
-    confObj["roads"]["tgc"] = odict(zip([0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30],[0]+range(0,15)))
+    confObj["roads"]["rpc"] = odict(zip([0,4,6,8,10,15,20],[0]+list(range(0,6))))
+    confObj["roads"]["tgc"] = odict(zip([0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30],[0]+list(range(0,15))))
     return confObj
 
 

@@ -16,10 +16,12 @@ __doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm in a new
 ### imports -------------------------------------------------------------------
 import os
 import textwrap
-import commands
 import PyUtils.acmdlib as acmdlib
 import fileinput
 
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 ### functions -----------------------------------------------------------------
@@ -43,14 +45,14 @@ def main(args):
     full_pkg_name = args.pkgname
 
     #make new package
-    res = commands.getstatusoutput('acmd cmake new-pkg %s' % full_pkg_name)
+    res = subprocess.getstatusoutput('acmd cmake new-pkg %s' % full_pkg_name)
     if res[0]!=0:
         print (":::  ERROR could not create new package")
         return -1
 
 
     #add algorithm
-    res = commands.getstatusoutput('cd %s;acmd cmake new-analysisalg --newJobo %sAlg' % (full_pkg_name,full_pkg_name))
+    res = subprocess.getstatusoutput('cd %s;acmd cmake new-analysisalg --newJobo %sAlg' % (full_pkg_name,full_pkg_name))
     if res[0]!=0:
         print (":::  ERROR could not create new alg")
         return -1
@@ -124,7 +126,7 @@ def main(args):
         print ("::: ERROR Please do this and reconfigure cmake manually!")
     else:
         print (":::  INFO Reconfiguring cmake %s/../." % workDir)
-        res = commands.getstatusoutput('cmake %s/../.' % workDir)
+        res = subprocess.getstatusoutput('cmake %s/../.' % workDir)
         if res[0]!=0:
             print (":::  WARNING reconfigure unsuccessful. Please reconfigure manually!")
         

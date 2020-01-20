@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -221,7 +221,7 @@ def generateL1DecoderAndChains():
                                                                                        ChainStep("Step2_2mu22",[mu22], multiplicity=[2]),
                                                                                        ChainStep("Step3_2mu",  [mu31], multiplicity=[2])] ),
                                                                                        
-            makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", ""], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
+            makeChain(name='HLT_mu6_mu6noL1_L1MU6', L1Thresholds=["MU6", "FSNOSEED"], ChainSteps=[ ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
                                                                                            ChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
                                                                               
             ]
@@ -236,7 +236,7 @@ def generateL1DecoderAndChains():
 
     L1UnpackingSeq = parOR("L1UnpackingSeq")
 
-    l1Decoder = L1Decoder( RoIBResult="" )
+    l1Decoder = L1Decoder( RoIBResult="", L1TriggerResult="" )
     l1Decoder.prescaler.EventInfo=""
     l1Decoder.L1DecoderSummaryKey = "L1DecoderSummary"
 

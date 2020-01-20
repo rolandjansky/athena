@@ -240,6 +240,8 @@ class GenerateMenuMT(object):
 
             except ImportError:
                 log.exception('Problems when importing ChainDef generating code for %s', sig)
+                import traceback
+                traceback.print_exc()
 
         log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
 

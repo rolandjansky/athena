@@ -28,7 +28,6 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "CscClusterization/ICscStripFitter.h"
 
 
@@ -78,7 +77,7 @@
 namespace MuonCalib { 
 
   MuonCalibAlg::MuonCalibAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator), m_detMgr(NULL),
+    AthAlgorithm(name, pSvcLocator),
     m_muonCalibTool("MuonCalib::MdtCalibTool/MdtCalibTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
     m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
@@ -184,12 +183,8 @@ namespace MuonCalib {
 	  << "Unable to retrieve TileTBID helper from DetectorStore" << endmsg;
     }
     
-    // retrieve MuonDetectorManager
-    std::string managerName="Muon";
-    if (detStore()->retrieve(m_detMgr).isFailure()) {
-      log << MSG::INFO << "Could not find the MuonGeoModel Manager: "
-	  << managerName << " ! " << endmsg;
-    } 
+    // retrieve MuonDetectorManager from the conditions store
+    ATH_CHECK(m_DetectorManagerKey.initialize());
 
     log << MSG::INFO << "Initialization ended     " << endmsg;
     return StatusCode::SUCCESS;
@@ -536,7 +531,14 @@ namespace MuonCalib {
 	}
       }//retrieved other MCtruth
     }
-
+  
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return 0; 
+    } 
+  
     std::string sdoKey;
     const MuonSimDataCollection* sdoContainer = 0;
     if ( m_doMDTs ) {
@@ -598,7 +600,7 @@ namespace MuonCalib {
 	      mdtTruth->setDriftRadius( (*deposits_it).second.firstEntry() ) ;
 	      double posAlongAMDB = (*deposits_it).second.secondEntry();
 	      Amg::Vector3D geoModelLocPos(0.,0.,posAlongAMDB);
-	      const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement(id);
+	      const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(id);
 	      if( detEl ) {
 		Amg::Vector3D gpos = detEl->localToGlobalCoords(geoModelLocPos,id);
 		Amg::Vector3D localAMDBPos = detEl->GlobalToAmdbLRSTransform()*gpos;
@@ -797,7 +799,7 @@ namespace MuonCalib {
 		if (!drop || (drop && (*deposits_it).first.barcode() != 0)) {
 		  ncscSDO++; 
 		  Identifier id = (*csc_it).first; 
-		  const MuonGM::CscReadoutElement* detEl = m_detMgr->getCscReadoutElement(id);
+		  const MuonGM::CscReadoutElement* detEl = MuonDetMgr->getCscReadoutElement(id);
 		  if( !detEl ){
 		    log << MSG::WARNING << "Found CSC Identifier which seems to have no readout element " 
 			<< m_idHelperSvc->mdtIdHelper().print_to_string(id) << endmsg;
@@ -825,7 +827,7 @@ namespace MuonCalib {
     } // m_doCSCs
 
      log << MSG::DEBUG << "retrieved MCtruthCollection size " << MCtruthCollection->numberOfTruth() << endmsg;
-
+  
     return MCtruthCollection;
   }
 

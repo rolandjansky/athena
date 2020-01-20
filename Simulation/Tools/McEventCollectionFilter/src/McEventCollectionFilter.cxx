@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ StatusCode McEventCollectionFilter::TRTHitsTruthRelink()
       int curBarcode=oldLink.barcode();
       if(curBarcode!=0)
         {
-          if(!(m_IsKeepTRTElect && fabs(pdgID)==11))
+          if(!(m_IsKeepTRTElect && std::abs(pdgID)==11))
             {
               curBarcode=m_RefBarcode;
             }
@@ -494,7 +494,7 @@ StatusCode McEventCollectionFilter::FindTRTElectronHits()
     {
       const HepMcParticleLink McLink = (*i).particleLink();
       int  pdgID = (*i).GetParticleEncoding();
-      if(fabs(pdgID)==11&&McLink.barcode()!=0) barcode_tmp.insert(McLink.barcode());
+      if(std::abs(pdgID)==11&&McLink.barcode()!=0) barcode_tmp.insert(McLink.barcode());
     }
 
   m_elecBarcode.assign(barcode_tmp.begin(),barcode_tmp.end());

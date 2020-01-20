@@ -20,8 +20,4 @@ private:
    ClassDef( DoubleArray, 1 )
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class DoubleArray+;
-#endif
-
 #endif

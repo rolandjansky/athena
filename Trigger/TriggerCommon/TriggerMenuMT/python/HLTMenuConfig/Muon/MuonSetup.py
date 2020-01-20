@@ -422,7 +422,10 @@ def muEFSARecoSequence( RoIs, name ):
   if not athenaCommonFlags.isOnline:
     condSequence = AthSequencer("AthCondSeq")
     if not hasattr(condSequence,"MdtCondDbAlg"):
-        condSequence += MdtCondDbAlg("MdtCondDbAlg")
+      condSequence += MdtCondDbAlg("MdtCondDbAlg")
+    # Sets up and configures the muon alignment:
+    from MuonRecExample import MuonAlignConfig # noqa: F401
+
 
   theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
   theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
@@ -579,6 +582,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
   from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedInDetCandidateAlg, MuonInsideOutRecoAlg, MuGirlStauAlg, MuonCreatorAlg, StauCreatorAlg
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
   efAlgs = []
 
@@ -597,6 +601,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
       condSequence = AthSequencer("AthCondSeq")
       if not hasattr(condSequence,"MdtCondDbAlg"):
         condSequence += MdtCondDbAlg("MdtCondDbAlg")
+      # Sets up and configures the muon alignment:
+      from MuonRecExample import MuonAlignConfig # noqa: F401
 
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
     theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
@@ -647,12 +653,12 @@ def muEFInsideOutRecoSequence(RoIs, name):
     cbMuonName = cbMuonName+"_Late"
     theInsideOutRecoAlg = MuGirlStauAlg("TrigMuonLateInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name)
     insideoutcreatoralg = StauCreatorAlg("TrigLateMuonCreatorAlg_"+name, TagMaps=["stauTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
-                                         MuonContainerLocation = cbMuonName)
+                                         MuonContainerLocation = cbMuonName, MonTool = MuonCreatorAlgMonitoring("LateMuonCreatorAlg_"+name))
   else:
     theInsideOutRecoAlg = MuonInsideOutRecoAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name)
     insideoutcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgInsideOut_"+name, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
                                          MuonContainerLocation = cbMuonName, SegmentContainerName = "InsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
-                                         MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon")
+                                         MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon", MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgInsideOut_"+name))
 
   efAlgs.append(theInsideOutRecoAlg)
   efAlgs.append(insideoutcreatoralg)

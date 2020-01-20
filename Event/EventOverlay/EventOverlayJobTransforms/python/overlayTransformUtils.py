@@ -4,6 +4,8 @@
 #  @author atlas-comp-jt-dev@cern.ch
 #  @version $Id: overlayTransformUtils.py 744063 2016-04-29 22:49:04Z ahaas $
 
+from __future__ import print_function
+
 import os
 import re
 import subprocess
@@ -28,13 +30,13 @@ class BSJobSplitterExecutor(athenaExecutor):
 
         #See if we need to unpack a TAR file
         if 'hitarFile' in self.conf.argdict:
-            print "Untarring inputHITARFile", self.conf.argdict['hitarFile'].value
+            print ("Untarring inputHITARFile", self.conf.argdict['hitarFile'].value)
             try:
                 f=tarfile.open(name=self.conf.argdict['hitarFile'].value[0])
                 f.list()
                 f.extractall()
                 f.close()
-            except Exception, e:
+            except Exception as e:
                 raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Error while unpacking and extracting HI input files for transform: {0}'.format(e))
 
         # There are two ways to configure this transform:
@@ -45,7 +47,7 @@ class BSJobSplitterExecutor(athenaExecutor):
         if 'inputZeroBiasBSFile' in self.conf.argdict and 'inputBSCONFIGFile' in self.conf.argdict:
             #raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Both inputZeroBiasBSFile and inputBSCONFIGFile have been specified - please use only one.')
             del self.conf.argdict['inputZeroBiasBSFile']
-            print "WARNING - removed the inputZeroBiasBSFile argument, because inputZeroBiasBSFile and inputBSCONFIGFile were already specified"
+            print ("WARNING - removed the inputZeroBiasBSFile argument, because inputZeroBiasBSFile and inputBSCONFIGFile were already specified")
 
         if 'inputBSCONFIGFile' in self.conf.argdict:
             if 'jobNumber' not in self.conf.argdict:
@@ -57,7 +59,7 @@ class BSJobSplitterExecutor(athenaExecutor):
             self._lbnList = 'lbn_anal_map_{0}.txt'.format(wrappedJobNumber)
 
             try:
-                print self.conf.argdict['inputBSCONFIGFile'].value
+                print (self.conf.argdict['inputBSCONFIGFile'].value)
                 f=tarfile.open(name=self.conf.argdict['inputBSCONFIGFile'].value[0])
                 f.extract('filelist_{0}.txt'.format(wrappedJobNumber))
                 f.extract('lbn_anal_map_{0}.txt'.format(wrappedJobNumber))
@@ -68,7 +70,7 @@ class BSJobSplitterExecutor(athenaExecutor):
                 input.add('ZeroBiasBS')
                 msg.info('Validating resolved input bytestream files')
                 trfValidation.performStandardFileValidation({'ZeroBiasBS': self.conf.argdict['inputZeroBiasBSFile']}, io='input')
-            except Exception, e:
+            except Exception as e:
                 raise trfExceptions.TransformSetupException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), 'Error while unpacking and extracting input files for transform: {0}'.format(e))
 
             # Now setup correct input arguments

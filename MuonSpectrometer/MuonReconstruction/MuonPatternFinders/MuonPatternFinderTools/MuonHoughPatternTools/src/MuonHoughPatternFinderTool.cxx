@@ -11,9 +11,6 @@
 
 #include "TrkSurfaces/Surface.h"
 
-//#include "MuonGeoModel/MuonDetectorManager.h"
-//#include "MuonGeoModel/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"

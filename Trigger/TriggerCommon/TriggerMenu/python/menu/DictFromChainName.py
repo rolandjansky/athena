@@ -13,8 +13,6 @@ __version__=""
 __doc__="Obtaining Dictionaries from Chain Names"
 
 
-import re
-
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
@@ -52,7 +50,7 @@ class DictFromChainName(object):
                 mergingInfoFilled = False
                 tsfInfoFilled = False
                 if (type(chainInfo[i]) is list):
-                    if mergingInfoFilled == False:
+                    if mergingInfoFilled is False:
                         m_mergingStrategy = chainInfo[i][0]
                         if not (m_mergingStrategy == "parallel" or m_mergingStrategy == "serial"):
                             logDict.error("Merging strategy %s is not known.", m_mergingStrategy)
@@ -80,7 +78,7 @@ class DictFromChainName(object):
                     else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
 
                 elif (type(chainInfo[i]) is bool):
-                    if tsfInfoFilled == False: 
+                    if tsfInfoFilled is False:
                         chainProp['topoStartFrom'] = chainInfo[i]
                         tsfInfoFilled = True
                     else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
@@ -106,7 +104,6 @@ class DictFromChainName(object):
         are defined in SliceDicts
         The naming convention is defined in this document http://
         """
-        chainName_orig = chainName
 
         # ---- dictionary with all chain properties ----
         from .SignatureDicts import ChainDictTemplate
@@ -177,8 +174,8 @@ class DictFromChainName(object):
 
         # ---- obtain dictionary parts for signature defining patterns ----
         from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
-            AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, \
-            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers, AllowedEBChainIdentifiers
+            AllowedCalibChainIdentifiers, \
+            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
             #, AllowedMatchingKeywords
 
         logDict.debug("cparts: %s", cparts)
@@ -191,7 +188,7 @@ class DictFromChainName(object):
                 logDict.debug("Pattern found in this string: %s", cpart)
                 m_groupdict = m.groupdict()
                 # Check whether the extra contains a special keyword
-                skip=False
+#                skip=False
 #                for keyword in AllowedMatchingKeywords :
 #                    if keyword in m_groupdict['extra']: skip=True
 #                if skip: continue
@@ -203,12 +200,12 @@ class DictFromChainName(object):
                     # j45 would be found in [0, 13], and 3j45 in [12]
                     # so need to make sure the multiplicities are considered here!
                     if (theMultiChainIndex != 0) & (chainName[theMultiChainIndex-1] != '_'): continue
-                    skip=False
+#                    skip=False
 #                    for keyword in AllowedMatchingKeywords :
 #                        if chainName[theMultiChainIndex:len(chainName)].startswith(cpart+keyword): skip=True
 #                    if skip: continue
                     
-                    if not theMultiChainIndex in multichainindex:
+                    if theMultiChainIndex not in multichainindex:
                         multichainindex.append(theMultiChainIndex)
 
                 logDict.debug("ChainName: %s", chainName)
@@ -298,7 +295,6 @@ class DictFromChainName(object):
         # ----  ----
         multichainparts=[]
 
-        remainder = chainName
         multichainindex = sorted(multichainindex, key=int)
         cN = chainName
         for i in reversed(multichainindex):
@@ -321,7 +317,7 @@ class DictFromChainName(object):
             logDict.debug('chainparts %s', chainparts)
 
             # ---- check if L1 item is specified in chain Name ----
-            L1itemFromChainName = ''; L1item = ''; 
+            L1item = ''
             chainpartsNoL1 = chainparts
             
             #Checking for L1 item for chain part and overall in the name
@@ -443,10 +439,8 @@ class DictFromChainName(object):
             result.update(chainProperties)
             chainProperties = result
 
-            # ---- check remaining parts for complete machtes in allowedPropertiesAndValues Dict ----
-            # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
-            unmatched = [] 
-            parts = filter(None, parts)     #removing empty strings from list
+            # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
+            parts = [x for x in parts if x]     #removing empty strings from list
 
             matchedparts = []
             for pindex, part in enumerate(parts):

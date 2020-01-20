@@ -9,7 +9,7 @@
 
 #include "CaloEvent/CaloTowerContainer.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 
 class TileID;

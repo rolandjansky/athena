@@ -11,6 +11,7 @@
 // FastCaloSim includes
 #include "IFastCaloSimParamSvc.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
+#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 
@@ -66,7 +67,8 @@ namespace ISF {
     StatusCode commonSetup();
 
     ServiceHandle<IFastCaloSimParamSvc> m_paramSvc{this, "ParamSvc", "ISF_FastCaloSimV2ParamSvc"};
-
+    bool m_doPunchThrough{false};
+    ToolHandle< IPunchThroughTool >     m_punchThroughTool{this, "PunchThroughTool", ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsSetup{this, "CaloCellMakerTools_setup", {}, ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsRelease{this, "CaloCellMakerTools_release", {}, ""};
 

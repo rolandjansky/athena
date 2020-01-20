@@ -390,16 +390,12 @@ if __name__=="__main__":
                                                             # "CaloClusterCellLinkContainer#"+theKey+"_links"
                                                            ]))
 
-    ThinningSvc, ThinningOutputTool=CompFactory.getComps("ThinningSvc","ThinningOutputTool",)
-    cfg.addService(ThinningSvc())
-    tot = ThinningOutputTool("Thin_xAOD",ThinningSvc = cfg.getService("ThinningSvc"))
-    cfg.getEventAlgo("OutputStreamxAOD").HelperTools += [tot]
-
     ThinNegativeEnergyCaloClustersAlg=CompFactory.ThinNegativeEnergyCaloClustersAlg
     theNegativeEnergyCaloClustersThinner = ThinNegativeEnergyCaloClustersAlg(
         "ThinNegativeEnergyCaloClustersAlg",
         CaloClustersKey=theKey,
         ThinNegativeEnergyCaloClusters = True,
+        StreamName = 'StreamAOD'
     )
     cfg.addEventAlgo(theNegativeEnergyCaloClustersThinner,"AthAlgSeq")
   

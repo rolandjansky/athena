@@ -3,6 +3,7 @@
 #
 
 from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.GlobalFlags import globalflags
 
 #logging
 from AthenaCommon.Logging import logging
@@ -32,14 +33,19 @@ def precisionElectronRecoSequence(RoIs):
     ## Taking Fast Track information computed in 2nd step ##
     TrackCollection="TrigFastTrackFinder_Tracks_Electron"
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier")
-
-    ViewVerifyTrk.DataObjects = [('TrackCollection','StoreGateSvc+'+TrackCollection),
-                                 ('InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs'),
-                                 ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                 ('xAOD::CaloClusterContainer' , 'StoreGateSvc+HLT_CaloClusters'),
-                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG'),
-				 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     
+    
+    ViewVerifyTrk.DataObjects = [('TrackCollection','StoreGateSvc+'+TrackCollection),
+                                 ('xAOD::CaloClusterContainer' , precisionCaloMenuDefs.precisionCaloClusters),
+                                 ('CaloCellContainer' , 'StoreGateSvc+CaloCells'),
+                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG')]
+    
+    if globalflags.InputFormat.is_bytestream():
+       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ,
+                                    ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+
+    # AlgSequence.SGInputLoader.Load.append([ ('InDetBSErrContainer','StoreGateSvc+PixelByteStreamErrs') ])
     """ Precision Track Related Setup.... """
     PTAlgs = []
     PTTracks = []
@@ -57,14 +63,16 @@ def precisionElectronRecoSequence(RoIs):
     electronPrecisionTrack += ViewVerifyPrecisionCluster
 
     """ Retrieve the factories now """
-    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron, EMTrackMatchBuilder
+    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder
+
      
     #The sequence of these algorithms
     thesequence = parOR( "precisionElectron_"+RoIs)
    
     # Create the sequence of three steps:
     #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
-    trackMatchBuilder = EMTrackMatchBuilder()
+    trackMatchBuilder = TrigEMTrackMatchBuilder()
     trackMatchBuilder.TrackParticlesName = trackParticles
     TrigEgammaAlgo = TrigEgammaRecElectron()
    

@@ -5,7 +5,7 @@ __doc__ = "Tool configuration to instantiate all egammaCaloTools with default co
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 EMExtrapolationTools=CompFactory.EMExtrapolationTools
 

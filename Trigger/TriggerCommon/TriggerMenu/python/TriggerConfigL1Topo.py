@@ -2,9 +2,6 @@
 
 from __future__ import print_function
 
-from sys import settrace
-
-from .l1topo.TopoAlgos import TopoAlgo
 from .l1topo.L1TopoMenu import L1TopoMenu
 from .l1topo.L1TopoFlags import L1TopoFlags
 
@@ -13,14 +10,12 @@ log = logging.getLogger("TriggerConfigL1Topo")
 
 class TriggerConfigL1Topo:
     
-    current = None
     def __init__(self, outputFile = None , inputFile = None , menuName = None ):
         """
         inputFile: if set the topo menu will be read from this xml file (not yet implemented)
         outputFile: if no input file is specified the topo menu will be generated and written to outputFile
         menuName: ignored now
         """
-        current = self
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
         self.menuName = TriggerConfigL1Topo.getMenuBaseName(TriggerFlags.triggerMenuSetup())
@@ -36,7 +31,7 @@ class TriggerConfigL1Topo:
         # menu
         self.menu = L1TopoMenu(self.menuName)
         
-        if self.inputFile != None:
+        if self.inputFile is not None:
             """Read menu from XML"""
             print ("Menu input is not implemented!!")
         else:
@@ -154,11 +149,7 @@ class TriggerConfigL1Topo:
         Always to be called after defineMenu()
         """
         
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger('L1Topo.generateMenu')
-
         # add the algos to the menu
-        undefined_alg = False 
         for topooutput in L1TopoFlags.algos():
             topooutput.algo = self.getRegisteredAlgo(topooutput.algoname)
             if topooutput.algo is None:

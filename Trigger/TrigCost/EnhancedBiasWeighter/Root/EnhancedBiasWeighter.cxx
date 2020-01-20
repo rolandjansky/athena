@@ -33,17 +33,7 @@ EnhancedBiasWeighter::EnhancedBiasWeighter( const std::string& name )
   m_lumiAverageNum(0),
   m_muAverageNum(0),
   m_averageDenom(0)
-{
-  declareProperty( "RunNumber", m_runNumber = 0);
-  declareProperty( "CalculateWeightingData", m_calculateWeightingData = true, "If true, read from COOL, CONDBR2 and XMLs. If false, read directly from decorated TRIG1 dAOD.");
-  declareProperty( "EnforceEBGRL", m_enforceEBGRL = true, "Each Enhanced Bias run has a 'good run list' style veto on some LB. If this flag is true, events in these LB get weight 0");
-  declareProperty( "IsMC", m_isMC = false, "MC mode? If so we need a cross section and filter efficiency");
-  declareProperty( "MCCrossSection", m_mcCrossSection = 0, "If running over MC. The process cross section in nb (AMI gives thins in nb)");
-  declareProperty( "MCFilterEfficiency", m_mcFilterEfficiency = 0, "If running over MC. The process filter efficiency (0.0-1.0)");
-  declareProperty( "MCKFactor", m_mcKFactor = 1., "If running over MC. Higher-order corrections fudge factor to the cross section");
-  declareProperty( "InelasticCrossSection", m_inelasticCrossSection = 8e-26, "Inelastic cross section in units cm^2. Default 80 mb at 13 TeV.");
-  declareProperty( "UseBunchCrossingTool", m_useBunchCrossingTool = true, "BunchCrossing tool requires CONDBR2 access. Can be disabled here if this is a problem.");
-}
+{}
 
 StatusCode EnhancedBiasWeighter::initialize() 
 {
@@ -95,8 +85,9 @@ StatusCode EnhancedBiasWeighter::loadWeights()
 {
   // Construct name
   std::stringstream fileNameDev, fileName;
-  fileName    << "TrigCostRootAnalysis/EnhancedBiasWeights_" << m_runNumber << ".xml";
-  fileNameDev << "dev/TrigCostRootAnalysis/EnhancedBiasWeights_" << m_runNumber << ".xml";
+  const uint32_t runNumber = m_runNumber; // This is because Gaudi::Properties have special behaviour with the << operator
+  fileName    << "TrigCostRootAnalysis/EnhancedBiasWeights_" << runNumber << ".xml";
+  fileNameDev << "dev/TrigCostRootAnalysis/EnhancedBiasWeights_" << runNumber << ".xml";
 
   std::string weightingFile = PathResolverFindCalibFile( fileName.str() );  // Check standard area
   if (weightingFile == "") {
@@ -159,14 +150,15 @@ StatusCode EnhancedBiasWeighter::loadWeights()
     eventNode = xml->GetNext(eventNode);
   }
 
-  ATH_MSG_INFO ("Loaded " << m_eventNumberToIdMap.size() << " event weights for run " << m_runNumber);
+  ATH_MSG_INFO ("Loaded " << m_eventNumberToIdMap.size() << " event weights for run " << runNumber);
   return StatusCode::SUCCESS;
 }
 
 StatusCode EnhancedBiasWeighter::loadLumi()
 {
   // Fetch LB time from COOL for this run
-  if (m_readLumiBlock.updateLumiBlocks(m_runNumber, msg()) == false) {
+  const uint32_t runNumber = m_runNumber;
+  if (m_readLumiBlock.updateLumiBlocks(runNumber, msg()) == false) {
     ATH_MSG_FATAL("Unable to load this runs luminosity values from COOL.");
     return StatusCode::FAILURE;
   }
@@ -174,8 +166,8 @@ StatusCode EnhancedBiasWeighter::loadLumi()
   // Read in number of events to expect 
   // Construct name
   std::stringstream fileNameDev, fileName;
-  fileName    << "TrigCostRootAnalysis/enhanced_bias_run_" << m_runNumber << ".xml";
-  fileNameDev << "dev/TrigCostRootAnalysis/enhanced_bias_run_" << m_runNumber << ".xml";
+  fileName    << "TrigCostRootAnalysis/enhanced_bias_run_" << runNumber << ".xml";
+  fileNameDev << "dev/TrigCostRootAnalysis/enhanced_bias_run_" << runNumber << ".xml";
 
   std::string runFile = PathResolverFindCalibFile( fileName.str() );  // Check standard area
   if (runFile == "") {
@@ -259,7 +251,7 @@ StatusCode EnhancedBiasWeighter::loadLumi()
     listNode = xml->GetNext(listNode);
   }
 
-  ATH_MSG_INFO ("Loaded " << m_eventsPerLB.size() << " EnhancedBias lumi block's info for run " << m_runNumber);
+  ATH_MSG_INFO ("Loaded " << m_eventsPerLB.size() << " EnhancedBias lumi block's info for run " << runNumber);
   return StatusCode::SUCCESS;
 }
 
@@ -676,6 +668,11 @@ bool EnhancedBiasWeighter::isGoodLB(const EventContext& context) const
 
   }
 }
+
+bool EnhancedBiasWeighter::isMC() const {
+  return m_isMC;
+}
+
 
 double EnhancedBiasWeighter::getLBLumi(const xAOD::EventInfo* eventInfo) const
 {

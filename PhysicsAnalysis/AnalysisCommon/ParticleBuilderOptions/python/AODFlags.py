@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   ParticleBuilderOptions/python/AODFlags.py
@@ -258,9 +258,9 @@ class AODFlagsContainer(JobPropertyContainer):
             if hasattr(o,'StoredValue'):
                 if o.statusOn and o.allowedTypes==['bool']:
                     if o.get_Value()==True:
-                        print format % (o.__name__, "ON")
+                        print (format % (o.__name__, "ON"))
                     else:
-                        print format % (o.__name__, "--")
+                        print (format % (o.__name__, "--"))
 
     def allSetOff(self):
         self._log.info("AODFlags:: using allSetOff method. Is it usefull ?")

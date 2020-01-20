@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from future.utils import iteritems
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+import six
 
 ####################################################################
 #
@@ -91,7 +91,7 @@ if not TriggerFlags.doMT():
 
 def preplist(input):
     triglist = []
-    for k,val in input.iteritems():
+    for k,val in six.iteritems (input):
         for j in val:
             triglist.append(k + "#" + j)
     return triglist
@@ -132,8 +132,9 @@ if TriggerFlags.doMT():
     svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
-    topSequence += L1Decoder()
+    topSequence += L1Decoder(L1TriggerResult="") # L1 simulation sequence doesn't produce L1Trigger result yet
     
+    TriggerFlags.doTransientByteStream = True
     include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
 
@@ -340,5 +341,5 @@ ServiceMgr.MessageSvc.Format = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
 
 import AthenaCommon.Configurable as Configurable
 Configurable.log.setLevel( INFO )
-print topSequence
+printfunc (topSequence)
 

@@ -69,14 +69,14 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( LArFCalTowerBuilderTool
                 SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/LArFCalTowerBuilderTool_test.sh
-                EXTRA_PATTERNS "Reading file"
+                LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( LArRecUtilsConfig_test
                 SCRIPT python -m LArRecUtils.LArRecUtilsConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
 
 atlas_add_test( LArADC2MeVCondAlgConfig_test
                 SCRIPT python -m LArRecUtils.LArADC2MeVCondAlgConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---" )
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
 

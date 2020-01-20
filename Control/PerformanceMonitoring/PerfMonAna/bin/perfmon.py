@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # @file: perfmon.py
 # @purpose: launch the performance monitoring analysis script
 # @author: Sebastien Binet <binet@.cern.ch>
 # $Id: perfmon.py,v 1.9 2008-02-22 17:32:29 binet Exp $
+
+from __future__ import print_function
 
 __author__  = "Sebastien Binet"
 __version__ = "$Revision: 1.9 $"
@@ -92,7 +94,7 @@ def main():
 
     from PerfMonAna.App import ExitCodes
     if options.outFileName == "":
-        print "ERROR: you need to give an output file name !"
+        print ("ERROR: you need to give an output file name !")
         parser.print_help()
         return ExitCodes.ERROR
         
@@ -120,8 +122,8 @@ def main():
             inputFileNames += [ f ]
 
     if len(inputFileNames) == 0:
-        print "ERROR: invalid input files (do they exist ?)"
-        print "ERROR: got: %r" % options.inputFiles
+        print ("ERROR: invalid input files (do they exist ?)")
+        print ("ERROR: got: %r" % options.inputFiles)
         #parser.print_help()
         return ExitCodes.ERROR
     
@@ -160,8 +162,8 @@ def main():
                          dsLabels       = dsLabels,
                          fitSlice       = options.fitSlice )
         sc = ana.run()
-    except Exception, err:
-        print "::: Caught:",err
+    except Exception as err:
+        print ("::: Caught:",err)
         traceback.print_exc( file = sys.stdout )
         sc = ExitCodes.ERROR
         pass
@@ -171,14 +173,14 @@ def main():
 
 
 if __name__ == "__main__":
-    print ":"*80
-    print "::: perfmon analysis script :::"
-    print ""
+    print (":"*80)
+    print ("::: perfmon analysis script :::")
+    print ("")
     
     sc = main()
     
-    print ""
-    print "::: bye"
-    print ":"*80
+    print ("")
+    print ("::: bye")
+    print (":"*80)
     sys.exit( sc )
     

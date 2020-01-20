@@ -22,7 +22,32 @@ CondSvc::~CondSvc() {
 }
 
 //---------------------------------------------------------------------------
+StatusCode
+CondSvc::validRanges( std::vector< EventIDRange >& ranges, const DataObjID& id ) const
+{
+  // Direct retrieve doesn't work for some reason
+  /*CondContBase const* condObject;
+  StatusCode sc = m_sgs->retrieve( condObject, id.key() );
+  if ( sc.isSuccess() ) {
+    ranges = condObject->ranges();
+  }*/
 
+  // Retrieve all conditions data and search
+  SG::ConstIterator< CondContBase > cib, cie;
+  StatusCode sc = m_sgs->retrieve( cib, cie );
+  if ( sc.isSuccess() ) {
+    while ( cib != cie ) {
+      if ( cib->id() == id ) {
+        ranges = cib->ranges();
+      }
+      ++cib;
+    }
+  }
+
+  return sc;
+}
+
+//---------------------------------------------------------------------------
 StatusCode
 CondSvc::initialize() {
 

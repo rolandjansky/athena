@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from Lvl1Thresholds import LVL1Threshold, LVL1TopoInput, ThresholdValue
 from Lvl1MenuItems import LVL1MenuItem
@@ -120,7 +120,7 @@ def readMenuFromXML(l1menu, filename):
             for xV in x.TriggerThresholdValues:
                 try:
                     value = int(xV['thresholdval'])
-                except:
+                except Exception:
                     value = float(xV['thresholdval'])
 
                 thrVal = ThresholdValue(thrtype = xV['type'], value = value,
@@ -211,7 +211,7 @@ def readMenuFromXML(l1menu, filename):
     try:
         l1menu.CaloInfo.setGlobalEmScale(float(ci['global_em_scale']))
         l1menu.CaloInfo.setGlobalJetScale(float(ci['global_jet_scale']))
-    except:
+    except Exception:
         pass # will resolve itself once we have the em and jet scales in all XML
 
     if hasattr(reader.LVL1Config.CaloInfo,"JetWeights"): # new CaloInfo have no more JetWeights

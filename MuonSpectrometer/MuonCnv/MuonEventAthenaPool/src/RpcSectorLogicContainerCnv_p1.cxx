@@ -8,8 +8,6 @@
 #include "RpcSectorLogicContainerCnv_p1.h"
 
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"

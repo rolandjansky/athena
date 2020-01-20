@@ -12,14 +12,12 @@
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+/* #include "StoreGate/ReadCondHandleKey.h" */
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class ICscStripFitter;
 
 class TileTBID;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Muon {
   class RpcPrepData;
@@ -98,7 +96,11 @@ namespace MuonCalib {
     /** retrieve event trigger time information from storegate and convert to MuonCalibTriggerTimeInfo */
     const MuonCalibTriggerTimeInfo* retrieveTriggerTimeInfo() const;
 
-    const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to MuonDetectorManager 
+    /** retrieve MuonDetectorManager from the conditions store */
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
     std::string m_globalPatternLocation;            //!< Location of the MuonCalibPattern in StoreGate
 
     /* RtCalibration initialization */

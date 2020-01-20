@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyAthena.FilePeekerLib
 # @purpose provide components to peek into pool files
@@ -15,21 +15,7 @@ __doc__ = "provide components to peek into pool files"
 import AthenaPython.PyAthena as PyAthena
 StatusCode = PyAthena.StatusCode
 
-# MN/sss: make Coral.AttributeList work in Coral3/ROOT6/gcc5
-from PyCool import coral
-_attribute_methods = dir(coral.Attribute)
-_methnames = ['data<std::__cxx11::basic_string<char> >',
-              'data<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >',
-              'data<std::basic_string<char> >',
-              'data<std::string>']
-for _m in _methnames:
-    if _m in _attribute_methods:
-        _attribute_getdata = _m
-        break
-else:
-    raise Exception("Can't find data method in Attribute")
-def attr_str_data(attr):
-    return getattr(attr, _attribute_getdata) ()
+import six
 
 
 ### helper functions ----------------------------------------------------------
@@ -245,14 +231,14 @@ class FilePeeker(PyAthena.Alg):
                     spec   = a.specification()
                     a_type = spec.typeName()
                     if a_type.find('string') >= 0:
-                        a_data = attr_str_data(a)
+                        a_data = a.data('string')()
                         try:
                             a_data = eval(a_data,{},{})
                         except Exception:
                             # swallow and keep as a string
                             pass
                     else:
-                        a_data = getattr(a,'data<%s>'%a_type)()
+                        a_data = a.data(a_type)()
                     #msg.info("%s: %s  %s", spec.name(), a_data, type(a_data) )
                     attr_data.append( (spec.name(), a_data) )
                 attrs.append(dict(attr_data))
@@ -382,7 +368,7 @@ class FilePeeker(PyAthena.Alg):
                 return (_typename(clid) or str(clid), # str or keep the int?
                         sgkey)
             item_list = esi.item_list()
-            item_list = map(_make_item_list, item_list)
+            item_list = list(map(_make_item_list, item_list))
             peeked_data['eventdata_items'] = item_list
             # print ("======",len(item_list))
             peeked_data['lumi_block'] = esi.lumi_blocks()
@@ -509,7 +495,7 @@ class FilePeeker(PyAthena.Alg):
         def mergeMultipleDict(inDicts):
             outDict={}
             for d in inDicts:
-                for k,o in d.iteritems():
+                for k,o in six.iteritems(d):
                     if k not in outDict:
                         outDict[k]=o
             if len(outDict)==0:

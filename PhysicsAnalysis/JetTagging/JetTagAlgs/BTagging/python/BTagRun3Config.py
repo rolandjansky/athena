@@ -1,11 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
+from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
+from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     result=ComponentAccumulator()
@@ -128,7 +131,7 @@ def BTagCfg(inputFlags,**kwargs):
     release = kwargs.get('Release', None)
     if release: del kwargs['Release']
 
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
@@ -161,6 +164,7 @@ def BTagCfg(inputFlags,**kwargs):
 
     #Should be parameters
     JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow']
+    JetCollection = ['AntiKt4EMTopo']
     taggerList = inputFlags.BTagging.run2TaggersList
     taggerList += ['MultiSVbb1','MultiSVbb2']
 
@@ -185,23 +189,32 @@ def BTagCfg(inputFlags,**kwargs):
                 extraCont.append(AuxSecVtx + author + 'SecVtxMTAux.-vxTrackAtVertex')
                 extraCont.append(SecVtx + author + 'MSVMT')
                 extraCont.append(AuxSecVtx + author + 'MSVMTAux.-vxTrackAtVertex')
+                extraCont.append("xAOD::BTaggingContainer#" + author + 'MT')
+                extraCont.append("xAOD::BTaggingAuxContainer#" + author + 'MTAux.')
             result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
 
         if splitAlg:
             #Track Association
             kwargs['Release'] = '22'
-            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociator', **kwargs))
+            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", 'BTagTrackToJetAssociator', **kwargs))
             kwargs['Release'] = '21'
-            #result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociator', **kwargs))
-            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociatorBB', **kwargs))
+            #result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", 'BTagTrackToJetAssociator', **kwargs))
+            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", 'BTagTrackToJetAssociatorBB', **kwargs))
             del kwargs['Release']
 
-            #Sec vertexing
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', jet+'Jets.BTagTrackToJetAssociator'))
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', jet+'Jets.BTagTrackToJetAssociator'))
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', jet+'Jets.BTagTrackToJetAssociatorBB'))
+            #Sec vertex finding
+            result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', 'BTagTrackToJetAssociator'))
+            result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', 'BTagTrackToJetAssociator'))
 
-        result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
+            #Sec vertexing
+            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', 'BTagTrackToJetAssociator', 'JFVtx'))
+            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', 'BTagTrackToJetAssociator', 'SecVtx'))
+            #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', 'BTagTrackToJetAssociatorBB', 'MSV))
+
+            #BTagging
+            result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, Associator = 'BTagTrackToJetAssociator', **kwargs))
+        else:
+            result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
 
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList))
 
@@ -249,9 +262,11 @@ if __name__=="__main__":
         cfgFlags.Concurrency.NumConcurrentEvents = args.nThreads
         from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
         acc=MainServicesThreadedCfg(cfgFlags)
+        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
     else:
         from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
         acc=MainServicesSerialCfg()
+        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
 
     # Prevent the flags from being modified
     cfgFlags.lock()

@@ -27,6 +27,7 @@ ThinNegativeEnergyNeutralPFOsAlg=CompFactory.ThinNegativeEnergyNeutralPFOsAlg
 CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
     "ThinNegativeEnergyNCHSeutralPFOsAlg",
     NeutralPFOsKey="CHSNeutralParticleFlowObjects",
-    ThinNegativeEnergyNeutralPFOs = True
+    ThinNegativeEnergyNeutralPFOs = True,
+    StreamName = 'StreamAOD'
 )
 job += CHSnPFOsThinAlg

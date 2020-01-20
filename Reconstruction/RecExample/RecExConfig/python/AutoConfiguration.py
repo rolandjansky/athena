@@ -1,5 +1,7 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+
 
 ##=============================================================================
 ## Name:        AutoConfiguration.py
@@ -854,7 +856,7 @@ def IsInInputFile(collectionname,key=None):
         if metadata['file_type'] == 'POOL':
             try:
                 ItemDic = convert_itemList(layout='dict')
-                if ItemDic.has_key(collectionname):
+                if collectionname in ItemDic:
                     logAutoConfiguration.info("found collection with name %s in input file." % collectionname)
                     print(ItemDic[collectionname])
                     if key is None:
@@ -870,10 +872,12 @@ def IsInInputFile(collectionname,key=None):
                     return False
             except Exception:
                 logAutoConfiguration.warning("IsInInputFile: Something's wrong. Wrong file:%s ", metadata['file_name'])
+                import traceback
+                logAutoConfiguration.warning(traceback.format_exc())
     except Exception:
         logAutoConfiguration.warning("Could not run IsInInputFile. input file maybe not specified at this point")#
 
-    logAutoConfiguration.info("looks like object of name %s is NOT in input file. Returning False" % object)
+    logAutoConfiguration.info("looks like object of name %s is NOT in input file. Returning False" % key)
     return False
 
 def ConfigureSimulationOrRealData():

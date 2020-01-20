@@ -17,6 +17,7 @@
 #include "TrkTrack/Track.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
 #include <set>
@@ -30,18 +31,10 @@ class StoreGateSvc;
 class MdtCondDbData;
 class MuonStationIntersectSvc;
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 namespace Muon {
   class IMdtDriftCircleOnTrackCreator;
   class IMuonClusterOnTrackCreator;
   class MuonEDMPrinterTool;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
 }
 
 namespace Trk {
@@ -187,7 +180,9 @@ namespace Muon {
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;            //!< EDM printer tool
 
-    const MuonGM::MuonDetectorManager*  m_detMgr;
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
 
     SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_key_csc{this,"CscPrepDataContainer","CSC_Clusters","CSC PRDS"};

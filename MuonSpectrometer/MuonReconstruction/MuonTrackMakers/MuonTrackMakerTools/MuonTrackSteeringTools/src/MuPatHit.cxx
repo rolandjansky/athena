@@ -3,32 +3,25 @@
 */
 
 #include "MuPatHit.h"
- 
+
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 
-#include <iostream> 
+#include <iostream>
 
 namespace Muon {
-  
- 
+
+
   // Static members
   unsigned int MuPatHit::s_maxNumberOfInstantiations = 0;
   unsigned int MuPatHit::s_numberOfInstantiations = 0;
   unsigned int MuPatHit::s_numberOfCopies = 0;
 
   // Static functions
-  void MuPatHit::resetMaxNumberOfInstantiations() {
-    s_maxNumberOfInstantiations = 0;
-  }
-
-  void MuPatHit::resetNumberOfCopies() {
-    s_numberOfCopies = 0;
-  }
 
   // member functions
-  MuPatHit::MuPatHit( const Trk::TrackParameters* pars, const Trk::MeasurementBase* presMeas, const Trk::MeasurementBase* broadMeas, 
-		    const Info& info ) :
+  MuPatHit::MuPatHit( const Trk::TrackParameters* pars, const Trk::MeasurementBase* presMeas, const Trk::MeasurementBase* broadMeas,
+        const Info& info ) :
     m_pars(pars),m_precisionMeas(presMeas),m_broadMeas(broadMeas),m_info(info)
   {
 //     std::cout << " new MuPatHit  " << this;
@@ -67,7 +60,7 @@ namespace Muon {
     removeInstance();
 #endif
   }
-  
+
   void MuPatHit::copy( const MuPatHit& hit ){
     m_pars = hit.m_pars;
     m_precisionMeas = hit.m_precisionMeas;
@@ -85,4 +78,4 @@ namespace Muon {
   }
 
 
-}
+} // Muon

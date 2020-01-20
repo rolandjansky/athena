@@ -9,11 +9,12 @@
 
 import logging
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Common
+import six
 
 Common.trigvalsteering_logging_level = logging.DEBUG
 ex = ExecStep.ExecStep('FullMenu')
 ex.type = 'athena'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar'
 ex.threads = 1
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
@@ -21,7 +22,7 @@ ex.args = '-c "setMenu=\'LS2_v1\';doWriteBS=False;doWriteRDOTrigger=False;"'
 
 def single_slice( name, args ):
     slice_ex = ExecStep.ExecStep( name )    
-    for prop,val in ex.__dict__.iteritems():
+    for prop,val in six.iteritems(ex.__dict__):
         if prop != 'name':
             setattr( slice_ex, prop, val )
     slice_ex.args += " " + args    
@@ -57,7 +58,8 @@ class CompareSlicesToFullMenuStep( Step ):
         self.log.info( 'Running %s comparing %s with slice logs %s ',
                        self.name, self.full_menu_log, str( self.slice_logs ) )
         if dry_run:
-            return 0, 'Skipped '+self.name
+            self.result = 0
+            return self.result, '# (internal) {} -> skipped'.format(self.name)
 
         full_menu_test_lines = self.fetch_lines( self.full_menu_log )
         full_menu_test_lines.sort()
@@ -75,10 +77,16 @@ class CompareSlicesToFullMenuStep( Step ):
                         result_log.write( 'CompareSlicesToFullMenuStep ERROR Difference found in {} and {}\n'.format( slice_log, self.full_menu_log ) )
                         result_log.write( 'CompareSlicesToFullMenuStep ERROR Slice     {}\n'.format( " ".join( result_in_slice ) ) )
                         result_log.write( 'CompareSlicesToFullMenuStep ERROR Full Menu {}\n'.format( " ".join( result_in_full_menu ) ) )
-	
-        self.result = 1 if error else 0
+
+        # Command to report in commands.json
+        cmd = '# (internal) {}'.format(self.name)
+        if error:
+            self.result = 1
+            cmd += ' -> failed'
+        else:
+            self.result = 0
         self.report_result()
-        return self.result, 'Differences when running the slice standalone'
+        return self.result, cmd
 
 
 

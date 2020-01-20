@@ -80,7 +80,7 @@ AthenaPoolTestDataWriter.OutputLevel = DEBUG
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 include( "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPoolItemList_joboptions.py" )
 
-print fullItemList
+printfunc (fullItemList)
 
 # Stream's output file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -94,7 +94,7 @@ Stream1.ItemList   += fullItemList
 #Stream1.ItemList = [ o for o in Stream1.ItemList if not o in 'AthenaPoolTestMap#*' ]
 #Stream1.ItemList = [ o for o in Stream1.ItemList if not o == 'PileUpEventInfo#*'  ]
 
-print Stream1.ItemList
+printfunc (Stream1.ItemList)
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
@@ -106,7 +106,8 @@ svcMgr.MessageSvc.debugLimit  = 100000
 #rds svcMgr.ClassIDSvc.OutputLevel = 3
 svcMgr.AthenaSealSvc.OutputLevel = WARNING
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 #svcMgr.StoreGateSvc = Service( "StoreGateSvc" )

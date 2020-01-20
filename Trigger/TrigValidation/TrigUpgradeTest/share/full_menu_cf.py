@@ -1,12 +1,14 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
 createHLTMenuExternally=True # menu will be build up explicitly here 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 ##########################################
 # menu
@@ -122,7 +124,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=[""],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=["FSNOSEED"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 

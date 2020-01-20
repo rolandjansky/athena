@@ -10,7 +10,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/System.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "ers/ers.h"
 
@@ -455,12 +455,6 @@ void TrigMessageSvc::setOutputLevel(const std::string& source, int level)
   else if (i->second != level) {
     i->second = level;
   }
-}
-
-void TrigMessageSvc::resetOutputLevels()
-{
-  std::unique_lock<std::recursive_mutex> lock(m_thresholdMapMutex);
-  m_thresholdMap.clear();
 }
 
 int TrigMessageSvc::messageCount(MSG::Level level) const

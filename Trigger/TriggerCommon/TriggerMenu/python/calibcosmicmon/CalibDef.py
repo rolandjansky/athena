@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 # SliceDef file for TrkCalib chains
@@ -8,7 +8,6 @@ __author__  = 'M.Backes, C.Bernius, O.Igonkina, P.Bell'
 __version__=""
 __doc__="Implementation of calib trigger sequence "
 
-from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
@@ -21,7 +20,6 @@ from TrigDetCalib.TrigDetCalibConfig import (LArL2ROBListWriter,
                                              CSCSubDetListWriter,
                                              L2ROBListWriter)
 from TriggerMenu.commonUtils.makeCaloSequences import (getFullScanCaloSequences) 
-from TrigDetCalib.TrigDetCalibConfig import *
 
 ###########################################################################
 # Helper classes
@@ -109,7 +107,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       #   self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
       #roi1 = 'HA8'
       if 'idcalib' in self.chainPart['purpose']:         
-        if not 'HI_' in TriggerFlags.triggerMenuSetup():
+        if 'HI_' not in TriggerFlags.triggerMenuSetup():
           roi1 = 'HA8'
           #log.info('Using '+roi1+' as ROI for calibtrk chains, triggered by non-HI menuname)
           self.L2InputTE = roi1

@@ -46,7 +46,6 @@ private:
   std::vector< std::string > m_ftktrack_paths_merged;
   // chain  of ftk merged tracks
   TChain *m_mergedtracks_chain;
-  TTree *m_mergedtracks_tree;
   // streams with the merged roads
   FTKTrackStream *m_mergedtracks_stream;
   std::string m_mergedtracks_bname; // name to be used for the merged tracks' branch name

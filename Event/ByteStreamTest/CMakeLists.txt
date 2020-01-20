@@ -30,15 +30,12 @@ function (bytestreamtest_run_test jo)
   cmake_parse_arguments( ARG "" "DEPENDS" "" ${ARGN} )
 
   set( testName "ByteStreamTest${jo}" )
-
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/bytestreamtest_test.sh.in
-                  ${CMAKE_CURRENT_BINARY_DIR}/bytestreamtest_${testName}.sh
-                  @ONLY )
   atlas_add_test( ${testName}
-                  SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/bytestreamtest_${testName}.sh
-                  POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_bs.sh ${testName}"
+                  SCRIPT POOL_OUTMSG_LEVEL=4 athena.py ByteStreamTest/${jo}.py
+                  LOG_SELECT_PATTERN "RunEventTag|ByteStreamAtt|ByteStreamEvent|ByteStreamInput|ByteStreamOutput|EventSelector|StoreDump|StreamBSFileOutput"
+                  LOG_IGNORE_PATTERN "/cvmfs|GUID|Request skipping event"
                   PROPERTIES TIMEOUT 300
-                   )
+                  )
   if( ARG_DEPENDS )
     set_tests_properties( ByteStreamTest_${testName}_ctest
                           PROPERTIES DEPENDS ByteStreamTest_ByteStreamTest${ARG_DEPENDS}_ctest )
@@ -53,4 +50,3 @@ bytestreamtest_run_test( MetaWrite )
 bytestreamtest_run_test( MetaRead DEPENDS MetaWrite )
 bytestreamtest_run_test( BadEvents )
 bytestreamtest_run_test( Selectors )
-

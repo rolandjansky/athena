@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -75,7 +75,7 @@ StatusCode ReadTgcRDO::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
 
-  const DataHandle<TgcRdoContainer> TgcRDO; 
+  const TgcRdoContainer* TgcRDO = nullptr; 
   ATH_CHECK( (*m_activeStore)->retrieve( TgcRDO, "TGCRDO" ) );
 
   ATH_MSG_DEBUG("****** TgcRDO->size() : " << TgcRDO->size() );
