@@ -48,6 +48,7 @@
 #include "ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h"
+#include "ISF_FastCaloSimEvent/TFCS2DFunctionLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h"
@@ -210,6 +211,7 @@
 #pragma link C++ class TFCSFlatLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrizationFCal+;
+#pragma link C++ class TFCS2DFunctionLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeWeight+;
 #pragma link C++ class TFCSHistoLateralShapeGausLogWeight+;
 #pragma link C++ class TFCSHistoLateralShapeWeightHitAndMiss+;

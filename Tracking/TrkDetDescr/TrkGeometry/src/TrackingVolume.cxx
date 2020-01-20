@@ -767,7 +767,7 @@ void Trk::TrackingVolume::indexContainedMaterialLayers(GeometrySignature geoSig,
 }
 
 
-void Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact) const
+void Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact) 
 {
   // assume the scaling factor refers to the volume scaling
   float flin = pow(fact,0.33); 
@@ -796,7 +796,7 @@ void Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact) co
   dEdX += flin*mprop.dEdX; 
 }
 
-void Trk::TrackingVolume::propagateMaterialProperties(const Trk::Material& mprop) const {
+void Trk::TrackingVolume::propagateMaterialProperties(const Trk::Material& mprop) {
   
   X0            = mprop.X0;
   L0            = mprop.L0;

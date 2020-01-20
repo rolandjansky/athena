@@ -13,7 +13,7 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilter/AllignedDynArray.h"
 #include "TrkParameters/TrackParameters.h"
@@ -46,11 +46,6 @@ Trk::QuickCloseComponentsMultiStateMerger::initialize()
   } else
     ATH_MSG_INFO("Retrieved service " << m_chronoSvc);
 
-  // Request an instance of the MultiComponentStateCombiner
-  if (m_stateCombiner.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve an instance of the multi-component state combiner... Exiting!");
-    return StatusCode::FAILURE;
-  }
 
   if (m_maximumNumberOfComponents <= 0) {
     ATH_MSG_FATAL("Attempting to merge multi-state into zero components... stop being silly!");
@@ -192,7 +187,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
      * statesToMerge[mini] becomes the merged
      * statesToMerge[minj] is set to dummy values
      */
-    m_stateCombiner->combineWithWeight(statesToMerge[mini], statesToMerge[minj]);
+    MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini], statesToMerge[minj]);
     ATH_MSG_VERBOSE("Weight of new component " << statesToMerge[mini].second);
     statesToMerge[minj].first.reset();
     statesToMerge[minj].second = 0.;

@@ -15,8 +15,6 @@ def SCTOverlayAlgCfg(flags, name = "SCTOverlay", **kwargs):
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "SCT_RDOs")
     kwargs.setdefault("OutputKey", "SCT_RDOs")
 
-    kwargs.setdefault("includeBkg", True)
-
     # Do SCT overlay
     SCTOverlay=CompFactory.SCTOverlay
     alg = SCTOverlay(name, **kwargs)

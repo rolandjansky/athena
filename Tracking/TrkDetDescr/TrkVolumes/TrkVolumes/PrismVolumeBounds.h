@@ -13,7 +13,7 @@
 #include "TrkVolumes/VolumeBounds.h"
 #include "TrkDetDescrUtils/ObjectsAccessor.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-
+#include "CxxUtils/CachedValue.h"
 class MsgStream;
 
 namespace Trk {
@@ -111,7 +111,7 @@ namespace Trk {
 #undef double
 #endif    
     Trk::TriangleBounds*   m_baseBounds;              //!< base xy bounds
-    mutable int m_ordering;                         //!< cache vertex ordering 
+    CxxUtils::CachedValue<int> m_ordering;            //!< cache vertex ordering 
         
    /** There's only one single object Acessor for the moment
        has to be implemented if Cuboids are used more widely */

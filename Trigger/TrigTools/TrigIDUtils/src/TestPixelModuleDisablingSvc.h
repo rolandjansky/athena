@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -56,7 +56,6 @@ class TestPixelModuleDisablingSvc:  public AthService,
 
   ServiceHandle< StoreGateSvc > m_detStore;
   const PixelID* m_pixelID;
-  unsigned int m_print;
   bool m_print_disabled;
   void print_disabled_modules();
   std::set<Identifier> m_disabled_modules;

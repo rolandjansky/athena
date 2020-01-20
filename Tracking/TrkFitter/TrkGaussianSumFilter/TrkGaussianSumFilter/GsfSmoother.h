@@ -15,7 +15,6 @@ decription           : Class definition for the GSF smoother
 #define TrkGsfSmoother_H
 
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
@@ -78,10 +77,6 @@ private:
     "Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",
     ""
   };
-  ToolHandle<IMultiComponentStateCombiner> m_combiner{ this,
-                                                       "MultiComponentStateCombiner",
-                                                       "Trk::MultiComponentStateCombiner/GsfSmootherCombiner",
-                                                       "" };
   /*
    * Special Tool Handles set by the configureTools
    */

@@ -105,7 +105,8 @@ StatusCode ByteStreamOutputStreamCopyTool::finalizeOutput() {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  typeKeys) {
+StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  typeKeys, const std::string&
+ /*outputName*/) {
    if (typeKeys.size() != 0){
      MsgStream log(msgSvc(), name());
      log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endmsg;
@@ -113,7 +114,8 @@ StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  ty
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const DataObjectVec& dataObjects) {
+StatusCode ByteStreamOutputStreamCopyTool::streamObjects(const DataObjectVec& dataObjects, const std::string&
+ /*outputName*/) {
    if (dataObjects.size() != 0){
      MsgStream log(msgSvc(), name());
      log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endmsg;

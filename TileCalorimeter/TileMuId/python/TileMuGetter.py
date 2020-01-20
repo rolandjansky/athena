@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileMu creation from TileCell
@@ -25,7 +25,7 @@ class TileMuGetter ( Configured )  :
             theTileMuGetter=TileMuGetter()
         except:
             mlog.error("could not get handle to TileMuGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileMuGetter.usable():
@@ -40,7 +40,7 @@ class TileMuGetter ( Configured )  :
             from TileMuId.TileMuIdConf import TileLookForMuAlg                
         except:
             mlog.error("could not import TileMuId.TileLookForMuAlg")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileLookForMuAlg=TileLookForMuAlg()

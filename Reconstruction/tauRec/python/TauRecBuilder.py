@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -21,7 +21,7 @@ from AthenaCommon.BeamFlags import jobproperties
 import traceback
 
 from RecExConfig.Configured import Configured
-from TauRecConfigured import TauRecConfigured
+from .TauRecConfigured import TauRecConfigured
 
 # global tauRec config keys
 _outputType = "xAOD::TauJetContainer"
@@ -131,7 +131,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
                         
         except Exception:
             mlog.error("could not append tools to TauBuilder")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         # run first part of Tau Builder
@@ -183,7 +183,7 @@ class TauRecPi0EflowProcessor ( TauRecConfigured ) :
             )
         except Exception:
             mlog.error("could not get handle to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
              
         tools = []
@@ -199,7 +199,7 @@ class TauRecPi0EflowProcessor ( TauRecConfigured ) :
             
         except Exception:
             mlog.error("could not append tools to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False   
         
         TauRecConfigured.WrapTauRecToolExecHandle(self, self.TauProcessorToolHandle())
@@ -247,7 +247,7 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not get handle to TauProcessorTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
              
         tools = []
@@ -310,7 +310,7 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not append tools to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         self

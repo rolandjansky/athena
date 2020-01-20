@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.Constants import INFO
 from AthenaCommon.AppMgr import ToolSvc
@@ -179,7 +181,7 @@ def configureEDCorrection(tool):
         topSequence += EventDensityAthAlg("EDnpfIsoForwardAlg", EventDensityTool = tfnpf)
 
   except Exception:
-    print '\nERROR: could not get handle to ED'
+    print ('\nERROR: could not get handle to ED')
     raise
 
 from CaloIdentifier import SUBCALO 
@@ -304,7 +306,7 @@ class isoGetter ( Configured ) :
     except Exception:
       mlog.error("could not get handle to IsolationBuilder")
       import traceback
-      print traceback.format_exc()
+      traceback.print_exc()
       return False
     
     #print self._isoBuilderHandle

@@ -23,7 +23,7 @@
 #include "NavFourMom/INavigable4MomentumCollection.h"
 #include "NavFourMom/INav4MomLink.h"
 #include "NavFourMom/INav4MomLinkContainer.h"
-
+#include "CxxUtils/checker_macros.h"
 // Forward declaration
 
 class INav4MomAssocs : public AssociationMap< INavigable4MomentumCollection, 
@@ -62,7 +62,7 @@ class INav4MomAssocs : public AssociationMap< INavigable4MomentumCollection,
   /** Retrieve all the associated-to objects which have been associated
    *  to the given \param object
    */
-  bool assocs( const INavigable4Momentum* object,
+  bool assocs ATLAS_NOT_CONST_THREAD_SAFE ( const INavigable4Momentum* object,
                INavigable4MomentumCollection& assocs ) const;
 
   /** Retrieve all the associated-to ElementLinks_to_objects which have

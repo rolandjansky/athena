@@ -62,10 +62,3 @@ StatusCode TBScintillatorRawContCnv::PoolToDataObject(DataObject*& pObj,
 
   return StatusCode::SUCCESS; 
 }
-
-StatusCode TBScintillatorRawContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBScintillatorRawContCnv::DataObjectToPool" );
-  
-  return TBScintillatorRawContCnvBase::DataObjectToPool( pObj, tname) ;
-}
