@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentConverterTool.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "Identifier/Identifier.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
@@ -13,27 +12,17 @@ namespace Muon {
   MuonSegmentConverterTool::MuonSegmentConverterTool(const std::string& t, const std::string& n, const IInterface* p) 
     : AthAlgTool(t,n,p),
       m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool")
   {
     declareInterface<xAODMaker::IMuonSegmentConverterTool>(this);
   }
     
-  MuonSegmentConverterTool::~MuonSegmentConverterTool() {
-    
-  }
-    
   StatusCode MuonSegmentConverterTool::initialize() {
 
     ATH_CHECK(m_hitSummaryTool.retrieve());
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_hitSummaryTool.retrieve());
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonSegmentConverterTool::finalize() {
-
     return StatusCode::SUCCESS;
   }
 
@@ -67,7 +56,7 @@ namespace Muon {
 
       // get Identifier and remove MDT hits
       Identifier id = m_edmHelper->getIdentifier(**mit);
-      if( !id.is_valid() || !m_idHelper->isTrigger(id) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->isTrigger(id) ) continue;
       
       // cast to  MuonClusterOnTrack
       const MuonClusterOnTrack* clus = dynamic_cast<const MuonClusterOnTrack*>(*mit);
@@ -112,10 +101,10 @@ namespace Muon {
 
     // identifier
     Identifier id = m_edmHelper->chamberId(seg);
-    int eta = m_idHelper->stationEta(id);
-    int sector = m_idHelper->sector(id);
-    MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(id);
-    MuonStationIndex::TechnologyIndex technology = m_idHelper->technologyIndex(id);
+    int eta = m_idHelperSvc->stationEta(id);
+    int sector = m_idHelperSvc->sector(id);
+    MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(id);
+    MuonStationIndex::TechnologyIndex technology = m_idHelperSvc->technologyIndex(id);
     xaodSeg->setIdentifier(sector,chIndex,eta,technology);
 
     // hit counts
