@@ -4,40 +4,48 @@
 
 #include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloCluster.h"
+namespace {
+/*if both in barrel and end-cap then have to
+ * rely on energy deposition
+ * be careful to test 0 precisely
+ * As 0 (no deposit) > noise (which is negative)*/
+bool isCrackBarrel(const xAOD::CaloCluster &cluster, 
+                   const xAOD::CaloCluster::CaloSample barrel,
+                   const xAOD::CaloCluster::CaloSample endCap) {
+  if (cluster.eSample(barrel) == 0. && cluster.eSample(endCap) != 0.) {
+    return false; // endcap
+  }
+  if (cluster.eSample(barrel) != 0. && cluster.eSample(endCap) == 0.) {
+    return true; // barrel
+  }
+  if (cluster.eSample(barrel) >= cluster.eSample(endCap)) {
+    return true; // barrel
+  }  
+  return false; // endcap;
+}
+} // namespace
 
-double
-egammaEnergyPositionAllSamples::e(const xAOD::CaloCluster& cluster)
-{
+double egammaEnergyPositionAllSamples::e(const xAOD::CaloCluster &cluster) {
   return (e0(cluster) + e1(cluster) + e2(cluster) + e3(cluster));
 }
 
-double
-egammaEnergyPositionAllSamples::e0(const xAOD::CaloCluster& cluster)
-{
+double egammaEnergyPositionAllSamples::e0(const xAOD::CaloCluster &cluster) {
   return (cluster.eSample(CaloSampling::PreSamplerB) + cluster.eSample(CaloSampling::PreSamplerE));
 }
 
-double
-egammaEnergyPositionAllSamples::e1(const xAOD::CaloCluster& cluster) 
-{
+double egammaEnergyPositionAllSamples::e1(const xAOD::CaloCluster &cluster) {
   return (cluster.eSample(CaloSampling::EMB1) + cluster.eSample(CaloSampling::EME1));
 }
 
-double
-egammaEnergyPositionAllSamples::e2(const xAOD::CaloCluster& cluster)
-{
+double egammaEnergyPositionAllSamples::e2(const xAOD::CaloCluster &cluster) {
   return (cluster.eSample(CaloSampling::EMB2) + cluster.eSample(CaloSampling::EME2));
 }
 
-double
-egammaEnergyPositionAllSamples::e3(const xAOD::CaloCluster& cluster)
-{
+double egammaEnergyPositionAllSamples::e3(const xAOD::CaloCluster &cluster) {
   return (cluster.eSample(CaloSampling::EMB3) + cluster.eSample(CaloSampling::EME3));
 }
 
-bool
-egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster& cluster, const int sampling)
-{
+bool egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster &cluster, const int sampling) {
 
   // from cluster position and energy define
   // if we are in barrel or end-cap
@@ -46,69 +54,22 @@ egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster& cluster, const
   // sampling (0=presampler,1=strips,2=middle,3=back)
   //
   if (cluster.inBarrel() && !cluster.inEndcap()) {
-    return true;//barrel
+    return true; // barrel
   } else if (!cluster.inBarrel() && cluster.inEndcap()) {
-    return  false;//endcap
-  }
-  /*if both in barrel and end-cap then have to
-   * rely on energy deposition
-   * be careful to test 0 precisely
-   * As 0 (no deposit) > noise (which is negative)*/
-  else if (cluster.inBarrel() && cluster.inEndcap()) {
+    return false; // endcap
+  } else if (cluster.inBarrel() && cluster.inEndcap()) {
     switch (sampling) {
     case 0: {
-      if (cluster.eSample(CaloSampling::PreSamplerB) == 0. && cluster.eSample(CaloSampling::PreSamplerE) != 0.) {
-        return false; // endcap
-      }
-      if (cluster.eSample(CaloSampling::PreSamplerB) != 0. && cluster.eSample(CaloSampling::PreSamplerE) == 0.) {
-        return true; // barrel
-      }
-      if (cluster.eSample(CaloSampling::PreSamplerB) >= cluster.eSample(CaloSampling::PreSamplerE)) {
-        return true; // barrel;
-      } else {
-        return false; // endcap;
-      }
+      return isCrackBarrel(cluster,CaloSampling::PreSamplerB, CaloSampling::PreSamplerE);
     }
     case 1: {
-      if (cluster.eSample(CaloSampling::EMB1) == 0. && cluster.eSample(CaloSampling::EME1) != 0.) {
-        return false; // endcap
-      }
-      if (cluster.eSample(CaloSampling::EMB1) != 0. && cluster.eSample(CaloSampling::EME1) == 0.) {
-        return true; // barrel
-      }
-      if (cluster.eSample(CaloSampling::EMB1) >= cluster.eSample(CaloSampling::EME1)) {
-        return true; // barrel
-      } else {
-        return false; // endcap
-      }
+      return isCrackBarrel(cluster,CaloSampling::EMB1, CaloSampling::EME1);
     }
     case 2: {
-      if (cluster.eSample(CaloSampling::EMB2) == 0. && cluster.eSample(CaloSampling::EME2) != 0.) {
-        return false; // endcap
-      }
-      if (cluster.eSample(CaloSampling::EMB2) != 0. && cluster.eSample(CaloSampling::EME2) == 0.) {
-        return true; // barrel
-      }
-
-      if (cluster.eSample(CaloSampling::EMB2) >= cluster.eSample(CaloSampling::EME2)) {
-        return true; // barrel
-      } else {
-        return false; // endcap
-      }
+      return isCrackBarrel(cluster,CaloSampling::EMB2, CaloSampling::EME2);
     }
     case 3: {
-      if (cluster.eSample(CaloSampling::EMB3) == 0. && cluster.eSample(CaloSampling::EME3) != 0.) {
-        return false; // endcap
-      }
-      if (cluster.eSample(CaloSampling::EMB3) != 0. && cluster.eSample(CaloSampling::EME3) == 0.) {
-        return true; // barrel
-      }
-
-      if (cluster.eSample(CaloSampling::EMB3) >= cluster.eSample(CaloSampling::EME3)) {
-        return true; // barrel
-      } else {
-        return false; // endcap
-      }
+      return isCrackBarrel(cluster,CaloSampling::EMB3, CaloSampling::EME3);
     }
     default: {
       return true; // barrel default
