@@ -33,6 +33,9 @@
 #include "MooTrackBuilder.h"
 #include "MooCandidateMatchingTool.h"
 
+#include "TrkTrack/Track.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+
 #include <mutex>
 #include <set>
 #include <string>
@@ -153,6 +156,8 @@ namespace Muon {
       {this, "MuonTrackSelector", "Muon::MuonTrackSelectorTool/MuonTrackSelectorTool"};//<! track selector
     ToolHandle<IMuonHoleRecoveryTool> m_muonHoleRecoverTool
       {this, "HoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};//<! track selector
+    ToolHandle<Trk::ITrackSummaryHelperTool> m_trackSummaryTool
+      {this, "TrackSummaryTool", "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"};
 
     mutable SegCol m_segmentsToDelete ATLAS_THREAD_SAFE;
     mutable std::vector<const MuonSegment*>  m_constsegmentsToDelete ATLAS_THREAD_SAFE;
