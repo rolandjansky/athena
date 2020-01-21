@@ -13,7 +13,6 @@
 // Athena includes
 #include "AthenaInterprocess/Incidents.h"
 #include "AthenaKernel/AthStatusCode.h"
-#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
@@ -30,7 +29,6 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IScheduler.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -92,7 +90,6 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_evtStore("StoreGateSvc", name),
   m_detectorStore("DetectorStore", name),
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
-  m_THistSvc("THistSvc", name),
   m_ioCompMgr("IoComponentMgr", name)
 {
 }
@@ -180,7 +177,6 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtStore.retrieve());
   ATH_CHECK(m_detectorStore.retrieve());
   ATH_CHECK(m_inputMetaDataStore.retrieve());
-  ATH_CHECK(m_THistSvc.retrieve());
   ATH_CHECK(m_evtSelector.retrieve());
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
   ATH_CHECK(m_outputCnvSvc.retrieve());
@@ -193,6 +189,8 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_coolHelper.retrieve());
   // HLT result builder
   ATH_CHECK(m_hltResultMaker.retrieve());
+  // Monitoring tool
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
   //----------------------------------------------------------------------------
   // Initialise data handle keys
@@ -206,15 +204,6 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_hltResultRHKey.initialize());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
-}
-
-// =============================================================================
-// Reimplementation of AthService::start (IStateful interface)
-// =============================================================================
-StatusCode HltEventLoopMgr::start()
-{
-  bookHistograms();
   return StatusCode::SUCCESS;
 }
 
@@ -253,12 +242,12 @@ StatusCode HltEventLoopMgr::finalize()
                  m_evtStore,
                  m_detectorStore,
                  m_inputMetaDataStore,
-                 m_THistSvc,
                  m_evtSelector,
                  m_outputCnvSvc);
 
   releaseTool(m_coolHelper,
-              m_hltResultMaker);
+              m_hltResultMaker,
+              m_monTool);
 
   releaseSmartIF(m_whiteboard,
                  m_algResourcePool,
@@ -1134,7 +1123,9 @@ std::unordered_map<std::string_view,StatusCode> HltEventLoopMgr::algExecErrors(c
       ATH_MSG_DEBUG("Algorithm " << key << " returned StatusCode " << state.execStatus().message()
                     << " in event " << eventContext.eventID());
       algErrors[key.str()] = state.execStatus();
-      oh_lock_histogram<TH2I>(m_errorCodePerAlg)->Fill(key.str().c_str(),state.execStatus().message().c_str(),1);
+      auto monErrorAlgName = Monitored::Scalar<std::string>("ErrorAlgName", key.str());
+      auto monErrorCode = Monitored::Scalar<std::string>("ErrorCode", state.execStatus().message());
+      auto mon = Monitored::Group(m_monTool, monErrorAlgName, monErrorCode);
     }
   }
   return algErrors;
@@ -1374,17 +1365,4 @@ StatusCode HltEventLoopMgr::drainAllSlots()
   }
 
   return StatusCode::FAILURE;
-}
-
-// =============================================================================
-void HltEventLoopMgr::bookHistograms()
-{
-  const std::string path = "/EXPERT/HLTFramework/" + name() + "/";
-  m_errorCodePerAlg = new TH2I("ErrorCodePerAlg", "Error StatusCodes per algorithm;Algorithm name;StatusCode",
-                               1, 0, 1, 1, 0, 1);
-  m_errorCodePerAlg->SetCanExtend(TH1::kAllAxes);
-  // regHist moves the ownership to THistSvc
-  if (m_THistSvc->regHist(path + m_errorCodePerAlg->GetName(), m_errorCodePerAlg).isFailure()) {
-    ATH_MSG_WARNING("Cannot register monitoring histogram " << m_errorCodePerAlg->GetName());
-  }
 }
