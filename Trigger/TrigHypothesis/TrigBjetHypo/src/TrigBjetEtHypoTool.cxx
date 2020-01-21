@@ -64,8 +64,8 @@ StatusCode TrigBjetEtHypoTool::decide( std::vector< TrigBjetEtHypoToolInfo >& bJ
     bool pass = true;
     
     if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
-      ATH_MSG_WARNING( "Vertex is not a valid primary vertex!" );
-      ATH_MSG_WARNING( "Trigger decision is FALSE" );
+      ATH_MSG_DEBUG( "Vertex is not a valid primary vertex!" );
+      ATH_MSG_DEBUG( "Trigger decision is FALSE" );
       pass = false;
     } else if ( m_acceptAll ) {
       ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );

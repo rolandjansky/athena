@@ -165,7 +165,7 @@ const xAOD::Vertex* TrigJetSelectorMT::getPrimaryVertex( const xAOD::VertexConta
     return vertex;
   }
 
-  ATH_MSG_WARNING( "None of the vertexes in the vertex container is a primary vertex!" );
-  ATH_MSG_WARNING( "Using dummy vertex!" );
+  ATH_MSG_DEBUG( "None of the vertexes in the vertex container is a primary vertex!" );
+  ATH_MSG_DEBUG( "Using dummy vertex!" );
   return vertexContainer->front();
 }

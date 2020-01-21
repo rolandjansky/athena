@@ -130,8 +130,8 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
     }
 
     if ( PVindex == -1 ) {
-      ATH_MSG_WARNING( "Primary Vertex could not be found!" );
-      ATH_MSG_WARNING( "Using dummy vertex!" );
+      ATH_MSG_DEBUG( "Primary Vertex could not be found!" );
+      ATH_MSG_DEBUG( "Using dummy vertex!" );
       PVindex = 0;
     }
 
