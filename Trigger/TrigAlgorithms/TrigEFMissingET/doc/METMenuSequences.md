@@ -13,7 +13,7 @@ However the core ideas should still be valid throughout Run-3.
 ## InputMaker, reco, and hypo
 
 ```python
-include("TrigUpgradeTest/testHLT_MT.py")
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -52,7 +52,7 @@ topSequence.L1Decoder.Chains="HLTChains"
 
 ```python 
 
-include("TrigUpgradeTest/testHLT_MT.py")
+include("TriggerJobOpts/runHLT_standalone.py")
 
 METalgorithm = "cell" # or tc, mht, pufit
 

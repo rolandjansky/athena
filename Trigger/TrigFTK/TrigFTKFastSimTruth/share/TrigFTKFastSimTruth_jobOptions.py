@@ -15,10 +15,10 @@ if FTKFlags.doTruthSmearing:
     from PyJobTransforms.trfUtils import findFile
     pmap8L_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_8LcIbl3D123.pmap')
     pmap12L_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12LiblHW3D.pmap')
-    print "Using PMAP 8L:", pmap8L_path
-    print "Using PMAP 12L:", pmap12L_path
+    printfunc ("Using PMAP 8L:", pmap8L_path)
+    printfunc ("Using PMAP 12L:", pmap12L_path)
     rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl64TmodB_3D_t13.tmap')
-    print "Using RMAP:", rmap_path
+    printfunc ("Using RMAP:", rmap_path)
 
     import glob
     sectors = []

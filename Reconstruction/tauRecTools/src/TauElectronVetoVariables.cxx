@@ -31,18 +31,8 @@
 #include <math.h>
 #include <sstream>
 
-//#include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-//#include "CaloUtils/CaloCellList.h"
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloCell.h"
 #include "CaloUtils/CaloVertexedCell.h"
-//#include "AtlasDetDescr/AtlasDetectorID.h"
-//#include "CaloIdentifier/CaloID.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
@@ -64,7 +54,6 @@ m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
 {
     declareProperty("CellCorrection", m_doCellCorrection);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
-    // declareProperty("tauEVParticleCache", m_ParticleCacheKey);
 }
 
 //-------------------------------------------------------------------------
@@ -114,7 +103,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
         return StatusCode::SUCCESS;
     }
 
-    ATH_MSG_VERBOSE(name() << " in execute() ...");
+    ATH_MSG_DEBUG(name() << " in execute() ...");
 
     float detPhiTrk = 0.;
     float detEtaTrk = 0.;

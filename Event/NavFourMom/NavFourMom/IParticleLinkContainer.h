@@ -34,7 +34,7 @@ CLASS_DEF( IParticleLinkContainer , 1340008338 , 1 )
 
 
 // This defines how to convert an INav4MomLinkContainer to an INavigable4MomentumCollection
-class IParticleLinkContainerToIParticleContainerConverter
+class ATLAS_NOT_THREAD_SAFE IParticleLinkContainerToIParticleContainerConverter
   : public SG::CopyConversion<IParticleLinkContainer,
                               IParticleContainer>
 {

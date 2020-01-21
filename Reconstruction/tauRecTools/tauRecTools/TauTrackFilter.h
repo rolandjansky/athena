@@ -29,13 +29,12 @@ public:
     //-------------------------------------------------------------
     ~TauTrackFilter();
 
-    virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    virtual StatusCode finalize();
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode eventInitialize() override { return StatusCode::SUCCESS; }
+    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
 
-    virtual void print() const { }
 
 private:
     std::string m_configPath;

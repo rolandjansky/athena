@@ -434,7 +434,7 @@ AthCnvSvc::commitOutput(const std::string& /*output*/, bool /*do_commit*/)
 
 /// Disconnect output files from the service.
 StatusCode
-AthCnvSvc::disconnectOutput()
+AthCnvSvc::disconnectOutput(const std::string& /*output*/)
 {
   return StatusCode::SUCCESS;
 }
@@ -575,7 +575,6 @@ AthCnvSvc::makeCall (int typ,
       if ( 0 != cnv )   {
         switch(typ)   {
         case CREATE_OBJ:
-          pObject = 0;
           status = cnv->createObj(pAddress, pObject);
           break;
         case FILL_OBJ_REFS:
@@ -588,7 +587,6 @@ AthCnvSvc::makeCall (int typ,
           status = cnv->updateObjRefs(pAddress, pObject);
           break;
         case CREATE_REP:
-          pAddress = 0;
           status = cnv->createRep(pObject, pAddress);
           break;
         case FILL_REP_REFS:

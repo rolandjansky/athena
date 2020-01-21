@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 #**************************************************************
@@ -259,5 +259,5 @@ if  tileRawMon:
     from TileMonitoring.TileDQFragMonitorAlgorithm import TileDQFragMonitoringConfigOld
     topSequence += TileDQFragMonitoringConfigOld(DQMonFlags)
 
-topSequence += ManagedAthenaTileMon;
-print ManagedAthenaTileMon;
+topSequence += ManagedAthenaTileMon
+printfunc (ManagedAthenaTileMon)

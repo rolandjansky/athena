@@ -18,16 +18,17 @@
 
 TrigHLTEnergyDensity::TrigHLTEnergyDensity(const std::string& name, 
                                            ISvcLocator* pSvcLocator):
-  HLT::FexAlgo(name, pSvcLocator) {
+  HLT::FexAlgo(name, pSvcLocator)//,
+  //     m_energyDensityTool("",this),
+  //   m_pseudoJetGetter("",this)
+{  
   declareProperty("energyDensityTool", m_energyDensityTool);
   declareProperty("pseudoJetGetter", m_pseudoJetGetter);
   declareProperty("eventShapeSGKey", m_eventShapeSGKey);
   declareProperty("caloClusterContainerSGKey", m_caloClusterContainerSGKey="");
   declareProperty( "cluster_calib", m_clusterCalib);
 
-
   declareMonitoredVariable("energyDensity", m_energyDensity);
-
 }
 
 

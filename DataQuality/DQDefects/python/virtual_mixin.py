@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.virtual_defect_mixin")
 from DQUtils import fetch_iovs
@@ -6,6 +6,7 @@ from DQUtils import fetch_iovs
 from .exceptions import DefectUnknownError, DefectExistsError
 from .ids import choose_new_defect_id
 from .virtual_logic import DefectLogic
+import six
 
 NONHEAD_MODIFICATION_MSG = ("Operations which modify virtual defects can only "
     "be done on the HEAD tag.")
@@ -240,7 +241,7 @@ class DefectsDBVirtualDefectsMixin(object):
                             
         logics = dict((l.channel, DefectLogic(l)) for l in logics)
         
-        for defect_name, defect_logic in logics.iteritems():
+        for defect_name, defect_logic in six.iteritems (logics):
             defect_logic._populate(logics)
             
         return logics
@@ -273,7 +274,7 @@ class DefectsDBVirtualDefectsMixin(object):
         used_defects = set()
         
         used_by = {}
-        for defect, logic in self.virtual_defect_logics.iteritems():
+        for defect, logic in six.iteritems (self.virtual_defect_logics):
             used_defects.update(logic.realclauses)
             for clause in logic.realclauses:
                 used_by.setdefault(clause, []).append(defect)

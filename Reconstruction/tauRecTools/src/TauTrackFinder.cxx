@@ -38,7 +38,6 @@ TauTrackFinder::TauTrackFinder(const std::string& name ) :
     declareProperty("removeDuplicateCoreTracks", m_removeDuplicateCoreTracks = true);
     declareProperty("BypassSelector", m_bypassSelector = false);
     declareProperty("BypassExtrapolator", m_bypassExtrapolator = false);
-    // declareProperty("tauParticleCache", m_ParticleCacheKey);
 
     // initialize samplings
     m_EMSamplings = {CaloSampling::EME1, CaloSampling::EMB1};

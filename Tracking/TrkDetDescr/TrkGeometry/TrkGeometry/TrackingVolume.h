@@ -34,6 +34,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include "CxxUtils/checker_macros.h"
 #ifndef TRKGEOMETRY_MAXLAYERATTEMPTS
 #define TRKGEOMETRY_MAXLAYERATTEMPTS 100
 #endif
@@ -344,7 +345,9 @@ namespace Trk {
       void moveVolume( Amg::Transform3D& shift ) const;
 
       /** add Material */
-      void addMaterial( const Material& mat, float fact=1. ) const;
+      void addMaterial( const Material& mat, float fact=1. );
+      void addMaterial ATLAS_NOT_CONST_THREAD_SAFE (const Material& mat, float fact=1.) const ;
+
 
       /** remove content */
       void clear();
@@ -365,7 +368,8 @@ namespace Trk {
       void indexContainedMaterialLayers(GeometrySignature geoSig, int& offset) const;
       
       /** propagate material properties to subvolumes */
-      void propagateMaterialProperties(const Material& mprop) const;
+      void propagateMaterialProperties(const Material& mprop);
+      void propagateMaterialProperties ATLAS_NOT_CONST_THREAD_SAFE (const Material& mprop) const;
       
       /** Create Boundary Surface */
       void createBoundarySurfaces();
@@ -632,6 +636,14 @@ namespace Trk {
   inline void TrackingVolume::setMotherVolume(const TrackingVolume* mvol) const
   { m_motherVolume = mvol; }
 
+  inline void TrackingVolume::addMaterial ATLAS_NOT_CONST_THREAD_SAFE(const Material &mat,
+                                                                     float fact) const{
+  const_cast<TrackingVolume*>(this)->addMaterial(mat,fact);
+  }
+
+  inline void TrackingVolume::propagateMaterialProperties ATLAS_NOT_CONST_THREAD_SAFE (const Material &mprop) const {
+    const_cast<TrackingVolume *>(this)->propagateMaterialProperties(mprop);
+  }
 } // end of namespace
 
 #endif // TRKGEOMETRY_TRACKINGVOLUME_H

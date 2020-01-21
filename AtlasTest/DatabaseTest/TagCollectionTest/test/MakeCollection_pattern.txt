@@ -1,9 +1,0 @@
-^EventTagWriter
-^DefaultCollMeta
-^copyTool
-^nGlobal:unsigned int,
-^attribute list: size =
-^RegStream
-^AthenaEventLoopMgr   INFO   ===>>>  end of event
-^ApplicationMgr       INFO Application Manager
-^GlobalEventTag

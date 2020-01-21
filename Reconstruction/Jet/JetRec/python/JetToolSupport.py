@@ -50,7 +50,6 @@ from GaudiKernel.Constants import (VERBOSE,
 class JetToolManager:
   prefix = "JetToolManager: "
   debug = 0
-  usePublic = True
   m_jetBuilder = None
   jetBuilderWithArea = None
   jetBuilderWithoutArea = None
@@ -94,10 +93,14 @@ class JetToolManager:
       from AthenaCommon.AppMgr import ToolSvc
 
       # Hardcoded Public tools to support Public ToolHandles in other packages
-      if self.usePublic:
-        ToolSvc += mytool
-        mytool.lock()
-
+      publictools =( [
+        "triggerEnergyDensity",
+        "triggerPseudoJetGet",
+        #"TriggerJetGroomer",
+])
+      if any(t.lower() in  myname.lower() for t in publictools):
+          ToolSvc += mytool
+          mytool.lock()
       setattr(self, myname, mytool)
       return mytool
 

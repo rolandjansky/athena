@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUTRACKCLASSIFIER_H
@@ -41,10 +41,8 @@ public:
   TauTrackClassifier(const std::string& sName="TauTrackClassifier");
   ~TauTrackClassifier();
 
-  // retrieve all track classifier sub tools
-  virtual StatusCode initialize();
-  // pass all tracks in the tau cone to all track classifier sub tools
-  virtual StatusCode execute(xAOD::TauJet& pTau);
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(xAOD::TauJet& pTau) override;
 
 private:
   ToolHandleArray<TrackMVABDT> m_vClassifier;

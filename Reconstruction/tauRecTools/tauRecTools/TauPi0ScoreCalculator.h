@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0SCORECALCULATOR_H
@@ -27,13 +27,12 @@ public:
     ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0ScoreCalculator();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer);
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
+    virtual StatusCode eventInitialize() override { return StatusCode::SUCCESS; }
+    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
 
-    virtual void print() const { }
 
 private:
 
