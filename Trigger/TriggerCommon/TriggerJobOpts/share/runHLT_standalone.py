@@ -218,12 +218,6 @@ else:           # More data modifiers
                      'forceTileRODMap',
     ]
 
-#make some more common trig cost operations easier to setup
-if opt.enableCostD3PD:
-    enableCostMonitoring = True # This goes without saying!
-    enableCostForCAF = True # This sets the cost mon to monitor every event and always export the data.
-
-
 TriggerFlags.doID = opt.doID
 TriggerFlags.doMuon = opt.doMuon
 TriggerFlags.doCalo = opt.doCalo
@@ -581,18 +575,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring
 #-------------------------------------------------------------
-from AthenaCommon.AppMgr import ServiceMgr
-from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
-
-# This should be temporary, it is doing the same job as TrigCostMonitorMTConfig but without using a ComponentAccumulator
-if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
-    trigCostService = TrigCostMTSvc()
-    trigCostService.MonitorAllEvents = ConfigFlags.Trigger.CostMonitoring.monitorAllEvents
-    trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
-    ServiceMgr += trigCostService
-    #
-    ServiceMgr.AuditorSvc += TrigCostMTAuditor()
-    theApp.AuditAlgorithms=True
+include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies

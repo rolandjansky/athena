@@ -113,6 +113,8 @@ if TriggerFlags.doMT():
     
     log.info("configuring MT Trigger")
     TriggerFlags.triggerMenuSetup = "LS2_v1"
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.CostMonitoring.doCostMonitoring = True
 
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
@@ -148,7 +150,6 @@ if TriggerFlags.doMT():
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
     from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
     triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
     Configurable.configurableRun3Behavior=False
@@ -179,8 +180,10 @@ if TriggerFlags.doMT():
     from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
-
-    
+    #-------------------------------------------------------------
+    # Non-ComponentAccumulator Cost Monitoring
+    #-------------------------------------------------------------
+    include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")    
 
 if rec.doFileMetaData():
    from RecExConfig.ObjKeyStore import objKeyStore
