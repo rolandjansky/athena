@@ -11,10 +11,13 @@ def __getStepsDataFromAlgSequence(HLTAllSteps):
     """ Generates a list where the index corresponds to a Step number and the stored object is a list of Sequencers making up the Step 
     """
     stepsData = []
-    for HLTStep in HLTAllSteps.getChildren():
-        if "HLTAllSteps_Step" not in HLTStep.name(): # Avoid the pre-step Filter execution
-            continue
-        stepsData.append( HLTStep.getChildren() )
+    if HLTAllSteps is not None:
+        for HLTStep in HLTAllSteps.getChildren():
+            if "HLTAllSteps_Step" not in HLTStep.name(): # Avoid the pre-step Filter execution
+                continue
+            stepsData.append( HLTStep.getChildren() )
+    else:
+        __log.warn( "No HLTAllSteps sequencer, will not export per-Step data for chains.")
     return stepsData
 
 def __getChainSequencers(stepsData, chainName):
@@ -59,7 +62,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     """
     menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", []) ])
 
-    # Dictionary of { Step Number: { Filter: Sequencer } }
+    # List of steps data
     stepsData = __getStepsDataFromAlgSequence(HLTAllSteps)
 
     from TriggerMenuMT.HLTMenuConfig.Menu import StreamInfo
