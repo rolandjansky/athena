@@ -139,7 +139,10 @@ namespace Analysis {
         //Track association
         for(SG::ReadDecorHandleKey<xAOD::JetContainer > elTP : m_jetParticleLinkNameList) {
           SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName(elTP);
-          //if (jetParticleLinkName.isValid()) {
+          if (!h_jetParticleLinkName.isAvailable()) {
+            ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << elTP.key()  );
+            return StatusCode::FAILURE;
+          }
           std::string::size_type iofs=h_jetParticleLinkName.key().rfind(".");
           std::string assocN = h_jetParticleLinkName.key().substr(iofs+1);
           const std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = h_jetParticleLinkName(*jet);

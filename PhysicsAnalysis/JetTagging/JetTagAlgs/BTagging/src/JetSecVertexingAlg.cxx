@@ -99,10 +99,10 @@ namespace Analysis {
     }
 
     SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
-    /*if (!h_jetParticleLinkName.isAvailable()) { //isValid() is also crashing
+    if (!h_jetParticleLinkName.isAvailable()) {
       ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << m_jetParticleLinkName.key()  );
       return StatusCode::FAILURE;
-    }*/
+    }
  
     const xAOD::Vertex* primaryVertex(0);
 
