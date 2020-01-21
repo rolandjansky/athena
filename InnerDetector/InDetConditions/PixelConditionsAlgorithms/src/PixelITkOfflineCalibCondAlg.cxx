@@ -12,8 +12,6 @@
 
 PixelITkOfflineCalibCondAlg::PixelITkOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_readKey("ReadKey", "/PIXEL/PixReco"),
-  m_writeKey("WriteKey", "PixelITkOfflineCalibData"),
   m_condSvc("CondSvc", name)
 {
   declareProperty("InputSource",m_inputSource=2,"Source of data: 0 (none), 1 (text file), 2 (database)");
