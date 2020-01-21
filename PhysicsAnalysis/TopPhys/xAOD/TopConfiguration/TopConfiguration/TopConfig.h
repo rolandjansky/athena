@@ -903,11 +903,32 @@ namespace top {
         m_softmuonDRJetcut = DRJet;
       }
     }
+    
+    inline virtual void softmuonAdditionalTruthInfo(bool in) {
+      if (!m_configFixed) {
+        m_softmuonAdditionalTruthInfo=in;
+      }
+    }
+    
+    inline virtual void softmuonAdditionalTruthInfoCheckPartonOrigin(bool in) {
+      if (!m_configFixed) {
+        m_softmuonAdditionalTruthInfoCheckPartonOrigin=in;
+      }
+    }
+    
+    inline virtual void softmuonAdditionalTruthInfoDoVerbose(bool in) {
+      if (!m_configFixed) {
+        m_softmuonAdditionalTruthInfoDoVerbose=in;
+      }
+    }
 
     inline virtual float softmuonPtcut() const {return m_softmuonPtcut;}
     inline virtual float softmuonEtacut() const {return m_softmuonEtacut;}
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
+    inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
+    inline virtual bool softmuonAdditionalTruthInfoCheckPartonOrigin() const { return m_softmuonAdditionalTruthInfoCheckPartonOrigin;}
+    inline virtual bool softmuonAdditionalTruthInfoDoVerbose() const { return m_softmuonAdditionalTruthInfoDoVerbose;}
 
     // Jet configuration
     inline virtual void jetPtcut(const float pt) {
@@ -1945,7 +1966,10 @@ namespace top {
     float m_softmuonEtacut; // soft muon object selection (abs) eta cut
     std::string m_softmuonQuality; // soft muon quality used in object selection
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
-
+    bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
+    bool m_softmuonAdditionalTruthInfoCheckPartonOrigin; //additional info on the parton-level origin of the muon, see TopParticleLevel/TruthTools.h
+    bool m_softmuonAdditionalTruthInfoDoVerbose; //to help debugging the above options
+    
     // Jet configuration
     float m_jetPtcut; // jet object selection pT cut
     float m_jetEtacut; // jet object selection (abs) eta cut

@@ -213,6 +213,9 @@ namespace top {
     m_softmuonEtacut(2.5),
     m_softmuonQuality("SetMe"),
     m_softmuonDRJetcut(0.4),
+    m_softmuonAdditionalTruthInfo(false),
+    m_softmuonAdditionalTruthInfoCheckPartonOrigin(false),
+    m_softmuonAdditionalTruthInfoDoVerbose(false),
 
     // Jet configuration
     m_jetPtcut(25000.),
@@ -1056,6 +1059,12 @@ namespace top {
     this->softmuonEtacut(readFloatOption(settings, "SoftMuonEta"));
     this->softmuonQuality(settings->value("SoftMuonQuality"));
     this->softmuonDRJetcut(readFloatOption(settings, "SoftMuonDRJet"));
+    if (settings->value("SoftMuonAdditionalTruthInfo") == "True") this->softmuonAdditionalTruthInfo(true);
+    else this->softmuonAdditionalTruthInfo(false);
+    if (settings->value("SoftMuonAdditionalTruthInfoCheckPartonOrigin") == "True") this->softmuonAdditionalTruthInfoCheckPartonOrigin(true);
+    else this->softmuonAdditionalTruthInfoCheckPartonOrigin(false);
+    if (settings->value("SoftMuonAdditionalTruthInfoDoVerbose") == "True") this->softmuonAdditionalTruthInfoDoVerbose(true);
+    else this->softmuonAdditionalTruthInfoDoVerbose(false);
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));

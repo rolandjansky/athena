@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/EventSaverFlatNtuple.h"
@@ -8,6 +8,7 @@
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEventSelectionTools/TreeManager.h"
+#include "TopParticleLevel/TruthTools.h"
 
 #include "AthContainers/AuxTypeRegistry.h"
 
@@ -868,6 +869,14 @@ namespace top {
             systematicTree->makeOutputVariable(m_softmu_SF_ID_STAT_LOWPT_DOWN, "softmu_SF_ID_STAT_LOWPT_DOWN");
             systematicTree->makeOutputVariable(m_softmu_SF_ID_SYST_LOWPT_UP, "softmu_SF_ID_SYST_LOWPT_UP");
             systematicTree->makeOutputVariable(m_softmu_SF_ID_SYST_LOWPT_DOWN, "softmu_SF_ID_SYST_LOWPT_DOWN");
+          }
+          if(m_config->softmuonAdditionalTruthInfo())
+          {
+            if(m_config->softmuonAdditionalTruthInfoCheckPartonOrigin()) systematicTree->makeOutputVariable(m_softmu_parton_origin_flag, "softmu_parton_origin_flag");
+            systematicTree->makeOutputVariable(m_softmu_particle_origin_flag, "softmu_particle_origin_flag");
+            systematicTree->makeOutputVariable(m_softmu_parent_pdgid,"softmu_parent_pdgid");
+            systematicTree->makeOutputVariable(m_softmu_b_hadron_parent_pdgid,"softmu_b_hadron_parent_pdgid");
+            systematicTree->makeOutputVariable(m_softmu_c_hadron_parent_pdgid,"softmu_c_hadron_parent_pdgid");
           }
         }//end of if (m_config->isMC())
       }//end of if (m_config->useSoftMuons())
@@ -2122,8 +2131,8 @@ namespace top {
         m_el_true_isChargeFl.resize(n_electrons);
       }
 
-      static SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
-      static SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
+      static const SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
+      static const SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
 
       for (const auto* const elPtr : event.m_electrons) {
         m_el_pt[i] = elPtr->pt();
@@ -2159,11 +2168,11 @@ namespace top {
           m_el_true_firstEgMotherTruthType[i] = 0;
           m_el_true_firstEgMotherTruthOrigin[i] = 0;
           m_el_true_firstEgMotherPdgId[i] = 0;
-          static SG::AuxElement::Accessor<int> typeel("truthType");
-          static SG::AuxElement::Accessor<int> origel("truthOrigin");
-          static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
-          static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
-          static SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
+          static const SG::AuxElement::Accessor<int> typeel("truthType");
+          static const SG::AuxElement::Accessor<int> origel("truthOrigin");
+          static const SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
+          static const SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
+          static const SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
 
           if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
           if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
@@ -2223,8 +2232,8 @@ namespace top {
 
         //retrieve the truth-matching variables from MCTruthClassifier
         if (m_config->isMC()) {
-          static SG::AuxElement::Accessor<int> acc_mctt("truthType");
-          static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
+          static const SG::AuxElement::Accessor<int> acc_mctt("truthType");
+          static const SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
           m_mu_true_type[i] = 0;
           m_mu_true_origin[i] = 0;
           if (acc_mctt.isAvailable(*muPtr)) m_mu_true_type[i] = acc_mctt(*muPtr);
@@ -2262,6 +2271,15 @@ namespace top {
         m_softmu_SF_ID_STAT_LOWPT_DOWN.resize(n_muons);
         m_softmu_SF_ID_SYST_LOWPT_UP.resize(n_muons);
         m_softmu_SF_ID_SYST_LOWPT_DOWN.resize(n_muons);
+        
+        if(m_config->softmuonAdditionalTruthInfo())
+        {
+          m_softmu_parton_origin_flag.resize(n_muons);
+          m_softmu_particle_origin_flag.resize(n_muons);
+          m_softmu_parent_pdgid.resize(n_muons);
+          m_softmu_b_hadron_parent_pdgid.resize(n_muons);
+          m_softmu_c_hadron_parent_pdgid.resize(n_muons);
+        }
       }
 
       for (const auto* const muPtr : event.m_softmuons) {
@@ -2294,13 +2312,49 @@ namespace top {
             m_softmu_SF_ID_SYST_LOWPT_DOWN[i] = m_sfRetriever->softmuonSF_ID(*muPtr, top::topSFSyst::MU_SF_ID_SYST_LOWPT_DOWN);
           }
 
-          static SG::AuxElement::Accessor<int> acc_mctt("truthType");
-          static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
+          static const SG::AuxElement::Accessor<int> acc_mctt("truthType");
+          static const SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
           m_softmu_true_type[i] = 0;
           m_softmu_true_origin[i] = 0;
           if (acc_mctt.isAvailable(*muPtr)) m_softmu_true_type[i] = acc_mctt(*muPtr);
           if (acc_mcto.isAvailable(*muPtr)) m_softmu_true_origin[i] = acc_mcto(*muPtr);
           m_softmu_true_isPrompt[i] = isPromptMuon(m_softmu_true_type[i], m_softmu_true_origin[i]);
+          
+          if(m_config->softmuonAdditionalTruthInfo())
+          {
+            //we do this only here, so we avoid losing time for soft muons we don't want to store in the output ntuple
+            top::truth::getRecoMuonHistory(muPtr,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+            
+            m_softmu_parton_origin_flag[i]=0;
+            if(m_config->softmuonAdditionalTruthInfoCheckPartonOrigin())
+            {
+              static const SG::AuxElement::Accessor<top::LepPartonOriginFlag> leppartonoriginflag("LepPartonOriginFlag");
+              if(leppartonoriginflag.isAvailable(*muPtr)) m_softmu_parton_origin_flag[i]=static_cast<int>(leppartonoriginflag(*muPtr));
+            }
+            m_softmu_particle_origin_flag[i]=0;
+            m_softmu_parent_pdgid[i]=0;
+            m_softmu_b_hadron_parent_pdgid[i]=0;
+            m_softmu_c_hadron_parent_pdgid[i]=0;
+            static const SG::AuxElement::Accessor<top::LepParticleOriginFlag> lepparticleoriginflag("LepParticleOriginFlag");
+            if(lepparticleoriginflag.isAvailable(*muPtr)) m_softmu_particle_origin_flag[i]=static_cast<int>(lepparticleoriginflag(*muPtr));
+            
+            static const SG::AuxElement::Accessor<const xAOD::TruthParticle*> Mother("truthMotherLink");
+            const xAOD::TruthParticle* mother = 0;
+            if(Mother.isAvailable(*muPtr)) mother=Mother(*muPtr);
+            if(mother) m_softmu_parent_pdgid[i]=mother->pdgId();
+            
+            static const SG::AuxElement::Accessor<const xAOD::TruthParticle*> BMother("truthBMotherLink");
+            const xAOD::TruthParticle* Bmother = 0;
+            if(BMother.isAvailable(*muPtr)) Bmother=BMother(*muPtr);
+            if(Bmother) m_softmu_b_hadron_parent_pdgid[i]=Bmother->pdgId();
+            
+            static const SG::AuxElement::Accessor<const xAOD::TruthParticle*> CMother("truthCMotherLink");
+            const xAOD::TruthParticle* Cmother = 0;
+            if(CMother.isAvailable(*muPtr)) Cmother=CMother(*muPtr);
+            if(Cmother) m_softmu_c_hadron_parent_pdgid[i]=Cmother->pdgId();
+            
+            if(m_config->softmuonAdditionalTruthInfoDoVerbose()) asg::msgUserCode::ATH_MSG_INFO("writing soft muon with pt="<<m_softmu_pt[i] <<" parton_origin_flag="<<m_softmu_parton_origin_flag[i]<<" particle_origin_flag="<<m_softmu_particle_origin_flag[i]<<" parent_pdg_id="<<m_softmu_parent_pdgid[i]<<" b_hadron_parent_pdg_id="<<m_softmu_b_hadron_parent_pdgid[i]<<" c_hadron_parent_pdg_id="<<m_softmu_c_hadron_parent_pdgid[i]);
+          }
         }//end of if (m_config->isMC())
         ++i;
       }//end of loop on softmuons
@@ -2442,9 +2496,9 @@ namespace top {
         }
 
         if (m_config->useJetGhostTrack()) {
-          static SG::AuxElement::Accessor< float > accD0("d0");
-          static SG::AuxElement::Accessor< float > accZ0("z0");
-          static SG::AuxElement::Accessor< float > accQOverP("qOverP");
+          static const SG::AuxElement::Accessor< float > accD0("d0");
+          static const SG::AuxElement::Accessor< float > accZ0("z0");
+          static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
 
           const auto& ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
 
@@ -2626,9 +2680,9 @@ namespace top {
         }
 
         if (m_config->useJetGhostTrack()) {
-          static SG::AuxElement::Accessor< float > accD0("d0");
-          static SG::AuxElement::Accessor< float > accZ0("z0");
-          static SG::AuxElement::Accessor< float > accQOverP("qOverP");
+          static const SG::AuxElement::Accessor< float > accD0("d0");
+          static const SG::AuxElement::Accessor< float > accZ0("z0");
+          static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
 
           const auto& ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
 

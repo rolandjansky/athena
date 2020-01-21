@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EVENTTOOLS_H_
@@ -25,6 +25,39 @@ namespace xAOD {
 
 namespace top {
   class Event;
+  
+  ///this enum defines a flag used to understand the partonic origin of a lepton (tipically a soft muon), i.e. if it is produced by the direct decay of a boson, 
+  ///or, in the case it is from a HF hadron decay, what is the boson/parton that originated the HF hadron.
+  ///This flag will not work for Sherpa samples given the structure of Sherpa's truth record.
+  /// note that in case of light-hadrons->muons the muon will always be considered as from "unknown", because often we cannot reconstruct the history when light hadrons are involved...
+  enum class LepPartonOriginFlag{
+    Unknown=0,  ///< e.g. this can mean the muon is coming from light hadrons and there is no truth history, or anyway it was impossible to reconstruct the history
+    FromAntiTopViaHadronicBosonToHF=-3,  ///< tipically means that the muon is coming from tbar->W->...->muon in some way (or any tbar->W/Z/gamma*/H->...->muon), the "..." must involve HF hadrons
+    FromAntiTopViaLeptonicBoson=-2,  ///< tipically means that the muon is coming from tbar->W->...->muon in some way (or any tbar->W/Z/gamma*/H->...->muon), the "..." cannot involve hadrons
+    FromAntiTopViaQuarkToHF=-1, ///< tipically means that the muon is coming from tbar->bbar->...->muon in some way (or any tbar->qbar->...->muon), the "..." will for sure involve HF hadrons
+    FromTopViaQuarkToHF=1, ///< tipically means that the muon is coming from t->b->...->muon in some way (or any t->q->...->muon), the "..." will for sure involve HF hadrons
+    FromTopViaLeptonicBoson=2, ///< tipically means that the muon is coming from t->W->...->muon in some way (or any t->W/Z/gamma*/H->...->muon), the "..." cannot involve hadrons
+    FromTopViaHadronicBosonToHF=3, ///< tipically means that the muon is coming from t->W->...->muon in some way (or any t->W/Z/gamma*/H->...->muon), the "..." must involve HF hadrons
+    FromLeptonicBoson=4, ///< W/Z/gamma*/H->muon or W/Z/gamma*/H->tau->muon
+    FromHadronicBosonToHF=5, ///< W/Z/gamma*/H->HF hadrons->muon
+    FromGluonToHFHadron=6, ///< g->HF hadron->muon or g->HF hadron->tau->muon
+  };
+  
+  ///this enum defines a flag used to understand the particle origin of a lepton (tipically a soft muon),
+  ///i.e. if it is from a boson decay, from a B-hadron, from a B->D->mu decay, etc...
+  enum class LepParticleOriginFlag{
+    Unknown=0, ///< tipically this happens for muon from light-hadrons
+    FromLeptonicBoson=1, ///< from H/W/Z/gamma* with leptonic decay (note: this will not work for Sherpa, will appear as Unknown)
+    FromLeptonicBosonToTau=2, ///< from H/W/Z/gamma*->tau->lep (note: this will not work for Sherpa, will appear as Unknown)
+    FromB=3, ///< from direct B-hadron decay
+    FromBtoTau=4, ///< from B-hadron to tau to mu decay
+    FromBtoC=5, ///< from B-hadron to C-hadron to muon decay
+    FromBtoCtoTau=6,  ///< from B-hadron to C-hadron to tau to muon decay
+    FromC=7, ///< from direct C-hadron (with no B-hadron parent) decay
+    FromCtoTau=8, ///< from C-hadron (with no B-hadron parent) to tau to mu decay
+    FromTau=9, ///< from Tau leptonic (not coming from W or HF-hadron, so not sure this can really happen)
+    FromLightHadron=10, ///< often these muons are Unknown, but in some cases we have the truth record and we can verify they are from light-hadrons
+  };
 
 /**
  * @brief Print an error message and terminate if thingToCheck is false.

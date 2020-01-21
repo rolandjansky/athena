@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EVENTSAVERFLATNTUPLE_H_
@@ -568,6 +568,11 @@ namespace top {
     std::vector<float> m_softmu_SF_ID_STAT_LOWPT_DOWN;
     std::vector<float> m_softmu_SF_ID_SYST_LOWPT_UP;
     std::vector<float> m_softmu_SF_ID_SYST_LOWPT_DOWN;
+    std::vector<int> m_softmu_parton_origin_flag;
+    std::vector<int> m_softmu_particle_origin_flag;
+    std::vector<int> m_softmu_parent_pdgid;
+    std::vector<int> m_softmu_b_hadron_parent_pdgid;
+    std::vector<int> m_softmu_c_hadron_parent_pdgid;
 
     //photons
     std::vector<float> m_ph_pt;

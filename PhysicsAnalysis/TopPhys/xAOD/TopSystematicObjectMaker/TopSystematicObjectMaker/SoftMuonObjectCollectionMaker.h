@@ -1,8 +1,7 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-// $Id: MuonObjectCollectionMaker.h 799839 2017-03-08 11:07:28Z grancagn $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_SOFTMUONOBJECTCOLLECTIONMAKER_H
 #define ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_SOFTMUONOBJECTCOLLECTIONMAKER_H
 
@@ -63,8 +62,8 @@ namespace top {
     // specify Systematic
     virtual void specifiedSystematics(const std::set<std::string>& specifiedSystematics);
   private:
+    
     std::shared_ptr<top::TopConfig> m_config;
-
     std::list<CP::SystematicSet> m_specifiedSystematics;
     std::list<CP::SystematicSet> m_recommendedSystematics;
 
