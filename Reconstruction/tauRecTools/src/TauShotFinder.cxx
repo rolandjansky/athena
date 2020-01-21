@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -111,13 +111,12 @@ StatusCode TauShotFinder::initialize() {
 
 StatusCode TauShotFinder::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
   /*
   delete m_tmvaReader_barrel;
   delete m_tmvaReader_endcap1;
   delete m_tmvaReader_endcap2;
   */
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TauShotFinder::eventInitialize() {

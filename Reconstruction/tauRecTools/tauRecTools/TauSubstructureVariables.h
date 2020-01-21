@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUSUBSTRUCTUREBUILDER_H
@@ -18,28 +18,26 @@
 class TauSubstructureVariables : public TauRecToolBase
 {
     public: 
+	    ASG_TOOL_CLASS2(TauSubstructureVariables, TauRecToolBase, ITauToolBase)
         
         static const double DEFAULT;
 
         TauSubstructureVariables(const std::string& name="TauSubstructureVariables");
-	ASG_TOOL_CLASS2(TauSubstructureVariables, TauRecToolBase, ITauToolBase)
 
         ~TauSubstructureVariables();
 
-        virtual StatusCode execute(xAOD::TauJet& pTau);
-        virtual StatusCode initialize();
-        virtual StatusCode finalize();
-        virtual StatusCode eventInitialize();
+        virtual StatusCode execute(xAOD::TauJet& pTau) override;
+        virtual StatusCode initialize() override;
+        virtual StatusCode finalize() override;
+        virtual StatusCode eventInitialize() override;
+	    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
 
-	virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-
-	virtual void print() const { }
 
     private:
         /** Maximal pile up correction in GeV for a tau candidate.
          *  Used for the caloIso corrected variable.
          */
-	std::string m_configPath;
+	    std::string m_configPath;
         double m_maxPileUpCorrection; 
         double m_pileUpAlpha;         //!< slope of the pileup correction
         

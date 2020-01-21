@@ -126,17 +126,20 @@ def MdtMonitoringConfig(inputFlags):
                             path='Overview',   xbins=100, xmin=0., xmax=400.
                             )
 
-    mdtGroup.defineHistogram('adc_mon_noiseBurst;Overall_ADC_spectrum_NoiseBursts',  type='TH1F',
+    mdtGroup.defineHistogram('adc_mon_nosel;Overall_ADC_spectrum_NoiseBursts',  type='TH1F',
+                            cutmask='noiseBurst',
                             title='Overall_ADC_spectrum_NoiseBursts;[adc counts];Number of Entries',
                             path='Overview',   xbins=100, xmin=0., xmax=400.
                             )
     
-    mdtGroup.defineHistogram('tdc_mon_noiseBurst,adc_mon_noiseBurst;Overall_TDCADC_spectrum_NoiseBursts',    type='TH2F',
+    mdtGroup.defineHistogram('tdc_mon_nosel,adc_mon_nosel;Overall_TDCADC_spectrum_NoiseBursts',    type='TH2F',
+                            cutmask='noiseBurst',
                             title='Overall_TDCADC_spectrum_NoiseBursts;[nsec];[adc counts]',
                             path='Overview',   xbins=50, xmin=0., xmax=2000., ybins=20, ymin=0., ymax=400.
                             )
 
-    mdtGroup.defineHistogram('tdc_mon_noiseBurst;Overall_TDC_spectrum_NoiseBursts',  type='TH1F',
+    mdtGroup.defineHistogram('tdc_mon_nosel;Overall_TDC_spectrum_NoiseBursts',  type='TH1F',
+                            cutmask='noiseBurst',
                             title='Overall_TDC_spectrum_NoiseBursts;[nsec];Number of Entries',
                             path='Overview',   xbins=120, xmin=0., xmax=2000.
                             )
@@ -309,12 +312,14 @@ def MdtMonitoringConfig(inputFlags):
         mdtPerChamberBAGroup.defineHistogram(var, title=title_mdttdc+";[nsec];Number of Entries", 
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml1_adccut=ch+"_MDT_Station_TDC_ML1_ADCCut"
-        var="tdc_perch_ml1_adccut_"+ch+";"+title_mdttdc_ml1_adccut
-        mdtPerChamberBAGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml1_adccut
+        mdtPerChamberBAGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml1_adccut',
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml2_adccut=ch+"_MDT_Station_TDC_ML2_ADCCut"
-        var="tdc_perch_ml2_adccut_"+ch+";"+title_mdttdc_ml2_adccut
-        mdtPerChamberBAGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml2_adccut
+        mdtPerChamberBAGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml2_adccut',
                                            type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdtadc= ch+"_MDT_Station_ADC"
         var="adc_perch_"+ch+";"+title_mdtadc
@@ -332,6 +337,7 @@ def MdtMonitoringConfig(inputFlags):
         title_mdtlayer= ch+"_MDT_Station_LAYER_ADCCut"
         var="layer_perch_"+ch+";"+title_mdtlayer
         mdtPerChamberBAGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut_nonoise',
                                              title=title_mdtlayer+";layerID;Number of Entries",
                                              path=ch,   xbins=10, xmin=0., xmax=10.)
         
@@ -339,6 +345,7 @@ def MdtMonitoringConfig(inputFlags):
         var="tube_perch_"+ch+";"+title_mdttube
         binmax=tubeMax[ch]
         mdtPerChamberBAGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut',
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=0., xmax=binmax)
         #to do
@@ -355,12 +362,14 @@ def MdtMonitoringConfig(inputFlags):
         mdtPerChamberBCGroup.defineHistogram(var, title=title_mdttdc+";[nsec];Number of Entries",
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml1_adccut=ch+"_MDT_Station_TDC_ML1_ADCCut"
-        var="tdc_perch_ml1_adccut_"+ch+";"+title_mdttdc_ml1_adccut
-        mdtPerChamberBCGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml1_adccut
+        mdtPerChamberBCGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml1_adccut',
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml2_adccut=ch+"_MDT_Station_TDC_ML2_ADCCut"
-        var="tdc_perch_ml2_adccut_"+ch+";"+title_mdttdc_ml2_adccut
-        mdtPerChamberBCGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml2_adccut
+        mdtPerChamberBCGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml2_adccut',
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdtadc= ch+"_MDT_Station_ADC"
         var="adc_perch_"+ch+";"+title_mdtadc
@@ -374,12 +383,14 @@ def MdtMonitoringConfig(inputFlags):
         title_mdtlayer= ch+"_MDT_Station_LAYER_DCCut"
         var="layer_perch_"+ch+";"+title_mdtlayer
         mdtPerChamberBCGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut_nonoise',
                                              title=title_mdtlayer+";layerID;Number of Entries",
                                              path=ch,   xbins=10, xmin=0., xmax=10.)
         title_mdttube= ch+"_MDT_Station_TUBE_ADCCut"
         var="tube_perch_"+ch+";"+title_mdttube
         binmax=tubeMax[ch]
         mdtPerChamberBCGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut',
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=0., xmax=binmax)
 
@@ -397,12 +408,14 @@ def MdtMonitoringConfig(inputFlags):
         mdtPerChamberEAGroup.defineHistogram(var, title=title_mdttdc+";[nsec];Number of Entries", 
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml1_adccut=ch+"_MDT_Station_TDC_ML1_ADCCut"
-        var="tdc_perch_ml1_adccut_"+ch+";"+title_mdttdc_ml1_adccut
-        mdtPerChamberEAGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml1_adccut
+        mdtPerChamberEAGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml1_adccut',
                                             type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml2_adccut=ch+"_MDT_Station_TDC_ML2_ADCCut"
-        var="tdc_perch_ml2_adccut_"+ch+";"+title_mdttdc_ml2_adccut
-        mdtPerChamberEAGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml2_adccut
+        mdtPerChamberEAGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml2_adccut',
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdtadc= ch+"_MDT_Station_ADC"
         var="adc_perch_"+ch+";"+title_mdtadc
@@ -418,6 +431,7 @@ def MdtMonitoringConfig(inputFlags):
         title_mdtlayer= ch+"_MDT_Station_LAYER_DCCut"
         var="layer_perch_"+ch+";"+title_mdtlayer
         mdtPerChamberEAGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut_nonoise',
                                              title=title_mdtlayer+";layerID;Number of Entries",
                                              path=ch,   xbins=10, xmin=0., xmax=10.)
 
@@ -425,6 +439,7 @@ def MdtMonitoringConfig(inputFlags):
         var="tube_perch_"+ch+";"+title_mdttube
         binmax=tubeMax[ch]
         mdtPerChamberEAGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut',
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=0., xmax=binmax)
 
@@ -443,12 +458,14 @@ def MdtMonitoringConfig(inputFlags):
         mdtPerChamberECGroup.defineHistogram(var, title=title_mdttdc+";[nsec];Number of Entries", 
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml1_adccut=ch+"_MDT_Station_TDC_ML1_ADCCut"
-        var="tdc_perch_ml1_adccut_"+ch+";"+title_mdttdc_ml1_adccut
-        mdtPerChamberECGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml1_adccut
+        mdtPerChamberECGroup.defineHistogram(var, title=title_mdttdc_ml1_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml1_adccut',
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdttdc_ml2_adccut=ch+"_MDT_Station_TDC_ML2_ADCCut"
-        var="tdc_perch_ml2_adccut_"+ch+";"+title_mdttdc_ml2_adccut
-        mdtPerChamberECGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries", 
+        var="tdc_perch_"+ch+";"+title_mdttdc_ml2_adccut
+        mdtPerChamberECGroup.defineHistogram(var, title=title_mdttdc_ml2_adccut+";[nsec];Number of Entries",
+                                             cutmask='ml2_adccut',
                                              type='TH1F', path=ch, xbins=100, xmin=0., xmax=2000.)
         title_mdtadc= ch+"_MDT_Station_ADC"
         var="adc_perch_"+ch+";"+title_mdtadc
@@ -464,12 +481,14 @@ def MdtMonitoringConfig(inputFlags):
         title_mdtlayer= ch+"_MDT_Station_LAYER_ADCCut"
         var="layer_perch_"+ch+";"+title_mdtlayer
         mdtPerChamberECGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut_nonoise',
                                              title=title_mdtlayer+";layerID;Number of Entries",
                                              path=ch,   xbins=10, xmin=0., xmax=10.)
         title_mdttube= ch+"_MDT_Station_TUBE_ADCCut"
         var="tube_perch_"+ch+";"+title_mdttube
         binmax=tubeMax[ch]
         mdtPerChamberECGroup.defineHistogram(var,  type='TH1F',
+                                             cutmask='adccut',
                                              title=title_mdttube+";tubeID;Number of Entries",
                                              path=ch,   xbins=binmax, xmin=0., xmax=binmax)
         #to-do

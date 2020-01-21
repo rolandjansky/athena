@@ -38,11 +38,12 @@ namespace Monitored {
 
     operator double() const; //!< duration between start and stop (or current time) in microseconds
 
-    const std::vector<double> getVectorRepresentation() const override { return {double(*this)}; }
+    std::vector<double> getVectorRepresentation() const override { return {double(*this)}; }
 
     virtual std::vector<std::string> getStringVectorRepresentation() const override { return std::vector<std::string>(); };
     virtual bool hasStringRepresentation() const override { return false; };
-
+    virtual size_t size() const override { return 1; }
+    
   private:
 
     typedef std::chrono::high_resolution_clock clock_type;

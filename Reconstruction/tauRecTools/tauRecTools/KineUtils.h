@@ -1,16 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_KINEUTILS_H
 #define TAUREC_KINEUTILS_H
 
-
 #include <string>
 #include "TVector2.h"
-
-//static const double kPI  = 3.1415927;
-//static const double k2PI = 2*3.1415927;
 
 //!
 //! @class Tau1P3PKineUtils
@@ -39,16 +35,7 @@ class Tau1P3PKineUtils
         //! @param x phi  position of object 1
         //! @param y phi  position of object 2
         //!
-
-        /*
-        static double deltaPhi(double phi1, double phi2)
-        {
-
-            double dphi = std :: fabs( phi1 - phi2 );
-            if( dphi  >  kPI ) dphi -= k2PI;
-            return std :: fabs( dphi );
-        }
-        */
+        
         static double deltaPhi(double phi1, double phi2)
         {
             return TVector2::Phi_mpi_pi(phi1-phi2);

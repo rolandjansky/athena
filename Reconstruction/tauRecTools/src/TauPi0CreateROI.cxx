@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -10,17 +10,7 @@
 // date:        2012-10-09
 //-----------------------------------------------------------------------------
 
-#include <TString.h>
-
-//#include "GaudiKernel/IToolSvc.h"
-
-//#include "CaloEvent/CaloCellContainer.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloUtils/CaloCellList.h"
-
-//#include "AthContainers/OwnershipPolicy.h"
-#include "NavFourMom/INavigable4MomentumCollection.h"
-
 #include "TauPi0CreateROI.h"
 
 #include <boost/scoped_ptr.hpp>

@@ -96,7 +96,7 @@ namespace Trk {
       std::ostream& dump(std::ostream& sl) const override;      
 
     private:
-      mutable BinUtility*                             m_binUtility; //!< the helper for the bin finding 
+      BinUtility*                             m_binUtility; //!< the helper for the bin finding 
 
       /** The five different MaterialProperties */
       MaterialPropertiesVector                        m_fullMaterial;

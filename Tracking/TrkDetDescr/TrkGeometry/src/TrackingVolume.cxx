@@ -384,7 +384,7 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
   const Trk::TrackingVolume* in  = 0;
   const Trk::TrackingVolume* out = 0;
   for (unsigned int ib = 0; ib < trVol.boundarySurfaces().size() ; ib++) {
-    in = trVol.boundarySurfaces()[ib].get()->m_insideVolume == &trVol ? this : 0;
+    in = trVol.boundarySurfaces()[ib].get()->insideVolume() == &trVol ? this : 0;
     out = in == 0 ? this : 0;
     const Trk::CylinderSurface* cyl = dynamic_cast<const Trk::CylinderSurface*> (trVol.boundarySurfaces()[ib].get());
     const Trk::DiscSurface*     dis = dynamic_cast<const Trk::DiscSurface*> (trVol.boundarySurfaces()[ib].get());

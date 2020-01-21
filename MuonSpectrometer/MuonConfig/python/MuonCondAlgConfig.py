@@ -60,12 +60,12 @@ def CscCondDbAlgCfg(flags, **kwargs):
     if flags.Common.isOnline:
         kwargs["isOnline"  ] = True
         kwargs['isData'    ] = True
-        kwargs['ReadKey_FT'] = '/CSC/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
-        kwargs['ReadKey_NO'] = '/CSC/NOISE'
-        kwargs['ReadKey_PD'] = '/CSC/PED'
-        kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
-        kwargs['ReadKey_RM'] = '/CSC/RMS'
-        kwargs['ReadKey_ST'] = '/CSC/STAT'
+        kwargs['ReadKey_FT'] = '/CSC/ONL/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
+        kwargs['ReadKey_NO'] = '/CSC/ONL/NOISE'
+        kwargs['ReadKey_PD'] = '/CSC/ONL/PED'
+        kwargs['ReadKey_PS'] = '/CSC/ONL/PSLOPE'
+        kwargs['ReadKey_RM'] = '/CSC/ONL/RMS'
+        kwargs['ReadKey_ST'] = '/CSC/ONL/STAT'
         folders = ["/CSC/ONL/FTHOLD", "/CSC/ONL/NOISE", "/CSC/ONL/PED", "/CSC/ONL/PSLOPE", "/CSC/ONL/RMS", "/CSC/ONL/STAT"]
         scheme  = "CSC_ONL"
     else:
