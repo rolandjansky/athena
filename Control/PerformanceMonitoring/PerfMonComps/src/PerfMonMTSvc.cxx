@@ -366,10 +366,17 @@ void PerfMonMTSvc::report2Log_EventLevel(){
  
   ATH_MSG_INFO("                                Event Level Monitoring                                 ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Event CheckPoint      CPU[ms]    Wall[ms]   Vmem[kB]   Rss[kB]    Pss[kB]    Swap[kB]");
+
+  ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%")    % "Event" \
+                                                                                              % "CPU [ms]" \
+                                                                                              % "Wall [ms]" \
+                                                                                              % "Vmem [kB]"   \
+                                                                                              % "Rss [kB]"    \
+                                                                                              % "Pss [kB]"    \
+                                                                                              % "Swap [kB]");
 
   for(const auto& it : m_eventLevelData.getEventLevelData()){
-    ATH_MSG_INFO(format("%1% %|20t|%2$.2f %|33t|%3$.2f %|44t|%4% %|55t|%5% %|66t|%6% %|77t|%7%")    % it.first \
+    ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%")    % it.first \
                                                                                               % it.second.cpu_time \
                                                                                               % it.second.wall_time \
                                                                                               % it.second.mem_stats.at("vmem")   \
