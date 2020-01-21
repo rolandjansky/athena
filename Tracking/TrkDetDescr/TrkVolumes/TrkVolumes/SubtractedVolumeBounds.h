@@ -16,6 +16,7 @@
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "CxxUtils/checker_macros.h"
 
 
 class MsgStream;
@@ -38,7 +39,7 @@ namespace Trk {
     @author Sarka.Todorova@cern.ch 
     */
     
- class SubtractedVolumeBounds : public VolumeBounds {
+ class ATLAS_NOT_THREAD_SAFE SubtractedVolumeBounds : public VolumeBounds {
   
   public:
     /**Default Constructor*/
