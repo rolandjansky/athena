@@ -106,6 +106,9 @@ namespace top {
     // Write MC generator weights
     m_doMCGeneratorWeights(false),
     m_doMCGeneratorWeightsInNominalTrees(false),
+    m_nominalWeightNames(),
+    m_detectedNominalWeightName("SetMe"),
+    m_detectedNominalWeightIndex(0),
     // Top Parton History
     m_doTopPartonHistory(false),
     m_isTopPartonHistoryRegisteredInNtuple(false),
@@ -722,6 +725,13 @@ namespace top {
         // Save the Truth PDF information in the reco-level tree instead of the truth-level one
         this->setMCGeneratorWeights();
         this->setMCGeneratorWeightsInNominalTrees();
+      }
+
+      // load the nominal weight names that we should try to get the real nominal weight name
+      boost::split(m_nominalWeightNames, settings->value("NominalWeightNames"), boost::is_any_of(","));
+      for (std::string &weight : m_nominalWeightNames) {
+        boost::trim(weight);
+        boost::trim_if(weight, boost::is_any_of("\"\'"));
       }
 
       // Save the Top Parton History
