@@ -33,11 +33,12 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
    condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
-
 #
 # --- Load PixelConditionsTools
 #
-if DetFlags.haveRIO.pixel_on():
+pixelCondition=True
+if pixelCondition:
+#if DetFlags.haveRIO.pixel_on():
     # Load pixel conditions summary service
     from AthenaCommon.AppMgr import ToolSvc
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
