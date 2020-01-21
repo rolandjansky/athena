@@ -44,6 +44,7 @@ def bJetStep1Sequence():
     # Jet Selector
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSelectorMT
     jetSelector = TrigJetSelectorMT( "BJetSelector" )
+    jetSelector.JetMaxEta = 2.9
     jetSelector.InputJets = jetsKey
     jetSelector.InputVertex = prmVtxKey
     jetSelector.OutputJets = recordable( outputJetName )

@@ -109,9 +109,9 @@ TrigSignatureMoniMT                                INFO HLT_j45_ftf_pf_L1J20 dec
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_L1J15 20        20        18        0         0         0         0         18
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_L1J15 decisions                    18        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J2019        19        18        18        18        0         0         18
-TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20 decisions                    18        49        49        0         0
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20 decisions                    18        48        48        0         0
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J2019        19        18        18        18        0         0         18
-TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20 decisions                    18        49        49        0         0
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20 decisions                    18        48        48        0         0
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J1003         3         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J100 decisions                    0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 19        19        0         0         0         0         0         0
