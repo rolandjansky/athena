@@ -40,7 +40,7 @@ namespace Muon {
     declareInterface<IMuonTrackRefiner>(this);
     declareInterface<IMuonTrackBuilder>(this);
 
-    declareProperty( "TrackSummeryTool", m_trackSummaryTool );
+    declareProperty( "TrackSummaryTool", m_trackSummaryTool );
   }
 
   StatusCode MooTrackBuilder::initialize() {
