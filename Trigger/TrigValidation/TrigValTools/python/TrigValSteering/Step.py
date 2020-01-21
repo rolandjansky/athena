@@ -35,6 +35,7 @@ class Step(object):
         self.result = None
         self.auto_report_result = False
         self.required = False
+        self.depends_on_previous = False
         self.timeout = None
 
     def get_log_file_name(self):
