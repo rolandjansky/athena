@@ -35,6 +35,7 @@ namespace Muon
 
 	short int           m_time;      // for single-strip PRD, that's the time measured
 	int                 m_charge;    // for single-strip PRD, that's the charge measured
+	float               m_driftDist;    // for single-strip PRD, that's the calibrated drift distance
 
 	float               m_angle;          ///
 	float               m_chisqProb;      /// these are the parameters of the muTPC reconstruction
@@ -43,6 +44,9 @@ namespace Muon
 	std::vector<uint16_t>  m_stripNumbers;
 	std::vector<short int> m_stripTimes;
 	std::vector<int>       m_stripCharges;
+
+	std::vector<float>        m_stripDriftDist;
+	std::vector<Amg::MatrixX> m_stripDriftErrors;
         
         //@}
         

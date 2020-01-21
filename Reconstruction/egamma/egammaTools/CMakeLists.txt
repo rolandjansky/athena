@@ -57,13 +57,14 @@ atlas_depends_on_subdirs( PRIVATE
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
+find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_component( egammaTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel CxxUtils AthContainers SGTools StoreGateLib SGtests Identifier EventKernel EventPrimitives FourMom FourMomUtils NavFourMom xAODCaloEvent  xAODEgamma xAODTracking xAODTruth GaudiKernel InDetConversionFinderToolsLib InDetRecToolInterfaces LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib ElectronPhotonFourMomentumCorrectionLib Particle ParticleTruth egammaMVACalibLib egammaRecEvent egammaUtils TrkEventPrimitives TrkMaterialOnTrack TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrack VxVertex TrkToolInterfaces )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel CxxUtils AthContainers SGTools StoreGateLib SGtests Identifier EventKernel EventPrimitives FourMom FourMomUtils NavFourMom xAODCaloEvent  xAODEgamma xAODTracking xAODTruth GaudiKernel InDetConversionFinderToolsLib InDetRecToolInterfaces LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib ElectronPhotonFourMomentumCorrectionLib Particle ParticleTruth egammaMVACalibLib egammaRecEvent egammaUtils TrkEventPrimitives TrkMaterialOnTrack TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrack VxVertex TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( egammaTools )

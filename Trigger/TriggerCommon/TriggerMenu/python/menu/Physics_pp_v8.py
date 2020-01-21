@@ -45,6 +45,8 @@ def setupMenu():
         ['afp_jetexc_L1J50',  'L1_J50',  [],  [PhysicsStream], ['Legacy:Support','RATE:SingleJet', 'BW:Jet'], -1],
         ['afp_jetexc_L1J75',  'L1_J75',  [],  [PhysicsStream], ['Legacy:Support','RATE:SingleJet', 'BW:Jet'], -1],
         ['afp_jetexc_L1J100',  'L1_J100',  [],  [PhysicsStream], ['Legacy:Support','RATE:SingleJet', 'BW:Jet'], -1],
+# ATR-20670 HLT_
+        ['afp_jetexc_L1CEP-CJ50',  'L1_CEP-CJ50',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ]
 
     TriggerFlags.MuonSlice.signatures = [
@@ -142,6 +144,8 @@ def setupMenu():
         ['mu20_ivarmedium_mu4noL1_10invm70',          'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Run3:Primary', 'RATE:MultiMuon','BW:Muon'], -1, ['serial', -1, ['mu20_ivarmedium', 'mu4noL1_10invm70']]],
         ['mu10_ivarmedium_mu10_10invm70',          'L1_2MU10', [], [PhysicsStream], ['Run3:Primary', 'RATE:MultiMuon','BW:Muon'], -1, ['parallel', -1, [] ]],
         
+        # ATR-20505
+        ['2mu40_msonly',           'L1_MU20', ['L1_MU20','L1_MU20'],       [PhysicsStream], ['Run3:Primary','RATE:MultiMuon', 'BW:Muon'], -1],
     ]
     
 
@@ -1975,6 +1979,8 @@ def setupMenu():
         ['tau25_mRNN_t2MVA_L1TAU8_tau20_mRNN_t2MVA_L1TAU8_j70_j50_0eta490_invm900j50_03dRtt', 'L1_MJJ-500-NFF', ['L1_TAU8', 'L1_TAU8','',''], [PhysicsStream], ['Run3:Primary',  'RATE:MultiTau', 'BW:Tau', 'BW:Jet'], -1,['serial',-1,["tau25_mRNN_t2MVA_L1TAU8", "tau20_mRNN_t2MVA_L1TAU8","j70","j50_0eta490_invm900j50"]]],
 
 
+        #ATR-20505
+        ['mu40_msonly_g40_loose',           'L1_EM8VH_MU20', ['L1_MU20','L1_EM20VH'],    [PhysicsStream], ['Run3:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['g40_loose','mu40_msonly']]],
 			 ]
 
 

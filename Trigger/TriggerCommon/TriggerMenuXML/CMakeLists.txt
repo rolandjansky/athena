@@ -112,7 +112,7 @@ atlas_install_scripts( scripts/CreateTriggerMenuXML.sh )
 atlas_install_scripts( scripts/XMLDumperFromAthena.sh )
 atlas_install_xmls( data/*.xml )
 
-# List of menus to be created:
+# List of menus to be created: 
 
 set ( MC_pp_v8_sources      python/menu/Physics_pp_v8.py python/menu/MC_pp_v8.py python/l1menu/Menu_MC_pp_v8.py )
 set ( Physics_pp_v8_sources python/menu/Physics_pp_v8.py python/l1menu/Menu_Physics_pp_v8.py python/l1menu/Menu_MC_pp_v8.py )

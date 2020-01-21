@@ -19,7 +19,7 @@ def setupMenu():
     physics_menu.setupMenu()
     PhysicsStream="Main"
 
-    ### Remove HLT items that have a remapped L1 threshold and therefore not available in MC
+    ### Remove HLT items that have a remapped L1 threshold and therefore not available in MC 
     L1toRemove = []
 
     for prop in dir(TriggerFlags):
