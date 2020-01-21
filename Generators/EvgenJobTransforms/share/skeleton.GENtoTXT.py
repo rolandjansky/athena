@@ -101,8 +101,8 @@ if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = False
+postSeq.CountHepMC.CorrectHepMC = True
+postSeq.CountHepMC.CorrectEventID = True
 
 
 ##==============================================================

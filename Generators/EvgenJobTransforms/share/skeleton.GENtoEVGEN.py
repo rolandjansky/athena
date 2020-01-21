@@ -138,8 +138,8 @@ if not hasattr(postSeq, "CountHepMC"):
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = False
+postSeq.CountHepMC.CorrectHepMC = True
+postSeq.CountHepMC.CorrectEventID = True
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
