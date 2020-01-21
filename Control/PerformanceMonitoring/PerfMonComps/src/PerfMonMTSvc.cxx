@@ -357,6 +357,9 @@ void PerfMonMTSvc::report2Log_Time_Mem_Serial() {
 // Report the event level measurement as soon as it is captured
 void PerfMonMTSvc::report2Log_EventLevel_instant() const{
 
+  double cpu_time = m_eventLevelData.getEventLevelData()[m_eventCounter].cpu_time;
+  double wall_time = m_eventLevelData.getEventLevelData()[m_eventCounter].wall_time;
+
   long vmem = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("vmem"); // write a getter function
   long rss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("rss"); // write a getter function
   long pss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("pss"); // write a getter function
@@ -368,7 +371,7 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const{
   long pss = m_eventLevelData.getCurrentMemoryMetric("pss",m_eventCounter);
   long swap = m_eventLevelData.getCurrentMemoryMetric("swap",m_eventCounter);
   */
-  ATH_MSG_INFO("Vmem: " << scaleMem(vmem) << ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss) << ", Swap: " << scaleMem(swap));
+  ATH_MSG_INFO("CPU Time: " << scaleTime(cpu_time) <<  ", Wall Time: " << scaleTime(wall_time) << ", Vmem: " << scaleMem(vmem) << ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss) << ", Swap: " << scaleMem(swap));
 
 }
 
@@ -743,7 +746,7 @@ std::string PerfMonMTSvc::scaleTime(double timeMeas) const{
 
   double result = 0;
 
-  std::string significance[5] = {"ms", "seconds", "mins", "hours", "days"};
+  std::string significance[5] = {"ms", "sec", "mins", "hours", "days"};
   int scaleFactor = 0;
 
   if(timeMeas > 1000*60*60*24){
