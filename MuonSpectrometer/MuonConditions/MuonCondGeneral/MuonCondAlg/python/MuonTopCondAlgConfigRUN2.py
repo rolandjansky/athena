@@ -73,12 +73,12 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
         if athenaCommonFlags.isOnline:
             kwargs['isOnline'  ] = True  # COOL folders not available online
             kwargs['isData'    ] = True
-            kwargs['ReadKey_FT'] = 'ConditionStore+/CSC/ONL/FTHOLD'
-            kwargs['ReadKey_NO'] = 'ConditionStore+/CSC/ONL/NOISE'
-            kwargs['ReadKey_PD'] = 'ConditionStore+/CSC/ONL/PED'
-            kwargs['ReadKey_PS'] = 'ConditionStore+/CSC/ONL/PSLOPE'
-            kwargs['ReadKey_RM'] = 'ConditionStore+/CSC/ONL/RMS'
-            kwargs['ReadKey_ST'] = 'ConditionStore+/CSC/ONL/STAT'
+            kwargs['ReadKey_FT'] = '/CSC/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
+            kwargs['ReadKey_NO'] = '/CSC/NOISE'
+            kwargs['ReadKey_PD'] = '/CSC/PED'
+            kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
+            kwargs['ReadKey_RM'] = '/CSC/RMS'
+            kwargs['ReadKey_ST'] = '/CSC/STAT'
         else:    
             kwargs['isOnline'] = False # COOL folders not available online
             if globalflags.DataSource != 'data':
