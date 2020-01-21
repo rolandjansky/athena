@@ -102,8 +102,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // Report to stdout    
     void report2Log();
     void report2Log_Description() const;
-    void report2Log_Time_Serial();
-    void report2Log_Mem_Serial();
+    void report2Log_Time_Mem_Serial();
     void report2Log_EventLevel_instant() const;
     void report2Log_EventLevel();
     void report2Log_CompLevel_Time_Parallel();

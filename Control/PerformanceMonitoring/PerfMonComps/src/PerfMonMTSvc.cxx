@@ -273,10 +273,8 @@ void PerfMonMTSvc::report2Log() {
 
   // Detailed tables
   if(m_printDetailedTables) {
-    report2Log_Time_Serial();
-
     if(doesDirectoryExist("/proc"))
-      report2Log_Mem_Serial();
+      report2Log_Time_Mem_Serial();
     else
       ATH_MSG_INFO("There is no /proc/ directory in this machine, therefore memory monitoring is failed!");
   
@@ -308,16 +306,22 @@ void PerfMonMTSvc::report2Log_Description() const {
 
 }
 
-void PerfMonMTSvc::report2Log_Time_Serial() { 
+void PerfMonMTSvc::report2Log_Time_Mem_Serial() { 
 
   using boost::format;
 
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("                             Component Level Monitoring                                ");
-  ATH_MSG_INFO("                                  CPU & Wall Time                                      ");
   ATH_MSG_INFO("                                   (Serial Steps)                                      ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
+
+  ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|42t|%4% %|53t|%5% %|64t|%6% %|75t|%7%")     % "Step"
+                                                                                             % "CPU Time [ms]"
+                                                                                             % "Vmem [kB]"
+                                                                                             % "Rss [kB]"
+                                                                                             % "Pss [kB]"
+                                                                                             % "Swap [kB]"
+                                                                                             % "Component");
 
   divideData2Steps_serial(); 
   for(auto vec_itr : m_stdoutVec_serial){
@@ -326,14 +330,22 @@ void PerfMonMTSvc::report2Log_Time_Serial() {
     for (auto itr = vec_itr.begin(); itr != vec_itr.end(); ++itr)
       pairs.push_back(*itr);
 
+    // Sort the results by the sum of all time and memory metrics
     sort(pairs.begin(), pairs.end(), [=](std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& a, std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& b)
     {
-      return a.second->getDeltaCPU() + a.second->getDeltaWall() > b.second->getDeltaCPU() + b.second->getDeltaWall();
+      return a.second->getDeltaCPU() + a.second->getMemMonDeltaMap("vmem") + a.second->getMemMonDeltaMap("rss") + a.second->getMemMonDeltaMap("pss") + a.second->getMemMonDeltaMap("swap") > \
+             b.second->getDeltaCPU() + b.second->getMemMonDeltaMap("vmem") + b.second->getMemMonDeltaMap("rss") + b.second->getMemMonDeltaMap("pss") + b.second->getMemMonDeltaMap("swap");
     }
     ); 
     for(auto it : pairs){
 
-      ATH_MSG_INFO(format("%1% %|17t|%2% %|37t|%3% %|57t|%4%") % it.first.stepName % it.second->getDeltaCPU() % it.second->getDeltaWall() % it.first.compName);      
+      ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|42t|%4% %|53t|%5% %|64t|%6% %|75t|%7%") % it.first.stepName
+                                                                                             % it.second->getDeltaCPU() 
+                                                                                             % it.second->getMemMonDeltaMap("vmem")    
+                                                                                             % it.second->getMemMonDeltaMap("rss")     
+                                                                                             % it.second->getMemMonDeltaMap("pss")     
+                                                                                             % it.second->getMemMonDeltaMap("swap")     
+                                                                                             % it.first.compName);      
 
     }
     ATH_MSG_INFO("=======================================================================================");
@@ -394,7 +406,6 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
   using boost::format;
  
   ATH_MSG_INFO("                             Component Level Monitoring                                ");
-  ATH_MSG_INFO("                                  CPU & Wall Time                                      ");
   ATH_MSG_INFO("                                  (Parallel Steps)                                     ");
   ATH_MSG_INFO("=======================================================================================");
 
@@ -425,49 +436,7 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
 
 }
 
-void PerfMonMTSvc::report2Log_Mem_Serial() { 
 
-  using boost::format;
-
-  ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("                             Component Level Monitoring                                ");
-  ATH_MSG_INFO("                                   Memory Metrics                                      ");
-  ATH_MSG_INFO("                                   (Serial Steps)                                      ");
-  ATH_MSG_INFO("=======================================================================================");
-  
-  ATH_MSG_INFO(format("%1% %|15t|%2% %|26t|%3% %|37t|%4% %|48t|%5% %|59t|%6%")     % "Step"
-                                                                                   % "Vmem [kB]"
-                                                                                   % "Rss [kB]"
-                                                                                   % "Pss [kB]"
-                                                                                   % "Swap [kB]"
-                                                                                   % "Component");
-  
-  for(auto vec_itr : m_stdoutVec_serial){
-    // Sort the results
-    std::vector<std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>> pairs;
-    for (auto itr = vec_itr.begin(); itr != vec_itr.end(); ++itr)
-      pairs.push_back(*itr);
-
-    sort(pairs.begin(), pairs.end(), [=](std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& a, std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& b)
-    {
-      return a.second->getMemMonDeltaMap("vmem") + a.second->getMemMonDeltaMap("rss") + a.second->getMemMonDeltaMap("pss") + a.second->getMemMonDeltaMap("swap") > \
-             b.second->getMemMonDeltaMap("vmem") + b.second->getMemMonDeltaMap("rss") + b.second->getMemMonDeltaMap("pss") + b.second->getMemMonDeltaMap("swap");
-    }
-    ); 
-    for(auto it : pairs){
-
-      ATH_MSG_INFO(format("%1% %|15t|%2% %|26t|%3% %|37t|%4% %|48t|%5% %|59t|%6%") % it.first.stepName \
-                                                                                   % it.second->getMemMonDeltaMap("vmem")    \
-                                                                                   % it.second->getMemMonDeltaMap("rss")     \
-                                                                                   % it.second->getMemMonDeltaMap("pss")     \
-                                                                                   % it.second->getMemMonDeltaMap("swap")    \
-                                                                                   % it.first.compName);      
-
-    }
-    ATH_MSG_INFO("=======================================================================================");
-
-  }  
-}
 
 void PerfMonMTSvc::report2Log_Summary() {
 
