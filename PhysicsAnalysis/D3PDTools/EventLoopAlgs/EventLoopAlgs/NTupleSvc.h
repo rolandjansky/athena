@@ -30,11 +30,6 @@ class TBranch;
 class TFile;
 class TTree;
 
-namespace D3PDReader
-{
-  class Event;
-}
-
 namespace EL
 {
   /// effects: get the skimming algorithm for the given output for
@@ -44,7 +39,7 @@ namespace EL
   /// requires: worker != 0
   /// requires: !outputStream.empty()
   /// postcondition: result != 0
-  NTupleSvc *getNTupleSvc (Worker *worker,
+  NTupleSvc *getNTupleSvc (IWorker *worker,
 			   const std::string& outputStream,
 			   const std::string& treeName = "");
 
@@ -265,10 +260,6 @@ namespace EL
     ///   connected to the input tree
   private:
     bool m_connected; //!
-
-    /// description: the D3PDReader, if we are using it
-  private:
-    D3PDReader::Event *m_d3pdreader; //!
 
     /// description: the white board service, if we are using it
   private:

@@ -19,15 +19,12 @@
 
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/Worker.h>
-#include <RootCore/Packages.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TH1.h>
 
-#ifdef ROOTCORE_PACKAGE_AsgTools
 #include <AsgTools/MsgLevel.h>
 #include <AsgTools/MsgStream.h>
-#endif
 
 //
 // method implementations
@@ -45,7 +42,7 @@ namespace EL
 
 
 
-  Worker *Algorithm ::
+  IWorker *Algorithm ::
   wk () const
   {
     RCU_READ_INVARIANT (this);
@@ -84,9 +81,20 @@ namespace EL
   Algorithm ::
   ~Algorithm ()
   {
-#ifdef ROOTCORE_PACKAGE_AsgTools
     delete m_msg;
-#endif
+  }
+
+
+
+  asg::SgTEvent *Algorithm ::
+  evtStore() const
+  {
+    RCU_CHANGE_INVARIANT (this);
+    if (m_evtStorePtr)
+      return m_evtStorePtr;
+    m_evtStore = asg::SgTEvent (wk()->xaodEvent(), wk()->xaodStore());
+    m_evtStorePtr = &m_evtStore;
+    return m_evtStorePtr;
   }
 
 
@@ -95,17 +103,18 @@ namespace EL
   msg () const
   {
     RCU_READ_INVARIANT (this);
-    if (m_msg == 0)
+    if (m_msg == 0 || m_msgName != GetName())
     {
-#ifdef ROOTCORE_PACKAGE_AsgTools
-      std::string name = GetName();
-      if (name.empty())
+      delete m_msg;
+      m_msg = nullptr;
+      m_msgName = GetName();
+      std::string name;
+      if (m_msgName.empty())
 	name = "UnnamedAlgorithm";
+      else
+        name = m_msgName;
       m_msg = new MsgStream (name);
       m_msg->setLevel (MSG::Level (m_msgLevel));
-#else
-      RCU_THROW_MSG ("package not compiled with AsgTools support");
-#endif
     }
     return *m_msg;
   }
@@ -116,13 +125,9 @@ namespace EL
   msg (int level) const
   {
     RCU_READ_INVARIANT (this);
-#ifdef ROOTCORE_PACKAGE_AsgTools
     MsgStream& result = msg ();
     result << MSG::Level (level);
     return result;
-#else
-      RCU_THROW_MSG ("package not compiled with AsgTools support");
-#endif
   }
 
 
@@ -140,10 +145,8 @@ namespace EL
   setMsgLevel (int level)
   {
     RCU_READ_INVARIANT (this);
-#ifdef ROOTCORE_PACKAGE_AsgTools
     if (m_msg)
       m_msg->setLevel (MSG::Level (level));
-#endif
     m_msgLevel = level;
   }
 
@@ -254,5 +257,15 @@ namespace EL
     RCU_CHANGE_INVARIANT (this);
     if (setupJob (job) != StatusCode::SUCCESS)
       RCU_THROW_MSG ("Algorithm::setupJob returned StatusCode::FAILURE");
+  }
+
+
+
+  const std::string& Algorithm ::
+  name() const
+  {
+    RCU_CHANGE_INVARIANT (this);
+    m_nameCache = GetName();
+    return m_nameCache;
   }
 }
