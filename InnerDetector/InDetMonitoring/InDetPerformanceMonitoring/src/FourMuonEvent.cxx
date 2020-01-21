@@ -62,16 +62,16 @@ FourMuonEvent::~FourMuonEvent()
 //==================================================================================
 void FourMuonEvent::Init()
 {
-  if(m_doDebug) { std::cout << " * FourMuonEvent::Init * START *" << std::endl; }
+  if (m_doDebug) { std::cout << " * FourMuonEvent::Init * START *" << std::endl; }
   
   m_xMuonID.Init();
   m_xElecID.Init();
-  if(m_doDebug && m_workAsFourMuons)     { std::cout << " * FourMuonEvent::Init * working as 4 muons *" << std::endl; }
-  if(m_doDebug && m_workAsFourElectrons) { std::cout << " * FourMuonEvent::Init * working as 4 electrons *" << std::endl; }
-  if(m_doDebug && m_workAsFourLeptons)   { std::cout << " * FourMuonEvent::Init * working as 4 leptons *" << std::endl; }
+  if (m_doDebug && m_workAsFourMuons)     { std::cout << " * FourMuonEvent::Init * working as 4 muons *" << std::endl; }
+  if (m_doDebug && m_workAsFourElectrons) { std::cout << " * FourMuonEvent::Init * working as 4 electrons *" << std::endl; }
+  if (m_doDebug && m_workAsFourLeptons)   { std::cout << " * FourMuonEvent::Init * working as 4 leptons *" << std::endl; }
 
   PARENT::Init();
-  if(m_doDebug) { std::cout << " * FourMuonEvent::Init * Completed * " << std::endl; }
+  if (m_doDebug) { std::cout << " * FourMuonEvent::Init * Completed * " << std::endl; }
 }
 
 //==================================================================================
@@ -79,7 +79,7 @@ bool FourMuonEvent::Reco()
 {
   bool thisdebug = false;
   m_eventCount++;
-  if(m_doDebug || thisdebug) { std::cout << " * FourMuonEvent::Reco * STARTING  * event count " << m_eventCount << std::endl; }
+  if (m_doDebug || thisdebug) { std::cout << " * FourMuonEvent::Reco * STARTING  * event count " << m_eventCount << std::endl; }
 
   // Clear out the previous events record.
   this->Clear();
@@ -87,13 +87,13 @@ bool FourMuonEvent::Reco()
 
   // if muons are requested 
   if (m_workAsFourMuons || m_workAsFourLeptons) {
-    if(m_doDebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::MuonContainer " << m_container << std::endl; }
+    if (m_doDebug || thisdebug) {std::cout << " * FourMuonEvent::Reco * retrieving xAOD::MuonContainer " << m_container << std::endl; }
 
     const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
 
     // check if muon container does exist
     if (pxMuonContainer != nullptr) { 
-      if (m_doDebug) {
+      if (m_doDebug || thisdebug) {
 	std::cout << " * FourMuonEvent::Reco * eventCount " << m_eventCount 
 		  << " track list has "<< pxMuonContainer->size() 
 		  << " combined muons in container " << m_container 
@@ -610,10 +610,10 @@ bool FourMuonEvent::EventSelection(ZTYPE eType)
     }
     
   default:
-    if (m_muonpos1 >= 0) leadingMuonPt = m_pxRecMuon[m_muonpos1]->pt();
-    if (m_muonpos2 >= 0) secondMuonPt =  m_pxRecMuon[m_muonpos2]->pt();
-    if (m_muonneg1 >= 0) thirdMuonPt =   m_pxRecMuon[m_muonneg1]->pt();
-    if (m_muonneg2 >= 0) fourthMuonPt =  m_pxRecMuon[m_muonneg2]->pt();
+    if (m_muonpos1 >= 0) leadingMuonPt = m_pxIDTrack[m_muonpos1]->pt();
+    if (m_muonpos2 >= 0) secondMuonPt =  m_pxIDTrack[m_muonpos2]->pt();
+    if (m_muonneg1 >= 0) thirdMuonPt =   m_pxIDTrack[m_muonneg1]->pt();
+    if (m_muonneg2 >= 0) fourthMuonPt =  m_pxIDTrack[m_muonneg2]->pt();
   } // end switch
 
   // up to here the leading and second pt are not really in the right order.
@@ -912,6 +912,7 @@ void FourMuonEvent::Clear()
 //==================================================================================
 void FourMuonEvent::RecordMuon( const xAOD::Muon* pxMuon )
 {
+  bool thisdebug = false;
   // if(m_doDebug){  std::cout <<" * FourMuonEvent * RecordMuon * started "<< std::endl;}
   // This shouldn't really ever happen but just in case.
   if ( !pxMuon ) {
@@ -922,20 +923,29 @@ void FourMuonEvent::RecordMuon( const xAOD::Muon* pxMuon )
   if ( m_numberOfFullPassMuons < NUM_MUONS ) {
       // The main Muon
       m_pxRecMuon[m_numberOfFullPassMuons] = pxMuon;
+      if (thisdebug) {
+	std::cout <<" * FourMuonEvent * RecordMuon * m_pxRecMuon for this muon--> pt "<< m_pxRecMuon[m_numberOfFullPassMuons]->pt() << std::endl;
+      }
       const xAOD::TrackParticle* pxMSTrack   = pxMuon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
       if (!pxMSTrack) {
-	if(m_doDebug){  std::cout <<" * FourMuonEvent * RecordMuon * bad pxMSmuon --> EXIT "<< std::endl;}
+	if (m_doDebug){  std::cout <<" * FourMuonEvent * RecordMuon * bad pxMSmuon --> EXIT "<< std::endl;}
 	return;
       } 
       m_pxMSTrack[m_numberOfFullPassMuons] = pxMSTrack;
+      if (thisdebug) {
+	std::cout <<" * FourMuonEvent * RecordMuon * m_pxMSTrack for this muon--> pt "<< m_pxMSTrack[m_numberOfFullPassMuons]->pt() << std::endl;
+      }
 
       // ID muon 
       const xAOD::TrackParticle*  pxIDTrack  = pxMuon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
       if (!pxIDTrack) {
-	if(m_doDebug){  std::cout <<" * FourMuonEvent * RecordMuon * bad pxIDTrack for this muon--> EXIT "<< std::endl;}
+	if (m_doDebug){  std::cout <<" * FourMuonEvent * RecordMuon * bad pxIDTrack for this muon--> EXIT "<< std::endl;}
 	return;
       }      
       m_pxIDTrack[m_numberOfFullPassMuons] = pxIDTrack;
+      if (thisdebug) {
+	std::cout <<" * FourMuonEvent * RecordMuon * m_pxIDTrack for this muon--> pt "<< m_pxIDTrack[m_numberOfFullPassMuons]->pt() << std::endl;
+      }
       //
       ++m_numberOfFullPassMuons;
   }
@@ -1340,8 +1350,11 @@ void FourMuonEvent::SetSecondMuonPtCut (double newvalue)
 //==================================================================================
 void FourMuonEvent::OrderMuonList()
 {
-  if(m_doDebug){ std::cout << " * FourMuonEvent::OrderMuonList * -- start -- " << std::endl 
-			   << "                                  #muons: " << m_numberOfFullPassMuons<< std::endl;}
+  // Salva: 20/January/2020 RecMuon -> IDTrack
+  bool thisdebug = false;
+
+  if (m_doDebug || thisdebug) {std::cout << " * FourMuonEvent::OrderMuonList * -- start -- " << std::endl 
+					 << "                                  #muons: " << m_numberOfFullPassMuons<< std::endl;}
 
   int muPlus1Id = -9;
   int muPlus2Id = -9;
@@ -1365,36 +1378,36 @@ void FourMuonEvent::OrderMuonList()
 					 << "   and pt= " << m_pxRecMuon[imuon]->pt()
 					 << std::endl;
       }
-      if (m_pxRecMuon[imuon] != nullptr) {
+      if (m_pxIDTrack[imuon] != nullptr) {
 	
-	if (m_pxRecMuon[imuon]->charge()==1) { // positive muon
+	if (m_pxIDTrack[imuon]->charge()==1) { // positive muon
 	  muposcount++;
-	  if (m_pxRecMuon[imuon]->pt()> muPlus1Pt) {
+	  if (m_pxIDTrack[imuon]->pt()> muPlus1Pt) {
 	    // store 1st in 2nd
 	    muPlus2Pt = muPlus1Pt;
 	    muPlus2Id = muPlus1Id;
 	    // now store the new one in 1st place
-	    muPlus1Pt = m_pxRecMuon[imuon]->pt();
+	    muPlus1Pt = m_pxIDTrack[imuon]->pt();
 	    muPlus1Id = imuon;	
 	  } 
-	  else if (m_pxRecMuon[imuon]->pt()> muPlus2Pt) {
+	  else if (m_pxIDTrack[imuon]->pt()> muPlus2Pt) {
 	    // store the new one in 2nd place
-	    muPlus2Pt = m_pxRecMuon[imuon]->pt();
+	    muPlus2Pt = m_pxIDTrack[imuon]->pt();
 	    muPlus2Id = imuon;
 	  }
 	}
 	// Negative muons
-	if (m_pxRecMuon[imuon]->charge()==-1) {
+	if (m_pxIDTrack[imuon]->charge()==-1) {
 	  munegcount++;
-	  if(m_pxRecMuon[imuon]->pt()> muMinus1Pt) {
+	  if(m_pxIDTrack[imuon]->pt()> muMinus1Pt) {
 	    // store 1st in 2nd
 	    muMinus2Pt = muMinus1Pt;
 	    muMinus2Id = muMinus1Id;
-	    muMinus1Pt = m_pxRecMuon[imuon]->pt();
+	    muMinus1Pt = m_pxIDTrack[imuon]->pt();
 	    muMinus1Id = imuon;
 	  } 
 	  else if(m_pxRecMuon[imuon]->pt()> muMinus2Pt) {
-	    muMinus2Pt = m_pxRecMuon[imuon]->pt();
+	    muMinus2Pt = m_pxIDTrack[imuon]->pt();
 	    muMinus2Id = imuon;
 	  }
 	}
@@ -1424,7 +1437,7 @@ void FourMuonEvent::OrderMuonList()
   m_muon1 = m_muonpos1; // to be deleted when no more m_muon is left
   m_muon2 = m_muonneg1; // to be deleted when no more m_muon is left
 
-  if ((m_doDebug) && m_numberOfFullPassMuons >= 2){ 
+  if ((m_doDebug || thisdebug) && m_numberOfFullPassMuons >= 2){ 
     std::cout << " * FourMuonEvent::OrderMuonList * taking " << m_numberOfFullPassMuons << "  muons from the input list of " << nMuonsAtEntry << " muons: " << std::endl;
     if (muMinus1Id >= 0) std::cout << "                                  leading mu-: " << muMinus1Id << "   Pt = " << muMinus1Pt << std::endl;
     if (muMinus2Id >= 0) std::cout << "                                  second  mu-: " << muMinus2Id << "   Pt = " << muMinus2Pt << std::endl;
@@ -1432,10 +1445,10 @@ void FourMuonEvent::OrderMuonList()
     if (muPlus2Id >= 0)  std::cout << "                                  second  mu+: " << muPlus2Id  << "   Pt = " << muPlus2Pt << std::endl;
   }
   else {
-    if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * This event has less than 2 muons :("  << std::endl;
+    if (m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * This event has less than 2 muons :("  << std::endl;
   }
   
-  if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * completed * m_numberOfFullPassMuons= " << m_numberOfFullPassMuons << std::endl;
+  if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::OrderMuonList * completed * m_numberOfFullPassMuons= " << m_numberOfFullPassMuons << std::endl;
   return;
 }
 

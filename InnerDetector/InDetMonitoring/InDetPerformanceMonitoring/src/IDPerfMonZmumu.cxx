@@ -601,7 +601,7 @@ StatusCode IDPerfMonZmumu::bookTrees()
   }
   
   // now register the Trees
-  ATH_MSG_INFO("-- SALVA -- initialize() Goint to register the trees");
+  ATH_MSG_INFO("initialize() Goint to register the trees");
   ITHistSvc* tHistSvc = 0;
   if (service("THistSvc",tHistSvc).isFailure()){
     ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !");
@@ -779,7 +779,7 @@ StatusCode IDPerfMonZmumu::execute()
       }      
     }
     else {
-      ATH_MSG_INFO("Retrieving CombinedTrackParticles of the accepted muons");
+      ATH_MSG_DEBUG("Retrieving CombinedTrackParticles of the accepted muons");
       p1_comb = muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle);
       p2_comb = muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle);
       
@@ -839,18 +839,23 @@ StatusCode IDPerfMonZmumu::execute()
     
     success_pos = FillRecParametersTP(muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->charge(),muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->vertex());
     success_neg = FillRecParametersTP(muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->charge(),muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->vertex());
-    if (success_pos && success_neg && m_storeZmumuNtuple) m_IDTree->Fill();
-    
+    if (success_pos && success_neg && m_storeZmumuNtuple) {
+      m_IDTree->Fill();
+    }
     
     success_pos = FillRecParametersTP(p1_comb, muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
     success_neg = FillRecParametersTP(p2_comb, muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
-    if (success_pos && success_neg && m_storeZmumuNtuple) m_defaultTree->Fill();
-    
+    if (success_pos && success_neg && m_storeZmumuNtuple) {
+      m_defaultTree->Fill();
+    }
     // combined muons
     success_pos = FillRecParameters(p1_comb->track(),muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
     success_neg = FillRecParameters(p2_comb->track(),muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
     
-    if (success_pos && success_neg && m_storeZmumuNtuple) m_combTree->Fill();
+    if (success_pos && success_neg && m_storeZmumuNtuple) {
+      m_defaultTree->Fill();
+      m_combTree->Fill();
+    }
   }
 
 
@@ -1016,7 +1021,11 @@ StatusCode IDPerfMonZmumu::execute()
 		     << ", " << m_positive_pz
 		     << "  d0: " << m_positive_d0 
 		     << "  z0: " << m_positive_z0);
-      if (success_pos && success_neg && m_storeZmumuNtuple) m_refit1Tree->Fill();
+      if (success_pos && success_neg && m_storeZmumuNtuple) {
+	ATH_MSG_DEBUG("       refit1   Tree muon_pos: " << muon_pos->pt() << "    m_pos: " << sqrt(m_positive_px*m_positive_px + m_positive_py*m_positive_py));
+	ATH_MSG_DEBUG("                     muon_neg: " << muon_neg->pt() << "    m_neg: " << sqrt(m_negative_px*m_negative_px + m_negative_py*m_negative_py)); 
+	m_refit1Tree->Fill();
+      }
     }
     //fill refit2 ID parameters
 
@@ -1028,8 +1037,11 @@ StatusCode IDPerfMonZmumu::execute()
       success_pos = FillRecParameters(refit2MuonTrk1, muon_pos->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p1_comb->charge(),p1_comb_v);
       success_neg = FillRecParameters(refit2MuonTrk2, muon_neg->trackParticle(xAOD::Muon::InnerDetectorTrackParticle), p2_comb->charge(),p2_comb_v);
       
-      if (success_pos && success_neg && m_storeZmumuNtuple) m_refit2Tree->Fill();
-
+      if (success_pos && success_neg && m_storeZmumuNtuple) {
+	ATH_MSG_DEBUG("       refit2   Tree muon_pos: " << muon_pos->pt() << "    m_pos: " << sqrt(m_positive_px*m_positive_px + m_positive_py*m_positive_py));
+	ATH_MSG_DEBUG("                     muon_neg: " << muon_neg->pt() << "    m_neg: " << sqrt(m_negative_px*m_negative_px + m_negative_py*m_negative_py)); 
+	m_refit2Tree->Fill();
+      }
     }
 
     if (!muon_pos || !muon_neg) {
