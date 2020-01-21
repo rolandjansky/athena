@@ -35,7 +35,6 @@ namespace Analysis {
   {
     declareProperty("JetCalibrationName", m_JetName);
     declareProperty("BTaggingLink", m_BTagLink);
-    declareProperty("TrackToJetAssocNameList", m_TrackToJetAssocNameList);
     declareProperty("BTagTool", m_bTagTool);
     declareProperty("BTagSecVertexing", m_bTagSecVtxTool);
     declareProperty("MagFieldSvc",    m_magFieldSvc );
@@ -52,7 +51,7 @@ namespace Analysis {
     // This will check that the properties were initialized properly
     // by job configuration.
     ATH_CHECK( m_JetCollectionName.initialize() );
-    ATH_CHECK( m_jetParticleLinkName.initialize() );
+    ATH_CHECK( m_jetParticleLinkNameList.initialize() );
     ATH_CHECK( m_BTagSVCollectionName.initialize() );
     ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
     ATH_CHECK( m_BTaggingCollectionName.initialize() );
@@ -73,8 +72,8 @@ namespace Analysis {
       return StatusCode::FAILURE;
     }
 
-    if (m_TrackToJetAssocNameList.size() == 0) {
-      ATH_MSG_FATAL( "#BTAGVTX# Please provide track to jet association list");
+    if (m_jetParticleLinkNameList.size() == 0) {
+      ATH_MSG_FATAL( "#BTAG# Please provide track to jet association list");
       return StatusCode::FAILURE;
     }
 
@@ -96,10 +95,6 @@ namespace Analysis {
     else {
       ATH_MSG_DEBUG("#BTAG#  Nb jets in JetContainer: "<< h_JetCollectionName->size());
     }
-
-    //Only one track assoc for test
-    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
-
 
     //retrieve the JF Vertex container
     SG::ReadHandle<xAOD::BTagVertexContainer> h_BTagJFVtxCollectionName (m_BTagJFVtxCollectionName.key() );
@@ -142,9 +137,14 @@ namespace Analysis {
         xAOD::BTagging * newBTagMT  = new xAOD::BTagging();
         h_BTaggingCollectionName->push_back(newBTagMT);
         //Track association
-        const std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = h_jetParticleLinkName(*jet);
-        std::vector< std::string >::const_iterator tAssocNameIter = m_TrackToJetAssocNameList.begin();
-        newBTagMT->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(*tAssocNameIter) = associationLinks;
+        for(SG::ReadDecorHandleKey<xAOD::JetContainer > elTP : m_jetParticleLinkNameList) {
+          SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName(elTP);
+          //if (jetParticleLinkName.isValid()) {
+          std::string::size_type iofs=h_jetParticleLinkName.key().rfind(".");
+          std::string assocN = h_jetParticleLinkName.key().substr(iofs+1);
+          const std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = h_jetParticleLinkName(*jet);
+          newBTagMT->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(assocN) = associationLinks;
+        }
       }
     }
 

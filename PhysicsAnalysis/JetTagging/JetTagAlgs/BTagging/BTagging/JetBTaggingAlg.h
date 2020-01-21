@@ -14,6 +14,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadDecorHandleKeyArray.h"
+
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "BTagging/IBTagTool.h"
@@ -40,7 +42,7 @@ class  JetBTaggingAlg:
   private:
   
     SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
-    Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetParticleLinkName{ this, "TrackToJetAssociatorName", "", "Element Link vector form jet to particle container"};
+    Gaudi::Property<SG::ReadDecorHandleKeyArray<xAOD::JetContainer>> m_jetParticleLinkNameList{ this, "TrackToJetAssociatorNames", {""}, "Element Link vector form jet to particle container"};
     //SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
     SG::ReadHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", "Input BTagging secondary vertex container"};
     SG::ReadHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", "Input BTagging Jet Fitter container"};

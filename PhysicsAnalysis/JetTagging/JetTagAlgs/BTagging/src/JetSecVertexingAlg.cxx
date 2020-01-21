@@ -31,7 +31,6 @@
 
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 
-#include "JetTagTools/JetFitterVariablesFactory.h"
 #include "JetTagTools/MSVVariablesFactory.h"
 
 #include "xAODBTagging/BTagging.h"
@@ -54,13 +53,11 @@ namespace Analysis {
 
   JetSecVertexingAlg::JetSecVertexingAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_JFvarFactory("Analysis::JetFitterVariablesFactory",this),
     m_MSVvarFactory("Analysis::MSVVariablesFactory",this),
     m_vxPrimaryName("PrimaryVertices")
   {
     declareProperty("PrimaryVertexName",  m_vxPrimaryName);
     declareProperty("SecVtxFinderxAODBaseName", m_secVertexFinderBaseName);
-    declareProperty("JetFitterVariableFactory",          m_JFvarFactory);
     declareProperty("MSVVariableFactory",          m_MSVvarFactory);
   }
 
@@ -75,19 +72,14 @@ namespace Analysis {
     ATH_CHECK( m_jetParticleLinkName.initialize() );
     ATH_CHECK( m_VxSecVertexInfoName.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
-    ATH_CHECK( m_BTagSVCollectionName.initialize() );
-    ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
+    if ((m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV")) ATH_CHECK( m_BTagSVCollectionName.initialize() );
+    if (m_secVertexFinderBaseName == "JetFitter") ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
     ATH_CHECK( m_jetSVLinkName.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
     /* ----------------------------------------------------------------------------------- */
 
-    if ( m_JFvarFactory.retrieve().isFailure() ) {
-       ATH_MSG_ERROR("#BTAG# Failed to retrieve " << m_JFvarFactory);
-    } else {
-       ATH_MSG_DEBUG("#BTAG# Retrieved " << m_JFvarFactory);
-    }
     if ( m_MSVvarFactory.retrieve().isFailure() ) {
        ATH_MSG_ERROR("#BTAG# Failed to retrieve " << m_MSVvarFactory);
     } else {
