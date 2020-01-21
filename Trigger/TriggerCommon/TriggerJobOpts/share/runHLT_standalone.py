@@ -95,7 +95,8 @@ if opt.doEmptyMenu is True:
             setattr(opt, s, False)
 else:
     for s in slices:
-        setattr(opt, s, True)
+        if s in globals():
+            setattr(opt, s, globals()[s])
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
 # This is temporary and will be re-worked for after M3.5
