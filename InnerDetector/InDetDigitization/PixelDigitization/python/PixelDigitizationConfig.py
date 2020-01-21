@@ -309,7 +309,7 @@ def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     condSeq = AthSequencer("AthCondSeq")
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsConfig import PixelITkOfflineCalibCondAlg
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOfflineCalibCondAlg
         condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
         PixelITkOfflineCalibCondAlg.InputSource = 2
 
