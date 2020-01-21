@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscSegmentUtilTool.h"
@@ -25,10 +25,8 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 
 #include "CscSegmentMakers/ICscSegmentFinder.h"
-#include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
@@ -96,8 +94,7 @@ namespace {
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent), 
-    m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator")
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
@@ -125,12 +122,6 @@ CscSegmentUtilTool::CscSegmentUtilTool
 
 }
 
-//******************************************************************************
-
-/** destructor */
-CscSegmentUtilTool::~CscSegmentUtilTool()
-{}
-
 /*********************************/
 StatusCode CscSegmentUtilTool::initialize()
 {
@@ -144,7 +135,6 @@ StatusCode CscSegmentUtilTool::initialize()
   ATH_MSG_DEBUG ( "  ROT tan(theta) tolerance: "
                   << m_fitsegment_tantheta_tolerance );
   ATH_MSG_DEBUG ( " cluster_error_scaler " << m_cluster_error_scaler);
-  //ATH_MSG_DEBUG ( "  Precision cluster fitter is " << m_rotCreator->GetICscClusterFitter().typeAndName() );
   ATH_MSG_DEBUG ( "  ROT creator: " << m_rotCreator.typeAndName() );
 
 
@@ -154,17 +144,7 @@ StatusCode CscSegmentUtilTool::initialize()
   if (m_x5data)
     ATH_MSG_DEBUG (" Things for X5Data analysis is applied such as alignment ");
   
-  if ( m_rotCreator.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Could not get " << m_rotCreator ); 
-    return StatusCode::FAILURE;
-  }else{
-    ATH_MSG_DEBUG ( "Got " << m_rotCreator ); 
-  }
-
-  if ( m_idHelper.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Could not get " << m_idHelper ); 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rotCreator.retrieve()); 
 
   ATH_CHECK(m_readKey.initialize());
 
@@ -889,13 +869,6 @@ spoiled_count(const ICscSegmentFinder::RioList& rios, int& nspoil, int& nunspoil
 }
 
 //******************************************************************************
-StatusCode CscSegmentUtilTool::finalize() {
-  ATH_MSG_DEBUG ( "Goodbye" );
-  return StatusCode::SUCCESS;
-}
-
-
-//******************************************************************************
 // Build an ATLAS segment.
 // Using the muon convention that x is normal to the plane of measurement:
 // My r segment: (z, dz/dx)
@@ -910,9 +883,6 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
   // chid from any last cluster in given chamber
 
   ATH_MSG_DEBUG ( "Building csc segment." );
-
-  //if(use2Lay) std::cout<<"using 2-layer segments"<<std::endl;
-  //std::cout<<"CscSegmentUtilTool::build_segment in chamber "<<m_idHelper->toString(chid)<<std::endl;
 
   const double pi = acos(-1.0);
   const double pi2 = 0.5*pi;
@@ -1087,8 +1057,6 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
       // Create new calibrated hit to put into fitclus      
       const CscPrepData* prd = pcl->prepRawData();
       Amg::Vector3D lpos = gToLocal*pcl->globalPosition();
-      // std::cout << " " << m_idHelper->toString(pcl->identify()) << " lpos " << lpos << "  locPos " << prd->localPosition() << std::endl;
-
 
       ATH_MSG_DEBUG ( "    ---+++----> build_segment each rios time " << pcl->time() << " " << prd->time() );
 
@@ -2057,13 +2025,11 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         int iw_phi = m_idHelperSvc->cscIdHelper().wireLayer(id_phi);
         
         // Check to see if these are the same layers.
-    // if(use2LaySegs) std::cout<<" id_eta: " << m_idHelper->toString(id_eta) << " " <<" id_phi: " << m_idHelper->toString(id_phi)<<std::endl;
         if (iw_eta != iw_phi){
-            // if(use2LaySegs) std::cout<<"hits in different layers, skip"<<std::endl;
             continue;
         }
-        ATH_MSG_DEBUG ( " id_eta: " << m_idHelper->toString(id_eta) << " " <<
-                        " id_phi: " << m_idHelper->toString(id_phi) );
+        ATH_MSG_DEBUG ( " id_eta: " << m_idHelperSvc->toString(id_eta) << " " <<
+                        " id_phi: " << m_idHelperSvc->toString(id_phi) );
 
 	/* commenting out because : 1/ coverity defect 13763+4 "Unchecked dynamic_cast"
 	   2/ segment finding must be fast, dynamic cast is time consuming, here only used for dbg cout ... 

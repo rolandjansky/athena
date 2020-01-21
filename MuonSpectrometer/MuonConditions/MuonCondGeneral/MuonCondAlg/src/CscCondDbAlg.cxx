@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/CscCondDbAlg.h"
@@ -9,11 +9,8 @@
 CscCondDbAlg::CscCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
     AthReentrantAlgorithm(name, pSvcLocator),
     m_condSvc("CondSvc", name),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_defaultDatabaseReadVersion("02-00")
   {
- 
-    declareProperty("IdHelper"                  , m_idHelper                           );
     declareProperty("defaultDatabaseReadVersion", m_defaultDatabaseReadVersion, "02-00");
     declareProperty("phiSwapVersion1Strings"    , m_phiSwapVersion1Strings = true      );
     declareProperty("onlineOfflinePhiFlip"      , m_onlineOfflinePhiFlip = true        );
@@ -30,7 +27,7 @@ CscCondDbAlg::initialize(){
 
     ATH_MSG_DEBUG( "initializing " << name() );                
     ATH_CHECK(m_condSvc .retrieve());
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
     ATH_CHECK(m_readKey_folder_da_hv     .initialize());
     ATH_CHECK(m_readKey_folder_da_f001   .initialize());
@@ -66,7 +63,7 @@ CscCondDbAlg::execute(const EventContext& ctx) const {
     }
     std::unique_ptr<CscCondDbData> writeCdo{std::make_unique<CscCondDbData>()};
 
-    writeCdo->loadParameters(&m_idHelper->cscIdHelper());
+    writeCdo->loadParameters(&m_idHelperSvc->cscIdHelper());
     writeCdo->setParameters(m_onlineOfflinePhiFlip);
 
     //Start with an infinite range and narrow it down as needed
@@ -174,8 +171,8 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, CscCondDbData* writeCdo, const E
                 if (sector_side == "13" || sector_side == "14") phi=7;
                 if (sector_side == "15" || sector_side == "16") phi=8;
       
-                Identifier ChamberId   = m_idHelper->cscIdHelper().elementID(chamber_name, eta, phi);
-                Identifier WireLayerId = m_idHelper->cscIdHelper().channelID(ChamberId, 1, wirelayer,1,1);
+                Identifier ChamberId   = m_idHelperSvc->cscIdHelper().elementID(chamber_name, eta, phi);
+                Identifier WireLayerId = m_idHelperSvc->cscIdHelper().channelID(ChamberId, 1, wirelayer,1,1);
                 std::string WireLayerstring = chamber_name+"_"+eta_side+"_"+sector_side+"_"+layer;  
 
                 writeCdo->setDeadLayer(WireLayerstring, WireLayerId);
@@ -360,29 +357,29 @@ CscCondDbAlg::cacheVersion1(std::string data, CscCondDbData* writeCdo, const std
 		// swapping version 1 strings
         if(m_phiSwapVersion1Strings){
             Identifier chanId;
-            IdContext channelContext = m_idHelper->cscIdHelper().channel_context();
-            m_idHelper->cscIdHelper().get_id((IdentifierHash) chanAddress, chanId, &channelContext);
-            int stationEta  = m_idHelper->cscIdHelper().stationEta (chanId); // +1 Wheel A   -1 Wheel C
-            int measuresPhi = m_idHelper->cscIdHelper().measuresPhi(chanId); // 0 eta 1 phi
+            IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();
+            m_idHelperSvc->cscIdHelper().get_id((IdentifierHash) chanAddress, chanId, &channelContext);
+            int stationEta  = m_idHelperSvc->cscIdHelper().stationEta (chanId); // +1 Wheel A   -1 Wheel C
+            int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(chanId); // 0 eta 1 phi
 
             if(stationEta > 0 && measuresPhi ==1){
-                int stationName  = m_idHelper->cscIdHelper().stationName (chanId); // CSL or CSS
-                int stationPhi   = m_idHelper->cscIdHelper().stationPhi  (chanId); // PhiSector from 1-8
-                int chamberLayer = m_idHelper->cscIdHelper().chamberLayer(chanId); // Either 1 or 2 (but always 2)
-                int wireLayer    = m_idHelper->cscIdHelper().wireLayer   (chanId); // layer in chamber 1-4
-                int strip        = 49 - m_idHelper->cscIdHelper().strip  (chanId);
+                int stationName  = m_idHelperSvc->cscIdHelper().stationName (chanId); // CSL or CSS
+                int stationPhi   = m_idHelperSvc->cscIdHelper().stationPhi  (chanId); // PhiSector from 1-8
+                int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(chanId); // Either 1 or 2 (but always 2)
+                int wireLayer    = m_idHelperSvc->cscIdHelper().wireLayer   (chanId); // layer in chamber 1-4
+                int strip        = 49 - m_idHelperSvc->cscIdHelper().strip  (chanId);
 
-                Identifier newId = m_idHelper->cscIdHelper().channelID(stationName,stationEta,stationPhi,chamberLayer, wireLayer,measuresPhi,strip);
+                Identifier newId = m_idHelperSvc->cscIdHelper().channelID(stationName,stationEta,stationPhi,chamberLayer, wireLayer,measuresPhi,strip);
                 IdentifierHash hash ;
-                m_idHelper->cscIdHelper().get_channel_hash(newId, hash);
+                m_idHelperSvc->cscIdHelper().get_channel_hash(newId, hash);
 
-				ATH_MSG_VERBOSE("Swapped phi strip "<< m_idHelper->cscIdHelper().show_to_string(chanId) << 
-                                " (" << chanAddress << ") to " << m_idHelper->cscIdHelper().show_to_string(newId) << 
+				ATH_MSG_VERBOSE("Swapped phi strip "<< m_idHelperSvc->cscIdHelper().show_to_string(chanId) << 
+                                " (" << chanAddress << ") to " << m_idHelperSvc->cscIdHelper().show_to_string(newId) << 
                                 " (" << hash << ")");
                 chanAddress = hash;
             }
             else {
-                ATH_MSG_VERBOSE("Not swapping " << m_idHelper->cscIdHelper().show_to_string(chanId));
+                ATH_MSG_VERBOSE("Not swapping " << m_idHelperSvc->cscIdHelper().show_to_string(chanId));
             }
         }
 
@@ -511,9 +508,9 @@ CscCondDbAlg::cacheVersion2ASM(std::string data, CscCondDbData* writeCdo, const 
         IdentifierHash hashIdentifier;
         for(int iStrip = stripSince; iStrip < stripUntil; iStrip++){ 
             for(int iLayer = layerSince; iLayer < layerUntil; iLayer++){ 
-                chanId = m_idHelper->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
+                chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
                                                              chamberLayer, iLayer, measuresPhi, iStrip);
-                m_idHelper->cscIdHelper().get_channel_hash(chanId, hashIdentifier);
+                m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, hashIdentifier);
                 index = (int) hashIdentifier;
 
                 ATH_MSG_VERBOSE("[cache version 2 (ASM)] Recording "
@@ -597,11 +594,11 @@ CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, CscCon
     // retrieve channel hash
     Identifier chamberId;
     Identifier channelId;
-    if(!writeCdo->onlineToOfflineIds(&m_idHelper->cscIdHelper(), chanAddress, chamberId, channelId).isSuccess())
+    if(!writeCdo->onlineToOfflineIds(&m_idHelperSvc->cscIdHelper(), chanAddress, chamberId, channelId).isSuccess())
         ATH_MSG_ERROR("Cannon get offline Ids from online Id" << std::hex << chanAddress << std::dec);
     
     IdentifierHash chanHash;
-    m_idHelper->cscIdHelper().get_channel_hash(channelId, chanHash);
+    m_idHelperSvc->cscIdHelper().get_channel_hash(channelId, chanHash);
     
     // record parameter
     return recordParameter(chanHash, data, writeCdo, parName);   
@@ -791,7 +788,7 @@ CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, CscCondDbData* writeCd
         if(sector_side == "01" || sector_side == "03" ||sector_side == "05" ||sector_side == "07" || sector_side == "09" || sector_side == "11" || sector_side == "13" || sector_side == "15" ) chamber_name = "CSL";
         if(sector_side == "02" || sector_side == "04" || sector_side == "06"|| sector_side == "08" || sector_side == "10"|| sector_side == "12"|| sector_side == "14"|| sector_side == "16") chamber_name = "CSS";
 
-        Identifier ChamberId = m_idHelper->cscIdHelper().elementID(chamber_name, eta, phi);
+        Identifier ChamberId = m_idHelperSvc->cscIdHelper().elementID(chamber_name, eta, phi);
 		writeCdo->setDeadStation(deadChambers[i], ChamberId);
     }
 

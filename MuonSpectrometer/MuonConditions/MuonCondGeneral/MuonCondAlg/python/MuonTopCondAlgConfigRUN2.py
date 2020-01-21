@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
@@ -73,12 +73,12 @@ class CscCondDbAlg(CfgMgr.CscCondDbAlg):
         if athenaCommonFlags.isOnline:
             kwargs['isOnline'  ] = True  # COOL folders not available online
             kwargs['isData'    ] = True
-            kwargs['ReadKey_FT'] = '/CSC/ONL/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
-            kwargs['ReadKey_NO'] = '/CSC/ONL/NOISE'
-            kwargs['ReadKey_PD'] = '/CSC/ONL/PED'
-            kwargs['ReadKey_PS'] = '/CSC/ONL/PSLOPE'
-            kwargs['ReadKey_RM'] = '/CSC/ONL/RMS'
-            kwargs['ReadKey_ST'] = '/CSC/ONL/STAT'
+            kwargs['ReadKey_FT'] = '/CSC/FTHOLD' # 'ConditionsStore+' prefix not necessarily needed in ReadKey
+            kwargs['ReadKey_NO'] = '/CSC/NOISE'
+            kwargs['ReadKey_PD'] = '/CSC/PED'
+            kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
+            kwargs['ReadKey_RM'] = '/CSC/RMS'
+            kwargs['ReadKey_ST'] = '/CSC/STAT'
         else:    
             kwargs['isOnline'] = False # COOL folders not available online
             if globalflags.DataSource != 'data':

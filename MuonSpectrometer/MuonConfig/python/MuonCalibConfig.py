@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 MuonCalib__CscCoolStrSvc=CompFactory.MuonCalib__CscCoolStrSvc
 MuonCalib__MdtCalibDbCoolStrTool=CompFactory.MuonCalib__MdtCalibDbCoolStrTool
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 CscCalibTool=CompFactory.CscCalibTool
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_CSCCONDDBALG_H
@@ -13,31 +13,16 @@
 
 //Gaudi includes
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 //Athena includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCondData/CscCondDbData.h"
 #include "MuonCondSvc/MdtStringUtils.h"
-
-//forward declarations
-class Identifier;
-class IdentifierHash;
-class MuonIdHelper;
-class StatusCode;
-class CscCondDbData;
-
-namespace Muon {
-  class MuonIdHelperTool;
-}
-
-
 
 class CscCondDbAlg: public AthReentrantAlgorithm{
 
@@ -89,7 +74,7 @@ private:
     bool m_onlineOfflinePhiFlip{false};
 
     ServiceHandle<ICondSvc> m_condSvc;
-    ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     std::string m_defaultDatabaseReadVersion;
  
     SG::WriteCondHandleKey<CscCondDbData> m_writeKey{this, "WriteKey", "CscCondDbData", "Key of output CSC condition data"};    

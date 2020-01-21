@@ -1,18 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// ********************************************************************
-//
-// NAME:     CscCalibMonToolBase.cxx
-// PACKAGE:  MuonCalibMonitoring  
-//
-// AUTHOR:  Caleb Parnell-Lampen <lampen@physics.arizona.edu>
-//
-// ********************************************************************
-
 #include <sstream>
-
 
 #include "CscCalibMonToolBase.h"
 
@@ -64,17 +54,13 @@ using namespace std;
     declareProperty("DoStatDb", m_doStatDb = true);
 }
 
-CscCalibMonToolBase::~CscCalibMonToolBase()
-{
-  ATH_MSG_INFO( " deleting CscCalibMonToolBase "  );
-}
 /*-----------------------------------------------------*/
 StatusCode CscCalibMonToolBase::initialize()
 {
   // init message stream -  Part 1: Get the messaging service, print where you are
   ATH_MSG_INFO( "CscCalibMonToolBase : in initialize()"  );
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_MSG_DEBUG( " Found the MuonIdHelperTool. "  );
 
   ATH_CHECK( m_readKey.initialize() );
@@ -89,8 +75,8 @@ StatusCode CscCalibMonToolBase::initialize()
 
   //Loop through ids to find out what hash range we're working on, and to 
   //initialize histograms.
-  IdContext chanContext = m_muonIdHelperTool->cscIdHelper().channel_context();
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
+  IdContext chanContext = m_idHelperSvc->cscIdHelper().channel_context();
+  vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
   vector<Identifier>::const_iterator chamItr = ids.begin();
   vector<Identifier>::const_iterator chamEnd = ids.end();
   m_maxHashId = 0;
@@ -98,26 +84,26 @@ StatusCode CscCalibMonToolBase::initialize()
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamberHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamberHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamberHash);
     if(chamberHash > m_maxChamId)
       m_maxChamId = chamberHash;
 
     vector<Identifier> stripVect;
-    m_muonIdHelperTool->cscIdHelper().idChannels(*chamItr,stripVect);
+    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
     vector<Identifier>::const_iterator stripItr = stripVect.begin();
     vector<Identifier>::const_iterator stripEnd = stripVect.end();
     for(;stripItr != stripEnd; stripItr++)
     {
       IdentifierHash stripHash;
-      m_muonIdHelperTool->cscIdHelper().get_channel_hash(*stripItr,stripHash);
-      bool measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(*stripItr);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+      bool measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(*stripItr);
 
       //Find maximum hash   
       if((unsigned int)stripHash > m_maxHashId)
         m_maxHashId = (int)stripHash;
 
       if(m_expectedChamberLayer 
-          == (unsigned int)m_muonIdHelperTool->cscIdHelper().chamberLayer(*stripItr) 
+          == (unsigned int)m_idHelperSvc->cscIdHelper().chamberLayer(*stripItr) 
         )
       {
         ATH_MSG_VERBOSE( "hash " << (int)stripHash << " is expected" );
@@ -468,19 +454,19 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
 
   ATH_MSG_DEBUG( "Allocated space for " << numHists << " histograms" );
 
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
+  vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
   vector<Identifier>::const_iterator chamItr = ids.begin();
   vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
     ATH_MSG_DEBUG( "Booking histograms for chamber with hash " << (int)chamHash  );
 
-    stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); 
-    stationName = m_muonIdHelperTool->cscIdHelper().stationNameString(stationSize);
-    stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
-    stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr); 
+    stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); 
+    stationName = m_idHelperSvc->cscIdHelper().stationNameString(stationSize);
+    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
+    stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
     sector = getSector(stationPhi,stationSize);
     for(unsigned int orientationItr = 0; orientationItr < 2; orientationItr++)
     {
@@ -593,18 +579,18 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
   int numHists = (ignoreY) ? 32 : 64; //32 chambers, 2 orientations
   histVector.resize(numHists,NULL);
 
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
+  vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
   vector<Identifier>::const_iterator chamItr = ids.begin();
   vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
     ATH_MSG_DEBUG( "Booking histograms for chamber with hash " << (int)chamHash  );
 
-    stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); //50
-    stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
-    stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr); 
+    stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //50
+    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
+    stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
     sector = getSector(stationPhi,stationSize);
 
     for(unsigned int orientationItr = 0; orientationItr < 2; orientationItr++)
@@ -945,50 +931,46 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
                  << " chamber spectrum " << (int)doChamSummary
                  );
 
-  //cout << "TEST! hash " << (int)(histCollection->hashHist != NULL) << endl;
-  //cout << "TEST! layHist " << (int)(histCollection->layHistVect != NULL) << endl;
-  //cout << "TEST! laySumm " << ((histCollection->laySummVect != NULL) ? 1 : 0 )<< endl;
-
   //For shorter lines:
   std::vector<float> & data = histCollection->data; 
   std::vector<float> & errors = histCollection->errors;
 
   //Loop through all channels, and copy relevant data from channel to histogram.
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
+  vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
   vector<Identifier>::const_iterator chamItr = ids.begin();
   vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
     ATH_MSG_DEBUG( "Copying data to histograms for chamber with hash" << (int)chamHash );
 
-    unsigned int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
+    unsigned int stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
 
-    unsigned int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
-    int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr); 
+    unsigned int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
+    int stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
     unsigned int sector = getSector(stationPhi,stationSize);
     int sectorIndex = sector * stationEta; //Histogram will go from -16 to +16. Bin 0 ignored.
 
 
 
     vector<Identifier> stripVect;
-    m_muonIdHelperTool->cscIdHelper().idChannels(*chamItr,stripVect);
+    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
     vector<Identifier>::const_iterator stripItr = stripVect.begin();
     vector<Identifier>::const_iterator stripEnd = stripVect.end();
     for(;stripItr != stripEnd; stripItr++)
     { 
-      unsigned int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(*stripItr);
+      unsigned int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(*stripItr);
       if(chamberLayer != 2)
         continue;
-      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(*stripItr);
+      int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(*stripItr);
       if(histCollection->ignoreY && measuresPhi)
         continue;
 
       IdentifierHash stripHash;
-      m_muonIdHelperTool->cscIdHelper().get_channel_hash(*stripItr,stripHash);
-      unsigned int layer = m_muonIdHelperTool->cscIdHelper().wireLayer(*stripItr);    
-      unsigned int strip = m_muonIdHelperTool->cscIdHelper().strip(*stripItr);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+      unsigned int layer = m_idHelperSvc->cscIdHelper().wireLayer(*stripItr);    
+      unsigned int strip = m_idHelperSvc->cscIdHelper().strip(*stripItr);
       float secLayer = (((float)stationEta*sector) + 0.2 * ((float)layer - 1) + 0.1);     
       float datum = data.at(stripHash);
 
