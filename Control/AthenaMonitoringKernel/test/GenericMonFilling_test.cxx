@@ -1,7 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 #undef NDEBUG
 #include <cassert>
@@ -329,23 +331,40 @@ bool operatorsWorked() {
 
 bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
-  auto t1 = Monitored::Timer( "TIME_t1" );
-  auto t2 = Monitored::Timer( "TIME_t2" );
-  auto t3 = Monitored::Timer<std::chrono::milliseconds>( "TIME_t3" );
+  auto t1 = Monitored::Timer( "TIME_t1" );  // default is microseconds
+  auto t2 = Monitored::Timer<std::chrono::milliseconds>( "TIME_t2" );
   {
-    auto monitorIt = Monitored::Group( monTool, t1, t2, t3 ); // this is binding to histograms
-
-    t1.start();
-    t1.stop();
+    auto monitorIt = Monitored::Group( monTool, t1, t2 );
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
-  VALUE( double( t1 ) <= double( t2 ) ) EXPECTED( true );  // timer is monotonic
-  VALUE( double( t1 ) < 1e6 ) EXPECTED ( true ); // should be less than 1s unless the stop/start are wrong
-  VALUE( double( t2 ) < 1e6 ) EXPECTED ( true ); // should be less than 1s unless the contr and op double are wrong
+  // There should be one entry in the histogram with roughly 10ms
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetEntries() ) EXPECTED( 1 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetEntries() ) EXPECTED( 1 );
+  double t1_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetMean();
+  double t2_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetMean();
+  assert( 9000 < t1_value && t1_value < 11000 );
+  assert( 8 < t2_value && t2_value < 12 );
+
+  // Test scoped timer
+  auto t3 = Monitored::Timer<std::chrono::milliseconds>( "TIME_t3" );
+  {
+    auto monitorIt = Monitored::Group( monTool, t3 );
+    {
+      Monitored::ScopedTimer timeit(t3);
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    {
+      // code that should not be included in timer
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+  }
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t3" )->GetEntries() ) EXPECTED( 1 );
+  double t3_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t3" )->GetMean();
+  assert( 8 < t3_value && t3_value < 12 );
 
   return true;
 }
+
 
 bool stringFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
   auto count = Monitored::Scalar<std::string>( "DetID", "SCT" );
