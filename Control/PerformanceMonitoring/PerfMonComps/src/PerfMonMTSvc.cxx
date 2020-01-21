@@ -357,6 +357,7 @@ void PerfMonMTSvc::report2Log_Time_Mem_Serial() {
 // Report the event level measurement as soon as it is captured
 void PerfMonMTSvc::report2Log_EventLevel_instant() const{
 
+  /*
   double cpu_time = m_eventLevelData.getEventLevelData()[m_eventCounter].cpu_time;
   double wall_time = m_eventLevelData.getEventLevelData()[m_eventCounter].wall_time;
 
@@ -364,6 +365,16 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const{
   long rss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("rss"); // write a getter function
   long pss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("pss"); // write a getter function
   long swap = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("swap"); // write a getter function
+  */
+
+  double cpu_time = m_eventLevelData.getEventLevelCpuTime(m_eventCounter);
+  double wall_time = m_eventLevelData.getEventLevelWallTime(m_eventCounter);
+
+  long vmem = m_eventLevelData.getEventLevelVmem(m_eventCounter);
+  long rss = m_eventLevelData.getEventLevelRss(m_eventCounter);
+  long pss = m_eventLevelData.getEventLevelPss(m_eventCounter);
+  long swap = m_eventLevelData.getEventLevelSwap(m_eventCounter);
+
 
   /*
   long vmem = m_eventLevelData.getCurrentMemoryMetric("vmem",m_eventCounter);

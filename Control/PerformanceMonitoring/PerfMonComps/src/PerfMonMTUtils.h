@@ -229,6 +229,30 @@ namespace PMonMT {
       return m_eventLevel_delta_map;
     }
 
+    double getEventLevelCpuTime(unsigned long long event_count) const{
+      return m_eventLevel_delta_map.at(event_count).cpu_time;
+    }
+
+    double getEventLevelWallTime(unsigned long long event_count) const{
+      return m_eventLevel_delta_map.at(event_count).wall_time;
+    }
+
+    double getEventLevelVmem(unsigned long long event_count) const{
+      return m_eventLevel_delta_map.at(event_count).mem_stats.at("vmem");
+    }
+
+    double getEventLevelRss(unsigned long long event_count) const{
+      return m_eventLevel_delta_map.at(event_count).mem_stats.at("rss");
+    }
+
+    double getEventLevelPss(unsigned long long event_count) const{
+      return m_eventLevel_delta_map.at(event_count).mem_stats.at("pss");
+    }
+
+    double getEventLevelSwap(unsigned long long event_count) const{
+      return m_eventLevel_delta_map.at(event_count).mem_stats.at("swap");
+    }
+
     double getDeltaCPU() const{
       return m_delta_cpu;
     }
