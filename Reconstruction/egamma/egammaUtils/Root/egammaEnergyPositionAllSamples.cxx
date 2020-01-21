@@ -61,7 +61,7 @@ egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster& cluster, const
         return false; // endcap
       }
       if (cluster.eSample(CaloSampling::PreSamplerB) != 0. && cluster.eSample(CaloSampling::PreSamplerE) == 0.) {
-        return true; // endcap
+        return true; // barrel
       }
       if (cluster.eSample(CaloSampling::PreSamplerB) >= cluster.eSample(CaloSampling::PreSamplerE)) {
         return true; // barrel;
@@ -74,7 +74,7 @@ egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster& cluster, const
         return false; // endcap
       }
       if (cluster.eSample(CaloSampling::EMB1) != 0. && cluster.eSample(CaloSampling::EME1) == 0.) {
-        return true; // endcap
+        return true; // barrel
       }
       if (cluster.eSample(CaloSampling::EMB1) >= cluster.eSample(CaloSampling::EME1)) {
         return true; // barrel
@@ -87,7 +87,7 @@ egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster& cluster, const
         return false; // endcap
       }
       if (cluster.eSample(CaloSampling::EMB2) != 0. && cluster.eSample(CaloSampling::EME2) == 0.) {
-        return true; // endca
+        return true; // barrel
       }
 
       if (cluster.eSample(CaloSampling::EMB2) >= cluster.eSample(CaloSampling::EME2)) {
@@ -101,7 +101,7 @@ egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster& cluster, const
         return false; // endcap
       }
       if (cluster.eSample(CaloSampling::EMB3) != 0. && cluster.eSample(CaloSampling::EME3) == 0.) {
-        return true; // endcap
+        return true; // barrel
       }
 
       if (cluster.eSample(CaloSampling::EMB3) >= cluster.eSample(CaloSampling::EME3)) {
