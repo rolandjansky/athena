@@ -33,9 +33,12 @@ if len(DAOD_Input_Key) is 1:
 
 # Check if we are merging only truth derivations
 truthDerivations = ['inputDAOD_TRUTH0File','inputDAOD_TRUTH1File','inputDAOD_TRUTH2File','inputDAOD_TRUTH3File','inputDAOD_TRUTH4File','inputDAOD_TRUTH5File']
-reducingOnlyTruth = not hasattr(runArgs,'reductionConf') or len([ x for x in runArgs.reductionConf if 'TRUTH' in x ])==len(runArgs.reductionConf)
-mergingTruth = len( [ k for k in dir(runArgs) if 'inputDAOD_TRUTH' in k and 'File' in k ] )==len( [ k for k in dir(runArgs) if 'input' in k and 'File' in k ] )
-if mergingTruth or reducingOnlyTruth:
+mergingTruth = False
+if hasattr(runArgs,'reductionConf'):
+    mergingTruth = len([ x for x in runArgs.reductionConf if 'TRUTH' in x ])==len(runArgs.reductionConf)
+else:
+    mergingTruth = len( [ k for k in dir(runArgs) if 'inputDAOD_TRUTH' in k and 'File' in k ] )==len( [ k for k in dir(runArgs) if 'input' in k and 'File' in k ] )
+if mergingTruth:
     rec.AutoConfiguration.set_Value_and_Lock(['ProjectName','BeamType','RealOrSim','DoTruth','InputType'])
     rec.doInDet.set_Value_and_Lock(False)
     rec.doCalo.set_Value_and_Lock(False)
