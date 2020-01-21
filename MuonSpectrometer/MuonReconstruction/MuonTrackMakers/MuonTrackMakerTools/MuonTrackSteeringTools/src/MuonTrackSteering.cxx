@@ -37,7 +37,6 @@ namespace Muon {
 
   MuonTrackSteering::MuonTrackSteering(const std::string& t,const std::string& n,const IInterface* p)
     : AthAlgTool(t,n,p),
-      m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"), 
       m_combinedSLOverlaps(false)
   {
     declareInterface<IMuonTrackFinder>(this);
@@ -51,7 +50,6 @@ namespace Muon {
     declareProperty( "UseTightSegmentMatching", m_useTightMatching = true );
     declareProperty( "SegmentThreshold", m_segThreshold = 8);
     declareProperty( "OnlyMdtSeeding", m_onlyMDTSeeding = true );
-    declareProperty( "TrackSummeryTool", m_trackSummaryTool );
   }
 
   StatusCode MuonTrackSteering::initialize() {
