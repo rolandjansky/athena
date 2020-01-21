@@ -15,6 +15,7 @@ decription           : Implementation code for ForwardGsfFitter class
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 
@@ -44,8 +45,6 @@ StatusCode
 Trk::ForwardGsfFitter::initialize()
 {
 
-  // Request an instance of the state combiner
-  ATH_CHECK(m_stateCombiner.retrieve());
   ATH_MSG_DEBUG( "A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF << " will be applied");
 
   Trk::ParticleSwitcher particleSwitcher;
@@ -285,7 +284,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     measurement.reset(originalMeasurement->clone());
   }
   else {
-    combinedState = m_stateCombiner->combine(*extrapolatedState);
+    combinedState = MultiComponentStateCombiner::combine(*extrapolatedState);
     if (!combinedState) {
       ATH_MSG_WARNING("State combination failed... exiting");
       return false;
@@ -302,7 +301,8 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     return false;
   }
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  updatedState = m_updator->update(std::move(*(extrapolatedState->clone())), *measurement, fitQuality);
+  updatedState = m_updator->update(
+    std::move(*(MultiComponentStateHelpers::clone(*extrapolatedState))), *measurement, fitQuality);
   if (!updatedState) {
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
@@ -322,8 +322,12 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(0);
     type.set(TrackStateOnSurface::Outlier);
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
-      new MultiComponentStateOnSurface(measurement.release(), extrapolatedState->clone().release(), 
-                                       fitQuality.release(), nullptr, type);
+      new MultiComponentStateOnSurface(
+        measurement.release(),
+        MultiComponentStateHelpers::clone(*extrapolatedState).release(),
+        fitQuality.release(),
+        nullptr,
+        type);
 
     forwardTrajectory->push_back(multiComponentStateOnSurface);
 

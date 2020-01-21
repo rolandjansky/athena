@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 import re, sys
 try:
     Set = set
@@ -67,7 +68,7 @@ class StreamSelector(Selector):
             useTier0 = True
         
 
-        print self,
+        print (self, end='')
         sys.stdout.flush()
         newrunlist = []
         allStreams = Set()  # list of all the streams that are in the selected runs
@@ -273,8 +274,8 @@ class StreamSelector(Selector):
 
         # Done
         duration = time() - start
-        if len(self.streams)!=0: print " ==> %i runs found (%.2f sec)" % (len(runlist),duration)
-        else:                    print " ==> Done (%g sec)" % duration
+        if len(self.streams)!=0: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:                    print (" ==> Done (%g sec)" % duration)
         return runlist
 
     def passes(self,streamevents,key):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -53,7 +53,7 @@ MvaTESEvaluator::~MvaTESEvaluator()
 StatusCode MvaTESEvaluator::initialize(){
   
   // Declare input variables to the reader
-  if(!inTrigger()) {
+  if(!m_in_trigger) {
     m_availableVars.insert( std::make_pair("TauJetsAuxDyn.mu", &m_mu) );
     m_availableVars.insert( std::make_pair("TauJetsAuxDyn.nVtxPU", &m_nVtxPU) );
     
@@ -130,7 +130,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   xTau.detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, m_second_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, m_presampler_frac);
 
-  if(!inTrigger()) {
+  if(!m_in_trigger) {
 
     // Retrieve pantau and LC-precalib TES
     m_etaConstituent = xTau.etaPanTauCellBased();

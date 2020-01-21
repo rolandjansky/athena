@@ -135,7 +135,16 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   // Hold global lock until we have detached object from gDirectory
   {
     std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
-    e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
+    if (def.ybins==0 && def.zbins==0) { // 1D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax);
+    } else if (def.ybins>0 && def.zbins==0) { // 2D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax);
+    } else if (def.ybins>0 && def.zbins>0) { // 3D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax, def.zbins, def.zmin, def.zmax);
+    }
     e->SetDirectory(0);
   }
   if ( !m_histSvc->regEfficiency(fullName,e) ) {
@@ -145,9 +154,11 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   TH1* total ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetTotalHistogram());
   setLabels(total->GetXaxis(), def.xlabels);
   setLabels(total->GetYaxis(), def.ylabels);
+  setLabels(total->GetZaxis(), def.zlabels);
   TH1* passed ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetPassedHistogram());
   setLabels(passed->GetXaxis(), def.xlabels);
   setLabels(passed->GetYaxis(), def.ylabels);
+  setLabels(passed->GetZaxis(), def.zlabels);
 
   return e;
 }

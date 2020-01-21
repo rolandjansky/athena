@@ -22,7 +22,7 @@ if rec.projectName().startswith("data09") :
     larCondFlags.OFCShapeFolder="5samples3bins17phases"
 
 if svcMgr.MessageSvc.OutputLevel <= DEBUG :
-  print(larCondFlags)
+  printfunc (larCondFlags)
 
 
 if larCondFlags.LArElecCalibSqlite.statusOn and larCondFlags.LArElecCalibSqlite()!="":
@@ -201,7 +201,7 @@ if larCondFlags.LoadElecCalib():
           pass
       pass
    else:
-      print("In SuperCell case... so far will not initialise folders.")
+      printfunc ("In SuperCell case... so far will not initialise folders."   )
 
   else: #Run 1 case, no COOL-inline electronic calibration
    if not SuperCells: 
@@ -279,13 +279,13 @@ if larCondFlags.LoadElecCalib():
           pass
       pass
    else:
-      print("In SuperCell case... so far will not initialise folders.")
+      printfunc ("In SuperCell case... so far will not initialise folders.")
   pass
 
 
 #special case for overlay jobs: We need LArfSampl 
 if DetFlags.overlay.LAr_on() and larCondFlags.LArfSamplTag()!="":
-   print("Tag=%s" % larCondFlags.LArfSamplTag())
+   printfunc ("Tag=%s" % larCondFlags.LArfSamplTag())
    conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl",larCondFlags.LArfSamplTag(),force=True,forceMC=True,className="LArfSamplMC")
    from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg
    from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault

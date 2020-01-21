@@ -21,6 +21,18 @@ TFCSLateralShapeParametrizationFluctChain::TFCSLateralShapeParametrizationFluctC
 {
 }
 
+float TFCSLateralShapeParametrizationFluctChain::get_E_hit(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
+{
+  const float sigma2 = get_sigma2_fluctuation(simulstate,truth,extrapol);
+  const int sample = calosample();
+  if(sigma2<=0 || sample<0) return -1.;
+  const float maxWeight = getMaxWeight();
+  
+  if(maxWeight>0) return simulstate.E(sample)*sigma2/maxWeight;
+  else return simulstate.E(sample)*sigma2;
+  
+}
+
 FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   // Call get_number_of_hits() only once, as it could contain a random number
@@ -34,10 +46,9 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
   if(sigma2<1e-8) sigma2=1e-8; 
 
   const float Elayer=simulstate.E(calosample());
-  const int nhit = 1.0 / sigma2;
 
   //Make a good guess of the needed hit energy, assuming all hits would have the same energy
-  const float Eavghit=Elayer/nhit;
+  const float Eavghit=get_E_hit(simulstate,truth,extrapol);
   const float Eavghit_tenth=Eavghit/10;
   float sumEhit=0;
   float error2_sumEhit=0;

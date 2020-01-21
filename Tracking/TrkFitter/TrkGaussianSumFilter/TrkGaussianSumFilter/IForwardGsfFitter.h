@@ -25,7 +25,6 @@ decription           : Abstract interface for the forward GSF fitter
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class MultiComponentStateCombiner;
 class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;

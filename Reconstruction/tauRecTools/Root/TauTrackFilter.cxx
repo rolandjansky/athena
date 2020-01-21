@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -11,14 +11,9 @@
 //
 //-----------------------------------------------------------------------------
 
-//#include <GaudiKernel/IToolSvc.h>
-//#include <GaudiKernel/ListItem.h>
-
 #include "FourMomUtils/P4Helpers.h"
-//#include "FourMom/P4EEtaPhiM.h"
 
 #include "tauRecTools/TauEventData.h"
-
 #include "tauRecTools/TauTrackFilter.h"
 #include "tauRecTools/TauTrackFilterUtils.h"
 

@@ -19,6 +19,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
  
@@ -49,11 +50,6 @@ class Surface;
 
     /** typedef the BinnedArray */
     typedef BinnedArray<Tvol> VolumeArray; 
-    
-    /** delcare the TrackingVolume Manipulator as friend */
-    friend class TrackingVolumeManipulator;
-    /** delcare the TrackingVolume as friend */
-    friend class TrackingVolume;
 
     public:
      /** Default Constructor - needed for pool and inherited classes */
@@ -106,24 +102,79 @@ class Surface;
      
      /** output debug information */
      void debugInfo(MsgStream& msg) const;
-         
-   protected:         
-     mutable const Tvol*                 m_insideVolume;
-     mutable const Tvol*                 m_outsideVolume;
-     mutable SharedObject<VolumeArray>   m_insideVolumeArray;
-     mutable SharedObject<VolumeArray>   m_outsideVolumeArray;
+   
+
+     /** getters/setters for inside/outside Volume*/
+     Tvol const* insideVolume() const;
+     void setInsideVolume(const Tvol*);
+     void setInsideVolume ATLAS_NOT_CONST_THREAD_SAFE(const Tvol*) const ;
+     
+     Tvol const* outsideVolume() const;
+     void setOutsideVolume(const Tvol*);
+     void setOutsideVolume ATLAS_NOT_CONST_THREAD_SAFE (const Tvol*) const ;
+
+     
+     /** getters/setters for inside/outside Volume arrays */
+     const SharedObject<VolumeArray>& insideVolumeArray() const;
+     void setInsideVolumeArray(const SharedObject<VolumeArray>&);
+     void setInsideVolumeArray ATLAS_NOT_CONST_THREAD_SAFE (const SharedObject<VolumeArray>&) const ;
+     const SharedObject<VolumeArray>& outsideVolumeArray() const;
+     void setOutsideVolumeArray(const SharedObject<VolumeArray>&);
+     void setOutsideVolumeArray ATLAS_NOT_CONST_THREAD_SAFE (const SharedObject<VolumeArray>&) const;
+
+    protected:         
+     const Tvol*                 m_insideVolume;
+     const Tvol*                 m_outsideVolume;
+     SharedObject<VolumeArray>   m_insideVolumeArray;
+     SharedObject<VolumeArray>   m_outsideVolumeArray;
                              
   };
-  
-  template <class Tvol> inline void BoundarySurface<Tvol>::debugInfo(MsgStream& msg) const
-  {
-  msg << "BoundarySurface debug information: " << std::endl;
-  msg << "     -> pointer to insideVolume         = " << m_insideVolume       << std::endl;
-  msg << "     -> pointer to insideVolumeArray    = " << m_insideVolumeArray.get()  << std::endl;
-  msg << "     -> pointer to outsideVolume        = " << m_outsideVolume      << std::endl;
-  msg << "     -> pointer to outsideVolumeArray   = " << m_outsideVolumeArray.get() << endmsg;
-  
-  
+
+  template <class Tvol> Tvol const* BoundarySurface<Tvol>::insideVolume() const { return m_insideVolume; }
+  template <class Tvol> void BoundarySurface<Tvol>::setInsideVolume(const Tvol *vol) { m_insideVolume = vol; }
+  template <class Tvol> void BoundarySurface<Tvol>::setInsideVolume ATLAS_NOT_CONST_THREAD_SAFE(const Tvol *vol) const {
+    const_cast<BoundarySurface<Tvol> *>(this)->setInsideVolume(vol);
+  }
+
+  template <class Tvol> Tvol const* BoundarySurface<Tvol>::outsideVolume() const { return m_outsideVolume; }
+  template <class Tvol> void BoundarySurface<Tvol>::setOutsideVolume(const Tvol *vol) { m_outsideVolume = vol; }
+  template <class Tvol> void BoundarySurface<Tvol>::setOutsideVolume ATLAS_NOT_CONST_THREAD_SAFE(const Tvol *vol) const {
+    const_cast<BoundarySurface<Tvol> *>(this)->setOutsideVolume(vol);
+  }
+
+  template <class Tvol> const SharedObject<BinnedArray<Tvol>>& BoundarySurface<Tvol>::insideVolumeArray() const {
+    return m_insideVolumeArray;
+  }
+  template <class Tvol>
+  void BoundarySurface<Tvol>::setInsideVolumeArray(const SharedObject<BinnedArray<Tvol>> &volArray) {
+    m_insideVolumeArray = volArray;
+  }
+  template <class Tvol>
+  void BoundarySurface<Tvol>::setInsideVolumeArray
+  ATLAS_NOT_CONST_THREAD_SAFE(const SharedObject<BinnedArray<Tvol>> &volArray) const {
+    const_cast<BoundarySurface<Tvol> *>(this)->setInsideVolumeArray(volArray);
+  }
+
+  template <class Tvol> const SharedObject<BinnedArray<Tvol>>& BoundarySurface<Tvol>::outsideVolumeArray() const {
+    return m_outsideVolumeArray;
+  }
+  template <class Tvol>
+  void BoundarySurface<Tvol>::setOutsideVolumeArray(const SharedObject<BinnedArray<Tvol>> &volArray) {
+    m_outsideVolumeArray = volArray;
+  }
+  template <class Tvol>
+  void BoundarySurface<Tvol>::setOutsideVolumeArray
+  ATLAS_NOT_CONST_THREAD_SAFE(const SharedObject<BinnedArray<Tvol>> &volArray) const {
+    const_cast<BoundarySurface<Tvol> *>(this)->setOutsideVolumeArray(volArray);
+  }
+
+  template <class Tvol>
+  inline void BoundarySurface<Tvol>::debugInfo(MsgStream &msg) const {
+    msg << "BoundarySurface debug information: " << std::endl;
+    msg << "     -> pointer to insideVolume         = " << m_insideVolume << std::endl;
+    msg << "     -> pointer to insideVolumeArray    = " << m_insideVolumeArray.get() << std::endl;
+    msg << "     -> pointer to outsideVolume        = " << m_outsideVolume << std::endl;
+    msg << "     -> pointer to outsideVolumeArray   = " << m_outsideVolumeArray.get() << endmsg; 
   }
   
                          

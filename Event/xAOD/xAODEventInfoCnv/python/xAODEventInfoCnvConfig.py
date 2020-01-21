@@ -1,6 +1,6 @@
 """Define methods to construct configured EventInfo conversion algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -76,7 +76,7 @@ def EventInfoOverlayCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     # Check if running on legacy HITS
-    if "EventInfo" not in flags.Input.SecondaryCollections:
+    if "EventInfo" not in flags.Input.Collections and "EventInfo" not in flags.Input.SecondaryCollections:
         acc.merge(EventInfoCnvAlgCfg(flags, outputKey=flags.Overlay.SigPrefix+"EventInfo", **kwargs))
 
     acc.merge(EventInfoOverlayAlgCfg(flags, **kwargs))

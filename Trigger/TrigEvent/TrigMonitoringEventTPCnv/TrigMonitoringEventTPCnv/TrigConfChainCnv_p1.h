@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONF_CHAINCNV_P1_H
@@ -17,25 +17,30 @@
 
 class MsgStream;
 
-class TrigConfChainCnv_p1 : public T_AthenaPoolTPCnvBase<TrigConfChain, TrigConfChain_p1>
+class TrigConfChainCnv_p1 : public T_AthenaPoolTPCnvConstBase<TrigConfChain, TrigConfChain_p1>
 {
  public:
-  
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
+
   TrigConfChainCnv_p1() {}
   virtual ~TrigConfChainCnv_p1() {}
-  
+
+  virtual
   void persToTrans(const TrigConfChain_p1* persObj,
 		   TrigConfChain* transObj,
-		   MsgStream &log);
+		   MsgStream &log) const override;
 
+  virtual
   void transToPers(const TrigConfChain* transObj,
 		   TrigConfChain_p1* persObj,
-		   MsgStream &log);
+		   MsgStream &log) const override;
   
  private:
 
-  T_AthenaPoolTPCnvStdVector<std::vector<TrigConfSig>, 
-                             std::vector<TrigConfSig_p1>, TrigConfSigCnv_p1> m_sigCnv;
+  T_AthenaPoolTPCnvStdVectorConst<std::vector<TrigConfSig>, 
+                                  std::vector<TrigConfSig_p1>, TrigConfSigCnv_p1> m_sigCnv;
 };
 
 #endif

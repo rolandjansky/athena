@@ -26,7 +26,6 @@ class CaloDetDescrManager;
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "egammaInterfaces/IegammaBackShape.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 
 class egammaBackShape : public AthAlgTool, virtual public IegammaBackShape {
 
@@ -51,10 +50,6 @@ private:
 
  const CaloDetDescrManager* m_calo_dd;
  
- /** @brief tool to calculate sum of energy in all samples */
-    ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
-        "egammaEnergyPositionAllSamplesTool", 
-        "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
 
     /** @brief boolean to calculate less important variables*/
     Gaudi::Property<bool> m_ExecOtherVariables {this, 

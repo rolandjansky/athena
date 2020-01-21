@@ -36,7 +36,7 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArRawConditions
    LumiBlock/LumiBlockComps
    Trigger/TrigAnalysis/TrigAnalysisInterfaces	
-   Control/AthenaMonitoring )
+   Control/AthenaMonitoringKernel )
 
 # External dependencies:
 find_package( AIDA )
@@ -59,7 +59,7 @@ atlas_add_library( CaloRecLib
    StoreGateLib LArToolsLib LumiBlockCompsLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
    ${EIGEN_LIBRARIES} AthAllocators IdDictParser EventKernel
-   FourMom NavFourMom AthenaMonitoringLib )
+   FourMom NavFourMom AthenaMonitoringKernelLib )
 
 atlas_add_component( CaloRec
    src/components/*.cxx

@@ -62,14 +62,14 @@ namespace Trk {
 		const ElementTable* elementTable() const { return m_elementTable.get(); }
 	
 		/** update method*/
-		void updateElementTable(const SharedObject<const ElementTable>& eTable) const 
+		void updateElementTable(const SharedObject<const ElementTable>& eTable) 
             {  m_elementTable = eTable; synchronizeElementTable(); }
 
-        /** synchronize the ElementTable */
-        void synchronizeElementTable() const;
+    /** synchronize the ElementTable */
+    void synchronizeElementTable();
         
 	private:
-		mutable SharedObject<const ElementTable>   m_elementTable;
+		SharedObject<const ElementTable>   m_elementTable;
 
 
   };
@@ -80,7 +80,7 @@ namespace Trk {
           delete (it.second);
   }
   
-  inline void LayerMaterialMap::synchronizeElementTable() const {
+  inline void LayerMaterialMap::synchronizeElementTable(){
      // loop 1 - add up all the ElementTable
      Trk::ElementTable* eTable = new Trk::ElementTable();
      if (elementTable()) (*eTable) += (*elementTable());

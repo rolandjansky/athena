@@ -13,6 +13,10 @@ def RPCCablingConfigCfg(flags):
     # TODO check if we actually need this here?
     acc.merge(MuonGeoModelCfg(flags)) 
 
+    RpcCablingCondAlg=CompFactory.RpcCablingCondAlg
+    RpcCablingAlg = RpcCablingCondAlg("RpcCablingCondAlg")
+    acc.addCondAlgo( RpcCablingAlg )
+
     RPCcablingServerSvc=CompFactory.RPCcablingServerSvc
     RPCCablingSvc =  RPCcablingServerSvc()
     RPCCablingSvc.Atlas = True
@@ -34,7 +38,7 @@ def RPCCablingConfigCfg(flags):
     acc.merge(addFolders(flags, 
                          [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI',
                            '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
-                         dbName ))
+                         dbName, className='CondAttrListCollection' ))
 
     RPCCablingDbTool=CompFactory.RPCCablingDbTool
     RPCCablingDbTool = RPCCablingDbTool()

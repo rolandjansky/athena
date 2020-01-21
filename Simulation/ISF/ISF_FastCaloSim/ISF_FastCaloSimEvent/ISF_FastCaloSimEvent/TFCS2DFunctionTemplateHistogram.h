@@ -258,30 +258,4 @@ class TFCS2DFunctionInt16Int16Int32Histogram: public TFCS2DFunctionTemplateHisto
   ClassDef(TFCS2DFunctionInt16Int16Int32Histogram,1)  //TFCS2DFunctionInt16Int16Int32Histogram
 };
 
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
-#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
-
-#pragma link C++ class TFCS2DFunctionInt8Int8Int8Histogram+;
-#pragma link C++ class TFCS2DFunctionInt8Int8Int16Histogram+;
-#pragma link C++ class TFCS2DFunctionInt8Int8Int32Histogram+;
-
-#pragma link C++ class TFCS2DFunctionInt8Int16Int8Histogram+;
-#pragma link C++ class TFCS2DFunctionInt8Int16Int16Histogram+;
-#pragma link C++ class TFCS2DFunctionInt8Int16Int32Histogram+;
-
-#pragma link C++ class TFCS2DFunctionInt16Int16Int8Histogram+;
-#pragma link C++ class TFCS2DFunctionInt16Int16Int16Histogram+;
-#pragma link C++ class TFCS2DFunctionInt16Int16Int32Histogram+;
-
-#endif
-
 #endif

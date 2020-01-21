@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #ifndef NSWCalibSmearingTool_h
 #define NSWCalibSmearingTool_h
 
 
 #include "NSWCalibTools/INSWCalibSmearingTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MuonPrepRawData/MuonCluster.h"
@@ -16,18 +18,15 @@
 
 namespace Muon {
 
-  class MuonIdHelperTool;
-
   class NSWCalibSmearingTool : virtual public INSWCalibSmearingTool, public AthAlgTool {
 
   public:
 
     NSWCalibSmearingTool(const std::string&, const std::string&, const IInterface*);
 
-    virtual ~NSWCalibSmearingTool();
+    virtual ~NSWCalibSmearingTool() {};
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize();
 
     StatusCode isAccepted(const Identifier id, bool& accepted);
 
@@ -41,7 +40,7 @@ namespace Muon {
     bool getIdFields(const Identifier id, int& etaSector, int& phiSector,
 		     int& gasGap);
 
-    ToolHandle<MuonIdHelperTool> m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     DoubleArrayProperty m_timeSmear;
     DoubleArrayProperty m_chargeSmear;

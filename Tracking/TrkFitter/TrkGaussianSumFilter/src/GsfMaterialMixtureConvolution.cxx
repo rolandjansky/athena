@@ -13,9 +13,12 @@ decription           : Implementation code for GSF material mixture convolution
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
+
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
+
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 
@@ -38,13 +41,6 @@ Trk::GsfMaterialMixtureConvolution::initialize()
                                                                               << "... Exiting");
     return StatusCode::FAILURE;
   }
-
-  // Retrieve the multi-state combiner
-  if (m_stateCombiner.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the multi-component state combiner... Exiting");
-    return StatusCode::FAILURE;
-  }
-
 
   // Retrieve the state merge 
   if (m_stateMerger.retrieve().isFailure()) {
@@ -119,7 +115,7 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }
@@ -174,7 +170,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }
@@ -232,7 +228,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }
@@ -259,7 +255,7 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
   }
 
   // Hardwired material effects based on approximate material distribution
-  std::unique_ptr<Trk::TrackParameters> combinedState =m_stateCombiner->combine(multiComponentState);
+  std::unique_ptr<Trk::TrackParameters> combinedState =MultiComponentStateCombiner::combine(multiComponentState);
   const Amg::Vector3D& globalPosition = combinedState->position();
 
   const Trk::MaterialProperties* materialProperties = 0;
@@ -275,7 +271,9 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
   }
 
   if (!materialProperties) {
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());;
+    return std::unique_ptr<Trk::MultiComponentState>(
+      MultiComponentStateHelpers::clone(multiComponentState));
+    ;
   }
 
   // Exclude material effects on the perigee surface
@@ -286,7 +284,8 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
   }
   if (perigeeSurface) {
     delete materialProperties;
-    return std::unique_ptr<Trk::MultiComponentState> (multiComponentState.clone());;
+    return std::unique_ptr<Trk::MultiComponentState>(
+      MultiComponentStateHelpers::clone(multiComponentState));
   }
 
   // Assume tracks normal to detector surface. Approximation resonable for the CTB
@@ -316,7 +315,7 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
     return nullptr;
   }
   // Renormalise state
-  mergedState->renormaliseState();
+  MultiComponentStateHelpers::renormaliseState(*mergedState);
 
   return mergedState;
 }

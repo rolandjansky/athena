@@ -7,7 +7,7 @@
 using namespace std;
 
 //--------------------------------------------------------------------------------------      
-TrigMonMSG::TrigMonMSG(const std::string name)
+TrigMonMSG::TrigMonMSG(const std::string& name)
   : m_stream(name)
 {
 }

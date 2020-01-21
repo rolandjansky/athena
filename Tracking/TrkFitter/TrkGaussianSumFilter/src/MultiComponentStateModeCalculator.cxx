@@ -15,28 +15,20 @@ description          : Implementation code for MultiComponentStateModeCalculator
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 #include <map>
-#include "CxxUtils/AthUnlikelyMacros.h"
 
-
-namespace{
+namespace {
 const double invsqrt2PI = 1. / sqrt(2. * M_PI);
 }
 
-Amg::VectorX
-Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentState& multiComponentState,
-                                                      MsgStream& log)
+std::array<double,10>
+Trk::MultiComponentStateModeCalculator::calculateMode(
+  const Trk::MultiComponentState& multiComponentState)
 {
-
-  Amg::VectorX modes(10);
-  modes.setZero();
-
+  std::array<double,10> modes{};
   // Check to see if the multi-component state is measured
-  if (!multiComponentState.isMeasured()) {
-    if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-      log << "Mixture has no error matricies... Exiting " << endmsg;
+  if (!MultiComponentStateHelpers::isMeasured(multiComponentState)) {
     return modes;
   }
-
   std::array<std::vector<Mixture>, 5> mixture;
 
   fillMixture(multiComponentState, mixture);
@@ -48,12 +40,14 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
     auto component = mixture[i].begin();
 
     for (; component != mixture[i].end(); ++component)
-      para_startMap.insert(std::pair<double, double>(pdf(component->mean, i, mixture), component->mean));
+      para_startMap.insert(
+        std::pair<double, double>(pdf(component->mean, i, mixture), component->mean));
 
     double para_start = para_startMap.begin()->second;
 
-    modes[i] = findMode(para_start, i, mixture, log);
-    // Calculate the FWHM and return this back so that it can be used to correct the covariance matrix
+    modes[i] = findMode(para_start, i, mixture);
+    // Calculate the FWHM and return this back so that it can be used to correct the covariance
+    // matrix
     if (para_start != modes[i]) {
       // mode calculation was successful now calulate FWHM
       double currentWidth = width(i, mixture);
@@ -72,11 +66,7 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
         }
       }
 
-      if (ATH_UNLIKELY(log.level() <= MSG::VERBOSE))
-        log << "HighX  PDFval, high val, low val [ " << pdfVal << ", " << pdf(modes[i], i, mixture) << ", "
-            << pdf(upperbound, i, mixture) << "]" << endmsg;
-
-      bool highXFound = findRoot(highX, modes[i], upperbound, pdfVal * 0.5, i, mixture, log);
+      bool highXFound = findRoot(highX, modes[i], upperbound, pdfVal * 0.5, i, mixture);
 
       double lowerbound = modes[i] - 1.5 * currentWidth;
       while (true) {
@@ -86,33 +76,10 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
           break;
         }
       }
-
-      if (ATH_UNLIKELY(log.level() <= MSG::VERBOSE))
-        log << "LowX   PDFval, high val, low val [ " << pdfVal << ", " << pdf(lowerbound, i, mixture) << ", "
-            << pdf(modes[i], i, mixture) << "]" << endmsg;
-
-      bool lowXFound = findRoot(lowX, lowerbound, modes[i], pdfVal * 0.5, i, mixture, log);
-
+      bool lowXFound = findRoot(lowX, lowerbound, modes[i], pdfVal * 0.5, i, mixture);
       if (highXFound && lowXFound) {
         double FWHM = highX - lowX;
-        if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-          log << "PDFval, high val, low val [ " << pdfVal << ", " << pdf(highX, i, mixture) << ", "
-              << pdf(lowX, i, mixture) << "]" << endmsg;
-        if (FWHM <= 0) {
-          if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-            log << i << " Width is neagtive? " << highX << " " << lowX << " " << modes[i] << endmsg;
-        } else {
-          if (ATH_UNLIKELY(log.level() <= MSG::DEBUG)) {
-            log << i << " Width is positive? " << highX << " " << lowX << " " << modes[i] << endmsg;
-            log << "Old & New width " << currentWidth << "  " << FWHM / 2.35 << " High side only "
-                << 2 * (highX - modes[i]) / 2.355 << endmsg;
-          }
-          modes[i + 5] = FWHM / 2.35482; // 2 * sqrt( 2* log(2))
-        }
-      } else {
-        if (ATH_UNLIKELY(log.level() <= MSG::DEBUG)) {
-          log << i << " Failed to find 1/2 width " << endmsg;
-        }
+        modes[i + 5] = FWHM / 2.35482; // 2 * sqrt( 2* log(2))
       }
       // Ensure that phi is between -pi and pi
       if (i == 2) {
@@ -129,8 +96,9 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
 }
 
 void
-Trk::MultiComponentStateModeCalculator::fillMixture(const Trk::MultiComponentState& multiComponentState,
-                                                    std::array<std::vector<Mixture>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::fillMixture(
+  const Trk::MultiComponentState& multiComponentState,
+  std::array<std::vector<Mixture>, 5>& mixture)
 {
 
   for (int i = 0; i < 5; i++) {
@@ -152,7 +120,8 @@ Trk::MultiComponentStateModeCalculator::fillMixture(const Trk::MultiComponentSta
       //                           d0=0, z0=1, phi0=2, theta=3, qOverP=4,
       double weight = component->second;
       double mean = componentParameters->parameters()[parameter[i]];
-      // FIXME ATLASRECTS-598 this fabs() should not be necessary... for some reason cov(qOverP,qOverP) can be negative
+      // FIXME ATLASRECTS-598 this fabs() should not be necessary... for some reason
+      // cov(qOverP,qOverP) can be negative
       double sigma = sqrt(fabs((*measuredCov)(parameter[i], parameter[i])));
 
       // Ensure that we don't have any problems with the cyclical nature of phi
@@ -175,8 +144,7 @@ Trk::MultiComponentStateModeCalculator::fillMixture(const Trk::MultiComponentSta
 double
 Trk::MultiComponentStateModeCalculator::findMode(double xStart,
                                                  int i,
-                                                 std::array<std::vector<Mixture>, 5>& mixture,
-                                                 MsgStream& log)
+                                                 const std::array<std::vector<Mixture>, 5>& mixture)
 {
 
   int iteration(0);
@@ -193,8 +161,6 @@ Trk::MultiComponentStateModeCalculator::findMode(double xStart,
     if (d2pdfVal != 0.0) {
       mode = previousMode - d1pdf(previousMode, i, mixture) / d2pdfVal;
     } else {
-      if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-        log << "Second derivative is zero ... Returning the original value" << endmsg;
       return xStart;
     }
 
@@ -204,8 +170,6 @@ Trk::MultiComponentStateModeCalculator::findMode(double xStart,
     if ((pdfMode + pdfPreviousMode) != 0.0) {
       tolerance = fabs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
     } else {
-      if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-        log << "Dividing by zero ... Returning the original value" << endmsg;
       return xStart;
     }
 
@@ -213,8 +177,6 @@ Trk::MultiComponentStateModeCalculator::findMode(double xStart,
   }
 
   if (iteration >= 20) {
-    if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-      log << "Could not converge to the mode within allowed iterations... Returning the original value" << endmsg;
     return xStart;
   }
 
@@ -222,7 +184,9 @@ Trk::MultiComponentStateModeCalculator::findMode(double xStart,
 }
 
 double
-Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean, int i, std::array<std::vector<Mixture>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,
+                                                       int i,
+                                                       const std::array<std::vector<Mixture>, 5>& mixture)
 {
 
   double start(-1);
@@ -250,7 +214,9 @@ Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean, int i, std::
 }
 
 double
-Trk::MultiComponentStateModeCalculator::pdf(double x, int i, std::array<std::vector<Mixture>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::pdf(double x,
+                                            int i,
+                                            const std::array<std::vector<Mixture>, 5>& mixture)
 {
 
   double pdf(0.);
@@ -264,7 +230,9 @@ Trk::MultiComponentStateModeCalculator::pdf(double x, int i, std::array<std::vec
 }
 
 double
-Trk::MultiComponentStateModeCalculator::d1pdf(double x, int i, std::array<std::vector<Mixture>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::d1pdf(double x,
+                                              int i,
+                                              const std::array<std::vector<Mixture>, 5>& mixture)
 {
 
   double result(0.);
@@ -275,14 +243,17 @@ Trk::MultiComponentStateModeCalculator::d1pdf(double x, int i, std::array<std::v
 
     double z = (x - component->mean) / component->sigma;
 
-    result += -1. * component->weight * z * gaus(x, component->mean, component->sigma) / component->sigma;
+    result +=
+      -1. * component->weight * z * gaus(x, component->mean, component->sigma) / component->sigma;
   }
 
   return result;
 }
 
 double
-Trk::MultiComponentStateModeCalculator::d2pdf(double x, int i, std::array<std::vector<Mixture>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::d2pdf(double x,
+                                              int i,
+                                              const std::array<std::vector<Mixture>, 5>& mixture)
 {
 
   double result(0.);
@@ -309,14 +280,15 @@ Trk::MultiComponentStateModeCalculator::gaus(double x, double mean, double sigma
    * =(1/sqrt(2*pi))* (1/sigma)  * exp  (-0.5 * ((x-mean)*(1/sigma)) * ((x-mean)*(1/sigma)) )
    * = invsqrt2PI * invertsigma * exp (-0.5 *z * z)
    */
-  double invertsigma= 1./sigma;
+  double invertsigma = 1. / sigma;
   double z = (x - mean) * invertsigma;
   double result = (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
   return result;
 }
 
 double
-Trk::MultiComponentStateModeCalculator::width(int i, std::array<std::vector<Mixture>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::width(int i,
+                                              const std::array<std::vector<Mixture>, 5>& mixture)
 {
 
   double pdf(0.);
@@ -335,8 +307,7 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
                                                  double xhi,
                                                  double value,
                                                  double i,
-                                                 std::array<std::vector<Mixture>, 5>& mixture,
-                                                 MsgStream& log)
+                                                 const std::array<std::vector<Mixture>, 5>& mixture)
 {
   // Do the root finding using the Brent-Decker method. Returns a boolean status and
   // loads 'result' with our best guess at the root if true.
@@ -348,10 +319,6 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
   double fb = pdf(b, i, mixture) - value;
 
   if (fb * fa > 0) {
-
-    if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-      log << "BrentRootFinder::findRoot: initial interval does not bracket a root: (" << a << "," << b
-          << "), value = " << value << " f[xlo] = " << fa << " f[xhi] = " << fb << endmsg;
     return false;
   }
 
@@ -386,10 +353,6 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
     double m = 0.5 * (c - b);
 
     if (fb == 0 || fabs(m) <= tol) {
-      if (ATH_UNLIKELY(log.level() <= MSG::DEBUG)) {
-        log << "BrentRootFinder: iter = " << iter << " m = " << m << " tol = " << tol << endmsg;
-        log << "BrentRootFinder: xlo = " << xlo << " <  " << b << " <  " << xhi << endmsg;
-      }
       result = b;
       return true;
     }
@@ -443,8 +406,6 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
     fb = pdf(b, i, mixture) - value;
   }
   // Return our best guess if we run out of iterations
-  if (ATH_UNLIKELY(log.level() <= MSG::DEBUG))
-    log << "BrentRootFinder::findRoot: maximum iterations exceeded." << endmsg;
   result = b;
 
   return false;

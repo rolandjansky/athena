@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "JetMonitoring/JetHistoTriggEfficiency.h"
 
 #include "JetMonitoring/JetMonitoringAlg.h"

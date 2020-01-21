@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMuonAssociator.h 
@@ -16,13 +16,7 @@
 
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
-
-#include "AsgTools/ToolHandle.h"
-//Includes for DataHandles
-#include "StoreGate/DataHandle.h"
-
-
-class ICaloClusterMatchingTool;
+#include "StoreGate/ReadDecorHandleKey.h"
 
 namespace met{
   class METMuonAssociator final
@@ -77,8 +71,7 @@ namespace met{
     /// Default constructor: 
     METMuonAssociator();  
     SG::ReadHandleKey<xAOD::MuonContainer> m_muContKey;
-  
-
+    SG::ReadDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{this,"ElementLinkName","CaloCalTopoClusters.constituentClusterLinks"};
   }; 
 
 }

@@ -19,12 +19,12 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
 
     if "egammaCaloClusterSelector" not in kwargs:
         egammaCaloClusterGSFSelector = egammaCaloClusterSelector(name='caloClusterGSFSelector',
-                                                                 EMEtRanges=[2250.],
-                                                                 EMFCuts=[0.6],
+                                                                 EMEtRanges=[2200.],
+                                                                 EMFCuts=[0.55],
                                                                  # 3x7/7x7=0.429. Below this
                                                                  # there is more energy outside the
                                                                  # 3x7 core than inside
-                                                                 RetaCut=[0.42]
+                                                                 RetaCut=[0.4]
                                                                  )
 
         kwargs["egammaCaloClusterSelector"] = egammaCaloClusterGSFSelector

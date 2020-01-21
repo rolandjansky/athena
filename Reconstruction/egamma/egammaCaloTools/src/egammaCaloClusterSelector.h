@@ -67,7 +67,7 @@ private:
       "EM Et Ranges to consider, with different cuts; Minimal EM Et cut will be the value of the 0th bin"};
 
   /** @brief Threshold on minimum energy reconstructed in 2nd sampling */
-  Gaudi::Property<double> m_MinEM2Energy{this, "MinEM2Energy", 100.,
+  Gaudi::Property<double> m_MinEM2Energy{this, "MinEM2Energy", 50.,
     "Threshold on minimum  energy reconstructed in 2nd sampling"};
   /**
    * For the cuts below, the size must be 0 (meaning not applied)

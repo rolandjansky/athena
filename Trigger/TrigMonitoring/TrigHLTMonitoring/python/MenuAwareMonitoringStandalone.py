@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
+
+from __future__ import print_function
 
 import sys,os
 # import subprocess. Required to get user
@@ -52,16 +54,16 @@ class MenuAwareMonitoringStandalone:
         # flag to indicate if we are connected to the replica database with a readonly connection
         self.readonly_db_connection = False
         # greetings
-        print "Welcome to Menu-aware Monitoring (MaM) version",self.version
-        print "See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more info"
+        print ("Welcome to Menu-aware Monitoring (MaM) version",self.version)
+        print ("See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more info")
         # now connect to oracle
         self.__connect_to_oracle__(alias,database_username,database_password,database_name,database_directory)
         if self.connected_to_oracle == False:
             if alias == "TRIGGERDBR2MAM":
-                print "Exiting"
+                print ("Exiting")
                 sys.exit(1)
             else:
-                print "Some Menu-aware Monitoring functions will not be available to you"
+                print ("Some Menu-aware Monitoring functions will not be available to you")
         else:
             self.connection_alias = alias
 
@@ -70,11 +72,11 @@ class MenuAwareMonitoringStandalone:
         "Connect to the Oracle server."
 
         if self.connected_to_oracle:
-            print "MaM is already connected to the Oracle database"
+            print ("MaM is already connected to the Oracle database")
         else:
             if alias is "CUSTOM_DB":
-                print "Connecting to database",database_name,"with provided username, password and directory"
-                print "WARNING: MaM may not work as expected while using a custom DB"
+                print ("Connecting to database",database_name,"with provided username, password and directory")
+                print ("WARNING: MaM may not work as expected while using a custom DB")
                 self.oi.connect_to_oracle(database_username,database_password,database_name,database_directory)
                 self.connected_to_oracle = True
 
@@ -82,7 +84,7 @@ class MenuAwareMonitoringStandalone:
                 # get the connection from authentication.xml
                 connectionSvcs = self._getConnectionServicesForAlias(alias)
                 for connectionSvc in connectionSvcs:
-                    print "Trying connection service",connectionSvc
+                    print ("Trying connection service",connectionSvc)
                     if 'oracle' in connectionSvc:
                         try:
                             oracle_server = connectionSvc.split('/')[2]
@@ -91,7 +93,7 @@ class MenuAwareMonitoringStandalone:
                                 directory = "ATLAS_CONF_TRIGGER_REPR"
                             else:
                                 directory = "ATLAS_CONF_TRIGGER_RUN2"
-                            print "User %s, server %s, directory %s" % (user,oracle_server,directory)
+                            print ("User %s, server %s, directory %s" % (user,oracle_server,directory))
                             self.oi.connect_to_oracle(user,pw,oracle_server,directory)
                             # flag to record that we have connected
                             self.connected_to_oracle = True
@@ -99,7 +101,7 @@ class MenuAwareMonitoringStandalone:
                                 self.readonly_db_connection = True
                             break
                         except:
-                            print "Direct Oracle connection not possible, trying Frontier if available..."
+                            print ("Direct Oracle connection not possible, trying Frontier if available...")
                             self.connected_to_oracle = False
                     elif 'frontier' in connectionSvc:
                         try:
@@ -109,7 +111,7 @@ class MenuAwareMonitoringStandalone:
                             else:
                                 directory = "ATLAS_CONF_TRIGGER_RUN2"
                             schema = directory
-                            print "Frontier Server %s, schema %s" % (frontier_server,schema)
+                            print ("Frontier Server %s, schema %s" % (frontier_server,schema))
                             # connect to oracle
                             self.oi.connect_to_oracle_via_frontier(frontier_server,schema,directory)
                             # flag to record that we have connected
@@ -118,13 +120,13 @@ class MenuAwareMonitoringStandalone:
                                 self.readonly_db_connection = True
                             break
                         except:
-                            print "Oracle connection via Frontier not possible"
+                            print ("Oracle connection via Frontier not possible")
                             self.connected_to_oracle = False
                     else:
-                        print "Error while connecting to Oracle database, no connections found"
+                        print ("Error while connecting to Oracle database, no connections found")
                         self.connected_to_oracle = False
             else:
-                print "Error while connecting to Oracle database: Unrecognised database alias",alias
+                print ("Error while connecting to Oracle database: Unrecognised database alias",alias)
                 self.connected_to_oracle = False
 
 
@@ -132,7 +134,7 @@ class MenuAwareMonitoringStandalone:
         "Disconnect from the Oracle server."
 
         if self.connected_to_oracle:
-            print "We are now disconnecting from the Oracle database"
+            print ("We are now disconnecting from the Oracle database")
             if self.oi.disconnect_from_oracle(): #returns True if disconnection is successful
                 self.connected_to_oracle = False
                 self.readonly_db_connection = False
@@ -161,9 +163,9 @@ class MenuAwareMonitoringStandalone:
             connectionServices = [str(s.attributes['name'].value) for s in ls.getElementsByTagName('service')]
         doc.unlink()
 
-        print( "For alias '%s' found list of connections %r" % (alias,connectionServices) )
+        print(( "For alias '%s' found list of connections %r" % (alias,connectionServices) ))
         if connectionServices == None:
-            print("Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename))
+            print(("Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename)))
         return connectionServices
 
 
@@ -257,8 +259,8 @@ class MenuAwareMonitoringStandalone:
         # else if it is a string
         else:
             # use input string as string to hash
-            print "__get_config_hash__ has been passed a string, rather than an smck_config dict. This is unexpected! Continuing anyway..."
-            print "input =",smck_config
+            print ("__get_config_hash__ has been passed a string, rather than an smck_config dict. This is unexpected! Continuing anyway...")
+            print ("input =",smck_config)
             smck_config_json = smck_config
 
         # calculate hash
@@ -272,8 +274,8 @@ class MenuAwareMonitoringStandalone:
 
         # is this session interactive? If not, return ""
         if self.__is_session_interactive__():
-            print "Please enter a comment to be attached to this upload to the database."
-            print "The comment is limited in length to 1000 characters"
+            print ("Please enter a comment to be attached to this upload to the database.")
+            print ("The comment is limited in length to 1000 characters")
 
             # now get user input
             user_input = raw_input("comment: ")
@@ -281,7 +283,7 @@ class MenuAwareMonitoringStandalone:
             # check that comment length is valid
             while len(user_input) > 1000:
                 # warn user that their input is too long, and give them the change to re-enter a comment
-                print "Your comment was too long, (it was",len(user_input),"characters long). Please enter a shorter comment."
+                print ("Your comment was too long, (it was",len(user_input),"characters long). Please enter a shorter comment.")
                 # get user input
                 user_input = raw_input("comment: ")
 
@@ -303,28 +305,28 @@ class MenuAwareMonitoringStandalone:
             # if need be, then this list can be extended at a later date
             valid_input = ['ALL','ESD','AOD']
 
-            print "Please specify which processing step(s) you wish this input to be for."
-            print "The default is 'ALL' for all processing steps."
-            print "Valid options are:",valid_input
-            print "Hit <enter> without any input to select the default option (ALL)"
+            print ("Please specify which processing step(s) you wish this input to be for.")
+            print ("The default is 'ALL' for all processing steps.")
+            print ("Valid options are:",valid_input)
+            print ("Hit <enter> without any input to select the default option (ALL)")
 
             # now get user input
             user_input = raw_input("processing step: ").upper()
             # if input is blank, interpret this as 'ALL'
             if user_input == "":
                 user_input = "ALL"
-                print "You have selected",user_input
+                print ("You have selected",user_input)
 
             # check for valid input
             # if input is not valid, ask for it again
             while not valid_input.__contains__(user_input):
                 # warning to user that input was not understood
-                print "The input",user_input,"was not recognised. Please specify a valid option."
+                print ("The input",user_input,"was not recognised. Please specify a valid option.")
                 user_input = raw_input("processing step: ")
                 # if input is blank, interpret this as 'ALL'
                 if user_input == "":
                     user_input = "ALL"
-                    print "You have selected",user_input
+                    print ("You have selected",user_input)
 
             # return selected processing step
             return user_input
@@ -345,28 +347,28 @@ class MenuAwareMonitoringStandalone:
             # if need be, then this list can be extended at a later date
             valid_input = ['ALL','BULK','EXPRESS']
 
-            print "Please specify which processing stream(s) you wish this input to be for."
-            print "The default is 'ALL' for all processing streams."
-            print "Valid options are:",valid_input
-            print "Hit <enter> without any input to select the default option (ALL)"
+            print ("Please specify which processing stream(s) you wish this input to be for.")
+            print ("The default is 'ALL' for all processing streams.")
+            print ("Valid options are:",valid_input)
+            print ("Hit <enter> without any input to select the default option (ALL)")
 
             # now get user input
             user_input = raw_input("processing stream: ").upper()
             # if input is blank, interpret this as 'ALL'
             if user_input == "":
                 user_input = "ALL"
-                print "You have selected",user_input
+                print ("You have selected",user_input)
 
             # check for valid input
             # if input is not valid, ask for it again
             while not valid_input.__contains__(user_input):
                 # warning to user that input was not understood
-                print "The input",user_input,"was not recognised. Please specify a valid option."
+                print ("The input",user_input,"was not recognised. Please specify a valid option.")
                 user_input = raw_input("processing stream: ")
                 # if input is blank, interpret this as 'ALL'
                 if user_input == "":
                     user_input = "ALL"
-                    print "You have selected",user_input
+                    print ("You have selected",user_input)
 
             # return selected processing stream
             return user_input
@@ -399,7 +401,7 @@ class MenuAwareMonitoringStandalone:
 
             # if type(input_smk) is not int, then ask the user to input an SMK
             while type(input_smk) is not int:
-                print "Please enter an SMK integer to be linked."
+                print ("Please enter an SMK integer to be linked.")
 
                 # now get user input
                 input_str = raw_input("SMK: ")
@@ -408,11 +410,11 @@ class MenuAwareMonitoringStandalone:
                 try:
                     input_smk = int(input_str)
                 except:
-                    print input_str,"could not be converted to an int."
+                    print (input_str,"could not be converted to an int.")
 
             # if type(input_mck_id) is not int, then ask the user to input an MCK
             while type(input_mck_id) is not int:
-                print "Please enter an MCK_ID integer to be linked."
+                print ("Please enter an MCK_ID integer to be linked.")
 
                 # now get user input
                 input_str = raw_input("MCK_ID: ")
@@ -421,7 +423,7 @@ class MenuAwareMonitoringStandalone:
                 try:
                     input_mck_id = int(input_str)
                 except:
-                    print input_str,"could not be converted to an int."
+                    print (input_str,"could not be converted to an int.")
 
         # if this session is not interactive
         else:
@@ -429,18 +431,18 @@ class MenuAwareMonitoringStandalone:
             if (type(input_mck_id) is not int) or (type(input_smk) is not int):
                 # return, as inputs are not valid
                 # print for logfile
-                print "Menu-aware monitoring: link_smk_to_mck(",input_smk,",",input_mck_id,",",comment,") inputs not valid. MCK and SMK must be integers."
-                print "No MCK to SMK link created."
+                print ("Menu-aware monitoring: link_smk_to_mck(",input_smk,",",input_mck_id,",",comment,") inputs not valid. MCK and SMK must be integers.")
+                print ("No MCK to SMK link created.")
                 return
 
         if not self.oi.check_if_smk_exists(input_smk):
-            print "SMK",input_smk,"does not exist."
-            print "No MCK to SMK link created."
+            print ("SMK",input_smk,"does not exist.")
+            print ("No MCK to SMK link created.")
             return
 
         if (not self.oi.check_if_mck_id_exists(input_mck_id)) and (input_mck_id is not 0):
-            print "MCK",input_mck_id,"does not exist in database."
-            print "No MCK to SMK link created."
+            print ("MCK",input_mck_id,"does not exist in database.")
+            print ("No MCK to SMK link created.")
             return
 
         # if we've got this far, then the input MCK and SMK should be valid
@@ -449,7 +451,7 @@ class MenuAwareMonitoringStandalone:
         if self.oi.check_if_smk_to_mck_link_exists_and_is_active(input_smk,input_mck_id):
             # ensure all other links for this smk are deactivated
             self.oi.deactivate_all_links_for_given_smk_except_for_given_mck(input_smk,input_mck_id)
-            print "SMK",input_smk,"linked to MCK",input_mck_id,"is already the active link for this SMK."
+            print ("SMK",input_smk,"linked to MCK",input_mck_id,"is already the active link for this SMK.")
             return
 
         # check if there are any other active links for this smk
@@ -457,12 +459,12 @@ class MenuAwareMonitoringStandalone:
 
         if len(active_smk_to_mck_link_search_results) > 0:
             # we have found an active link. Upload should not proceed for safety.
-            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0]
-            print "Will now print full link details:"
-            print active_smk_to_mck_link_search_results
-            print "Deactivate this link first if you want to create a new link."
-            print "You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI)."
-            print "You should make sure this is what you really want to do first before proceeding!"
+            print ("SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0])
+            print ("Will now print full link details:")
+            print (active_smk_to_mck_link_search_results)
+            print ("Deactivate this link first if you want to create a new link.")
+            print ("You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI).")
+            print ("You should make sure this is what you really want to do first before proceeding!")
             return
 
         # get the current user for the creator
@@ -474,20 +476,20 @@ class MenuAwareMonitoringStandalone:
 
         # try to upload the link
         try:
-            print "Now attempting to link MCK",input_mck_id,"to SMK",input_smk
+            print ("Now attempting to link MCK",input_mck_id,"to SMK",input_smk)
             if not self.oi.check_if_smk_to_mck_link_exists(input_smk,input_mck_id):
                 # link does not exist
                 # upload the link
                 self.oi.upload_mck_to_smk_link(input_mck_id,input_smk,creator,comment)
             self.oi.activate_smk_mck_link(input_smk,input_mck_id)
-            print "MCK",input_mck_id,"has been linked to SMK",input_smk
+            print ("MCK",input_mck_id,"has been linked to SMK",input_smk)
             # ensure all other links for this smk are deactivated (should already be true)
             self.oi.deactivate_all_links_for_given_smk_except_for_given_mck(input_smk,input_mck_id)
 
         # if the upload fails in some way
         except:
-            print "An exception occurred:",sys.exc_info()[0],sys.exc_info()[1]
-            print "Error in link upload."
+            print ("An exception occurred:",sys.exc_info()[0],sys.exc_info()[1])
+            print ("Error in link upload.")
 
 
     def force_deactivate_all_links_for_smk(self,input_smk,GUI=False):
@@ -497,24 +499,24 @@ class MenuAwareMonitoringStandalone:
         active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
 
         if len(active_smk_to_mck_link_search_results) > 0:
-            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0]
-            print "Will now print full link details."
-            print active_smk_to_mck_link_search_results
+            print ("SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0])
+            print ("Will now print full link details.")
+            print (active_smk_to_mck_link_search_results)
 
             if GUI is False:
-                print "Requested force deactivate all links for SMK",input_smk
-                print "Do you really want to do this?"
+                print ("Requested force deactivate all links for SMK",input_smk)
+                print ("Do you really want to do this?")
                 user_input = raw_input("y/n: ")
                 if user_input != 'y':
-                    print "Aborted."
+                    print ("Aborted.")
                     return
 
-            print "Force deactivating all links for SMK",input_smk,"..."
+            print ("Force deactivating all links for SMK",input_smk,"...")
             self.oi.deactivate_all_links_for_given_smk(input_smk)
-            print "All links deactivated."
+            print ("All links deactivated.")
 
         else:
-            print "SMK",input_smk,"is not linked to any MCK."
+            print ("SMK",input_smk,"is not linked to any MCK.")
             return
 
 
@@ -523,7 +525,7 @@ class MenuAwareMonitoringStandalone:
         print_all_mck_to_smk_links(True) to print all links."""
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         # get list of all mck_to_smk links
@@ -537,16 +539,16 @@ class MenuAwareMonitoringStandalone:
         for link in mck_to_smk_links:
             # print the results
             if link['ACTIVE'] == '1':
-                print "SMK",link['SMK'],"is linked to MCK",link['MCK'],"(ACTIVE LINK)"
+                print ("SMK",link['SMK'],"is linked to MCK",link['MCK'],"(ACTIVE LINK)")
             elif print_deactivated_links:
-                print "SMK",link['SMK'],"was previously linked to MCK",link['MCK'],"(DEACTIVATED LINK)"
+                print ("SMK",link['SMK'],"was previously linked to MCK",link['MCK'],"(DEACTIVATED LINK)")
 
 
     def __get_smck_id_from_smck_identifier__(self,smck_identifier,print_output_here=""):
         "Input can either be an SMCK_ID or an SMCK_TOOL_PATCH_VERSION. Output will be the the correct SMCK_ID."
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         # check for empty print_output_here
@@ -566,7 +568,7 @@ class MenuAwareMonitoringStandalone:
             if smck_info == -1:
                 # print warning and return -1, as the smck_identifier is not valid
                 if print_output_here:
-                    print "No SMCK found with",smck_identifier
+                    print ("No SMCK found with",smck_identifier)
                 return -1
 
             # else if it has been found, then return smck_id as it is valid smck_id
@@ -582,7 +584,7 @@ class MenuAwareMonitoringStandalone:
             if smck_id == -1:
                 # print warning and return -1
                 if print_output_here:
-                    print "No SMCK found with",smck_identifier
+                    print ("No SMCK found with",smck_identifier)
                 return -1
 
             # else if it has been found, then return smck_id
@@ -595,7 +597,7 @@ class MenuAwareMonitoringStandalone:
         "Get an SMCK configuration from the Oracle database."
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         # check for empty print_output_here
@@ -632,21 +634,21 @@ class MenuAwareMonitoringStandalone:
     def clone_mck_for_new_release(self,mck_id,project="",version=""):
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         if self.readonly_db_connection == True:
-            print "Your connection is read only, so this function is not available to you."
+            print ("Your connection is read only, so this function is not available to you.")
             return
 
         # check mck exists
         if not self.oi.check_if_mck_id_exists(mck_id):
-            print "MCK",mck_id,"doesn't exist."
+            print ("MCK",mck_id,"doesn't exist.")
             return
 
         if not project or not version:
-            print "Please give an AtlasProject and an AtlasVersion to assign to the cloned MCK"
-            print "Usage: clone_mck_for_new_release(mck_id,project,version)"
+            print ("Please give an AtlasProject and an AtlasVersion to assign to the cloned MCK")
+            print ("Usage: clone_mck_for_new_release(mck_id,project,version)")
             return
 
         requested_release = project + "-" + version
@@ -665,8 +667,8 @@ class MenuAwareMonitoringStandalone:
                 if len(self.oi.read_mck_links_from_db(row_mck_id)) == len(smck_ids):
                     # if so, check the release
                     if self.oi.read_mck_info_from_db(row_mck_id)['MCK_ATHENA_VERSION'] == requested_release:
-                        print "MCK",row_mck_id,"is an existing clone of MCK",mck_id,"valid in",requested_release
-                        print "A new clone will not be created."
+                        print ("MCK",row_mck_id,"is an existing clone of MCK",mck_id,"valid in",requested_release)
+                        print ("A new clone will not be created.")
                         return
 
         # alter the mck info
@@ -683,8 +685,8 @@ class MenuAwareMonitoringStandalone:
         for smck_id in smck_ids:
             self.oi.upload_mck_smck_link(clone_mck_id,smck_id)
 
-        print "Cloned MCK",mck_id,"to create MCK",int(clone_mck_id)
-        print mck_info
+        print ("Cloned MCK",mck_id,"to create MCK",int(clone_mck_id))
+        print (mck_info)
 
 
     def upload_mck(self,input_smck_list=[],comment="",print_output_here=""):
@@ -693,11 +695,11 @@ class MenuAwareMonitoringStandalone:
         Optional comment can be provided."""
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         if self.readonly_db_connection == True:
-            print "Your connection is read only, so this function is not available to you."
+            print ("Your connection is read only, so this function is not available to you.")
             return
 
         # check for empty print_output_here
@@ -708,8 +710,8 @@ class MenuAwareMonitoringStandalone:
         # if the input is empty, then we exit
         if input_smck_list == []:
             if print_output_here:
-                print "No list of SMCK has been provided."
-                print "No MCK upload is possible without a list of SMCKs."
+                print ("No list of SMCK has been provided.")
+                print ("No MCK upload is possible without a list of SMCKs.")
             return
 
         # holder for smck_ids
@@ -723,7 +725,7 @@ class MenuAwareMonitoringStandalone:
                 # if an smck_id has not been found
                 if smck_id == -1:
                     if print_output_here:
-                        print "Problem with requested SMCK",smck_identifier
+                        print ("Problem with requested SMCK",smck_identifier)
 
                 # smck is real and not already in the list, so add it
                 smck_ids.append(smck_id)
@@ -733,7 +735,7 @@ class MenuAwareMonitoringStandalone:
         if smck_ids.__contains__(-1):
             # one or more smck are missing. Abort mck upload
             if print_output_here:
-                print "One or more of the SMCK requested are missing. Aborting MCK upload."
+                print ("One or more of the SMCK requested are missing. Aborting MCK upload.")
             return
 
         # check that the smcks are from a consistent release
@@ -747,11 +749,11 @@ class MenuAwareMonitoringStandalone:
                 smck_release_dict[smck_release] = [smck_id]
 
         if len(smck_release_dict) > 1:
-            print "Your SMCK list contains SMCKs from different Athena releases."
-            print "MCKs must consist of SMCKs from the same release."
-            print "Please try again with a different SMCK list."
-            print "The SMCKs you entered with their releases will be printed below."
-            print smck_release_dict
+            print ("Your SMCK list contains SMCKs from different Athena releases.")
+            print ("MCKs must consist of SMCKs from the same release.")
+            print ("Please try again with a different SMCK list.")
+            print ("The SMCKs you entered with their releases will be printed below.")
+            print (smck_release_dict)
             return
 
         # check that the mck does not already exist
@@ -760,7 +762,7 @@ class MenuAwareMonitoringStandalone:
         # if mck does already exist, then say so and exit
         if mck_id != -1:
             if print_output_here:
-                print "This MCK already exists. It is MCK",mck_id
+                print ("This MCK already exists. It is MCK",mck_id)
             return
 
         # if no comment is provided, then ask for one
@@ -784,7 +786,7 @@ class MenuAwareMonitoringStandalone:
             self.oi.upload_mck_smck_link(mck_id,smck_id)
 
         if print_output_here:
-            print "This MCK has been uploaded. It is MCK",int(mck_id)
+            print ("This MCK has been uploaded. It is MCK",int(mck_id))
 
 
     def upload_mck_with_specified_release(self,input_smck_list=[],athena_release="",comment="",print_output_here=""):
@@ -794,11 +796,11 @@ class MenuAwareMonitoringStandalone:
         Optional comment can be provided."""
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         if self.readonly_db_connection == True:
-            print "Your connection is read only, so this function is not available to you."
+            print ("Your connection is read only, so this function is not available to you.")
             return
 
         # check for empty print_output_here
@@ -808,14 +810,14 @@ class MenuAwareMonitoringStandalone:
 
         if input_smck_list == []:
             if print_output_here:
-                print "No list of SMCK has been provided."
-                print "No MCK upload is possible without a list of SMCKs."
+                print ("No list of SMCK has been provided.")
+                print ("No MCK upload is possible without a list of SMCKs.")
             return
 
         if athena_release == "":
             if print_output_here:
-                print "No release has been specified."
-                print "No MCK upload is possible without a specified release."
+                print ("No release has been specified.")
+                print ("No MCK upload is possible without a specified release.")
             return
 
         # holder for smck_ids
@@ -828,7 +830,7 @@ class MenuAwareMonitoringStandalone:
             # if an smck_id has not been found
             if smck_id == -1:
                 if print_output_here:
-                    print "Problem with requested SMCK",smck_identifier
+                    print ("Problem with requested SMCK",smck_identifier)
             # add this smck_id to the smck_ids list
             smck_ids.append(smck_id)
 
@@ -837,7 +839,7 @@ class MenuAwareMonitoringStandalone:
         if smck_ids.__contains__(-1):
             # one or more smck are missing. Abort mck upload
             if print_output_here:
-                print "One or more of the SMCK requested are missing. Aborting MCK upload."
+                print ("One or more of the SMCK requested are missing. Aborting MCK upload.")
             return
 
         # check that the mck does not already exist
@@ -846,7 +848,7 @@ class MenuAwareMonitoringStandalone:
         # if mck does already exist, then say so and exit
         if mck_id != -1:
             if print_output_here:
-                print "This MCK already exists. It is MCK",int(mck_id)
+                print ("This MCK already exists. It is MCK",int(mck_id))
             return
 
         # if no comment is provided, then ask for one
@@ -869,7 +871,7 @@ class MenuAwareMonitoringStandalone:
             self.oi.upload_mck_smck_link(mck_id,smck_id)
 
         if print_output_here:
-            print "This MCK has been uploaded. It is MCK",int(mck_id)
+            print ("This MCK has been uploaded. It is MCK",int(mck_id))
 
 
     def load_local_config_from_json(self,input_json_filename="mam_configs.json"):
@@ -896,11 +898,11 @@ class MenuAwareMonitoringStandalone:
         and upload these configurations to the database."""
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         if self.readonly_db_connection == True:
-            print "Your connection is read only, so this function is not available to you."
+            print ("Your connection is read only, so this function is not available to you.")
             return
 
         # first we load the json file
@@ -908,7 +910,7 @@ class MenuAwareMonitoringStandalone:
 
         # check that there are SMCK in this upload
         if len(self.local_global_info['MONITORING_TOOL_DICT']) == 0:
-            print "The file",input_json_filename,"contains no tool configurations to be uploaded."
+            print ("The file",input_json_filename,"contains no tool configurations to be uploaded.")
             return
 
         # then we extract whether this is a default configuration or not
@@ -916,24 +918,24 @@ class MenuAwareMonitoringStandalone:
 
         # Don't upload defaults to the DB
         if default == 1:
-            print "Defaults cannot be uploaded to the DB."
+            print ("Defaults cannot be uploaded to the DB.")
             return
 
         # upload this self.local_global_info to the database, and get the new mck_id and smck_ids
         mck_id, smck_ids = self.oi.upload_mck_and_smck(self.local_global_info)
 
         # print smck info
-        print "The following SMCK have been created (or already exist):"
+        print ("The following SMCK have been created (or already exist):")
         for smck_id in smck_ids:
             # get smck_info
             tool_value = self.get_smck_info_from_db(smck_id)
             # print info for this smck
-            print "SMCK_ID =",tool_value['SMCK_ID']
-            print "SMCK_TOOL_PATCH_VERSION =",tool_value['SMCK_TOOL_PATCH_VERSION']
+            print ("SMCK_ID =",tool_value['SMCK_ID'])
+            print ("SMCK_TOOL_PATCH_VERSION =",tool_value['SMCK_TOOL_PATCH_VERSION'])
 
         # also print mck info
-        print "An MCK has also been created (or already exists), linking to the above SMCK:"
-        print "MCK_ID =",int(mck_id)
+        print ("An MCK has also been created (or already exists), linking to the above SMCK:")
+        print ("MCK_ID =",int(mck_id))
 
         # return the new_mck_id and new_smck_ids
         return mck_id, smck_ids
@@ -943,7 +945,7 @@ class MenuAwareMonitoringStandalone:
         "For an input MCK number (MCK_ID), get all related MCK and SMCK info, and return it as a dictionary."
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         # get mck_info for this mck
@@ -991,7 +993,7 @@ class MenuAwareMonitoringStandalone:
 
         mck_info = self.oi.read_mck_info_from_db(mck_id)
         if mck_info == -1:
-            print "MCK",mck_id,"has not been recognised as a valid MCK."
+            print ("MCK",mck_id,"has not been recognised as a valid MCK.")
             return
 
         smck_ids = self.oi.read_mck_links_from_db(mck_id)
@@ -1025,7 +1027,7 @@ class MenuAwareMonitoringStandalone:
             flag1 specifies what kind of input input1 is."""
 
         if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
+            print ("MaM is not connected to the database, so this function is not available.")
             return
 
         # check for empty print_output_here
@@ -1047,24 +1049,24 @@ class MenuAwareMonitoringStandalone:
         # if the input or flag are missing
         if flag1 == "":
             if print_output_here:
-                print "search takes two arguments: flag, input."
-                print "The input is what is to be searched for."
-                print "The flag specifies what the input is. Recognised flags are listed below"
-                print "Valid arguments therefore include:"
-                print "'MCK_ID',1"
-                print "'SMCK_ID',17"
-                print "'SMCK_TOOL_PATCH_VERSION','HLTMuonMon_1'"
-                print "'SMCK_TOOL_TYPE','HLTMuonMon'"
-                print "'MCK_CREATOR','bsmart'"
-                print "'SMCK_SLICE_TYPE','Muon'"
-                print "Recognised flags are:"
+                print ("search takes two arguments: flag, input.")
+                print ("The input is what is to be searched for.")
+                print ("The flag specifies what the input is. Recognised flags are listed below")
+                print ("Valid arguments therefore include:")
+                print ("'MCK_ID',1")
+                print ("'SMCK_ID',17")
+                print ("'SMCK_TOOL_PATCH_VERSION','HLTMuonMon_1'")
+                print ("'SMCK_TOOL_TYPE','HLTMuonMon'")
+                print ("'MCK_CREATOR','bsmart'")
+                print ("'SMCK_SLICE_TYPE','Muon'")
+                print ("Recognised flags are:")
 
                 # print available columns
                 for row in database_column_list:
                     # print this column name, with a preceding -
-                    print row['COLUMN_NAME']
+                    print (row['COLUMN_NAME'])
 
-                print "You can leave the input blank to print all entries for the flag, but you must enter a flag."
+                print ("You can leave the input blank to print all entries for the flag, but you must enter a flag.")
 
             # if we do not have the flag, then we can not search, and so must exit
             return
@@ -1091,11 +1093,11 @@ class MenuAwareMonitoringStandalone:
         # check that we have found the column
         if not column_match:
             if print_output_here:
-                print "The flag '"+flag1+"' has not been recognised as a valid flag. Recognised flags are:"
+                print ("The flag '"+flag1+"' has not been recognised as a valid flag. Recognised flags are:")
                 # print available columns
                 for row in database_column_list:
                     # print this column name, with a preceding -
-                    print "-"+row['COLUMN_NAME']
+                    print ("-"+row['COLUMN_NAME'])
             # no valid flag (column) means we can not search, and so must exit
             return
 
@@ -1109,13 +1111,13 @@ class MenuAwareMonitoringStandalone:
 
             if print_output_here:
                 # explain problem
-                print "You have attempted to search for an SMCK_CONFIG."
-                print "Unfortunately, due to limitations in Oracle, this is not possible."
-                print "This is because the SMCK_CONFIG is stored as a CLOB, and in Oracle it is not possible to perform SQL query comparisons to CLOB objects, (WHERE SMCK_CONFIG = user_input)."
+                print ("You have attempted to search for an SMCK_CONFIG.")
+                print ("Unfortunately, due to limitations in Oracle, this is not possible.")
+                print ("This is because the SMCK_CONFIG is stored as a CLOB, and in Oracle it is not possible to perform SQL query comparisons to CLOB objects, (WHERE SMCK_CONFIG = user_input).")
                 # explain the alternative
-                print "To allow for SMCK_CONFIG comparisons, each config is hashed (using sha512) and hashes are compared."
-                print "Your input will now be hashed, and that hash will be searched for."
-                print "As this may not be exactly what you intended, do take care when interpreting these search results."
+                print ("To allow for SMCK_CONFIG comparisons, each config is hashed (using sha512) and hashes are compared.")
+                print ("Your input will now be hashed, and that hash will be searched for.")
+                print ("As this may not be exactly what you intended, do take care when interpreting these search results.")
                 # convert the flag
                 flag1 = 'smck_config_hash'
                 # convert the input to a hash
@@ -1127,15 +1129,15 @@ class MenuAwareMonitoringStandalone:
         # and print our results in a neat manner
         if print_output_here:
             # remind the user what was searched for
-            print input1,"has been searched for in the column",column_name,"of table",table_name,"in the Menu-aware Monitoring Oracle database."
+            print (input1,"has been searched for in the column",column_name,"of table",table_name,"in the Menu-aware Monitoring Oracle database.")
 
             # if no results have been found
             if len(search_results_list) == 0:
-                print "No results have been found."
+                print ("No results have been found.")
                 return
 
             # else if results have been found
-            print "The following",len(search_results_list),"results have been found:"
+            print ("The following",len(search_results_list),"results have been found:")
 
             # loop over the search results
             for n, row_dict in enumerate(search_results_list):
@@ -1144,8 +1146,8 @@ class MenuAwareMonitoringStandalone:
                 row_name = "Result_"+str(n)
 
                 # recursively print the dictionary
-                print ""
-                print row_name+":"
+                print ("")
+                print (row_name+":")
                 self.__print_one_dict__(row_dict,"   ",row_name)
 
                 # added bonus for the user
@@ -1154,14 +1156,14 @@ class MenuAwareMonitoringStandalone:
                     # get the smck_ids
                     smck_ids = self.oi.read_mck_links_from_db(row_dict['MCK_ID'])
 
-                    print ""
+                    print ("")
                     if smck_ids is -1:
-                        print row_name,"is an MCK which links to no SMCKs. This MCK is empty."
+                        print (row_name,"is an MCK which links to no SMCKs. This MCK is empty.")
                     else:
-                        print row_name,"is an MCK, and links to the following SMCK:"
+                        print (row_name,"is an MCK, and links to the following SMCK:")
 
                         # first print the list of SMCK_ID
-                        print "SMCK_ID list =",smck_ids
+                        print ("SMCK_ID list =",smck_ids)
 
                         # find the longest length of each of the three strings we want to print below
                         id_ljust = 0
@@ -1192,10 +1194,10 @@ class MenuAwareMonitoringStandalone:
                             # get the smck_info from the above dictionary
                             smck_info = smck_info_dict[smck_id]
                             # print some formatted info on this smck
-                            print "[ SMCK_ID = "+str(smck_id).ljust(id_ljust)+" , SMCK_TOOL_PATCH_VERSION = "+str(smck_info['SMCK_TOOL_PATCH_VERSION']).ljust(version_ljust)+" , SMCK_SLICE_TYPE = "+str(smck_info['SMCK_SLICE_TYPE']).ljust(slice_ljust)+" ]"
+                            print ("[ SMCK_ID = "+str(smck_id).ljust(id_ljust)+" , SMCK_TOOL_PATCH_VERSION = "+str(smck_info['SMCK_TOOL_PATCH_VERSION']).ljust(version_ljust)+" , SMCK_SLICE_TYPE = "+str(smck_info['SMCK_SLICE_TYPE']).ljust(slice_ljust)+" ]")
 
             # some nice spacing
-            print ""
+            print ("")
 
         # return the search results
         return search_results_list
@@ -1266,25 +1268,25 @@ class MenuAwareMonitoringStandalone:
             # if the value is a dict
             if type(value1) is dict:
                 # first print this dict key
-                print tab_space+name1+"['"+key+"']:"
+                print (tab_space+name1+"['"+key+"']:")
                 # recursively call this function
                 # add some space to tab_space, to indent the sub-dictionary
                 self.__print_one_dict__(value1,"   "+tab_space,name1)
             # if the value is a list
             elif type(value1) is list:
                 # print the items nicely (no unicode u' features)
-                print tab_space+name1+"['"+key+"'] = [",
+                print (tab_space+name1+"['"+key+"'] = [", end='')
                 for n, item in enumerate(value1):
                     if type(item) is unicode or type(item) is str:
-                        print "'"+item+"'",
+                        print ("'"+item+"'", end='')
                     else:
-                        print item,
+                        print (item, end='')
                     if n != len(value1)-1:
-                        print ",",
-                print "]"
+                        print (",", end='')
+                print ("]")
             # else if this value is not a dict or a list, then we should print
             else:
-                print tab_space+name1+"['"+key+"'] =",value1
+                print (tab_space+name1+"['"+key+"'] =",value1)
 
 
     def create_sqlite_file_to_copy_to_cool(self,mck,run,runend="",info="",project="",version=""):
@@ -1292,24 +1294,24 @@ class MenuAwareMonitoringStandalone:
         # this way https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CoolPublishing#Updating_data_on_the_online_data
 
         if runend and run >= runend:
-            print "runend must be greater than run"
+            print ("runend must be greater than run")
             return
 
         # check mck exists
         if mck and not self.oi.check_if_mck_id_exists(mck):
-            print "MCK",mck,"doesn't exist."
+            print ("MCK",mck,"doesn't exist.")
             return
 
         if mck == 0 and ( not project or not version ):
-            print "Please give the AtlasProject and AtlasVersion that you want to write MCK 0 to COOL for."
-            print "Usage: create_sqlite_file_to_copy_to_cool(mck,run,runend,info,project,version)"
-            print "project and version are compulsory for MCK 0."
+            print ("Please give the AtlasProject and AtlasVersion that you want to write MCK 0 to COOL for.")
+            print ("Usage: create_sqlite_file_to_copy_to_cool(mck,run,runend,info,project,version)")
+            print ("project and version are compulsory for MCK 0.")
             return
 
         if mck and ( project or version ):
-            print "The AtlasProject and AtlasVersion are taken from the MCK info, and should not be specified manually except for MCK 0."
-            print "If you want to assign an MCK to a new release consider using the function mam.ms.clone_mck_for_new_release(mck_id,project="",version="")"
-            print "Continuing but ignoring project and version variables..."
+            print ("The AtlasProject and AtlasVersion are taken from the MCK info, and should not be specified manually except for MCK 0.")
+            print ("If you want to assign an MCK to a new release consider using the function mam.ms.clone_mck_for_new_release(mck_id,project="",version="")")
+            print ("Continuing but ignoring project and version variables...")
 
         # TODO: check that run exists
         # something similar to http://acode-browser.usatlas.bnl.gov/lxr/ident?_i=getOnlineRun
@@ -1327,12 +1329,12 @@ class MenuAwareMonitoringStandalone:
                   ('Info', cool.StorageType.String4k)]          # optional info
 
         # create sqlite file
-        print 'Creating sqlite file'
+        print ('Creating sqlite file')
         dbSvc = cool.DatabaseSvcFactory.databaseService()
         try:
             db = dbSvc.createDatabase(dbspec)
         except:
-            print 'File already exists, please remove/rename'
+            print ('File already exists, please remove/rename')
             return
 
         # setup record and folder specs
@@ -1342,11 +1344,11 @@ class MenuAwareMonitoringStandalone:
         fspec = cool.FolderSpecification(fversion, rspec)
 
         # make folder
-        print 'Creating folder', folder_name
+        print ('Creating folder', folder_name)
         folder = db.createFolder(folder_name, fspec, desc, True)
 
         # make channel 0
-        print 'Creating channel 0 for folder', folder_name
+        print ('Creating channel 0 for folder', folder_name)
         chan = 0
         folder.createChannel(chan, 'MonConfigKey', 'MCKs tagged by release')
 
@@ -1365,5 +1367,5 @@ class MenuAwareMonitoringStandalone:
             iov_until = (int(runend+1)<<32)
         else:
             iov_until = (int(run+1)<<32)
-        print "Storing MCK",mck,"with tag",tag,"for IOV",iov_since,"to",iov_until
+        print ("Storing MCK",mck,"with tag",tag,"for IOV",iov_since,"to",iov_until)
         folder.storeObject(iov_since,iov_until,data,chan,tag)

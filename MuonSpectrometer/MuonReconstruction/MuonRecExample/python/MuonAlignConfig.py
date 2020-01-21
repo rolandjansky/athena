@@ -38,7 +38,6 @@ conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/T
 
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
-
 condSequence = AthSequencer("AthCondSeq")
 
 from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg

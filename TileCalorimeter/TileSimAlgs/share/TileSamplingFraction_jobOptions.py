@@ -48,7 +48,7 @@ try:
     else:
         msg.info("Switching OFF noise in Tile Digitization" )
 
-    print tileInfoConfigurator
+    mlog.info (tileInfoConfigurator)
 
 except:
     msg.info("Physics list not found, using default sampling fraction value")

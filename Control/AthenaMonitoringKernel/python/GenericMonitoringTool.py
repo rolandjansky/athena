@@ -106,6 +106,7 @@ class GenericMonitoringArray:
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
 #  @param opt      Histrogram options (see GenericMonitoringTool)
 #  @param labels   Deprecated. Copies value to xlabels.
 #  @param xlabels  List of x bin labels.
@@ -117,14 +118,15 @@ def defineHistogram(varname, type='TH1F', path=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None,
-                    opt='', labels=None, convention=None):
+                    opt='', labels=None, convention=None,
+                    cutmask=None):
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'opt', 'convention', 'alias'] 
+    'cutMask', 'opt', 'convention', 'alias'] 
     # All of these fileds default to 0
-    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zmin',
-    'zmax']
+    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
+    'zmin', 'zmax']
     # All of these fields default to an empty array
     arraySettingsKeys = ['allvars', 'xlabels', 'xarray', 'ylabels', 'yarray', 'zlabels']
     # Initialize a dictionary with all possible fields
@@ -185,6 +187,10 @@ def defineHistogram(varname, type='TH1F', path=None,
     if weight is not None:
         settings['weight'] = weight
 
+    # Cutmask
+    if cutmask is not None:
+        settings['cutMask'] = cutmask
+
     # Output path naming convention
     if convention is not None:
         settings['convention'] = convention
@@ -228,12 +234,17 @@ def defineHistogram(varname, type='TH1F', path=None,
     if labels is not None:
         assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
         depricated "labels" argument with [xyz]labels arguments.'
+        log.warning('Histogram %s configured with deprecated "labels" argument. Please use "xlabels" and "ylabels" instead.', 
+                    settings['title'])
         nLabels = len(labels)
         if nLabels==xbins:
             xlabels = labels
         elif nLabels>xbins:
+            if nLabels > xbins+ybins:
+                log.warning('More labels specified for %s (%d) than there are x+y bins (%d+%d)',
+                            settings['title'], nLabels, xbins, ybins)
             xlabels = labels[:xbins]
-            ylabels = labels[xbins:]
+            ylabels = labels[xbins:xbins+ybins]
     # Then, parse the [xyz]label arguments
     if xlabels is not None and len(xlabels)>0:
         assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'

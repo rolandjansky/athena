@@ -32,14 +32,14 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( Boost COMPONENTS thread )
 find_package( CLHEP )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( yampl )
 
 # Component(s) in the package:
 atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${Python_INCLUDE_DIRS}
    ${CLHEP_INCLUDE_DIRS} ${YAMPL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${YAMPL_LIBRARIES}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${Python_LIBRARIES} ${YAMPL_LIBRARIES}
    ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel RootUtils CxxUtils
    AthContainers DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
    StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo EventInfoUtils GaudiKernel )

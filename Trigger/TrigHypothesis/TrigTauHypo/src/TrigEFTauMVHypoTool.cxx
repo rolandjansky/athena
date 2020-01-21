@@ -13,7 +13,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigEFTauMVHypoTool.h"
 

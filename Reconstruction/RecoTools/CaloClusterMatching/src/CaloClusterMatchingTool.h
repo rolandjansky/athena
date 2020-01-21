@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloClusterMatchingTool.h 
@@ -16,6 +16,7 @@
 
 // FrameWork includes
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 // CaloClusterMatching includes
 #include "CaloClusterMatching/TopoClusterMap.h"
@@ -39,10 +40,8 @@ namespace ClusterMatching {
     /////////////////////////////////////////////////////////////////// 
   public: 
 
-    // Copy constructor: 
-
-    /// Constructor with parameters: 
-    CaloClusterMatchingTool( const std::string& name );
+    ///Delegate constructor to base-class
+    using asg::AsgTool::AsgTool;
 
     /// Destructor: 
     virtual ~CaloClusterMatchingTool(); 
@@ -113,35 +112,16 @@ namespace ClusterMatching {
 						   const std::pair<const xAOD::CaloCluster*,float>& pair2)) const override final;
 
     /////////////////////////////////////////////////////////////////// 
-    // Non-const methods: 
-    /////////////////////////////////////////////////////////////////// 
-
-    /////////////////////////////////////////////////////////////////// 
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   private: 
 
-    bool m_reqPosE;
-    float m_minSharedEfrac;
+    Gaudi::Property<bool> m_reqPosE{this,"RequirePositiveE",true};
+    Gaudi::Property<float> m_minSharedEfrac{this,"MinSharedEfrac",0.2};
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clustersIn{this,"InputClusterCollection","CaloCalTopoClusters","The CaloCluster collection to match"};
-    std::string m_elementLinkName;
-
-    SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::CaloClusterContainer> > > m_elementLinkDec;
-
-    /// Default constructor: 
-    CaloClusterMatchingTool();
-
-    // Containers
-  
+    SG::WriteDecorHandleKey<xAOD::CaloClusterContainer> m_elementLinkName{this,"ElementLinkName","CaloCalTopoClusters.constituentClusterLinks"};   
 
   }; 
-
-  // I/O operators
-  //////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Inline methods: 
-  /////////////////////////////////////////////////////////////////// 
 
 }
 

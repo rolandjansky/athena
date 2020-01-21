@@ -18,8 +18,6 @@ def TRTOverlayAlgCfg(flags, name = "TRTOverlay", **kwargs):
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "TRT_RDOs")
     kwargs.setdefault("OutputKey", "TRT_RDOs")
 
-    kwargs.setdefault("includeBkg", True)
-
     # HT hit correction fraction
     kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrel", 0.110)
     kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcap", 0.090)

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file ReadAthena.py
 ## @brief AthenaPool python module for reading event objects.
@@ -49,6 +49,7 @@ def _configureReadAthenaPoolDouble():
         svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
 
     # Add in EventSelector
+    svcMgr += CfgMgr.EventSelectorAthenaPool("SecondaryEventSelector", IsSecondary=True)
     svcMgr += CfgMgr.DoubleEventSelectorAthenaPool("DoubleEventSelector")    
     theApp.EvtSel = "DoubleEventSelectorAthenaPool/DoubleEventSelector"
 

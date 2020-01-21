@@ -6,7 +6,7 @@
 #include "TrigT1RPClogic/CMApatterns.h"
 #include "TrigT1RPClogic/windows.h"
 
-#include "RPCcablingInterface/CMAprogram.h"
+#include "RPC_CondCabling/CMAprogram.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

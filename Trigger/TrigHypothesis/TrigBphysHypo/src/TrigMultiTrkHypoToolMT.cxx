@@ -24,7 +24,7 @@
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "DecisionHandling/TrigCompositeUtils.h"
 

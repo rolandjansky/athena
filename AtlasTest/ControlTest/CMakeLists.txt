@@ -44,7 +44,7 @@ atlas_add_test( ProxyProviderSvc_test
    LINK_LIBRARIES TestTools ToyConversionLib AthenaKernel SGTools StoreGateLib
    GaudiKernel
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "${PPSoptignore}^ClassIDSvc +DEBUG|Histogram.* (DEBUG|INFO)|DetectorStore +DEBUG|ToyConversionSvc +DEBUG|EventDataSvc +DEBUG|EventPersis.* +(DEBUG|INFO)|HistoryStore +DEBUG|^DataProxy +VERBOSE|^ProxyProviderSvc +DEBUG|^ServiceManager +DEBUG"
+   LOG_IGNORE_PATTERN "${PPSoptignore}^ClassIDSvc +DEBUG|Histogram.* (DEBUG|INFO)|DetectorStore +DEBUG|ToyConversionSvc +DEBUG|EventDataSvc +DEBUG|EventPersis.* +(DEBUG|INFO)|HistoryStore +DEBUG|^DataProxy +VERBOSE|^ProxyProviderSvc +DEBUG|^ServiceManager +DEBUG"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( CircularDep_test
@@ -99,12 +99,12 @@ endif()
 atlas_add_test( StoreGateReentrant
    SCRIPT test/StoreGateReentrant.sh
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
+   LOG_IGNORE_PATTERN "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
 
 atlas_add_test( StoreGateGen
    SCRIPT test/StoreGateGen.sh
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
+   LOG_IGNORE_PATTERN "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
 
 atlas_add_test( StoreGateDFlow
    SCRIPT test/StoreGateDFlow.sh
@@ -112,8 +112,7 @@ atlas_add_test( StoreGateDFlow
 
 atlas_add_test( test_interactive_athena
    SCRIPT test/test_interactive_athena.sh
-   PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "ApplicationMgr +INFO" )
+   PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( test_cfgItemList
                 SCRIPT test/test_cfgItemList.sh )

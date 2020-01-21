@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from ConfigUtils import serviceFactory,toolFactory
 from InDetRecExample.TrackingCommon import setDefaults
@@ -86,8 +86,8 @@ def getInDetPhysValMonitoringTool(**kwargs) :
 
 def getInDetPhysValMonitoringToolLoose(**kwargs) :
    if 'TrackSelectionTool' not in kwargs :
-      from InDetPhysValMonitoring.TrackSelectionTool import InDetTrackSelectionTool
-      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(InDetTrackSelectionTool.getInDetTrackSelectionToolLoose))
+      from InDetPhysValMonitoring.TrackSelectionTool import getInDetTrackSelectionToolLoose
+      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(getInDetTrackSelectionToolLoose))
 
    kwargs=setDefaults(kwargs,
                       name              = 'InDetPhysValMonitoringToolLoose',
@@ -98,8 +98,8 @@ def getInDetPhysValMonitoringToolLoose(**kwargs) :
 
 def getInDetPhysValMonitoringToolTightPrimary(**kwargs) :
    if 'TrackSelectionTool' not in kwargs :
-      from InDetPhysValMonitoring.TrackSelectionTool import InDetTrackSelectionTool
-      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(InDetTrackSelectionTool.getInDetTrackSelectionToolTightPrimary))
+      from InDetPhysValMonitoring.TrackSelectionTool import getInDetTrackSelectionToolTightPrimary
+      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(getInDetTrackSelectionToolTightPrimary))
 
    kwargs=setDefaults(kwargs,
                       name              = 'InDetPhysValMonitoringToolTightPrimary',

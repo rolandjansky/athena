@@ -23,8 +23,4 @@ private:
   ClassDefOverride(TFCSInitWithEkin,1)  //TFCSInitWithEkin
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSInitWithEkin+;
-#endif
-
 #endif

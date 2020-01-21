@@ -11,7 +11,7 @@
 #include "AthContainers/ConstDataVector.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 /**
  * @class Filtering algorithm for HLT Step sequencer

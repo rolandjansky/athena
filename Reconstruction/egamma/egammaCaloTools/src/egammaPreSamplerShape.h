@@ -20,8 +20,8 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "egammaInterfaces/IegammaPreSamplerShape.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+
 class CaloCellContainer;
 class CaloDetDescrManager;
 
@@ -46,10 +46,6 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
   virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
 			     const CaloCellContainer& cell_container, Info& info) const override final;
   private: 
- /** @brief tool to calculate sum of energy in all samples */
-  ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
-      "egammaEnergyPositionAllSamplesTool", 
-      "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
 
   const CaloDetDescrManager* m_calo_dd;
   /** @brief CaloSample */

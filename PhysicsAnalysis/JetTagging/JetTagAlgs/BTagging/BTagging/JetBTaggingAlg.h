@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGGING_JETBTAGGINGALG_HH
@@ -35,7 +35,7 @@ class  JetBTaggingAlg:
     
     /** Main routines specific to an ATHENA algorithm */
     virtual StatusCode initialize() override;
-    virtual StatusCode execute();
+    virtual StatusCode execute() override;
 
   private:
   

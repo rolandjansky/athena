@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaPoolAllocator.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file  AthAllocators/src/ArenaPoolAllocator.cxx
  * @author scott snyder
@@ -121,7 +119,10 @@ ArenaPoolAllocator::ArenaPoolAllocator
       m_ptr (other.m_ptr),
       m_end (other.m_end)
 {
+  // False positives
+  // cppcheck-suppress useInitializationList
   other.m_ptr = nullptr;
+  // cppcheck-suppress useInitializationList
   other.m_end = nullptr;
 }
 

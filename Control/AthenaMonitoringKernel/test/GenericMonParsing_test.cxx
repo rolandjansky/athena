@@ -23,6 +23,7 @@ json defaultJson() {
   j["title"] = "var";
   j["type"] = "TH1F";
   j["weight"] = "";
+  j["cutMask"] = "";
   j["xarray"] = json::array();
   j["xbins"] = 100;
   j["xlabels"] = json::array();
@@ -35,6 +36,7 @@ json defaultJson() {
   j["ymax"] = 0.0;
   j["ymin"] = 0.0;
   j["yvar"] = "";
+  j["zbins"] = 0;
   j["zlabels"] = json::array();
   j["zmax"] = 0.0;
   j["zmin"] = 0.0;
@@ -68,6 +70,7 @@ bool parse1D_options() {
   check["path"] = "mypath/tohistograms";
   check["type"] = "TH1D";
   check["weight"] = "myweight";
+  check["cutMask"] = "mycutmask";
   auto def = HistogramDef::parse(check.dump());
 
   VALUE ( def.ok ) EXPECTED ( true );
@@ -79,6 +82,7 @@ bool parse1D_options() {
   VALUE ( def.path ) EXPECTED ( "mypath/tohistograms" );
   VALUE ( def.type ) EXPECTED ( "TH1D" );
   VALUE ( def.weight ) EXPECTED ( "myweight" );
+  VALUE ( def.cutMask ) EXPECTED ( "mycutmask" );
 
   return true;
 }

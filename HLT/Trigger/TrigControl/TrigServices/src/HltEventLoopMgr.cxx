@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
@@ -13,7 +13,7 @@
 // Athena includes
 #include "AthenaInterprocess/Incidents.h"
 #include "AthenaKernel/AthStatusCode.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
@@ -298,7 +298,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     ATH_CHECK(m_ioCompMgr->io_finalize());
 
     // close open DB connections
-    ATH_CHECK(TrigRDBManager::closeDBConnections(m_dbIdleWait, msg()));
+    ATH_CHECK(TrigRDBManager::closeDBConnections(msg()));
 
     // Assert that scheduler has not been initialised before forking
     SmartIF<IService> svc = serviceLocator()->service(m_schedulerName, /*createIf=*/ false);

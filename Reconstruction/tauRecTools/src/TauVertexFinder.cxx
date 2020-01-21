@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -63,10 +63,6 @@ StatusCode TauVertexFinder::eventFinalize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
-
-  // for tau trigger
-  bool inTrigger = tauEventData()->inTrigger();
-
   const xAOD::VertexContainer * vxContainer = 0;
   const xAOD::Vertex* primaryVertex = 0;
 
@@ -74,7 +70,7 @@ StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
   // see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/VertexReselectionOnAOD
   // code adapted from 
   // https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
-  if ( !inTrigger ){
+  if ( !m_in_trigger ){
     // get the primary vertex container from StoreGate
     // do it here because of tau trigger
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
@@ -150,24 +146,15 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   m_matchedVertexOnline.clear(); 
   // the implementation follows closely the example given in modifyJet(...) in https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/Jet/JetMomentTools/trunk/Root/JetVertexFractionTool.cxx#15
   
-  //for tau trigger (ATR-15665)
-  bool inTrigger = tauEventData()->inTrigger();
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
   std::vector<const xAOD::TrackParticle*> assocTracks;
   
-  if (inTrigger)   {
+  if (m_in_trigger)   {
     StatusCode sc = tauEventData()->getObject( "TrackContainer", trackParticleCont ); // to be replaced by full FTK collection?
     if (sc.isFailure() || !trackParticleCont){
       ATH_MSG_WARNING("No TrackContainer for TJVA in trigger found");
       return ElementLink<xAOD::VertexContainer>();
     }
-    // convert TrackParticleContainer in std::vector<const xAOD::TrackParticle*>
-    for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont->begin(); tpcItr != trackParticleCont->end(); ++tpcItr) {
-      const xAOD::TrackParticle *trackParticle = *tpcItr;
-      assocTracks.push_back(trackParticle);
-    }
-    ATH_MSG_DEBUG("TrackContainer for online TJVA with size "<< assocTracks.size()); 
-   
     // convert TrackParticleContainer in std::vector<const xAOD::TrackParticle*>
     for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont->begin(); tpcItr != trackParticleCont->end(); ++tpcItr) {
       const xAOD::TrackParticle *trackParticle = *tpcItr;
@@ -195,7 +182,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   const jet::TrackVertexAssociation* tva = NULL;
  
   // ATR-15665 for trigger: reimplementation of TrackVertexAssociationTool::buildTrackVertexAssociation_custom
-  if(inTrigger){ 
+  if(m_in_trigger){ 
       if(tracksForTJVA.size()==0){ATH_MSG_DEBUG("No tracks survived selection"); return ElementLink<xAOD::VertexContainer>();}
       else ATH_MSG_DEBUG("Selected tracks with size " << tracksForTJVA.size());
 
@@ -265,7 +252,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   size_t maxIndex = 0;
   for (const xAOD::Vertex* vert : vertices) {
     float jvf = 0;
-    if(!inTrigger) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
+    if(!m_in_trigger) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
     else jvf = getJetVertexFraction(vert,tracksForTJVA);
     if (jvf > maxJVF) {
       maxJVF = jvf;

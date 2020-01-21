@@ -12,7 +12,7 @@
 #define LAR_COLLISION_TIME_MON_TOOL_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "LArRecEvent/LArCollisionTime.h"

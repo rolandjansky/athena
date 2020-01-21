@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTKAthTrackCnv_p1_h
@@ -11,11 +11,14 @@
 class MsgStream;
 class FTKAthTrack;
 
-class FTKAthTrackCnv_p1 : public T_AthenaPoolTPCnvBase<FTKAthTrack, FTKAthTrack_p1> {
+class FTKAthTrackCnv_p1 : public T_AthenaPoolTPCnvConstBase<FTKAthTrack, FTKAthTrack_p1> {
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
   FTKAthTrackCnv_p1() {;}
 
-  virtual void persToTrans(const FTKAthTrack_p1 *persObj, FTKAthTrack *transObj, MsgStream&);
-  virtual void transToPers(const FTKAthTrack *transObj, FTKAthTrack_p1 *persObj, MsgStream&);
+  virtual void persToTrans(const FTKAthTrack_p1 *persObj, FTKAthTrack *transObj, MsgStream&) const override;
+  virtual void transToPers(const FTKAthTrack *transObj, FTKAthTrack_p1 *persObj, MsgStream&) const override;
 };
 #endif // FTKAthTrackCnv_p1_h

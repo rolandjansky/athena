@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -39,8 +39,8 @@
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"

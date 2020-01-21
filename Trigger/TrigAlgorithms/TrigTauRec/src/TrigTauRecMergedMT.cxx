@@ -33,7 +33,7 @@
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
 #include "TrigTauRecMergedMT.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 
 using namespace std;

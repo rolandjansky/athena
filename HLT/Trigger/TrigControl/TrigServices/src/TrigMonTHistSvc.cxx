@@ -7,7 +7,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "CxxUtils/checker_macros.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "hltinterface/IInfoRegister.h"
 

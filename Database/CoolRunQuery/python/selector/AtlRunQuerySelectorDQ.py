@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, O
 from CoolRunQuery.utils.AtlRunQueryIOV    import IOVRange
 from CoolRunQuery.utils.AtlRunQueryUtils  import coolDbConn
@@ -82,8 +83,8 @@ class DQSelector(Selector):
         # garbage collector
         # import gc
         # gcod = gc.get_objects()
-        # print "GC objects",len(gcod)
-        # print "GC object count",gc.get_count()
+        # print ("GC objects",len(gcod))
+        # print ("GC object count",gc.get_count())
         
         for sel in self.selectors.values(): runlist = sel.select(runlist)
         return runlist
@@ -263,7 +264,7 @@ class DQCondition(RunLBBasedCondition):
         try: # import
             from VirtualFlags import VirtualFlagLogicFolder, VirtualFlagFolder
         except ImportError:
-            print "Can't import virtual flags"
+            print ("Can't import virtual flags")
             import traceback
             traceback.print_exc()
 
@@ -515,7 +516,7 @@ class DQDefectCondition(RunLBBasedCondition):
                 if not ignore_str in channels_with_ignore: channels_with_ignore[ignore_str] = []
                 channels_with_ignore[ignore_str] += [channel.lstrip('!')]
 
-        #print "CHANNELS",channels
+        #print ("CHANNELS",channels)
         if len(channels) + len(channels_with_ignore)==0: return []
 
         # we need to remove the special case ANY from the set
@@ -647,7 +648,7 @@ class DQDefectCondition(RunLBBasedCondition):
                 # [ <DataEntry with value = (defect_name, defect_comment or defect_composition)>, ...]
 
                 #for x in run.data[k]:
-                #    print "               %r" % (x,)
+                #    print ("               %r" % (x,))
                 if not k in run.data.keys():
                     run.result[k] = {}
                 run.stats[k] = {}
@@ -681,9 +682,9 @@ class DQDefectCondition(RunLBBasedCondition):
                 #f.close()
 
                 #for x,l in run.stats[k]["primaries"].items():
-                #    print x
+                #    print (x)
                 #    for y in sorted(l):
-                #        print "    ",y
+                #        print ("    ",y)
 
 
     def find_primaries(self, DD, defect_logic, primaries, curpath, reps):

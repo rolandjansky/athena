@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DenseEnvironmentsAmbiguityProcessorTool.h"
@@ -162,14 +162,16 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::finalize()
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
 {
   if (msgLvl(MSG::INFO)) {
-     std::cout << name() << " -- statistics " << std::endl;
+     MsgStream &out=msg(MSG::INFO);
+     out << " -- statistics " << std::endl;
      std::lock_guard<std::mutex> lock( m_statMutex );
-     m_stat.dump(std::cout, m_tryBremFit);
+     m_stat.dump(out, m_tryBremFit);
+     out << endmsg;
   }
   return;
 }
 
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(std::ostream &out, bool try_brem_fit) const
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &out, bool try_brem_fit) const
 {
    // @TODO restore ios
    std::streamsize ss = std::cout.precision();
