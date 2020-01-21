@@ -1012,6 +1012,15 @@ StatusCode HltEventLoopMgr::failedEvent(hltonl::PSCErrorCode errorCode, const Ev
   }
 
   //----------------------------------------------------------------------------
+  // Monitor event processing time for the failed (force-accepted) event
+  //----------------------------------------------------------------------------
+  auto eventTime = std::chrono::steady_clock::now() - m_eventTimerStartPoint[eventContext.slot()];
+  int64_t eventTimeMillisec = std::chrono::duration_cast<std::chrono::milliseconds>(eventTime).count();
+  auto monTimeAny = Monitored::Scalar<int64_t>("TotalTime", eventTimeMillisec);
+  auto monTimeAcc = Monitored::Scalar<int64_t>("TotalTimeAccepted", eventTimeMillisec);
+  auto mon = Monitored::Group(m_monTool, monTimeAny, monTimeAcc);
+
+  //----------------------------------------------------------------------------
   // Try to build and send the output
   //----------------------------------------------------------------------------
   if (m_outputCnvSvc->connectOutput("").isFailure()) {
@@ -1245,6 +1254,11 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     HLT_DRAINSCHED_CHECK(sc, "Conversion service failed to convert HLTResult",
                          hltonl::PSCErrorCode::OUTPUT_BUILD_FAILURE, thisFinishedEvtContext);
 
+    // Save event processing time before sending output
+    bool eventAccepted = !hltResult->getStreamTags().empty();
+    auto eventTime = std::chrono::steady_clock::now() - m_eventTimerStartPoint[thisFinishedEvtContext->slot()];
+    int64_t eventTimeMillisec = std::chrono::duration_cast<std::chrono::milliseconds>(eventTime).count();
+
     // Commit output (write/send the output data) - the arguments are currently not used
     sc = m_outputCnvSvc->commitOutput("",true);
     if (sc.isFailure()) {
@@ -1278,8 +1292,14 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
                          "Whiteboard slot " << thisFinishedEvtContext->slot() << " could not be properly cleared",
                          hltonl::PSCErrorCode::AFTER_RESULT_SENT, thisFinishedEvtContext);
 
-    // Cannot print out EventContext anymore here because it was managed by event store and deleted in clearWBSlot
-    ATH_MSG_DEBUG("Finished processing event");
+    ATH_MSG_DEBUG("Finished processing " << (eventAccepted ? "accepted" : "rejected")
+                  << " event with context " << *thisFinishedEvtContext
+                  << " which took " << eventTimeMillisec << " ms");
+
+    // Fill the time monitoring histograms
+    auto monTimeAny = Monitored::Scalar<int64_t>("TotalTime", eventTimeMillisec);
+    auto monTimeAcc = Monitored::Scalar<int64_t>(eventAccepted ? "TotalTimeAccepted" : "TotalTimeRejected", eventTimeMillisec);
+    auto mon = Monitored::Group(m_monTool, monTimeAny, monTimeAcc);
 
     // Set ThreadLocalContext to an invalid context as we entering a context-less environment
     Gaudi::Hive::setCurrentContext( EventContext() );
