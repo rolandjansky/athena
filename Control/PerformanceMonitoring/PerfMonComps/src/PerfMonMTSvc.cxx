@@ -369,7 +369,7 @@ void PerfMonMTSvc::report2Log_EventLevel(){
   ATH_MSG_INFO("Event CheckPoint      CPU[ms]    Wall[ms]   Vmem[kB]   Rss[kB]    Pss[kB]    Swap[kB]");
 
   for(const auto& it : m_eventLevelData.getEventLevelData()){
-    ATH_MSG_INFO(format("%1% %|22t|%2% %|33t|%3% %|44t|%4% %|55t|%5% %|66t|%6% %|77t|%7%")    % it.first \
+    ATH_MSG_INFO(format("%1% %|20t|%2$.2f %|33t|%3$.2f %|44t|%4% %|55t|%5% %|66t|%6% %|77t|%7%")    % it.first \
                                                                                               % it.second.cpu_time \
                                                                                               % it.second.wall_time \
                                                                                               % it.second.mem_stats.at("vmem")   \
@@ -390,7 +390,10 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
   ATH_MSG_INFO("                                  CPU & Wall Time                                      ");
   ATH_MSG_INFO("                                  (Parallel Steps)                                     ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
+
+  ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|47t|%3%") % "Step"
+                                                      % "CPU Time [ms]" 
+                                                      % "Component");
 
   parallelDataAggregator();
   divideData2Steps_parallel(); 
@@ -407,7 +410,7 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
     );
     for(auto it : pairs){
 
-      ATH_MSG_INFO(format("%1%  %|17t|%2$.2f  %|37t|%3% %|57t|%4% ") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName);    
+      ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|47t|%3%") % it.first.stepName % it.second.cpu_time % it.first.compName);    
     }
     ATH_MSG_INFO("=======================================================================================");
 
@@ -726,8 +729,8 @@ void PerfMonMTSvc::divideData2Steps_serial(){
 
   }
   m_stdoutVec_serial.push_back(m_compLevelDataMap_ini);
-  m_stdoutVec_serial.push_back(m_compLevelDataMap_start);
-  m_stdoutVec_serial.push_back(m_compLevelDataMap_stop);
+  //m_stdoutVec_serial.push_back(m_compLevelDataMap_start);
+  //m_stdoutVec_serial.push_back(m_compLevelDataMap_stop);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_fin);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_plp);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_cbk);
@@ -748,7 +751,7 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
   }
 
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_evt);
-  m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_stop);
+  //m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_stop);
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_plp);
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_cbk);
 
