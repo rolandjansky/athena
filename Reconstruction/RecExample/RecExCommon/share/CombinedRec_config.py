@@ -27,8 +27,7 @@ from CaloRec.CaloRecFlags import jobproperties
 #
 pdr.flag_domain('CaloExtensionBuilder')
 if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
-    try:
-        #include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
+    try:        
         from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
         CaloExtensionBuilder("NoCut", 500.) #Arguments are cutLevel and minPt for track selection
     except Exception:
