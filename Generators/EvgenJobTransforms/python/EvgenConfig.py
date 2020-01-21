@@ -27,7 +27,7 @@ mainGenerators += ["Exhume", "Phojet", "Epos", "QGSJet"]
 mainGenerators += ["ParticleGenerator", "ParticleGun"]
 mainGenerators += ["CosmicGenerator", "BeamHaloGenerator"]
 ## Heavy ion generators
-mainGenerators += ["Superchic","Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
+mainGenerators += ["AMPT","Superchic","Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
 ## Misc generators
 mainGenerators += ["AcerMC", "TopRex", "LPair"]
 ## Reading in fully-formed events
