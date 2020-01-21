@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # ExtendedJetCommon.py
@@ -343,13 +343,15 @@ def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20'
     else:
         applyJetCalibration(jetalg,'JetCommonKernel_{0}'.format(jetalg),sequence)
 
-def updateJVT(jetalg,algname,sequence, suffix = ''):
+def updateJVT(jetalg,algname,sequence, suffix = '',customVxColl = 'PrimaryVertices'):
     jetaugtool = getJetAugmentationTool(jetalg, suffix)
     if(jetaugtool==None or jetaugtool.JetCalibTool==''):
         extjetlog.warning('*** JVT update called but corresponding augmentation tool does not exist! ***')
         extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
 
     jvttoolname = 'DFJetJvt_'+jetalg
+
+    pvxName = customVxColl
 
     if '_BTagging' in jetalg:
         jetalg_basename = jetalg[:jetalg.find('_BTagging')]
@@ -365,7 +367,7 @@ def updateJVT(jetalg,algname,sequence, suffix = ''):
     if hasattr(ToolSvc,jvttoolname):
         jetaugtool.JetJvtTool = getattr(ToolSvc,jvttoolname)
     else:
-        jvttool = CfgMgr.JetVertexTaggerTool(jvttoolname) 
+        jvttool = CfgMgr.JetVertexTaggerTool(jvttoolname,VertexContainer=pvxName) 
         ToolSvc += jvttool
         jetaugtool.JetJvtTool = jvttool
 
@@ -434,14 +436,14 @@ def applyMVfJvtAugmentation(jetalg,sequence,algname):
         extjetlog.info('ExtendedJetCommon: Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
-def getPFlowfJVT(jetalg,algname,sequence):
+def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",overlapLabel=""):
     supportedJets = ['AntiKt4EMPFlow']
     if not jetalg in supportedJets:
         extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
         applyJetCalibration(jetalg,algname,sequence,suffix='_PFlow_fJVT')
-        updateJVT(jetalg,algname,sequence,suffix='_PFlow_fJVT')
+        updateJVT(jetalg,algname,sequence,customVxColl=primaryVertexCont,suffix='_PFlow_fJVT')
         jetaugtool = getJetAugmentationTool(jetalg,suffix='_PFlow_fJVT')
 
         if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
@@ -456,7 +458,7 @@ def getPFlowfJVT(jetalg,algname,sequence):
         if hasattr(ToolSvc,pffjvttoolname):
             jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
         else:
-            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname)
+            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname,verticesName=primaryVertexCont,orLabel=overlapLabel)
             ToolSvc += pffjvttool
             jetaugtool.JetForwardPFlowJvtTool = pffjvttool
 

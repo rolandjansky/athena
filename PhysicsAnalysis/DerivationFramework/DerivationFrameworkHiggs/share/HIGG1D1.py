@@ -253,6 +253,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D1Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG1D1Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
 
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=HIGG1D1Seq, algname='JetForwardPFlowJvtToolAlg',primaryVertexCont="HggPrimaryVertices",overlapLabel="passOR")
+
 DerivationFrameworkJob += HIGG1D1Seq
 
 
