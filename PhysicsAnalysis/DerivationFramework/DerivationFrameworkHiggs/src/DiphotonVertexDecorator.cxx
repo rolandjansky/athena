@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -20,6 +20,8 @@
 #include "PhotonVertexSelection/IPhotonVertexSelectionTool.h"
 #include "AthContainers/ConstDataVector.h"
 #include "PhotonVertexSelection/IPhotonPointingTool.h"
+// For DeltaR
+#include "FourMomUtils/xAODP4Helpers.h"
 
 typedef ElementLink<xAOD::PhotonContainer> phlink_t;
 
@@ -41,6 +43,10 @@ DerivationFramework::DiphotonVertexDecorator::DiphotonVertexDecorator(const std:
   declareProperty("MaxEta",                m_maxEta = 2.37);
   declareProperty("MinimumPhotonPt",       m_minPhotonPt = 20*CLHEP::GeV);
   declareProperty("IgnoreConvPointing",    m_ignoreConv = false);
+  declareProperty("pfoToolName",           m_pfoToolName = "PFOTool","Name of PFO retriever tool");
+  declareProperty( "TCMatchMaxRat",        m_tcMatch_maxRat = 1.5    );
+  declareProperty( "TCMatchDeltaR",        m_tcMatch_dR     = 0.1    );
+
 
 }
   
@@ -53,6 +59,7 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::initialize()
 {
   ATH_CHECK (m_photonVertexSelectionTool.retrieve() );
   ATH_CHECK (m_photonPointingTool.retrieve() );
+  ATH_CHECK (m_pfotool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -102,6 +109,9 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
   // Get the photon vertex if possible
   std::vector<std::pair<const xAOD::Vertex*, float> > vxResult;
   const xAOD::Vertex *newPV = nullptr;
+
+  const xAOD::PFOContainer *pfos = m_pfotool->retrievePFO(CP::EM,CP::all);
+  for(const auto& pfo : *pfos) pfo->auxdecor<char>("passOR") = true;
   
   if (ph1 and ph2)
   {
@@ -109,6 +119,8 @@ StatusCode DerivationFramework::DiphotonVertexDecorator::addBranches() const
     if(vxResult.size()) {
       newPV = vxResult[0].first; //output of photon vertex selection tool must be sorted according to score
     }
+    ATH_CHECK(matchPFO(ph1,pfos));
+    ATH_CHECK(matchPFO(ph2,pfos));
   }
 
   // Decorate the vertices with the NN score
@@ -195,3 +207,44 @@ bool DerivationFramework::DiphotonVertexDecorator::PhotonPreselect(const xAOD::P
 
 }
 
+StatusCode DerivationFramework::DiphotonVertexDecorator::matchPFO(const xAOD::Photon* eg,const xAOD::PFOContainer *pfoCont) const {
+  const xAOD::IParticle* swclus = eg->caloCluster();
+
+    // Preselect PFOs based on proximity: dR<0.4
+  std::vector<const xAOD::PFO*> nearbyPFO;
+  nearbyPFO.reserve(20);
+  for(const auto& pfo : *pfoCont) {
+    if(xAOD::P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, true)) {
+      if( ( !pfo->isCharged() && pfo->e() > FLT_MIN )) nearbyPFO.push_back(pfo);
+    } // DeltaR check
+  } // PFO loop
+
+  double eg_cl_e = swclus->e();
+  bool doSum = true;
+  double sumE_pfo = 0.;
+  const xAOD::IParticle* bestbadmatch = 0;
+  std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
+  for(const auto& pfo : nearbyPFO) {
+    if(!xAOD::P4Helpers::isInDeltaR(*pfo, *swclus, m_tcMatch_dR, true)) {continue;}
+    // Handle neutral PFOs like topoclusters
+    double pfo_e = pfo->eEM();
+    // skip cluster if it's above our bad match threshold or outside the matching radius
+    if(pfo_e>m_tcMatch_maxRat*eg_cl_e) {
+      ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (pfo_e/eg_cl_e));
+      if( !bestbadmatch || (fabs(pfo_e/eg_cl_e-1.) < fabs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = pfo;
+      continue;
+    }
+
+    ATH_MSG_VERBOSE("E match with new nPFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
+    if( (doSum = fabs(sumE_pfo+pfo_e-eg_cl_e) < fabs(sumE_pfo - eg_cl_e)) ) {
+      pfo->auxdecor<char>("passOR") = false;
+      sumE_pfo += pfo_e;
+    } // if we will retain the topocluster
+    else {break;}
+  } // loop over nearby clusters
+  if(sumE_pfo<FLT_MIN && bestbadmatch) {
+    bestbadmatch->auxdecor<char>("passOR") = false;
+  }
+
+  return StatusCode::SUCCESS;
+}
