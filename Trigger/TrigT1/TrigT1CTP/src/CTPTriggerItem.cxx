@@ -1,55 +1,101 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrigConfData/LogicParser.h"
 
 #include "TrigConfL1Data/TriggerItem.h"
 
-#include "TrigT1CTP/CTPTriggerItem.h"
+#include "./CTPTriggerItem.h"
 
-namespace LVL1CTP {
 
-   CTPTriggerItem::CTPTriggerItem( const TrigConf::TriggerItem* parent, int prescale )
-      : m_parent( parent ), m_prescale( prescale ) {
+LVL1CTP::CTPTriggerItem::CTPTriggerItem()
+{}
 
-      m_counter = 0;
-      m_position = -1;
+LVL1CTP::CTPTriggerItem::~CTPTriggerItem()
+{}
 
+void
+LVL1CTP::CTPTriggerItem::setPrescale(int prescale) {
+   m_prescale = prescale;
+}
+
+
+int
+LVL1CTP::CTPTriggerItem::prescale() const {
+   return m_prescale;
+}
+
+void
+LVL1CTP::CTPTriggerItem::setName( const std::string & name ) {
+   m_name = name;
+}
+
+
+const std::string &
+LVL1CTP::CTPTriggerItem::name() const {
+   return m_name;
+}
+
+unsigned int
+LVL1CTP::CTPTriggerItem::ctpId() const {
+   return m_ctpid;
+}
+
+void 
+LVL1CTP::CTPTriggerItem::setCtpId( unsigned int ctpid ) {
+   m_ctpid = ctpid;
+}
+
+void
+LVL1CTP::CTPTriggerItem::setTriggerType(unsigned char triggerType) {
+   m_TriggerType = (triggerType & 0xff);
+}
+
+unsigned char
+LVL1CTP::CTPTriggerItem::triggerType() const {
+   return m_TriggerType;
+}
+
+void
+LVL1CTP::CTPTriggerItem::setLogic(const std::string & logicExpr) {
+   TrigConf::LogicParser p;
+   m_logic = std::unique_ptr<TrigConf::Logic>(p.parse(logicExpr));
+}
+
+
+const std::unique_ptr<TrigConf::Logic> &
+LVL1CTP::CTPTriggerItem::logic() const {
+   return m_logic;
+}
+
+void
+LVL1CTP::CTPTriggerItem::setBunchGroups(const std::vector<std::string> & bunchGroups) {
+   m_bunchGroups = bunchGroups;
+}
+
+const std::vector<std::string> &
+LVL1CTP::CTPTriggerItem::bunchGroups() const {
+   return m_bunchGroups;
+}
+
+
+bool
+LVL1CTP::CTPTriggerItem::evaluate( const std::map<std::string, unsigned int> & thrDecMap ) const
+{
+   if(m_logic) {
+      bool dec = m_logic->evaluate(thrDecMap);
+      if( dec && (! m_bunchGroups.empty()) ) {
+         // apply bunchgroups, if set (if not set, it is part of the logic)
+         for( auto & bgName : m_bunchGroups ) {
+            if( thrDecMap.at(bgName) == 0 ) {
+               dec = false; break;
+            }
+         }
+      }
+      return dec;
+   } else {
+      std::cerr << "No logic set for this ctpItem " << name() << std::endl;
+      return false;
    }
-
-   CTPTriggerItem::~CTPTriggerItem() {
-
-   }
-
-   const TrigConf::TriggerItem* CTPTriggerItem::item() const {
-
-      return m_parent;
-
-   }
-
-   int CTPTriggerItem::prescale() const {
-
-      return m_prescale;
-
-   }
-
-   int CTPTriggerItem::prescaleCounter() const {
-
-      return m_counter;
-
-   }
-
-   void CTPTriggerItem::setPrescaleCounter( int counter ) {
-     m_counter = counter;       
-     return; 
-   }
-
-   unsigned int CTPTriggerItem::itemPos() const {
-      return m_position;
-   }
-
-   void CTPTriggerItem::setItemPos( unsigned int position ) {
-      m_position = position;
-   }
-
-} // namespace LVL1CTP
+}
