@@ -358,6 +358,10 @@ namespace top {
     registerParameter("MCGeneratorWeights",
                       "Do you want the OTF-computed MC generator weights (if available)? True (in truth tree), Nominal (save to the nominal tree if passes selection) or False (nothing, default)",
                       "False");
+    registerParameter("NominalWeightNames",
+                      "List of nominal weight names to attempt to retrieve. Attempts are made in the order as specified. If none of the names can be found, we will crash with error message. Use index instead in such case.",
+                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \"");
+
     registerParameter("TruthBlockInfo", "Do you want to dump the full Truth block info? True or False", "False");
 
     registerParameter("TruthElectronPt",

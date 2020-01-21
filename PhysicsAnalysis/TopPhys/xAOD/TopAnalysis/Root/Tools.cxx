@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/Tools.h"
@@ -147,6 +147,55 @@ namespace top {
 
     // If we don't already return, something unexpected has happened and we need to fix it!
     throw std::runtime_error("Cannot determine the derivation stream. Please report.");
+  }
+
+  void parseCutBookkeepers(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+      std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC) {
+    std::vector<int> maxCycle;
+    for (const xAOD::CutBookkeeper *cbk : *cutBookKeepers) {
+      // skip RDO and ESD numbers, which are nonsense; and
+      // skip the derivation number, which is the one after skimming
+      // we want the primary xAOD numbers
+      if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
+        continue;
+      // only accept "AllExecutedEvents" bookkeeper (0th MC weight)
+      // or "AllExecutedEvents_NonNominalMCWeight_XYZ" where XYZ is the MC weight index
+      if (!((cbk->name() == "AllExecutedEvents")
+            || (cbk->name().find("AllExecutedEvents_NonNominalMCWeight_") != std::string::npos)))
+        continue;
+      const std::string name = cbk->name();
+      auto pos_name = std::find(names.begin(), names.end(), name);
+      // is it a previously unencountered bookkeeper? If yes append its name to the vector of names
+      // if not no need, but we must check the corresponding entry for the sum of weights exist
+      if (pos_name == names.end()) {
+        names.push_back(name);
+        maxCycle.push_back(cbk->cycle());
+        sumW.push_back(cbk->sumOfEventWeights());
+      } else if (cbk->cycle() > maxCycle.at(pos_name - names.begin())) {
+        maxCycle.at(pos_name - names.begin()) = cbk->cycle();
+        sumW.at(pos_name - names.begin()) = cbk->sumOfEventWeights();
+      } else {
+        continue;
+      }
+    }
+  }
+
+  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers, const bool isHLLHC) {
+    int maxCycle = -1;
+    ULong64_t rawEntries = 0;
+    // search for "AllExecutedEvents" bookkeeper -- this one should always exist
+    for (const xAOD::CutBookkeeper *cbk : *cutBookKeepers) {
+      if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
+        continue;
+      if (cbk->name() != "AllExecutedEvents")
+        continue;
+      if (cbk->cycle() > maxCycle) {
+        rawEntries = cbk->nAcceptedEvents();
+        maxCycle = cbk->cycle();
+      }
+    }
+
+    return rawEntries;
   }
 
   xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::string& electronCollectionName) {

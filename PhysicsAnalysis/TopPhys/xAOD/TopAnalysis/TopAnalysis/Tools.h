@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPTOOLS_H__
@@ -9,6 +9,9 @@
 #include <string>
 
 #include "xAODRootAccess/TEvent.h"
+
+#include "xAODCutFlow/CutBookkeeper.h"
+#include "xAODCutFlow/CutBookkeeperContainer.h"
 
 #include "TopConfiguration/TopConfig.h"
 
@@ -82,6 +85,28 @@ namespace top {
 
   std::string getDerivationStream(TFile* inputFile);
 
+/**
+ * @brief Search bookkeepers for ones matching AllExecutedEvents, and which
+ * originate from AOD before skimming.
+ *
+ * @param cutBookKeepers Container with bookkeepers
+ * @param names Vector of names of the selected bookkeepers
+ * @param sumW Vector of sum of weights of the selected bookkeepers
+ * @param isHLLHC Whether this is a HLLHC ugprade sample, it uses different stream for bookkeepers
+ */
+  void parseCutBookkeepers(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+      std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC=false);
+
+/**
+ * @brief Get raw number of events before skimming from "AllExecutedEvents" bookkeeper
+ * 
+ * @param cutBookKeepers Container with CutBookkeepers
+ * @param isHLLHC Whether this is a HLLHC ugprade sample, it uses different stream for bookkeepers
+ *
+ * @return number of raw events before skimming
+ */
+  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+      const bool isHLLHC=false);
 
 /**
  * @brief xAODs can be accessed in class or branch access mode. Guess 'the best'
