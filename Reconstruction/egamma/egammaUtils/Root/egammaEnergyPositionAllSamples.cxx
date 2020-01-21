@@ -8,10 +8,13 @@ namespace {
 /*if both in barrel and end-cap then have to
  * rely on energy deposition
  * be careful to test 0 precisely
- * As 0 (no deposit) > noise (which is negative)*/
+ * As  eSample returns energy 0 in case of failure (eg. sampling not set)
+ * while the other sample can have cells but energy <0 due to noise
+ */
 bool isCrackBarrel(const xAOD::CaloCluster &cluster, 
                    const xAOD::CaloCluster::CaloSample barrel,
                    const xAOD::CaloCluster::CaloSample endCap) {
+
   if (cluster.eSample(barrel) == 0. && cluster.eSample(endCap) != 0.) {
     return false; // endcap
   }
