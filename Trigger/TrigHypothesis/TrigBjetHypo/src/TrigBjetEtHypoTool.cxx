@@ -47,30 +47,41 @@ StatusCode TrigBjetEtHypoTool::decide( std::vector< TrigBjetEtHypoToolInfo >& bJ
       continue;
     
     const xAOD::Jet *jet = *(bJetInfo.jetEL);
+    const xAOD::Vertex *vertex = *(bJetInfo.vertexEL);
 
     ATH_MSG_DEBUG( "Evaluating 'decide' on jet input jets " );
     ATH_MSG_DEBUG( "   ** pt  = " << jet->p4().Et() );
     ATH_MSG_DEBUG( "   ** eta = " << jet->eta() );
     ATH_MSG_DEBUG( "   ** phi = " << jet->phi() );
     
+    ATH_MSG_DEBUG( "Event Vertex [x,y,z]=[" 
+		   << vertex->x() 
+		   << ","<<  vertex->y() 
+		   << ","<<  vertex->z() <<  "]" );
+
+    ATH_MSG_DEBUG( "   ** Vertex Type = " << vertex->vertexType() );
+
     bool pass = true;
     
-    
-    if ( m_acceptAll ) {
-      ATH_MSG_DEBUG( "REGTEST: AcceptAll property is set: taking all events" );
-      ATH_MSG_DEBUG( "REGTEST: Trigger decision is 1" );
+    if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
+      ATH_MSG_WARNING( "Vertex is not a valid primary vertex!" );
+      ATH_MSG_WARNING( "Trigger decision is FALSE" );
+      pass = false;
+    } else if ( m_acceptAll ) {
+      ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
+      ATH_MSG_DEBUG( "Trigger decision is TRUE" );
     } else {
-
-      ATH_MSG_DEBUG( "REGTEST: AcceptAll property not set: applying the selection" );
+      
+      ATH_MSG_DEBUG( "AcceptAll property not set: applying the selection" );
       
       // Run on Jet Collection
       float et = jet->p4().Et(); 
       float eta = jet->eta();
       
-      ATH_MSG_DEBUG( "REGTEST: EF jet with et = " << et );
-      ATH_MSG_DEBUG( "REGTEST: EF jet with eta = " << eta );
-      ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy 'j' Et > " << m_etThreshold );
-      ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy " << m_minEtaThreshold <<" < |Eta| <  " << m_maxEtaThreshold );    
+      ATH_MSG_DEBUG( "EF jet with et = " << et );
+      ATH_MSG_DEBUG( "EF jet with eta = " << eta );
+      ATH_MSG_DEBUG( "Requiring EF jets to satisfy 'j' Et > " << m_etThreshold );
+      ATH_MSG_DEBUG( "Requiring EF jets to satisfy " << m_minEtaThreshold <<" < |Eta| <  " << m_maxEtaThreshold );    
       
       if ( et < m_etThreshold )
 	pass = false;
@@ -87,8 +98,8 @@ StatusCode TrigBjetEtHypoTool::decide( std::vector< TrigBjetEtHypoToolInfo >& bJ
       ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" ); 
     }
 
-    ATH_MSG_DEBUG( "REGTEST: Jet decision is " << pass );
-    ATH_MSG_DEBUG("PRINTING DECISION");                                                                                                                                             
+    ATH_MSG_DEBUG( "Jet decision is " << (pass?"TRUE":"FALSE") );
+    ATH_MSG_DEBUG( "PRINTING DECISION" );
     ATH_MSG_DEBUG( *bJetInfo.decision );  
   }
 

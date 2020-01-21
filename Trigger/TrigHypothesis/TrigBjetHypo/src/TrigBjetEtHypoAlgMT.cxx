@@ -130,8 +130,9 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
     }
 
     if ( PVindex == -1 ) {
-      ATH_MSG_ERROR( "Primary Vertex could not be found!" );
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING( "Primary Vertex could not be found!" );
+      ATH_MSG_WARNING( "Using dummy vertex!" );
+      PVindex = 0;
     }
 
     // Adding Links 
@@ -155,16 +156,25 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
     }
     // Check jets are attached properly
     if ( not newDecision->hasObjectLink( TrigCompositeUtils::featureString() ) ) {
-      ATH_MSG_ERROR( "Trying to extract the associate jet to the output deicions." );
+      ATH_MSG_ERROR( "Trying to extract the associated jet from the output decisions." );
       ATH_MSG_ERROR( "But output decision has no link to jet." );
       return StatusCode::FAILURE;
     }
-    
+    // Check vertex is attached properly
+    if ( not newDecision->hasObjectLink( m_prmVtxLink.value() ) ) {
+      ATH_MSG_ERROR( "Trying to extract the associated primary vertex from the output decisions." );
+      ATH_MSG_ERROR( "But output decision has no link to primary vertex" );
+      return StatusCode::FAILURE;
+    }    
+
     // Get Parent Decision
     const ElementLinkVector< TrigCompositeUtils::DecisionContainer > mySeeds = newDecision->objectCollectionLinks< TrigCompositeUtils::DecisionContainer >( TrigCompositeUtils::seedString() );
     // Get Associated Jet
     const ElementLink< xAOD::JetContainer > myJet = newDecision->objectLink< xAOD::JetContainer >( TrigCompositeUtils::featureString() ); 
     CHECK( myJet.isValid() );
+    // Get primary vertex
+    const ElementLink< xAOD::VertexContainer > myVertex = newDecision->objectLink< xAOD::VertexContainer >( m_prmVtxLink.value() );
+    CHECK( myVertex.isValid() );
 
     // Extract the IDs of the b-jet chains which are active.
     // Previous decision IDs.
@@ -178,6 +188,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
     TrigBjetEtHypoTool::TrigBjetEtHypoToolInfo infoToAdd;
     infoToAdd.previousDecisionIDs = previousDecisionIDs;
     infoToAdd.jetEL = myJet; 
+    infoToAdd.vertexEL = myVertex;
     infoToAdd.decision = newDecision;
     bJetHypoInputs.push_back( infoToAdd );
   }
