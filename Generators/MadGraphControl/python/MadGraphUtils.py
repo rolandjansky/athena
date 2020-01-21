@@ -1208,7 +1208,10 @@ def add_lifetimes(process_dir=None,threshold=None):
             mglog.error('Process directory could not be found!')
         else:
             process_dir = glob('*PROC*')[-1]
-    me_exec=process_dir+'/bin/madevent'
+    madpath=os.environ['MADPATH']
+    if not os.access(madpath+'/bin/mg5_aMC',os.R_OK):
+        mglog.error('mg5_aMC executable not found in '+madpath)
+    me_exec=madpath+'/bin/mg5_aMC'
     if len(glob(process_dir+'/Events/*'))<1:
         mglog.error('Process dir %s does not contain events?'%process_dir)
     run = glob(process_dir+'/Events/*')[0].split('/')[-1]
@@ -1217,7 +1220,8 @@ def add_lifetimes(process_dir=None,threshold=None):
     # See : https://answers.launchpad.net/mg5amcnlo/+question/267904
 
     tof_c = open('time_of_flight_exec_card','w')
-    tof_c.write('add_time_of_flight '+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
+    tof_c.write('launch '+process_dir+''' -i
+add_time_of_flight '''+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
     tof_c.close()
 
     mglog.info('Started adding time of flight info '+str(time.asctime()))
