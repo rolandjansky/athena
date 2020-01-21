@@ -44,7 +44,8 @@ namespace top {
 
     // retrieve jet collection and remove the "Jets" at the end of it
     m_jetCollection = m_config->sgKeyJets();
-    m_jetCollection.erase(m_jetCollection.length() - 4);
+    int pos = m_jetCollection.find("Jets");
+    m_jetCollection.erase(pos);
     //FIXME: If no metadata is available, the PMGTool will crash. Providing here a "manual" workaround.
     //FIXME PMG: comment from here
     //retrieve PMGTruthWeights
@@ -246,9 +247,11 @@ namespace top {
           static_cast<TH2D*>(h_ptr->hist(name))->Fill(jetPtr->pt() * toGeV,
                                                       jetPtr->eta(),
                                                       w_event);
+
           // if "detailed", also making the quark_jets one
           if (jet_flavor >= 1 && jet_flavor <= 4) {
             sprintf(name, "quark_jets_%s", m_jetCollection.c_str());
+
             static_cast<TH2D*>(h_ptr->hist(name))->Fill(jetPtr->pt() * toGeV,
                                                         jetPtr->eta(),
                                                         w_event);
