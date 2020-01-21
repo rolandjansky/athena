@@ -12,10 +12,12 @@
 
 #include <AsgMessaging/MessageCheck.h>
 
+#include <AsgMessaging/MessageCheckLocal.h>
 #include <mutex>
 #include <stdexcept>
 
 #ifndef XAOD_STANDALONE
+#include <GaudiKernel/Bootstrap.h>
 #include <GaudiKernel/ISvcLocator.h>
 #endif
 
