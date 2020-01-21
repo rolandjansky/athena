@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.AlgSequence import AlgSequence    
 def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
@@ -9,7 +11,7 @@ def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
                 finder = a
                 break
         if finder is None:
-            print "Error could not guess jet finder type in ",jetcollName
+            print ("Error could not guess jet finder type in ",jetcollName)
             return 
 
     if input is None:
@@ -23,7 +25,7 @@ def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
                         input = "TopoTower"
                 break
         if input is None:
-            print "Error could not guess input type in ",jetcollName            
+            print ("Error could not guess input type in ",jetcollName)
             return
         
     if mainParam is None:
@@ -33,7 +35,7 @@ def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
         try :
             mainParam = float(mp)/10.
         except ValueError :
-            print "Error could not guess main parameter in ",jetcollName
+            print ("Error could not guess main parameter in ",jetcollName)
             return
 
     return finder, input, mainParam
@@ -64,7 +66,7 @@ def setupGhostAssociator(assocName, assocType, assocKeys="", seq=AlgSequence()):
             assocKeys = [JetTruthParticleFilterGetter(seq=seq)._outputName]        
         assocTool = GhostAssociator_TruthPtAssociation_(assocName, AssociationName = assocName, AssociatedContainers = assocKeys ) 
     else:
-        #print "Can't associate to ",assocType, " will use a generic association JetINav4MomAssociation"
+        #print ("Can't associate to ",assocType, " will use a generic association JetINav4MomAssociation")
         assocTool = GhostAssociator_JetINav4MomAssociation_(assocName, AssociationName = assocName, AssociatedContainers = assocKeys ) 
 
     return assocTool
@@ -92,7 +94,7 @@ def setupGhostAssociationTool(jetcollName, ghostsAssoc = [], finder = None,input
     finder, input, mainParam = interpretJetName( jetcollName, finder, input, mainParam)
     replaceNegEnergy =  'Ghost' in input
 
-    #print 'Will create an association by re-running with this jet alg : ', finder, mainParam, input
+    #print ('Will create an association by re-running with this jet alg : ', finder, mainParam, input)
     
     # Create the tool 
     t= GhostAssociationTool("JetGhostAsso")
@@ -125,7 +127,7 @@ def setupGhostAssociationTool2(jetcollName, assocName, assocType, assocKeys="", 
     # first step : guess the finder, input , mainParam, if needed
     finder, input, mainParam = interpretJetName( jetcollName, finder, input, mainParam)
     
-    #print 'Will create an association by re-running with this jet alg : ', finder, mainParam, input
+    #print ('Will create an association by re-running with this jet alg : ', finder, mainParam, input)
     
     # Create the tool 
     t= GhostAssociationTool("JetAsso"+assocName)
