@@ -26,7 +26,8 @@ ConfigFlags.Input.SecondaryFiles = defaultTestFiles.RAW_BKG
 ConfigFlags.IOVDb.GlobalTag = "CONDBR2-BLKPA-2016-12"
 ConfigFlags.Overlay.DataOverlay = True
 ConfigFlags.Output.RDOFileName = "dataOverlayRDO.pool.root"
-ConfigFlags.Output.RDO_SGNLFileName = "dataOverlayRDO_SGNL.pool.root"
+# Temporarily disabled due to issues with MT
+# ConfigFlags.Output.RDO_SGNLFileName = "dataOverlayRDO_SGNL.pool.root"
 
 postprocessAndLockFlags(ConfigFlags, args)
 
