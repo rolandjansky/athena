@@ -3,14 +3,6 @@
 */
 
 #ifndef XAOD_ANALYSIS
-//#include "CLHEP/Vector/LorentzVector.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
-//#include "FourMomUtils/P4Helpers.h"
-//#include "FourMom/P4EEtaPhiM.h"
-//#include "JetEvent/Jet.h"
-//#include "CaloEvent/CaloCluster.h"
-
-//tau
 #include "tauRecTools/TauEventData.h"
 
 #include "xAODTau/TauJetContainer.h"
@@ -40,12 +32,6 @@ TauAxisSetter::~TauAxisSetter() { }
 StatusCode TauAxisSetter::initialize()
 {
     return StatusCode::SUCCESS;
-}
-
-StatusCode TauAxisSetter::eventInitialize() 
-{
-    return StatusCode::SUCCESS;
-      
 }
 
 /********************************************************************/

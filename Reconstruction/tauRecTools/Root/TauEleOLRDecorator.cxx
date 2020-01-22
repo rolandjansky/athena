@@ -28,20 +28,6 @@ TauEleOLRDecorator::~TauEleOLRDecorator(){
 
 }
 
-StatusCode TauEleOLRDecorator::eventInitialize()
-{
-  // get electron container                                                                                                                               
-  SG::ReadHandle<xAOD::ElectronContainer> electronInHandle( m_electronInputContainer );
-  if (!electronInHandle.isValid()) {
-    ATH_MSG_FATAL("Electron container with name " << electronInHandle.key() << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
-    return StatusCode::FAILURE;
-  }
-  m_xElectronContainer = electronInHandle.cptr();
-  ATH_MSG_DEBUG("  read: " << electronInHandle.key() << " = " << "..." );                                                                                     
-  
-  return StatusCode::SUCCESS;
-}
-
 StatusCode TauEleOLRDecorator::initialize()
 {
   ATH_MSG_INFO( "Initializing TauEleOLRDecorator" );
@@ -77,6 +63,15 @@ StatusCode TauEleOLRDecorator::initialize()
 
 StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
 {
+  // get electron container                                                                                                                               
+  SG::ReadHandle<xAOD::ElectronContainer> electronInHandle( m_electronInputContainer );
+  if (!electronInHandle.isValid()) {
+    ATH_MSG_FATAL("Electron container with name " << electronInHandle.key() << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
+    return StatusCode::FAILURE;
+  }
+  m_xElectronContainer = electronInHandle.cptr();
+  ATH_MSG_DEBUG("  read: " << electronInHandle.key() << " = " << "..." );                                                                                     
+  
   //part of EDM, this check is not necessary
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   if (!m_bEleOLRMatchAvailableChecked)

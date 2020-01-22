@@ -112,18 +112,6 @@ StatusCode PanTau::PanTauProcessor::finalize() {
     return StatusCode::SUCCESS;
 }//end finalize
 
-
-
-StatusCode PanTau::PanTauProcessor::eventInitialize(){
-  // xAOD::ParticleContainer* pi0Container = new xAOD::ParticleContainer();
-  // xAOD::ParticleAuxContainer* pi0AuxContainer = new xAOD::ParticleAuxContainer();
-  // pi0Container->setStore(pi0AuxContainer);
-  // ATH_CHECK(evtStore()->record(pi0Container, "finalTauPi0s"));
-  // ATH_CHECK(evtStore()->record(pi0AuxContainer, "finalTauPi0sAux."));
-  
-  return StatusCode::SUCCESS;
-}
-
 /// //////////////////////////////////////////////////////////
 /// Execute
 /// //////////////////////////////////////////////////////////

@@ -62,11 +62,8 @@ public:
     //! Algorithm functions
     //-------------------------------------------------------------
     virtual StatusCode initialize() override;
-    virtual StatusCode eventInitialize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
-    virtual StatusCode eventFinalize() override;
     virtual StatusCode finalize() override;
-    
     
     //-------------------------------------------------------------
     //! Extrapolate track eta and phi to the calorimeter middle surface

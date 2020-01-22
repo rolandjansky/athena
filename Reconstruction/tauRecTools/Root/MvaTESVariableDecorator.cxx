@@ -29,9 +29,14 @@ StatusCode MvaTESVariableDecorator::initialize(){
   return StatusCode::SUCCESS;
 }
 
+StatusCode MvaTESVariableDecorator::finalize() {
+  return StatusCode::SUCCESS;
+}
+
 //_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::eventInitialize()
-{
+StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
+  
+  // Decorate event info
   // need to check mu can be retrieved via EventInfo for Run3 trigger
   SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
   if (!eventinfoInHandle.isValid()) {
@@ -53,7 +58,6 @@ StatusCode MvaTESVariableDecorator::eventInitialize()
 	ATH_MSG_WARNING("No xAOD::VertexContainer, setting nVtxPU to 0");
 	m_emitVertexWarning=false;
       }
-      // return StatusCode::FAILURE;
     }
     else {
       const xAOD::VertexContainer* vertexContainer = vertexInHandle.cptr();
@@ -64,14 +68,6 @@ StatusCode MvaTESVariableDecorator::eventInitialize()
       }
     }
   }
-
-  return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
-  
-  // Decorate event info
   
   SG::AuxElement::Accessor<float> acc_mu("mu");
   SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
@@ -215,11 +211,5 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   
   xTau.setDetail(xAOD::TauJetParameters::LC_pantau_interpolPt, (float) LC_pantau_interpolPt);
 
-  return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::eventFinalize()
-{
   return StatusCode::SUCCESS;
 }

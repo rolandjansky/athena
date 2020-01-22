@@ -43,6 +43,7 @@ public:
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode finalize() override;
 
 private:
   ToolHandleArray<TrackMVABDT> m_vClassifier;
@@ -67,15 +68,8 @@ class TrackMVABDT
   // configure the MVA object and build a general map to store variables
   // for possible MVA inputs. Only Variables defined in the root weights file
   // are passed to the MVA object
-  StatusCode initialize();
-  StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode finalize() override;
   
   // executes MVA object to get the BDT score, makes the decision and resets
   // classification flags
