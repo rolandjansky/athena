@@ -3,8 +3,9 @@
 __doc__ = "Instantiate EMTrackMatchBuilder with default configuration"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTools.egammaToolsConf import EMTrackMatchBuilder
+EMTrackMatchBuilder=CompFactory.EMTrackMatchBuilder
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCacheCfg
 
 

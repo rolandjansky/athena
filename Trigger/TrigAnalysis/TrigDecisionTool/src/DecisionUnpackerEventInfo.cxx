@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgTools/AsgToolsConf.h"
@@ -9,10 +9,7 @@
 
 
 #ifndef XAOD_ANALYSIS
-//there is no better way????
-#define private public
 #include "TrigSteeringEvent/Lvl1Result.h"
-#undef private
 
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavStructure/TrigNavStructure.h"
@@ -36,7 +33,7 @@ bool get32BitDecision( unsigned int index,
 
 
 namespace Trig {
-  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key) : m_handle(new DecisionObjectHandleEventInfo(sg,key)){
+  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey) : m_handle(new DecisionObjectHandleEventInfo(oldEventInfoKey)){
   }
 
   DecisionUnpackerEventInfo::~DecisionUnpackerEventInfo(){
@@ -67,9 +64,13 @@ namespace Trig {
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
       ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
-      item->m_passBP = get32BitDecision(ctpid,tbp);
-      item->m_passAP = get32BitDecision(ctpid,tap);
-      item->m_passAV = get32BitDecision(ctpid,tav);
+      bool passBP = get32BitDecision(ctpid,tbp);
+      bool passAP = get32BitDecision(ctpid,tap);
+      bool passAV = get32BitDecision(ctpid,tav);
+      LVL1CTP::Lvl1Item itemNew (item->name(), item->hashId(),
+                                 passBP, passAP, passAV,
+                                 item->prescaleFactor());
+      *item = std::move (itemNew);
       itemsByName[item->name()] = item;
     }
     return StatusCode::SUCCESS;
@@ -189,7 +190,7 @@ namespace Trig {
     m_handle->validate();
   }
   void DecisionUnpackerEventInfo::invalidate_handle(){
-    m_handle->invalidate();
+    m_handle->reset(); // This used to be invalidate(), but we now use a ReadHandle, so it has to be a full reset.
     this->unpacked_navigation(false);
     this->unpacked_decision(false);
   }

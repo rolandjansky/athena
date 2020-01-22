@@ -13,12 +13,12 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
-from MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
+from MuonRecExample.MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
 
-from MuonRecFlags import muonRecFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
 
-from MuonStandaloneFlags import muonStandaloneFlags
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 muonStandaloneFlags.setDefaults()
 
 from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
@@ -33,7 +33,6 @@ from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicT
 # temporarily for backwards compat. TO BE REMOVED
 from AthenaCommon.CfgGetter import addTool,addToolClone,addService
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -95,7 +94,6 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
         kwargs.setdefault("DoTofCorrection", True)
         kwargs.setdefault("DoFixedError", False)
         kwargs.setdefault("DoErrorScaling", False)
-        kwargs.setdefault("MuonTofTool", None)
         kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_data'))  # MJW: should this be Collision_G4 ???
         kwargs.setdefault("UseParametrisedError", False)
 
@@ -117,7 +115,6 @@ def MdtTubeHitOnTrackCreator(name="MdtTubeHitOnTrackCreator",**kwargs):
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
 
 def MdtDriftCircleOnTrackCreatorStau(name="MdtDriftCircleOnTrackCreatorStau",**kwargs ):
-    kwargs.setdefault("MuonTofTool", getPublicTool("StauBetaTofTool") )
     kwargs.setdefault("TimingMode", 3 )
     kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_t0fit') )
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
@@ -243,8 +240,8 @@ def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
 def MuonIdHelperSvc(name="MuonIdHelperSvc",**kwargs):
     from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
-    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
-    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+    kwargs.setdefault("HasSTgc", MuonGeometryFlags.hasSTGC())
+    kwargs.setdefault("HasMM", MuonGeometryFlags.hasMM())
     return Muon__MuonIdHelperSvc(name,**kwargs)
 
 def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):

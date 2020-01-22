@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for muon track reconstruction"""
 
@@ -17,10 +17,10 @@ from AthenaCommon import CfgMgr
 
 from RecExConfig.RecFlags import rec
 
-from MuonRecFlags import muonRecFlags
-from MuonStandaloneFlags import muonStandaloneFlags
+from .MuonRecFlags import muonRecFlags
+from .MuonStandaloneFlags import muonStandaloneFlags
 
-from MuonRecUtils import logMuon,ConfiguredBase
+from .MuonRecUtils import logMuon,ConfiguredBase
 
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
@@ -37,9 +37,7 @@ class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
         self.applyUserDefaults(kwargs,name)
         if not MuonGeometryFlags.hasCSC():
             kwargs["CscRotCreator"] = ""
-        super(MuPatCandidateTool,self).__init__(name,**kwargs)
-MuPatCandidateTool.setDefaultProperties( SegmentExtender = "" )
-        
+        super(MuPatCandidateTool,self).__init__(name,**kwargs)        
 
 
 class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):

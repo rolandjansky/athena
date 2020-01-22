@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
+LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
 
 def LArRawDataReadingCfg(configFlags):
     acc=ComponentAccumulator()
@@ -29,11 +30,11 @@ if __name__=="__main__":
 
     acc=LArRawDataReadingCfg(ConfigFlags)
     
-    from LArEventTest.LArEventTestConf import DumpLArRawChannels
+    DumpLArRawChannels=CompFactory.DumpLArRawChannels
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
     acc.merge(LArOnOffIdMappingCfg(ConfigFlags))
     acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels",))
 
-    f=open("LArRawDataReading.pkl","w")
+    f=open("LArRawDataReading.pkl","wb")
     acc.store(f)
     f.close()

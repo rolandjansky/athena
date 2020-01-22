@@ -10,7 +10,6 @@ atlas_subdir( GoogleTestTools )
 atlas_depends_on_subdirs(
   PUBLIC
   Control/AthenaCommon
-  TestPolicy
   PRIVATE
   GaudiKernel )
 

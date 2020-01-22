@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -23,33 +23,28 @@ StatusCode RoIsUnpackingToolBase::initialize()
   return StatusCode::SUCCESS;
 }
 
-std::string createLegName( const std::string& original, int counter ) {
-  std::string legName = "leg000_" + original;
-  const std::string ps = std::to_string( counter );
-  legName.replace( 6-ps.size(), ps.size(), ps );
-  return legName;
-}
-
 StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const std::string&)> filter ) {
 
   SG::ReadHandle<TrigConf::HLTMenu>  hltMenuHandle = SG::makeHandle( m_HLTMenuKey );
   ATH_CHECK( hltMenuHandle.isValid() );
 
   for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
+    const HLT::Identifier chainIdentifier(chain.name());
     const std::vector<std::string> thresholds{ chain.l1thresholds() };
-    int counter = -1;
+    size_t counter = 0;
     for ( const std::string& th: thresholds ) {
-      counter++;
       if ( filter(th) ) {
-	m_thresholdToChainMapping[ HLT::Identifier( th ) ].push_back(  HLT::Identifier( chain.name() ) );
-	ATH_MSG_DEBUG( "Associating " << chain.name() << " with threshold " << th );
-	if ( thresholds.size() > 1 ) {
-	  std::string legName = createLegName( chain.name(), counter);
-	  m_thresholdToChainMapping[ HLT::Identifier(th) ].push_back( HLT::Identifier( legName ) );
-	  m_legToChainMapping.insert( std::make_pair( HLT::Identifier( legName ),  HLT::Identifier( chain.name() ) ) );
-	  ATH_MSG_INFO( "Associating additional chain leg " << legName << " with threshold " << th );
-	}
+        const HLT::Identifier thresholIdentifier(th);
+        m_thresholdToChainMapping[ thresholIdentifier ].push_back( chainIdentifier );
+        ATH_MSG_DEBUG( "Associating " << chainIdentifier << " with threshold " << th );
+        if ( thresholds.size() > 1 ) {
+          HLT::Identifier legIdentifier = TrigCompositeUtils::createLegName(chainIdentifier, counter);
+          m_thresholdToChainMapping[ thresholIdentifier ].push_back( legIdentifier );
+          m_legToChainMapping.insert( std::make_pair( legIdentifier,  chainIdentifier ) );
+          ATH_MSG_INFO( "Associating additional chain leg " << legIdentifier << " with threshold " << thresholIdentifier );
+        }
       }
+      ++counter;
     }
   }
   return StatusCode::SUCCESS;

@@ -38,7 +38,9 @@ createPersistentWithKey(const TRANS* transObj, const std::string& key, MsgStream
 template< class TRANS_BASE, class TRANS, class PERS >
 TPObjRef
 TPAbstractPolyCnvBase<TRANS_BASE, TRANS, PERS>::
-toPersistent_impl( const TRANS *trans, MsgStream &log )
+toPersistentWithKey_impl( const TRANS *trans,
+                          const std::string& key,
+                          MsgStream &log )
 {
    // make sure there is a storage object
    if( !this->topConverter()->hasTLPersObject() ) {
@@ -53,7 +55,7 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
       // for recursive calls use temporary persistent object
       // as the vector storage may be reallocated in a recursive invocation
       PERS	tmp_pers;
-      transToPers( trans, &tmp_pers, log);
+      transToPersWithKey( trans, &tmp_pers, key, log);
       // do NOT use back() here (the vector has already grown)
       m_pStorage->operator[]( size ) = tmp_pers;
    } else {
@@ -63,19 +65,23 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
 	    + " called recursively! -> enable the recursive flag" );
       }
       m_curRecLevel++;
-      transToPers( trans, &m_pStorage->back(), log);
+      transToPersWithKey( trans, &m_pStorage->back(), key, log);
       m_curRecLevel--;
    }
    return TPObjRef( this->m_pStorageTID, size );
 }
 
 class IdentifiableContainerBase;
+class IdentifiableValueContainerBase;
 template< class TRANS_BASE, class TRANS, class PERS >
 TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
 createTransient ([[maybe_unused]] const PERS* persObj, MsgStream &log)
 {
     if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
       log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+    }else if constexpr(std::is_base_of< IdentifiableValueContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value){
+      log << "IdentifiableValueContainerBase is not compatable with createTransient" << std::endl;
       return nullptr;
     }
     else{
@@ -87,7 +93,6 @@ createTransient ([[maybe_unused]] const PERS* persObj, MsgStream &log)
     }
 }
 
-class IdentifiableContainerBase;
 template< class TRANS_BASE, class TRANS, class PERS >
 TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
 createTransientWithKey ([[maybe_unused]] const PERS* persObj,
@@ -96,6 +101,9 @@ createTransientWithKey ([[maybe_unused]] const PERS* persObj,
 {
     if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
       log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+    }else if constexpr(std::is_base_of< IdentifiableValueContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value){
+      log << "IdentifiableValueContainerBase is not compatable with createTransient" << std::endl;
       return nullptr;
     }
     else{
@@ -115,7 +123,10 @@ TRANS* TPConverterConstBase<TRANS, PERS>::createTransientConst
   if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
       log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
       return nullptr;
-    }
+   }else if constexpr(std::is_base_of< IdentifiableValueContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value){
+      log << "IdentifiableValueContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+  }
   else{
     // this is by default equivalent to 'new TRANS()'
     std::unique_ptr<TRANS> trans = std::make_unique<TRANS>();

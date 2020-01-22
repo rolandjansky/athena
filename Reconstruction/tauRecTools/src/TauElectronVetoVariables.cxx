@@ -31,18 +31,8 @@
 #include <math.h>
 #include <sstream>
 
-//#include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-//#include "CaloUtils/CaloCellList.h"
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloCell.h"
 #include "CaloUtils/CaloVertexedCell.h"
-//#include "AtlasDetDescr/AtlasDetectorID.h"
-//#include "CaloIdentifier/CaloID.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
@@ -84,11 +74,19 @@ StatusCode TauElectronVetoVariables::finalize()
 //-------------------------------------------------------------------------
 StatusCode TauElectronVetoVariables::initialize()
 {
-    if (m_caloExtensionTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Cannot find tool named <" << m_caloExtensionTool << ">");
+  ATH_CHECK( m_caloExtensionTool.retrieve() );
+
+  if (!m_ParticleCacheKey.key().empty()) {ATH_CHECK(m_ParticleCacheKey.initialize());}
+  else {m_useOldCalo = true;}
+
+  if(m_caloExtensionTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("initialize: Cannot retrieve " << m_caloExtensionTool);
       return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
+  } else {
+      ATH_MSG_VERBOSE("Successfully retrieved Extrapolation tool "
+              << m_caloExtensionTool.typeAndName());
+  }
+  return StatusCode::SUCCESS;
 }
 StatusCode TauElectronVetoVariables::eventInitialize()
 {
@@ -105,7 +103,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
         return StatusCode::SUCCESS;
     }
 
-    ATH_MSG_VERBOSE(name() << " in execute() ...");
+    ATH_MSG_DEBUG(name() << " in execute() ...");
 
     float detPhiTrk = 0.;
     float detEtaTrk = 0.;
@@ -145,6 +143,8 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 
     const CaloCell *pCell;
 
+    int trackIndex = -1;
+
     //use tau vertex to correct cell position
     bool applyCellCorrection = false;
     if (m_doCellCorrection && pTau.vertexLink()) {
@@ -165,36 +165,60 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
       phi_extrapol[i] = -11111.;
     }
 
-    // get the extrapolation into the calo
-    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(*pTau.track(0)->track());
-    if( !caloExtension || caloExtension->caloLayerIntersections().empty() ){
-      ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  " );
+    /*get the CaloExtension object*/
+    const Trk::CaloExtension * caloExtension = nullptr;
+    std::unique_ptr<Trk::CaloExtension> uniqueExtension ;
+    const xAOD::TrackParticle *orgTrack = pTau.track(0)->track();
+    trackIndex = orgTrack->index();
+
+    if (m_useOldCalo) {
+      /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
+      ATH_MSG_VERBOSE("Using the CaloExtensionTool");
+      uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+      caloExtension = uniqueExtension.get();
+    } else {
+      /*get the CaloExtension object*/
+      ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
+      SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
+      caloExtension = (*particleCache)[trackIndex];
+      ATH_MSG_VERBOSE("Getting element " << trackIndex << " from the particleCache");
+      if( not caloExtension ){
+        ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
+        uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+        caloExtension = uniqueExtension.get();
+      }
+    }
+
+    const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
+    
+    if( not caloExtension || clParametersVector.empty() ){
+      ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  : caloLayerIntersection is empty" );
       return StatusCode::SUCCESS;
     }
 
     // loop over calo layers
-    for( auto cur = caloExtension->caloLayerIntersections().begin(); cur != caloExtension->caloLayerIntersections().end() ; ++cur ){
+    for( const Trk::CurvilinearParameters * cur : clParametersVector ){
       
       // only use entry layer
-      if( !parsIdHelper.isEntryToVolume((*cur)->cIdentifier()) ) continue;
+      if( !parsIdHelper.isEntryToVolume(cur->cIdentifier()) ) continue;
       
-      CaloSampling::CaloSample sample = parsIdHelper.caloSample((*cur)->cIdentifier());
+      CaloSampling::CaloSample sample = parsIdHelper.caloSample(cur->cIdentifier());
       int index = -1;
       if( sample == CaloSampling::PreSamplerE || sample == CaloSampling::PreSamplerB ) index = 0;
       else if( sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 )          index = 1;
       else if( sample == CaloSampling::EME2 || sample == CaloSampling::EMB2 )          index = 2;
       else if( sample == CaloSampling::EME3 || sample == CaloSampling::EMB3 )          index = 3;
       if( index < 0 ) continue;
-      eta_extrapol[index] = (*cur)->position().eta();
-      phi_extrapol[index] = (*cur)->position().phi();
+      eta_extrapol[index] = cur->position().eta();
+      phi_extrapol[index] = cur->position().phi();
     }
 
     for (int i = 0; i < numOfsampEM; ++i) {
       if ( eta_extrapol[i] < -11110. || phi_extrapol[i] < -11110. )
-	{
-	  ATH_MSG_DEBUG("extrapolation of leading track to calo surfaces failed for sampling : " << i );
-	  return StatusCode::SUCCESS;
-	}
+      {
+        ATH_MSG_DEBUG("extrapolation of leading track to calo surfaces failed for sampling : " << i );
+        return StatusCode::SUCCESS;
+      }
     }
 
     const xAOD::Jet* pJetSeed = (*pTau.jetLink());

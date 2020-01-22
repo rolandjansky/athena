@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/RandPoisson.h"
@@ -28,7 +28,7 @@ TFCSLateralShapeParametrizationHitNumberFromE::TFCSLateralShapeParametrizationHi
 double TFCSLateralShapeParametrizationHitNumberFromE::get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   int cs=calosample();
-  double energy=simulstate.E(cs);
+  float energy=simulstate.E(cs);
 
   if (energy < 0) {
     return 1;
@@ -60,7 +60,7 @@ int TFCSLateralShapeParametrizationHitNumberFromE::get_number_of_hits(TFCSSimula
     return -1;
   }
 
-  double sigma2=get_sigma2_fluctuation(simulstate,truth,extrapol);
+  float sigma2=get_sigma2_fluctuation(simulstate,truth,extrapol);
   int hits = CLHEP::RandPoisson::shoot(simulstate.randomEngine(), 1.0 / sigma2);
 
   ATH_MSG_DEBUG("#hits="<<hits);

@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 #---------------------------------------------------------------------------------#
@@ -14,7 +15,7 @@ def TrackingGeoCfg(inputFlags):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))
 
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
@@ -41,111 +42,21 @@ def CaloGeoAndNoiseCfg(inputFlags):
 
 #---------------------------------------------------------------------------------#
 # PFlow track selection
-def getPFTrackSelector(inputFlags,tracksin,verticesin):
+def getHLTPFTrackSelector(inputFlags,tracksin,verticesin):
 
-    from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    extrapcfg = AtlasExtrapolatorCfg(inputFlags)
-    extrapolator = extrapcfg.popPrivateTools()
-
-    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator=extrapolator)
-
-    from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
-    TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
-
-    from eflowRec.eflowRecConf import PFTrackSelector
-    PFTrackSelector=PFTrackSelector("PFTrackSelector_HLT")
+    from eflowRec.PFCfg import getPFTrackSelectorAlgorithm
+    PFTrackSelector = getPFTrackSelectorAlgorithm(inputFlags,"PFTrackSelector_HLT",False)
     PFTrackSelector.electronsName = ""
     PFTrackSelector.muonsName = ""
     PFTrackSelector.tracksName = tracksin
     PFTrackSelector.VertexContainer = verticesin
-    PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-    TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
-
-    TrackSelectionTool.CutLevel = "TightPrimary"
-    TrackSelectionTool.minPt = 500.0 
-    
-    PFTrackSelector.trackSelectionTool = TrackSelectionTool
-    
     return PFTrackSelector
 
-def getPFClusterSelectorTool(clustersin,calclustersin):
+def getHLTPFMomentCalculatorTool(inputFlags):
 
-    from eflowRec.eflowRecConf import PFClusterSelectorTool
-    PFClusterSelectorTool = PFClusterSelectorTool("PFClusterSelectorTool")
-    PFClusterSelectorTool.clustersName = clustersin
-    PFClusterSelectorTool.calClustersName = calclustersin
-
-    return PFClusterSelectorTool
-
-def getPFCellLevelSelectionTool():
-
-    from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
-    PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
-
-    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
-
-    PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
-    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
-
-    from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
-    MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
-    MatchingTool.OutputLevel=1
-    MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
-    MatchingTool_Pull_02.OutputLevel=1
-    MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
-    MatchingTool_Pull_015.OutputLevel=1
-
-    MatchingTool_Pull_015.TrackPositionType   = 'EM2EtaPhi' # str
-    MatchingTool_Pull_015.ClusterPositionType = 'PlainEtaPhi' # str
-    MatchingTool_Pull_015.DistanceType        = 'EtaPhiSquareDistance' # str
-    MatchingTool_Pull_015.MatchCut = 0.15*0.15 # float
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = MatchingTool_Pull_015
-
-    MatchingTool_Pull_02.TrackPositionType   = 'EM2EtaPhi' # str
-    MatchingTool_Pull_02.ClusterPositionType = 'PlainEtaPhi' # str
-    MatchingTool_Pull_02.DistanceType        = 'EtaPhiSquareDistance' # str
-    MatchingTool_Pull_02.MatchCut = 0.2*0.2 # float
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = MatchingTool_Pull_02
-
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = MatchingTool
-
-    return PFCellLevelSubtractionTool
-
-def getPFRecoverSplitShowersTool():
-    from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
-    PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
-
-    from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
-    PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
-    PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = False
-
-    from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
-    MatchingTool_Recover = PFTrackClusterMatchingTool()
-    MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
-    MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
-    MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
-    MatchingTool_Recover.MatchCut = 0.2*0.2 # float
-    PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
-
-    return PFRecoverSplitShowersTool
-
-def getPFMomentCalculatorTool():
-
-    from eflowRec.eflowRecConf import PFMomentCalculatorTool
-    PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
-
-    from CaloRec.CaloRecConf import CaloClusterMomentsMaker
-    PFClusterMomentsMaker = CaloClusterMomentsMaker("PFClusterMomentsMaker")
-
-    from AthenaCommon.SystemOfUnits import deg
-    PFClusterMomentsMaker.MaxAxisAngle = 20*deg
-    PFClusterMomentsMaker.WeightingOfNegClusters = False
-    PFClusterMomentsMaker.MinBadLArQuality = 4000
-    PFClusterMomentsMaker.TwoGaussianNoise = True
-    PFClusterMomentsMaker.MomentsNames = [
+    from eflowRec.PFCfg import getPFMomentCalculatorTool
+    MomentsNames = [
        "FIRST_PHI" 
        ,"FIRST_ETA"
        ,"SECOND_R" 
@@ -176,14 +87,8 @@ def getPFMomentCalculatorTool():
        ,"AVG_TILE_Q"
        ,"SIGNIFICANCE"
     ]
-
-    PFMomentCalculatorTool.CaloClusterMomentsMaker = PFClusterMomentsMaker
-
-    from eflowRec.eflowRecConf import PFClusterCollectionTool
-    PFClusterCollectionTool_default = PFClusterCollectionTool("PFClusterCollectionTool")
-
-    PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool_default
-
+    PFMomentCalculatorTool = getPFMomentCalculatorTool(inputFlags,MomentsNames)
+    
     return PFMomentCalculatorTool
 
 def PFCfg(inputFlags):
@@ -194,25 +99,28 @@ def PFCfg(inputFlags):
     calogeocfg = CaloGeoAndNoiseCfg(inputFlags)
     result.merge(calogeocfg)
 
-    result.addEventAlgo( getPFTrackSelector(inputFlags,
+    result.addEventAlgo( getHLTPFTrackSelector(inputFlags,
                                             inputFlags.eflowRec.TrackColl,
                                             inputFlags.eflowRec.VertexColl) )
 
     #---------------------------------------------------------------------------------#
     # PFlowAlgorithm -- subtraction steps
 
-    from eflowRec.eflowRecConf import PFAlgorithm
+    PFAlgorithm=CompFactory.PFAlgorithm
     PFAlgorithm = PFAlgorithm("PFAlgorithm_HLT")
+    from eflowRec.PFCfg import getPFClusterSelectorTool
     PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool(inputFlags.eflowRec.RawClusterColl,
-                                                                 inputFlags.eflowRec.CalClusterColl)
+                                                                 inputFlags.eflowRec.CalClusterColl,"PFClusterSelectorTool_HLT")
 
+    from eflowRec.PFCfg import getPFCellLevelSubtractionTool,getPFRecoverSplitShowersTool
+    
     PFAlgorithm.SubtractionToolList = [
-        getPFCellLevelSelectionTool(),
-        getPFRecoverSplitShowersTool(),
+        getPFCellLevelSubtractionTool(inputFlags,"PFCellLevelSubtractionTool_HLT"),
+        getPFRecoverSplitShowersTool(inputFlags,"PFRecoverSplitShowersTool_HLT"),
         ]
 
-    pfmoments = getPFMomentCalculatorTool()
-    if not inputFlags.eflowRec.DoClusterMoments:
+    pfmoments = getHLTPFMomentCalculatorTool(inputFlags)
+    if not inputFlags.PF.useClusterMoments:
         pfmoments.CaloClusterMomentsMaker.MomentsNames = ["CENTER_MAG"]
     PFAlgorithm.BaseToolList = [pfmoments]
 
@@ -221,19 +129,10 @@ def PFCfg(inputFlags):
     #---------------------------------------------------------------------------------#
     # PFO creators here
 
-    from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
-    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
-    PFOChargedCreatorAlgorithm.PFOOutputName="HLTChargedParticleFlowObjects"
-
-    result.addEventAlgo( PFOChargedCreatorAlgorithm )
-
-    from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
-    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
-    PFONeutralCreatorAlgorithm.PFOOutputName="HLTNeutralParticleFlowObjects"
-    PFONeutralCreatorAlgorithm.DoClusterMoments=inputFlags.eflowRec.DoClusterMoments
-
-    result.addEventAlgo( PFONeutralCreatorAlgorithm )
-
+    from eflowRec.PFCfg import getChargedPFOCreatorAlgorithm,getNeutralPFOCreatorAlgorithm
+    result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,"HLTChargedParticleFlowObjects"))
+    result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,"HLTNeutralParticleFlowObjects"))    
+    
     return result
 
 if __name__=="__main__":
@@ -252,7 +151,12 @@ if __name__=="__main__":
     cfgFlags.addFlag("eflowRec.VertexColl","PrimaryVertices")
     cfgFlags.addFlag("eflowRec.RawClusterColl","CaloTopoClusters")
     cfgFlags.addFlag("eflowRec.CalClusterColl","CaloCalTopoClustersNew")
-    cfgFlags.addFlag("eflowRec.DoClusterMoments",False)
+
+    #PF flags
+    cfgFlags.PF.useUpdated2015ChargedShowerSubtraction = True
+    cfgFlags.PF.addClusterMoments = False
+    cfgFlags.PF.useClusterMoments = False
+    
     #
     # Try to get around TRT alignment folder problem in MC
     cfgFlags.GeoModel.Align.Dynamic = False

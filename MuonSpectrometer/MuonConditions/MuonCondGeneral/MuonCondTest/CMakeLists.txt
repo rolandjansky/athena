@@ -11,19 +11,19 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
-			  MuonSpectrometer/​MuonDetDescr/MuonReadoutGeometry
-                          TestPolicy
+			  MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           PRIVATE
                           DetectorDescription/Identifier )
 
 # External dependencies:
+find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( MuonCondTest
                      src/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface MuonCondSvcLib MuonReadoutGeometry Identifier )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel MuonCondInterface MuonCondSvcLib MuonReadoutGeometry Identifier )
 
 # Install files from the package:
 atlas_install_headers( MuonCondTest )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,6 +34,17 @@ bool InDet::PixelOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIn
     const InDetDD::SiDetectorElement* sElement = dynamic_cast<const InDetDD::SiDetectorElement*>(tsf.associatedDetectorElement());
     // now get the overlap options
     if (sElement){
+      size_t newCapacity = cSurfaces.size();
+      if (m_robustMode) {
+        newCapacity += 8;
+      } else {
+        newCapacity += 1;
+        if (sElement->isBarrel()) {
+          newCapacity += 2;
+        }
+      }
+      cSurfaces.reserve(newCapacity);
+
       //!< position phi and surface phi - rescale to 0 -> 2PI
       double surfacePhi   = tsf.center().phi() + M_PI;
       double positionPhi  = pos.phi() + M_PI;

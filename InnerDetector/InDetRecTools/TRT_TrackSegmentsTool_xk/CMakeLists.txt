@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
+                          Tracking/TrkEvent/TrkEventUtils
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
                           Tracking/TrkDetDescr/TrkSurfaces

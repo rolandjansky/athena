@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationPDGIDSelectChain.h"
@@ -24,9 +24,9 @@ void TFCSParametrizationPDGIDSelectChain::recalc()
   chain().shrink_to_fit();
 }
 
-FCSReturnCode TFCSParametrizationPDGIDSelectChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSParametrizationPDGIDSelectChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  for(auto param: chain()) {
+  for(const auto& param: chain()) {
     if(param->is_match_pdgid(truth->pdgid())) {
       ATH_MSG_DEBUG("pdgid="<<truth->pdgid()<<", now run: "<<param->GetName()<< ((SimulateOnlyOnePDGID()==true) ? ", abort PDGID loop afterwards" : ", continue PDGID loop afterwards"));
 

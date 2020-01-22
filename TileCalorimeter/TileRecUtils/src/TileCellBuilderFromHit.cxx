@@ -279,7 +279,7 @@ StatusCode TileCellBuilderFromHit::process (CaloCellContainer * theCellContainer
   // every 4 bits - status of partitions LBA,LBC,EBA,EBC
   // bits 0-3   - there is a signal above threshold in partitions
   // bits 4-7   - there are channels with underflow (sample=0) in partition (since rel 17.2.6.4)
-  // bits 8-11  - there are channels with overflow (sample=1023) in partition (since rel 17.2.6.4)
+  // bits 8-11  - there are channels with overflow (sample=m_tileInfo->ADCmax()) in partition (since rel 17.2.6.4)
   // bits 12-15 - there are at least 16 drawers with bad quality in partition
   // bits 16-19 - maximal length of consecutive bad area (since rel 17.2.6.5)
   // bits 20-23 - there are at least 16 drawers which are completely masked in partition

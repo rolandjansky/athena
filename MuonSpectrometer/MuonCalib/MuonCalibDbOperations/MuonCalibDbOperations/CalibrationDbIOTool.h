@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CalibrationDbIOTool_H
@@ -46,8 +46,6 @@ class CalibrationDbIOTool : public AthAlgTool, virtual public CalibrationIOTool 
  private:
   //! path to calibration directory - job option
   std::string m_calib_dir;
-  //! create rt relation as lookup table if set tot true - job option
-  bool m_rt_lookup;
   //! if true use validated - jo
   bool m_use_validated_t0, m_use_validated_rt;
   // url of oracle data-base

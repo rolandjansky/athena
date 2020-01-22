@@ -80,7 +80,7 @@ void tauRecTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorent
 }
 
 xAOD::TauTrack::TrackFlagType tauRecTools::isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag){
-  static const int flagsize=sizeof(flag)*8;
+  const int flagsize=sizeof(flag)*8;
   flag=flag<<(flagsize-xAOD::TauJetParameters::classifiedFake-1);
   flag=flag>>(flagsize-xAOD::TauJetParameters::classifiedCharged+1);
   return flag;

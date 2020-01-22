@@ -49,15 +49,17 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
         tree.accept(modifier=toolSetter)
         tool = tree.tool
     else:
-        if toolSetter.__class__.__name__ == 'FlowNetworkSetter':
+
+        if toolSetter.__class__.__name__ in (
+                'ConditionsToolSetterFlowNetwork',
+                'ConditionsToolSetterFastReduction'):
             toolSetter.mod(tree)
             tool = toolSetter.tool
         else:
             toolSetter = ConditionsToolSetterTree(chain_name)
-            print ('using tool setter', toolSetter.__class__.__name__)
             tree.accept(modifier=toolSetter)
+            tool = tree.tool
 
-    tool = tree.tool
     log.info(visitor.report())
 
     return tool

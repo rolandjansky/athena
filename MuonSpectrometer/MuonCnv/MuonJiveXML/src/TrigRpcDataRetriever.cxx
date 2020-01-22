@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/TrigRpcDataRetriever.h"
@@ -67,12 +67,7 @@ namespace JiveXML {
     } else
         msg(MSG::INFO) << "Retrieved Tool " << m_rpcDecoder << endmsg;
 
-    // retrieve the muon detector manager
-    sc = detStore()->retrieve(m_muonMgr);
-    if (sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't retrieve the muon detector manager" << endmsg;
-     return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_DetectorManagerKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -127,6 +122,14 @@ namespace JiveXML {
     double time      = 0.                 ;
     double time1     = 0.                 ;
 
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return StatusCode::FAILURE; 
+    } 
+
+ 
     //loop on pad
     const DataHandle<RpcPad> itColl(firstRdoColl);
     for (; itColl!=lastRdoColl; ++itColl){
@@ -190,7 +193,7 @@ namespace JiveXML {
                     Identifier stripOfflineId = *it_list;
                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId " << m_muonIdHelperTool->rpcIdHelper().show_to_string(stripOfflineId)<< endmsg;
   
-                    const MuonGM::RpcReadoutElement* element = m_muonMgr->getRpcReadoutElement(stripOfflineId);
+                    const MuonGM::RpcReadoutElement* element = MuonDetMgr->getRpcReadoutElement(stripOfflineId);
                     char ChID[100];
                     snprintf(ChID, 100, "SL%d-Pad%d-CM%d-ijk%d-ch%d-time%d",sectorId,padId,cmaId,
                             rpcChan->ijk(),rpcChan->channel(),8*rpcChan->bcid()+rpcChan->time());  
@@ -241,7 +244,7 @@ namespace JiveXML {
                   Identifier stripOfflineId1 = *it_list1;
                   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId1 " << m_muonIdHelperTool->rpcIdHelper().show_to_string(stripOfflineId1)<< endmsg;
   
-                  const MuonGM::RpcReadoutElement* element1 = m_muonMgr->getRpcReadoutElement(stripOfflineId1);
+                  const MuonGM::RpcReadoutElement* element1 = MuonDetMgr->getRpcReadoutElement(stripOfflineId1);
 
                   char ChID1[100];
                   snprintf(ChID1,100, "SL%d-Pad%d-CM%d-ijk%d-ch%d-time%d",sectorId,padId,cmaId,

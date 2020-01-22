@@ -20,8 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Calorimeter/CaloConditions
                           Calorimeter/CaloGeoHelpers
-                          Control/StoreGate
-                          TestPolicy )
+                          Control/StoreGate )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

@@ -18,7 +18,7 @@ class TestFullG4(unittest.TestCase):
             '--athenaopts', '"--config-only={}"'.format(config_picklefilename),
             '--conditionsTag', 'default:OFLCOND-RUN12-SDR-19',
             '--geometryVersion', 'default:ATLAS-R2-2015-03-01-00_VALIDATION',
-            '--inputEVNTFile', '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
+            '--inputEVNTFile', '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
             '--outputHITSFile', 'Hits.pool.root',
             '--maxEvents', '2',
             # would otherwise fail due to missing HITS file:
@@ -26,7 +26,7 @@ class TestFullG4(unittest.TestCase):
         ]
         subprocess.check_call(command)
 
-        with open(config_picklefilename) as picklefile:
+        with open(config_picklefilename, 'rb') as picklefile:
             job_config_dict = pickle.load(picklefile)
 
         cls._job_config_dict = job_config_dict
@@ -152,7 +152,7 @@ class TestFullG4(unittest.TestCase):
 
 
     def test___SimKernel_ListOfSetProperties(self):
-        expected_list = ['BeamPipeSimulationSelectors', 'CaloSimulationSelectors', 'CavernSimulationSelectors', 'DetStore', 'DoCPUMonitoring', 'DoMemoryMonitoring', 'EventFilterTools', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'IDSimulationSelectors', 'InputConverter', 'InputHardScatterCollection', 'MSSimulationSelectors', 'MemoryMonitoringTool', 'NeededResources', 'OutputHardScatterTruthCollection', 'ParticleBroker', 'QuasiStablePatcher', 'TruthRecordService']
+        expected_list = ['BeamPipeSimulationSelectors', 'CaloSimulationSelectors', 'CavernSimulationSelectors', 'DetStore', 'DoCPUMonitoring', 'DoMemoryMonitoring', 'EventFilterTools', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'IDSimulationSelectors', 'InputConverter', 'InputHardScatterCollection', 'MSSimulationSelectors', 'MaximumParticleVectorSize', 'MemoryMonitoringTool', 'NeededResources', 'OutputHardScatterTruthCollection', 'ParticleBroker', 'QuasiStablePatcher', 'TruthRecordService']
         simkernel = self._job_config_dict['ISF_Kernel_FullG4']
         actual_list = simkernel.keys()
         expected_property_value_sorted = sorted(expected_list)

@@ -9,25 +9,32 @@ atlas_subdir( AthenaMonitoringKernel )
 atlas_depends_on_subdirs(
     PUBLIC
         Control/AthenaBaseComps
-        Event/EventInfo
+    PRIVATE
+        AtlasTest/TestTools
 )
+
+# External dependencies:
+find_package( nlohmann_json )
 
 atlas_add_library(
     AthenaMonitoringKernelLib
     src/*.cxx
     src/HistogramFiller/*.cxx
     PUBLIC_HEADERS AthenaMonitoringKernel
-    LINK_LIBRARIES AthenaBaseComps EventInfo
+    PRIVATE_INCLUDE_DIRS nlohmann_json
+    LINK_LIBRARIES AthenaBaseComps
+    PRIVATE_LINK_LIBRARIES nlohmann_json
 )
 
 atlas_add_component(
     AthenaMonitoringKernel
     src/components/*.cxx
-    LINK_LIBRARIES AthenaMonitoringKernelLib
+    PRIVATE_LINK_LIBRARIES AthenaMonitoringKernelLib nlohmann_json 
 )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 # Unit tests C++:
@@ -39,7 +46,7 @@ foreach ( test_file ${CXX_TEST_FILES} )
     file( MAKE_DIRECTORY ${rundir} )
     atlas_add_test( ${name}
         SOURCES ${test_file}
-        LINK_LIBRARIES TestTools AthenaMonitoringKernelLib
+        LINK_LIBRARIES TestTools AthenaMonitoringKernelLib nlohmann_json
         ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
         POST_EXEC_SCRIPT nopost.sh
         PROPERTIES TIMEOUT 300
@@ -60,8 +67,3 @@ foreach ( test_file ${PYTHON_TEST_FILES} )
         PROPERTIES WORKING_DIRECTORY ${rundir}
     )
 endforeach()
-
-# Code quality check
-atlas_add_test( flake8
-    SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
-    POST_EXEC_SCRIPT nopost.sh )

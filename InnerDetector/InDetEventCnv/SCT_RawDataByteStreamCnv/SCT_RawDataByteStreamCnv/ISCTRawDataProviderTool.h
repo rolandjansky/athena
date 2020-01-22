@@ -14,8 +14,8 @@
 #define SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H
 
 #include "ByteStreamData/RawEvent.h"
-#include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 
 #include "GaudiKernel/IAlgTool.h"
 

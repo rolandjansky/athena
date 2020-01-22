@@ -26,9 +26,16 @@
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
-// CLHEP includes
 
+#include <cmath>
 
+// use anonymous namespace to be only valid inside this .cxx file
+namespace {
+  constexpr long double operator"" _degree ( long double deg ){
+      return deg * M_PI / 180;
+  }
+  static constexpr double const& phiModEnd = 26.25;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1081,13 +1088,14 @@ int SurveyConstraint::SectorNumber(int phi_module) {
 
 
 double SurveyConstraint::PhiModuleToSector(int phi_module) {
-  if(phi_module%6 == 0) return ( 7.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 1) return (15   - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 2) return (22.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 3) return (30   - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 4) return (37.5 - 26.25) * (3.14159265/180.);
-  if(phi_module%6 == 5) return (45   - 26.25) * (3.14159265/180.);
-  return -1;
+  int phiMod6 = phi_module%6;
+  if(phiMod6 == 0) return ( 7.5 - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 1) return (15   - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 2) return (22.5 - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 3) return (30   - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 4) return (37.5 - phiModEnd) * 1.0_degree;
+  else if(phiMod6 == 5) return (45   - phiModEnd) * 1.0_degree;
+  else return -1;
 }
 
   //__________________________________________________________________________

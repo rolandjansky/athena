@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 class InDetSGDeletionAlg:
     def __init__(self, container = "TrackCollection#", key = None):
@@ -21,7 +23,7 @@ class InDetSGDeletionAlg:
 
     def deletionAlg(self, container, key):
         if not isinstance(key, str):
-            print "InDetSGDeletionAlg: WARNING Key is not a string, ignoring!"
+            print("InDetSGDeletionAlg: WARNING Key is not a string, ignoring!")
             return
         
         from InDetRecExample.InDetJobProperties import InDetFlags
@@ -36,4 +38,4 @@ class InDetSGDeletionAlg:
         topSequence += InDetDelAlg
 
         if InDetFlags.doPrintConfigurables():
-            print InDetDelAlg
+            print(InDetDelAlg)

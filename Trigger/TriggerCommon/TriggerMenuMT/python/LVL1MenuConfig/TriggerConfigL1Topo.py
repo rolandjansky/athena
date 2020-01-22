@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from L1Topo.L1TopoMenu import L1TopoMenu
-from L1Topo.L1TopoFlags import L1TopoFlags
+from .L1Topo.L1TopoMenu import L1TopoMenu
+from .L1Topo.L1TopoFlags import L1TopoFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigL1Topo")
@@ -50,6 +50,8 @@ class TriggerConfigL1Topo(object):
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]
+            if 'pp_run3_v1' in menuName:
+                menuName = 'LS2_v1'
         else:
             log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
         return menuName         
@@ -123,7 +125,7 @@ class TriggerConfigL1Topo(object):
         """
 
         menuName = TriggerConfigL1Topo.getMenuBaseName(menuName)
-        menumodule = __import__('L1TopoMenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('TriggerMenuMT.LVL1MenuConfig.L1TopoMenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
         log.info("%s menu contains %i algos.", menuName, len(L1TopoFlags.algos()))
         
@@ -134,7 +136,7 @@ class TriggerConfigL1Topo(object):
         
         Has to run AFTER defineMenu
         """
-        algodefmodule = __import__('L1TopoMenu.TopoAlgoDef', globals(), locals(), ['TopoAlgoDef'], -1)
+        algodefmodule = __import__('TriggerMenuMT.LVL1MenuConfig.L1TopoMenu.TopoAlgoDef', globals(), locals(), ['TopoAlgoDef'], 0)
         algodefmodule.TopoAlgoDef.registerTopoAlgos(self)
         log.info("Registered %i algos.", len(self.registeredAlgos))
 

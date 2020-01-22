@@ -23,6 +23,8 @@
 #include <cmath>
 #include <memory>
 #include <ostream>
+#include <iostream>
+#include <sstream>
 
 // Private Helpers
 
@@ -69,16 +71,10 @@
 #include "IdDictDetDescr/IdDictManager.h" 
 
 
-//static const int s_n_maxPrimVertex= 1500;
-//static const int s_n_maxtracksRec = 100000;
-//static const int s_n_maxtracksMC  = 100000;
-//static const int s_n_maxHits      = 500000;
-//static const int s_n_maxEventHits = 1000000;
-//static const int s_n_maxMatches   = 100;
+
 
 static const char *s_linestr  = "----------------------------------------------------------------------------------------------------------------------------------------------";
 static const char *s_linestr2 = "..............................................................................................................................................";
-//static const int s_ERRORVALUE = -999999;
 
 InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -129,7 +125,6 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
 
   // Algorithm properties
   declareProperty("SummaryTool",                m_trkSummaryTool);
-  declareProperty("PRDAssociationTool",         m_assoTool); //lt 11.13
   declareProperty("TruthToTrackTool",           m_truthToTrack);
   declareProperty("UpdatorTool",                m_updatorHandle,
 		  "Measurement updator to calculate unbiased track states");
@@ -176,6 +171,7 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   // Part 1: Get the messaging service, print where you are
   ATH_MSG_DEBUG("initialize()");
 
+  ATH_CHECK(m_assoTool.retrieve());
 
   StatusCode sc1 = getServices();           // retrieve store gate service etc
   if (sc1.isFailure()) {
@@ -481,12 +477,12 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
    //retrieve the TRT helper only if not-SLHC layout used 
    sc = detStore()->retrieve(m_idDictMgr, "IdDict");
    if (sc.isFailure()) {
-     std::cout << "Could not get IdDictManager !" << std::endl;
+     ATH_MSG_FATAL("Could not get IdDictManager !");
      return StatusCode::FAILURE;
    } 
    const IdDictDictionary* dict = m_idDictMgr->manager()->find_dictionary("InnerDetector");
    if(!dict) {
-     std::cout << " Cannot access InnerDetector dictionary "<< std::endl;
+     ATH_MSG_FATAL(" Cannot access InnerDetector dictionary ");
      return StatusCode::FAILURE;
    }
 
@@ -682,42 +678,45 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   ATH_MSG_INFO("For documentation see https://twiki.cern.ch/twiki/bin/view/Atlas/InDetRecStatistics");
   ATH_MSG_INFO("(or for guaranteed latest version: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/InnerDetector/InDetValidation/InDetRecStatistics/doc/mainpage.h?&view=markup )");
   ATH_MSG_INFO(" ********************************************************************");
-  //  if(msgSvc.outputLevel() >= MSG::INFO){
-  const auto prec=std::cout.precision();
-  StreamState restore_precision (std::cout);
-  std::cout << MSG::INFO 
-	    << std::setiosflags(std::ios::fixed | std::ios::showpoint)  
-	    << std::setw(7) << std::setprecision(2)
-	    << s_linestr << std::endl
-	    << "Summary" << std::endl 
-	    << "\tProcessed              : " << m_events_processed            
-	    << " events, "  << m_rec_tracks_processed        
-	    << " reconstructed tracks with " << m_spacepoints_processed 
-	    << " hits, and "  << m_gen_tracks_processed        
-	    << " truth particles"            << std::endl
-	    << "\tProblem objects        : " <<  m_rec_tracks_without_perigee 
-	    << " tracks without perigee, " 
-	    << m_unknown_hits << " unknown hits" <<  std::endl 
-	    << "\t" << "Reco  TrackCollections : ";
+  //const auto prec=std::cout.precision();
+  //StreamState restore_precision (std::cout);
+  static std::stringstream outstr;
+  outstr << "\n"
+         << MSG::INFO 
+	 << std::setiosflags(std::ios::fixed | std::ios::showpoint)  
+	 << std::setw(7) << std::setprecision(2)
+	 << s_linestr << "\n"
+         << "Summary" << "\n" 
+         << "\tProcessed              : " << m_events_processed            
+	 << " events, "  << m_rec_tracks_processed        
+	 << " reconstructed tracks with " << m_spacepoints_processed 
+	 << " hits, and "  << m_gen_tracks_processed        
+	 << " truth particles" << "\n"
+         << "\tProblem objects        : " <<  m_rec_tracks_without_perigee 
+	 << " tracks without perigee, " 
+	 << m_unknown_hits << " unknown hits" << "\n" 
+         << "\t" << "Reco  TrackCollections : ";
   bool first = true;
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++)
     {
       if (first) { 
-	first = false;
+      	first = false;
       } 
       else {
-	std::cout << ", ";
+	outstr << ", ";
       }
-      std::cout << "\"" << (*collection)->key() << "\"";
+      outstr << "\"" << (*collection)->key() << "\"";
     }
-
+  ATH_MSG_INFO(outstr.str());
+  outstr.str("");
 
   if (m_doTruth)
     {
-      std::cout << std::endl
-                << "\t" << "TrackTruthCollections  : ";
+      outstr.str("");
+      outstr << "\n"
+             << "\t" << "TrackTruthCollections  : ";
       first = true;
       for (std::vector <class TrackStatHelper *>::const_iterator collection =  m_SignalCounters.begin();
 	   collection !=  m_SignalCounters.end(); collection++)
@@ -726,109 +725,120 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
 	    first = false;
 	  } 
 	  else {
-	    std::cout << ", ";
+	    outstr << ", ";
 	  }
-	  std::cout << "\"" << (*collection)->Truthkey() << "\"";
+	  outstr << "\"" << (*collection)->Truthkey() << "\"";
 	}
+      ATH_MSG_INFO(outstr.str());
+      outstr.str("");
     }
-  
-  std::cout << std::endl 
-	    << s_linestr2 << std::endl
-	    << "Cuts and Settings for Statistics Table" << std::endl 
-	    << "\t" << "TrackSummary Statistics" << "\t" 
-	    << (m_UseTrackSummary     ? "YES" : "NO") << std::endl 
-	    << "\t" << "Signal                \t" << "pT > " 
-	    << m_minPt/1000 << " GeV/c, |eta| < " << m_maxEta << "\t\t"
-	    << "\t" << "Primary track start   \t" << "R < " 
-	    << m_maxRStartPrimary << "mm and |z| < " 
-	    << m_maxZStartPrimary << "mm" << std::endl
-	    << "\t" << "Barrel                \t" << 0.0                
-	    << "< |eta| < " << m_maxEtaBarrel     << "\t\t\t"
-	    << "\t" << "Primary track end     \t" << "R > " 
-	    << m_minREndPrimary   << "mm or |z| > " << m_minZEndPrimary   
-	    << "mm" << std::endl
-	    << "\t" << "Transition Region     \t" << m_maxEtaBarrel     
-	    << "< |eta| < " << m_maxEtaTransition << "\t\t\t"
-	    << "\t" << "Secondary (non-Primary) start \t" 
-	    << " R < "    << m_maxRStartSecondary << "mm and" 
-	    << " |z| < "  << m_maxZStartSecondary << " mm" << std::endl
-	    << "\t" << "Endcap                \t" << m_maxEtaTransition 
-	    << "< |eta| < " << m_maxEtaEndcap     << "\t\t\t"
-	    << "\t" << "Secondary (non-primary) end   \t"
-	    << " R > "    << m_minREndSecondary   << "mm or"
-	    << " |z| > "  << m_minREndSecondary   << "mm" << std::endl
-            << "\t" << "DBM                \t"
-            << "|eta| > " << m_minEtaDBM     << std::endl
-	    << "\t" << "Low prob tracks #1    \t" << "< "               
-	    << m_fakeTrackCut  << " of hits from single Truth Track " 
-	    << std::endl  
-	    << "\t" << "Low prob tracks #2    \t" << "< "               
-	    << m_fakeTrackCut2 << " of hits from single Truth Track " 
-	    << std::endl  
-	    << "\t" << "No link tracks        \t  Track has no link associated to an HepMC Particle" << std::endl
-	    << "\t" << "Good reco tracks      \t" << "> "               
-	    << m_matchTrackCut << " of hits from single Truth Track + a link !" 
-	    << std::endl;
-  
+   outstr.str(""); 
+   outstr << "\n" 
+	  << s_linestr2 << "\n"
+	  << "Cuts and Settings for Statistics Table" << "\n" 
+	  << "\t" << "TrackSummary Statistics" << "\t" 
+	  << (m_UseTrackSummary     ? "YES" : "NO") << "\n" 
+	  << "\t" << "Signal                \t" << "pT > " 
+	  << m_minPt/1000 << " GeV/c, |eta| < " << m_maxEta << "\t\t"
+	  << "\t" << "Primary track start   \t" << "R < " 
+	  << m_maxRStartPrimary << "mm and |z| < " 
+	  << m_maxZStartPrimary << "mm" << "\n"
+	  << "\t" << "Barrel                \t" << 0.0                
+	  << "< |eta| < " << m_maxEtaBarrel     << "\t\t\t"
+	  << "\t" << "Primary track end     \t" << "R > " 
+	  << m_minREndPrimary   << "mm or |z| > " << m_minZEndPrimary   
+	  << "mm" << "\n"
+	  << "\t" << "Transition Region     \t" << m_maxEtaBarrel     
+	  << "< |eta| < " << m_maxEtaTransition << "\t\t\t"
+	  << "\t" << "Secondary (non-Primary) start \t" 
+	  << " R < "    << m_maxRStartSecondary << "mm and" 
+	  << " |z| < "  << m_maxZStartSecondary << " mm" << "\n"
+	  << "\t" << "Endcap                \t" << m_maxEtaTransition 
+	  << "< |eta| < " << m_maxEtaEndcap     << "\t\t\t"
+	  << "\t" << "Secondary (non-primary) end   \t"
+	  << " R > "    << m_minREndSecondary   << "mm or"
+	  << " |z| > "  << m_minREndSecondary   << "mm" << "\n"
+          << "\t" << "DBM                \t"
+          << "|eta| > " << m_minEtaDBM     << "\n"
+	  << "\t" << "Low prob tracks #1    \t" << "< "               
+	  << m_fakeTrackCut  << " of hits from single Truth Track " 
+	  << "\n"  
+	  << "\t" << "Low prob tracks #2    \t" << "< "               
+	  << m_fakeTrackCut2 << " of hits from single Truth Track " 
+	  << "\n"  
+	  << "\t" << "No link tracks        \t  Track has no link associated to an HepMC Particle" << "\n"
+	  << "\t" << "Good reco tracks      \t" << "> "               
+	  << m_matchTrackCut << " of hits from single Truth Track + a link !";
+  ATH_MSG_INFO(outstr.str());
+  outstr.str("");
+
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {
-    std::cout << s_linestr2 << std::endl;  
+    ATH_MSG_INFO( "\n"
+                 << s_linestr2);
     (*collection)->print();   
   } 
 
   if (m_UseTrackSummary) {
-    std::cout << s_linestr2 << std::endl;  
-    std::cout << "Detailed Statistics for Hits on Reconstructed tracks, using TrackSummary: (Preselection of tracks as described above.)" << std::endl;
-    std::cout << s_linestr2 << std::endl;  
-    
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Reco Tracks                           .........................................hits/track.......................................................  " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  in BARREL                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    ATH_MSG_INFO( "\n"
+                 << s_linestr2 << "\n" 
+                 << "Detailed Statistics for Hits on Reconstructed tracks, using TrackSummary: (Preselection of tracks as described above.)" << "\n"
+                 << s_linestr2 << "\n"  
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n"
+                 << "  Reco Tracks                           .........................................hits/track.......................................................  " << "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n"
+                 << "  in BARREL                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------");
     
     printTrackSummary (ETA_BARREL);
     
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  in TRANSITION region     tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    ATH_MSG_INFO( "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n"
+                 << "  in TRANSITION region     tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" );
     printTrackSummary (ETA_TRANSITION);
 
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  in ENDCAP                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    ATH_MSG_INFO( "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n"
+                 << "  in ENDCAP                tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" );
     printTrackSummary (ETA_ENDCAP);
 
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  in DBM                   tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << std::endl;
-    std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+    ATH_MSG_INFO( "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" << "\n"
+                 << "  in DBM                   tracks/event  blay  shrd  outl   pix  shrd  hole  gang   SCT  shrd  hole DHole   TRT  outl  TRHi  outl  alloutl   DBM    " << "\n"
+                 << "----------------------------------------------------------------------------------------------------------------------------------------------------" );
     printTrackSummary (ETA_DBM);
 
     
   }
 
   if(m_printSecondary){
-    
-    std::cout<<s_linestr<<std::endl;
-    std::cout<<"Statistics for Secondaries (non-Primaries)"<<std::endl;
-    std::cout<< "\t" << "Secondary track start \t" 
-	     << " R < "   << m_maxRStartSecondary << "mm and" 
-	     << " |z| < " << m_maxZStartSecondary << " mm" << std::endl;
-    std::cout<< "\t" << "Secondary track end   \t"
-	     << " R > "    << m_minREndSecondary << "mm or"
-             << " |z| > "  << m_minZEndSecondary << "mm" << std::endl;
+    outstr.str("");    
+    outstr << "\n"
+           <<s_linestr<<"\n"
+           <<"Statistics for Secondaries (non-Primaries)"<<"\n"
+           << "\t" << "Secondary track start \t" 
+	   << " R < "   << m_maxRStartSecondary << "mm and" 
+	   << " |z| < " << m_maxZStartSecondary << " mm" << "\n"
+           << "\t" << "Secondary track end   \t"
+	   << " R > "    << m_minREndSecondary << "mm or"
+           << " |z| > "  << m_minZEndSecondary << "mm";
+    ATH_MSG_INFO(outstr.str()); 
+    outstr.str("");
     for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	   m_SignalCounters.begin();
 	 collection !=  m_SignalCounters.end(); collection++) {
-      std::cout << s_linestr2 << std::endl;  
+      ATH_MSG_INFO( "\n"
+                   << s_linestr2);  
       (*collection)->printSecondary();   
-    } 
-
+    }
   }
   ATH_MSG_INFO(" ********** Ending InDetRecStatistics Statistics Table ***********");
-  std::cout << s_linestr << std::endl; 
-  std::cout.precision(prec);
+  ATH_MSG_INFO( "\n"
+               << s_linestr ); 
+  //std::cout.precision(prec);
 }
 
 
@@ -840,7 +850,8 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (enum eta_region eta_reg
        collection !=  m_SignalCounters.end(); collection++) {
     printed = (*collection)->printTrackSummaryRegion(TRACK_ALL, eta_reg) || printed;
   }   
-  if (printed) std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+  if (printed) ATH_MSG_INFO( "\n"
+                            << "----------------------------------------------------------------------------------------------------------------------------------------------");
   printed = false;
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
@@ -848,7 +859,8 @@ void InDet :: InDetRecStatisticsAlg ::printTrackSummary (enum eta_region eta_reg
     printed = (*collection)->printTrackSummaryRegion(TRACK_LOWTRUTHPROB, eta_reg) || printed;   
     
   }
-  if (printed) std::cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+  if (printed) ATH_MSG_INFO( "\n"
+                            << "----------------------------------------------------------------------------------------------------------------------------------------------");
   for (std::vector <class TrackStatHelper *>::const_iterator collection =  
 	 m_SignalCounters.begin();
        collection !=  m_SignalCounters.end(); collection++) {

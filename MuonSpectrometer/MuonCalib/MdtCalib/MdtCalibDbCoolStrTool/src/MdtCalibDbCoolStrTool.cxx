@@ -27,7 +27,6 @@
 #include <vector>
 
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
@@ -37,7 +36,6 @@
 
 #include "MdtCalibDbCoolStrTool/MdtCalibDbCoolStrTool.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 #include "AthenaKernel/IIOVDbSvc.h"
@@ -140,7 +138,7 @@ StatusCode MdtCalibDbCoolStrTool::initialize() {
   }
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   ATH_CHECK( m_IOVDbSvc.retrieve() );
   ATH_CHECK( m_regionSvc.retrieve() );
@@ -978,10 +976,17 @@ StatusCode MdtCalibDbCoolStrTool::defaultT0s() {
 MuonCalib::MdtTubeCalibContainer* MdtCalibDbCoolStrTool::buildMdtTubeCalibContainer(const Identifier &id) {    
   MuonCalib::MdtTubeCalibContainer *tubes = 0;
 
-  const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(id,1,1,1) );
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return 0; 
+  } 
+
+  const MuonGM::MdtReadoutElement *detEl = MuonDetMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(id,1,1,1) );
   const MuonGM::MdtReadoutElement *detEl2 = 0;
   if (m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(id) == 2){
-    detEl2 = m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(id,2,1,1) );
+    detEl2 = MuonDetMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(id,2,1,1) );
   } else {
     ATH_MSG_VERBOSE( "A single multilayer for this station " << m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id))<<","<< m_muonIdHelperTool->mdtIdHelper().stationPhi(id) <<","<< m_muonIdHelperTool->mdtIdHelper().stationEta(id) );
   }

@@ -168,7 +168,7 @@ void* TrigSerTPTool::convertPT( const std::string &persName, void *pers,
    // Do the conversion:
    ATH_MSG_DEBUG( "invoking PT for " << transName );
    try {
-      cnvtr->persToTransUntyped( pers, trans, m_logTP ? *m_logTP : msg() );
+      cnvtr->persToTransWithKeyUntyped( pers, trans, "", m_logTP ? *m_logTP : msg() );
       ATH_MSG_DEBUG( " succeeded at " << trans );
    }
    catch (const std::runtime_error& e){

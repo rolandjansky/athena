@@ -7,6 +7,7 @@
 ##              and print the bad channel status
 ##               
 ##==================================================================================
+from __future__ import print_function
 
 __author__="Walter Lampl <walter.lampl@cern.ch>"
 __doc__ = " An athena-like algorithm to interactivly convert LAr Identifiers and print the bad channel status"
@@ -88,13 +89,13 @@ class LArCellConditionsAlg(PyAthena.Alg):
         self.class_larBCBitPacking=cppyy.makeClass("LArBadChanBitPacking")
         self.bc_packing=self.class_larBCBitPacking()
 
-        self.noisepattern=0L
+        self.noisepattern=0
         for n in ("lowNoiseHG","highNoiseHG","unstableNoiseHG","lowNoiseMG","highNoiseMG","unstableNoiseMG","lowNoiseLG","highNoiseLG","unstableNoiseLG","sporadicBurstNoise"):
             stat=self.bc_packing.enumName(n)
             if stat[0]:
                 self.noisepattern |= 1<<stat[1]
 
-        self.deadpattern=0L
+        self.deadpattern=0
         for n in ("deadReadout","deadPhys","almostDead"):
             stat=self.bc_packing.enumName(n)
             if stat[0]:
@@ -106,7 +107,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             try:
                 self.caloDDM = CaloDetDescrManager.instance() ;
             except:
-                print "Failed to retrieve CaloDDM"
+                print("Failed to retrieve CaloDDM")
                 return StatusCode.Failure
 
 
@@ -132,59 +133,66 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if self.includeConditions:
             try:
                 self.larPedestal=self._detStore.retrieve("ILArPedestal","Pedestal")
-            except Exception,e:
-                print "WARNING: Failed to retrieve Pedestal from DetStore"
-                print e
+            except Exception:
+                print ("WARNING: Failed to retrieve Pedestal from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larPedestal=None
                 
             try:
                 self.larMphysOverMcal=self._detStore.retrieve("ILArMphysOverMcal","LArMphysOverMcal")
-            except Exception,e:
-                print "WARNING: Failed to retrieve MphysOverMcal from DetStore"
-                print e
+            except Exception:
+                print ("WARNING: Failed to retrieve MphysOverMcal from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larMphysOverMcal=None
 
             try:
                 self.larRamp=self._detStore.retrieve("ILArRamp","LArRamp")
-            except Exception,e:
-                print "WARNING: Failed to retrieve LArRamp from DetStore"
-                print e
+            except Exception:
+                print ("WARNING: Failed to retrieve LArRamp from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larRamp=None
                 
             try:
                 self.larDAC2uA=self._detStore.retrieve("ILArDAC2uA","LArDAC2uA")
-            except Exception,e:
-                print "WARNING: Failed to retrieve LArDAC2uA from DetStore"
-                print e
+            except Exception:
+                print ("WARNING: Failed to retrieve LArDAC2uA from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larDAC2uA=None
 
             try:
                 self.laruA2MeV=self._detStore.retrieve("ILAruA2MeV","LAruA2MeV")
-            except Exception,e:
-                print "WARNING: Failed to retrieve LAruA2MeV from DetStore"
-                print e
+            except Exception:
+                print ("WARNING: Failed to retrieve LAruA2MeV from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.laruA2MeV=None
 
             try:
                 self.larhvScaleCorr=self._detStore.retrieve("ILArHVScaleCorr","LArHVScaleCorr")
-            except Exception,e:
-                print "WARNING: Failed to retrieve LArHVScaleCorr from DetStore"
-                print e
+            except Exception:
+                print ("WARNING: Failed to retrieve LArHVScaleCorr from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larhvScaleCorr=None
                 
         if self.includeDSPTh:
             try:
                 self.larDSPThr=self._detStore.retrieve("LArDSPThresholdsComplete","LArDSPThresholds")
-            except Exception,e:
-                print "WARNING: Failed to retrieve LArDPSThresholds from DetStore"
-                print e
+            except Exception:
+                print ("WARNING: Failed to retrieve LArDPSThresholds from DetStore")
+                import traceback
+                traceback.print_exc()
                 self.larDSPThr=None   
             
 
         if self.nEvts==0:
             self.nEvts+=1
             #Process one 'dummy' event to make sure all DB connections get closed
-            #print "Dummy event..."
+            #print ("Dummy event...")
             return StatusCode.Success
 
         self.onlineID.set_do_checks(True)
@@ -194,7 +202,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             id=None
             chid=None
             rep_in=self.readInput() #"Enter Id >").upper().strip()
-            #print "User Input..."
+            #print ("User Input...")
             #rep_in="EMBA 0 0 60 2"
             rep=rep_in.upper()
             
@@ -206,7 +214,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 inp=rep_in[6:].strip();
                 starttime=clock()
                 self.search(inp)
-                print "seach time %.1f sec" % (clock()-starttime)
+                print("seach time %.1f sec" % (clock()-starttime))
                 continue
 
             #Help
@@ -220,9 +228,9 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 t_int=int(rep,10)
                 t=Identifier(c_uint(t_int))
                 if self.onlineID.is_lar(t):
-                    print t," IsLAr (online)"
+                    print(t," IsLAr (online)")
                 if self.offlineID.is_lar(t):
-                    print t," isLAr (offline)" 
+                    print(t," isLAr (offline)")
             except:
                 pass
 
@@ -239,8 +247,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                     if id is None: id=self.noid
                     self.printChannelInfo(id,chid)
                 else:
-                    print "ERROR: Could not interpret input."
-                    print "Interpretation as online ID gave:",self._onlErrStr
+                    print("ERROR: Could not interpret input.")
+                    print("Interpretation as online ID gave:",self._onlErrStr)
                 continue
 
             if rep.startswith("OF"):
@@ -251,8 +259,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
                     chid=self.larCablingSvc.createSignalChannelID(id)
                     self.printChannelInfo(id,chid)
                 else:
-                    print "ERROR: Could not interpret input."
-                    print "Interpretation as offline ID gave:",self._oflErrStr
+                    print("ERROR: Could not interpret input.")
+                    print("Interpretation as offline ID gave:",self._oflErrStr)
                 continue
 
             #Try to interpet input as identifiers
@@ -265,9 +273,9 @@ class LArCellConditionsAlg(PyAthena.Alg):
                      chid=self.larCablingSvc.createSignalChannelID(id)
                      
             if chid is None or id is None:
-                print "ERROR: Could not interpret input."
-                print "Interpretation as online ID gave:",self._onlErrStr
-                print "Interpretation as offline ID gave:",self._oflErrStr
+                print( "ERROR: Could not interpret input.")
+                print( "Interpretation as online ID gave:",self._onlErrStr)
+                print( "Interpretation as offline ID gave:",self._oflErrStr)
                 continue
 
             self.printChannelInfo(id,chid)
@@ -281,29 +289,29 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 try:
                     #idHash=self.offlineID.calo_cell_hash(id)
                     theDDE=self.caloDDM.get_element(id)
-                    print "raw Eta= %.3f, Phi=%.3f r=%.3f" % (theDDE.eta_raw(),theDDE.phi_raw(),theDDE.r_raw())
-                    print "raw x=%.3f, y=%.3f, z=%.3f" % (theDDE.x(),theDDE.y(),theDDE.z_raw())
-                except Exception,e:
-                    print e
+                    print("raw Eta= %.3f, Phi=%.3f r=%.3f" % (theDDE.eta_raw(),theDDE.phi_raw(),theDDE.r_raw()))
+                    print("raw x=%.3f, y=%.3f, z=%.3f" % (theDDE.x(),theDDE.y(),theDDE.z_raw()))
+                except Exception as e:
+                    print(e)
                
             if self.includeConditions:
                 if self.larDAC2uA is not None:
-                    print "DAC2uA: %.3f" % self.larDAC2uA.DAC2UA(chid),
+                    print("DAC2uA: %.3f" % self.larDAC2uA.DAC2UA(chid), end="")
                 else:
-                    print "DAC2uA: None",
+                    print("DAC2uA: None",end="")
                         
                 if self.laruA2MeV is not None:
-                    print " uA2MeV: %.3f" % self.laruA2MeV.UA2MEV(chid),
+                    print(" uA2MeV: %.3f" % self.laruA2MeV.UA2MEV(chid),end="")
                 else:
-                    print " uA2MeV: None",
+                    print(" uA2MeV: None",end="")
 
                 if self.larhvScaleCorr is not None:
-                    print " HVScaleCorr: %.3f" % self.larhvScaleCorr.HVScaleCorr(chid)
+                    print(" HVScaleCorr: %.3f" % self.larhvScaleCorr.HVScaleCorr(chid))
                 else:
-                    print " HVScaleCorr: None"
+                    print(" HVScaleCorr: None")
                           
                 for gain,gainname in ((0,"HG"),(1,"MG"),(2,"LG")):
-                    print gainname,
+                    print(gainname,end="")
                     if self.larPedestal is not None:
                         ped=self.larPedestal.pedestal(chid,gain)
                         pedRMS=self.larPedestal.pedestalRMS(chid,gain)
@@ -311,32 +319,32 @@ class LArCellConditionsAlg(PyAthena.Alg):
                         ped=-9999
                         pedRMS=-9999
 
-                    print "Ped: %.3f " % ped,
-                    print "PedRMS: %.3f" % pedRMS,
+                    print ("Ped: %.3f " % ped,end="")
+                    print ("PedRMS: %.3f" % pedRMS,end="")
 
                     if self.larRamp is not None:
                         ramp=self.larRamp.ADC2DAC(chid,gain)
                         if len(ramp)>1:
-                            print " Ramp: %.3f" % ramp[1],
+                            print(" Ramp: %.3f" % ramp[1],end="")
                         else:
-                            print " Ramp: Empty",
+                            print(" Ramp: Empty",end="")
                     else:
-                        print " Ramp: None",
+                        print(" Ramp: None",end="")
 
                     if self.larMphysOverMcal is not None:
                         mpmc=self.larMphysOverMcal.MphysOverMcal(chid,gain)
-                        print " MphysOverMcal: %.5f" % mpmc,
+                        print (" MphysOverMcal: %.5f" % mpmc,end="")
                     else:
-                        print " MphysOverMcal: None",
-                    print ""
+                        print (" MphysOverMcal: None",end="")
+                    print (os.linesep)
             if self.includeDSPTh:
                 if self.larDSPThr is not None:
                     tQThr=self.larDSPThr.tQThr(chid)
                     samThr=self.larDSPThr.samplesThr(chid)
                     trgSumTrh=self.larDSPThr.trigSumThr(chid)
-                    print "DSP Thresholds: tQ:%f, samples:%f, trigSum:%f" % (tQThr,samThr,trgSumTrh)
+                    print("DSP Thresholds: tQ:%f, samples:%f, trigSum:%f" % (tQThr,samThr,trgSumTrh))
                 else:
-                    print "DSP Thresholds: None"
+                    print("DSP Thresholds: None")
 
 
 
@@ -347,7 +355,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
     def output(self,out,file=None):
         if file is not None: file.write(out+"\n")
-        print out
+        print(out)
         self.nLinesPrinted=self.nLinesPrinted+1
         if self.nLinesPrinted%40 is 0:
             c=raw_input("Press 'q' to quit, 'a' for all ...")
@@ -445,7 +453,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         
     def getOfflineIDFromString(self,input):
         self._oflErrStr=""
-        ###print "offline id input=[%s]" % input
+        ###print ("offline id input=[%s]" % input)
         upInput=input.upper().strip()
         if upInput.startswith('0X'):
             #hex-input
@@ -539,7 +547,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self._oflErrStr="Not-numerical input for region, eta or phi"
                 return None
 
-            #print "Got",subcalo,bepn,layer,region,eta,phi
+            #print ("Got",subcalo,bepn,layer,region,eta,phi)
             #self.offlineID.set_do_checks(True)
             try: #Build Region ID
                 regid=self.offlineID.region_id(subcalo,bepn,layer,region)
@@ -573,7 +581,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             
             
     def getOnlineIDFromString(self,input):
-        #print "onfline id input=[%s]" % input
+        #print ("onfline id input=[%s]" % input)
         self._onlErrStr=""
         upInput=input.upper().strip()
         if upInput.startswith('0X'):
@@ -690,7 +698,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         side=None
         ft=None
         slot=None
-        bctypes=0L
+        bctypes=0
         outname=None
         outfile=None
         layer=None
@@ -721,14 +729,14 @@ class LArCellConditionsAlg(PyAthena.Alg):
             try:
                 e1=float(input[:pos])
             except:
-                print "Expected numerical value, got",input[:pos] 
+                print("Expected numerical value, got",input[:pos] )
                 return None
 
             if uplow is not None:
                 try:
                     e2=float(input[pos+1:])
                 except:
-                    print "Expected numerical value after '+-', got",input[pos+1:] 
+                    print("Expected numerical value after '+-', got",input[pos+1:])
                     return None
 
             
@@ -789,45 +797,46 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 if stat[0]:
                     bctypes |= 1<<stat[1]
                 else:
-                    print "Unknown Keyword",tokens[i]    
+                    print("Unknown Keyword",tokens[i]    )
             i=i+1
 
-        print "Searching for cells with",
-        if eta is not None: print " %.3f <= eta <= %.3f" % (eta[0],eta[1]),
-        if phi is not None: print " %.3f <= phi <= %.3f" % (phi[0],phi[1]),
-        if layer is not None: print " %.0f <= layer <= %.0f" % (layer[0],layer[1]),
+        print("Searching for cells with",end="")
+        if eta is not None: print(" %.3f <= eta <= %.3f" % (eta[0],eta[1]),end="")
+        if phi is not None: print(" %.3f <= phi <= %.3f" % (phi[0],phi[1]),end="")
+        if layer is not None: print(" %.0f <= layer <= %.0f" % (layer[0],layer[1]),end="")
 
-        if bec==0: print " Barrel",
-        if bec==1: print " Endcap",
+        if bec==0: print(" Barrel",end="")
+        if bec==1: print(" Endcap",end="")
 
-        if side==1: print " A Side",
-        if side==0: print " C Side",
+        if side==1: print(" A Side",end="")
+        if side==0: print(" C Side",end="")
 
-        if ft is not None: print " %.0f <= FT <= %.0f" % (ft[0],ft[1]),
-        if slot is not None: print " %.0f <= Slot <= %.0f" % (slot[0],slot[1]),
+        if ft is not None: print(" %.0f <= FT <= %.0f" % (ft[0],ft[1]),end="")
+        if slot is not None: print(" %.0f <= Slot <= %.0f" % (slot[0],slot[1]),end="")
         
         if bctypes!=0:
-            print self.bc_packing.stringStatus(LArBadChannel(bctypes)),
+            print (self.bc_packing.stringStatus(LArBadChannel(bctypes)),end="")
 
         if phi is None and eta is None and bctypes==0 and ft is None and side is None and bec is None and slot is None and layer and subcalo is None:
-            print "No search criteria set!"
+            print ("No search criteria set!")
             return
 
 
-        if cl is not None: print " CL:",cl,
+        if cl is not None: print(" CL:",cl,end="")
 
-        print ""
+        print(os.linesep)
 
         if not self.includeLocation and (eta is not None or phi is not None):
-            print "ERROR: GeoModel not activated, run with -g option"
+            print("ERROR: GeoModel not activated, run with -g option")
             return
             
         if outname is not None:
             try:
                 outfile=open(outname,"w")
-            except IOError,e:
-                print "ERROR failed to open file",outname
-                print e
+            except IOError:
+                print ("ERROR failed to open file",outname)
+                import traceback
+                traceback.print_exc()
                 outfile=None
                 outname=None
                 
@@ -837,7 +846,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             idHash=IdentifierHash(idH)
             chid=self.larCablingSvc.createSignalChannelIDFromHash(idHash)
             
-            #print "Loop hash=%i , on: %x , off: %x" % (idH, chid.get_identifier32().get_compact(), self.offlineID.cell_id(idHash).get_identifier32().get_compact())
+            #print ("Loop hash=%i , on: %x , off: %x" % (idH, chid.get_identifier32().get_compact(), self.offlineID.cell_id(idHash).get_identifier32().get_compact()))
 
                     
             #Check Online Id
@@ -857,8 +866,10 @@ class LArCellConditionsAlg(PyAthena.Alg):
                         
                     if not keep: continue
                                         
-                except Exception,e:
-                    print "Failed to get calib line:",e
+                except Exception:
+                    print ("Failed to get calib line:")
+                    import traceback
+                    traceback.print_exc()
                     continue
 
             #Check geometrical location
@@ -882,20 +893,20 @@ class LArCellConditionsAlg(PyAthena.Alg):
         return
   
     def printHelp(self):
-        print "First mode of operation:"
-        print "Enter a channel identifier (online or offline). Allowed forms are:"
-        print "  Decimal or hexadecimal compact identifier, eg. 'online 0x39000000'"
-        print "  Expanded identifer like"
-        print "     'online Bar C 1 1 1' (Barrel C FT 1, Slot 1 channel 1)"
-        print "     'offline FCAL A 1 0 1 1' (FCAL A, Layer 1, Region 0, Eta 1 Phi 1)"
-        print "    Offline ids must start with one of the following subdetectors names:"
-        print "     EMB, EMECIW, EMECOW, HEC, FCAL"
-        print "    Online ids must start with either 'BAR' or 'END'"
-        print "  If the prefix 'online' or 'offline' is omitted both are tried."
-        print "\nSecond mode of operation:"
-        print "Search <keyword> <keyword> .."
-        print "  Keywords are: 'barrel', 'endcap', A', 'C', or any bad-channel type"
-        print "  Keywords with arguments are: 'eta', 'phi', 'layer', 'FT', 'Slot' and 'CL'"  
-        print "\nType 'quit' to terminate'"
+        print( "First mode of operation:")
+        print( "Enter a channel identifier (online or offline). Allowed forms are:")
+        print( "  Decimal or hexadecimal compact identifier, eg. 'online 0x39000000'")
+        print( "  Expanded identifer like")
+        print( "     'online Bar C 1 1 1' (Barrel C FT 1, Slot 1 channel 1)")
+        print( "     'offline FCAL A 1 0 1 1' (FCAL A, Layer 1, Region 0, Eta 1 Phi 1)")
+        print( "    Offline ids must start with one of the following subdetectors names:")
+        print( "     EMB, EMECIW, EMECOW, HEC, FCAL")
+        print( "    Online ids must start with either 'BAR' or 'END'")
+        print( "  If the prefix 'online' or 'offline' is omitted both are tried.")
+        print( "\nSecond mode of operation:")
+        print( "Search <keyword> <keyword> ..")
+        print( "  Keywords are: 'barrel', 'endcap', A', 'C', or any bad-channel type")
+        print( "  Keywords with arguments are: 'eta', 'phi', 'layer', 'FT', 'Slot' and 'CL'")
+        print( "\nType 'quit' to terminate'")
 
 

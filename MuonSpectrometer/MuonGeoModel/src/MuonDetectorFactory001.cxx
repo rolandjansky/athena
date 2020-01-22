@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/getMessageSvc.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -24,13 +22,6 @@
 #include "MuonReadoutGeometry/MuonStation.h"
 
 #include "IdDictDetDescr/IdDictManager.h" 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-// for nSW
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"
@@ -57,6 +48,8 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "GeoGenericFunctions/Variable.h"
 
@@ -93,7 +86,6 @@ namespace MuonGM {
       m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_hasCSC(true), m_hasSTgc(true), m_hasMM(true), m_muon(NULL), m_manager(NULL),
       m_pDetStore(pDetStore), m_pRDBAccess(0)
   {
-    MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
     m_muon = new MuonSystemDescription( "MuonSystem" );
     m_muon->barrelInnerRadius =  4.30*Gaudi::Units::m;
     m_muon->innerRadius       =  0.07*Gaudi::Units::m;
@@ -111,9 +103,9 @@ namespace MuonGM {
 
     m_enableFineClashFixing = 0;
   
-    log<<MSG::INFO<<"MuonDetectorFactory - constructor "<<" MuonSystem OuterRadius "<< m_muon->outerRadius
+    MsgStream log(Athena::getMessageSvc(),"MuonGeoModel");
+    log << MSG::INFO << "MuonDetectorFactory - constructor "<<" MuonSystem OuterRadius "<< m_muon->outerRadius
        <<" Length "<< m_muon->length <<endmsg;
-    //std::cerr<<"MuonDetectorFactory - constructor/// size of vectors "<<m_selectedStations.size()<<" "<<m_selectedStEta.size()<<" "<<m_selectedStPhi.size()<<std::endl;
   }
 
   MuonDetectorFactory001::~MuonDetectorFactory001() 
@@ -128,7 +120,7 @@ namespace MuonGM {
 
   void MuonDetectorFactory001::create( GeoPhysVol* world )
   {
-    MsgStream log(Athena::getMessageSvc(), "MuGM:MuonFactory");
+    MsgStream log(Athena::getMessageSvc(),"MuGM:MuonFactory");
 
     int mem  = 0;
     float cpu  = 0;
@@ -185,14 +177,13 @@ namespace MuonGM {
        <<m_manager->geometryVersion()<<" from DB MuonVersion <"<<m_manager->get_DBMuonVersion()<<">"<<endmsg;
   
     // here create the MYSQL singleton and assign to it the geometry version
-    MYSQL *mysql=  MYSQL::GetPointer();	
+    MYSQL *mysql=  MYSQL::GetPointer();
     mysql->setGeometryVersion(m_layout);
     mysql->set_amdb_from_RDB(m_rdb == 1);
     mysql->set_DBMuonVersion(m_DBMuonVersion);
     log<<MSG::INFO<<"Mysql helper class created here for geometry version "
        <<mysql->getGeometryVersion()<<" from DB MuonVersion <"<<mysql->get_DBMuonVersion()<<">"<<endmsg;
-        
-  
+
     StatusCode sc =StatusCode::SUCCESS;
 
     const DataHandle<MdtIdHelper> mdtidh;
@@ -231,6 +222,7 @@ namespace MuonGM {
         else log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endmsg;
         m_manager->set_mmIdHelper(mmidh);
     }
+
 
     if (m_dumpMemoryBreakDown)
       {
@@ -471,9 +463,8 @@ namespace MuonGM {
     
 
     // create the fullphysvol map to allow cloning and save memory
-    FPVMAP* savemem = FPVMAP::GetPointer();
-  
-  
+    FPVMAP* savemem = new FPVMAP();
+
     int nstat_ss = 0;
     int ntpos_ss = 0;
     int npos_ss = 0;
@@ -496,7 +487,7 @@ namespace MuonGM {
         std::string stname(station->GetName(), 0, 3);
         if (m_selectedStations.size()<=0) 
 	  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Processing Stations named <"<<station->GetName()<<"> "
-					    <<nstat_ss<<" built until now"<<endmsg;
+	   				    <<nstat_ss<<" built until now"<<endmsg;
 
 	if ((skip_chambers) && (stname.substr(0,1)!="X")) continue;
 
@@ -505,6 +496,7 @@ namespace MuonGM {
 	// BIR have multilayers of diff. length and overall station volume clashes with toroids    
 	if (stname=="BIR") isAssembly = true;
 	MuonChamber l(station);  // here is where we start to create a MuonChamber with all readoutelements
+	l.setFPVMAP(savemem);
         l.setFineClashFixingFlag(m_enableFineClashFixing);
 
         PositionIterator pit;
@@ -554,12 +546,10 @@ namespace MuonGM {
             
             if ((m_selectedStPhi.size() + m_selectedStEta.size()) >0)
 	      log<<MSG::INFO<<"Build selected Station <"<<station->GetName()<<"> at Jzz = "<<zi<<" Jff = "<<fi+1<<" ******* "
-		 <<nstat_ss<<" stat.types built until now"<<endmsg;
-            
+	       	 <<nstat_ss<<" stat.types built until now"<<endmsg;
 
             // here define GeoNameTag 
             GeoNameTag   *nm = new GeoNameTag( station->GetName() + "_station" );
-
             // here build the physical volume (tree) associated to the chamber 
             bool is_mirrored =  ((*pit).second).isMirrored;
             int mirsign = 0;
@@ -790,8 +780,6 @@ namespace MuonGM {
       }
     
 
-
-    
     // delete the fullphysvol map
     delete savemem;
     savemem = NULL;

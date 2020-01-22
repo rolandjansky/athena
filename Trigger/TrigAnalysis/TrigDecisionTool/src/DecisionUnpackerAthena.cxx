@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgTools/AsgToolsConf.h"
@@ -9,11 +9,7 @@
 
 
 #ifndef XAOD_ANALYSIS
-//there is no better way????
-#define private public
 #include "TrigSteeringEvent/Lvl1Result.h"
-#undef private
-
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavStructure/TrigNavStructure.h"
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
@@ -21,7 +17,7 @@
 #include "TrigNavigation/NavigationCore.h"
 
 namespace Trig {
-  DecisionUnpackerAthena::DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key) : m_handle(new DecisionObjectHandleAthena(sg,key)){
+  DecisionUnpackerAthena::DecisionUnpackerAthena(SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey) : m_handle(new DecisionObjectHandleAthena(olddeckey)){
   }
 
   DecisionUnpackerAthena::~DecisionUnpackerAthena(){
@@ -35,9 +31,13 @@ namespace Trig {
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
       ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
-      item->m_passBP = result.isPassedBeforePrescale(ctpid);
-      item->m_passAP = result.isPassedAfterPrescale(ctpid);
-      item->m_passAV = result.isPassedAfterVeto(ctpid);
+      bool passBP = result.isPassedBeforePrescale(ctpid);
+      bool passAP = result.isPassedAfterPrescale(ctpid);
+      bool passAV = result.isPassedAfterVeto(ctpid);
+      LVL1CTP::Lvl1Item itemNew (item->name(), item->hashId(),
+                                 passBP, passAP, passAV,
+                                 item->prescaleFactor());
+      *item = std::move (itemNew);
       itemsByName[item->name()] = item;
     }
     return StatusCode::SUCCESS;
@@ -64,13 +64,13 @@ namespace Trig {
       // localte now the chain
       auto cacheIt = cache.find(cntr);
       if ( cacheIt == cache.end() ) {
-	ATH_MSG_WARNING("Missing chain of counter in the configuration: " << cntr);
-	return StatusCode::FAILURE;
+        ATH_MSG_WARNING("Missing chain of counter in the configuration: " << cntr);
+        return StatusCode::FAILURE;
       } else {
-	cacheIt->second->reset();
-	cacheIt->second->deserialize(*rawIt);
-	output[cacheIt->second->getChainName()] = cacheIt->second;
-	ATH_MSG_VERBOSE("Updated chain in this event : " << *(cacheIt->second));
+        cacheIt->second->reset();
+        cacheIt->second->deserialize(*rawIt);
+        output[cacheIt->second->getChainName()] = cacheIt->second;
+        ATH_MSG_VERBOSE("Updated chain in this event : " << *(cacheIt->second));
       }
     }
     return StatusCode::SUCCESS;
@@ -89,7 +89,7 @@ namespace Trig {
     const TrigDec::TrigDecision* dec = m_handle->getDecision();
 
     bgCode = dec->BGCode();
-  
+
     // L1 items
     itemsByName.clear();
     ATH_MSG_DEBUG("Unpacking of L1 items");
@@ -110,7 +110,7 @@ namespace Trig {
       ATH_MSG_DEBUG(l2_serialized_chains.size() << " L2 chains");
     
       if ( unpackChains(l2_serialized_chains, l2chainsCache, l2chainsByName).isFailure() ) {
-	ATH_MSG_WARNING("Unpacking  of L2 chains failed");
+        ATH_MSG_WARNING("Unpacking  of L2 chains failed");
       }
     }
   
@@ -122,7 +122,7 @@ namespace Trig {
   
     if ( ! ef_serialized_chains.empty()) {
       if ( unpackChains(ef_serialized_chains, efchainsCache, efchainsByName).isFailure() ) {
-	ATH_MSG_WARNING("Unpacking  of EF/HLT chains failed");    
+        ATH_MSG_WARNING("Unpacking  of EF/HLT chains failed");    
       }
     } else {
       ATH_MSG_DEBUG("Empty EF/HLT chains");
@@ -142,7 +142,7 @@ namespace Trig {
       
       // cppcheck-suppress oppositeInnerCondition
       if(!fullNav){
-	ATH_MSG_WARNING("downcast failed");
+        ATH_MSG_WARNING("downcast failed");
       }
       
       fullNav->reset();
@@ -154,19 +154,21 @@ namespace Trig {
       bool unpacking_status = !dec->getEFResult().getNavigationResult().empty() && fullNav->deserialize(dec->getEFResult().getNavigationResult());
       
       if ( ! unpacking_status ) {
-	if (msgLvl(MSG::DEBUG))
-	  msg() << MSG::DEBUG << "EF/HLT Navigation unpacking failed";
-	if (!dec->getL2Result().getNavigationResult().empty()){
-	  msg() << ", falling back to L2 Navigation of size: "
-		<< dec->getL2Result().getNavigationResult().size() << endmsg;      
-	  unpacking_status = nav->deserialize(dec->getL2Result().getNavigationResult());
-	}
-	else msg() << endmsg;	
+        if (msgLvl(MSG::DEBUG)) {
+          msg() << MSG::DEBUG << "EF/HLT Navigation unpacking failed";
+        }
+        if (!dec->getL2Result().getNavigationResult().empty()) {
+          msg() << ", falling back to L2 Navigation of size: "
+		            << dec->getL2Result().getNavigationResult().size() << endmsg;      
+	        unpacking_status = nav->deserialize(dec->getL2Result().getNavigationResult());
+	      } else {
+          msg() << endmsg;
+        }	
       }
       if ( ! unpacking_status ) {
-	ATH_MSG_DEBUG("Full (L2 & EF) Navigation unpacking failed");
+        ATH_MSG_DEBUG("Full (L2 & EF) Navigation unpacking failed");
       } else {
-	ATH_MSG_DEBUG("Unpacked Navigation ");  
+        ATH_MSG_DEBUG("Unpacked Navigation ");  
       } 
     }
     this->unpacked_navigation(true);
@@ -193,7 +195,7 @@ namespace Trig {
     m_handle->validate();
   }
   void DecisionUnpackerAthena::invalidate_handle(){
-    m_handle->invalidate();
+    m_handle->reset(); // This used to be invalidate(), but we now use a ReadHandle, so it has to be a full reset.
     this->unpacked_navigation(false);
     this->unpacked_decision(false);
   }

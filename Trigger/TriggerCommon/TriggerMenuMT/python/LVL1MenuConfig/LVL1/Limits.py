@@ -51,12 +51,12 @@ class Limits(object):
 
     @staticmethod
     def getCTPdataformat(version):
-        module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], -1)
+        module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], 0)
         return getattr(module, "CTPdataformat_v%i" % version)
 
     @staticmethod
     def getL1Common(version):
-        module = __import__('L1Common.L1Common_v%i' % version, globals(), locals(), ['L1Common_v%i' % version], -1)
+        module = __import__('L1Common.L1Common_v%i' % version, globals(), locals(), ['L1Common_v%i' % version], 0)
         return getattr(module, "L1Common_v%i" % version)
 
     @staticmethod

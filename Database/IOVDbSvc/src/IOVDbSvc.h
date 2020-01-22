@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,13 +24,15 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IAddressCreator.h"
 #include "SGTools/DataProxy.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
+#include "PoolSvc/IPoolSvc.h"
+#include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
 
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "IOVDbSvc/IIOVCondDbSvc.h"
-#include "AthenaKernel/IAddressProvider.h"
-
 #include "AthenaKernel/IOVTime.h"
 
 #include "CoolKernel/IDatabase.h"
@@ -46,17 +48,14 @@
 class IOVSvc;
 class IOVTime;
 class IOVRange;
-class StoreGateSvc;
-class IAddressCreator;   
+class StoreGateSvc; 
 class IClassIDSvc;
-class IPoolSvc;
 
 class EventID;
 class ITagInfoMgr;
 
 class IOVDbFolder;
 
-class IIOVDbMetaDataTool;
 class IOVMetaDataContainer;
 class CondAttrListCollection;
 
@@ -83,7 +82,8 @@ class IOVDbSvc : public virtual IIOVCondDbSvc,
   
 public:
   
-  IOVDbSvc( const std::string& name, ISvcLocator* svc );
+  /// Forward base class ctor
+  using AthService::AthService;
   virtual ~IOVDbSvc();
   
   /// Service init
@@ -157,15 +157,6 @@ public:
   // return list of SG keys being provided by IOVDbSvc
   virtual std::vector<std::string> getKeyList() override;
 
-  // return information about one SG key
-  // - folder, tag, IOVRange and whether data has been retrieved
-  // (if not, range and tag may not be meaningful)
-  // return false if this key is not known to IOVDbSvc
-  virtual
-  bool getKeyInfo(const std::string& key, std::string& foldername,
-                  std::string& tag, IOVRange& range, bool& retrieved,
-                  unsigned long long& bytesRead, float& readTime) override;
-
   /// Return information about SG key
   /// return false if this key is not known to IOVDbSvc
   virtual
@@ -186,74 +177,70 @@ private:
   StatusCode setupFolders();
   StatusCode fillTagInfo();
   StatusCode loadCaches(IOVDbConn* conn, const IOVTime* time=nullptr);
-  void printMetaDataContainer(const IOVMetaDataContainer* cont);
-  void dumpKeys();
 
   // job option parameters
   // default database connection
-  std::string         m_par_defaultConnection;
+  Gaudi::Property<std::string>    m_par_defaultConnection{this,"dbConnection","sqlite://;schema=cooldummy.db;dbname=OFLP200","default DB connection string"};
   //  IOVDbSvc global tag
-  std::string                    m_par_globalTag;
+  Gaudi::Property<std::string>    m_par_globalTag{this,"GlobalTag","","Global database tag"};
   // production database instance, used to cross-check global tag
-  std::string m_par_dbinst;
+  Gaudi::Property<std::string>    m_par_dbinst{this,"DBInstance","","Database instance (like OFLP200)"};
   //  a list of folders to preload
-  std::vector<std::string>            m_par_folders;
+  Gaudi::Property<std::vector<std::string> >  m_par_folders{this,"Folders",{},"List of database folders to preload"};
   //  a list of overriding tags definitions
-  std::vector<std::string>            m_par_overrideTags;
+  Gaudi::Property<std::vector<std::string> >  m_par_overrideTags{this,"overrideTags",{},"List of foolder-tag overrides"};
   //  a list of folders to write to file meta data
-  std::vector<std::string>           m_par_foldersToWrite;    
+  Gaudi::Property<std::vector<std::string> >  m_par_foldersToWrite{this,"FoldersToMetaData",{},"list of folders to write to file meta data"};    
   //  a flag to trigger the connections management
-  BooleanProperty                m_par_manageConnections;
+  BooleanProperty                m_par_manageConnections{this,"ManageConnections",true,"flag to trigger the connections management"};
   //  a flag to manage pool connections
-  BooleanProperty                m_par_managePoolConnections;
-  // flag to dump SG keys at end of first event
-  bool m_par_dumpkeys;
+  BooleanProperty                m_par_managePoolConnections{this,"ManagePoolConnections",true,"flag to manage pool connections"};
   //  a global force run number
-  IntegerProperty                m_par_forceRunNumber;
+  IntegerProperty                m_par_forceRunNumber{this,"forceRunNumber",0,"globally force run-number (default: no force)"};
   //  a global force lumiblock number
-  IntegerProperty                m_par_forceLumiblockNumber;
+  IntegerProperty                m_par_forceLumiblockNumber{this,"forceLumiblockNumber",0,"globally force LB-number (default: no force)"};
   // a global force timestamp
-  IntegerProperty m_par_forceTimestamp;
+  IntegerProperty m_par_forceTimestamp{this,"forceTimeStamp",0,"globally force time-stamp (default: no force)"};
   //  max number of pool files open allowed
-  IntegerProperty                m_par_maxNumPoolFiles;
+  IntegerProperty                m_par_maxNumPoolFiles{this,"MaxPoolFilesOpen",5,"max number of pool files open allowed (0 means no limit)"};
   // timestampslop - backdata timestamp IOVs by this many seconds
-  FloatProperty                  m_par_timeStampSlop;
+  FloatProperty                  m_par_timeStampSlop{this,"TimeStampSlop",0.0,"backdata timestamp IOVs by this many seconds"};
   // force larger numbers of runs to be cached
-  IntegerProperty m_par_cacheRun;
+  IntegerProperty m_par_cacheRun{this,"CacheRun",0,"force larger numbers of runs to be cached"};
   // force larger timeranges to be cached (seconds)
-  IntegerProperty m_par_cacheTime;
+  IntegerProperty m_par_cacheTime{this,"CacheTime",0,"force larger timeranges to be cached (seconds)"};
   // cache alignment - divide cache into N slices and align queries on slice
   // should be useful to improve Frontier cache hit rate
-  UnsignedIntegerProperty m_par_cacheAlign;
+  UnsignedIntegerProperty m_par_cacheAlign{this,"CacheAlign",0,"cache alignment - divide cache into N slices and align queries on slice"};
   // online mode flag to ignore missing channels outside cache range
-  BooleanProperty m_par_onlineMode;
+  BooleanProperty m_par_onlineMode{this,"OnlineMode",false,"online mode flag to ignore missing channels outside cache range"};
   // check to ensure global/HVS tags are locked (for production)
-  BooleanProperty m_par_checklock;
+  BooleanProperty m_par_checklock{this,"CheckLock",false,"check to ensure global/HVS tags are locked (for production)"};
   // Source of data as a string; default is "COOL_DATABASE"
-  std::string m_par_source{};
+  StringProperty m_par_source{this,"Source","COOL_DATABASE","source of data as a string (default COOL_DATABASE)"};
   // Format of data; default is empty string (default for a given source)
-  std::string m_par_format{};
+  StringProperty m_par_format{this,"Format",{},"Format of data; default is empty string (default for a given source)"};
   // Can output to file for debugging purposes
-  bool m_outputToFile{false};
+  BooleanProperty m_outputToFile{this,"OutputToFile",false,"output to file for debugging purposes"};
   // internal parameters  
   // handles to other services and tools
-  ServiceHandle<IIOVSvc>         m_h_IOVSvc;
-  ServiceHandle<StoreGateSvc>    m_h_sgSvc;
-  ServiceHandle<StoreGateSvc>    m_h_detStore;
-  ServiceHandle<StoreGateSvc>    m_h_metaDataStore;
-  ServiceHandle<IAddressCreator> m_h_persSvc;   
-  ServiceHandle<IClassIDSvc>     m_h_clidSvc;
-  ServiceHandle<IPoolSvc>        m_h_poolSvc;
-  ToolHandle<IIOVDbMetaDataTool> m_h_metaDataTool;
-  ServiceHandle<ITagInfoMgr>     m_h_tagInfoMgr;
+  ServiceHandle<IIOVSvc>         m_h_IOVSvc{this,"IOVSvc","IOVSvc"};
+  ServiceHandle<StoreGateSvc>    m_h_sgSvc{this,"StoreGateSvc","StoreGateSvc"};
+  ServiceHandle<StoreGateSvc>    m_h_detStore{this,"DetectorStore","DetectorStore"};
+  ServiceHandle<StoreGateSvc>    m_h_metaDataStore{this,"MetaDataStore","StoreGateSvc/MetaDataStore"};
+  ServiceHandle<IAddressCreator> m_h_persSvc{this,"EventPersistencySvc","EventPersistencySvc"};
+  ServiceHandle<IClassIDSvc>     m_h_clidSvc{this,"ClassIDSvc","ClassIDSvc"};
+  ServiceHandle<IPoolSvc>        m_h_poolSvc{this,"PoolSvc","PoolSvc"};
+  PublicToolHandle<IIOVDbMetaDataTool> m_h_metaDataTool{this,"IOVDbMetaDataTool","IOVDbMetaDataTool"};
+  ServiceHandle<ITagInfoMgr>     m_h_tagInfoMgr{this,"TagInfoMgr","TagInfoMgr"};
         
   // Flag to signal when a pool payload has been requested. This
   // implies that a pool file has been open during an event, and will
   // allow one to close the pool file and the end of event.
-  bool                           m_poolPayloadRequested;
+  bool                           m_poolPayloadRequested{false};
 
   // Pool service context
-  unsigned int                   m_poolSvcContext;
+  unsigned int                   m_poolSvcContext{0};
 
   // Flag to keep track of which state we are in to know
   // how to obtain the IOV time, i.e. during:
@@ -267,16 +254,16 @@ private:
     EVENT_LOOP,
     FINALIZE_ALG
   };
-  IOVDbSvc_state                 m_state;
+  IOVDbSvc_state                 m_state{INITIALIZATION};
 
   // IOVTime to be set during initialation or begin run
-  IOVTime                        m_iovTime;
+  IOVTime                        m_iovTime{};
 
   // Global tag from TagInfo or joboptions
-  std::string                    m_globalTag;
+  std::string                    m_globalTag{};
 
   // IOV value to be subtraced for timeStampSlop
-  cool::ValidityKey m_iovslop;
+  cool::ValidityKey m_iovslop{};
 
   // vector of managed connections
   typedef std::vector<IOVDbConn*> ConnVec;
@@ -285,7 +272,7 @@ private:
   typedef std::map<std::string,IOVDbFolder*> FolderMap;
   FolderMap m_foldermap;
   // gloal abort flag
-  bool m_abort;
+  bool m_abort{false};
  
 };
 

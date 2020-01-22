@@ -16,6 +16,7 @@
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
+#include "xAODCore/tools/FloatCompressor.h"
 
 #include "CxxUtils/checker_macros.h"
 
@@ -25,7 +26,7 @@ namespace xAOD {
 
    AuxContainerBase::AuxContainerBase( bool allowDynamicVars )
       : SG::IAuxStore(),
-        m_selection(),
+        m_selection(), m_compression(),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
         m_locked( false ),
@@ -48,6 +49,7 @@ namespace xAOD {
    AuxContainerBase::AuxContainerBase( const AuxContainerBase& parent )
       : SG::IAuxStore(),
         m_selection( parent.m_selection ),
+        m_compression( parent.m_compression ),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
         m_locked( false ),
@@ -59,6 +61,7 @@ namespace xAOD {
          m_ownsStore = false;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
          m_selection = parent.m_selection;
+         m_compression = parent.m_compression;
          m_auxids = m_store->getAuxIDs();
       }
    }
@@ -70,7 +73,7 @@ namespace xAOD {
    ///
    AuxContainerBase::AuxContainerBase( SG::IAuxStore* store )
       : SG::IAuxStore(),
-        m_selection(),
+        m_selection(), m_compression(),
         m_auxids(), m_vecs(),
         m_store( store ),
         m_storeIO( 0 ), m_ownsStore( false ),
@@ -108,6 +111,7 @@ namespace xAOD {
       if( this == &rhs ) return *this;
 
       m_selection = rhs.m_selection;
+      m_compression = rhs.m_compression;
 
       // Clean up after the old dynamic store:
       if( m_store && m_ownsStore ) {
@@ -637,6 +641,44 @@ namespace xAOD {
       // In case we don't use an internal store, there are no dynamic
       // variables:
       return auxid_set_t();
+   }
+
+   //
+   /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   //           Implementation of the SG::IAuxStoreCompression functions
+   //
+
+   void
+   AuxContainerBase::setCompressedAuxIDs( const std::set< std::string >& attributes ) {
+
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      m_compression.setCompressedAuxIDs( attributes );
+   }
+
+   AuxContainerBase::auxid_set_t
+   AuxContainerBase::getCompressedAuxIDs() const {
+
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      return m_compression.getCompressedAuxIDs( getWritableAuxIDs() );
+   }
+
+   float
+   AuxContainerBase::getCompressedValue( float value ) const {
+
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      // For testing purposes
+      static const xAOD::FloatCompressor myFloatCompressor( 7 );
+
+      return myFloatCompressor.reduceFloatPrecision( value );
    }
 
    //

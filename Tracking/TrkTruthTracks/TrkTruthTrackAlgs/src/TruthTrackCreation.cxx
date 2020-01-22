@@ -100,6 +100,7 @@ StatusCode Trk::TruthTrackCreation::execute()
     SG::WriteHandle<TrackCollection> outputTrackCollectionHandle(m_outputTrackCollectionName);
     SG::WriteHandle<TrackCollection> skippedTrackCollectionHandle(m_skippedTrackCollectionName);
  
+    std::vector<std::unique_ptr<Trk::Track> > tmp_track_collection;
 
     // set up the PRD trajectory builder
     if ( m_prdTruthTrajectoryBuilder->refreshEvent().isFailure() ){
@@ -132,16 +133,19 @@ StatusCode Trk::TruthTrackCreation::execute()
             if (!passed) continue;
         }
         // create the truth track
-        Trk::Track* truthTrack = m_truthTrackBuilder->createTrack(ttIter->second);
+        std::unique_ptr<Trk::Track> truthTrack( m_truthTrackBuilder->createTrack(ttIter->second));
         if (!truthTrack){
             ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).second.prds.size() << " failed. Skipping ...");
             continue;
         } 
         ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).second.prds.size() << " successful.");
         // If configured : update the track summary
-        if (!m_trackSummaryTool.empty()){
+        if (m_trackSummaryTool.isEnabled()){
             ATH_MSG_VERBOSE("Updating the TrackSummary.");
-            m_trackSummaryTool->updateTrack(*truthTrack, prd_to_track_map.get());
+            m_trackSummaryTool->computeAndReplaceTrackSummary(*truthTrack,
+                                                              prd_to_track_map.get(),
+                                                              false /* DO NOT suppress hole search*/);
+
         }
         // If configured : check with the TrackSelectors
         bool passed = !(m_trackSelectors.size());
@@ -159,21 +163,27 @@ StatusCode Trk::TruthTrackCreation::execute()
             if (prd_to_track_map  && m_assoTool->addPRDs(*prd_to_track_map, *truthTrack).isFailure())  {
               ATH_MSG_WARNING("Failed to add PRDs to map");
             }
-            outputTrackCollection->push_back(truthTrack);       
+            tmp_track_collection.push_back(std::move(truthTrack));
         } else {
             ATH_MSG_VERBOSE("Track did not pass the track selection. Putting it into skipped track collection.");
-            skippedTrackCollection->push_back(truthTrack);
+            skippedTrackCollection->push_back(truthTrack.release());
         }
     }
 
-    
     // If configured : update the track summary
-    if (!m_trackSummaryTool.empty()) {
-        TrackCollection::iterator rf,rfe=outputTrackCollection->end();
-        for (rf=outputTrackCollection->begin();rf!=rfe; ++rf) {
+    if (m_trackSummaryTool.isEnabled()) {
+        outputTrackCollection->reserve(tmp_track_collection.size());
+        for (std::unique_ptr<Trk::Track> &track : tmp_track_collection) {
             ATH_MSG_VERBOSE("Updating the TrackSummary with shared hits.");
-            m_trackSummaryTool->updateTrack(**rf, prd_to_track_map.get());
+            m_trackSummaryTool->computeAndReplaceTrackSummary(*track, prd_to_track_map.get(), false /* DO NOT suppress hole search*/);
+            outputTrackCollection->push_back(std::move(track));
         }
+    }
+    else {
+       outputTrackCollection->reserve(tmp_track_collection.size());
+       for (std::unique_ptr<Trk::Track> &track : tmp_track_collection) {
+          outputTrackCollection->push_back(std::move(track));
+       }
     }
 
     // ----------------------------------- record & cleanup ---------------------------------------------------------------    

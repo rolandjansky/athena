@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the KalmanVertexOnJetAxisSmoother configurable
-from TrkJetVxFitter.TrkJetVxFitterConf import Trk__KalmanVertexOnJetAxisSmoother
+Trk__KalmanVertexOnJetAxisSmoother=CompFactory.Trk__KalmanVertexOnJetAxisSmoother
 
 def KalmanVertexOnJetAxisSmootherCfg(name, **options):
     acc = ComponentAccumulator()

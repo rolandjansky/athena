@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //tau
@@ -51,7 +51,7 @@ TauCalibrateLC::~TauCalibrateLC() {
 /********************************************************************/
 StatusCode TauCalibrateLC::initialize() {
 
-  ATH_CHECK( m_vertexInputContainer.initialize() );
+  ATH_CHECK( m_vertexInputContainer.initialize(! m_vertexInputContainer.key().empty()) );
 
   std::string fullPath = find_file(m_calibrationFile);
 
@@ -161,14 +161,12 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
         
     if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
-    // for tau trigger
-    bool inTrigger = tauEventData()->inTrigger();
     const xAOD::VertexContainer * vxContainer = 0;
 
     int nVertex = 0;
         
     // Only retrieve the container if we are not in trigger
-    if ( !inTrigger ) {
+    if ( ! m_vertexInputContainer.key().empty() ) {
 
       // StatusCode sc;
       // Get the primary vertex container from StoreGate
@@ -217,10 +215,6 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 
     double slopeNPV = m_slopeNPVHist[prongBin]->GetBinContent(etaBin + 1);
     double offset = slopeNPV * (nVertex - m_averageNPV);
-
-    // FF: March,2014
-    // no offset correction for trigger        
-    //if (inTrigger) offset = 0.;
 
     // energy response parameterized as a function of pileup-corrected E_LC
     double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV;            //was sumClusterVector.e() / GeV;
@@ -305,7 +299,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 
-  if (m_isCaloOnly == true && tauEventData()->inTrigger() == true){
+  if (m_isCaloOnly == true && m_in_trigger == true){
 
     pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
       

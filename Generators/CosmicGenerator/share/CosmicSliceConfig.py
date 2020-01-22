@@ -30,7 +30,7 @@ elif simFlags.CosmicPtSlice == 'slice4':
     cg.zvert_low =  -1000.*3000. # 3 km
     cg.zvert_hig =   1000.*3000. # 3 km
 elif simFlags.CosmicPtSlice != 'NONE':
-    print 'Slice name incorrect!'
+    printfunc ('Slice name incorrect!')
     # TODO: theApp.exit(1)?
     import sys
     sys.exit(1)
@@ -40,7 +40,7 @@ bedrockDZ = (cg.zvert_hig - cg.zvert_low)/2.
 
 if (bedrockDX > 350000 or bedrockDZ > 350000) :
     newSize = max( bedrockDX , bedrockDZ )
-    print "Resizing bedrock (mm) to fit cosmic generator:",newSize
+    printfunc ("Resizing bedrock (mm) to fit cosmic generator:",newSize)
     from AthenaCommon.Configurable import Configurable
     if Configurable.allConfigurables.get('GeoModelSvc'):
         GeoModelSvc = Configurable.allConfigurables.get('GeoModelSvc')
@@ -54,4 +54,4 @@ if (bedrockDX > 350000 or bedrockDZ > 350000) :
     elif (newSize <= 4000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock4000'
     elif (newSize <= 5000000) : GeoModelSvc.CavernInfraVersionOverride = 'CavernInfra-03-Bedrock5000'
 else :
-    print "No need to resize the bedrock for cosmic generation"
+    printfunc ("No need to resize the bedrock for cosmic generation")

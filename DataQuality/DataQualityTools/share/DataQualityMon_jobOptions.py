@@ -99,7 +99,7 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
         try:
             svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("RpcPadContainer/RPCPAD")
         except:
-            print 'RPCPAD cannot be removed'
+            printfunc ('RPCPAD cannot be removed')
 
 from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfigOld
 topSequence += DQTDataFlowMonAlgConfigOld(DQMonFlags)
@@ -131,5 +131,5 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
     )
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
-    from DataQualityTools.DQTLumiMonTool import DQTLumiMonAlgConfig
+    from DataQualityTools.DQTLumiMonAlg import DQTLumiMonAlgConfig
     topSequence += DQTLumiMonAlgConfig(DQMonFlags, isOld=True)

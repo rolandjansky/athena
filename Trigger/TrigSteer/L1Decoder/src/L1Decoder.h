@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
@@ -45,20 +45,20 @@ protected: // protected to support unit testing
 private:
 
   ///@{ @name Properties
+
+  /// Level-1 result with RoIs from Run-2 hardware systems
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{this, "RoIBResult", "RoIBResult", 
       "Name of RoIBResult"};
+
+  /// Level-1 result with RoIs from Run-3 hardware systems
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultKey{this, "L1TriggerResult", "L1TriggerResult",
+      "Name of the L1 Trigger Result"};
 
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{this, "L1DecoderSummaryKey", "L1DecoderSummary", 
       "Chains status after L1 and prescaling"}; // Note: was previously property 'Chains' with default value 'HLTChains'
 
   SG::WriteHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "L1DecoderStart", 
       "Object with the time stamp when decoding started" };
-
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
-    this, "OutputFSTrigRoI", "FSRoI", "Name of the RoIs object containing the single FS RoI tagged with all chains in which FS reconstruction happens and have no dependencey on L1 information"};
-
-  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_FSDecisions{
-    this, "FSDecisions", "L1FS", "Name of the decisions container (suitable for filters) containing all unprescaled chains"};
 
   Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false, 
     "Enables start-of-event cost monitoring behavior."};

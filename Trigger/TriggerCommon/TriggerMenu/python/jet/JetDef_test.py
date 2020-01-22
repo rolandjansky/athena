@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import sys
-import os
-from cStringIO import StringIO
+from __future__ import print_function
+
 import copy
 import unittest
-from mock import MagicMock
 from JetDef import generateHLTChainDef, usage
 
 from ChainConfigMaker import JetAttributes
@@ -16,7 +14,9 @@ class TestJetDef(unittest.TestCase):
 
     def setUp(self):
         self.from_central =  copy.deepcopy(MC_pp_V5_dicts[0])
+        # import sys
         # self.old_stdout = sys.stdout
+        # from cStringIO import StringIO
         # sys.stdout = StringIO()
 
     def tearDown(self):
@@ -29,8 +29,8 @@ class TestJetDef(unittest.TestCase):
         for dd in MC_pp_V5_dicts:
             chain_def = generateHLTChainDef(dd)
             if chain_def.__class__.__name__ != 'ChainDef':
-                print 'real error ---> ', chain_def
-                print chain_def
+                print ('real error ---> ', chain_def)
+                print (chain_def)
             self.assertTrue(chain_def.__class__.__name__ == 'ChainDef')
 
     def _test_3(self):
@@ -43,7 +43,7 @@ class TestJetDef(unittest.TestCase):
         del self.from_central['chainParts']
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
-        #    print chain_def
+        #    print (chain_def)
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
         
     def test_5(self):
@@ -52,7 +52,7 @@ class TestJetDef(unittest.TestCase):
         self.from_central['chainParts'].extend([{}, {}])
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
-        #    print chain_def
+        #    print (chain_def)
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
         
     def test_6(self):
@@ -61,7 +61,7 @@ class TestJetDef(unittest.TestCase):
         self.from_central['chainParts'][0]['signature'] = 'junk'
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
-        #    print chain_def
+        #    print (chain_def)
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
         
     def test_7(self):
@@ -70,7 +70,7 @@ class TestJetDef(unittest.TestCase):
         del self.from_central['chainParts'][0]['etaRange']
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
-        #    print chain_def
+        #    print (chain_def)
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
         
     def test_8(self):
@@ -79,7 +79,7 @@ class TestJetDef(unittest.TestCase):
         self.from_central['chainParts'][0]['dataType'] = 'junk'
         chain_def = generateHLTChainDef(self.from_central)
         # if chain_def.__class__.__name__ != 'ChainDef':
-        #    print chain_def
+        #    print (chain_def)
         self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
         
     def test_9(self):
@@ -121,8 +121,8 @@ class TestJetDef(unittest.TestCase):
 
         chain_def = generateHLTChainDef(d)
         if chain_def.__class__.__name__ != 'ChainDef':
-            print 'real error ---> ', chain_def
-            print chain_def
+            print ('real error ---> ', chain_def)
+            print (chain_def)
  
         self.assertTrue(chain_def.__class__.__name__ == 'ChainDef')
             
@@ -147,7 +147,7 @@ class TestJetDef(unittest.TestCase):
         d['scan'] = ''
         self.from_central['chainParts'].append(d)
         chain_def = generateHLTChainDef(self.from_central)
-        print chain_def
+        print (chain_def)
         # TT not implemented 11/5/2014
         self.assertTrue(chain_def.__class__.__name__ == 'ChainDef')
 
@@ -252,7 +252,7 @@ class TestJetDef(unittest.TestCase):
              'topoStartFrom': False,
              'topoThreshold': None}
         
-        chain_def = generateHLTChainDef(d)
+        generateHLTChainDef(d)
         
 
 if __name__ == '__main__':

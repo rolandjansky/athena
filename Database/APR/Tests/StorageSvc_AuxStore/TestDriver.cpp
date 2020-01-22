@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -89,6 +89,10 @@ TestDriver::testWriting()
    void *pVoid;
    pool::DbStatus sc = storSvc->queryInterface( pool::IStorageExplorer::interfaceID(), &pVoid );
    pool::IStorageExplorer* storageExplorer = (pool::IStorageExplorer*)pVoid;
+   if ( !( sc == pool::DbStatus::Success && storageExplorer ) ) {
+     storSvc->release();
+     throw std::runtime_error( "Could not retrieve a IStorageExplorer interface" );
+   }
    pool::DbOption opt("TREE_AUTO_FLUSH", "CollectionTree", 10);
    storageExplorer->setDatabaseOption(fd, opt);
 

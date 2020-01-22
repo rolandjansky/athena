@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -7,7 +7,6 @@
 #include <numeric>
 #include <utility> // Temporary
 
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/ClusterThresholdValue.h"
 #include "TrigConfL1Data/L1DataDef.h"
@@ -32,11 +31,11 @@ namespace LVL1 {
 L1CPCMXTools::L1CPCMXTools(const std::string &type, const std::string &name,
                            const IInterface *parent)
     : AthAlgTool(type, name, parent),
-      m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name), m_crates(4),
+      m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name), m_crates(4),
       m_modules(14), m_maxTobs(5), m_sysCrate(3), m_debug(false) {
   declareInterface<IL1CPCMXTools>(this);
 
-  declareProperty("TrigConfigSvc", m_configSvc, "Trigger Config Service");
+  declareProperty("LVL1ConfigSvc", m_configSvc, "Trigger Config Service");
 }
 
 /** Destructor */

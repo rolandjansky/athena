@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/fineEtaPhiBinning.h"
@@ -7,13 +7,6 @@
 fineEtaPhiBinning::fineEtaPhiBinning() {
 
     m_barrel_endcap_transition = 1.19;
-
-    // OUTDATED old binning, driven by coil geometry. 
-//    m_abs_eta_bins = {0.21,0.42,0.63,0.84,1.05,1.37,1.52,1.74,1.95,2.18,2.75};
-//     m_abs_eta_bins = {0.10,0.32,0.54,0.76,0.98,1.19,1.40,1.62,1.84,2.00,2.25,2.50};
-// 
-//     m_phi_lower_BAR = {-0.235,0.235,0.55,1.020,1.335,1.805,2.12,2.590, 2.905,-2.905,-2.59,-2.120,-1.805,-1.335,-1.020,-0.550 };
-//     m_phi_upper_BAR = { 0.235,0.55 ,1.02,1.335,1.805,2.120,2.59,2.905,-2.905,-2.590,-2.12,-1.806,-1.335,-1.020,-0.550,-0.235 };
 
 //     UPDATED, based on sector binning used by the MomentumCorrections. Overlaps accounted towards small sectors. 
     m_barrel_endcap_transition = 1.05;
@@ -207,7 +200,7 @@ int fineEtaPhiBinning::getSector(double phi) const {
 
 int fineEtaPhiBinning::getAbsEtaBin(double eta) const {
 
-    double abseta = fabs(eta);
+    double abseta = std::fabs(eta);
     for (size_t bin = 0; bin < m_abs_eta_bins.size(); ++bin) {
         if (abseta < m_abs_eta_bins.at(bin)) return bin;
     }
@@ -223,5 +216,5 @@ int fineEtaPhiBinning::getEtaBin(const TLorentzVector & mst) const {
     return etabin * signeta;
 }
 int fineEtaPhiBinning::getPhiSector(const TLorentzVector & m) const {
-    return (fabs(m.Eta()) < m_barrel_endcap_transition ? getSector(m.Phi()) : getECSector(m.Phi()));
+    return (std::fabs(m.Eta()) < m_barrel_endcap_transition ? getSector(m.Phi()) : getECSector(m.Phi()));
 }

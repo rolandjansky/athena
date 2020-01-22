@@ -6,6 +6,9 @@
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.out
+# art-output: *.err
+# art-output: *.log.tar.gz
 # art-output: *.new
 # art-output: *.json
 # art-output: *.root
@@ -17,9 +20,8 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'grid'

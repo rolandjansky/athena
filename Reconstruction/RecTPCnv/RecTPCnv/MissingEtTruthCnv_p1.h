@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RECTPCNV_MISSINGETTRUTHCNV_P1_H
@@ -22,17 +22,21 @@ PURPOSE:  Transient/Persisten converter for MissingEtTruth class
 
 class MsgStream;
 
-class MissingEtTruthCnv_p1 : public T_AthenaPoolTPCnvBase<MissingEtTruth, MissingEtTruth_p1>
+class MissingEtTruthCnv_p1 : public T_AthenaPoolTPCnvConstBase<MissingEtTruth, MissingEtTruth_p1>
 {
-    public:
+public:
+        using base_class::transToPers;
+        using base_class::persToTrans;
+
+
         MissingEtTruthCnv_p1() {};
         virtual void persToTrans( const MissingEtTruth_p1    *persObj,
                                   MissingEtTruth             *transObj,
-                                  MsgStream                  &msg );
+                                  MsgStream                  &msg ) const override;
 
         virtual void transToPers( const MissingEtTruth       *transObj,
                                   MissingEtTruth_p1          *persObj,
-                                  MsgStream                  &msg );
+                                  MsgStream                  &msg ) const override;
 };
 
 

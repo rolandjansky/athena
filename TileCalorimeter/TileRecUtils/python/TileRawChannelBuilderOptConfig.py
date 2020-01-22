@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile raw channel builder tools using Optimal Filtering methods"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileRawChannelBuilderOpt2FilterCfg(flags, method = 'Opt2', **kwargs):
     """Return component accumulator with configured private Tile raw channel builder tool (Opt2)
@@ -63,7 +64,7 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, method = 'Opt2', **kwargs):
         sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
         kwargs['TileCondToolNoiseSample'] = sampleNoiseTool
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
+    TileRawChannelBuilderOpt2Filter=CompFactory.TileRawChannelBuilderOpt2Filter
     from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
     builderTool = acc.popToolsAndMerge( TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilderOpt2Filter, **kwargs) )
 
@@ -108,6 +109,6 @@ if __name__ == "__main__":
     print( acc.popToolsAndMerge( TileRawChannelBuilderOF1Cfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelBuilder.pkl','w') )
+    acc.store( open('TileRawChannelBuilder.pkl','wb') )
 
 

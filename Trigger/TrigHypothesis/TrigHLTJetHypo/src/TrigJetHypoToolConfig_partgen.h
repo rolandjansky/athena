@@ -19,7 +19,7 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 
 
@@ -44,7 +44,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
 
   virtual std::optional<ConditionsMT> getConditions() const override;
-  virtual std::size_t requiresNJets() const override {return 0;}
+  virtual std::size_t requiresNJets() const override;
 
  private:
 

@@ -4,6 +4,7 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigOutputHandling/TriggerBitsMakerTool.h"
 #include "TrigConfHLTData/HLTUtils.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 
 #include <algorithm>
 
@@ -80,12 +81,20 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
   prescaled.clear();
   rerun.clear();
 
+  auto chainsHandle = SG::makeHandle(m_finalChainDecisions, ctx);
+  if (!chainsHandle.isValid()) {
+    SmartIF<IAlgExecStateSvc> aess = svcLoc()->service<IAlgExecStateSvc>("AlgExecStateSvc", false);
+    if (aess.isValid() && aess->eventStatus(ctx) != EventStatus::Success) {
+      ATH_MSG_WARNING("Failed event, " << m_finalChainDecisions.key() << " is unavailable. Skipping trigger bits making.");
+      return StatusCode::SUCCESS;
+    }
+    ATH_MSG_ERROR("Unable to read in the " << m_finalChainDecisions.key() << " from the DecisionSummaryMakerAlg");
+    return StatusCode::FAILURE;
+  }
+
   passRaw.resize(m_largestBit + 1);
   prescaled.resize(m_largestBit + 1);
   rerun.resize(m_largestBit + 1);
-
-  auto chainsHandle = SG::makeHandle(m_finalChainDecisions, ctx);
-  ATH_CHECK(chainsHandle.isValid());
 
   const Decision* HLTPassRaw = nullptr;
   const Decision* HLTPrescaled = nullptr;
@@ -93,7 +102,7 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
 
   DecisionIDContainer passRawIDs; //!< The chains which returned a positive decision
   DecisionIDContainer prescaledIDs; //!< The chains which did not run due to being prescaled out
-  DecisionIDContainer rerunIDs; //!< The chains which were activate only in the rerun (not physics decisions)
+  DecisionIDContainer rerunIDs; //!< The chains which were activated only in the rerun (not physics decisions)
 
   // Read the sets of chain IDs
   for (const Decision* decisionObject : *chainsHandle) {
@@ -177,8 +186,12 @@ StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID cha
   const BitCategory category,
   boost::dynamic_bitset<uint32_t>& resultToFill) const
 {
+  // FP TMP chain ID manipulation for leg Identifiers/ to be checked by Tim
+  if (TrigCompositeUtils::isLegId(HLT::Identifier(chain)) )
+    return StatusCode::SUCCESS;
+
   auto mappingIter = m_mapping.find( chain );
-  // each chain has to have stream
+  // each chain has to have the counter
   if( mappingIter == m_mapping.end() ) {
     ATH_MSG_ERROR("Each chain has to have the bit/counter associated whereas the " << HLT::Identifier( chain ) << " does not" );
     return StatusCode::FAILURE;

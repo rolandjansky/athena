@@ -36,14 +36,14 @@ class ConfiguredTRTStandalone:
     prd_to_track_map = ''
     if usePrdAssociationTool and extension != "_TRT" :
       prefix='InDetTRTonly_'
-      InDetTRTonly_PRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = prefix,
-                                                                                 suffix     = extension,
+      InDetTRTonly_PRD_Association = TrackingCommon.getInDetTrackPRD_Association(namePrefix = prefix,
+                                                                                 nameSuffix = extension,
                                                                                  TracksName = list(InputCollections))
 
       prd_to_track_map = prefix+'PRDtoTrackMap'+extension
       topSequence += InDetTRTonly_PRD_Association
       if (InDetFlags.doPrintConfigurables()):
-        print InDetTRTonly_PRD_Association
+        printfunc (InDetTRTonly_PRD_Association)
 
     #
     # Cut values and output key for the TRT segments standalone TRT track finder
@@ -63,7 +63,7 @@ class ConfiguredTRTStandalone:
     #
     from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetTrtTrackScoringTool
     InDetTRT_StandaloneScoringTool = InDet__InDetTrtTrackScoringTool(name                = 'InDetTRT_StandaloneScoringTool'+extension,
-                                                                     SummaryTool         = InDetTrackSummaryTool,
+                                                                     SummaryTool         = TrackingCommon.getInDetTrackSummaryTool(),
                                                                      DriftCircleCutTool  = InDetTRTDriftCircleCut,
                                                                      useAmbigFcn         = True,
                                                                      useSigmaChi2        = False,
@@ -76,7 +76,7 @@ class ConfiguredTRTStandalone:
     # InDetTRT_StandaloneScoringTool.OutputLevel = VERBOSE 
     ToolSvc += InDetTRT_StandaloneScoringTool
     if (InDetFlags.doPrintConfigurables()):
-      print InDetTRT_StandaloneScoringTool
+      printfunc (InDetTRT_StandaloneScoringTool)
 
 
     #
@@ -88,15 +88,16 @@ class ConfiguredTRTStandalone:
     InDetTRT_SegmentToTrackTool = InDet__TRT_SegmentToTrackTool(name = 'InDetTRT_SegmentToTrackTool'+extension,
                                                                 RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitterTRT'),
                                                                 AssociationTool       = asso_tool,
+                                                                TrackSummaryTool      = TrackingCommon.getInDetTrackSummaryTool(),
                                                                 ScoringTool           = InDetTRT_StandaloneScoringTool,
-                                                                Extrapolator          = InDetExtrapolator,
+                                                                Extrapolator          = TrackingCommon.getInDetExtrapolator(),
                                                                 FinalRefit            = True,
                                                                 MaxSharedHitsFraction = NewTrackingCuts.maxTRTonlyShared(),
                                                                 SuppressHoleSearch    = True)
 
     ToolSvc += InDetTRT_SegmentToTrackTool
     if (InDetFlags.doPrintConfigurables()):
-      print InDetTRT_SegmentToTrackTool
+      printfunc (InDetTRT_SegmentToTrackTool)
 
     if not InDetFlags.doCosmics():
       #
@@ -117,7 +118,7 @@ class ConfiguredTRTStandalone:
       #InDetTRT_StandaloneTrackFinder.OutputLevel = VERBOSE
       topSequence += InDetTRT_StandaloneTrackFinder
       if InDetFlags.doPrintConfigurables():
-        print InDetTRT_StandaloneTrackFinder
+        printfunc (InDetTRT_StandaloneTrackFinder)
 
       # --- Delete TRT segments for the subdetector pattern only (back-tracking has already run by this point)
       from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
@@ -142,7 +143,7 @@ class ConfiguredTRTStandalone:
       #InDetTrkSegmenttoTrk.OutputLevel = VERBOSE
       topSequence += InDetTrkSegmenttoTrk
       if InDetFlags.doPrintConfigurables():
-        print InDetTrkSegmenttoTrk
+        printfunc (InDetTrkSegmenttoTrk)
 
 
     #

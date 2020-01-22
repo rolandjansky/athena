@@ -39,8 +39,8 @@
 
 #include "Constants.h"
 
-#include "AthenaMonitoring/Monitored.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 class TrigMultiTrkHypoMT: public ::HypoBase  {
@@ -105,8 +105,12 @@ class TrigMultiTrkHypoMT: public ::HypoBase  {
   Gaudi::Property<float> m_mindR { this, "overlapdR",0.01 ,"Minimum dR between tracks (overlap removal)"};
     
   Gaudi::Property<int> m_particleType { this, "particleType", 0, "Types of particles to use. 0 = tracks, 1 = EF Muons, 2 = tbd..."}; 
+  
+  Gaudi::Property<std::string> m_trigLevelString { this, "trigLevelString", "", "Trigger Level to set for created TrigBphys objects."}; 
     
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  
+  xAOD::TrigBphys::levelType m_trigLevel;
 
 };
 

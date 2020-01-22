@@ -9,6 +9,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
+#include "TileConditions/TileInfo.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
@@ -26,6 +27,7 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
     , m_minimumNumberOfTruncatedChannels(0.6) // at least 60% of channels should be below threshold
     , m_useTwoGaussNoise(false) // do not use 2G - has no sense for ADC HF noise for the moment
     , m_useGapCells(false) // use gap cells for noise filter as all normal cells
+    , m_tileInfo(0)
 {
 
   declareProperty("TruncationThresholdOnAbsEinSigma", m_truncationThresholdOnAbsEinSigma);
@@ -33,6 +35,7 @@ TileRawChannelNoiseFilter::TileRawChannelNoiseFilter(const std::string& type,
   declareProperty("UseTwoGaussNoise", m_useTwoGaussNoise);
   declareProperty("UseGapCells", m_useGapCells);
   declareProperty("MaxNoiseSigma", m_maxNoiseSigma = 5.0, "Channels with noise more than that value are igonred in calculation of correction");
+  declareProperty("TileInfoName", m_infoName = "TileInfo");
 }
 
 //========================================================
@@ -61,6 +64,10 @@ StatusCode TileRawChannelNoiseFilter::initialize() {
 
   //=== get TileBadChanTool
   ATH_CHECK( m_tileBadChanTool.retrieve() );
+
+  //=== get TileInfo
+  CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_ADCmaskValueMinusEps = m_tileInfo->ADCmaskValue() - 0.01;  // indicates channels which were masked in background dataset
 
   ATH_CHECK( m_DQstatusKey.initialize() );
 
@@ -138,7 +145,7 @@ TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont) con
 
       // use only good channel
       float ped=rch->pedestal();
-      if (empty || ped > 55000. || (ped>2000. && ped < 39500.) // all bad patterns, ped=2047, underflow, overflow
+      if (empty || ped > 59500. || (ped > m_ADCmaskValueMinusEps && ped < 39500.) // all bad patterns, ped=m_tileInfo->ADCmaskValue(), underflow, overflow (see TileRawChannelMaker.cxx for the logic)
           || m_tileBadChanTool->getAdcStatus(drawerIdx, chan, gain).isBad()
           || (!DQstatus->isAdcDQgood(ros, drawer, chan, gain))) continue;
 

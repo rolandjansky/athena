@@ -157,7 +157,7 @@ namespace Trk{
           {
             // (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(trkToFit[i]);
             LinkToTrack * linkTT = new LinkToTrack;
-            linkTT->setElement(const_cast<Trk::Track*>(trkToFit[i]));
+            linkTT->setElement(trkToFit[i]);
             // vxtrackatvertex takes ownership!
             (FittedVertex->vxTrackAtVertex())[i].setOrigTrack(linkTT);
           }//end of loop for setting orig tracks in.
@@ -262,7 +262,7 @@ namespace Trk{
    
   //conversion from the perigeeList and starting point   
   xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-					     const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
+                                             const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
                                              const Amg::Vector3D& startingPoint)  const
   {
   
@@ -284,13 +284,13 @@ namespace Trk{
         {
           for(unsigned int i = 0; i <perigeeList.size(); ++i)
           {
-            Trk::TrackParameters* iPer = const_cast<Trk::TrackParameters*>(perigeeList[i]);
+            const Trk::TrackParameters* iPer = perigeeList[i];
             (FittedVertex->vxTrackAtVertex())[i].setInitialPerigee(iPer);
           }
           //same for neutrals
           for(unsigned int i = 0; i <neutralPerigeeList.size(); ++i)      {
-	    Trk::NeutralParameters* iPer = const_cast<Trk::NeutralParameters*>(neutralPerigeeList[i]);
-	    (FittedVertex->vxTrackAtVertex())[perigeeList.size()+i].setInitialPerigee(iPer);
+            const Trk::NeutralParameters* iPer = neutralPerigeeList[i];
+            (FittedVertex->vxTrackAtVertex())[perigeeList.size()+i].setInitialPerigee(iPer);
           }
         } //end of protection against unsuccessfull updates (no tracks or neutrals were added)
       }
@@ -301,7 +301,8 @@ namespace Trk{
   }
   
   //additional new fitting methods  
-  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*>& perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList) const
+  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*>& perigeeList, 
+                                             const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList) const
   {    
    
     //this method will later be modifyed to use the a finder

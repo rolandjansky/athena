@@ -145,7 +145,7 @@ struct Addrs
 //   Foo/foo1
 //   Foo/foo2 + symlink 321 + aliases foo2.d1, foo2.d2, foo2.d3
 //   Foo/foo3 + foo3.d1, foo3.d2
-//   Foo/fee1
+//   Foo/fee1 + alias fie
 //   Foo/fee1Aux.
 void fillTADList (IAddressProvider::tadList& tads,
                   Addrs& addrs)
@@ -179,6 +179,7 @@ void fillTADList (IAddressProvider::tadList& tads,
   {
     auto tad = std::make_unique<SG::TransientAddress>
       (fooclid, "fee1", &addrs.addr4, false);
+    tad->setAlias ("fie");
     tads.push_back (tad.release());
   }
 
@@ -195,7 +196,7 @@ void fillTADList (IAddressProvider::tadList& tads,
 //  Foo/bar1
 //  Foo/bar2 + symlink 321 + aliases bar2.d1, bar2.d2, bar2.x2
 //  Foo/foo3 + aliases foo3.x1, foo3.d2
-//  Foo/fee1_DELETED
+//  Foo/fee1_DELETED + alias fie_DELETED
 //  Foo/fee1Aux._DELETED
 void checkTADList (const IAddressProvider::tadList& tads,
                    const Addrs& addrs)
@@ -245,7 +246,8 @@ void checkTADList (const IAddressProvider::tadList& tads,
       assert (tad->clearAddress() == false);
       assert (tad->transientID() ==
               SG::TransientAddress::TransientClidSet { fooclid });
-      assert (tad->alias().empty());
+      assert (tad->alias() == 
+              (SG::TransientAddress::TransientAliasSet { "fie_DELETED" }));
     }
     else if (i == 4) {
       assert (tad->clID() == auxclid);

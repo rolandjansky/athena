@@ -415,11 +415,15 @@ StatusCode AddressRemappingSvc::renameTads (IAddressProvider::tadList& tads)
 
     else if (isDeleted (*tad)) {
       // Rename the existing TAD to end in _DELETED.
-      // Drop alias/symlinks in the process.
+      // Drop symlinks in the process.
       auto tad_new = std::make_unique<SG::TransientAddress>
         (tad->clID(), tad->name() + "_DELETED",
          tad->address(), tad->clearAddress());
       tad_new->setProvider (tad->provider(), tad->storeID());
+      // Preserve alias information, also renaming them to end in _DELETED.
+      for (const std::string& a : tad->alias()) {
+        tad_new->setAlias (a + "_DELETED");
+      }
       // Replace the old TAD in the list with the new one.
       delete tad;
       tad = tad_new.release();

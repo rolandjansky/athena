@@ -14,13 +14,13 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaInterprocess/Incidents.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 using namespace SG;
 // --------------------------------------------------------------------------------
@@ -35,8 +35,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
-    m_cscHits(),
-    m_jobOptionsSvc("JobOptionsSvc", name) 
+    m_cscHits()
 {
 }
 // --------------------------------------------------------------------------------
@@ -154,12 +153,6 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   }
   m_trackFitter -> setUseEIFromBarrel( m_use_endcapInnerFromBarrel );
 
-  if (m_jobOptionsSvc.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not find JobOptionsSvc");
-    return HLT::ERROR;
-  }
-  ATH_MSG_DEBUG(" Algorithm = " << name() << " is connected to JobOptionsSvc Service = " << m_jobOptionsSvc.name());
-
   //
   // Initialize the calibration streamer and the incident 
   // service for its initialization
@@ -183,7 +176,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       return HLT::ERROR;
     } else {
       long int pri=100;
-      p_incidentSvc->addListener(this,"UpdateAfterFork",pri);
+      p_incidentSvc->addListener(this,AthenaInterprocess::UpdateAfterFork::type(),pri);
       p_incidentSvc.release().ignore();
     }
   } 
@@ -1751,50 +1744,16 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
 // handler for "UpdateAfterFork")
 void MuFastSteering::handle(const Incident& incident) {
   
-  if (incident.type()!="UpdateAfterFork") return;
+  if (incident.type()!=AthenaInterprocess::UpdateAfterFork::type()) return;
   ATH_MSG_DEBUG("+-----------------------------------+");
   ATH_MSG_DEBUG("| handle for UpdateAfterFork called |");
   ATH_MSG_DEBUG("+-----------------------------------+");
   
   // Find the Worker ID and create an individual muon buffer name for each worker
-  StringProperty worker_id;
-  std::string worker_name;
+  const AthenaInterprocess::UpdateAfterFork& updinc = dynamic_cast<const AthenaInterprocess::UpdateAfterFork&>(incident);
+  std::string worker_name = std::to_string(updinc.workerID());
+  ATH_MSG_DEBUG("Worker ID = " << worker_name);
 
-  worker_id.setName("worker_id");
-  worker_id = std::string("");
-  const std::vector<const Property*>* dataFlowProps = m_jobOptionsSvc->getProperties("DataFlowConfig");
-  if ( dataFlowProps ) {
-    ATH_MSG_DEBUG(" Properties available for 'DataFlowConfig': number = " << dataFlowProps->size());
-    ATH_MSG_DEBUG(" --------------------------------------------------- ");
-    for ( std::vector<const Property*>::const_iterator cur = dataFlowProps->begin();
-          cur != dataFlowProps->end(); cur++) {
-      ATH_MSG_DEBUG((*cur)->name() << " = " << (*cur)->toString());
-      // the application name is found
-      if ( (*cur)->name() == "DF_WorkerId" ) {
-        if (worker_id.assign(**cur)) {
-          ATH_MSG_DEBUG(" ---> got worker ID = " << worker_id.value());
-          worker_name = worker_id.value() ;
-        } else {
-          ATH_MSG_WARNING(" ---> set property failed.");
-        }
-      }
-    }
-    
-    if ( worker_id.value() == "" ) {
-      ATH_MSG_DEBUG(" Property for DF_WorkerId not found.");
-    }
-  } else {
-    ATH_MSG_DEBUG(" No Properties for 'DataFlowConfig' found.");
-  }
-
-  ATH_MSG_DEBUG(" MuonCalBufferSize     = " << m_calBufferSize);
-  ATH_MSG_DEBUG("=================================================");
-  
-  // release JobOptionsSvc
-  unsigned long mjcounter = m_jobOptionsSvc->release();
-  ATH_MSG_DEBUG(" --> Release JobOptionsSvc Service, Counter = " << mjcounter);
-
-  
   //
   // Create the calibration stream
   if (m_doCalStream) {
@@ -1802,6 +1761,8 @@ void MuFastSteering::handle(const Incident& incident) {
     m_calBufferName = "/tmp/muonCalStreamOutput";
     m_calStreamer->setBufferName(m_calBufferName);
     m_calStreamer->setInstanceName(worker_name);
+    ATH_MSG_DEBUG("MuonCalBufferSize     = " << m_calBufferSize);
+    ATH_MSG_DEBUG("MuonCalBufferName     = " << m_calBufferName);
 
     // if it's not a data scouting chain, open the circular buffer
     if (!m_calDataScouting) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,7 +17,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/ILayerBuilder.h"
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/BinningType.h"
@@ -44,7 +43,6 @@
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/PlaneLayer.h"
 #include "TrkGeometry/SubtractedPlaneLayer.h"
-#include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/HomogeneousLayerMaterial.h"
 #include "TrkGeometry/OverlapDescriptor.h"
@@ -76,34 +74,10 @@ const InterfaceID& Muon::MuonStationTypeBuilder::interfaceID()
 
 // constructor
 Muon::MuonStationTypeBuilder::MuonStationTypeBuilder(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_muonMgrLocation("MuonMgr"),
-  m_multilayerRepresentation(true), 
-  m_resolveSpacer(false), 
-  m_trackingVolumeArrayCreator("Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"),
-  m_mdtTubeMat(),
-  m_mdtFoamMat(),
-  m_rpc46(),
-  m_rpcDed(),
-  m_rpcLayer(),
-  m_rpcExtPanel(),
-  m_rpcMidPanel(),
-  m_matCSC01(),
-  m_matCSCspacer1(),
-  m_matCSC02(),
-  m_matCSCspacer2(),
-  m_matTGC01(),
-  m_matTGC06()
+  AthAlgTool(t,n,p)
 {
   declareInterface<Muon::MuonStationTypeBuilder>(this);
-  declareProperty("MuonDetManagerLocation",           m_muonMgrLocation);
-  declareProperty("BuildMultilayerRepresentation",    m_multilayerRepresentation);
-  declareProperty("ResolveSpacerBeams",               m_resolveSpacer);
 }
-
-// destructor
-Muon::MuonStationTypeBuilder::~MuonStationTypeBuilder()
-{}
 
 // Athena standard methods
 // initialize
@@ -120,16 +94,24 @@ StatusCode Muon::MuonStationTypeBuilder::initialize()
     ATH_MSG_INFO("Retrieved tool " << m_trackingVolumeArrayCreator);
 
     // default (trivial) muon material properties 
-    m_muonMaterial = new Trk::Material(10e10,10e10,0.,0.,0.);      
+    m_muonMaterial = std::make_unique<Trk::Material>(10e10,10e10,0.,0.,0.);      
+    if(!m_muonMaterial){
+      ATH_MSG_FATAL(  "Could not create the material in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
 
-    m_materialConverter= new Trk::GeoMaterialConverter();
+    m_materialConverter= std::make_unique<Trk::GeoMaterialConverter>();
+    if(!m_materialConverter){
+      ATH_MSG_FATAL(  "Could not create material converter in " << name() <<" initialize()");
+      return StatusCode::FAILURE;
+    }
      
     ATH_MSG_INFO(name() <<" initialize() successful");    
     
     return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationComponents(const GeoVPhysVol* mv, Trk::CuboidVolumeBounds* envelope) const
+const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationComponents(const GeoVPhysVol* mv, Trk::CuboidVolumeBounds* envelope)
 {
 
    ATH_MSG_DEBUG( name() <<" processing station components for " <<mv->getLogVol()->getName());    
@@ -425,7 +407,7 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationC
    return components;  
 }
 
-const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationComponents(const GeoVPhysVol* mv, Trk::TrapezoidVolumeBounds* envelope ) const
+const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationComponents(const GeoVPhysVol* mv, Trk::TrapezoidVolumeBounds* envelope )
 {
   ATH_MSG_DEBUG( name() <<" processing station components for " <<mv->getLogVol()->getName() );    
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -684,29 +666,15 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
 // finalize
 StatusCode Muon::MuonStationTypeBuilder::finalize()
 {
-  
-  delete m_matCSCspacer1;
-  delete m_matCSCspacer2;
-  delete m_materialConverter;
-  delete m_matCSC01;
-  delete m_matCSC02;
-  delete m_matTGC01;
-  delete m_matTGC06;
-  delete m_mdtTubeMat;
-  delete m_rpcLayer;
-  delete m_rpcMidPanel;
-  delete m_rpcExtPanel;
-  delete m_muonMaterial;
-  for (unsigned int i=0;i<m_rpcDed.size();i++) delete m_rpcDed[i];
-  for (unsigned int i=0;i<m_mdtFoamMat.size();i++) delete m_mdtFoamMat[i];
-
+  m_rpcDed.clear();
+  m_mdtFoamMat.clear();
 
     ATH_MSG_INFO( name() <<" finalize() successful");
  
     return StatusCode::SUCCESS;
 }
 //
-const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volume*& vol,const GeoVPhysVol*& gv, Amg::Transform3D* transf, double zShift) const
+const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volume*& vol,const GeoVPhysVol*& gv, Amg::Transform3D* transf, double zShift)
 {
   std::vector<const Trk::PlaneLayer*> layers;
   std::vector<double> x_array;
@@ -728,24 +696,23 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
       xv = 13.0055;  // the half-thickness
       if ( !m_mdtTubeMat ) {
 	const GeoTube* tube=dynamic_cast<const GeoTube*> (clv->getShape());
-        if (!tube) {
+	if (!tube) {
 	  ATH_MSG_ERROR( "tube component does not return tube shape" ) ;
 	} else {  
 	  double volume = 8*(tube->getRMax())*(tube->getZHalfLength())*xv;
 	  //std::cout << " part of layer volume assigned to 1 tube:" << volume << std::endl;
 	  //std::cout << "tube dimensions:" << tube->getRMax() << "," << tube->getRMin() << "," << tube->getZHalfLength() << std::endl;
-	  m_mdtTubeMat = new Trk::MaterialProperties(getAveragedLayerMaterial(cv,volume,2*xv));
+	  m_mdtTubeMat = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(cv,volume,2*xv));
 	} 
-      }        
-      mdtMat = m_mdtTubeMat;
+      }
+      mdtMat = m_mdtTubeMat.get();
       active = 1; 
     }
     if ( (clv->getName())=="MultiLayerFoam") {
-      //std::cout << "processing MultiLayerFoam" << std::endl;  
       xv = decodeX(clv->getShape());
       for (unsigned int i=0;i<m_mdtFoamMat.size();i++) {
         if ( fabs(xv-0.5*m_mdtFoamMat[i]->thickness())<0.001 ) {
-	  mdtMat = m_mdtFoamMat[i];
+	  mdtMat = m_mdtFoamMat[i].get();
           break;
 	}
       }
@@ -756,9 +723,9 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
 	  ATH_MSG_ERROR( "box station component does not return cuboid shape" ) ;
 	} else {  
 	  double volume = 8*(cub->halflengthY())*(cub->halflengthZ())*xv;
-	  m_mdtFoamMat.push_back(new Trk::MaterialProperties(getAveragedLayerMaterial(cv,volume,2*xv)));
+	  m_mdtFoamMat.push_back( std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(cv,volume,2*xv)));
 	} 
-        if (m_mdtFoamMat.size()) mdtMat = m_mdtFoamMat.back();
+        if (m_mdtFoamMat.size()) mdtMat = m_mdtFoamMat.back().get();
       }
     }
     if (  transfc.translation()[0] != currX ) {
@@ -871,7 +838,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
   return mdt;
 }
 //
-const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volume*& vol,const GeoVPhysVol*& gv, Amg::Transform3D* transf) const
+const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volume*& vol,const GeoVPhysVol*& gv, Amg::Transform3D* transf)
 {
    // std::cout << "processing MDT, number of children volumes:"<< gv->getNChildVols() <<std::endl; 
   std::vector<const Trk::PlaneLayer*> layers;
@@ -901,17 +868,16 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
 	double volume = 8*(tube->getRMax())*(tube->getZHalfLength())*xv;
 	// std::cout << " part of layer volume assigned to 1 tube:" << vol << std::endl;
 	// std::cout << "tube dimensions:" << tube->getRMax() << "," << tube->getRMin() << "," << tube->getZHalfLength() << std::endl;
-	m_mdtTubeMat = new Trk::MaterialProperties(getAveragedLayerMaterial(cv,volume,2*xv)); 
-      }        
-      mdtMat = m_mdtTubeMat;
+	m_mdtTubeMat = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(cv,volume,2*xv)); 
+      }
+      mdtMat = m_mdtTubeMat.get();
       active = 1;
     }
     if ( (clv->getName())=="MultiLayerFoam") {
-      //std::cout << "processing MultiLayerFoam" << std::endl;  
       xv = decodeX(clv->getShape());
       for (unsigned int i=0;i<m_mdtFoamMat.size();i++) {
         if ( fabs(xv-0.5*m_mdtFoamMat[i]->thickness())<0.001 ) {
-	  mdtMat = m_mdtFoamMat[i];
+	  mdtMat = m_mdtFoamMat[i].get();
           break;
 	}
       }
@@ -923,9 +889,9 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
 	  ATH_MSG_ERROR( "trd station component does not return trapezoid shape" ) ;
 	} else {  
 	  double volume = 4*(trd->minHalflengthX()+trd->maxHalflengthX())*(trd->halflengthY())*xv;
-	  m_mdtFoamMat.push_back(new Trk::MaterialProperties(getAveragedLayerMaterial(cv,volume,2*xv))); 
+	  m_mdtFoamMat.push_back( std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(cv,volume,2*xv))); 
 	}
-        if (m_mdtFoamMat.size()) mdtMat = m_mdtFoamMat.back();
+        if (m_mdtFoamMat.size()) mdtMat = m_mdtFoamMat.back().get();
       }
     }
     
@@ -1032,7 +998,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
   return 0;
 }
 //
-const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*& vol,std::vector<const GeoVPhysVol*> gv, std::vector<Amg::Transform3D> transfc) const
+const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*& vol,std::vector<const GeoVPhysVol*> gv, std::vector<Amg::Transform3D> transfc)
 {
   // layers correspond to DedModules and RpcModules; all substructures averaged in material properties
   std::vector<const Trk::Layer*> layers;
@@ -1077,7 +1043,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
         } 
 	if (!found) {
 	  double volc = 8*xs*ys*zs;
-	  m_rpcDed.push_back( new Trk::MaterialProperties(getAveragedLayerMaterial(gv[ic],volc,2*xs)));
+	  m_rpcDed.push_back( std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(gv[ic],volc,2*xs)));
 	  rpcMat = Trk::MaterialProperties(*m_rpcDed.back());
 	}
       } else {
@@ -1085,7 +1051,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
         if (fabs(thickness-46.0)<0.001) {
           if (!m_rpc46) {
             double volc = 8*xs*ys*zs;
-            m_rpc46 = new Trk::MaterialProperties(getAveragedLayerMaterial(gv[ic],volc,2*xs));
+            m_rpc46 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(gv[ic],volc,2*xs));
           }
           rpcMat=Trk::MaterialProperties(*m_rpc46);  
         } else { ATH_MSG_WARNING( name() << "RPC module thickness different from 46:" << thickness ); }
@@ -1134,7 +1100,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
 	  } 
 	  if (!found) {
 	    double volc = 8*xs1*ys1*zs;
-	    m_rpcDed.push_back(new Trk::MaterialProperties(getAveragedLayerMaterial(gv[ic],volc,2*xs1)));
+	    m_rpcDed.push_back( std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(gv[ic],volc,2*xs1)));
 	    rpcMat = Trk::MaterialProperties(*m_rpcDed.back());
 	  }
           // create Ded layer
@@ -1167,13 +1133,13 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
 	      if (fabs(gx-5.0) < 0.001) {
 		if (!m_rpcExtPanel) {
 		  double volc = 8*gx*gy*gz;
-		  m_rpcExtPanel = new Trk::MaterialProperties(getAveragedLayerMaterial(gcv,volc,2*gx));
+		  m_rpcExtPanel = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(gcv,volc,2*gx));
 		}
 		rpcMat=Trk::MaterialProperties(*m_rpcExtPanel);
 	      } else if (fabs(gx - 4.3) < 0.001) {
 		if (!m_rpcMidPanel) {
 		  double volc = 8*gx*gy*gz;
-		  m_rpcMidPanel = new Trk::MaterialProperties(getAveragedLayerMaterial(gcv,volc,2*gx));
+		  m_rpcMidPanel = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(gcv,volc,2*gx));
 		}
 		rpcMat=Trk::MaterialProperties(*m_rpcMidPanel);
 	      } else {
@@ -1191,7 +1157,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processRpc(Trk::Volume*
 	      if (!m_rpcLayer) {                   
 		double volc = 8*gx*gy*gz;
 		// material allocated to two strip planes ( gas volume suppressed )
-		m_rpcLayer = new Trk::MaterialProperties(getAveragedLayerMaterial(gcv,volc,2*gx));
+		m_rpcLayer = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(gcv,volc,2*gx));
 	      }
 	      rpcMat=Trk::MaterialProperties(*m_rpcLayer);
 	      // define 1 layer for 2 strip planes
@@ -1556,7 +1522,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(std::vector<
 
 }
 
-Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVPhysVol* mv, std::string name) const
+Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVPhysVol* mv, std::string name)
 {
   
   // CSC stations have the particularity of displacement in Z between multilayer and the spacer - the envelope
@@ -1766,7 +1732,7 @@ Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processCscStation(const GeoVP
   return csc_station;    
 }
 
-std::vector<const Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgcStation(const GeoVPhysVol* mv) const
+std::vector<const Trk::TrackingVolume*> Muon::MuonStationTypeBuilder::processTgcStation(const GeoVPhysVol* mv)
 {
  // TGC stations 
   std::vector<const Trk::TrackingVolume*> tgc_stations;
@@ -2009,7 +1975,7 @@ double Muon::MuonStationTypeBuilder::getVolume( const GeoShape* shape) const {
   return volume;
 } 
 
-const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& compBounds, Amg::Transform3D*& transf) const {
+const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& compBounds, Amg::Transform3D*& transf) {
 
   // tolerance
   // double tol = 0.001;
@@ -2032,7 +1998,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
   if (name.substr( name.size()-5,5 ) == "CSC01" ) {
     if (!m_matCSC01 ) { 
       double vol = (minX + maxX)*2*halfY*thickness;
-      m_matCSC01 = new Trk::MaterialProperties(getAveragedLayerMaterial(pv,vol,thickness)); 
+      m_matCSC01 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv,vol,thickness)); 
     }
     matCSC = Trk::MaterialProperties(*m_matCSC01); 
     // retrieve number of gas gaps and their position -> turn them into active layers
@@ -2086,7 +2052,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
   if (name == "CSCspacer" ) {
     if (!m_matCSCspacer1 ) { 
       double vol = (minX + maxX)*2*halfY*thickness;
-      m_matCSCspacer1 = new Trk::MaterialProperties(getAveragedLayerMaterial(pv,vol,thickness)); 
+      m_matCSCspacer1 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv,vol,thickness)); 
     }
     x_array.push_back(0.);
     x_mat.push_back(*m_matCSCspacer1);
@@ -2139,7 +2105,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCTrdComponent(cons
 
 } 
 
-const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(const GeoVPhysVol*& pv, Trk::DoubleTrapezoidVolumeBounds*& compBounds, Amg::Transform3D*& transf) const {
+const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(const GeoVPhysVol*& pv, Trk::DoubleTrapezoidVolumeBounds*& compBounds, Amg::Transform3D*& transf) {
 
   // tolerance
   // double tol = 0.001;
@@ -2164,7 +2130,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
   if (name.substr( name.size()-5,5 ) == "CSC02" ) {
     if (!m_matCSC02 ) { 
       double vol = ( (minX + medX)*2*halfY1+(medX+maxX)*2*halfY2 ) * thickness;
-      m_matCSC02 = new Trk::MaterialProperties(getAveragedLayerMaterial(pv,vol,thickness)); 
+      m_matCSC02 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv,vol,thickness)); 
     }
     matCSC = Trk::MaterialProperties(*m_matCSC02); 
     // retrieve number of gas gaps and their position -> turn them into active layers
@@ -2215,7 +2181,7 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
   if (name == "CSCspacer" ) {
     if (!m_matCSCspacer2 ) { 
       double vol = ( (minX + medX)*2*halfY1+(medX+maxX)*2*halfY2 ) * thickness;
-      m_matCSCspacer2 = new Trk::MaterialProperties(getAveragedLayerMaterial(pv,vol,thickness)); 
+      m_matCSCspacer2 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv,vol,thickness)); 
     }
     matCSC = Trk::MaterialProperties(*m_matCSCspacer2); 
     x_array.push_back(0.);
@@ -2268,7 +2234,8 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processCSCDiamondComponent(
   return cscLayerArray;
 } 
 
-const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& tgcBounds, Amg::Transform3D*& transf) const {
+const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const GeoVPhysVol*& pv, Trk::TrapezoidVolumeBounds*& tgcBounds, Amg::Transform3D*& transf)
+{
 
   // tolerance
   double tol = 0.001;
@@ -2291,13 +2258,13 @@ const Trk::LayerArray* Muon::MuonStationTypeBuilder::processTGCComponent(const G
   if ( fabs( tgcBounds->halflengthZ() - 35.00) < tol ) {
     if (!m_matTGC01 ) { 
       double vol = (minX + maxX)*2*halfY*thickness;
-      m_matTGC01 = new Trk::MaterialProperties(getAveragedLayerMaterial(pv,vol,thickness)); 
+      m_matTGC01 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv,vol,thickness)); 
     }
     matTGC = Trk::MaterialProperties(*m_matTGC01); 
   } else if ( fabs( tgcBounds->halflengthZ() - 21.85) < tol ) {
     if ( !m_matTGC06 ) { 
       double vol = (minX + maxX)*2*halfY*thickness;
-      m_matTGC06 = new Trk::MaterialProperties(getAveragedLayerMaterial(pv,vol,thickness)); 
+      m_matTGC06 = std::make_unique<Trk::MaterialProperties>(getAveragedLayerMaterial(pv,vol,thickness)); 
     }
     matTGC = Trk::MaterialProperties(*m_matTGC06); 
   } else {

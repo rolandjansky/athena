@@ -6,25 +6,22 @@
 atlas_subdir( TrigServices )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
+                          Control/AthenaInterprocess
                           Control/AthenaKernel
+                          Control/AthenaMonitoringKernel
+                          Control/CxxUtils
                           Control/StoreGate
+                          Database/AthenaPOOL/AthenaPoolUtilities
+                          Database/RDBAccessSvc
                           Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamCnvSvc
                           Event/ByteStreamData
                           Event/EventInfoUtils
                           Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODCnvInterfaces
                           GaudiKernel
                           HLT/Trigger/TrigControl/TrigKernel
-                          Trigger/TrigDataAccess/TrigDataAccessMonitoring
-                          Trigger/TrigDataAccess/TrigROBDataProviderSvc
                           Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
-                          Control/CxxUtils
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigSteer/TrigOutputHandling )
 
 # External dependencies:
@@ -36,20 +33,16 @@ find_package( tdaq-common COMPONENTS CTPfragment eformat eformat_write hltinterf
 find_package( TBB )
 
 # Component(s) in the package:
-atlas_add_library( TrigServicesLib
-                   NO_PUBLIC_HEADERS
-                   src/*.cxx
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities ByteStreamCnvSvcLib ByteStreamData EventInfoUtils xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigOutputHandlingLib
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} )
-
 atlas_add_component( TrigServices
-                     src/components/*.cxx
-                     LINK_LIBRARIES TrigServicesLib )
+                     src/*.h src/*.cxx src/components/*.cxx
+                     INCLUDE_DIRS
+                     ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                     LINK_LIBRARIES
+                     ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ${CORAL_LIBRARIES}
+                     AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaPoolUtilities
+                     ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel StoreGateLib TrigKernel
+                     TrigOutputHandlingLib TrigSteeringEvent xAODEventInfo )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
-
-atlas_install_joboptions( share/*.py )

@@ -4,12 +4,13 @@
 
 #ifndef PscErrorCode_H
 #define PscErrorCode_H
-#include "TrigKernel/HltOnlHelper.h"
-#include <string>
-#include <stdint.h>
+#include <ostream>
 
-// Definition of different error codes for the PSC
 namespace hltonl {
+  /**
+   * @class PSCErrorCode
+   * @brief Error codes saved to ByteStream status word in case of HLT failure
+   **/
   enum class PSCErrorCode : uint32_t {
     UNCLASSIFIED          = 0,
     BEFORE_NEXT_EVENT     = 1,
@@ -23,36 +24,36 @@ namespace hltonl {
     OUTPUT_SEND_FAILURE   = 9,
     AFTER_RESULT_SENT     = 10,
     COOL_UPDATE           = 11,
-    TIMEOUT               = 12
+    TIMEOUT               = 12,
+    RESULT_TRUNCATION     = 13
   };
 
-  /// helper class to map HLT PSC error code on a string name or a int index
-  class MapPscErrorCode: virtual public hltonl::MapEnumeration<hltonl::PSCErrorCode> {
-    public:
-      MapPscErrorCode();
-      virtual ~MapPscErrorCode() {};
-  };
+  // There's no cleaner way to map enum to string, but watch out for C++ Reflection TS, it may come one day
+  #define PSCErrorCodeSwitchCase(ENUM_NAME) \
+    case PSCErrorCode::ENUM_NAME: return "PSCErrorCode::"#ENUM_NAME; break;
 
-  /// helper function to print HLT PSC error code in human readable form 
-  std::string PrintPscErrorCode(hltonl::PSCErrorCode) ;
+  constexpr std::string_view PSCErrorCodeToString(const PSCErrorCode code) {
+    switch (code) {
+      PSCErrorCodeSwitchCase(UNCLASSIFIED);
+      PSCErrorCodeSwitchCase(BEFORE_NEXT_EVENT);
+      PSCErrorCodeSwitchCase(CANNOT_RETRIEVE_EVENT);
+      PSCErrorCodeSwitchCase(NO_EVENT_INFO);
+      PSCErrorCodeSwitchCase(SCHEDULING_FAILURE);
+      PSCErrorCodeSwitchCase(CANNOT_ACCESS_SLOT);
+      PSCErrorCodeSwitchCase(PROCESSING_FAILURE);
+      PSCErrorCodeSwitchCase(NO_HLT_RESULT);
+      PSCErrorCodeSwitchCase(OUTPUT_BUILD_FAILURE);
+      PSCErrorCodeSwitchCase(OUTPUT_SEND_FAILURE);
+      PSCErrorCodeSwitchCase(AFTER_RESULT_SENT);
+      PSCErrorCodeSwitchCase(COOL_UPDATE);
+      PSCErrorCodeSwitchCase(TIMEOUT);
+      PSCErrorCodeSwitchCase(RESULT_TRUNCATION);
+      default: return "UNDEFINED PSCErrorCode"; break;
+    }
+  }
 }
 
-inline hltonl::MapPscErrorCode::MapPscErrorCode() {
-  // add error codes and description
-  add(hltonl::PSCErrorCode::UNCLASSIFIED,          "PSCErrorCode::UNCLASSIFIED");
-  add(hltonl::PSCErrorCode::BEFORE_NEXT_EVENT,     "PSCErrorCode::BEFORE_NEXT_EVENT");
-  add(hltonl::PSCErrorCode::CANNOT_RETRIEVE_EVENT, "PSCErrorCode::CANNOT_RETRIEVE_EVENT");
-  add(hltonl::PSCErrorCode::NO_EVENT_INFO,         "PSCErrorCode::NO_EVENT_INFO");
-  add(hltonl::PSCErrorCode::SCHEDULING_FAILURE,    "PSCErrorCode::SCHEDULING_FAILURE");
-  add(hltonl::PSCErrorCode::CANNOT_ACCESS_SLOT,    "PSCErrorCode::CANNOT_ACCESS_SLOT");
-  add(hltonl::PSCErrorCode::PROCESSING_FAILURE,    "PSCErrorCode::PROCESSING_FAILURE");
-  add(hltonl::PSCErrorCode::NO_HLT_RESULT,         "PSCErrorCode::NO_HLT_RESULT");
-  add(hltonl::PSCErrorCode::OUTPUT_BUILD_FAILURE,  "PSCErrorCode::OUTPUT_BUILD_FAILURE");
-  add(hltonl::PSCErrorCode::OUTPUT_SEND_FAILURE,   "PSCErrorCode::OUTPUT_SEND_FAILURE");
-  add(hltonl::PSCErrorCode::AFTER_RESULT_SENT,     "PSCErrorCode::AFTER_RESULT_SENT");
-  add(hltonl::PSCErrorCode::COOL_UPDATE,           "PSCErrorCode::COOL_UPDATE");
-  add(hltonl::PSCErrorCode::TIMEOUT,               "PSCErrorCode::TIMEOUT");
-  // return values in case of invalid code
-  invalidCode("UNDEFINED",-1);
+inline std::ostream& operator<< (std::ostream& os, const hltonl::PSCErrorCode code) {
+  return os << hltonl::PSCErrorCodeToString(code);
 }
 #endif

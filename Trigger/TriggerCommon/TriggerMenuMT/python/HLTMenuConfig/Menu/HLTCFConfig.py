@@ -27,15 +27,14 @@
 
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
-from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
+#from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-import copy
-log = logging.getLogger('HLTCFConfig')
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger( __name__ )
 
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
@@ -43,7 +42,7 @@ def makeSummary(name, flatDecisions):
     from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg
     summary = TriggerSummaryAlg( name )
     summary.InputDecision = "L1DecoderSummary"
-    summary.FinalDecisions = flatDecisions
+    summary.FinalDecisions = list(set(flatDecisions))
     return summary
 
 
@@ -99,6 +98,7 @@ def createCFTree(CFseq):
         name = ath_sequence.name()
         if name in already_connected:
             log.debug("AthSequencer %s already in the Tree, not added again",name)
+            continue
         else:
             already_connected.append(name)
             stepReco += ath_sequence
@@ -160,10 +160,10 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
     hltTop += summary
 
+    # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
-    # add signature monitor
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectViewMakers, collectDecisionObjects,\
-        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg
+        triggerMonitoringCfg, triggerSummaryCfg, triggerMergeViewsAndAddMissingEDMCfg, collectHypoDecisionObjects
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior+=1
@@ -171,17 +171,18 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     hypos = collectHypos(steps)
     filters = collectFilters(steps)
     viewMakers = collectViewMakers(steps)
-    decObj = collectDecisionObjects( hypos, filters, l1decoder[0] )
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     hltTop += summaryAlg
     summaryAcc.appendToGlobals()
+    decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
+    decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
     monAcc.appendToGlobals()
     hltTop += monAlg
 
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
-    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj )
+    edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     hltTop += edmAlg
 
     Configurable.configurableRun3Behavior-=1
@@ -302,7 +303,8 @@ def decisionTree_From_Chains(HLTNode, chains, allDicts, newJO):
         createControlFlowNewJO(HLTNode, CFseq_list)
 
     log.debug("finalDecisions: %s", finalDecisions)
-    all_DataFlow_to_dot(HLTNodeName, CFseq_list)
+    if create_dot():
+        all_DataFlow_to_dot(HLTNodeName, CFseq_list)
 
     # matrix display
     matrixDisplay( CFseq_list )
@@ -334,24 +336,23 @@ def createDataFlow(chains, allDicts):
 
         lastCFseq = None
         for nstep in range(0,len(chain.steps)):
-#            stepCF_name =  CFNaming.stepName(nstep)
             chain_step=chain.steps[nstep]
             log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, chain_step.name, chain.name)
 
             filter_input =[]
             if nstep == 0: # L1 seeding
-                seeds = chain.group_seed
+                seeds = chain.L1decisions
                 filter_input.extend( seeds )
                 log.debug("Found these seeds from the chain: %s", seeds)
                 log.debug("Seeds added; having in the filter now: %s", filter_input)
             else:
                 for out in lastCFseq.decisions:
                     filter_input.append(out)
-                    log.debug("Connect to previous sequence through these filter inputs: %s", filter_input)
+                log.debug("Connect to previous sequence through these filter inputs: %s", filter_input)
 
 
-            if len(filter_input) == 0 or (len(filter_input) != 1 and not chain_step.isCombo):
-                log.error("ERROR: Filter for step %s has %d inputs! One is expected", chain_step.name, len(filter_input))
+            if len(filter_input) == 0 :
+                log.error("ERROR: Filter for step %s has %d inputs! At least one is expected", chain_step.name, len(filter_input))
 
 
             # make one filter per step:
@@ -362,75 +363,34 @@ def createDataFlow(chains, allDicts):
                 filter_output.append( CFNaming.filterOutName(filter_name, i))
 
             (foundFilter, foundCFSeq) = findCFSequences(filter_name, CFseq_list[nstep])
-            log.debug("Found %d CF sequences with base filter name %s", foundFilter, filter_name)
+            log.debug("Found %d CF sequences with filter name %s", foundFilter, filter_name)
+             # add error if more than one
             if not foundFilter:
                 sfilter = buildFilter(filter_name, filter_input)
-                CF_seq = CFSequence( ChainStep=chain_step, FilterAlg=sfilter, connections=filter_output)
+                CF_seq = CFSequence( ChainStep=chain_step, FilterAlg=sfilter)
+                CF_seq.connect(filter_output)
                 CFseq_list[nstep].append(CF_seq)
                 lastCFseq=CF_seq
             else:
-                count_fil=0
-                # find correspoding CFsequence
-                for cfseq in foundCFSeq: # all the CFseq using the same filter
-                    sfilter=cfseq.filter
-                    #exactly same filter with the same inputs (same gropu of chains);
-                    already_connected = [x for x in filter_output if x in cfseq.connections]
-                    if len(already_connected):
-                        chain.steps[nstep] = cfseq.step # reuse the same step
-                        chain_step=chain.steps[nstep]
-                        lastCFseq=cfseq #reuse the CFseq
-                        count_fil =0
-                        break
-                    else:
-                        count_fil+=1
+                if len(foundCFSeq) >1:
+                    log.error("Found more than one seuqences containig this filter %s", filter_name)
 
-                # if we have the same filter, with differnt inputs:
-                # add inputs/output to filter
-                # deepcopy all the seqeunces
-                # duplicate the Hypo with differnt name
-                # create new ChainStep and replace in the list
-                # create a new CFsequence with different name
-                if (count_fil):
-                    log.debug("Adding more inputs/outputs to filter %s", filter_name)
-                    for i in filter_input:
+                sfilter = foundCFSeq[0].filter
+                for i in filter_input:
                         sfilter.addInput(i)
-                    for i in filter_output:
+                for i in filter_output:
                         sfilter.addOutput(i)
+                
+                lastCFseq=foundCFSeq[0]
+                lastCFseq.connect(filter_output)
+           
+            
 
-                    log.debug("Duplicating the Step %s", chain_step.name)
-                    new_sequences = []
-                    for sequence in chain_step.sequences:
-                        new_sequence=copy.deepcopy(sequence)
-                        new_sequence.resetConnections()
-                        new_sequence.name = "%s_%d"%(sequence.name, count_fil)
-                        if type(sequence.hypo) is list:
-                           new_hypoAlg = []
-                           for hp in sequence.hypo:
-                              oldhypo=hp.Alg
-                              newHypoAlgName = "%s_%d"%(oldhypo.name(),count_fil)
-                              new_hypoAlg.append( oldhypo.clone(newHypoAlgName) )
-                           new_sequence.replaceHypoForDuplication(new_hypoAlg)
-                           new_sequences.append(new_sequence)
-                        else:
-                           oldhypo=sequence.hypo.Alg
-                           newHypoAlgName = "%s_%d"%(oldhypo.name(),count_fil)
-                           new_hypoAlg=oldhypo.clone(newHypoAlgName)
-                           new_sequence.replaceHypoForDuplication(new_hypoAlg)
-                           new_sequences.append(new_sequence)
-
-                    new_chain_step_name="%s_%d"%(chain_step.name, count_fil)
-                    # making new ChainStep
-                    new_chain_step = ChainStep(new_chain_step_name, Sequences=new_sequences,  multiplicity=chain_step.multiplicity)
-                    chain.steps[nstep] = new_chain_step # replace chain step
-                    chain_step = chain.steps[nstep]
-
-                    new_CF_seq = CFSequence( ChainStep=new_chain_step, FilterAlg=sfilter, connections=filter_output)
-                    CFseq_list[nstep].append(new_CF_seq)
-                    lastCFseq=new_CF_seq
-
-
-            sfilter.setChains(chain.name)
-            log.debug("Adding chain %s to %s", chain.name,sfilter.Alg.name())
+            # add chains to the filter:
+            chainLegs = chain.getChainLegs()
+            for leg in chainLegs:
+                sfilter.setChains(leg)
+                log.debug("Adding chain %s to %s", leg,sfilter.Alg.name())
             log.debug("Now Filter has chains: %s", sfilter.getChains())
 
             if chain_step.isCombo:
@@ -441,21 +401,20 @@ def createDataFlow(chains, allDicts):
 
             if len(chain.steps) == nstep+1:
                 log.debug("Adding finalDecisions for chain %s at step %d:", chain.name, nstep+1)
-                for seq in chain_step.sequences:
-                    finalDecisions[nstep].extend(seq.outputs)
-                    log.debug(seq.outputs)
-
+                for dec in lastCFseq.decisions:
+                    finalDecisions[nstep].append(dec)
+                    log.debug(dec)
+                    
 
         #end of loop over steps
         log.info("\n Built CF for chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
     #end of loop over chains
 
     # decode and attach HypoTools:
-    #must be done after the creation of the CFsequences, since HypoAlgs are duplicated in the previous loop
     for chain in chains:
-        chain.decodeHypoToolConfs(allDicts)
+        chain.decodeHypoToolConfs()#allDicts)
 
-
+    log.debug("End of createDataFlow for %d chains and total %d steps", len(chains), NSTEPS)
     return (finalDecisions, CFseq_list)
 
 
@@ -487,9 +446,10 @@ def createControlFlow(HLTNode, CFseq_list):
         summary=makeSummary(CFNaming.stepSummaryName(stepCF_name), step_decisions)
         HLTNode += summary
 
-        log.debug("Now Draw...")
-        stepCF_DataFlow_to_dot(recoNodeName, CFseq_list[nstep])
-        stepCF_ControlFlow_to_dot(stepCF)
+        if create_dot():
+            log.debug("Now Draw...")
+            stepCF_DataFlow_to_dot(recoNodeName, CFseq_list[nstep])
+            stepCF_ControlFlow_to_dot(stepCF)
 
         log.info("************* End of step %d, %s", nstep+1, stepCF_name)
 
@@ -513,7 +473,7 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
 
     ## Fill chain steps matrix
     for chain in chains:
-        chain.decodeHypoToolConfs(allChainDicts)
+        chain.decodeHypoToolConfs()#allChainDicts)
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)
@@ -555,7 +515,7 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
             firstChain = chainsInCell[0]
 
             if nstep == 0:
-                filter_input = firstChain.group_seed
+                filter_input = firstChain.L1decisions
             else:
                 filter_input = []
                 for sequence in firstChain.steps[nstep - 1].sequences:
@@ -596,40 +556,22 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
         HLTNode += stepFilter
         HLTNode += stepCF
         HLTNode += summary
+        if create_dot():
+            stepCF_DataFlow_to_dot('{}_{}'.format(HLTNode.name(), stepName), CFsequences)
+            stepCF_ControlFlow_to_dot(stepCF)
+            all_DataFlow_to_dot(HLTNode.name(), allSequences)
 
-        stepCF_DataFlow_to_dot('{}_{}'.format(HLTNode.name(), stepName), CFsequences)
-        stepCF_ControlFlow_to_dot(stepCF)
-
-    all_DataFlow_to_dot(HLTNode.name(), allSequences)
-    matrixDisplay( allSequences )
+        matrixDisplay( allSequences )
     return acc
 
 
-
-def findFilter(filter_name, cfseqList):
-      """
-      searches for a filter, with given name, in the CF sequence list of this step
-      """
-      log.debug( "findFilter: filter name %s", filter_name )
-      foundFilters = [cfseq for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
-      #foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
-      if len(foundFilters) > 1:
-          log.error("found %d filters  with name %s", len( foundFilters ), filter_name)
-
-      found = bool(foundFilters)
-      if found:
-          log.debug("Filter %s already exists", filter_name)
-          return (found, foundFilters[0])
-      return (found, None)
 
 def findCFSequences(filter_name, cfseqList):
       """
       searches for a filter, with given name, in the CF sequence list of this step
       """
       log.debug( "findCFSequences: filter base name %s", filter_name )
-      foundFilters = [cfseq for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
-      #foundFilters = [cfseq.filter for cfseq in cfseqList if filter_name in cfseq.filter.Alg.name()]
-
+      foundFilters = [cfseq for cfseq in cfseqList if filter_name == cfseq.filter.Alg.name()]
       log.debug("found %d filters with base name %s", len( foundFilters ), filter_name)
 
       found=len(foundFilters)

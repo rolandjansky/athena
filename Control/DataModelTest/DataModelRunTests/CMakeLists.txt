@@ -5,16 +5,12 @@
 # Declare the package name:
 atlas_subdir( DataModelRunTests )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          TestPolicy )
-
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
 
 function (datamodel_run_test testName)
-  cmake_parse_arguments( ARG "" "DEPENDS;COMMAND;ARG" "" ${ARGN} )
+  cmake_parse_arguments( ARG "" "DEPENDS;COMMAND;ARG;EXTRA_IGNORE" "" ${ARGN} )
 
   if( ARG_COMMAND )
     set( _command ${ARG_COMMAND} )
@@ -34,6 +30,7 @@ function (datamodel_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
                   PROPERTIES TIMEOUT 300
+                  LOG_IGNORE_PATTERN "has different type than the branch|no dictionary for class|^StorageSvc +INFO|Cache alignment|Unable to locate catalog${ARG_EXTRA_IGNORE}"
                   ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-03"
                    )
   if( ARG_DEPENDS )
@@ -57,6 +54,7 @@ datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
 datamodel_run_test (xAODTestRead3MT
                     COMMAND "athena.py --thread=1"
+                    EXTRA_IGNORE "|^xAODTestRead"
                     DEPENDS xAODTestTypelessRead)
 datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadRenameMT
@@ -78,6 +76,7 @@ datamodel_run_test (ByteStreamTestRead DEPENDS ByteStreamTestWrite)
 
 datamodel_run_test (xAODTestSymlinks1)
 datamodel_run_test (xAODTestSymlinks1MT
+                    EXTRA_IGNORE "|^xAODTestRead"
                     COMMAND "athena.py --thread=1")
 
 datamodel_run_test (xAODTestSymlinks2
@@ -104,6 +103,9 @@ datamodel_run_test (CondReaderMT
                     DEPENDS CondWriter)
 
 datamodel_run_test (CondReadWrite)
+
+datamodel_run_test (xAODTestWriteThinned)
+datamodel_run_test (xAODTestReadThinned DEPENDS xAODTestWriteThinned)
 
 
 

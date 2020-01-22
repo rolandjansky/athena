@@ -16,6 +16,7 @@ import ast
 import collections
 import six
 import copy
+import sys
 
 from AthenaConfiguration.UnifyProperties import unifySet
 
@@ -840,7 +841,7 @@ class ComponentAccumulator(object):
             if svc.getName()=="MessageSvc":
                 #Message svc exists already! Needs special treatment
                 for k, v in svc.getValuedProperties().items():
-                    bsh.setProperty(msp,k,str(v).encode())
+                    bsh.setProperty(msp,k.encode(),str(v).encode())
             else:
                 addCompToJos(svc)
             pass
@@ -888,6 +889,10 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
+        # Make sure python output is flushed before triggering output from Gaudi.
+        # Otherwise, observed output ordering may differ between py2/py3.
+        sys.stdout.flush()
+
         from AthenaCommon.Debugging import allowPtrace, hookDebugger
         allowPtrace()
 
@@ -907,8 +912,6 @@ class ComponentAccumulator(object):
         if not sc.isSuccess():
             self._msg.error("Failed to initialize AppMgr")
             return sc
-
-        app.printAlgsSequences() #could be removed later ....
 
         sc = app.start()
         if not sc.isSuccess():

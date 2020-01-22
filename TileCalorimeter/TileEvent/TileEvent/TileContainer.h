@@ -94,6 +94,7 @@ namespace SG {
     typedef DataVector<T> Base1;
     typedef NoBase Base2;
     typedef NoBase Base3;
+    typedef NoBase Base4;
   };
 }
 

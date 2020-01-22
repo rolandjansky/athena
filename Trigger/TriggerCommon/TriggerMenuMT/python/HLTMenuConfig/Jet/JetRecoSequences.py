@@ -5,11 +5,13 @@
 from AthenaCommon.CFElements import parOR, seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import RecoFragmentsPool
 
-import JetRecoConfiguration
+from TriggerMenuMT.HLTMenuConfig.Jet import JetRecoConfiguration
 
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
     strtemp = "{recoAlg}_{dataType}_{calib}_{jetCalib}"
+    if jetRecoDict["trkopt"] != "notrk":
+        strtemp += "_{trkopt}"
     return strtemp.format(**jetRecoDict)
 
 # Configure reco from a dict of options
@@ -97,36 +99,38 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # Normal jet reconstruction, no reclustering or grooming
 
         # Start by adding the topocluster reco sequence
-        # We always make LCW topoclusters, then deal with
-        # calibration states later
+        # This makes EM clusters!
         from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
         (topoClusterSequence, clustersKey) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence,RoIs)
         recoSeq += topoClusterSequence
 
+        # Set up tracking sequence -- may need to reorganise or relocate
+        # depending on how we want to handle HLT preselection
+        trkcolls = None
+        if jetRecoDict["trkopt"] != "notrk":
+            from .JetTrackingConfig import JetTrackingSequence
+            (jettrkseq, trkcolls) = RecoFragmentsPool.retrieve( JetTrackingSequence, None, trkopt=jetRecoDict["trkopt"], RoIs=RoIs)
+            recoSeq += jettrkseq
+
         # Potentially add particle flow reconstruction
         # Work in progress
         if jetRecoDict["dataType"] == "pf":
+            if jetRecoDict["trkopt"] == "notrk":
+                raise RuntimeError("PFlow jet chain requested with no tracking option!")
             from eflowRec.PFHLTSequence import PFHLTSequence
-            pfseq = RecoFragmentsPool.retrieve(PFHLTSequence,clustersKey)
+            (pfseq, pfoPrefix) = RecoFragmentsPool.retrieve(PFHLTSequence, None, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"])
             recoSeq += pfseq
-
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey)
-        doConstitMods = ("sk" in jetRecoDict["dataType"])
+            jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix)
+        else:
+            jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey)
+        useConstitMods = ["sk", "pf"]
+        doConstitMods = jetRecoDict["dataType"] in useConstitMods
         if doConstitMods:
             from JetRecConfig.ConstModHelpers import getConstitModAlg
-            recoSeq += getConstitModAlg(jetDef.inputdef,"HLT")
-        
-        # chosen jet collection
-        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
-        sequenceOut = recordable(jetsFullName)
-
-        from JetRecConfig import JetRecConfig
-        # Import the standard jet modifiers as defined for offline
-        # We can add/configure these differently if desired. In particular,
-        # we could define a TriggerJetMods module if settings need to
-        # diverge substantially e.g. track/vertex collections
-        calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource)
-        jetModList = calibMods
+            if jetRecoDict["trkopt"] == "notrk":
+                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT")
+            else:
+                recoSeq += getConstitModAlg(jetDef.inputdef,"HLT",tvaKey=trkcolls["TVA"],vtxKey=trkcolls["Vertices"])
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
@@ -135,12 +139,37 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         # Basic list of PseudoJets is just the constituents
         # Append ghosts (tracks) if desired
         pjs = [constitPJKey]
+        if trkcolls:
+            pjs.append(trkcolls["GhostTracks"])
+        
+        # chosen jet collection
+        jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
+        if jetRecoDict["trkopt"] != "notrk":
+            jetsFullName += "_{}".format(jetRecoDict["trkopt"])
+        sequenceOut = recordable(jetsFullName)
 
+        from JetRecConfig import JetRecConfig
+        jetModList = []
+        if jetRecoDict["trkopt"] != "notrk":
+            trkMods = JetRecoConfiguration.defineTrackMods(jetRecoDict["trkopt"])
+            jetModList += trkMods
+
+        rhoKey = "auto"
         if "sub" in jetRecoDict["jetCalib"]:
             # Add the event shape alg if needed for area subtraction
-            from JetRecConfig.JetRecConfig import getEventShapeAlg
-            eventShapeAlg = getEventShapeAlg( jetDef.inputdef, constitPJKey, "HLT_" )
+            eventShapeAlg = JetRecConfig.getEventShapeAlg( jetDef.inputdef, constitPJKey, "HLT_" )
             recoSeq += eventShapeAlg
+            # Not currently written because impossible to merge
+            # across event views, which is maybe a concern in
+            # the case of regional PFlow
+            rhoKey = eventShapeAlg.EventDensityTool.OutputContainer
+
+        # Import the standard jet modifiers as defined for offline
+        # We can add/configure these differently if desired. In particular,
+        # we could define a TriggerJetMods module if settings need to
+        # diverge substantially e.g. track/vertex collections
+        calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
+        jetModList += calibMods
 
         # Generate a JetAlgorithm to run the jet finding and modifiers
         # (via a JetRecTool instance).

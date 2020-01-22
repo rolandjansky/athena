@@ -58,7 +58,17 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_trackToVertexTool.retrieve() );
     ATH_CHECK( m_caloExtensionTool.retrieve() );
 
-    ATH_CHECK( m_trackPartInputContainer.initialize() );
+    ATH_CHECK( m_trackPartInputContainer.initialize(!m_trackPartInputContainer.key().empty()) );
+
+    ATH_CHECK(m_ParticleCacheKey.initialize(!m_ParticleCacheKey.key().empty()));
+  
+    if(m_caloExtensionTool.retrieve().isFailure()){
+        ATH_MSG_ERROR("initialize: Cannot retrieve " << m_caloExtensionTool);
+        return StatusCode::FAILURE;
+    } else {
+        ATH_MSG_VERBOSE("Successfully retrieved Extrapolation tool "
+                << m_caloExtensionTool.typeAndName());
+    }
 
     return StatusCode::SUCCESS;
 }
@@ -94,9 +104,8 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   std::vector<const xAOD::TrackParticle*> otherTracks;
   
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
-  //for tau trigger
-  bool inTrigger = tauEventData()->inTrigger();
-  if (inTrigger)   {
+
+  if (m_trackPartInputContainer.key().empty())   {
     ATH_CHECK(tauEventData()->getObject( "TrackContainer", trackParticleCont ));    
     //ATH_CHECK(tauEventData()->getObject( "TauTrackContainer", tauTrackCon ));
   }
@@ -316,10 +325,13 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
     Trk::TrackParametersIdHelper parsIdHelper;
 
     //    for (unsigned int itr = 0; itr < 10 && itr < pTau.nAllTracks(); ++itr) {
-    
+    int trackIndex = -1;
+    const Trk::CaloExtension * caloExtension = nullptr;
+    std::unique_ptr<Trk::CaloExtension> uniqueExtension ;
     for( xAOD::TauTrack* tauTrack : pTau.allTracks() ) {
         const xAOD::TrackParticle *orgTrack = tauTrack->track();
-        
+        trackIndex = orgTrack->index();
+
         if( !orgTrack ) continue;
 
         // set default values
@@ -333,9 +345,27 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
                        << ", eta " << orgTrack->eta() 
                        << ", phi" << orgTrack->phi() );
 
-        std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(*orgTrack);
-        if (not caloExtension
-            or caloExtension->caloLayerIntersections().empty() )
+        if(!m_ParticleCacheKey.key().empty()){
+          /*get the CaloExtension object*/
+          ATH_MSG_VERBOSE("Using the CaloExtensionBuilder Cache");
+          SG::ReadHandle<CaloExtensionCollection>  particleCache {m_ParticleCacheKey};
+          caloExtension = (*particleCache)[trackIndex];
+          ATH_MSG_VERBOSE("Getting element " << trackIndex << " from the particleCache");
+          if( not caloExtension ){
+            ATH_MSG_VERBOSE("Cache does not contain a calo extension -> Calculating with the a CaloExtensionTool" );
+            uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+            caloExtension = uniqueExtension.get();
+          }
+        }else{
+          /* If CaloExtensionBuilder is unavailable, use the calo extension tool */
+          ATH_MSG_VERBOSE("Using the CaloExtensionTool");
+          uniqueExtension = m_caloExtensionTool->caloExtension(*orgTrack);
+          caloExtension = uniqueExtension.get();
+        }
+
+        const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
+
+        if (!caloExtension or clParametersVector.empty() )
         { 
             ATH_MSG_DEBUG("Track extrapolation failed");
         }
@@ -343,7 +373,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
             ATH_MSG_DEBUG("Scanning samplings");
             bool validECal = false;
             bool validHCal = false;
-            for( auto cur : caloExtension->caloLayerIntersections() ){
+            for( const Trk::CurvilinearParameters * cur : clParametersVector ){
                 ATH_MSG_DEBUG("Sampling " << parsIdHelper.caloSample(cur->cIdentifier()) );
                 
                 // only use entry layer
@@ -391,7 +421,6 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
         tauTrack->setDetail(xAOD::TauJetParameters::CaloSamplingPhiEM, phiEM);
         tauTrack->setDetail(xAOD::TauJetParameters::CaloSamplingEtaHad, etaHad);
         tauTrack->setDetail(xAOD::TauJetParameters::CaloSamplingPhiHad, phiHad);
-      
     }
 
     return StatusCode::SUCCESS;

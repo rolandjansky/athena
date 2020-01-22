@@ -1,8 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
 def isOverlay():
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        return True
     # steer random overlay configuration
     from AthenaCommon.AppMgr import ServiceMgr
     if hasattr(ServiceMgr,'PileUpMergeSvc') :
@@ -189,6 +192,5 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     return CfgMgr.LArPileUpTool(name, **kwargs)
 
 def getLArDigitMaker(name="digitmaker1" , **kwargs):
-    print "in getLArDigitMaker "
     kwargs.setdefault('LArPileUpTool', 'LArPileUpTool')
     return CfgMgr.LArDigitMaker(name, **kwargs)

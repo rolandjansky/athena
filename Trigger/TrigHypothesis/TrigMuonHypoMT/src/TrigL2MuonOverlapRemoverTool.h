@@ -10,7 +10,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "DecisionHandling/TrigCompositeUtils.h" 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class StoreGateSvc;
 

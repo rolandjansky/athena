@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -71,7 +71,7 @@ def setupCommonServices():
     ROOT6Setup()
 
     # Setup online THistSvc unless specifically configured otherwise
-    #    setup the THistSvc early and force the creation of the ThistSvc 
+    #    setup the THistSvc early and force the creation of the THistSvc 
     #    so that it can be used by infrastructure services to book histograms  
     #    (to avoid problems e.g. with histograms in ROBDataProviderSvc)
     if _Conf.useOnlineTHistSvc:
@@ -120,9 +120,6 @@ def setupCommonServices():
     svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
     svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
     svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
-
-    # Time to wait before closing DB connections (see ATR-8907)
-    svcMgr.HltEventLoopMgr.dbConnIdleWaitSec = 6
 
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
@@ -178,7 +175,7 @@ def setupCommonServicesEnd():
     topSequence += TrigOpMonitor()
 
     # Set default properties for some important services after all user job options
-    log.info('Configure core services for online runnig')
+    log.info('Configure core services for online running')
 
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = True
@@ -190,8 +187,9 @@ def setupCommonServicesEnd():
     svcMgr.StatusCodeSvc.AbortOnError = False
         
     svcMgr.IOVSvc.updateInterval = "RUN"
-    svcMgr.IOVSvc.preLoadData = True  
-    svcMgr.IOVSvc.forceResetAtBeginRun = False 
+    svcMgr.IOVSvc.preLoadData = True
+    svcMgr.IOVSvc.preLoadExtensibleFolders = False  # ATR-19392
+    svcMgr.IOVSvc.forceResetAtBeginRun = False
 
     if hasattr(svcMgr,'IOVDbSvc'):
         svcMgr.IOVDbSvc.CacheAlign = 0  # VERY IMPORTANT to get unique queries for folder udpates (see Savannah #81092)

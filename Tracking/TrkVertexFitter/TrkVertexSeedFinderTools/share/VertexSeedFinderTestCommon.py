@@ -43,7 +43,7 @@ topSequence = AlgSequence()
 theApp.EvtMax=2
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-eialg = xAODMaker__EventInfoCnvAlg (DoBeginRun = False)
+eialg = xAODMaker__EventInfoCnvAlg ()
 topSequence += eialg
 
 

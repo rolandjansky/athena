@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -216,7 +216,7 @@ bool Trk::Layer::needsMaterialProperties() const {
   return true;
 }
 
-void Trk::Layer::assignMaterialProperties( const LayerMaterialProperties& prop, double scale) const 
+void Trk::Layer::assignMaterialProperties( const LayerMaterialProperties& prop, double scale)
 {
   m_layerMaterialProperties = Trk::SharedObject<LayerMaterialProperties>(prop.clone());  
   if (scale != 1.0) 

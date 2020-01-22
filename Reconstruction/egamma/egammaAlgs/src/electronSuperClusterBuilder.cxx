@@ -106,41 +106,44 @@ StatusCode electronSuperClusterBuilder::execute(){
     if (egRec->getNumberOfTrackParticles()==0) {
       continue;
     }
-    //with silicon
-    if (xAOD::EgammaHelpers::numberOfSiHits(egRec->trackParticle(0)) < m_numberOfSiHits){
-      continue;
-    } 
-    //And pixel hits
-    uint8_t trkPixelHits(0);
+
+    //with possible pixel
+    uint8_t nPixelHits(0);
     uint8_t uint8_value(0);
     if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelDeadSensors)){
-      trkPixelHits+=uint8_value;
+      nPixelHits+=uint8_value;
     }
     if (egRec->trackParticle(0)->summaryValue(uint8_value,  xAOD::numberOfPixelHits)){
-      trkPixelHits+=uint8_value;
+      nPixelHits+=uint8_value;
     }    
-    if (!trkPixelHits){
+    if (nPixelHits<m_numberOfPixelHits){
       continue;
     }
-    
+
+    //and with silicon (add SCT to pixel)
+    uint8_t  nSiHits=nPixelHits;
+    if (egRec->trackParticle(0)->summaryValue(uint8_value, xAOD::numberOfSCTHits)){
+         nSiHits += uint8_value;
+    }
+    if (nSiHits < m_numberOfSiHits){
+      continue;
+    } 
     ATH_MSG_DEBUG("Creating supercluster egammaRec electron using cluster Et = " 
                   << egRec->caloCluster()->et() << " eta " << egRec->caloCluster()->eta() 
                   << " phi "<< egRec->caloCluster()->phi()  << 
                   " EM Accordeon Et " << EMAccEt
-                  <<" pixel hits " << static_cast<unsigned int> (trkPixelHits));    
+                  <<" pixel hits " << static_cast<unsigned int> (nPixelHits)   
+                  <<" silicon hits " << static_cast<unsigned int> (nSiHits));    
     //Mark seed as used
     isUsed.at(i)=true;     
 
     //Add the seed as the 1st entry in the secondaries list 
-    ATH_MSG_DEBUG("Push back the existing egRec caloCluster");
     std::vector<const xAOD::CaloCluster*> accumulatedClusters;
     accumulatedClusters.push_back(egRec->caloCluster());
 
     //Now we find all the secondary cluster for this seed
-    ATH_MSG_DEBUG("Find secondary clusters");
     const std::vector<std::size_t> secondaryIndices = searchForSecondaryClusters(i, 
                                                                                  egammaRecs.cptr(), 
-                                                                                 EMAccEnergy,
                                                                                  isUsed);
     for(const auto& secIndex : secondaryIndices){
       const auto secRec = egammaRecs->at(secIndex);
@@ -154,8 +157,6 @@ StatusCode electronSuperClusterBuilder::execute(){
                                                                   xAOD::EgammaParameters::electron);
 
     if (!newClus) {
-      ATH_MSG_DEBUG("Creating a new cluster failed - skipping it");
-      //Revert status of constituent clusters.
       isUsed = isUsedRevert;
       continue;
     }
@@ -169,7 +170,6 @@ StatusCode electronSuperClusterBuilder::execute(){
     auto newEgRec = std::make_unique<egammaRec>(*egRec);
     newEgRec->setCaloClusters  (elClusters);
     newEgammaRecs->push_back(std::move(newEgRec));
-    ATH_MSG_DEBUG("Made new egammaRec object");
   } //End loop on egammaRecs
   
   //Redo track matching given the super cluster
@@ -182,28 +182,15 @@ StatusCode electronSuperClusterBuilder::execute(){
 const std::vector<std::size_t> 
 electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electronIndex,
                                                         const EgammaRecContainer* egammaRecs,
-                                                        const double EMEnergy,
                                                         std::vector<bool>& isUsed){
   std::vector<std::size_t>  secondaryClusters;
   if (!egammaRecs) {
-    ATH_MSG_DEBUG("egammaRec container is null! Returning an empty vector ...");
     return secondaryClusters;
   }
   const auto seedEgammaRec = egammaRecs->at(electronIndex);
   const xAOD::CaloCluster *seedCluster = seedEgammaRec->caloCluster();
 
   const xAOD::TrackParticle* seedTrackParticle =seedEgammaRec->trackParticle();
-  float qoverp = seedTrackParticle->qOverP();
-  float seedEOverP = EMEnergy * fabs(qoverp);
-  static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
-  static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
-  
-  bool doBremSatellite = ((seedEOverP < m_secEOverPCut) && 
-                          pgExtrapEta.isAvailable(*seedTrackParticle) &&
-                          pgExtrapPhi.isAvailable(*seedTrackParticle)) ;
-
-  float perigeeExtrapEta = doBremSatellite ? pgExtrapEta(*seedTrackParticle) : -999;
-  float perigeeExtrapPhi = doBremSatellite ? pgExtrapPhi(*seedTrackParticle) : -999; 
 
   for (std::size_t i = 0 ; i < egammaRecs->size();++i) {    
 
@@ -220,15 +207,12 @@ electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electr
      * 1.matches the seed in a narrow window 
      * OR
      * 2.Is inside the range for additonal criteria
-     * AND satisfies EITHER  of the two criteria
-     * A.matches the same track OR 
-     * B.We want simple BremSearch && passes it
+     * AND matches the same track 
      */
-    bool addCluster = (matchesInWindow(seedCluster,clus) || (
-        (seedSecdEta<m_maxDelEta && seedSecdPhi<m_maxDelPhi) &&
-        (matchSameTrack(*seedTrackParticle,*egRec) || 
-         (doBremSatellite && passesSimpleBremSearch(*clus,perigeeExtrapEta,perigeeExtrapPhi)) )
-        ));
+    bool addCluster = (matchesInWindow(seedCluster,clus) || 
+                      ((seedSecdEta<m_maxDelEta && seedSecdPhi<m_maxDelPhi) && 
+                       (matchSameTrack(*seedTrackParticle,*egRec))) 
+                      );
     //Add it to the list of secondary clusters if it matches.
     if (addCluster) {
       secondaryClusters.push_back(i); 
@@ -250,17 +234,3 @@ bool electronSuperClusterBuilder::matchSameTrack(const xAOD::TrackParticle& seed
   return matchesSameTrack;
 }
 
-bool electronSuperClusterBuilder::passesSimpleBremSearch(const xAOD::CaloCluster& sec,
-                                                         float perigeeExtrapEta,
-                                                         float perigeeExtrapPhi) const
-{
-  if (perigeeExtrapEta>-999. && perigeeExtrapPhi>-999.){ 
-    float perigeeExtrapSecClusDelEta = fabs(sec.etaBE(2) - perigeeExtrapEta);
-    float perigeeExtrapSecClusDelPhi = fabs(P4Helpers::deltaPhi(sec.phiBE(2), perigeeExtrapPhi));
-    if (perigeeExtrapSecClusDelEta < m_bremExtrapMatchDelEta && 
-        perigeeExtrapSecClusDelPhi < m_bremExtrapMatchDelPhi) {
-      return true;
-    }
-  }
-  return false;
-}

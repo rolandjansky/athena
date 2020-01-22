@@ -1,38 +1,51 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from LArG4Barrel.LArG4BarrelConf import LArG4__BarrelCryostat__CalibrationCalculator
-from LArG4Barrel.LArG4BarrelConf import LArG4__BarrelCryostat__CalibrationLArCalculator
-from LArG4Barrel.LArG4BarrelConf import LArG4__BarrelCryostat__CalibrationMixedCalculator
-from LArG4Barrel.LArG4BarrelConf import LArG4__DM__CalibrationCalculator
-from LArG4Barrel.LArG4BarrelConf import LArG4__Barrel__CalibrationCalculator
-from LArG4Barrel.LArG4BarrelConf import LArG4__BarrelPresampler__CalibrationCalculator
-from LArG4Barrel.LArG4BarrelConf import LArBarrelCalculator
-from LArG4Barrel.LArG4BarrelConf import LArBarrelPresamplerCalculator
-from LArG4Barrel.LArG4BarrelConf import LArG4__Barrel__Geometry
-from LArG4Barrel.LArG4BarrelConf import LArG4__BarrelPresampler__Geometry
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArG4__BarrelCryostat__CalibrationCalculator=CompFactory.LArG4__BarrelCryostat__CalibrationCalculator
+LArG4__BarrelCryostat__CalibrationLArCalculator=CompFactory.LArG4__BarrelCryostat__CalibrationLArCalculator
+LArG4__BarrelCryostat__CalibrationMixedCalculator=CompFactory.LArG4__BarrelCryostat__CalibrationMixedCalculator
+LArG4__DM__CalibrationCalculator=CompFactory.LArG4__DM__CalibrationCalculator
+LArG4__Barrel__CalibrationCalculator=CompFactory.LArG4__Barrel__CalibrationCalculator
+LArG4__BarrelPresampler__CalibrationCalculator=CompFactory.LArG4__BarrelPresampler__CalibrationCalculator
+LArBarrelCalculator=CompFactory.LArBarrelCalculator
+LArBarrelPresamplerCalculator=CompFactory.LArBarrelPresamplerCalculator
+LArG4__Barrel__Geometry=CompFactory.LArG4__Barrel__Geometry
+LArG4__BarrelPresampler__Geometry=CompFactory.LArG4__BarrelPresampler__Geometry
 
-def getBarrelCryostatCalibrationCalculator(name="BarrelCryostatCalibrationCalculator", **kwargs):
-    return LArG4__BarrelCryostat__CalibrationCalculator(name, **kwargs)
-
-
-def getBarrelCryostatCalibrationLArCalculator(name="BarrelCryostatCalibrationLArCalculator", **kwargs):
-    return LArG4__BarrelCryostat__CalibrationLArCalculator(name, **kwargs)
-
-
-def getBarrelCryostatCalibrationMixedCalculator(name="BarrelCryostatCalibrationMixedCalculator", **kwargs):
-    return LArG4__BarrelCryostat__CalibrationMixedCalculator(name, **kwargs)
+def BarrelCryostatCalibrationCalculatorCfg(ConfigFlags, name="BarrelCryostatCalibrationCalculator", **kwargs):
+    result = ComponentAccumulator()
+    result.addService( LArG4__BarrelCryostat__CalibrationCalculator(name, **kwargs) )
+    return result
 
 
-def getDMCalibrationCalculator(name="DMCalibrationCalculator", **kwargs):
-    return LArG4__DM__CalibrationCalculator(name, **kwargs)
+def BarrelCryostatCalibrationLArCalculatorCfg(ConfigFlags, name="BarrelCryostatCalibrationLArCalculator", **kwargs):
+    result = ComponentAccumulator()
+    result.addService( LArG4__BarrelCryostat__CalibrationLArCalculator(name, **kwargs) )
+    return result
 
 
-def getBarrelCalibrationCalculator(name="BarrelCalibrationCalculator", **kwargs):
-    return LArG4__Barrel__CalibrationCalculator(name, **kwargs)
+def BarrelCryostatCalibrationMixedCalculatorCfg(ConfigFlags, name="BarrelCryostatCalibrationMixedCalculator", **kwargs):
+    result = ComponentAccumulator()
+    result.addService( LArG4__BarrelCryostat__CalibrationMixedCalculator(name, **kwargs) )
+    return result
 
 
-def getBarrelPresamplerCalibrationCalculator(name="BarrelPresamplerCalibrationCalculator", **kwargs):
-    return LArG4__BarrelPresampler__CalibrationCalculator(name, **kwargs)
+def DMCalibrationCalculatorCfg(ConfigFlags, name="DMCalibrationCalculator", **kwargs):
+    result = ComponentAccumulator()
+    result.addService( LArG4__DM__CalibrationCalculator(name, **kwargs) )
+    return result
+
+
+def BarrelCalibrationCalculatorCfg(ConfigFlags, name="BarrelCalibrationCalculator", **kwargs):
+    result = ComponentAccumulator()
+    result.addService( LArG4__Barrel__CalibrationCalculator(name, **kwargs) )
+    return result
+
+
+def BarrelPresamplerCalibrationCalculatorCfg(ConfigFlags, name="BarrelPresamplerCalibrationCalculator", **kwargs):
+    result = ComponentAccumulator()
+    result.addService( LArG4__BarrelPresampler__CalibrationCalculator(name, **kwargs) )
+    return result
 
 
 def EMBCalculatorCfg(ConfigFlags, name="EMBCalculator", **kwargs):

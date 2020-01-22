@@ -1,8 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 testChains = ["HLT_g5_etcut"]
 
@@ -132,7 +134,7 @@ from TrigUpgradeTest.TestUtils import MenuTest
 mon.HLTTriggerMenu = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 
 import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 topSequence.remove( StreamESD )
 

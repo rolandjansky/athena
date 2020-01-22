@@ -26,7 +26,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
 from AthenaCommon.AppMgr import ToolSvc
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 muonRecFlags.setDefaults()
@@ -40,8 +39,8 @@ if rec.readESD() or rec.readAOD():
     MuonIdHelperTool()
 
 if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
-if muonRecFlags.dosTGCs() and (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.dosTGCs = False
-if muonRecFlags.doMicromegas() and (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.doMicromegas = False
+if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
+if muonRecFlags.doMicromegas() and not MuonGeometryFlags.hasMM(): muonRecFlags.doMicromegas = False
 
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
@@ -81,7 +80,7 @@ if rec.readESD() and DetFlags.readRIOPool.TGC_on():
     include("MuonTGC_CnvTools/TgcPrepDataReplicationAlg_jopOptions.py")
 
 if muonRecFlags.doFastDigitization():
-    if CommonGeometryFlags.Run() in ["RUN3", "RUN4"]:
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         #if DetFlags.Micromegas_on() and DetFlags.digitize.Micromegas_on():    
         from MuonFastDigitization.MuonFastDigitizationConf import MM_FastDigitizer
         topSequence += MM_FastDigitizer("MM_FastDigitizer")
@@ -116,8 +115,9 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from AthenaCommon import CfgGetter
    topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool(MCTruthClassifier(name="MCTruthClassifier",ParticleCaloExtensionTool=""))
    topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO"]
-   if CommonGeometryFlags.Run() in ["RUN3", "RUN4"]:
+   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
        topSequence.MuonTruthDecorationAlg.SDOs+=["MM_SDO","sTGC_SDO"]
+   if not MuonGeometryFlags.hasCSC(): topSequence.MuonTruthDecorationAlg.CSCSDOs = ""
 
    try:
        from PyUtils.MetaReaderPeeker import metadata
@@ -126,7 +126,7 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
            topSequence.MuonTruthDecorationAlg.BarcodeOffset = 10000000
 
    except:
-       print "Failed to read /Simulation/Parameters/ metadata"
+       printfunc ("Failed to read /Simulation/Parameters/ metadata")
        pass
 
 #load default tools:
@@ -151,7 +151,7 @@ if muonRecFlags.doStandalone():
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
         topSequence += TrackTruthSelector(name= col + "Selector", 
                                           DetailedTrackTruthName = col + "DetailedTruth",
                                           OutputName             = col + "Truth") 
@@ -159,7 +159,7 @@ if muonRecFlags.doStandalone():
                                              TrackTruthName=col+"Truth",
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
 
-        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
 
         try:
             from PyUtils.MetaReaderPeeker import metadata
@@ -167,7 +167,7 @@ if muonRecFlags.doStandalone():
             if truthStrategy in ['MC15', 'MC18', 'MC18LLP']:
                 topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset = 10000000
         except:
-            print "Failed to read /Simulation/Parameters/ metadata"
+            printfunc ("Failed to read /Simulation/Parameters/ metadata")
             pass
 
 #--------------------------------------------------------------------------

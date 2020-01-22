@@ -3,12 +3,16 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from RPC_Digitization.RPC_DigitizationConf import RpcDigitizationTool, RPC_Digitizer
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+RpcDigitizationTool, RPC_Digitizer=CompFactory.getComps("RpcDigitizationTool","RPC_Digitizer",)
+PileUpXingFolder=CompFactory.PileUpXingFolder
 from MuonConfig.MuonByteStreamCnvTestConfig import RpcDigitToRpcRDOCfg, RpcOverlayDigitToRpcRDOCfg
 from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the RpcDigitizationTool.
@@ -43,9 +47,9 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", "RPC_SDO")
     # config
     kwargs.setdefault("DeadTime", 100)
-    kwargs.setdefault("PatchForRpcTime", True)	    
-    # kwargs.setdefault("PatchForRpcTimeShift", 9.6875)  
-    kwargs.setdefault("PatchForRpcTimeShift", 12.5)  
+    kwargs.setdefault("PatchForRpcTime", True)
+    # kwargs.setdefault("PatchForRpcTimeShift", 9.6875)
+    kwargs.setdefault("PatchForRpcTimeShift", 12.5)
     kwargs.setdefault("turnON_efficiency", True)
     kwargs.setdefault("turnON_clustersize", True)
     kwargs.setdefault("testbeam_clustersize", 0)
@@ -89,43 +93,63 @@ def RPC_OverlayDigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs)
     return acc
 
 
-def RPC_DigitizerBasicCfg(toolCfg, flags, name, **kwargs):
-    """Return ComponentAccumulator with toolCfg configured RpcDigitization algorithm"""
+def RPC_OutputCfg(flags):
+    """Return ComponentAccumulator with Output for RPC. Not standalone."""
+    acc = ComponentAccumulator()
+    ItemList = ["RpcPadContainer#*"]
+    if flags.Digitization.TruthOutput:
+        ItemList += ["MuonSimDataCollection#*"]
+        acc.merge(TruthDigitizationOutputCfg(flags))
+    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    return acc
+
+
+def RPC_DigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator for RPC digitization"""
     acc = MuonGeoModelCfg(flags)
-    tool = acc.popToolsAndMerge(RPC_DigitizationToolCfg(flags))
-    kwargs.setdefault("DigitizationTool", tool)
-    acc.addEventAlgo(RPC_Digitizer(name,**kwargs))
+    if "PileUpTools" not in kwargs:
+        PileUpTools = acc.popToolsAndMerge(RPC_DigitizationToolCfg(flags))
+        kwargs["PileUpTools"] = PileUpTools
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
     return acc
 
 
-def RPC_DigitizerOutputCfg(toolCfg, flags, name, **kwargs):
-    """Return ComponentAccumulator with toolCfg configured RPC Digitizer algorithm and OutputStream"""
-    acc = RPC_DigitizerBasicCfg(toolCfg, flags, name, **kwargs)
-    acc.merge(OutputStreamCfg(flags, "RDO", ["MuonSimDataCollection#*", "RpcPadContainer#*"]))
+def RPC_OverlayDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with RPC Overlay digitization"""
+    acc = MuonGeoModelCfg(flags)
+    if "DigitizationTool" not in kwargs:
+        tool = acc.popToolsAndMerge(RPC_OverlayDigitizationToolCfg(flags))
+        kwargs["DigitizationTool"] = tool
+    acc.addEventAlgo(RPC_Digitizer(**kwargs))
     return acc
 
 
-def RPC_DigitizerCfg(flags, name="RPC_Digitizer", **kwargs):
-    """Return ComponentAccumulator with standard RpcDigitization algorithm and Output"""
-    return RPC_DigitizerOutputCfg(RPC_DigitizationToolCfg, flags, name, **kwargs)
+# with output defaults
+def RPC_DigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator for RPC digitization and Output"""
+    acc = RPC_DigitizationBasicCfg(flags, **kwargs)
+    acc.merge(RPC_OutputCfg(flags))
+    return acc
 
 
-def RPC_DigitizerOverlayCfg(flags, name="RPC_Digitizer", **kwargs):
-    """Return ComponentAccumulator with Overlay configured RpcDigitization and Output"""
-    return RPC_DigitizerOutputCfg(RPC_OverlayDigitizationToolCfg, flags, name, **kwargs)
+def RPC_OverlayDigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator with RPC Overlay digitization and Output"""
+    acc = RPC_OverlayDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(RPC_OutputCfg(flags))
+    return acc
 
 
-def RPC_DigitizerDigitToRDOCfg(flags):
-    """Return ComponentAccumulator with RPC Digitization and Digit to RPCPAD RDO"""
-    acc = RPC_DigitizerCfg(flags)
+def RPC_DigitizationDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with RPC digitization and Digit to RPCPAD RDO"""
+    acc = RPC_DigitizationCfg(flags)
     acc.merge(RPCCablingConfigCfg(flags))
     acc.merge(RpcDigitToRpcRDOCfg(flags))
     return acc
 
 
-def RPC_DigitizerOverlayDigitToRDOCfg(flags):
-    """Return ComponentAccumulator with RPC Digitization and Digit to RPCPAD RDO for Overlay"""
-    acc = RPC_DigitizerOverlayCfg(flags)
+def RPC_OverlayDigitizationDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with RPC Overlay digitization and Digit to RPCPAD RDO"""
+    acc = RPC_OverlayDigitizationCfg(flags)
     acc.merge(RPCCablingConfigCfg(flags))
     acc.merge(RpcOverlayDigitToRpcRDOCfg(flags))
     return acc

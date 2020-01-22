@@ -75,7 +75,6 @@ Amg::MatrixX PixelRIO_OnTrackErrorScaling::getScaledCovariance(const Amg::Matrix
 {
 
   Amg::MatrixX newCov(cov_input);
-  assert( &pixel_id );
 
   // from SiDetectorElement::isEndcap
   bool is_endcap = !(pixel_id.is_barrel(id) || pixel_id.is_dbm(id));

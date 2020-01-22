@@ -616,7 +616,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
       // EF muons
       ATH_MSG_DEBUG("Run 3 access to EF " << itmap->first << " = " << getTDT()->isPassed(itmap->first));
-      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > fc = getTDT()->features<xAOD::MuonContainer>(itmap->first,TrigDefs::Physics,"",TrigDefs::oneFeaturePerLeg);
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > fc = getTDT()->features<xAOD::MuonContainer>(itmap->first,TrigDefs::Physics,"",TrigDefs::lastFeatureOfType);
       ATH_MSG_DEBUG("N(EF muon LinkInfo) for chain " <<itmap->first << " = " << fc.size() << " passed = " << getTDT()->isPassed(itmap->first));
       for(auto muonLinkInfo : fc) {
         ATH_CHECK( muonLinkInfo.isValid() );

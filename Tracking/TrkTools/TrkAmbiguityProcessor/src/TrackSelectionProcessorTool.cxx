@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackSelectionProcessorTool.h"
@@ -19,8 +19,7 @@ Trk::TrackSelectionProcessorTool::TrackSelectionProcessorTool(const std::string&
   :
   AthAlgTool(t,n,p),
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
-  m_selectionTool("InDet::InDetAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
-  m_finalTracks(0)
+  m_selectionTool("InDet::InDetAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool")
 {
   declareInterface<ITrackAmbiguityProcessorTool>(this);
   declareProperty("DropDouble"           , m_dropDouble         = true);
@@ -44,6 +43,9 @@ StatusCode Trk::TrackSelectionProcessorTool::initialize()
       msg(MSG::FATAL) << "AlgTool::initialise failed" << endmsg;
       return StatusCode::FAILURE;
     }
+
+  ATH_CHECK( m_assoMapName.initialize(!m_assoMapName.key().empty()));
+  ATH_CHECK( m_assoTool.retrieve() );
   
   sc = m_scoringTool.retrieve();
   if (sc.isFailure()) 
@@ -81,7 +83,8 @@ StatusCode Trk::TrackSelectionProcessorTool::finalize()
 /** Do actual processing of event. Takes a track container, 
     and then returns the tracks which have been selected*/
 
-TrackCollection*  Trk::TrackSelectionProcessorTool::process(const TrackCollection* tracksCol )
+TrackCollection*  Trk::TrackSelectionProcessorTool::process(const TrackCollection* tracksCol,
+                                                            Trk::PRDtoTrackMap *prd_to_track_map) const
 {
   
   //TODO: make sure the ownership; delete origin tracks from map?
@@ -94,61 +97,55 @@ TrackCollection*  Trk::TrackSelectionProcessorTool::process(const TrackCollectio
   using namespace std;
 
   ATH_MSG_DEBUG ("Processing "<<tracks.size()<<" tracks");
-    
-  // clear all caches etc.
-  reset();
-  
+
+  std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map_cleanup;
+  if (!prd_to_track_map) {
+     prd_to_track_map_cleanup = m_assoTool->createPRDtoTrackMap();
+     if (!m_assoMapName.key().empty()) {
+        SG::ReadHandle<Trk::PRDtoTrackMap> input_prd_map(m_assoMapName);
+        if (!input_prd_map.isValid()) {
+           ATH_MSG_ERROR("Failed to retrieve prd to track map " << m_assoMapName.key() );
+        }
+        else {
+           *prd_to_track_map_cleanup = *input_prd_map;
+        }
+     }
+     prd_to_track_map = prd_to_track_map_cleanup.get();
+  }
+
+  TrackScoreMap trackScoreTrackMap;
   //put tracks into maps etc
-  addNewTracks(&tracks);
+  addNewTracks(trackScoreTrackMap,*prd_to_track_map, tracks);
  
   // going to do simple algorithm for now:
   // - take track with highest score
   // - remove shared hits from all other tracks
   // - take next highest scoring tracks, and repeat 
 
-  solveTracks();
+  std::unique_ptr<TrackCollection> final_tracks(std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS)); //TODO, old or new
+  solveTracks(trackScoreTrackMap, *prd_to_track_map, *final_tracks);
   
-  if (msgLvl(MSG::DEBUG)) dumpTracks(*m_finalTracks);
-  
-// memory defragmantation fix. Cleaning before returning the result 
-  m_prdSigSet.clear(); 
-  m_trackScoreTrackMap.clear(); 
-  
-  return m_finalTracks;
+  if (msgLvl(MSG::DEBUG)) dumpTracks(*final_tracks);
+
+  return final_tracks.release();
 }
 
-void Trk::TrackSelectionProcessorTool::reset()
-{
-  //this is a map which contains pointers to copies of all the input tracks
-  m_trackScoreTrackMap.clear();
-
-  //Signature Set
-  m_prdSigSet.clear();
-  
-  // clear prdAssociationTool via selection tool
-  m_selectionTool->reset();
-
-  //final copy - ownership is passed out of algorithm
-  m_finalTracks = new TrackCollection(SG::VIEW_ELEMENTS); //TODO, old or new
-
-  return;
-}
 
 //==================================================================================================
-void Trk::TrackSelectionProcessorTool::addNewTracks(std::vector<const Track*>* tracks)
+void Trk::TrackSelectionProcessorTool::addNewTracks(TrackScoreMap &trackScoreTrackMap,
+                                                    Trk::PRDtoTrackMap &prd_to_track_map,
+                                                    const std::vector<const Track*> &tracks) const
 {
   using namespace std;
-  ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks->size());
- 
-  std::vector<const Track*>::const_iterator trackIt    = tracks->begin();
-  std::vector<const Track*>::const_iterator trackItEnd = tracks->end();
- 
+  ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks.size());
+  PrdSignatureSet prdSigSet;
+
   TrackScore itrack=0;
-  for ( ; trackIt != trackItEnd ; ++trackIt)   {
+  for (const Track*a_track : tracks )   {
 
     if(m_disableSorting) {
       // add track to map using ordering provided by the collection
-      m_trackScoreTrackMap.insert( make_pair(itrack, make_pair(*trackIt, true)) );
+      trackScoreTrackMap.insert( make_pair(itrack, TrackPtr(a_track)) );
       itrack++;
       continue;
     }
@@ -156,7 +153,7 @@ void Trk::TrackSelectionProcessorTool::addNewTracks(std::vector<const Track*>* t
     bool reject = false;
     
     // only fitted tracks get hole search, input is not fitted
-    TrackScore score = m_scoringTool->score( **trackIt, true );
+    TrackScore score = m_scoringTool->score( *a_track, true );
     // veto tracks with score 0
     if (score==0) { 
       ATH_MSG_DEBUG ("Track score is zero, reject it");
@@ -165,12 +162,12 @@ void Trk::TrackSelectionProcessorTool::addNewTracks(std::vector<const Track*>* t
     } else {
        
       if (m_dropDouble) {
-	std::vector<const Trk::PrepRawData*> prds = m_selectionTool->getPrdsOnTrack(*trackIt);
+        std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(prd_to_track_map, *a_track);
 	// unfortunately PrepRawDataSet is not a set !
 	PrdSignature prdSig;
 	prdSig.insert( prds.begin(),prds.end() );
 	// we try to insert it into the set, if we fail (pair.second), it then exits already
-	if ( !(m_prdSigSet.insert(prdSig)).second ) {
+	if ( !(prdSigSet.insert(prdSig)).second ) {
 	  ATH_MSG_DEBUG ("Double track, reject it !");
 	  reject = true;
 	} else {
@@ -181,69 +178,71 @@ void Trk::TrackSelectionProcessorTool::addNewTracks(std::vector<const Track*>* t
  
     if (!reject) {
       // add track to map, map is sorted small to big ! set if fitted
-      ATH_MSG_VERBOSE ("Track  ("<< *trackIt <<") has score "<<score);
-      m_trackScoreTrackMap.insert( make_pair(-score, make_pair(*trackIt, true) ) );
+      ATH_MSG_VERBOSE ("Track  ("<< a_track <<") has score "<<score);
+      trackScoreTrackMap.insert( make_pair(-score, TrackPtr(a_track) ) );
 
     }
   }
   
-  ATH_MSG_DEBUG ("Number of tracks in map:"<<m_trackScoreTrackMap.size());
+  ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap.size());
 
   return;
 }
 
-void Trk::TrackSelectionProcessorTool::solveTracks()
+void Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
+                                                   Trk::PRDtoTrackMap &prd_to_track_map,
+                                                   TrackCollection &final_tracks) const
 {
   using namespace std;
 
   ATH_MSG_VERBOSE ("Starting to solve tracks");
 
   // now loop as long as map is not empty
-  while ( !m_trackScoreTrackMap.empty() ) {
+  while ( !trackScoreTrackMap.empty() ) {
 
-    TrackScoreMap::iterator itnext = m_trackScoreTrackMap.begin();
-    ATH_MSG_VERBOSE ("--- Trying next track "<<itnext->second.first<<"\t with score "<<-itnext->first);
-    const Trk::Track* cleanedTrack = m_selectionTool->getCleanedOutTrack( itnext->second.first , -(itnext->first));
-    if (cleanedTrack == itnext->second.first ){
+    TrackScoreMap::iterator itnext = trackScoreTrackMap.begin();
+    TrackPtr atrack( std::move(itnext->second) );
+    TrackScore ascore( itnext->first);
+    trackScoreTrackMap.erase(itnext);
+
+    ATH_MSG_VERBOSE ("--- Trying next track "<<atrack.track()<<"\t with score "<<-ascore);
+    std::unique_ptr<Trk::Track> cleanedTrack;
+    auto [cleanedTrack_tmp, keep_orig]  = m_selectionTool->getCleanedOutTrack( atrack.track() , -(ascore), prd_to_track_map);
+    cleanedTrack.reset(cleanedTrack_tmp);
+
+    if (keep_orig ){
       // track can be kept as identical to the input track
-      ATH_MSG_DEBUG ("Accepted track "<<itnext->second.first<<"\t has score "<<-(itnext->first));
+      ATH_MSG_DEBUG ("Accepted track "<<atrack.track()<<"\t has score "<<-(ascore));
       // add track to PRD_AssociationTool
-      StatusCode sc = m_selectionTool->registerPRDs(itnext->second.first);
+      StatusCode sc = m_assoTool->addPRDs(prd_to_track_map,*atrack);
       if (sc.isFailure()) msg(MSG::ERROR) << "addPRDs() failed" << endmsg;
-      // add to output list 
-      m_finalTracks->push_back( const_cast<Track*>(itnext->second.first) );
+      // add to output list
+      final_tracks.push_back( const_cast<Track*>(atrack.track()) );
 
-    }else if ( !cleanedTrack ) {
+    }else if ( !cleanedTrack.get() ) {
       // track should be discarded
-      ATH_MSG_DEBUG ("Track "<< itnext->second.first << " doesn't meet the cuts of the AmbiTrack Selection tool");
+      ATH_MSG_DEBUG ("Track "<< atrack.track() << " doesn't meet the cuts of the AmbiTrack Selection tool");
 
-    }else if ( cleanedTrack != itnext->second.first ) {
-      
+    }
+    else  {
+
       // delete cleaned track
-      delete cleanedTrack;
-      
+      cleanedTrack.reset();
+
       // stripped down version cannot be handled discarding
       ATH_MSG_DEBUG("Selection tool returned a new track, cannot handle memory management of new track, deleting it. Check you configuration ");
-    }else{
-      // this should not happen
-      ATH_MSG_WARNING ("Unexpect return from selection tool, discarding track");
-
-      // clean up memory to avoid leak
-      if( cleanedTrack && cleanedTrack != itnext->second.first ) delete cleanedTrack;
-	
     }
     // don't forget to drop track from map
-    m_trackScoreTrackMap.erase(itnext);
   }
-  
-  ATH_MSG_DEBUG ("Finished, number of track on output: "<<m_finalTracks->size());
-  
+
+  ATH_MSG_DEBUG ("Finished, number of track on output: "<<final_tracks.size());
+
   return;
 }
 
 //==================================================================================================
 
-void Trk::TrackSelectionProcessorTool::dumpTracks( const TrackCollection& tracks )
+void Trk::TrackSelectionProcessorTool::dumpTracks( const TrackCollection& tracks ) const
 {
 
   ATH_MSG_VERBOSE ("Dumping tracks in collection");

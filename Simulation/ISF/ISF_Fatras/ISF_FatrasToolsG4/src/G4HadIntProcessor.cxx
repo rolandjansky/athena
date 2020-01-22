@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -84,18 +84,13 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_doElastic(false),
   m_hadIntProbScale(1.0),
   m_minMomentum(50.0),
-  m_cloneParameters(false),
-  m_parametricScattering(false),
   m_g4runManager(0),
-  m_g4physicsList(0),
-  m_g4detector(0),
   m_g4dynPar(0),
   m_g4zeroPos(0),
   m_g4step(0),
   m_g4stepPoint(0),
   m_particleBroker("ISF_ParticleBrokerSvc", n),
   m_truthRecordSvc("ISF_ValidationTruthService", n), 
-  m_processCode(121),
   m_randomEngine(0),
   m_randomEngineName("FatrasRnd"),
   m_validationMode(false),
@@ -103,37 +98,12 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_validationTreeName("FatrasMaterialEffects"),
   m_validationTreeDescription("Validation output from the McMaterialEffectsUpdator"),
   m_validationTreeFolder("/val/FatrasSimulationMaterial"),
-  m_validationTree(0),
-  m_layerIndex(0),
-  m_tInX0(0.),
-  m_thetaMSproj(0.),
-  m_thetaMSphi(0.),
-  m_thetaMStheta(0.),
-  m_deltaP(0.),
-  m_deltaPsigma(0.),
-  m_bremValidation(false),
   m_bremValidationTreeName("FatrasBremPhotons"),
   m_bremValidationTreeDescription("Validation output from the McMaterialEffectsUpdator"),
   m_bremValidationTreeFolder("/val/FatrasBremPhotons"),
-  m_bremValidationTree(0),
-  m_bremPointX(0.),
-  m_bremPointY(0.),
-  m_bremPointR(0.),
-  m_bremPointZ(0.),
-  m_bremMotherEnergy(0.),
-  m_bremPhotonEnergy(0.),
-  m_bremPhotonAngle(0.),
-  m_edValidation(false),
   m_edValidationTreeName("FatrasEnergyInCaloDeposit"),     
   m_edValidationTreeDescription("Validation output from the McMaterialEffectUpdator"),
-  m_edValidationTreeFolder("/val/FatrasEnergyInCaloDeposit"),   
-  m_edValidationTree(0),                   
-  m_edLayerIntersectX(0.),         
-  m_edLayerIntersectY(0.),         
-  m_edLayerIntersectZ(0.),         
-  m_edLayerIntersectR(0.),         
-  m_edLayerEnergyDeposit(0.),     
-  m_edLayerSample(0)
+  m_edValidationTreeFolder("/val/FatrasEnergyInCaloDeposit")
 {
   // steering
   declareProperty("MomentumCut"                     , m_minMomentum                                                       );     

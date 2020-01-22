@@ -1,6 +1,6 @@
 Copy all events
 Events to copy: 
-Checking file /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/RAW.01524408._005549.data.1
+Checking file empty._0001.data
 Created DataWriter for file empty.data in directory .
-No events in file /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/RAW.01524408._005549.data.1
+No events in file empty._0001.data
 Copied all events to file empty.data

@@ -4,7 +4,7 @@
 
 #include "DecisionHandling/Combinators.h"
 #include "TrigMuonEFMSonlyHypoTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 class ISvcLocator;
 TrigMuonEFMSonlyHypoTool::TrigMuonEFMSonlyHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),

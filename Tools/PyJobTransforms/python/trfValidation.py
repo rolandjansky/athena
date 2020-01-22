@@ -538,18 +538,24 @@ class athenaLogFileReport(logFileReport):
     def pythonExceptionParser(self, lineGenerator, firstline, firstLineCount):
         pythonExceptionReport = ""
         lastLine = firstline
+        lastLine2 = firstline
         pythonErrorLine = firstLineCount
         pyLines = 1
         for line, linecounter in lineGenerator:
             if 'Py:Athena' in line and 'INFO leaving with code' in line:
-                pythonExceptionReport = lastLine
-                pythonErrorLine = linecounter-1
+                if len(lastLine)> 0:
+                    pythonExceptionReport = lastLine
+                    pythonErrorLine = linecounter-1
+                else: # Sometimes there is a blank line after the exception
+                    pythonExceptionReport = lastLine2
+                    pythonErrorLine = linecounter-2
                 break
             if pyLines >= 25:
                 msg.warning('Could not identify python exception correctly scanning {0} log lines after line {1}'.format(pyLines, firstLineCount))
                 pythonExceptionReport = "Unable to identify specific exception"
                 pythonErrorLine = firstLineCount
                 break
+            lastLine2 = lastLine
             lastLine = line
             pyLines += 1
 
@@ -831,11 +837,11 @@ class eventMatch(object):
         #  is applied, so the result is rounded down. i.e., 1 * 0.5 -> 0.
         simEventEff = 0.995
         self._eventCountConf = {}
-        self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_CAVERN": simEventEff, "EVNT_Stopped": simEventEff, "EVNT_TR": "filter"}
+        self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_CAVERN": simEventEff, "EVNT_Stopped": simEventEff, "EVNT_TR": "filter", "DAOD_TRUTH*" : "match"}
         self._eventCountConf['EVNT_CAVERN'] = {'HITS': simEventEff}
         self._eventCountConf['EVNT_COSMICS'] = {'HITS': simEventEff}
         self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}
-        self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter"}
+        self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter", "DAOD_TRUTH*" : "match"}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD*': "filter", 'AOD':"match", 'DAOD*':"filter"}
         self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match", 'AOD':"match", 'DAOD*':"filter"}
         self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}

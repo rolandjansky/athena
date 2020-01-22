@@ -32,14 +32,12 @@ AthAlgorithm(name, pSvcLocator),
 m_tools(this), //make tools private
 m_maxEta(2.5),
 m_minPt(10000),
-m_doCreateTauContainers(false),
 m_data(),
 m_cellMakerTool("",this)
 {
   declareProperty("Tools", m_tools);
   declareProperty("MaxEta", m_maxEta);
   declareProperty("MinPt", m_minPt);
-  declareProperty("doCreateTauContainers", m_doCreateTauContainers);
   declareProperty("CellMakerTool", m_cellMakerTool);
 }
 
@@ -140,40 +138,20 @@ StatusCode TauProcessorAlg::execute() {
   const EventContext& ctx = Gaudi::Hive::currentContext();
   StatusCode sc;
 
-  
-    // Declare containers  
-    xAOD::TauJetContainer * pContainer = 0;
-    xAOD::TauJetAuxContainer* pAuxContainer = 0;
-    xAOD::TauTrackContainer* pTauTrackCont = 0;
-    xAOD::TauTrackAuxContainer* pTauTrackAuxCont = 0;
+    //-------------------------------------------------------------------------                         
+    // Create and Record containers
+    //-------------------------------------------------------------------------                 
+    auto pContainer = std::make_unique<xAOD::TauJetContainer>();
+    auto pAuxContainer = std::make_unique<xAOD::TauJetAuxContainer>();
+    pContainer->setStore( pAuxContainer.get() );
+    
+    auto pTauTrackCont = std::make_unique<xAOD::TauTrackContainer>();
+    auto pTauTrackAuxCont = std::make_unique<xAOD::TauTrackAuxContainer>();
+    pTauTrackCont->setStore( pTauTrackAuxCont.get() );
 
     // Declare write handles
     SG::WriteHandle<xAOD::TauJetContainer> tauHandle( m_tauOutputContainer, ctx );
     SG::WriteHandle<xAOD::TauTrackContainer> tauTrackHandle( m_tauTrackOutputContainer, ctx );
-
-    if (m_doCreateTauContainers) {
-      //-------------------------------------------------------------------------                         
-      // Create and Record containers
-      //-------------------------------------------------------------------------                 
-      pContainer = new xAOD::TauJetContainer();
-      pAuxContainer = new xAOD::TauJetAuxContainer();
-      pContainer->setStore( pAuxContainer );
-
-      pTauTrackCont = new xAOD::TauTrackContainer();
-      pTauTrackAuxCont = new xAOD::TauTrackAuxContainer();
-      pTauTrackCont->setStore( pTauTrackAuxCont );
-
-    } else {
-      //-------------------------------------------------------------------------                                             
-      // retrieve Tau Containers from StoreGate                                                                                     
-      //-------------------------------------------------------------------------                                    
-      // replace with read handles
-      sc = evtStore()->retrieve(pContainer, "TauJets");
-      if (sc.isFailure()) {
-	ATH_MSG_FATAL("Failed to retrieve " << "TauJets");
-	return StatusCode::FAILURE;
-      }
-    }
 
     //-------------------------------------------------------------------------                        
     // Initialize tools for this event
@@ -249,7 +227,7 @@ StatusCode TauProcessorAlg::execute() {
       pTau->setJet(pSeedContainer, pSeed);
 
       // This sets one track and link. Need to have at least 1 track linked to retrieve track container
-      setEmptyTauTrack(pTau, pTauTrackCont);
+      setEmptyTauTrack(pTau, pTauTrackCont.get());
       
       //-----------------------------------------------------------------
       // Loop stops when Failure indicated by one of the tools
@@ -262,8 +240,7 @@ StatusCode TauProcessorAlg::execute() {
 	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
 	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
 	}
-	else if ( (*itT)->name().find("Pi0CreateROI") != std::string::npos){
-	  ATH_MSG_INFO("EXEC PI0CREATEROI");
+	else if ( (*itT)->name().find("Pi0ClusterFinder") != std::string::npos){
 	  sc = (*itT)->executePi0CreateROI(*pTau, *Pi0CellContainer);
 	}
 	else {
@@ -324,16 +301,16 @@ StatusCode TauProcessorAlg::execute() {
   
   // Write the completed tau and track containers
   ATH_MSG_DEBUG("  write: " << tauHandle.key() << " = " << "..." );
-  ATH_CHECK(tauHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{pAuxContainer}));
+  ATH_CHECK(tauHandle.record( std::move(pContainer), std::move(pAuxContainer) ));
   ATH_MSG_DEBUG("  write: " << tauTrackHandle.key() << " = " << "..." );  
-  ATH_CHECK(tauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTauTrackCont}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pTauTrackAuxCont}));
+  ATH_CHECK(tauTrackHandle.record( std::move(pTauTrackCont), std::move(pTauTrackAuxCont) ));
 
   return StatusCode::SUCCESS;
 }
 
 
 void TauProcessorAlg::setEmptyTauTrack(xAOD::TauJet* &pTau, 
-				       xAOD::TauTrackContainer* &tauTrackContainer)
+				       xAOD::TauTrackContainer* tauTrackContainer)
 {  
   // Make a new tau track, add to container
   xAOD::TauTrack* pTrack = new xAOD::TauTrack();

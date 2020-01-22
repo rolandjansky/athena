@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
@@ -19,10 +19,33 @@ def setDefaults(kwargs, **def_kwargs) :
     def_kwargs.update(kwargs)
     return def_kwargs
 
+def copyArgs(kwargs, copy_list) :
+    dict_copy={}
+    for elm in copy_list :
+        if elm in kwargs :
+            dict_copy[elm]=kwargs[elm]
+    return dict_copy
+
+def splitDefaultPrefix(name) :
+    default_prefix=''
+    for prefix in ['InDet','InDetTrig'] :
+        if name[0:len(prefix)] == prefix :
+            name=name[len(prefix):]
+            default_prefix=prefix
+            break
+    return default_prefix,name
+
 def makeName( name, kwargs) :
-    namePrefix=kwargs.pop('namePrefix','')
+    default_prefix,name=splitDefaultPrefix(name)
+    namePrefix=kwargs.pop('namePrefix',default_prefix)
     nameSuffix=kwargs.pop('nameSuffix','')
     return namePrefix + name + nameSuffix
+
+def makeNameGetPreAndSuffix( name, kwargs) :
+    default_prefix,name=splitDefaultPrefix(name)
+    namePrefix=kwargs.pop('namePrefix',default_prefix)
+    nameSuffix=kwargs.pop('nameSuffix','')
+    return namePrefix + name + nameSuffix,namePrefix,nameSuffix
 
 def getDefaultName(func) :
     # @TODO only works for python 2
@@ -39,21 +62,28 @@ def makePublicTool(tool_creator) :
     def createPublicTool(*args,**kwargs):
         from AthenaCommon.AppMgr import ToolSvc
         name=kwargs.pop('name',None)
+        private=kwargs.pop("private",False)
+
         if len(args) == 1 :
-            if name != None :
+            if name is not None :
                 raise Exception('Name given as positional and keyword argument')
             name=args[0]
+
         if name is None :
             name=getDefaultName(tool_creator)
-
-        the_name =  kwargs.get('namePrefix','') + name + kwargs.get('nameSuffix','')
-        if the_name not in ToolSvc :
+        orig_name = name
+        default_prefix,name=splitDefaultPrefix(name)
+        the_name =  kwargs.get('namePrefix',default_prefix) + name + kwargs.get('nameSuffix','')
+        if private is True or the_name not in ToolSvc :
             if len(args) > 1 :
                 raise Exception('Too many positional arguments')
-            tool = tool_creator(name, **kwargs)
+            tool = tool_creator(orig_name, **kwargs)
+            if tool is None :
+                return None
             if the_name != tool.name() :
-                raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.the_name()))
-            ToolSvc += tool
+                raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
+            if private is False :
+                ToolSvc += tool
             return tool
         else :
             return getattr(ToolSvc, the_name)
@@ -61,6 +91,36 @@ def makePublicTool(tool_creator) :
     createPublicTool.__name__   = tool_creator.__name__
     createPublicTool.__module__ = tool_creator.__module__
     return createPublicTool
+
+
+def getInDetNewTrackingCuts() :
+    from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doDBMstandalone():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
+    elif InDetFlags.doVtxLumi():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxLumi")
+    elif InDetFlags.doVtxBeamSpot():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxBeamSpot")
+    elif InDetFlags.doCosmics():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Cosmics")
+    elif InDetFlags.doHeavyIon():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
+    elif InDetFlags.doSLHC():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHC")
+    elif InDetFlags.doIBL():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("IBL")
+    elif InDetFlags.doHighPileup():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HighPileup")
+    elif InDetFlags.doMinBias():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("MinBias")
+    elif InDetFlags.doDVRetracking():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("LargeD0")
+    else:
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
+    return InDetNewTrackingCuts
+    # --- backward compatible
+
 
 def getPixelRIO_OnTrackErrorScalingDbOverrideCondAlg( **kwargs) :
     '''
@@ -164,7 +224,6 @@ def getNeuralNetworkToHistoTool(**kwargs) :
 
     NeuralNetworkToHistoTool=Trk__NeuralNetworkToHistoTool(name,
                                                            **kwargs)
-
     ToolSvc += NeuralNetworkToHistoTool
     return NeuralNetworkToHistoTool
 
@@ -270,7 +329,7 @@ def getInDetPixelClusterOnTrackToolBase(name, **kwargs) :
                          NNIBLcorrection          = ( InDetFlags.doPixelClusterSplitting() and
                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                          SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + split_cluster_map_extension,
-                         RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi())
+                         RunningTIDE_Ambi         = InDetFlags.doTIDE_Ambi() )
 
     return InDet__PixelClusterOnTrackTool(the_name , **kwargs)
 
@@ -287,11 +346,14 @@ def getInDetPixelClusterOnTrackToolNNSplitting(name='InDetPixelClusterOnTrackToo
 def getInDetPixelClusterOnTrackTool(name='InDetPixelClusterOnTrackTool', **kwargs) :
     if 'LorentzAngleTool' not in kwargs :
         kwargs = setDefaults(kwargs, LorentzAngleTool = getPixelLorentzAngleTool())
-
-    return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doDigitalROTCreation() :
+        return getInDetPixelClusterOnTrackToolDigital(name=name, **kwargs)
+    else:
+        return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackToolPattern(name='InDetPixelClusterOnTrackToolPattern', **kwargs) :
-    return getInDetPixelClusterOnTrackToolNNSplitting(name=name, **kwargs)
+    return getInDetPixelClusterOnTrackTool(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackToolDigital(name='InDetPixelClusterOnTrackToolDigital', **kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
@@ -303,7 +365,8 @@ def getInDetPixelClusterOnTrackToolDigital(name='InDetPixelClusterOnTrackToolDig
                              applyNNcorrection = False,
                              NNIBLcorrection   = False,
                              ErrorStrategy     = 2,
-                             PositionStrategy  = 1)
+                             PositionStrategy  = 1,
+                             SplitClusterAmbiguityMap = "")
     else :
         kwargs = setDefaults(kwargs,
                              SplitClusterAmbiguityMap = "")
@@ -346,27 +409,38 @@ def getInDetBroadTRT_DriftCircleOnTrackTool(name='InDetBroadTRT_DriftCircleOnTra
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackNoDriftTimeTool
     return InDet__TRT_DriftCircleOnTrackNoDriftTimeTool(the_name)
 
+def getInDetTRT_DriftCircleOnTrackNoDriftTimeTool(**kwargs) :
+    return getInDetBroadTRT_DriftCircleOnTrackTool(**kwargs)
+
 # @TODO rename to InDetTRT_DriftCircleOnTrackTool ?
+@makePublicTool
 def getInDetTRT_DriftCircleOnTrackTool(name='TRT_DriftCircleOnTrackTool', **kwargs) :
+    the_name = makeName( name, kwargs)
     createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
+    # @TODO create LuminosityCondAlg
+    from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackTool
     kwargs = setDefaults(kwargs,
-                         EventInfoKey       = getEventInfoKey(),
-                         TRTErrorScalingKey = '/Indet/TrkErrorScalingTRT')
-    return getInDetBroadTRT_DriftCircleOnTrackTool(name = name, **kwargs)
+                         TRTErrorScalingKey = '/Indet/TrkErrorScalingTRT',
+                         # LumiDataKey        = 'LuminosityCondData'        # @TODO undo out-commenting to re-enable mu-correction for TRT error scaling
+                         )
+    return InDet__TRT_DriftCircleOnTrackTool(name = the_name, **kwargs)
+
 
 default_ScaleHitUncertainty = 2.5
-
 @makePublicTool
 def getInDetTRT_DriftCircleOnTrackUniversalTool(name='InDetTRT_RefitRotCreator',**kwargs) :
     the_name = makeName( name, kwargs)
     if 'RIOonTrackToolDrift' not in kwargs :
-        kwargs = setDefaults(kwargs, RIOonTrackToolDrift = getInDetTRT_DriftCircleOnTrackTool())
+        kwargs = setDefaults(kwargs, RIOonTrackToolDrift = getInDetBroadTRT_DriftCircleOnTrackTool())
     if 'RIOonTrackToolTube' not in kwargs :
         kwargs = setDefaults(kwargs, RIOonTrackToolTube  = getInDetBroadTRT_DriftCircleOnTrackTool())
 
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackUniversalTool
     return InDet__TRT_DriftCircleOnTrackUniversalTool(name = the_name, **setDefaults(kwargs,
                                                                                      ScaleHitUncertainty = default_ScaleHitUncertainty))
+
+def getInDetTRT_DriftCircleOnTrackUniversalToolCosmics(name='TRT_DriftCircleOnTrackUniversalTool',**kwargs) :
+    return getInDetTRT_DriftCircleOnTrackUniversalTool(name=name,ScaleHitUncertainty=2.)
 
 @makePublicTool
 def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
@@ -391,6 +465,10 @@ def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
             kwargs = setDefaults( kwargs, ToolSCT_Cluster = getInDetBroadSCT_ClusterOnTrackTool())
         else :
             kwargs = setDefaults( kwargs, ToolSCT_Cluster = getInDetSCT_ClusterOnTrackTool())
+
+    if 'ToolTRT_DriftCircle' not in kwargs :
+        kwargs = setDefaults( kwargs, ToolTRT_DriftCircle = getInDetTRT_DriftCircleOnTrackTool())
+
 
     kwargs = setDefaults( kwargs, Mode             = 'indet')
 
@@ -463,8 +541,90 @@ def getInDetRefitRotCreator(name='InDetRefitRotCreator', **kwargs) :
     return getInDetRotCreator(name = name, **kwargs)
 
 @makePublicTool
+def getInDetUpdator(name = 'InDetUpdator', **kwargs) :
+    the_name = makeName( name, kwargs )
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.kalmanUpdator() == "fast" :
+        from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk as Updator
+    elif InDetFlags.kalmanUpdator() == "weight" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanWeightUpdator as Updator
+    elif InDetFlags.kalmanUpdator() == "smatrix" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorSMatrix as Updator
+    elif InDetFlags.kalmanUpdator() == "amg" :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdatorAmg as Updator
+    else :
+        from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as Updator
+    return Updator(name = the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetNavigator(name='InDetNavigator', **kwargs) :
+    the_name = makeName( name, kwargs)
+    if 'TrackingGeometrySvc' not in kwargs :
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs = setDefaults(kwargs, TrackingGeometrySvc = AtlasTrackingGeometrySvc)
+
+    from TrkExTools.TrkExToolsConf import Trk__Navigator
+    return Trk__Navigator(name=the_name,**kwargs )
+
+
+@makePublicTool
+def getInDetMaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator", **kwargs) :
+    the_name = makeName( name, kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if not InDetFlags.solenoidOn():
+        import AthenaCommon.SystemOfUnits as Units
+        kwargs = setDefaults(kwargs,
+                             EnergyLoss          = False,
+                             ForceMomentum       = True,
+                             ForcedMomentumValue = 1000*Units.MeV )
+    from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator
+    return Trk__MaterialEffectsUpdator(name = the_name, **kwargs)
+
+@makePublicTool
+def getInDetPropagator(name='InDetPropagator',**kwargs) :
+    the_name = makeName( name, kwargs)
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.propagatorType() == "STEP":
+        from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as Propagator
+    else:
+        from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
+
+    if InDetFlags.propagatorType() == "RungeKutta":
+        kwargs=setDefaults(kwargs,
+                           AccuracyParameter = 0.0001,
+                           MaxStraightLineStep = .004 ) # Fixes a failed fit
+    return Propagator(name = the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetPatternPropagator(name='InDetPatternPropagator',**kwargs) :
+    the_name = makeName( name, kwargs)
+    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
+    return Propagator(name = the_name, **kwargs)
+
+@makePublicTool
+def getInDetPatternUpdator(name='InDetPatternUpdator',**kwargs) :
+    the_name = makeName( name, kwargs)
+    from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
+    return Trk__KalmanUpdator_xk(name = the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetGsfMeasurementUpdator(name='InDetGsfMeasurementUpdator', **kwargs) :
+    the_name = makeName( name, kwargs )
+    if 'Updator' not in kwargs  :
+        kwargs=setDefaults(kwargs, Updator = getInDetUpdator() )
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
+    return Trk__GsfMeasurementUpdator( name = the_name, **kwargs )
+
+
+@makePublicTool
 def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
     the_name = makeName( name, kwargs)
+    if 'MultiComponentStateMerger' not in kwargs :
+        kwargs=setDefaults(kwargs, MultiComponentStateMerger = getInDetGsfComponentReduction())
+
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
     return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
 
@@ -478,18 +638,13 @@ def getInDetGsfComponentReduction(name='InDetGsfComponentReduction', **kwargs) :
 def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
     the_name = makeName(name,kwargs)
     if 'Propagators' not in kwargs :
-        from AthenaCommon.AppMgr import ToolSvc
-        kwargs=setDefaults(kwargs, Propagators = [ ToolSvc.InDetPropagator ] )
+        kwargs=setDefaults(kwargs, Propagators = [ getInDetPropagator() ] )
 
     if 'Navigator' not in kwargs :
-        from AthenaCommon.AppMgr import ToolSvc
-        kwargs=setDefaults(kwargs, Navigator   =  ToolSvc.InDetNavigator)
+        kwargs=setDefaults(kwargs, Navigator   =  getInDetNavigator() )
 
     if 'GsfMaterialConvolution' not in kwargs :
         kwargs=setDefaults(kwargs, GsfMaterialConvolution        = getInDetGsfMaterialUpdator())
-
-    if 'ComponentMerger' not in kwargs :
-        kwargs=setDefaults(kwargs, ComponentMerger               = getInDetGsfComponentReduction())
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
     return Trk__GsfExtrapolator(name = the_name, **setDefaults(kwargs,
@@ -497,45 +652,49 @@ def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
                                                                StickyConfiguration           = True,
                                                                SurfaceBasedMaterialEffects   = False ))
 
-def getInDetPRDtoTrackMapToolGangedPixels(**kwargs) :
-    tool_name = 'InDetPRDtoTrackMapToolGangedPixels'
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr(ToolSvc,tool_name) :
-        return getattr(ToolSvc,tool_name)
+@makePublicTool
+def getPRDtoTrackMapTool(name='PRDtoTrackMapTool',**kwargs) :
+    the_name = makeName( name, kwargs)
+    from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRDtoTrackMapTool
+    return Trk__PRDtoTrackMapTool( name=the_name, **kwargs)
 
+@makePublicTool
+def getInDetPRDtoTrackMapToolGangedPixels(name='PRDtoTrackMapToolGangedPixels',**kwargs) :
+    the_name = makeName( name, kwargs)
     from InDetRecExample.InDetKeys                       import InDetKeys
     kwargs = setDefaults( kwargs,
                           PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
                           addTRToutliers                 = True)
 
     from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRDtoTrackMapToolGangedPixels
-    tool=InDet__InDetPRDtoTrackMapToolGangedPixels( name=tool_name, **kwargs)
-    ToolSvc += tool
-    return tool
+    return InDet__InDetPRDtoTrackMapToolGangedPixels( name=the_name, **kwargs)
 
-def getInDetTrackPRD_Association(**kwargs) :
-    prefix=kwargs.pop("prefix","InDet")
-    suffix=kwargs.pop("suffix","")
+
+def getInDetTrigPRDtoTrackMapToolGangedPixels(name='InDetTrigPRDtoTrackMapToolGangedPixels',**kwargs) :
+    return getInDetPRDtoTrackMapToolGangedPixels(name,
+                                                 **setDefaults(kwargs,
+                                                               PixelClusterAmbiguitiesMapName = "TrigPixelClusterAmbiguitiesMap",
+                                                               addTRToutliers                 = False))
+
+def getInDetTrackPRD_Association(name='InDetTrackPRD_Association', **kwargs) :
+    the_name,prefix,suffix=makeNameGetPreAndSuffix(name,kwargs)
+
     if kwargs.get('TracksName',None) is None :
         raise Exception('Not TracksName argument provided')
 
-    name = prefix+'PRD_Association'+suffix
     kwargs = setDefaults( kwargs,
                           AssociationTool    = getInDetPRDtoTrackMapToolGangedPixels() \
                                                     if 'AssociationTool' not in kwargs else None,
                           AssociationMapName = prefix+'PRDtoTrackMap'+suffix)
 
     from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-    alg = InDet__InDetTrackPRD_Association(name = name, **kwargs)
+    alg = InDet__InDetTrackPRD_Association(name = the_name, **kwargs)
     return alg
 
-def getConstPRD_AssociationTool(**kwargs) :
-    prefix=kwargs.pop("prefix","")
-    suffix=kwargs.pop("suffix","")
-    tool_name = prefix+'PRD_AssociationTool'+suffix
-    from AthenaCommon.AppMgr import ToolSvc
-    if hasattr(ToolSvc,tool_name) :
-        return getattr(ToolSvc,tool_name)
+
+@makePublicTool
+def getConstPRD_AssociationTool(name='ConstPRD_AssociationTool',**kwargs) :
+    the_name,prefix,suffix=makeNameGetPreAndSuffix(name,kwargs)
 
     kwargs = setDefaults( kwargs,
                           SetupCorrect     = True,
@@ -543,6 +702,471 @@ def getConstPRD_AssociationTool(**kwargs) :
                           PRDtoTrackMap    = prefix+'PRDtoTrackMap'+suffix)
 
     from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRD_AssociationTool
-    tool=Trk__PRD_AssociationTool(name=tool_name, **kwargs)
-    ToolSvc += tool
-    return tool
+    return Trk__PRD_AssociationTool(name=the_name, **kwargs)
+
+@makePublicTool
+def getInDetPrdAssociationTool(name='InDetPrdAssociationTool',**kwargs) :
+    '''
+    Provide an instance for all clients in which the tool is only set in c++
+    '''
+    the_name = makeName( name, kwargs)
+    from InDetRecExample.InDetKeys                       import InDetKeys
+    kwargs = setDefaults( kwargs,
+                          PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
+                          addTRToutliers                 = True)
+
+    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
+    return InDet__InDetPRD_AssociationToolGangedPixels(name=the_name, **kwargs)
+
+def getInDetTrigPrdAssociationTool(name='InDetTrigPrdAssociationTool_setup',**kwargs) :
+    return getInDetPrdAssociationTool(name,
+                                      **setDefaults(kwargs,
+                                                    PixelClusterAmbiguitiesMapName = "TrigPixelClusterAmbiguitiesMap",
+                                                    addTRToutliers                 = False))
+
+
+def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwargs) :
+    '''
+    Provide an instance for all clients which set the tool explicitely
+    '''
+    return getInDetPrdAssociationTool(name, **setDefaults(kwargs, SetupCorrect                   = True) )
+
+def getInDetPixelConditionsSummaryTool() :
+    from AthenaCommon.GlobalFlags import globalflags
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", 
+                                                                 UseByteStream=(globalflags.DataSource=='data'))
+    if InDetFlags.usePixelDCS():
+        pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        pixelConditionsSummaryToolSetup.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
+
+    return pixelConditionsSummaryToolSetup
+
+@makePublicTool
+def getInDetTestPixelLayerTool(name = "InDetTestPixelLayerTool", **kwargs) :
+    the_name = makeName( name, kwargs)
+    if 'PixelSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelSummaryTool = getInDetPixelConditionsSummaryTool())
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    kwargs = setDefaults( kwargs,
+                          CheckActiveAreas = InDetFlags.checkDeadElementsOnTrack(),
+                          CheckDeadRegions = InDetFlags.checkDeadElementsOnTrack(),
+                          CheckDisabledFEs = InDetFlags.checkDeadElementsOnTrack())
+
+    from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
+    return InDet__InDetTestPixelLayerTool(name = the_name, **kwargs)
+
+
+# # set up the propagator for outside ID (A.S. needed as a fix for 14.5.0 )
+# @makePublicTool
+# def getInDetStepPropagator(name='InDetStepPropagator',**kwargs) :
+#     from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as StepPropagator
+#     return StepPropagator(name = name, **kwargs)
+
+@makePublicTool
+def getInDetMultipleScatteringUpdator(name='InDetMultipleScatteringUpdator', **kwargs) :
+    the_name = makeName( name, kwargs)
+    from TrkExTools.TrkExToolsConf import Trk__MultipleScatteringUpdator
+    return Trk__MultipleScatteringUpdator(name = the_name, **setDefaults( kwargs, UseTrkUtils = False))
+
+@makePublicTool
+def getInDetExtrapolator(name='InDetExtrapolator', **kwargs) :
+    the_name = makeName( name, kwargs)
+
+    if 'Propagators' not in kwargs :
+        kwargs = setDefaults( kwargs, Propagators = [ getInDetPropagator() ] ) # [ InDetPropagator, InDetStepPropagator ],
+    propagator= kwargs.get('Propagators')[0].name() if  kwargs.get('Propagators',None) is not None and len(kwargs.get('Propagators',None))>0 else None
+
+    if 'MaterialEffectsUpdators' not in kwargs :
+        kwargs = setDefaults( kwargs, MaterialEffectsUpdators = [ getInDetMaterialEffectsUpdator() ] )
+    material_updator= kwargs.get('MaterialEffectsUpdators')[0].name() if  kwargs.get('MaterialEffectsUpdators',None) is not None and len(kwargs.get('MaterialEffectsUpdators',None))>0  else None
+
+    if 'Navigator' not in kwargs :
+        kwargs = setDefaults( kwargs, Navigator               = getInDetNavigator())
+
+    sub_propagators = []
+    sub_updators    = []
+
+    # -------------------- set it depending on the geometry ----------------------------------------------------
+    # default for ID is (Rk,Mat)
+    sub_propagators += [ propagator ]
+    sub_updators    += [ material_updator ]
+
+    # default for Calo is (Rk,MatLandau)
+    sub_propagators += [ propagator ]
+    sub_updators    += [ material_updator ]
+
+    # default for MS is (STEP,Mat)
+    #  sub_propagators += [ InDetStepPropagator.name() ]
+    sub_updators    += [ material_updator ]
+    # @TODO should check that all sub_propagators and sub_updators are actually defined.
+
+    kwargs = setDefaults( kwargs,
+                          SubPropagators          = sub_propagators,
+                          SubMEUpdators           = sub_updators)
+
+    from TrkExTools.TrkExToolsConf import Trk__Extrapolator
+    return Trk__Extrapolator(name = the_name, **kwargs)
+
+
+# @TODO move configuration of InDetSCT_ConditionsSummaryTool to a function
+def_InDetSCT_ConditionsSummaryTool=None
+def getInDetSCT_ConditionsSummaryTool() :
+    return def_InDetSCT_ConditionsSummaryTool
+
+@makePublicTool
+def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
+    the_name = makeName( name, kwargs)
+    from AthenaCommon.DetFlags    import DetFlags
+    from InDetRecExample.InDetJobProperties import InDetFlags
+
+    if 'Extrapolator' not in kwargs :
+        kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
+
+    if 'PixelSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelSummaryTool = getInDetPixelConditionsSummaryTool() if DetFlags.haveRIO.pixel_on() else None)
+
+    if 'SctSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
+
+    if 'PixelLayerTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelLayerTool   = getInDetTestPixelLayerTool())
+
+    if InDetFlags.doCosmics :
+        kwargs = setDefaults( kwargs, Cosmics = True)
+
+    kwargs = setDefaults( kwargs,
+                          usePixel                     = DetFlags.haveRIO.pixel_on(),
+                          useSCT                       = DetFlags.haveRIO.SCT_on(),
+                          CountDeadModulesAfterLastHit = True)
+
+    from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
+    return InDet__InDetTrackHoleSearchTool(name = the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetPixelToTPIDTool(name = "InDetPixelToTPIDTool", **kwargs) :
+    the_name = makeName( name, kwargs)
+
+    from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
+    return InDet__PixelToTPIDTool(name = the_name, **kwargs)
+
+@makePublicTool
+def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
+    the_name = makeName( name, kwargs)
+    from AthenaCommon.DetFlags    import DetFlags
+    if not DetFlags.haveRIO.pixel_on() :
+        return None
+
+    if 'Extrapolator' not in kwargs :
+        kwargs = setDefaults( kwargs, Extrapolator     = getInDetExtrapolator())
+
+    if 'PixelSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelSummaryTool = getInDetPixelConditionsSummaryTool())
+
+    from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
+    return InDet__InDetTestBLayerTool(name=the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetTRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy", **kwargs) :
+    the_name = makeName( name, kwargs)
+    if 'TRTCalDbTool' not in kwargs :
+        import InDetRecExample.TRTCommon as TRTCommon
+        kwargs = setDefaults( kwargs, TRTCalDbTool = TRTCommon.getInDetTRTCalDbTool() )
+
+    if 'TRTStrawStatusSummaryTool' not in kwargs :
+        import InDetRecExample.TRTCommon as TRTCommon
+        kwargs = setDefaults( kwargs, TRTStrawStatusSummaryTool = TRTCommon.getInDetTRTStrawStatusSummaryTool() )
+
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+    return InDet__TRT_LocalOccupancy(name=the_name, **setDefaults( kwargs, isTrigger = False) )
+
+@makePublicTool
+def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
+    the_name = makeName( name, kwargs)
+    from AthenaCommon.DetFlags    import DetFlags
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if not DetFlags.haveRIO.TRT_on() or  InDetFlags.doSLHC() or  InDetFlags.doHighPileup() \
+            or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used byt the TRT_LocalOccupancy tool) are not present in ESD
+        return None
+
+    if 'Extrapolator' not in kwargs :
+        kwargs = setDefaults( kwargs, TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy())
+
+    if 'Extrapolator' not in kwargs :
+        import InDetRecExample.TRTCommon as TRTCommon
+        kwargs = setDefaults( kwargs, TRTStrawSummaryTool       = TRTCommon.getInDetTRTStrawStatusSummaryTool())
+
+    from AthenaCommon.GlobalFlags import globalflags
+    kwargs = setDefaults( kwargs, isData = (globalflags.DataSource == 'data'))
+
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
+    return InDet__TRT_ElectronPidToolRun2(name = the_name, **kwargs)
+
+
+
+@makePublicTool
+def getInDetSummaryHelper(name='InDetSummaryHelper',**kwargs) :
+    the_name = makeName( name, kwargs)
+    isHLT=kwargs.pop("isHLT",False)
+    # Configrable version of loading the InDetTrackSummaryHelperTool
+    #
+    if 'AssoTool' not in kwargs :
+        kwargs = setDefaults( kwargs, AssoTool = getInDetPrdAssociationTool_setup()   if not isHLT else   getInDetTrigPrdAssociationTool())
+    if 'HoleSearch' not in kwargs :
+        kwargs = setDefaults( kwargs, HoleSearch = getInDetHoleSearchTool()) # @TODO trigger specific hole search tool ?
+
+    from AthenaCommon.DetFlags    import DetFlags
+    if not DetFlags.haveRIO.TRT_on() :
+        kwargs = setDefaults( kwargs, TRTStrawSummarySvc = "")
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    from AthenaCommon.DetFlags              import DetFlags
+    kwargs = setDefaults( kwargs,
+                          PixelToTPIDTool = None,         # we don't want to use those tools during pattern
+                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
+                          # PixelToTPIDTool = InDetPixelToTPIDTool,
+                          # TestBLayerTool  = InDetRecTestBLayerTool,
+                          RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
+                          DoSharedHits    = False,
+                          usePixel        = DetFlags.haveRIO.pixel_on(),
+                          useSCT          = DetFlags.haveRIO.SCT_on(),
+                          useTRT          = DetFlags.haveRIO.TRT_on())
+
+    from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
+    return InDet__InDetTrackSummaryHelperTool(name = the_name,**kwargs)
+
+def getInDetSummaryHelperNoHoleSearch(name='InDetSummaryHelperNoHoleSearch',**kwargs) :
+    if 'HoleSearch' not in kwargs :
+        kwargs = setDefaults( kwargs, HoleSearch = None)
+    return getInDetSummaryHelper(name,**kwargs)
+
+
+def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs) :
+
+    if 'PixelToTPIDTool' not in kwargs :
+        kwargs = setDefaults( kwargs,          PixelToTPIDTool = getInDetPixelToTPIDTool())
+
+    if 'TestBLayerTool' not in kwargs :
+        kwargs = setDefaults( kwargs,          TestBLayerTool  = getInDetRecTestBLayerTool())
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    kwargs = setDefaults( kwargs,     DoSharedHits    = InDetFlags.doSharedHits())
+
+    from AthenaCommon.DetFlags    import DetFlags
+    if DetFlags.haveRIO.TRT_on() :
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        kwargs = setDefaults( kwargs, DoSharedHitsTRT = InDetFlags.doSharedHits())
+
+    return getInDetSummaryHelper(name, **kwargs)
+
+
+@makePublicTool
+def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
+    # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
+    hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
+    kwargs.pop('isHLT',None)
+    the_name = makeName( name, kwargs)
+    do_holes=kwargs.get("doHolesInDet",True)
+    if 'InDetSummaryHelperTool' not in kwargs :
+        kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelper(**hlt_args) if do_holes else getInDetSummaryHelperNoHoleSearch())
+
+    #
+    # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
+    #
+    kwargs = setDefaults(kwargs,
+                         doSharedHits           = False,
+                         doHolesInDet           = do_holes,
+                         TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
+                         TRT_ToT_dEdxTool       = None,         # dito
+                         PixelToTPIDTool        = None)         # we don't want to use those tools during pattern
+    from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
+    return Trk__TrackSummaryTool(name = the_name, **kwargs)
+
+def getInDetTrackSummaryToolNoHoleSearch(name='InDetTrackSummaryToolNoHoleSearch',**kwargs) :
+    return getInDetTrackSummaryTool(name, **setDefaults(kwargs, doHolesInDet           = False))
+
+def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**kwargs) :
+
+    if 'InDetSummaryHelperTool' not in kwargs :
+        kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits())
+
+    if 'TRT_ElectronPidTool' not in kwargs :
+        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool())
+
+    if 'TRT_ToT_dEdxTool' not in kwargs :
+        import InDetRecExample.TRTCommon as TRTCommon
+        kwargs = setDefaults( kwargs, TRT_ToT_dEdxTool       = TRTCommon.getInDetTRT_dEdxTool())
+
+    if 'PixelToTPIDTool' not in kwargs :
+        kwargs = setDefaults( kwargs, PixelToTPIDTool        = getInDetPixelToTPIDTool())
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    kwargs = setDefaults(kwargs,
+                         doSharedHits           = InDetFlags.doSharedHits(),
+                         TRTdEdx_DivideByL      = True, # default is True
+                         TRTdEdx_useHThits      = True, # default is True
+                         TRTdEdx_corrected      = True, # default is True
+                         minTRThitsForTRTdEdx   = 1)    # default is 1
+
+    return getInDetTrackSummaryTool( name, **kwargs)
+
+def getInDetTrigTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
+    return getInDetTrackSummaryTool(name,**setDefaults(kwargs,
+                                                       namePrefix = "InDetTrig",
+                                                       isHLT      = True))
+
+
+@makePublicTool
+def getInDetTRT_ExtensionToolCosmics(name='InDetTRT_ExtensionToolCosmics',**kwargs) :
+    the_name = makeName( name, kwargs)
+
+    if 'Propagator' not in kwargs :
+        kwargs=setDefaults(kwargs, Propagator            = getInDetPropagator())
+
+    if 'Extrapolator' not in kwargs :
+        kwargs=setDefaults(kwargs, Extrapolator          = getInDetExtrapolator())
+
+    if 'RIOonTrackToolYesDr' not in kwargs :
+        kwargs=setDefaults(kwargs, RIOonTrackToolYesDr   = getInDetTRT_DriftCircleOnTrackUniversalToolCosmics())
+
+    if 'RIOonTrackToolNoDr' not in kwargs :
+        kwargs=setDefaults(kwargs, RIOonTrackToolNoDr    = getInDetTRT_DriftCircleOnTrackNoDriftTimeTool())
+
+    from InDetRecExample.InDetKeys import InDetKeys
+    kwargs = setDefaults(kwargs,
+                         TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
+                         SearchNeighbour       = False,  # needs debugging!!!
+                         RoadWidth             = 10.)
+
+    from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
+    return InDet__TRT_TrackExtensionToolCosmics(name                  = the_name, **kwargs)
+
+def getInDetTRT_ExtensionToolPhase(name='InDetTRT_ExtensionToolPhase', **kwargs) :
+    if 'RIOonTrackToolYesDr' not in kwargs :
+        kwargs=setDefaults(kwargs, RIOonTrackToolYesDr   = getInDetTRT_DriftCircleOnTrackUniversalTool())
+
+    from InDetRecExample.InDetKeys import InDetKeys
+    return getInDetTRT_ExtensionToolCosmics( name,
+                                             **setDefaults(kwargs,
+                                                           TRT_ClustersContainer = InDetKeys.TRT_DriftCirclesUncalibrated(),
+                                                           RoadWidth             = 20.))
+
+
+@makePublicTool
+def getInDetTRTDriftCircleCutForPatternReco(name='InDetTRTDriftCircleCutForPatternReco', TrackingCuts=None, **kwargs) :
+    the_name = makeName( name, kwargs)
+
+    InDetNewTrackingCuts = TrackingCuts if TrackingCuts is not None  else getInDetNewTrackingCuts()
+    from AthenaCommon.DetFlags import DetFlags
+    kwargs=setDefaults(kwargs,
+                       MinOffsetDCs           = 5,
+                       UseNewParameterization = InDetNewTrackingCuts.useNewParameterizationTRT(),  # Use new parameterization only for high lumi
+                       UseActiveFractionSvc   = DetFlags.haveRIO.TRT_on())
+
+    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
+    return InDet__InDetTrtDriftCircleCutTool(the_name, **kwargs)
+
+@makePublicTool
+def getInDetTRT_RoadMaker(name='InDetTRT_RoadMaker',**kwargs) :
+    the_name = makeName( name, kwargs)
+    from InDetRecExample.InDetKeys import InDetKeys
+    kwargs=setDefaults(kwargs,
+                       TRTManagerLocation    = InDetKeys.TRT_Manager(),
+                       RoadWidth             = 20.,
+                       PropagatorTool        = getInDetPatternPropagator())
+    from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
+    return InDet__TRT_DetElementsRoadMaker_xk(the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCuts=None, **kwargs) :
+    the_name = makeName( name, kwargs)
+
+    InDetNewTrackingCuts = TrackingCuts if TrackingCuts is not None else getInDetNewTrackingCuts()
+    if 'PropagatorTool' not in kwargs :
+        kwargs=setDefaults(kwargs, PropagatorTool      = getInDetPatternPropagator())
+
+    if 'UpdatorTool' not in kwargs :
+        kwargs=setDefaults(kwargs, UpdatorTool         = getInDetPatternUpdator())
+
+    if 'DriftCircleCutTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           DriftCircleCutTool  = getInDetTRTDriftCircleCutForPatternReco(TrackingCuts=InDetNewTrackingCuts))
+
+    if 'RIOonTrackToolYesDr' not in kwargs :
+        kwargs=setDefaults(kwargs, RIOonTrackToolYesDr = getInDetTRT_DriftCircleOnTrackTool())
+
+    if 'RoadTool' not in kwargs :
+        kwargs=setDefaults(kwargs, RoadTool            = getInDetTRT_RoadMaker())
+
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    from InDetRecExample.InDetKeys import InDetKeys
+    kwargs=setDefaults(kwargs,
+                       TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
+                       TrtManagerLocation    = InDetKeys.TRT_Manager(),
+                       UseDriftRadius        = not InDetFlags.noTRTTiming(),
+                       MinNumberDriftCircles = InDetNewTrackingCuts.minTRTonTrk(),
+                       ScaleHitUncertainty   = 2.,
+                       RoadWidth             = 20.,
+                       UseParameterization   = InDetNewTrackingCuts.useParameterizedTRTCuts(),
+                       maxImpactParameter    = 500 if InDetFlags.doBeamHalo() or InDetFlags.doBeamGas() else 50) # single beam running, open cuts
+    from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
+    return InDet__TRT_TrackExtensionTool_xk(the_name, **kwargs)
+
+@makePublicTool
+def getInDetWeightCalculator(name='InDetWeightCalculator',**kwargs) :
+    the_name = makeName( name, kwargs)
+    from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DAF_SimpleWeightCalculator
+    return Trk__DAF_SimpleWeightCalculator( name = the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetCompetingTRT_DC_Tool(name='InDetCompetingTRT_DC_Tool',**kwargs) :
+    the_name = makeName( name, kwargs)
+
+    if 'Extrapolator' not in kwargs :
+        kwargs=setDefaults(kwargs, Extrapolator                          = getInDetExtrapolator())
+
+    if 'ToolForWeightCalculation' not in kwargs :
+        kwargs=setDefaults(kwargs, ToolForWeightCalculation              = getInDetWeightCalculator())
+
+    if 'ToolForTRT_DriftCircleOnTrackCreation' not in kwargs :
+        kwargs=setDefaults(kwargs, ToolForTRT_DriftCircleOnTrackCreation = getInDetTRT_DriftCircleOnTrackTool())
+
+    from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingTRT_DriftCirclesOnTrackTool
+    return InDet__CompetingTRT_DriftCirclesOnTrackTool( the_name, **kwargs)
+
+
+@makePublicTool
+def getInDetTRT_TrackExtensionTool_DAF(name='TRT_TrackExtensionTool_DAF',**kwargs) :
+    the_name = makeName( name, kwargs)
+    if 'CompetingDriftCircleTool' not in kwargs :
+        kwargs=setDefaults(kwargs, CompetingDriftCircleTool    = getInDetCompetingTRT_DC_Tool())
+
+    if 'PropagatorTool' not in kwargs :
+        kwargs=setDefaults(kwargs, PropagatorTool              = getInDetPatternPropagator())
+
+    if 'RoadTool' not in kwargs :
+        kwargs=setDefaults(kwargs, RoadTool                    = getInDetTRT_RoadMaker())
+
+    from InDetRecExample.InDetKeys import InDetKeys
+    kwargs = setDefaults(kwargs, TRT_DriftCircleContainer = InDetKeys.TRT_DriftCircles())
+
+    from TRT_TrackExtensionTool_DAF.TRT_TrackExtensionTool_DAFConf import InDet__TRT_TrackExtensionTool_DAF
+    return InDet__TRT_TrackExtensionTool_DAF(the_name,**kwargs)
+
+
+def getInDetTRT_ExtensionTool(TrackingCuts=None, **kwargs) :
+    # @TODO set all names to InDetTRT_ExtensionTool ?
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if (InDetFlags.trtExtensionType() == 'xk') or (not InDetFlags.doNewTracking()) :
+        if InDetFlags.doCosmics():
+            return getInDetTRT_ExtensionToolCosmics(**kwargs)
+        else :
+            return getInDetTRT_TrackExtensionTool_xk(TrackingCuts=TrackingCuts, **kwargs)
+    elif InDetFlags.trtExtensionType() == 'DAF' :
+        return getInDetTRT_TrackExtensionTool_DAF('InDetTRT_ExtensionTool',**kwargs)

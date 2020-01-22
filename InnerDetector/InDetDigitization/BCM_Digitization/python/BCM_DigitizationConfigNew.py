@@ -2,19 +2,26 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from RngComps.RandomServices import RNG
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+PileUpXingFolder=CompFactory.PileUpXingFolder
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from BCM_Digitization.BCM_DigitizationConf import BCM_DigitizationTool, BCM_Digitization
+BCM_DigitizationTool, BCM_Digitization=CompFactory.getComps("BCM_DigitizationTool","BCM_Digitization",)
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the BCM Digitization code.
 def BCM_FirstXing():
     return -25
 
+
 def BCM_LastXing():
     return 0
+
 
 def BCM_RangeCfg(flags, name="BCM_Range", **kwargs):
     """Return a BCM configured PileUpXingFolder tool"""
@@ -24,6 +31,7 @@ def BCM_RangeCfg(flags, name="BCM_Range", **kwargs):
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["SiHitCollection#BCMHits"])
     return PileUpXingFolder(name, **kwargs)
+
 
 def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured BCM_DigitizationTool"""
@@ -56,33 +64,49 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     acc.setPrivateTools(BCM_DigitizationTool(name, **kwargs))
     return acc
 
-def BCM_OverlayDigitizationToolCfg(flags, name, **kwargs):
-    """Return ComponentAccumulator with BCM_DigitizationTool configured for Overlay"""
-    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
-    return BCM_DigitizationToolCfg(flags, name, **kwargs)
+
+def BCM_OutputCfg(flags):
+    """Return ComponentAccumulator with Output for BCM. Not standalone."""
+    acc = ComponentAccumulator()
+    ItemList = ["BCM_RDO_Container#*"]
+    if flags.Digitization.TruthOutput:
+        ItemList += ["InDetSimDataCollection#*"]
+        acc.merge(TruthDigitizationOutputCfg(flags))
+    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    return acc
 
 
-def BCM_DigitizationBasicCfg(toolCfg, flags, name, **kwargs):
-    """Return ComponentAccumulator with toolCfg configured BCM_Digitization algorithm"""
+def BCM_DigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator for BCM digitization"""
     acc = PixelGeometryCfg(flags)
+    if "PileUpTools" not in kwargs:
+        PileUpTools = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags))
+        kwargs["PileUpTools"] = PileUpTools
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
+    return acc
+
+
+def BCM_OverlayDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with BCM Overlay digitization"""
+    acc = PixelGeometryCfg(flags)
+    kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
     if "DigitizationTool" not in kwargs:
-        tool = acc.popToolsAndMerge(toolCfg(flags, **kwargs))
+        tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(BCM_Digitization(name, **kwargs))
-    return acc
-
-def BCM_DigitizationOutputCfg(toolCfg, flags, name="BCM_Digitization", **kwargs):
-    """Return ComponentAccumulator with toolCfg configured BCM_Digitization algorithm and OutputStream"""
-    acc = BCM_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
-    acc.merge(OutputStreamCfg(flags, "RDO", ["InDetSimDataCollection#*", "BCM_RDO_Container#*"]))
+    acc.addEventAlgo(BCM_Digitization(**kwargs))
     return acc
 
 
-def BCM_DigitizationCfg(flags, name="BCM_Digitization", **kwargs):
-    """Return ComponentAccumulator with standard BCM_Digitization and Output"""
-    return BCM_DigitizationOutputCfg(BCM_DigitizationToolCfg, flags, **kwargs)
+# with output defaults
+def BCM_DigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator for BCM digitization and Output"""
+    acc = BCM_DigitizationBasicCfg(flags, **kwargs)
+    acc.merge(BCM_OutputCfg(flags))
+    return acc
 
-def BCM_OverlayDigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
-    """Return ComponentAccumulator with Overlay confgured BCM_Digitization and Output"""
-    return BCM_DigitizationOutputCfg(BCM_OverlayDigitizationToolCfg, flags, **kwargs)
 
+def BCM_OverlayDigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator with BCM Overlay digitization and Output"""
+    acc = BCM_OverlayDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(BCM_OutputCfg(flags))
+    return acc

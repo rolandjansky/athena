@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //! This class implements a tool to decorate the tau with a link to the matched electron as well as its llh score and OLR decision(s)
@@ -29,21 +29,10 @@ class TauEleOLRDecorator: virtual public TauRecToolBase
   
   virtual ~TauEleOLRDecorator();
 
-  virtual StatusCode eventInitialize();
-  
-  virtual StatusCode initialize();
-
-  virtual StatusCode execute(xAOD::TauJet&);
-  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-
-
-  virtual StatusCode finalize();
+  virtual StatusCode eventInitialize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(xAOD::TauJet&) override;
+  virtual StatusCode finalize() override;
 
  private:
   std::unique_ptr<AsgElectronLikelihoodTool> m_tEMLHTool;

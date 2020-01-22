@@ -13,7 +13,7 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
    def __init__(self, name='TrigCOOLUpdateHelper'):
       super(TrigCOOLUpdateHelper, self).__init__(name)
 
-      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
       self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.defineHistogram('TIME_CoolFolderUpdate', path='EXPERT', type='TH1F',
                                    title='Time for conditions update;time [ms]',
@@ -21,7 +21,8 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       return
 
    def enable(self, folders = ['/Indet/Onl/Beampos',
-                               '/TRIGGER/LUMI/HLTPrefLumi']):
+                               '/TRIGGER/LUMI/HLTPrefLumi',
+                               '/TRIGGER/HLT/PrescaleKey']):
       """Enable COOL folder updates for given folders (only use this for data)"""
       
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -93,7 +94,7 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
 
    def __init__(self, name='ROBDataProviderSvc'):
       super(HltROBDataProviderSvc, self).__init__(name)
-      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
       self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.Histograms = [ 
          defineHistogram('TIME_ROBReserveData', path='EXPERT', type='TH1F',

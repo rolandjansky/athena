@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file PyUtils/python/moduleExists.py
 # @author sss
@@ -22,12 +22,18 @@ except that that has the potential to hide other errors."""
 
     # We have to do this differently in py2 vs py3.
     if six.PY34:
-        import importlib
+        import importlib.util
         return importlib.util.find_spec (modName) is not None
     else:
-        import imp
+        import imp, importlib
+        path = None
+        if modName.find ('.') >= 0:
+            parent, mod = modName.rsplit ('.', 1)
+            parentmod = importlib.import_module (parent)
+            path = parentmod.__path__
+            modName = mod
         try:
-           imp.find_module (modName)
+            imp.find_module (modName, path)
         except ImportError:
             return False
         return True

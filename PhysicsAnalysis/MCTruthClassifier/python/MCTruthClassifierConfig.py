@@ -4,7 +4,8 @@ __doc__ = "Tool configuration to instantiate MCTruthClassifier with default conf
 
 #---------------------------------------
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+from AthenaConfiguration.ComponentFactory import CompFactory
+MCTruthClassifier=CompFactory.MCTruthClassifier
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 
 def MCTruthClassifierCfg(flags, **kwargs):
@@ -102,6 +103,6 @@ if __name__ == "__main__":
     acc2 = MCTruthClassifierCaloTruthMatchCfg(ConfigFlags)
     printProperties(mlog, acc2.popPrivateTools(), 1)
 
-    f = open("mctruthclassifer.pkl", "w")
+    f = open("mctruthclassifer.pkl", "wb")
     cfg.store(f)
     f.close()

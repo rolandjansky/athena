@@ -6,13 +6,14 @@
 # inspired by https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonCnv/MuonCnvExample/trunk/python/MuonCalibConfig.py
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 logging.getLogger().info("Importing %s", __name__)
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon import CfgMgr
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
+MagField__AtlasFieldSvc=CompFactory.MagField__AtlasFieldSvc
 
 #--------------------------------------------------------------
 
@@ -90,6 +91,6 @@ if __name__=="__main__":
 
 
           
-    f=open("MagneticFieldSvc.pkl","w")
+    f=open("MagneticFieldSvc.pkl","wb")
     cfg.store(f)
     f.close()

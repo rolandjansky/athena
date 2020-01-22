@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASINTERFACES_IPHYSICSOPTIONTOOL_H
@@ -9,7 +9,7 @@
 class G4String;
 class G4VPhysicsConstructor;
 
-/** @class IPhysicsListTool IPhysicsListTool.h "G4AtlasInterfaces/IPhysicsListTool.h"
+/** @class IPhysicsOptionTool IPhysicsOptionTool.h "G4AtlasInterfaces/IPhysicsOptionTool.h"
  *
  *  Abstract interface to Geant4 Physics list classes
  *

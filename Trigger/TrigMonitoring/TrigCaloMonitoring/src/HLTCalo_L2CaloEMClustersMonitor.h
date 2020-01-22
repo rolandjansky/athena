@@ -6,7 +6,7 @@
 #define TRIGCALOMONITORING_HLTCALO_L2CALOEMCLUSTERSMONITOR_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -29,6 +29,7 @@ private:
   std::string m_HLT_cont_name;
   std::string m_OFF_cont_name;
   std::string m_mongroup_name;
+  float m_HLT_high_et;
   float m_HLT_min_et;
   float m_OFF_min_et;
   std::vector<int> m_OFF_types;

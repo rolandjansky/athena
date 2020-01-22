@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from MuonRecFlags import muonRecFlags
-from MuonStandaloneFlags import muonStandaloneFlags
+from __future__ import print_function
 
-from ConfiguredMuonRec import ParallelMuonRec
+from .MuonRecFlags import muonRecFlags
+from .MuonStandaloneFlags import muonStandaloneFlags
+
+from .ConfiguredMuonRec import ParallelMuonRec
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
@@ -27,5 +29,5 @@ muonRec = MuonRec(applyResilience=athenaCommonFlags.AllowIgnoreConfigError())
 #--------------------------------------------------------------------------
 # Print out full muon Reco config
 #--------------------------------------------------------------------------
-print muonRec
+print(muonRec)
 

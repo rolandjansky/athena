@@ -68,7 +68,7 @@
 namespace MuonGM{
   class MuonDetectorManager;
   class MMReadoutElement;
-  class MuonChannelDesign;
+  struct MuonChannelDesign;
 }
 namespace CLHEP{
   class HepRandomEngine;
@@ -113,7 +113,7 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		/** alternative interface which uses the PileUpMergeSvc to obtain
 		all the required SubEvents. */
-		virtual StatusCode processAllSubEvents();
+		virtual StatusCode processAllSubEvents() override;
 
 		/** Just calls processAllSubEvents - leaving for back-compatibility
 		(IMuonDigitizationTool) */
@@ -186,7 +186,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		// ElectronicsResponse stuff...
 		MM_ElectronicsResponseSimulation *m_ElectronicsResponseSimulation;
-		float m_alpha;// power of responce function
 		float m_peakTime; // VMM setting
 		float m_electronicsThreshold; // threshold "Voltage" for histoBNL
 		float m_stripdeadtime; // dead-time for strip

@@ -12,7 +12,7 @@ class StaticPEBInfoWriterToolCfg(StaticPEBInfoWriterTool):
         self.ROBList.extend(robs)
 
     def addSubDets(self, dets):
-        self.SubDetList.extend(dets)
+        self.SubDetList.extend([int(detid) for detid in dets])
 
     def addHLTResultToROBList(self, moduleId=getFullHLTResultID()):
         hltResultSID = SourceIdentifier(SubDetector.TDAQ_HLT, moduleId)

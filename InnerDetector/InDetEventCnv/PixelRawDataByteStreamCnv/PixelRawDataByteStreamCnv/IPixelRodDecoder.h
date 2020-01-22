@@ -18,9 +18,9 @@ class IPixelRodDecoder : virtual public IAlgTool{
     // destructor 
     virtual ~IPixelRodDecoder(){}; 
 
-    virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, std::vector<IdentifierHash>* vecHash = NULL) = 0;
+    virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, std::vector<IdentifierHash>* vecHash = NULL) const = 0;
 
-    virtual StatusCode StoreBSError()=0;
+    virtual StatusCode StoreBSError() const =0;
 };
 
 inline const InterfaceID& IPixelRodDecoder::interfaceID(){

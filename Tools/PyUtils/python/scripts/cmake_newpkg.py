@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.cmake_newpkg
 # @purpose streamline and ease the creation of new cmake packages
 # @author Will Buttinger
 # @date Feb 2017
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision: 795362 $"
 __author__ = "Will buttinger"
@@ -14,8 +14,11 @@ __doc__ = "streamline and ease the creation of new cmake packages"
 ### imports -------------------------------------------------------------------
 import os
 import textwrap
-import commands
 import PyUtils.acmdlib as acmdlib
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ### functions -----------------------------------------------------------------
 @acmdlib.command(
@@ -49,15 +52,15 @@ def main(args):
     author = os.path.expanduser(os.path.expandvars(args.author))
 
     if os.path.exists(pkg_path+"/"+pkg_name):
-        print "ERROR: %s package already exists" % full_pkg_name
+        print ("ERROR: %s package already exists" % full_pkg_name)
         return 1
         
-    print textwrap.dedent("""\
+    print (textwrap.dedent("""\
     ::: creating package [%(full_pkg_name)s]...
     :::   - pkg name:    %(pkg_name)s
     :::   - pkg version: %(pkg_vers)s
     :::   - pkg path:    %(pkg_path)s
-    :::   - author:      %(author)s""" % locals())
+    :::   - author:      %(author)s""" % locals()))
 
 
     #create the directories
@@ -68,12 +71,12 @@ def main(args):
         os.makedirs(pkg_path+"/"+pkg_name+"/data");
         os.makedirs(pkg_path+"/"+pkg_name+"/util");
     except OSError:
-        print "ERROR while making directories for " % (pkg_path+"/"+pkg_name+"/src")
+        print ("ERROR while making directories for " % (pkg_path+"/"+pkg_name+"/src"))
         return -1
 
 
     with open(os.path.join(pkg_path+"/"+pkg_name,'CMakeLists.txt'), 'w') as req:
-        print >> req, textwrap.dedent("""\
+        print (textwrap.dedent("""\
         ## automatically generated CMakeLists.txt file
 
         # Declare the package
@@ -125,26 +128,26 @@ def main(args):
         # PathResolverFindCalibFile("%(pkg_name)s/file.txt")
 
         
-        """%locals())
+        """%locals()), file=req)
     
     #also create a version.cmake file with PackageName-00-00-01 in it
     with open(os.path.join(pkg_path+"/"+pkg_name,'version.cmake'), 'w') as req:
-        print >> req, ("%s-00-00-01" % pkg_name)
+        print (("%s-00-00-01" % pkg_name), file=req)
 
     #need to reconfigure cmake so it knows about the new files
     #rely on the WorkDir_DIR env var for this
     workDir = os.environ.get("WorkDir_DIR")
     if workDir == None:
-        print "::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?"
-        print "::: ERROR Please do this and reconfigure cmake manually!"
+        print ("::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?")
+        print ("::: ERROR Please do this and reconfigure cmake manually!")
     else:
-        print ":::  INFO Reconfiguring cmake %s/../." % workDir
-        res = commands.getstatusoutput('cmake %s/../.' % workDir)
+        print (":::  INFO Reconfiguring cmake %s/../." % workDir)
+        res = subprocess.getstatusoutput('cmake %s/../.' % workDir)
         if res[0]!=0:
-            print ":::  WARNING reconfigure unsuccessful. Please reconfigure manually!"
+            print (":::  WARNING reconfigure unsuccessful. Please reconfigure manually!")
 
 
-    print "::: creating package [%(full_pkg_name)s]... [done]" % locals()
+    print ("::: creating package [%(full_pkg_name)s]... [done]" % locals())
     
     
     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///============================================================
@@ -43,42 +43,6 @@ T2TrackManager::T2TrackManager( int nSplit, Algorithm alg )
 // Will have to clean up after myself here
 T2TrackManager::~T2TrackManager()
 {
-}
-
-
-// The meat of the class, return a vector of split clusters
-std::vector<ConstDataVector<TrigInDetTrackCollection> >
-T2TrackManager::split( const TrigInDetTrackCollection& cluster )
-{
-  const int nEntries = cluster.size();
-
-  //std::cout << "Reserve space" << std::endl;
-
-  // Set up the output, reserve space, init collections
-  ConstDataVector<TrigInDetTrackCollection> splitColl (SG::VIEW_ELEMENTS);
-  splitColl.reserve( nEntries / m_nSplit );
-  std::vector<ConstDataVector<TrigInDetTrackCollection> > trackCollections( m_nSplit, splitColl );
-
-  //if (m_alg == Pt)
-  //sort(holder.begin(), holder.end(), ptSort);
-
-  // Iterate over all the tracks in the cluster
-  for ( TrigInDetTrackCollection::const_iterator c_itr = cluster.begin();
-        c_itr != cluster.end(); ++c_itr ) {
-    // By default (if the splitting algorithm doesn't exist) store
-    // tracks in the 1st collection
-    int nPos = 0;
-    if (m_alg == Alternating)
-      nPos = alternatingSplit();
-    else if (m_alg == Pt)
-      nPos = orderedSplit(nEntries);
-
-    // Add the track to the appropriate collection
-    trackCollections[nPos].push_back(*c_itr);
-  }
-
-  //  if (!m_doCluster) {
-  return trackCollections;
 }
 
 // The meat of the class, return a vector of split clusters

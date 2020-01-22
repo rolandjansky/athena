@@ -23,6 +23,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
 #include "CommissionEvent/ComTime.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -32,9 +33,6 @@ class TRT_ID;
 class TRT_RDORawData;
 class TRT_DriftCircleCollection;
 class TRT_DriftCircle;
-namespace InDetDD {
- class TRT_DetectorManager;
-}
 
 
 namespace InDet {
@@ -73,15 +71,13 @@ public:
   // Private data:
   ///////////////////////////////////////////////////////////////////
   SG::ReadHandleKey<ComTime> m_evtPhaseKey {this,"TRT_Phase","TRT_Phase","RHK to retrieve TRT Phase"};
-
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
 
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool;  //!< DriftFunctionTool
   ToolHandle<ITRT_StrawStatusSummaryTool> m_ConditionsSummary; //!< The ConditionsSummaryTool
 
   bool                                 m_useConditionsStatus;     //!< SHall the ConditionsSummaryTool be used?
   bool                                 m_useConditionsHTStatus;     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws? 
-  std::string                          m_trt_mgr_location ;  //!< Manager name
-  const InDetDD::TRT_DetectorManager * m_trt_mgr          ;  //!< Manager handle
   const TRT_ID                       * m_trtid            ;  //!< TRT id helper handle
   float                                m_global_offset    ;  //!< Global offset to TRT Phase to make TRT Calibration happy ...
   bool				       m_useToTCorrection;  //!< Shall the Time over Threshold correction be used?

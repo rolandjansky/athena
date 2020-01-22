@@ -7,15 +7,15 @@ atlas_subdir( Hephaestus )
 
 # External dependencies:
 find_package( Boost )
-find_package( PythonLibs )
+find_package( Python COMPONENTS Development )
 find_package( libunwind )
 
 # Component(s) in the package:
 atlas_add_library( Hephaestus
    Hephaestus/*.h src/hlib/*.c
    PUBLIC_HEADERS Hephaestus
-   INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS}
-   LINK_LIBRARIES ${PYTHON_LIBRARIES} ${CMAKE_DL_LIBS} )
+   INCLUDE_DIRS ${Python_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Python_LIBRARIES} ${CMAKE_DL_LIBS} )
 
 atlas_add_library( MemoryTracker
    src/*.c
@@ -61,4 +61,5 @@ atlas_add_test( stackstash_test
    LINK_LIBRARIES Hephaestus )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py 
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} )

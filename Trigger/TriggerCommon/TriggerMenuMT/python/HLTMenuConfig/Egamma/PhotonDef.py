@@ -53,7 +53,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         stepDictionary = {
             "etcut": etcut_sequence,
             "etcutetcut": etcut_sequence,
+            "loose": photon_sequence,
             "medium": photon_sequence,
+            "tight": photon_sequence,
         }
         
         ## This needs to be configured by the Egamma Developer!!
@@ -63,9 +65,13 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             key+=addInfo
             
         log.debug('photon key = ' + key)
-        steps=stepDictionary[key]
+        if key in stepDictionary:
+            steps=stepDictionary[key]
+        else:
+            raise RuntimeError("Chain configuration unknown for photon chain with key: " + key )
 
         chainSteps = []
+
         for step in steps:
             log.debug('Adding photon trigger step ' + str(step))
             chainSteps+=[step]

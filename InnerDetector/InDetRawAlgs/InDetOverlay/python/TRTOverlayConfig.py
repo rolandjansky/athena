@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TRTOverlayAlgCfg(flags, name = "TRTOverlay", **kwargs):
     """Return a ComponentAccumulator for TRTOverlay algorithm"""
@@ -17,8 +18,6 @@ def TRTOverlayAlgCfg(flags, name = "TRTOverlay", **kwargs):
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "TRT_RDOs")
     kwargs.setdefault("OutputKey", "TRT_RDOs")
 
-    kwargs.setdefault("includeBkg", True)
-
     # HT hit correction fraction
     kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrel", 0.110)
     kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcap", 0.090)
@@ -26,7 +25,7 @@ def TRTOverlayAlgCfg(flags, name = "TRTOverlay", **kwargs):
     kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcapNoE", 0.050)
 
     # Do TRT overlay
-    from InDetOverlay.InDetOverlayConf import TRTOverlay
+    TRTOverlay=CompFactory.TRTOverlay
     alg = TRTOverlay(name, **kwargs)
 
     from InDetOverlay.TRT_ConditionsConfig import TRT_LocalOccupancyCfg, TRT_StrawStatusSummaryToolCfg
@@ -54,7 +53,7 @@ def TRTTruthOverlayCfg(flags, name = "TRTSDOOverlay", **kwargs):
     kwargs.setdefault("OutputKey", "TRT_SDO_Map")
 
     # Do TRT truth overlay
-    from InDetOverlay.InDetOverlayConf import InDetSDOOverlay
+    InDetSDOOverlay=CompFactory.InDetSDOOverlay
     alg = InDetSDOOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -72,8 +71,8 @@ def TRTOverlayCfg(flags):
     acc = ComponentAccumulator()
 
     # Add TRT overlay digitization algorithm
-    from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationOverlayCfg
-    acc.merge(TRT_DigitizationOverlayCfg(flags))
+    from TRT_Digitization.TRT_DigitizationConfigNew import TRT_OverlayDigitizationCfg
+    acc.merge(TRT_OverlayDigitizationCfg(flags))
     # Add TRT overlay algorithm
     acc.merge(TRTOverlayAlgCfg(flags))
     # Add TRT truth overlay

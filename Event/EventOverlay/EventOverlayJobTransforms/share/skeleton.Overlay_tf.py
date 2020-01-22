@@ -109,17 +109,10 @@ else:
 
     DetFlags.digitize.LVL1_setOff()
 
-## Tidy up NSW DetFlags: temporary measure
-DetFlags.sTGC_setOff()
-DetFlags.Micromegas_setOff()
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
-
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-if not MuonGeometryFlags.hasCSC():
-    DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
 # TODO: need to do it better
 #DetFlags.makeRIO.all_setOff() ## Currently has to be on otherwise InDetTRTStrawStatusSummarySvc is not created
@@ -196,7 +189,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
     include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
-if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.Micromegas_on():
+if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or (MuonGeometryFlags.hasSTGC() and DetFlags.overlay.sTGC_on()) or (MuonGeometryFlags.hasMM() and DetFlags.overlay.Micromegas_on()):
     include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 
 if DetFlags.overlay.LVL1_on():
@@ -239,12 +232,11 @@ if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
 
 # Patch /TagInfo metadata container
 # TODO: move somewhere more appropriate
-for key in overlayFlags.extraTagInfoPairs.get_Value().keys():
-    ServiceMgr.TagInfoMgr.ExtraTagValuePairs += [
-        str(key), str(overlayFlags.extraTagInfoPairs.get_Value()[key])]
+ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(overlayFlags.extraTagInfoPairs.get_Value())
+
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : runArgs.AMITag})
 
 #================================================================
 print "\nOverlay: OutputStream = \n", outStream

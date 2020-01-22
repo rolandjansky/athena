@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinTrackParticlesAlg.cxx
@@ -31,7 +31,6 @@ ThinTrackParticlesAlg::ThinTrackParticlesAlg( const std::string& name,
                                               ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
-  m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_thinTool("ThinTrackParticlesTool/ThinTrackParticlesTool", this),
   m_setTrackPartKey(false),
   m_setInCollKey(false),
@@ -46,9 +45,6 @@ ThinTrackParticlesAlg::ThinTrackParticlesAlg( const std::string& name,
   declareProperty("JobOptionsSvc",        m_jos, "The JobOptionService instance.");
 
   declareProperty("ThinTool",             m_thinTool, "The private ThinningTool" );
-
-  declareProperty("ThinningSvc",          m_thinningSvc,
-                  "The ThinningSvc instance for a particular output stream" );
 
   declareProperty("TrackParticlesToThin", m_trackParticleKey = "InDetTrackParticles",
                   "The xAOD::TrackParticleContainer to be thinned" );
@@ -97,7 +93,7 @@ StatusCode ThinTrackParticlesAlg::initialize()
   // Print out the used configuration
   ATH_MSG_DEBUG ( " using = " << m_jos );
   ATH_MSG_DEBUG ( " using = " << m_thinTool );
-  ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+  ATH_MSG_DEBUG ( " using = " << m_streamName );
   ATH_MSG_DEBUG ( " using = " << m_trackParticleKey );
   ATH_MSG_DEBUG ( " using = " << m_inCollKeyList );
   ATH_MSG_DEBUG ( " using = " << m_selection );
@@ -121,10 +117,10 @@ StatusCode ThinTrackParticlesAlg::initialize()
   ATH_MSG_DEBUG( "Got the full name of the tool: " << fullToolName );
 
   // Now, set all properties of the private skimTool that were acutally configured
-  ATH_MSG_DEBUG( "Setting property" << m_thinningSvc
+  ATH_MSG_DEBUG( "Setting property" << m_streamName
                  << " of private tool with name: '" << fullToolName << "'" );
   ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-                                             StringProperty("ThinningSvc",m_thinningSvc.typeAndName()) ) );
+                                             StringProperty("StreamName",m_streamName) ) );
 
   if (m_setTrackPartKey) {
     ATH_MSG_DEBUG( "Setting property" << m_trackParticleKey

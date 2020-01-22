@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -17,42 +17,23 @@ description          : Class to calculate the weighting of state components
 #ifndef PosteriorWeightsCalculator_H
 #define PosteriorWeightsCalculator_H
 
-#include "TrkGaussianSumFilter/IPosteriorWeightsCalculator.h"
-
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ProjectionMatricesSet.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
 
 namespace Trk {
 
-class MeasurementBase;
-
-class PosteriorWeightsCalculator
-  : public AthAlgTool
-  , virtual public IPosteriorWeightsCalculator
+class  PosteriorWeightsCalculator
 {
 public:
-  /** Constructor with AlgTool parameters */
-  PosteriorWeightsCalculator(const std::string&, const std::string&, const IInterface*);
-
-  /** Virtual destructor */
-  virtual ~PosteriorWeightsCalculator(){};
-
-  /** AlgTool initialise method */
-  StatusCode initialize();
-
-  /** AlgTool finalise method */
-  StatusCode finalize();
-
-  /** Method to compute the state weights after measurement update */
-  virtual std::unique_ptr<MultiComponentState> weights(const MultiComponentState&, const MeasurementBase&) const;
+  
+  std::unique_ptr<std::vector<Trk::ComponentParameters>>  weights(MultiComponentState&&, 
+                                                                  const MeasurementBase&) const;
 
 private:
-  const ProjectionMatricesSet m_reMatrices; //!< expansion and reduction matrices set
 
   /** Function to calculate the determinant and  chi2 of a measurement for a 1D hit */
   std::pair<double, double> calculateWeight_1D(const TrackParameters* componentTrackParameters,
@@ -85,30 +66,27 @@ PosteriorWeightsCalculator::calculateWeight_T(const TrackParameters* componentTr
                                               const AmgSymMatrix(DIM) & measCov,
                                               int paramKey) const
 {
-  std::pair<double, double> result(0, 0);
-  // Extract predicted state track parameters
-  const AmgVector(5)& trackParameters = componentTrackParameters->parameters();
 
+  static const ProjectionMatricesSet reMatrices(5); //!< expansion and reduction matrices set
   // Define the expansion matrix
-  const AmgMatrix(DIM, 5) H = m_reMatrices.expansionMatrix(paramKey).block<DIM, 5>(0, 0);
+  const AmgMatrix(DIM, 5) H = reMatrices.expansionMatrix(paramKey).block<DIM, 5>(0, 0);
 
   // Calculate the residual
-  AmgVector(DIM) r = measPar - H * trackParameters;
+  AmgVector(DIM) r = measPar - H * componentTrackParameters->parameters();
 
   // Residual covariance. Posterior weights is calculated used predicted state and measurement. Therefore add
   // covariances
   AmgSymMatrix(DIM) R(measCov + H * (*predictedCov) * H.transpose());
 
   // compute determinant of residual
-  result.first = R.determinant();
+  const double det = R.determinant();
 
-  if (result.first == 0) {
+  if (det == 0) {
     // ATH_MSG_WARNING( "Determinant is 0, cannot invert matrix... Ignoring component" );
-    return result;
+    return std::pair<double,double>(0,0) ;
   }
   // Compute Chi2
-  result.second = (1. / (double)DIM) * ((r.transpose() * R.inverse() * r)(0, 0));
-  return result;
+  return std::pair<double,double> (det,(1. / (double)DIM) * ((r.transpose() * R.inverse() * r)(0, 0)));
 }
 
 } // end Trk namespace

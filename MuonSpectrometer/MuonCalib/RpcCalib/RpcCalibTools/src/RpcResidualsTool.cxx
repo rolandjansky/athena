@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcCalibTools/RpcExtrapolationTool.h"
@@ -11,7 +11,6 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkTrack/Track.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonTGRecTools/MuonTGMeasurementTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
@@ -29,13 +28,6 @@ RpcResidualsTool::RpcResidualsTool
   declareInterface< RpcResidualsTool  >( this );
 }
 
-
-// destructor   
-RpcResidualsTool::~RpcResidualsTool() {
-  
-}
-
-
 StatusCode RpcResidualsTool::initialize(){
 
   ATH_MSG_DEBUG( "in initialize()" );
@@ -43,24 +35,17 @@ StatusCode RpcResidualsTool::initialize(){
   // retrieve the active store
   ATH_CHECK( serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
 
-    // Retrieve the MuonDetectorManager
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
+  //retrieve detector manager from the conditions store
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
   // get extrapolation tool
 
   ATH_CHECK( toolSvc()->retrieveTool("RpcExtrapolationTool",m_rpcExtrapolTool) );
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   
   return StatusCode::SUCCESS;  
 
-}
-
-StatusCode RpcResidualsTool::finalize()
-{
-  ATH_MSG_INFO( "in finalize()" );
-
-  return StatusCode::SUCCESS;
 }
 
 void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack, std::vector<RpcResiduals> &theResult){
@@ -105,7 +90,7 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 	for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = clusterCollection->begin(); 
 	     rpcPrd != clusterCollection->end(); ++rpcPrd) {
 
-	  panels.insert(m_muonIdHelperTool->rpcIdHelper().panelID((*rpcPrd)->identify()));
+	  panels.insert(m_idHelperSvc->rpcIdHelper().panelID((*rpcPrd)->identify()));
 	  
   
 	}
@@ -113,6 +98,13 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
     }
   }
   
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return; 
+  } 
+
   // now loop over extrapolations:
   
   std::vector<RpcExtrapolationResults>::const_iterator theExtra=extrapolations.begin();
@@ -142,14 +134,14 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
     Identifier theElement;
     Identifier idParent;
 
-    theElement=m_muonIdHelperTool->rpcIdHelper().elementID((*theExtra).id);
-    idParent = m_muonIdHelperTool->rpcIdHelper().parentID((*theExtra).id);
+    theElement=m_idHelperSvc->rpcIdHelper().elementID((*theExtra).id);
+    idParent = m_idHelperSvc->rpcIdHelper().parentID((*theExtra).id);
 
-    IdContext rpcModuleContext = m_muonIdHelperTool->rpcIdHelper().module_context();
+    IdContext rpcModuleContext = m_idHelperSvc->rpcIdHelper().module_context();
 
     IdentifierHash elementIDhash;
 
-    m_muonIdHelperTool->rpcIdHelper().get_hash(idParent, elementIDhash,&rpcModuleContext);
+    m_idHelperSvc->rpcIdHelper().get_hash(idParent, elementIDhash,&rpcModuleContext);
     
     Muon::RpcPrepDataContainer::const_iterator it = rpc_container->indexFind(elementIDhash);
     
@@ -165,32 +157,19 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 	for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = clusterCollection->begin(); 
 	     rpcPrd != clusterCollection->end(); ++rpcPrd) {
 	  
-//	  int layer=0;
-	  
-	  // BM stations
-	  /*if(m_muonIdHelperTool->rpcIdHelper().stationName((*rpcPrd)->identify())<4||m_muonIdHelperTool->rpcIdHelper().stationName((*rpcPrd)->identify())==8){
-	    
-	    layer=m_muonIdHelperTool->rpcIdHelper().doubletR((*rpcPrd)->identify())*2+m_muonIdHelperTool->rpcIdHelper().gasGap((*rpcPrd)->identify())-2;
-	    
-	  } else { // BO stations
-	    
-	    layer=4+m_muonIdHelperTool->rpcIdHelper().gasGap((*rpcPrd)->identify());
-	    
-	  }*/
-	  
 	  // look for cluster on the same panel
 	  
-	  Identifier panel_id = m_muonIdHelperTool->rpcIdHelper().panelID((*rpcPrd)->identify());
+	  Identifier panel_id = m_idHelperSvc->rpcIdHelper().panelID((*rpcPrd)->identify());
 	  
 	  // check if the cluster is on the same panel as the extrapolation
 	  
-	  if(panel_id==m_muonIdHelperTool->rpcIdHelper().panelID(result.id)){
+	  if(panel_id==m_idHelperSvc->rpcIdHelper().panelID(result.id)){
 	    
-	    const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement((*rpcPrd)->identify());
+	    const MuonGM::RpcReadoutElement* descriptor = MuonDetMgr->getRpcReadoutElement((*rpcPrd)->identify());
 	    
 	    // eta residual
 	    float residual=0.;
-	    if(! m_muonIdHelperTool->rpcIdHelper().measuresPhi(result.id)) residual= thePosition.z()-(*rpcPrd)->globalPosition().z();
+	    if(! m_idHelperSvc->rpcIdHelper().measuresPhi(result.id)) residual= thePosition.z()-(*rpcPrd)->globalPosition().z();
 	    else {
 	      int sign=(thePosition.phi() < (*rpcPrd)->globalPosition().phi()) ? -1 : 1;
 	      residual=sign * sqrt(
@@ -203,7 +182,7 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 	      lowest=residual;
 	      lowest_time=(*rpcPrd)->time();
 	      lowest_csize=(*rpcPrd)->rdoList().size();
-	      pitch=descriptor->StripPitch(m_muonIdHelperTool->rpcIdHelper().measuresPhi(result.id));
+	      pitch=descriptor->StripPitch(m_idHelperSvc->rpcIdHelper().measuresPhi(result.id));
 	    }
 	  }
 	  
@@ -236,16 +215,16 @@ Identifier RpcResidualsTool::GetTwinPanel(Identifier id){
   
   //unpack the panelID
       
-  int sec = m_muonIdHelperTool->rpcIdHelper().stationPhi(id);
-  int sta = m_muonIdHelperTool->rpcIdHelper().stationName(id);
-  int dr = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
-  int dp = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
-  int mp = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
-  int gg = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
-  int dz = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
-  int eta = m_muonIdHelperTool->rpcIdHelper().stationEta(id);
+  int sec = m_idHelperSvc->rpcIdHelper().stationPhi(id);
+  int sta = m_idHelperSvc->rpcIdHelper().stationName(id);
+  int dr = m_idHelperSvc->rpcIdHelper().doubletR(id);
+  int dp = m_idHelperSvc->rpcIdHelper().doubletPhi(id);
+  int mp = m_idHelperSvc->rpcIdHelper().measuresPhi(id);
+  int gg = m_idHelperSvc->rpcIdHelper().gasGap(id);
+  int dz = m_idHelperSvc->rpcIdHelper().doubletZ(id);
+  int eta = m_idHelperSvc->rpcIdHelper().stationEta(id);
   
-  return m_muonIdHelperTool->rpcIdHelper().panelID(sta, eta, sec, dr, dz, dp, gg%2 + 1, mp);
+  return m_idHelperSvc->rpcIdHelper().panelID(sta, eta, sec, dr, dz, dp, gg%2 + 1, mp);
   
 }
 
@@ -253,15 +232,15 @@ Identifier RpcResidualsTool::GetTwinViewPanel(Identifier id){
   
   //unpack the panelID
       
-  int sec = m_muonIdHelperTool->rpcIdHelper().stationPhi(id);
-  int sta = m_muonIdHelperTool->rpcIdHelper().stationName(id);
-  int dr = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
-  int dp = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
-  int mp = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
-  int gg = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
-  int dz = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
-  int eta = m_muonIdHelperTool->rpcIdHelper().stationEta(id);
+  int sec = m_idHelperSvc->rpcIdHelper().stationPhi(id);
+  int sta = m_idHelperSvc->rpcIdHelper().stationName(id);
+  int dr = m_idHelperSvc->rpcIdHelper().doubletR(id);
+  int dp = m_idHelperSvc->rpcIdHelper().doubletPhi(id);
+  int mp = m_idHelperSvc->rpcIdHelper().measuresPhi(id);
+  int gg = m_idHelperSvc->rpcIdHelper().gasGap(id);
+  int dz = m_idHelperSvc->rpcIdHelper().doubletZ(id);
+  int eta = m_idHelperSvc->rpcIdHelper().stationEta(id);
   
-  return m_muonIdHelperTool->rpcIdHelper().panelID(sta, eta, sec, dr, dz, dp, gg, !mp);
+  return m_idHelperSvc->rpcIdHelper().panelID(sta, eta, sec, dr, dz, dp, gg, !mp);
   
 }

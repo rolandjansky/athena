@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: StoreGateTests/python/Lib.py
 # @purpose: a set of Py-components to tests py-record performances
@@ -15,10 +15,10 @@ class PySgStressProducer( PyAthena.Alg ):
         kw['name'] = name
         super(PySgStressProducer,self).__init__(**kw)
 
-        if not kw.has_key('DataName'):     self.DataName = "MyData"
-        if not kw.has_key('NbrOfObjects'): self.NbrOfObjects = 1000
-        if not kw.has_key('ObjectsSize'):  self.ObjectsSize  = 100
-        if not kw.has_key('UseDataPool'):  self.UseDataPool  = False
+        if 'DataName' not in kw:     self.DataName = "MyData"
+        if 'NbrOfObjects' not in kw: self.NbrOfObjects = 1000
+        if 'ObjectsSize' not in kw:  self.ObjectsSize  = 100
+        if 'UseDataPool' not in kw:  self.UseDataPool  = False
 
     def initialize(self):
         self.msg.info( "Initializing %s", self.name() )
@@ -43,7 +43,7 @@ class PySgStressProducer( PyAthena.Alg ):
         _sg_setConst = self.sg.setConst
         
         allGood = True
-        for i in xrange(self.NbrOfObjects):
+        for i in range(self.NbrOfObjects):
             outName = "%s_payload_%i" % (self.DataName, i)
             dv = _makePayLoadDv()
             data = _makePayLoad()
@@ -54,14 +54,14 @@ class PySgStressProducer( PyAthena.Alg ):
                 del dv
                 self.msg.error( "Could not store data at [%s] !!", outName )
                 allGood = False
-            if not _sg_setConst(dv).isSuccess():
+            if allGood and not _sg_setConst(dv).isSuccess():  # noqa: F821
                 self.msg.warning("Could not setConst data at [%s] !!", outName)
 
             # filling data
             data = data.m_data
             data.reserve( self.ObjectsSize )
             pback = data.push_back
-            for j in xrange(self.ObjectsSize): pback( j )
+            for j in range(self.ObjectsSize): pback( j )
             pass # loop over NbrOfObjects
         if allGood: return StatusCode.Success
         return StatusCode.Failure
@@ -81,8 +81,8 @@ class PySgStressConsumer(PyAthena.Alg):
         kw['name'] = name
         super(PySgStressConsumer,self).__init__(**kw)
 
-        if not kw.has_key('DataName'):     self.DataName = "MyData"
-        if not kw.has_key('NbrOfObjects'): self.NbrOfObjects = 1000
+        if 'DataName' not in kw:     self.DataName = "MyData"
+        if 'NbrOfObjects' not in kw: self.NbrOfObjects = 1000
 
     def initialize(self):
         self.msg.info( "Initializing %s...", self.name() )
@@ -98,7 +98,7 @@ class PySgStressConsumer(PyAthena.Alg):
 
     def readData(self):
         allGood = True
-        for i in xrange(self.NbrOfObjects):
+        for i in range(self.NbrOfObjects):
             outName = "%s_payload_%i" % (self.DataName, i)
             dv = self.sg.retrieve( "SgTests::PayLoadDv", outName )
             if dv is None:
@@ -163,17 +163,21 @@ class PyClidsTestWriter(PyAthena.Alg):
 
         for tpName,sgKey in self._test_matrix.items():
             tp = getattr(PyAthena, tpName)
-            cont = tp(); cont.reserve(100)
-            for i in xrange(100): cont.push_back(i)
+            cont = tp()
+            cont.reserve(100)
+            for i in range(100): cont.push_back(i)
             try:
                 self.sg[sgKey] = cont
-            except Exception,err:
+            except Exception as err:
                 _error("Could not record '%s' at [%s] !",tpName,sgKey)
                 _error(err)
                 allGood = False
             
         if not allGood: return StatusCode.Failure
         self.sg.dump()
+        import sys
+        sys.stdout.flush()
+        sys.stderr.flush()
         
         return self.testReadBack()
 
@@ -183,9 +187,9 @@ class PyClidsTestWriter(PyAthena.Alg):
         for tpName,sgKey in self._test_matrix.items():
             cont = self.sg.retrieve(tpName,sgKey)
             if not cont: _info('Could not retrieve [%s] !',sgKey)
-            cont = [cont[i] for i in xrange(10)]
+            cont = [cont[i] for i in range(10)]
             _info('[%s] content: %s', sgKey,cont)
-            if len( [i for i in xrange(10) if i != cont[i]] ) > 0:
+            if len( [i for i in range(10) if i != cont[i]] ) > 0:
                 self.msg.error('[%s] content is NOT as expected !!')
                 allGood = False
         if not allGood: return StatusCode.Failure

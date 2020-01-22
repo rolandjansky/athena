@@ -20,8 +20,8 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doTRTMon:
         info('Set up TRT monitoring')
-        from TRTMonitoringRun3.TRTMonitoringRun3_Tool import TRTMonitoringRun3_ToolConfig
-        result.merge(TRTMonitoringRun3_ToolConfig(flags))
+        from TRTMonitoringRun3.TRTMonitoringRun3Config import TRTMonitoringRun3Cfg
+        result.merge(TRTMonitoringRun3Cfg(flags))
 
     if flags.DQ.Steering.doLArMon:
         info('Set up LAr monitoring')
@@ -50,8 +50,13 @@ def AthenaMonitoringCfg(flags):
 
     if flags.DQ.Steering.doJetMon:
         info('Set up Jet monitoring')
-        from JetMonitoring.JetMonitoringExample import jetMonitoringExampleConfig
-        result.merge(jetMonitoringExampleConfig(flags))
+        from JetMonitoring.JetMonitoringStandard import standardJetMonitoring
+        result.merge(standardJetMonitoring(flags))
+
+    if flags.DQ.Steering.doMissingEtMon:
+        info("Set up MET monitoring")
+        from MissingETMonitoring.METMonitorAlgorithm import METMonitoringConfig
+        result.merge(METMonitoringConfig(flags))
 
     if flags.DQ.Steering.doGlobalMon:
         info('Set up Global monitoring')

@@ -28,20 +28,21 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
   virtual StatusCode  execute( const EventContext& context ) const;
 
  private: 
-  StatusCode retrieveBtagging( const EventContext&,
-			       ElementLinkVector< xAOD::BTaggingContainer >&,
-			       const SG::ReadHandleKey< xAOD::BTaggingContainer >&,
-			       const TrigCompositeUtils::DecisionContainer*) const;
+  TrigBjetBtagHypoAlgMT();
 
-  virtual StatusCode attachLinkToDecisions( const EventContext&,
-                                            const TrigCompositeUtils::DecisionContainer*,
-                                            std::vector< TrigCompositeUtils::Decision* >& ) const;
-
+  virtual StatusCode attachLinksToDecision( const EventContext&,
+                                            TrigCompositeUtils::Decision&,
+					    int index,
+					    int indexPrmVertex = 0 ) const;
+  
  private:
   ToolHandleArray< TrigBjetBtagHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
+  
+  //  Gaudi::Property< std::string > m_trackLink {this,"TrackLink","Undefined","Precision Track's link to attach to the output decision"};
 
-  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
-  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
+  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTagging","Undefined","Key for BTagging"};
+  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trackKey {this,"Tracks","Undefined","Key for precision tracks, to be linked to output decision"};
 }; 
 
-#endif //> !TRIGBJETHYPO_TRIGBJETHYPOALGMT_H
+#endif
+

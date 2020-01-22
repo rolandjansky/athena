@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   DigitizationFlags.py
@@ -17,11 +17,10 @@ __doc__="Digitization job properties "
 #=======================================================================
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.ConfigurableDb import getConfigurable
 
 # In here I set some AthenaCommon properties
-from AthenaCommon.AthenaCommonFlags import jobproperties
+from AthenaCommon.AthenaCommonFlags import jobproperties  # noqa: F811
 
 from AthenaCommon.Logging import logging
 logDigitizationFlags = logging.getLogger( 'DigitizationFlags' )
@@ -461,9 +460,8 @@ class RunAndLumiOverrideList(JobProperty):
                 if not set(element) >= set(KeysRequired):
                     raise ValueError( 'Not all required keys for RunAndLumiOverrideList (%s) were found in %s' % (KeysRequired.__repr__(), element.__repr__()) )
                 if noEventsInLumiBlock(element):
-                    logDigitizationFlags.warning('Found lumiblock with no events!  This lumiblock will not be used:\n (%s)' % (element.__str__()) )
-            from itertools import ifilterfalse
-            n_value[:] = ifilterfalse(noEventsInLumiBlock, n_value)
+                    logDigitizationFlags.warning('Found lumiblock with no events!  This lumiblock will not be used:\n (' + element.__str__() + ')' )
+            n_value = [x for x in n_value if not noEventsInLumiBlock(x)]
         JobProperty.__setattr__(self, name, n_value)
     def getEvtsMax(self): #todo -- check if locked first?
         """Get the total number of events requested by this fragment of the task"""

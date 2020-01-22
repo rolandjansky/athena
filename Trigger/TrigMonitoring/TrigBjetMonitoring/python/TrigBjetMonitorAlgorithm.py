@@ -36,8 +36,8 @@ def TrigBjetMonConfig(inputFlags):
     # is the algorithm.
     #The added algorithm must exist as a .h file 
 
-    from TrigBjetMonitoring.TrigBjetMonitoringConf import TrigBjetMonitorAlgorithm
-    trigBjetMonAlg = helper.addAlgorithm(TrigBjetMonitorAlgorithm,'TrigBjetMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    trigBjetMonAlg = helper.addAlgorithm(CompFactory.TrigBjetMonitorAlgorithm,'TrigBjetMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
@@ -146,6 +146,36 @@ def TrigBjetMonConfig(inputFlags):
                                              path='Shifter/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
                 # print " ==> histogram ",HistName," is defined for Shifter folder"
 
+            HistName = 'PVx_jet_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV from jets;xPV from jets;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV from jets;xPV from jets;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            HistName = 'PVy_jet_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV from jets;yPV from jets;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV from jets;yPV from jets;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            HistName = 'nPV_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of online PV per event;nPV;Events',
+                                             path='Expert/'+chain[2:],xbins=101,xmin=-1.0,xmax=100.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of online PV per event;nPV;Events',
+                                             path='Shifter/'+chain[2:],xbins=101,xmin=-1.0,xmax=100.0)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
             HistName = 'PVz_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
@@ -154,6 +184,26 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of online zPV;zPV;Events',
                                              path='Shifter/'+chain[2:],xbins=500,xmin=-250.0,xmax=250.0)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            HistName = 'PVx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV;xPV from jets;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online xPV;xPV from jets;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            HistName = 'PVy_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV;yPV from jets;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of online yPV;yPV from jets;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-1.5,xmax=+1.5)
                 # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'd0_' + chain[2:]
@@ -166,6 +216,16 @@ def TrigBjetMonConfig(inputFlags):
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-2.0,xmax=2.0)
                 # print " ==> histogram ",HistName," is defined for Shifter folder"
 
+            HistName = 'nJet_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of jets;nJet;Events',
+                                             path='Expert/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Number of jets;nJet;Events',
+                                             path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
             HistName = 'jetPt_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
@@ -174,6 +234,16 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of Pt_jet;Pt_jet;Events',
                                              path='Shifter/'+chain[2:],xbins=100,xmin=-0.0,xmax=750.0)
+                # print " ==> histogram ",HistName," is defined for Shifter folder"
+
+            HistName = 'jetEta_' + chain[2:] + ',jetPhi_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName,type='TH2F',title='Phi vs Eta of jets;Eta_jet;Phi_jet',
+                                             path='Expert/'+chain[2:],xbins=20,xmin=-5.0,xmax=+5.0,ybins=20,ymin=-3.1416,ymax=+3.1416)
+                # print " ==> histogram ",HistName," is defined for Expert folder"
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName,type='TH2F',title='Phi vs Eta of jets;Eta_jet;Phi_jet',
+                                             path='Shifter/'+chain[2:],xbins=20,xmin=-5.0,xmax=+5.0,ybins=20,ymin=-3.1416,ymax=+3.1416)
                 # print " ==> histogram ",HistName," is defined for Shifter folder"
 
             HistName = 'wMV2c20_' + chain[2:]
@@ -241,7 +311,8 @@ if __name__=='__main__':
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/AOD.pool.root'
     # file to be run w/ doRun2 = False
     # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/build.AOD.pool.root'
-    file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/AOD.pool.root'
+    # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_131119/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
     # file to be run w/ doRun2 = True
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_ST_240919/AOD.pool.root'

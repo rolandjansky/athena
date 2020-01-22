@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigCondFakeMap.h"
 #include "TRTDigSettings.h"
+#include "TRTDigiHelper.h"
 
 // For the Athena-based random numbers.
 #include "CLHEP/Random/RandFlat.h"
@@ -21,12 +22,12 @@
 
 //________________________________________________________________________________
 TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
-				      const InDetDD::TRT_DetectorManager* detmgr,
-				      const TRT_ID* trt_id,
-				      int UseGasMix,
-				      ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
-				    )
-  : TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumTool)
+                                      const InDetDD::TRT_DetectorManager* detmgr,
+                                      const TRT_ID* trt_id,
+                                      int UseGasMix,
+                                      ToolHandle<ITRT_StrawStatusSummaryTool> sumTool
+                                      )
+: TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumTool)
 {
   m_average_noiselevel = m_settings->averageNoiseLevel();
 }
@@ -35,8 +36,8 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
 //________________________________________________________________________________
 void TRTDigCondFakeMap::setStrawStateInfo(Identifier& TRT_Identifier,
                                           const double& strawlength,
-					  double& noiselevel,
-					  double& relative_noiseamplitude,
+                                          double& noiselevel,
+                                          double& relative_noiseamplitude,
                                           CLHEP::HepRandomEngine* rndmEngine) {
 
   noiselevel = m_average_noiselevel; // Not used here, but returned to caller
@@ -46,7 +47,9 @@ void TRTDigCondFakeMap::setStrawStateInfo(Identifier& TRT_Identifier,
   while (relnoiseamp < 0.10) { relnoiseamp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 1.00, 0.05 ); }
 
   // Anatoli says we need to scale the noise amplitude of Kr,Ar according to LT_(Kr,Ar)/LT_Xe
-  int strawGasType = StrawGasType(TRT_Identifier);
+  MsgStream* amsg = &(msg());
+  const int statusHT = m_sumTool->getStatusHT(TRT_Identifier);
+  const int strawGasType = TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, amsg);
   bool isBar = abs(m_id_helper->barrel_ec(TRT_Identifier))==1;
   double averagenoiseampforstrawlength = ( ( (800.)/(100*CLHEP::cm) ) * strawlength + 2100.0 ) / 2500.0;
 

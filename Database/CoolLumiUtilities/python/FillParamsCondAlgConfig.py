@@ -7,6 +7,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -25,7 +26,7 @@ def FillParamsCondAlgCfg (configFlags):
     result.merge (addFolders (configFlags, folder, 'TDAQ', tag='HEAD',
                               className='AthenaAttributeList'))
 
-    from CoolLumiUtilities.CoolLumiUtilitiesConf import FillParamsCondAlg
+    FillParamsCondAlg=CompFactory.FillParamsCondAlg
     alg = FillParamsCondAlg (name,
                              FillParamsFolderInputKey = folder,
                              FillParamsOutputKey = 'FillParamsCondData')

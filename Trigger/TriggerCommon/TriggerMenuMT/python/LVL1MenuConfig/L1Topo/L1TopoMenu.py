@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TopoOutput import TriggerLine
+from. TopoOutput import TriggerLine
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.l1topo.L1TopoMenu")
 
@@ -102,7 +102,7 @@ class L1TopoMenu(object):
         if len(idlist)>0 and len(idlist) != max(idlist)+1:
             idlist.sort()
             from itertools import groupby
-            partition = [list(g) for k,g in groupby(enumerate(idlist), lambda (x,y) : y-x)]
+            partition = [list(g) for k,g in groupby(enumerate(idlist), lambda x : x[1]-x[0])]
             log.error("Algorithm IDs must start at 0 and be consecutive, but algorithm IDs are %s",
                       ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition]))
             allOk = False

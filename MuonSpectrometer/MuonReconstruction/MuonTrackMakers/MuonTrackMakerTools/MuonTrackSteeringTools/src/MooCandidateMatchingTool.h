@@ -8,6 +8,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkParameters/TrackParameters.h"
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 //#include "MuonIdHelpers/MuonStationIndex.h"
@@ -19,7 +22,17 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
+#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "MuPatCandidateTool.h"
+
 #include "MuonTrackSegmentMatchResult.h"
+
 
 #include <array>
 #include <atomic>
@@ -36,14 +49,11 @@ namespace Trk {
 }
 
 namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class MuPatCandidateTool;
+
   class MuonSegment;
   class MuPatTrack;
   class MuPatSegment;
   class MuPatCandidateBase;
-  class IMuonSegmentMatchingTool;
 
   static const InterfaceID IID_MooCandidateMatchingTool("Muon::MooCandidateMatchingTool",1,0);
   
@@ -171,33 +181,45 @@ namespace Muon {
     double m_matchChiSquaredCut;
     double m_matchChiSquaredCutTight;
     
-    ToolHandle<MuonIdHelperTool>          m_idHelperTool;       //<! tool to assist with Identifiers
-    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc {this, "edmHelper", 
+    ToolHandle<MuonIdHelperTool>          m_idHelperTool 
+      {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //<! tool to assist with Identifiers
+    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc 
+      {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
-    ToolHandle<MuonEDMPrinterTool>        m_printer;            //<! tool to print EDM objects
-    ToolHandle<Trk::IExtrapolator>        m_slExtrapolator;     //<! straight line extrapolator
-    ToolHandle<Trk::IExtrapolator>        m_atlasExtrapolator;  //<! curved extrapolator
-    ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingTool;
-    ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingToolTight;
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc; 
-    ToolHandle<MuPatCandidateTool>        m_candidateTool;
-    int                                   m_trackSegmentPreMatchingStrategy; //!< 0=no segments match,1=any segment match,2=all segment match
-    bool                                  m_doTrackSegmentMatching; //!< apply track-segment matching or not
+    ToolHandle<MuonEDMPrinterTool>        m_printer
+      {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects
+    ToolHandle<Trk::IExtrapolator>        m_slExtrapolator 
+      {this, "SLExtrapolator", "Trk::Extrapolator/MuonStraightLineExtrapolator"};     //<! straight line extrapolator
+    ToolHandle<Trk::IExtrapolator>        m_atlasExtrapolator 
+      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};  //<! curved extrapolator
+    ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingTool 
+      {this, "SegmentMatchingTool", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"};
+    ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingToolTight
+      {this, "SegmentMatchingToolTight", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"};
+    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc 
+      {this, "MagFieldSvc", "AtlasFieldSvc"}; 
+    ToolHandle<MuPatCandidateTool>        m_candidateTool    
+      {this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
+    
+    Gaudi::Property<int>                                   m_trackSegmentPreMatchingStrategy 
+      {this, "TrackSegmentPreMatching", 0, "0=no segments match,1=any segment match,2=all segment match"}; //!< 0=no segments match,1=any segment match,2=all segment match
+    Gaudi::Property<bool>                                  m_doTrackSegmentMatching 
+      {this, "DoTrackSegmentMatching", false, "Apply dedicated track-segment matching"}; //!< apply track-segment matching or not
 
     /** matching counters */
-    mutable std::atomic_uint m_goodSegmentMatches;
-    mutable std::atomic_uint m_goodSegmentMatchesTight;
-    mutable std::atomic_uint m_segmentMatches;
-    mutable std::atomic_uint m_segmentMatchesTight;
-    mutable std::atomic_uint m_goodSegmentTrackMatches;
-    mutable std::atomic_uint m_goodSegmentTrackMatchesTight;
-    mutable std::atomic_uint m_sameSideOfPerigee;
-    mutable std::atomic_uint m_otherSideOfPerigee;
-    mutable std::atomic_uint m_sameSideOfPerigeeTrk;
-    mutable std::atomic_uint m_otherSideOfPerigeeTrk;
-    mutable std::atomic_uint m_segmentTrackMatches;
-    mutable std::atomic_uint m_segmentTrackMatchesTight;
+    mutable std::atomic_uint m_goodSegmentMatches {0};
+    mutable std::atomic_uint m_goodSegmentMatchesTight{0};
+    mutable std::atomic_uint m_segmentMatches{0};
+    mutable std::atomic_uint m_segmentMatchesTight{0};
+    mutable std::atomic_uint m_goodSegmentTrackMatches{0};
+    mutable std::atomic_uint m_goodSegmentTrackMatchesTight{0};
+    mutable std::atomic_uint m_sameSideOfPerigee{0};
+    mutable std::atomic_uint m_otherSideOfPerigee{0};
+    mutable std::atomic_uint m_sameSideOfPerigeeTrk{0};
+    mutable std::atomic_uint m_otherSideOfPerigeeTrk{0};
+    mutable std::atomic_uint m_segmentTrackMatches{0};
+    mutable std::atomic_uint m_segmentTrackMatchesTight{0};
     mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchOk ATLAS_THREAD_SAFE; // Guarded by atomicity
     mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchNotOk ATLAS_THREAD_SAFE; // Guarded by atomicity
 

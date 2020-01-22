@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           JEMJetAlgorithm.h  -  description
@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1CaloEvent/JetInput.h"
 #include "xAODTrigL1Calo/JEMTobRoI.h"
@@ -39,7 +39,7 @@ The JEMJetAlgorithm:<br>
 class JEMJetAlgorithm {
 public: 
   
-  JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer, ServiceHandle<TrigConf::ITrigConfigSvc> config);
+  JEMJetAlgorithm( double eta, double phi, const std::map<int, JetInput *>* jiContainer, ServiceHandle<TrigConf::ILVL1ConfigSvc> config);
 
   ~JEMJetAlgorithm();
   
@@ -63,7 +63,7 @@ public:
 private: //atribs
   double m_refEta;
   double m_refPhi;
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
   /** Algorithm results */
   double m_eta;

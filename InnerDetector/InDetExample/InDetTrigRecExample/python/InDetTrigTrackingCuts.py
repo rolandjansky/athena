@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 class InDetTrigTrackingCuts :
   """
@@ -189,7 +191,7 @@ class InDetTrigTrackingCuts :
       self.__doZBoundary              = True
 
     if self.__indetflags.cutLevel() >= mxlevel:
-      print 'InDetTrigTrackingCuts INFO using cutLevel %d/%d' % (mxlevel,self.__indetflags.cutLevel())
+      print ('InDetTrigTrackingCuts INFO using cutLevel %d/%d' % (mxlevel,self.__indetflags.cutLevel()))
 
     # --- SLHC setup
     if mode == "SLHC":
@@ -556,70 +558,70 @@ class InDetTrigTrackingCuts :
     self.__RegSelZmax = val
 
   def printInfo( self ) :
-    print '****** Inner Detector Trigger Track Reconstruction Cuts *********************************'
-    print '*'
-    print '* SETUP is  : ',self.__mode
-    print '* extension : ',self.__extension
-    print '*'
-    print '* Pixel used                  :  ', self.__usePixel
-    print '* SCT used                    :  ', self.__useSCT
-    print '* TRT used                    :  ', self.__useTRT
-    print '*'  
-    print '* min pT                      : ', self.__minPT, ' MeV'
-    print '* max Z IP                    : ', self.__maxZImpact, ' mm'
-    print '* max eta                     : ', self.__maxEta
-    print '*'
-    print '* NewTracking cuts:'
-    print '* -----------------'
-    print '* max Rphi IP (primaries)     : ', self.__maxPrimaryImpact, ' mm'
-    print '* min number of clusters      :  ', self.__minClusters
-    print '* min number of pixel hits    :  ', self.__minPixel
-    print '* min number of NOT shared    :  ', self.__minSiNotShared
-    print '* max number of shared        :  ', self.__maxShared
-    print '* max number of Si holes      :  ', self.__maxHoles
-    print '* max number of Pixel holes   :  ', self.__maxPixelHoles
-    print '* max number of SCT holes     :  ', self.__maxSctHoles
-    print '* max number of double holes  :  ', self.__maxDoubleHoles
-    print '*'
+    print ('****** Inner Detector Trigger Track Reconstruction Cuts *********************************')
+    print ('*')
+    print ('* SETUP is  : ',self.__mode)
+    print ('* extension : ',self.__extension)
+    print ('*')
+    print ('* Pixel used                  :  ', self.__usePixel)
+    print ('* SCT used                    :  ', self.__useSCT)
+    print ('* TRT used                    :  ', self.__useTRT)
+    print ('*'  )
+    print ('* min pT                      : ', self.__minPT, ' MeV')
+    print ('* max Z IP                    : ', self.__maxZImpact, ' mm')
+    print ('* max eta                     : ', self.__maxEta)
+    print ('*')
+    print ('* NewTracking cuts:')
+    print ('* -----------------')
+    print ('* max Rphi IP (primaries)     : ', self.__maxPrimaryImpact, ' mm')
+    print ('* min number of clusters      :  ', self.__minClusters)
+    print ('* min number of pixel hits    :  ', self.__minPixel)
+    print ('* min number of NOT shared    :  ', self.__minSiNotShared)
+    print ('* max number of shared        :  ', self.__maxShared)
+    print ('* max number of Si holes      :  ', self.__maxHoles)
+    print ('* max number of Pixel holes   :  ', self.__maxPixelHoles)
+    print ('* max number of SCT holes     :  ', self.__maxSctHoles)
+    print ('* max number of double holes  :  ', self.__maxDoubleHoles)
+    print ('*')
     if self.__useTRT:
-      print '* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts
-      print '* useNewParameterizationTRT   :  ', self.__useNewParameterizationTRT
-      print '* min TRT on track extension  :  ', self.__minTRTonTrk
-      print '*'
-    print '* seed filter level           :  ', self.__seedFilterLevel  
-    print '* maximal R of SP for seeding :  ', self.__radMax 
-    print '* max holes in pattern        :  ', self.__nHolesMax
-    print '* max holes gap in pattern    :  ', self.__nHolesGapMax
-    print '* Xi2 max                     :  ', self.__Xi2max
-    print '* Xi2 max no add              :  ', self.__Xi2maxNoAdd
-    print '*'  
-    print '* nWeightedClustersMin        :  ', self.__nWeightedClustersMin 
-    print '*'
-    print '* RegionSelector z limit      :  ', self.__RegSelZmax
+      print ('* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts)
+      print ('* useNewParameterizationTRT   :  ', self.__useNewParameterizationTRT)
+      print ('* min TRT on track extension  :  ', self.__minTRTonTrk)
+      print ('*')
+    print ('* seed filter level           :  ', self.__seedFilterLevel  )
+    print ('* maximal R of SP for seeding :  ', self.__radMax )
+    print ('* max holes in pattern        :  ', self.__nHolesMax)
+    print ('* max holes gap in pattern    :  ', self.__nHolesGapMax)
+    print ('* Xi2 max                     :  ', self.__Xi2max)
+    print ('* Xi2 max no add              :  ', self.__Xi2maxNoAdd)
+    print ('*'  )
+    print ('* nWeightedClustersMin        :  ', self.__nWeightedClustersMin )
+    print ('*')
+    print ('* RegionSelector z limit      :  ', self.__RegSelZmax)
 
     if self.__useSCT and self.__useTRT:
-      print '* BackTracking cuts:'
-      print '* ------------------'
-      print '* max Rphi IP (secondaries)   :  ', self.__maxSecondaryImpact, ' mm'
-      print '* min number of clusters      :  ', self.__minSecondaryClusters
-      print '* min number of NOT shared    :  ', self.__minSecondarySiNotShared
-      print '* max number of shared        :  ', self.__maxSecondaryShared
-      print '* max number of Si holes      :  ', self.__maxSecondaryHoles
-      print '* max number of Pixel holes   :  ', self.__maxSecondaryPixelHoles
-      print '* max number of SCT holes     :  ', self.__maxSecondarySCTHoles
-      print '* max number of double holes  :  ', self.__maxSecondaryDoubleHoles
-      print '* min TRT on track            :  ', self.__minSecondaryTRTonTrk
-      print '* max holes in pattern        :  ', self.__SecondarynHolesMax
-      print '* max holes gap in pattern    :  ', self.__SecondarynHolesGapMax
-      print '* Xi2 max                     :  ', self.__SecondaryXi2max
-      print '* Xi2 max no add              :  ', self.__SecondaryXi2maxNoAdd
-      print '*'  
+      print ('* BackTracking cuts:')
+      print ('* ------------------')
+      print ('* max Rphi IP (secondaries)   :  ', self.__maxSecondaryImpact, ' mm')
+      print ('* min number of clusters      :  ', self.__minSecondaryClusters)
+      print ('* min number of NOT shared    :  ', self.__minSecondarySiNotShared)
+      print ('* max number of shared        :  ', self.__maxSecondaryShared)
+      print ('* max number of Si holes      :  ', self.__maxSecondaryHoles)
+      print ('* max number of Pixel holes   :  ', self.__maxSecondaryPixelHoles)
+      print ('* max number of SCT holes     :  ', self.__maxSecondarySCTHoles)
+      print ('* max number of double holes  :  ', self.__maxSecondaryDoubleHoles)
+      print ('* min TRT on track            :  ', self.__minSecondaryTRTonTrk)
+      print ('* max holes in pattern        :  ', self.__SecondarynHolesMax)
+      print ('* max holes gap in pattern    :  ', self.__SecondarynHolesGapMax)
+      print ('* Xi2 max                     :  ', self.__SecondaryXi2max)
+      print ('* Xi2 max no add              :  ', self.__SecondaryXi2maxNoAdd)
+      print ('*'  )
     if self.__useTRT:
-      print '* TRT only cuts:'
-      print '* --------------'
-      print '* min TRT only hits           :  ', self.__minTRTonly
-      print '* max TRT shared fraction     :  ', self.__maxTRTonlyShared
-      print '* min TRT only min pt         :  ', self.__minTRTonlyMinPt, ' MeV'
-      print '*'
-    print '************************************************************************************'
+      print ('* TRT only cuts:')
+      print ('* --------------')
+      print ('* min TRT only hits           :  ', self.__minTRTonly)
+      print ('* max TRT shared fraction     :  ', self.__maxTRTonlyShared)
+      print ('* min TRT only min pt         :  ', self.__minTRTonlyMinPt, ' MeV')
+      print ('*')
+    print ('************************************************************************************')
 

@@ -9,6 +9,7 @@
 #define TRIGCONFXAOD_XAODCONFIGSVC_H
 
 // Gaudi/Athena include(s):
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -24,8 +25,25 @@
 // xAOD include(s):
 #include "xAODTrigger/TriggerMenu.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
+#include "xAODTrigger/TriggerMenuAuxContainer.h"
+#include "xAODTrigger/TrigConfKeys.h"
+
+#include <shared_mutex>
 
 namespace TrigConf {
+
+   /**
+    *  @short Small utility class to wrap a pointer to a const xAOD::TriggerMenu
+    *
+    *         The SG::SlotSpecificObj class invokes an object's default constructor
+    *         and does not allow for the object to be later changed, here we wrap
+    *         the pointer we want to store in a trivial class such that it can be
+    *         updated over time to point to different menus in different slots
+    */
+   struct MenuPtrWrapper {
+      MenuPtrWrapper() : m_ptr(nullptr) {}
+      const xAOD::TriggerMenu* m_ptr;
+   };
 
    /**
     *  @short Trigger configuration service used when reading an xAOD file
@@ -48,26 +66,26 @@ namespace TrigConf {
       xAODConfigSvc( const std::string& name, ISvcLocator* svcLoc );
 
       /// Function initialising the service
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /// Function finalising the service
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
 
       /// @name Implementation of the IILVL1ConfigSvc interface
       /// @{
 
       /// Get the LVL1 trigger menu
-      virtual const CTPConfig* ctpConfig() const;
+      virtual const CTPConfig* ctpConfig() const override;
 
       /// Get the LVL1 threshold configuruation (not available from xAOD)
-      virtual const ThresholdConfig* thresholdConfig() const {
+      virtual const ThresholdConfig* thresholdConfig() const override {
          return 0;
       }
 
       /// Get the LVL1 bunch group set
-      virtual const BunchGroupSet* bunchGroupSet() const;
+      virtual const BunchGroupSet* bunchGroupSet() const override;
 
       /// Get the LVL1 prescale key
-      virtual uint32_t lvl1PrescaleKey() const;
+      virtual uint32_t lvl1PrescaleKey() const override;
 
       /// @}
 
@@ -75,20 +93,20 @@ namespace TrigConf {
       /// @{
 
       /// Get the HLT chains
-      virtual const HLTChainList* chainList() const;
+      virtual const HLTChainList* chainList() const override;
       /// Get the HLT chains
-      virtual const HLTChainList& chains() const;
+      virtual const HLTChainList& chains() const override;
 
       /// Get the HLT sequences
-      virtual const HLTSequenceList* sequenceList() const;
+      virtual const HLTSequenceList* sequenceList() const override;
       /// Get the HLT sequences
-      virtual const HLTSequenceList& sequences() const;
+      virtual const HLTSequenceList& sequences() const override;
 
       /// Get the Super Master Key
-      virtual uint32_t masterKey() const;
+      virtual uint32_t masterKey() const override;
 
       /// Get the HLT prescale key
-      virtual uint32_t hltPrescaleKey() const;
+      virtual uint32_t hltPrescaleKey() const override;
 
       /// @}
 
@@ -96,7 +114,7 @@ namespace TrigConf {
       /// @{
 
       /// Get the LVL1 topo menu (not available from xAOD)
-      virtual const TXC::L1TopoMenu* menu() const {
+      virtual const TXC::L1TopoMenu* menu() const override {
          return 0;
       }
 
@@ -106,7 +124,7 @@ namespace TrigConf {
       /// @{
 
       /// Get the MuCTPI's online configuration
-      virtual const Muctpi* muctpiConfig() const {
+      virtual const Muctpi* muctpiConfig() const override {
          return 0;
       }
 
@@ -116,12 +134,12 @@ namespace TrigConf {
       /// @{
 
       /// Loads prescale sets in online running
-      virtual StatusCode updatePrescaleSets( uint /*requestcount*/ ) {
+      virtual StatusCode updatePrescaleSets( uint /*requestcount*/ ) override {
          return StatusCode::FAILURE;
       }
 
       /// Updates the prescales on the chain in online running
-      virtual StatusCode assignPrescalesToChains( uint /*lumiblock*/ ) {
+      virtual StatusCode assignPrescalesToChains( uint /*lumiblock*/ ) override {
          return StatusCode::FAILURE;
       }
 
@@ -129,10 +147,10 @@ namespace TrigConf {
 
       /// Function describing to Gaudi the interface(s) implemented
       virtual StatusCode queryInterface( const InterfaceID& riid,
-                                         void** ppvIf );
+                                         void** ppvIf ) override;
 
       /// Function handling the incoming incidents
-      virtual void handle( const Incident& inc );
+      virtual void handle( const Incident& inc ) override;
 
       std::string configurationSource() const override {
          return "";
@@ -144,34 +162,38 @@ namespace TrigConf {
       /// Function setting up the service for a new event
       StatusCode prepareEvent();
 
-      /// Key for the event-level configuration identifier object
-      std::string m_eventName;
-      /// Key for the trigger configuration metadata object
-      std::string m_metaName;
 
-      /// Flag for stopping the job in case of a failure
-      bool m_stopOnFailure;
+      SG::ReadHandleKey<xAOD::TrigConfKeys> m_eventKey{this, "EventObjectName", "TrigConfKeys", 
+        "Key for the event-level configuration identifier object"};
+      Gaudi::Property<std::string> m_metaName{this, "MetaObjectName", "TriggerMenu", 
+        "Key for the trigger configuration metadata object"};
+
+      Gaudi::Property<bool> m_stopOnFailure{this, "StopOnFailure", true, "Flag for stopping the job in case of a failure"};
       /// Internal state of the service
       bool m_isInFailure;
 
-      /// The configuration object of the current input file
-      const xAOD::TriggerMenuContainer* m_tmc;
-      /// The active configuration for the current event
-      const xAOD::TriggerMenu* m_menu;
+      /// The configuration objects copied from all input files
+      std::unique_ptr<xAOD::TriggerMenuAuxContainer> m_tmcAux;
+      /// The configuration objects copied from all input files
+      std::unique_ptr<xAOD::TriggerMenuContainer> m_tmc;
+
+      /// The mutex used to to restrict access to m_tmc when it is being written to
+      std::shared_mutex m_sharedMutex;
+
+      // The menu currently being used by each slot (wrapped 'const xAOD::TriggerMenu' ptr)
+      SG::SlotSpecificObj<MenuPtrWrapper> m_menu;
 
       /// The "translated" LVL1 configuration object
-      CTPConfig m_ctpConfig;
+      SG::SlotSpecificObj<CTPConfig> m_ctpConfig;
       /// The "translated" HLT configuration object
-      HLTChainList m_chainList;
+      SG::SlotSpecificObj<HLTChainList> m_chainList;
       /// The "translated" HLT configuration object
-      HLTSequenceList m_sequenceList;
+      SG::SlotSpecificObj<HLTSequenceList> m_sequenceList;
       /// The "translated" bunch group set object
-      BunchGroupSet m_bgSet;
+      SG::SlotSpecificObj<BunchGroupSet> m_bgSet;
 
-      /// Connection to the event store
-      ServiceHandle< StoreGateSvc > m_eventStore;
       /// Connection to the metadata store
-      ServiceHandle< StoreGateSvc > m_metaStore;
+      ServiceHandle< StoreGateSvc > m_metaStore{this, "MetaDataStore", "InputMetaDataStore"};
 
    }; // class xAODConfigSvc
 

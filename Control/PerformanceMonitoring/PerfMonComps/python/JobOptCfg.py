@@ -5,7 +5,9 @@
 # @author: Sebastien Binet <binet@cern.ch>
 
 ## import the automatically generated Configurables
+from __future__ import print_function
 from PerfMonComps.PerfMonCompsConf import PerfMonSvc as _PerfMonSvc
+import six
 
 class PerfMonSvc( _PerfMonSvc ):
 
@@ -106,7 +108,7 @@ class PerfMonSvc( _PerfMonSvc ):
                     
             ## make sure the AthenaPoolCnvSvc is correctly configured
             try:   svcMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
-            except AttributeError, err:
+            except AttributeError:
                 # ok... maybe not a 'writeAthenaPool' job...
                 pass
 
@@ -116,7 +118,7 @@ class PerfMonSvc( _PerfMonSvc ):
                  len(handle.IoContainers) == 0 ):
                 # first let us ask the Streams...
                 from AthenaCommon.Configurable import Configurable
-                if Configurable.configurables.has_key('Streams'):
+                if 'Streams' in Configurable.configurables:
                     outStreams = Configurable.configurables['Streams']
                     for o in outStreams:
                         if not hasattr(o, 'ItemList'): continue
@@ -161,11 +163,11 @@ class PerfMonSvc( _PerfMonSvc ):
             #Collect the start-time (in jiffies) of the configuration process
             try:
                 j=open('/proc/self/stat').readline().split()[21]
-            except Exception, err:
+            except Exception as err:
                 #Not worth stopping the job over missing diagnostics.
                 #We should notice the missing info in any case.
                 j=""
-                print "PMonSD WARNING: Could not determine job start time:",err
+                print("PMonSD WARNING: Could not determine job start time:",err)
                 pass
             handle.JobStartJiffies=j
         handle.ExtraPrintouts=jobproperties.PerfMonFlags.doExtraPrintouts()
@@ -179,7 +181,7 @@ class PerfMonSvc( _PerfMonSvc ):
         
         pmon_flags = {}
         import AthenaCommon.JobProperties as acjp
-        for n,v in jobproperties.PerfMonFlags.__dict__.iteritems():
+        for n,v in six.iteritems (jobproperties.PerfMonFlags.__dict__):
             if isinstance(v, acjp.JobProperty):
                 pmon_flags[n] = v()
                 

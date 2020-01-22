@@ -27,16 +27,10 @@ from AthenaCommon.DetFlags import DetFlags
 ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
 
-## Tidy up NSW DetFlags: temporary measure
-DetFlags.sTGC_setOff()
-DetFlags.Micromegas_setOff()
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-    DetFlags.sTGC_setOn()
-    DetFlags.Micromegas_setOn()
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-if not MuonGeometryFlags.hasCSC():
-    DetFlags.CSC_setOff()
+if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 
 ## Switch off tasks
 DetFlags.pileup.all_setOff()
@@ -128,7 +122,7 @@ if DetFlags.Muon_on():
     from AthenaCommon import CfgGetter
     if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders.__str__():
         AGDD2Geo.Builders += [CfgGetter.getPrivateTool("MuonSpectrometer", checkType=True)]
-    if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders.__str__():
             AGDD2Geo.Builders += [CfgGetter.getPrivateTool("NewSmallWheel", checkType=True)]
     theApp.CreateSvc += ["AGDDtoGeoSvc"]
@@ -144,7 +138,7 @@ if not simFlags.ISFRun:
     createSimulationParametersMetadata()
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if not athenaCommonFlags.PoolHitsOutput.statusOn:
-        print 'AtlasSimSkeleton._do_metadata :: no output HITS file, so no metadata writing required.'
+        printfunc ('AtlasSimSkeleton._do_metadata :: no output HITS file, so no metadata writing required.')
     else:
         from AthenaServices.AthenaServicesConf import AthenaOutputStream
         stream1_SimMetaData = AthenaOutputStream("StreamHITS_SimMetaData")
@@ -209,9 +203,8 @@ if not simFlags.ISFRun:
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
             if MuonGeometryFlags.hasCSC(): stream1.ItemList += ["CSCSimHitCollection#*"]
-            if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-                stream1.ItemList += ["sTGCSimHitCollection#*"]
-                stream1.ItemList += ["MMSimHitCollection#*"]
+            if MuonGeometryFlags.hasSTGC(): stream1.ItemList += ["sTGCSimHitCollection#*"]
+            if MuonGeometryFlags.hasMM(): stream1.ItemList += ["MMSimHitCollection#*"]
 
         ## Lucid
         if DetFlags.Lucid_on():
@@ -332,7 +325,7 @@ if not simFlags.ISFRun:
         if athenaCommonFlags.SkipEvents.statusOn and athenaCommonFlags.SkipEvents()!=0:
             msg = "SimSkeleton._do_readevgen :: athenaCommonFlags.SkipEvents set in a job without an active "
             msg += "athenaCommonFlags.PoolEvgenInput flag: ignoring event skip request"
-            print msg
+            printfunc (msg)
 
     ## SimSkeleton._do_persistency
     from G4AtlasApps.SimFlags import simFlags

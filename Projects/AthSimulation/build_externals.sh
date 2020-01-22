@@ -57,9 +57,12 @@ while getopts ":t:b:x:fch" opt; do
     esac
 done
 
-# Stop on errors from here on out:
-set -e
-set -o pipefail
+# Only stop on errors if we are in the CI. Otherwise just count them.
+if [ "$CI" = "1" ]; then
+    set -e
+    set -o pipefail
+fi
+ERROR_COUNT=0
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -118,7 +121,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/AthSimulationExternals \
     -i ${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION} \
     -p AthSimulationExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    ${EXTRACMAKE[@]/#/-x } -v ${NICOS_PROJECT_VERSION}
+    ${EXTRACMAKE[@]/#/-x } -v ${NICOS_PROJECT_VERSION} || ((ERROR_COUNT++))
 
 # Get the "platform name" from the directory created by the AthSimulationExternals
 # build:
@@ -140,4 +143,10 @@ ${scriptsdir}/build_Gaudi.sh \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
     -p AthSimulationExternals -f ${platform} ${EXTRACMAKE[@]/#/-x } \
-    ${RPMOPTIONS} -t ${BUILDTYPE}
+    ${RPMOPTIONS} -t ${BUILDTYPE} || ((ERROR_COUNT++))
+
+# Exit with the error count taken into account.
+if [ ${ERROR_COUNT} -ne 0 ]; then
+    echo "AthSimulation externals build encountered ${ERROR_COUNT} error(s)"
+fi
+exit ${ERROR_COUNT}

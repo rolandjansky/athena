@@ -6,6 +6,9 @@
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.out
+# art-output: *.err
+# art-output: *.log.tar.gz
 # art-output: *.new
 # art-output: *.json
 # art-output: *.root
@@ -17,17 +20,16 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 writeBS = ExecStep.ExecStep("WriteBS")
 writeBS.type = 'athenaHLT'
-writeBS.job_options = 'TrigUpgradeTest/full_menu.py'
+writeBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 writeBS.input = 'data'
 writeBS.args = '-o output'
-writeBS.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 decodeBS = ExecStep.ExecStep("DecodeBS")
 decodeBS.type = 'athena'
-decodeBS.job_options = 'TrigUpgradeTest/decodeBS.py'
+decodeBS.job_options = 'TriggerJobOpts/decodeBS.py'
 decodeBS.input = ''
 decodeBS.explicit_input = True
-decodeBS.args = '--filesInput=output_Child-001._0001.data'
+decodeBS.args = '--filesInput=`find . -name \'*_HLTMPPy_output.*.data\' | tail -n 1`'
 decodeBS.perfmon = False # no need to run PerfMon for this step
 
 test = Test.Test()

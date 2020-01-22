@@ -3,7 +3,6 @@
 */
 
 #include "TrigGenericAlgs/AcceptWhenInputMissing.h"
-#include "boost/foreach.hpp"
 
 AcceptWhenInputMissing::AcceptWhenInputMissing(const std::string& name, ISvcLocator* pSvcLocator) 
   : HLT::AllTEAlgo(name, pSvcLocator) {
@@ -14,7 +13,7 @@ HLT::ErrorCode AcceptWhenInputMissing::hltExecute(std::vector<std::vector<HLT::T
 						  unsigned int output) {
   
   unsigned count(0);
-  BOOST_FOREACH( std::vector<HLT::TriggerElement*>& vec, input ) 
+  for( std::vector<HLT::TriggerElement*>& vec : input ) 
     count += vec.size();
 
   if (count) {

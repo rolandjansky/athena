@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python -*-
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This is a script that is born as shell to setup the preloading and then
 # resurrected as python script for the actual athenaHLT.py application.
@@ -41,6 +41,7 @@ import argparse
 import ast
 import collections
 from datetime import datetime as dt
+import six
 
 from TrigCommon import AthHLT
 from AthenaCommon.Logging import logging
@@ -93,6 +94,13 @@ def arg_eval(s):
    """Argument handler for python types (list, dict, ...)"""
    return ast.literal_eval(s)
 
+def check_args(parser, args):
+   """Consistency check of command line arguments"""
+
+   # Due to missing per-worker dirs this is not supported (ATR-19462)
+   if args.perfmon and args.oh_monitoring and args.nprocs>1:
+      parser.error("--perfmon cannot be used with --oh-monitoring and --nprocs > 1")
+
 def update_pcommands(args, cdict):
    """Apply modifications to pre/postcommands"""
 
@@ -136,7 +144,7 @@ def update_run_params(args):
 
 def update_nested_dict(d, u):
    """Update nested dictionary (https://stackoverflow.com/q/3232943)"""
-   for k, v in u.iteritems():
+   for k, v in six.iteritems(u):
       if isinstance(v, collections.Mapping):
          d[k] = update_nested_dict(d.get(k, {}), v)
       else:
@@ -163,6 +171,8 @@ def HLTMPPy_cfgdict(args):
       'soft_timeout_fraction' : 0.95,
       'hltresultSizeMb': args.hltresult_size
    }
+   if args.debug:
+      cdict['HLTMPPU']['debug'] = args.debug
 
    cdict['datasource'] = {
       'module': 'dffileds',
@@ -284,6 +294,8 @@ def main():
                   help='Python commands executed before job options or database configuration')
    g.add_argument('--postcommand', '-C', metavar='CMD', action='append', default=[],
                   help='Python commands executed after job options or database configuration')
+   g.add_argument('--debug', '-d', nargs='?', const='child', choices=['parent','child'],
+                  help='attach debugger (to child by default)')
    g.add_argument('--interactive', '-i', action='store_true', help='interactive mode')
    g.add_argument('--help', '-h', nargs='?', choices=['all'], action=MyHelp, help='show help')
 
@@ -308,6 +320,7 @@ def main():
    g.add_argument('--l1psk', type=int, default=0, help='L1 prescale key')
    g.add_argument('--hltpsk', type=int, default=0, help='HLT prescale key')
    g.add_argument('--dump-config', action='store_true', help='Dump joboptions JSON file')
+   g.add_argument('--dump-config-exit', action='store_true', help='Dump joboptions JSON file and exit')
 
    ## Online histogramming
    g = parser.add_argument_group('Online Histogramming')
@@ -350,6 +363,7 @@ def main():
                   '--cfgdict \'{"global": {"log_root" : "/tmp"}}\'')
 
    args = parser.parse_args()
+   check_args(parser, args)
 
    # set default OutputLevels and file inclusion
    import AthenaCommon.Logging
@@ -375,8 +389,9 @@ def main():
 
    # Extra Psc configuration
    from TrigPSC import PscConfig
-   PscConfig.interactive = args.interactive          # interactive mode
-   PscConfig.dumpJobProperties = args.dump_config    # dump job options
+   PscConfig.interactive = args.interactive
+   PscConfig.dumpJobProperties = args.dump_config or args.dump_config_exit
+   PscConfig.exitAfterDump = args.dump_config_exit
 
    # Select the correct THistSvc
    from TrigServices.TriggerUnixStandardSetup import _Conf

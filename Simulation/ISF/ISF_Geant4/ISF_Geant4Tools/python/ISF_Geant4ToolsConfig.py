@@ -30,6 +30,9 @@ def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **
 ### Specialized Versions
 
 def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTool', **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.Simulator.get_Value() in ['FullG4MT']:
+        kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerToolMT')
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
     from AthenaCommon.BeamFlags import jobproperties
@@ -43,6 +46,9 @@ def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUser
     return getTrackProcessorUserActionTool(name, **kwargs)
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.Simulator.get_Value() in ['PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT']:
+        kwargs.setdefault('ParticleBroker', '')
     from AthenaCommon.SystemOfUnits import MeV
     kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
     kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
@@ -73,7 +79,11 @@ def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault('SenDetMasterTool', 'SensitiveDetectorMasterTool')
     kwargs.setdefault('FastSimMasterTool', 'FastSimulationMasterTool')
     from AthenaCommon import CfgMgr
-    return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
+    # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
+    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT', 'PassBackG4', 'PassBackG4MT', 'G4FastCaloSim', 'G4FastCaloSimMT']:
+        return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
+    else:
+        return CfgMgr.iGeant4__G4LegacyTransportTool(name, **kwargs)
 
 def getFullGeant4Tool(name="ISF_FullGeant4Tool", **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISFFullUserActionSvc')

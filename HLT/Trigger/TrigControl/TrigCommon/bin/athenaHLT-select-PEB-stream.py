@@ -1,9 +1,11 @@
 #!/usr/bin/env tdaq_python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # select events for a given stream name from an input file and write them in an outfile
 # the output file obeys the conventions used by the SFO in P1
+
+from __future__ import print_function
 
 import sys
 import os
@@ -20,7 +22,7 @@ def peb_writer(argv):
   option['start-event'] = {'short': 'a', 'arg': True,
                            'default': 0,
                            'group': 'Run mode',
-                           'description': 'Number of events which should be skippped from the begin'}
+                           'description': 'Number of events which should be skipped from the begin'}
 
   option['max-events'] = {'short': 'n', 'arg': True,
                           'default': 0,
@@ -63,7 +65,7 @@ def peb_writer(argv):
     parser.add_option(k, v['short'], v['description'], v['arg'], v['default'],v['group'])
  
   if len(sys.argv) == 1:
-    print parser.usage('global "%s" options:' % sys.argv[0])
+    print (parser.usage('global "%s" options:' % sys.argv[0]))
     sys.exit(1)
 
   # process the global options

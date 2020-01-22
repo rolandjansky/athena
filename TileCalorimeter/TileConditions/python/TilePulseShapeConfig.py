@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile pulse shape conditions tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TilePulseShapeCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile pulse shape conditions algorithm
@@ -107,7 +108,7 @@ def TileCondToolPulseShapeCfg(flags, **kwargs):
 
     acc.merge( TilePulseShapeCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolPulseShape
+    TileCondToolPulseShape=CompFactory.TileCondToolPulseShape
     acc.setPrivateTools( TileCondToolPulseShape(name, TilePulseShape = pulseShape) )
 
     return acc
@@ -124,7 +125,7 @@ def TileCondToolMuRcvPulseShapeCfg(flags, **kwargs):
 
     acc = TilePulseShapeCondAlgCfg(flags, **kwargs)
 
-    from TileConditions.TileConditionsConf import TileCondToolPulseShape
+    TileCondToolPulseShape=CompFactory.TileCondToolPulseShape
     acc.setPrivateTools( TileCondToolPulseShape(name, TilePulseShape = pulseShape) )
 
     return acc
@@ -156,7 +157,7 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TilePulseShape.pkl','w') )
+    acc.store( open('TilePulseShape.pkl','wb') )
 
     print('All OK')
 

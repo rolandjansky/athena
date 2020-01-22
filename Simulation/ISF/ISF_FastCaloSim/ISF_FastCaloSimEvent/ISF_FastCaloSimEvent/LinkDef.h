@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/DoubleArray.h"
@@ -43,12 +43,16 @@
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
+#include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
 #include "ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h"
 #include "ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h"
+#include "ISF_FastCaloSimEvent/TFCS2DFunctionLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMapping.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h"
@@ -196,18 +200,22 @@
 #pragma link C++ class TFCSParametrizationAbsEtaSelectChain+;
 
 #pragma link C++ class TFCSEnergyParametrization+;
-#pragma link C++ class TFCSPCAEnergyParametrization+;
+#pragma link C++ class TFCSPCAEnergyParametrization-;
 #pragma link C++ class TFCSEnergyBinParametrization+;
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
+#pragma link C++ class TFCSLateralShapeParametrizationFluctChain+;
 #pragma link C++ class TFCSCenterPositionCalculation+;
 #pragma link C++ class TFCSFlatLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrizationFCal+;
+#pragma link C++ class TFCS2DFunctionLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeWeight+;
+#pragma link C++ class TFCSHistoLateralShapeGausLogWeight+;
 #pragma link C++ class TFCSHistoLateralShapeWeightHitAndMiss+;
+#pragma link C++ class TFCSHistoLateralShapeGausLogWeightHitAndMiss+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
 #pragma link C++ class TFCSHitCellMapping+;
 #pragma link C++ class TFCSHitCellMappingFCal+;

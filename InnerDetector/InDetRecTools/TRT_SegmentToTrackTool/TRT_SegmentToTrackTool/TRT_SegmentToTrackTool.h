@@ -27,7 +27,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
-#include "TrkEventPrimitives/TrackScore.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 
 #include <string>
 
@@ -73,20 +73,18 @@ namespace InDet {
       virtual StatusCode initialize() override;
       virtual StatusCode finalize() override;
 
-      virtual Trk::Track* segToTrack(const Trk::TrackSegment&) override;
+      virtual Trk::Track* segToTrack(const Trk::TrackSegment&) const override;
       /** Check if the TRT segment has already been assigned a Si extension  */
-      virtual bool segIsUsed(const Trk::TrackSegment&, const Trk::PRDtoTrackMap *prd_to_track_map) override;
-      virtual bool toLower(const Trk::TrackSegment&) override;
-      virtual void resetAll() override;
-      virtual void resetAssoTool() override;
-      /** Add track into the track-score multimap */
-      virtual void addNewTrack(Trk::Track*) override;
-      /** Resolve the standalone TRT tracks based on the number of shared TRT hits */
-      virtual TrackCollection* resolveTracks(const Trk::PRDtoTrackMap *prd_to_track_map) override;
+      virtual bool segIsUsed(const Trk::TrackSegment&,
+                             const Trk::PRDtoTrackMap *prd_to_track_map) const override;
+      virtual bool toLower(const Trk::TrackSegment&) const override;
 
-      virtual int GetnTrkScoreZero() override { return m_nTrkScoreZero; }
-      virtual int GetnTrkSegUsed()   override { return m_nTrkSegUsed; }
-      virtual int GetnTRTTrk()       override { return m_nTRTTrk; }
+      /** Add track into the track-score multimap */
+      virtual void addNewTrack(Trk::Track*,
+                               ITRT_SegmentToTrackTool::EventData &event_data) const override;
+      /** Resolve the standalone TRT tracks based on the number of shared TRT hits */
+      virtual TrackCollection* resolveTracks(const Trk::PRDtoTrackMap *prd_to_track_map,
+                                             ITRT_SegmentToTrackTool::EventData &event_data) const override;
 
       virtual MsgStream&    dump     (MsgStream&    out) const override;
       virtual std::ostream& dump(std::ostream& out) const override;
@@ -102,6 +100,8 @@ namespace InDet {
 
       ToolHandle<Trk::IPRDtoTrackMapTool>  m_assoTool
          {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
+      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+        {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
 
       ToolHandle<Trk::ITrackScoringTool>     m_scoringTool   ;  //!< Track scoring tool
       ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc  ;  //!< Magnetic field service
@@ -109,25 +109,40 @@ namespace InDet {
       /**ID TRT helper*/
       const TRT_ID* m_trtId;
 
-      /** unsorted container of track and track scores.*/
-      typedef std::multimap< Trk::TrackScore, Trk::Track* > TrackScoreMap;
-      TrackScoreMap m_trackScoreTrackMap;
-
       /**Tracks that will be passed out of AmbiProcessor.
          Recreated anew each time process() is called*/ 
-      TrackCollection* m_finalTracks;
-
-      int m_nTrkScoreZero    ;  //!< Number of tracks rejected by score zero
-      int m_nTrkSegUsed      ;  //!< Number of excluded segments by other TRT segments
-      int m_nTRTTrk          ;  //!< Number of TRT-only tracks on output
-
       MsgStream&    dumpevent      (MsgStream&    out) const;
       MsgStream&    dumpconditions (MsgStream&    out) const;
 
     };
 
-  MsgStream&    operator << (MsgStream&   ,const TRT_SegmentToTrackTool&);
-  std::ostream& operator << (std::ostream&,const TRT_SegmentToTrackTool&);
+   ///////////////////////////////////////////////////////////////////
+   // Overload of << operator for MsgStream and  std::ostream
+   ///////////////////////////////////////////////////////////////////
+
+   MsgStream&    operator << (MsgStream&   ,const ITRT_SegmentToTrackTool&);
+   std::ostream& operator << (std::ostream&,const ITRT_SegmentToTrackTool&);
+
+   ///////////////////////////////////////////////////////////////////
+   // Inline methods
+   ///////////////////////////////////////////////////////////////////
+
+   ///////////////////////////////////////////////////////////////////
+   // Overload of << operator MsgStream
+   ///////////////////////////////////////////////////////////////////
+
+   inline MsgStream& operator    <<     (MsgStream& sl,const ITRT_SegmentToTrackTool& se)
+   {
+      return se.dump(sl);
+   }
+   ///////////////////////////////////////////////////////////////////
+   // Overload of << operator std::ostream
+   ///////////////////////////////////////////////////////////////////
+
+   inline std::ostream& operator <<     (std::ostream& sl,const ITRT_SegmentToTrackTool& se)
+   {
+      return se.dump(sl);
+   }
 
 }
 

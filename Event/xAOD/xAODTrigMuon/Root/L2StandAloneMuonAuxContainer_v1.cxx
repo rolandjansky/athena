@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: L2StandAloneMuonAuxContainer_v1.cxx 706292 2015-11-06 05:33:24Z ssnyder $
 
 // Local include(s):
 #include "xAODTrigMuon/versions/L2StandAloneMuonAuxContainer_v1.h"
@@ -73,8 +71,10 @@ namespace xAOD {
       AUX_VARIABLE( roiThreshold );
       //AUX_VARIABLE( roiEta );
       //AUX_VARIABLE( roiPhi );
-      regAuxVar ("roiEtaUint", roiEta);
-      regAuxVar ("roiPhiUint", roiPhi);
+      static const auxid_t etaId = getAuxID( "roiEtaUint", roiEta );
+      regAuxVar( etaId, "roiEtaUint", roiEta );
+      static const auxid_t phiId = getAuxID( "roiPhiUint", roiPhi );
+      regAuxVar( phiId, "roiPhiUint", roiPhi );
 
       AUX_VARIABLE( ptBarrelRadius );
       AUX_VARIABLE( ptBarrelSagitta );

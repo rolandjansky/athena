@@ -1,22 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
 // ATLAS Muon Identifier Helpers Package
-// -----------------------------------------
 // ******************************************************************************
-
-//<doc><file> $Id: CscIdHelper.h,v 1.32 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
 
 #ifndef MUONIDHELPERS_CSCIDHELPER_H
 #define MUONIDHELPERS_CSCIDHELPER_H
 
-// Includes
-
 #include "MuonIdHelpers/MuonIdHelper.h"
-#include <atomic>
 
 // ******************************************************************************
 // class CscIdHelper
@@ -85,7 +78,7 @@ class CscIdHelper : public MuonIdHelper
   int get_geo_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id ) const;
   int get_geo_channel_hash(const Identifier&, IdentifierHash&) const;
 
-
+  int get_hash_fromGeoHash(const IdentifierHash& geoHash, IdentifierHash& realHash, const IdContext* context) const;
 
   ///////////// compact identifier stuff ends ////////////////////////////////////// 
   
@@ -219,8 +212,8 @@ class CscIdHelper : public MuonIdHelper
     };
   int m_hashOffset[2][2];
 
-  mutable std::atomic<unsigned int> m_etaStripMax;
-  mutable std::atomic<unsigned int> m_phiStripMax;
+  unsigned int m_stripMaxPhi; // maximum number of strips for layer which measuresPhi
+  unsigned int m_stripMaxEta; // maximum number of strips for layer which does not measure phi
   bool m_hasChamLay1;
 };
 

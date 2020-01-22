@@ -4,7 +4,6 @@
 
 #include "RPC_RawDataProviderTool.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -117,11 +116,13 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
 // the new one 
 StatusCode Muon::RPC_RawDataProviderTool::convert()
 {
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
 //CALLGRIND_START_INSTRUMENTATION
   /// 
   m_decoder->setSLdecodingRequest();
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
-  std::vector<uint32_t> robIds = m_rpcCabling->giveFullListOfRobIds();
+  std::vector<uint32_t> robIds = readCdo->giveFullListOfRobIds();
   m_robDataProvider->getROBData( robIds, vecOfRobf);
 //CALLGRIND_STOP_INSTRUMENTATION
   return convert(vecOfRobf); // using the old one
@@ -149,10 +150,12 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const std::vector<uint32_t>& r
 // the new one
 StatusCode Muon::RPC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect)
 {
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
  //CALLGRIND_START_INSTRUMENTATION
     std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
     std::vector<uint32_t> robIds;
-    CHECK( m_rpcCabling->giveROB_fromRDO(rdoIdhVect, robIds) );
+    CHECK( readCdo->giveROB_fromRDO(rdoIdhVect, robIds) );
     m_robDataProvider->getROBData(robIds, vecOfRobf);
 //CALLGRIND_STOP_INSTRUMENTATION
     return convert(vecOfRobf, rdoIdhVect); // using the old one 
@@ -179,11 +182,6 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   RpcPadContainer* pad = 0;
   RpcSectorLogicContainer* logic = 0;
 
-  // logic for run-2 (not thread safe mode)
-  if (Gaudi::Hive::currentContext().slot() > 1) {
-    ATH_MSG_FATAL ( "RPC_RawDataProviderTool is in legacy run2 mode, but you are trying to run with > 1 thread. You must switch the mode" );
-    return StatusCode::FAILURE;
-  }
   // here we have to check if the container is already present and if it is we retrieve from SG
   if (rdoContainerHandle.isPresent()) {
     const RpcPadContainer* pad_c;

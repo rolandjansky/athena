@@ -49,13 +49,10 @@ class AtlasSimSkeleton(SimSkeleton):
         ## Tidy up DBM DetFlags: temporary measure
         DetFlags.DBM_setOff()
 
-        ## Tidy up NSW DetFlags: temporary measure
-        DetFlags.sTGC_setOff()
-        DetFlags.Micromegas_setOff()
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if CommonGeometryFlags.Run() in ["RUN3", "RUN4"]:
-            DetFlags.sTGC_setOn()
-            DetFlags.Micromegas_setOn()
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
+        if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+        if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
         ## Switch off tasks
         DetFlags.pileup.all_setOff()
@@ -182,8 +179,8 @@ class AtlasSimSkeleton(SimSkeleton):
             if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
                 ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
                 AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-            if CommonGeometryFlags.Run() in ["RUN3", "RUN4"]:
+            from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+            if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
                 if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
                     ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
                     AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]

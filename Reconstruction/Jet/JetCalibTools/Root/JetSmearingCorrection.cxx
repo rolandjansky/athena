@@ -424,7 +424,7 @@ StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) c
         return StatusCode::FAILURE;
 
     // Set the random seed deterministically using jet phi
-    m_rand.SetSeed(1.e+5*fabs(jet.phi()));
+    m_rand.SetSeed(1.e+5*(1.+fabs(jet.phi())));
 
     // Get the Gaussian-distributed random number
     // Force this to be a positive value

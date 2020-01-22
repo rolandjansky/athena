@@ -35,6 +35,7 @@ class Step(object):
         self.result = None
         self.auto_report_result = False
         self.required = False
+        self.depends_on_previous = False
         self.timeout = None
 
     def get_log_file_name(self):
@@ -66,15 +67,43 @@ class Step(object):
 
         art_result(result, name)
 
+    def __trace_and_kill(self, pid, signal, backtrace_list):
+        '''
+        Produce a backtrace for a process and its children, then call
+        os.killpg on the process. The last argument is a list of strings
+        where the first is filled with the backtrace by this function
+        (it has to be a list to be mutable).
+        '''
+        # Produce backtrace for the parent and all children
+
+        try:
+            import psutil
+            parent = psutil.Process(pid)
+            backtrace = ''
+            for proc in [parent] + parent.children(recursive=True):
+                backtrace += '\nTraceback for {} PID {}:\n'.format(proc.name(), proc.pid)
+                backtrace += subprocess.check_output('$ROOTSYS/etc/gdb-backtrace.sh {}'.format(proc.pid),
+                                                     stderr=subprocess.STDOUT, shell=True)
+        except ImportError:
+            # psutil is missing in LCG_96 python3
+            backtrace = 'psutil not available; no backtrace generated'
+
+        backtrace_list[0] = backtrace
+
+        # Kill the process
+        os.killpg(pid, signal)
+
     def __execute_with_timeout(self, cmd, timeout_sec):
         '''
         Execute a shell process and kill it if it doesn't finish
         before timeout_sec seconds pass. The implementation is based on
         https://stackoverflow.com/a/10012262 and https://stackoverflow.com/a/4791612
+        In addition, a backtrace is produced for the timed out process and its children.
         '''
         proc = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
-        timer = Timer(timeout_sec, os.killpg,
-                      [os.getpgid(proc.pid), signal.SIGKILL])
+        backtrace_list = ['']
+        timer = Timer(timeout_sec, self.__trace_and_kill,
+                      [os.getpgid(proc.pid), signal.SIGKILL, backtrace_list])
         try:
             timer.start()
             proc.communicate()
@@ -91,6 +120,7 @@ class Step(object):
                         'ERROR process killed on timeout '
                         'of {} seconds, command was {}\n'.format(
                             self.timeout, cmd))
+                    log_file.write(backtrace_list[0])
             return signal.SIGKILL  # return 9 instead of -9
 
         return proc.returncode

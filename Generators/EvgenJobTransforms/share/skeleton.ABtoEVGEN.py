@@ -355,8 +355,12 @@ svcMgr.EventSelector.RunNumber = runArgs.runNumber
 
 ## Handle beam info
 import EventInfoMgt.EventInfoMgtInit
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", 'collisions']
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_energy" : str(int(runArgs.ecmEnergy*Units.GeV/2.0)),
+                                             "beam_type"   : 'collisions',
+                                             ## Add special config option (extended model info for BSM scenarios)
+                                             "specialConfiguration" : evgenConfig.specialConfig,
+                                            })
+                                             
 
 ## Propagate energy argument to the generators
 # TODO: Standardise energy setting in the GenModule interface
@@ -365,8 +369,7 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 ## Process random seed arg and pass to generators
 include("EvgenJobTransforms/Generate_randomseeds.py")
 
-## Add special config option (extended model info for BSM scenarios)
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.specialConfig ]
+
 
 ## Remove TestHepMC if it's inappropriate for this generator combination
 # TODO: replace with direct del statements in the generator common JO fragments?

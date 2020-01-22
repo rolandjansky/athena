@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkPrepRawData
                           Tracking/TrkEvent/TrkSpacePoint
                           Tracking/TrkEvent/TrkTrack
+                          Tracking/TrkEvent/TrkEventUtils
                           PRIVATE
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigMinBias

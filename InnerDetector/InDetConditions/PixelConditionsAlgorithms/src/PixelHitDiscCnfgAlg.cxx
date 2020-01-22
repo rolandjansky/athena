@@ -13,38 +13,37 @@
 #include <istream>
 
 PixelHitDiscCnfgAlg::PixelHitDiscCnfgAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name),
-  m_defaultHitDiscCnfg(2)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("FEI4HitDiscConfig", m_defaultHitDiscCnfg);
 }
 
 StatusCode PixelHitDiscCnfgAlg::initialize() {
   ATH_MSG_DEBUG("PixelHitDiscCnfgAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
-
+  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelHitDiscCnfgAlg::execute() {
+StatusCode PixelHitDiscCnfgAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelHitDiscCnfgAlg::execute()");
 
-  SG::WriteCondHandle<PixelHitDiscCnfgData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelHitDiscCnfgData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
-  SG::ReadCondHandle<AthenaAttributeList> readHandle(m_readKey);
+  // Construct the output Cond Object and fill it in
+  std::unique_ptr<PixelHitDiscCnfgData> writeCdo(std::make_unique<PixelHitDiscCnfgData>());
+
+  SG::ReadCondHandle<AthenaAttributeList> readHandle(m_readKey, ctx);
   const AthenaAttributeList* readCdo = *readHandle; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -56,11 +55,8 @@ StatusCode PixelHitDiscCnfgAlg::execute() {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Size of AthenaAttributeList " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-  ATH_MSG_INFO("Range of input is " << rangeW);
-
-  // Construct the output Cond Object and fill it in
-  std::unique_ptr<PixelHitDiscCnfgData> writeCdo(std::make_unique<PixelHitDiscCnfgData>());
+  ATH_MSG_DEBUG("Size of AthenaAttributeList " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+  ATH_MSG_DEBUG("Range of input is " << rangeW);
 
   const coral::Blob& blob=(*readCdo)["HitDiscCnfgData"].data<coral::Blob>();
   const uint32_t* p = static_cast<const uint32_t*>(blob.startingAddress());
@@ -104,8 +100,9 @@ StatusCode PixelHitDiscCnfgAlg::execute() {
     }
   }
   // Take average.
-  double aveHitPL = 1.0*m_defaultHitDiscCnfg;
-  double aveHit3D = 1.0*m_defaultHitDiscCnfg;
+  double aveHitPL = 1.0*SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getFEI4HitDiscConfig(0,0);
+  double aveHit3D = 1.0*SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getFEI4HitDiscConfig(0,0);
+
   if (nhitPL) { aveHitPL = hitPL/(1.0*nhitPL); }
 
   if (nhit3D) { aveHit3D = hit3D/(1.0*nhit3D); }
@@ -129,7 +126,3 @@ StatusCode PixelHitDiscCnfgAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelHitDiscCnfgAlg::finalize() {
-  ATH_MSG_DEBUG("PixelHitDiscCnfgAlg::finalize()");
-  return StatusCode::SUCCESS;
-}

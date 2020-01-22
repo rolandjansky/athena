@@ -21,10 +21,6 @@ HltROBDataProviderSvc::HltROBDataProviderSvc(const std::string& name, ISvcLocato
 {
 }
 
-HltROBDataProviderSvc::~HltROBDataProviderSvc()
-{
-}
-
 StatusCode HltROBDataProviderSvc::initialize()
 {
   ATH_MSG_INFO("HltROBDataProviderSvc::" << __FUNCTION__ << ": name = " << name());
@@ -162,7 +158,7 @@ StatusCode HltROBDataProviderSvc::finalize()
 }
 
 /// --- Implementation of IROBDataProviderSvc interface ---
-/// --- Legacy interface (depricated) ---
+/// --- Legacy interface (deprecated) ---
 
 /// Signal ROB fragments which should be considered for prefetching in online running
 void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, 

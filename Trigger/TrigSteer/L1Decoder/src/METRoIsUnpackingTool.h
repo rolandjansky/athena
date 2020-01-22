@@ -30,7 +30,7 @@ public:
   virtual StatusCode start() override;
 
 private:
-  Gaudi::Property<std::string> m_fsRoIKey{ this, "FSRoIKey", "FSRoI", "The key of FS RoI made earlier by the L1Decoder" };
+  Gaudi::Property<std::string> m_fsRoIKey{ this, "FSRoIKey", "HLT_FSRoI", "The key of FS RoI made earlier by the L1Decoder" };
 
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   LVL1::JEPRoIDecoder m_jepDecoder;

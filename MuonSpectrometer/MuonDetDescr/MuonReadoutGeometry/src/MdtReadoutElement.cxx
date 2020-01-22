@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  The Mdt detector = a multilayer = MDT in amdb 
  ----------------------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MdtReadoutElement.cxx,v 1.4 2009-05-16 13:08:13 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -22,6 +17,7 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelUtilities/GeoGetIds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "MuonAlignmentData/BLinePar.h"
@@ -95,7 +91,6 @@ MdtReadoutElement::~MdtReadoutElement()
   delete m_elemNormal;
   delete m_associatedSurface;
   delete m_associatedBounds;
-  //delete m_deformTransf;
    
   if (m_deformTransfs) {
     for (unsigned int tsf = 0; tsf < m_deformTransfs->size(); ++tsf) delete (*m_deformTransfs)[tsf];
@@ -186,29 +181,31 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
 
   if (hasCutouts()){
     if (manager()->MinimalGeoFlag() == 0) {
-	(*m_Log)  << MSG::VERBOSE << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta() << " stPhi " << getStationPhi() 
+      if (m_Log->level() <= MSG::VERBOSE) (*m_Log) << MSG::VERBOSE << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta() << " stPhi " << getStationPhi() 
 		<< "multilayer "<<getMultilayer()<<" has cutouts, check for real tube length for tubeLayer, tube "<< tubeLayer<<" "<<tube<< endmsg;
       PVConstLink cv = getMaterialGeom(); // it is "Multilayer"
       int nGrandchildren = cv->getNChildVols();
-      (*m_Log)  << MSG::VERBOSE << " nchild = "<<nGrandchildren<<endmsg;
+      if (m_Log->level() <= MSG::VERBOSE) (*m_Log) << MSG::VERBOSE << " nchild = "<<nGrandchildren<<endmsg;
       if (nGrandchildren <= 0) return tlength;
       // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
       int ii = (tubeLayer-1)*m_ntubesperlayer+tube;
-      if( (getStationName()).find("BMG") != std::string::npos ) {
+      if (idh->isBMG(identify())) {
         // usually the tube number corresponds to the child number, however for
         // BMG chambers full tubes are skipped during the building process
         // therefore the matching needs to be done via the volume ID
-        int tubenbr = -1;
-        int layernbr = -1;
-        for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-           tubenbr = cv->getIdOfChildVol(kk) % 100;
-           layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
-           if( tubenbr == tube && layernbr == tubeLayer) {
-             ii = kk;
-	        (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
-                        << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endmsg;
-             break;
-           }
+        int packed_id = tube + 100*tubeLayer;
+        int kk = 0;
+        bool found = false;
+        geoGetIds ([&](int id) {
+                     if (!found && id == packed_id) {
+                       ii = kk;
+                       found = true;
+                     }
+                     ++kk;
+                   }, &*cv);
+        if (found) {
+          (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
+                    << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
         }
       }
       if (ii>=nGrandchildren) 
@@ -243,7 +240,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
     }
     if (fabs(tlength-nominalTubeLength)>0.1)
     {
-     (*m_Log)  << MSG::DEBUG << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
+     if (m_Log->level() <= MSG::VERBOSE) (*m_Log)  << MSG::VERBOSE << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
 						  <<" is affected by a cutout: eff. length =  "<<tlength<<" while nominal = "<<nominalTubeLength
 						  <<" in station "<< getStationName() << " at Eta/Phi " << getStationEta()
 						  << "/" << getStationPhi() << " ml "<<getMultilayer()
@@ -251,7 +248,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
     }
     else 
       {
-	  (*m_Log)  << MSG::DEBUG << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
+     if (m_Log->level() <= MSG::VERBOSE) (*m_Log)  << MSG::VERBOSE << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
 		  <<" is NOT affected by the cutout: eff. length =  "<<tlength<<" while nominal = "<<nominalTubeLength
 		  <<endmsg;
       }
@@ -542,21 +539,23 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
         int nGrandchildren = cv->getNChildVols();
         // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
         int ii = (tubelayer-1)*m_ntubesperlayer+tube;
-        if( (getStationName()).find("BMG") != std::string::npos ) {
+        if (manager()->mdtIdHelper()->isBMG(identify())) {
           // usually the tube number corresponds to the child number, however for
           // BMG chambers full tubes are skipped during the building process
           // therefore the matching needs to be done via the volume ID
-          int tubenbr = -1;
-          int layernbr = -1;
-          for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-             tubenbr = cv->getIdOfChildVol(kk) % 100;
-             layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
-             if( tubenbr == tube && layernbr == tubelayer) {
-               ii = kk;
-	          (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
-                          << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endmsg;
-               break;
-             }
+          int packed_id = tube + 100*tubelayer;
+          int kk = 0;
+          bool found = false;
+          geoGetIds ([&](int id) {
+                       if (!found && id == packed_id) {
+                         ii = kk;
+                         found = true;
+                       }
+                       ++kk;
+                     }, &*cv);
+          if (found) {
+            (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
+                      << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
           }
         }
         GeoTrf::Transform3D tubeTrans = cv->getXToChildVol(ii);
@@ -619,7 +618,6 @@ const Amg::Vector3D MdtReadoutElement::localTubePos(Identifier id) const
     int layer    = idh->tubeLayer(id);
     int tube     = idh->tube(id);
 
-    //std::cerr<<" localTubePos for Id = "<<idh->show_to_string(id)<<std::endl;
     return localTubePos(ml, layer, tube);
 }
 const Amg::Vector3D MdtReadoutElement::nodeform_localTubePos(Identifier id) const
@@ -652,15 +650,20 @@ const Amg::Vector3D MdtReadoutElement::tubePos(int multilayer, int tubelayer, in
                <<"inserted multilayer is not the multilayer of the RE." <<endmsg;
         throw;
     }
-
+    #ifndef NDEBUG
       (*m_Log) <<MSG::VERBOSE<<"in tubePos-- id "<<(manager()->mdtIdHelper())->show_to_string(identify())
        <<" ml, tl, t = "<<multilayer<<", "<<tubelayer<<", "<<tube<<endmsg;
       (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for local coord.s"<<endmsg;    
-        const Amg::Vector3D lp = localTubePos(multilayer, tubelayer, tube);
+    #endif
+      const Amg::Vector3D lp = localTubePos(multilayer, tubelayer, tube);
+    #ifndef NDEBUG
     (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for det transform"<<endmsg;
+    #endif
     const Amg::Transform3D mdtTrans = absTransform();
+    #ifndef NDEBUG
     (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) got localP and trans "<<endmsg;
-    
+    #endif
+
     return mdtTrans * lp;
 
 }
@@ -900,22 +903,28 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
       if (!m_deformTransfs) 
 	{
 	  m_deformTransfs  = new std::vector<Amg::Transform3D *>( 1 );
+    #ifndef NDEBUG
 	    (*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())<<" created vector of deform-trasf with size 1 - pointer "<<(uintptr_t)m_deformTransfs<<endmsg;
+    #endif
 	}
       Amg::Transform3D * transf =  (*m_deformTransfs)[0];
       if( transf ) return *transf;
       transf = new Amg::Transform3D(Amg::Transform3D::Identity());
       (*m_deformTransfs)[0] = transf;	
+      #ifndef NDEBUG
 	(*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())<<" creating deform-trasf as identity for tLayer, tube "<<tubelayer<<" "<<tube
 		<<" globalIndex = "<<0<<" pointer "<<(uintptr_t)transf<<endmsg;
+    #endif
       return *transf;
     }
   
    
   int ntot_tubes = m_nlayers * m_ntubesperlayer;
   if (!m_deformTransfs ) {	
+    #ifndef NDEBUG
       (*m_Log)  << MSG::VERBOSE <<"Creating vector of deform-Transformations for RE "<< idh->show_to_string(identify())
 	      <<" with "<<ntot_tubes << " components"<<endmsg;
+    #endif
       m_deformTransfs  = new std::vector<Amg::Transform3D *>( ntot_tubes );
       for (int j=0; j<ntot_tubes; ++j)  (*m_deformTransfs)[j] = 0;
   }
@@ -926,8 +935,10 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
   }
   Amg::Transform3D * transf =  (*m_deformTransfs)[itube];
   if( transf ) {
+    #ifndef NDEBUG
     (*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())
 						 <<" reusing deform-trasf for tLayer, tube "<<tubelayer<<" "<<tube<<" globalIndex = "<<itube<<endmsg;
+    #endif
       return *transf;
   }
   
@@ -954,22 +965,8 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
   Amg::Transform3D fromAMDB = toAMDB.inverse();
 
   // Get positions of the wire center and end without deformations
-  //Amg::Vector3D pt_center   = nodeform_localTubePos(multilayer, tubelayer, tube);
-  //double halftubelen = 0.5*getTubeLength(tubelayer, tube);
   Amg::Vector3D pt_center   = localNominalTubePosWoCutouts(tubelayer, tube);
   double halftubelen = 0.5*getNominalTubeLengthWoCutouts(tubelayer, tube);
-  //if (signedRODistanceFromTubeCentre(multilayer, tubelayer, tube) > 0.)
-    //halftubelen = - halftubelen;
-
-  //Amg::Vector3D pt_end1 = Amg::Vector3D(pt_center.x(),
-				 //pt_center.y()-halftubelen,
-				 //pt_center.z()); // s>0 side
-  //Amg::Vector3D pt_end2 = Amg::Vector3D(pt_center.x(),
-				 //pt_center.y()+halftubelen,
-				 //pt_center.z()); // s<0 side
-  
-  //Amg::Vector3D pt_end1_new = pt_end1;
-  //Amg::Vector3D pt_end2_new = pt_end2;
 
   // Compute tube ends in AMDB coordinates
   Amg::Vector3D pt_end1 = toAMDB * pt_center + Amg::Vector3D(+halftubelen, 0., 0.); // s>0 side
@@ -1044,7 +1041,7 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
 
   transf = new Amg::Transform3D(from_center*wire_rotation*to_center);
   (*m_deformTransfs)[itube] = transf;
-    (*m_Log)  << MSG::DEBUG <<"RE "<< idh->show_to_string(identify())
+  if (m_Log->level() <= MSG::VERBOSE) (*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())
 	    <<" created deform-trasf for tLayer, tube "<<tubelayer<<" "<<tube<<" globalIndex = "<<itube<<endmsg;
 
   return *transf;
@@ -1255,9 +1252,6 @@ void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg
     else
       reference_point = reference_point + Amg::Vector3D(-0.5*getNominalTubeLengthWoCutouts(ref_layer, 1), 0., 0.);
 
-    //std::cout << "REF: " << reference_point.x() << " " << reference_point.y() << " " << reference_point.z() << std::endl;
-    //std::cout << "WIR: " << wireEnd[isid].x()-reference_point.x() << " " << wireEnd[isid].y()-reference_point.y() << " " << wireEnd[isid].z()-reference_point.z() << std::endl;
-
     int layer_delta = tubelayer;
     if (ml==MdtAsBuiltPar::ML1) layer_delta = m_nlayers+1-tubelayer;
 
@@ -1359,7 +1353,6 @@ MdtReadoutElement::transform(const Identifier & id) const
 const Amg::Transform3D &
 MdtReadoutElement::transform(int tubeLayer, int tube) const 
 {
-    //std::cout<<"caching flag = "<<m_caching<<std::endl;
     int ntot_tubes = m_nlayers * m_ntubesperlayer;
     int itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
     if( itube >= ntot_tubes ) {
@@ -1378,17 +1371,14 @@ MdtReadoutElement::transform(int tubeLayer, int tube) const
         if (!m_tubeTransf) m_tubeTransf = new std::vector<Amg::Transform3D *>( ntot_tubes );
         Amg::Transform3D * transfPtr = (*m_tubeTransf)[itube];
         if (!transfPtr) {
-            //std::cout<<"a new calculation "<<std::endl;
             transfPtr = new Amg::Transform3D(localToGlobalTransf(tubeLayer, tube));
             (*m_tubeTransf)[itube] = transfPtr;
         }
-        //else std::cout<<"use old calculation "<<std::endl;
         return *transfPtr;
     }
     else
     {
         if (!m_tubeTransf) m_tubeTransf = new std::vector<Amg::Transform3D *>;
-        //std::cout<<"a new calculation "<<std::endl;
         Amg::Transform3D * transfPtr = new Amg::Transform3D(localToGlobalTransf(tubeLayer, tube));
         m_tubeTransf->push_back(transfPtr);
         return *transfPtr;
@@ -1766,17 +1756,20 @@ void MdtReadoutElement::fillBLineCache() const
 }
 void MdtReadoutElement::clearBLineCache() const
 {
-        (*m_Log) <<MSG::VERBOSE<<"Clearing BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
+    #ifndef NDEBUG
+    if (m_Log->level() <= MSG::VERBOSE) (*m_Log) <<MSG::VERBOSE<<"Clearing BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
                <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
                <<" ml "<<m_multilayer<<" pointer to vector or deform-transfs "<<(uintptr_t)m_deformTransfs<<endmsg;
-
+    #endif
     if (m_deformTransfs) {
-	(*m_Log) <<MSG::VERBOSE<<"non null pointer to the vector of deform-transfs"<<endmsg;
+      #ifndef NDEBUG
+      if (m_Log->level() <= MSG::VERBOSE) (*m_Log) <<MSG::VERBOSE<<"non null pointer to the vector of deform-transfs"<<endmsg;
+      #endif
       if (!m_deformTransfs->empty())
 	{
-	    (*m_Log) <<MSG::VERBOSE<<"vector of deform-transfs has size "<< m_deformTransfs->size()<<endmsg;
+    if (m_Log->level() <= MSG::VERBOSE) (*m_Log) <<MSG::VERBOSE<<"vector of deform-transfs has size "<< m_deformTransfs->size()<<endmsg;
 	  for (unsigned int tsf = 0; tsf < m_deformTransfs->size(); ++tsf) {
-	      (*m_Log) <<MSG::VERBOSE<<"vector of deform-transfs - going to delete component  "<<tsf<< m_deformTransfs->size()<<endmsg;
+      if (m_Log->level() <= MSG::VERBOSE) (*m_Log) <<MSG::VERBOSE<<"vector of deform-transfs - going to delete component  "<<tsf<< m_deformTransfs->size()<<endmsg;
 	    delete (*m_deformTransfs)[tsf];
 	    (*m_deformTransfs)[tsf] = 0;
 	  }    
@@ -1981,8 +1974,8 @@ void MdtReadoutElement::fillCache() const
     Trk::SurfaceBounds* tmpBounds = NULL;//<! filling m_associatedBounds
     if (MuonReadoutElement::barrel()) tmpBounds = (Trk::RectangleBounds*)&bounds();
     else tmpBounds = (Trk::TrapezoidBounds*)&bounds();
-    (*m_Log) <<MSG::VERBOSE<<"global Surface / Bounds pointers "<<tmpSurface<<" "<<tmpBounds<<endmsg;
-    (*m_Log) <<MSG::VERBOSE<<"global Normal "<<normal()<<endmsg;
+    if (m_Log->level() <= MSG::VERBOSE) (*m_Log) <<MSG::VERBOSE<<"global Surface / Bounds pointers "<<tmpSurface<<" "<<tmpBounds<<endmsg;
+    if (m_Log->level() <= MSG::VERBOSE) (*m_Log) <<MSG::VERBOSE<<"global Normal "<<normal()<<endmsg;
 
     Trk::CylinderBounds* tmpCil = NULL;
     Trk::SaggedLineSurface* tmpSaggL = NULL;
@@ -1992,15 +1985,45 @@ void MdtReadoutElement::fillCache() const
     {
         for (int tube=1; tube<=getNtubesperlayer(); ++tube)
         {
-            // print in order to compute !!!
-	    myTransform = transform(tl, tube); //<! filling m_tubeTransf
-	    myPoint     = center(tl, tube);    //<! filling m_tubeCenter
-            tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
-            tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
-	      (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+            // in case of BMG chambers, do not check the 'dead' tubes 
+            // (the tubes are numbered from 1-54 for each multilayer, however there are cutouts for the
+            // alignment system where no tubes are built-in, meaning, those tubes do not exist/are 'dead')
+            if (manager()->mdtIdHelper()->isBMG(identify())) {
+                PVConstLink cv = getMaterialGeom();
+                // usually the tube number corresponds to the child number, however for
+                // BMG chambers full tubes are skipped during the building process
+                // therefore the matching needs to be done via the volume ID
+                int packed_id = tube + 100*tl;
+                bool found = false;
+                geoGetIds ([&](int id) {
+                             if (!found && id == packed_id) {
+                               myTransform = transform(tl, tube); //<! filling m_tubeTransf
+                               myPoint     = center(tl, tube);    //<! filling m_tubeCenter
+                               tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
+                               tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
+                               found = true;
+                             }
+                           }, &*cv);
+
+                if (found && m_Log->level() <= MSG::VERBOSE) {
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+                }
+            } else {
+                // print in order to compute !!!
+                myTransform = transform(tl, tube); //<! filling m_tubeTransf
+                myPoint     = center(tl, tube);    //<! filling m_tubeCenter
+                tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
+                tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
+                if (m_Log->level() <= MSG::VERBOSE) {
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+                }
+            }
         }
     }
 }

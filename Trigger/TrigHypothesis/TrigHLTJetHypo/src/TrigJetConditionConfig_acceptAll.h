@@ -21,9 +21,11 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
 
   virtual ConditionMT getCondition() const override;
 
+  virtual bool addToCapacity(std::size_t) override;
+  virtual std::size_t capacity() const override;
  private:
-  Gaudi::Property<std::size_t>
-    m_capacity {this, "capacity", {}, "Conditon capacity"};
- 
+
+  std::size_t m_capacity{0};  // not a property: set at run time
+
 };
 #endif

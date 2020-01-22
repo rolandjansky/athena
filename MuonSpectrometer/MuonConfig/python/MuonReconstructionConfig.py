@@ -2,6 +2,7 @@
 
 # Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Local
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
@@ -42,7 +43,7 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     # This is a temporary fix! Should be private!
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     cfg.addService( muon_edm_helper_svc )
 
@@ -51,6 +52,6 @@ if __name__=="__main__":
 
     cfg.merge(MuonReconstructionCfg(ConfigFlags))
               
-    f=open("MuonSegmentFinding.pkl","w")
+    f=open("MuonSegmentFinding.pkl","wb")
     cfg.store(f)
     f.close()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
@@ -45,7 +45,9 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
   // Get track-finding tool
   //
-  ATH_CHECK(m_trackmaker.retrieve());
+  ATH_CHECK( m_trackmaker.retrieve());
+
+  ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty()} ));
 
   if (m_useNewStrategy and m_beamSpotKey.key().empty()) {
     m_useNewStrategy = false;
@@ -177,6 +179,11 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) co
   //
   for (std::pair<double, Trk::Track*> q: qualityTrack) {
     ++counter[kNTracks];
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*(q.second),
+                                                         trackEventData.combinatorialData().PRDtoTrackMap(),
+                                                         false /* DO NOT suppress hole search*/);
+    }
     outputTracks->push_back(q.second);
   }
 
@@ -292,6 +299,11 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   //
   for (std::pair<double, Trk::Track*> q: qualityTrack) {
     ++counter[kNTracks];
+    if (m_trackSummaryTool.isEnabled()) {
+       m_trackSummaryTool->computeAndReplaceTrackSummary(*q.second,
+                                                         trackEventData.combinatorialData().PRDtoTrackMap(),
+                                                         false /* DO NOT suppress hole search*/);
+    }
     outputTracks->push_back(q.second);
   }
 
@@ -435,7 +447,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
   unsigned int nsp = 0;
   if (not m_SpacePointsPixelKey.empty()) {
     SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey, ctx};
-    if (not spacePointsPixel.isValid()) {
+    if (spacePointsPixel.isValid()) {
       for (const SpacePointCollection* spc: *spacePointsPixel) {
         nsp += spc->size();
       }
@@ -451,7 +463,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
   nsp = 0;
   if (not m_SpacePointsSCTKey.empty()) {
     SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey, ctx};
-    if (not spacePointsSCT.isValid()) {
+    if (spacePointsSCT.isValid()) {
       for (const SpacePointCollection* spc: *spacePointsSCT) {
         nsp += spc->size();
       }

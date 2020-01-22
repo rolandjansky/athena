@@ -13,7 +13,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
 from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
 
 class TrigmuCombMTConfig (muCombMT):

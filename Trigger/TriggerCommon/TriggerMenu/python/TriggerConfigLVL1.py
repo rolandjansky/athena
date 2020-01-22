@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import re
 
 from .TriggerConfigL1Topo import TriggerConfigL1Topo
-from l1.Lvl1Menu import Lvl1Menu
-from l1.Lvl1Flags import Lvl1Flags
+from .l1.Lvl1Menu import Lvl1Menu
+from .l1.Lvl1Flags import Lvl1Flags
 
 
 from AthenaCommon.Logging import logging
@@ -22,7 +24,7 @@ class TriggerConfigLVL1:
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-        self.menuName = TriggerFlags.triggerMenuSetup() if menuName==None else menuName
+        self.menuName = TriggerFlags.triggerMenuSetup() if menuName is None else menuName
 
         self.inputFile     = inputFile
         self.outputFile    = outputFile
@@ -37,7 +39,7 @@ class TriggerConfigLVL1:
 
         # get L1Topo trigger line connections
         if topoMenu=="MATCH": topoMenu = self.menuName # topo menu name should match CTP menu for correct connection
-        if topoMenu!=None:
+        if topoMenu is not None:
             self.topotriggers = self.getL1TopoTriggerLines(topoMenu)
             self.registerAllTopoTriggersAsThresholds()
 
@@ -45,11 +47,11 @@ class TriggerConfigLVL1:
         # menu
         self.menu = Lvl1Menu(self.menuName)
 
-        if self.inputFile != None:
+        if self.inputFile is not None:
             """Read menu from XML"""
             self.l1menuFromXML = True
             self.menu.readMenuFromXML(self.inputFile)
-        elif menuName==None:
+        elif menuName is None:
             """Build menu from menu name"""
             # defines the menu (item and threshold names)
             TriggerConfigLVL1.defineMenu(self.menuName)
@@ -60,7 +62,7 @@ class TriggerConfigLVL1:
 
     ## L1 Topo connection
     def getL1TopoTriggerLines(self, menu):
-        if menu == None:
+        if menu is None:
             return None
 
         if menu.endswith(".xml"):
@@ -73,8 +75,8 @@ class TriggerConfigLVL1:
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
 
-            except Exception, ex:
-                print "Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex 
+            except Exception as ex:
+                print ("Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex )
 
             return triggerLines
 
@@ -97,7 +99,7 @@ class TriggerConfigLVL1:
             log.error("LVL1 threshold of name '%s' already registered, will ignore this new registration request" % name)
             return self.registeredThresholds[name]
 
-        from l1.Lvl1Thresholds import LVL1Threshold
+        from .l1.Lvl1Thresholds import LVL1Threshold
         thr = LVL1Threshold( name, type,
                              mapping = mapping, active = active,
                              seed_type = seed_ttype, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay
@@ -114,11 +116,11 @@ class TriggerConfigLVL1:
         if not self.topotriggers:
             return
         
-        from l1.Lvl1Thresholds import LVL1TopoInput
+        from .l1.Lvl1Thresholds import LVL1TopoInput
         from collections import defaultdict
 
         multibitTopoTriggers = defaultdict(list)
-        multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
+        multibitPattern = re.compile(r"(?P<line>.*)\[(?P<bit>\d+)\]")
         for triggerline in self.topotriggers:
             m = multibitPattern.match(triggerline.trigger) # tries to match "trigger[bit]"
             if m:
@@ -175,13 +177,13 @@ class TriggerConfigLVL1:
             log.warning("Can't write xml file since no name was provided")
             return
 
-        from l1.Lvl1MenuUtil import idgen
+        from .l1.Lvl1MenuUtil import idgen
         idgen.reset()
 
         FH = open( self.outputFile, mode="wt" )
         FH.write( self.menu.xml() )
         FH.close()
-        from l1.Lvl1MenuUtil import oldStyle
+        from .l1.Lvl1MenuUtil import oldStyle
         log.info("Wrote %s in %s" % (self.outputFile, "run 1 style" if oldStyle() else "run 2 style"))
         return self.outputFile
 
@@ -202,7 +204,7 @@ class TriggerConfigLVL1:
             menuName = TriggerFlags.triggerMenuSetup()
 
         menuName=TriggerConfigL1Topo.getMenuBaseName(menuName)
-        menumodule = __import__('l1menu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('TriggerMenu.l1menu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )
 
@@ -219,7 +221,7 @@ class TriggerConfigLVL1:
 
         run1 = Lvl1Flags.CTPVersion()<=3
 
-        itemdefmodule = __import__('l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
+        itemdefmodule = __import__('TriggerMenu.l1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
 
         itemdefmodule.ItemDef.registerItems(self)
         log.info("registered %i items and %i thresholds (%s)" % ( len(self.registeredItems), len(self.registeredThresholds), ('Run 1' if run1 else 'Run 2') ) )
@@ -242,7 +244,7 @@ class TriggerConfigLVL1:
 
         for itemName in Lvl1Flags.items():
             registeredItem = self.getRegisteredItem(itemName)
-            if registeredItem == None:
+            if registeredItem is None:
                 log.fatal("LVL1 item '%s' has not been registered in l1menu/ItemDef.py" % itemName)
                 raise RuntimeError("LVL1 item %s has not been registered in l1menu/ItemDef.py" % itemName)
 
@@ -256,7 +258,7 @@ class TriggerConfigLVL1:
         assigned_ctpids = [item.ctpid for item in itemsForMenu]
 
         # CTP IDs available for assignment
-        from l1.Limits import Limits
+        from .l1.Limits import Limits
         available_ctpids = sorted( list( set(range(Limits.MaxTrigItems)) - set(assigned_ctpids) ) )
         available_ctpids.reverse()
 
@@ -325,7 +327,7 @@ class TriggerConfigLVL1:
         """
         existingMappings = {}
         for thr in self.menu.thresholds():
-            if not thr.ttype in existingMappings:
+            if thr.ttype not in existingMappings:
                 existingMappings[thr.ttype] = set()
             if thr.mapping<0: continue
             existingMappings[thr.ttype].add(thr.mapping)
@@ -351,7 +353,7 @@ class TriggerConfigLVL1:
         c = Counter()
         for thr in self.menu.thresholds:
             if thr.ttype=="ZB":
-                if not thr.seed in self.menu.thresholds:
+                if thr.seed not in self.menu.thresholds:
                     raise RuntimeError("Zero bias threshold '%s' based on non-existing threshold '%s'" % (thr,thr.seed) )
                 seed = self.menu.thresholds.thresholdOfName(thr.seed) # the ZB seed
                 thr.cableinfo = copy(seed.cableinfo)
@@ -382,5 +384,5 @@ class TriggerConfigLVL1:
 
         
     def setCaloInfo(self):
-        from l1menu.CaloDef import CaloDef
+        from .l1menu.CaloDef import CaloDef
         CaloDef.defineGlobalSettings(self)

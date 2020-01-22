@@ -78,6 +78,7 @@ InDetPhysHitDecoratorAlg::initialize() {
 
   ATH_CHECK( m_trkParticleName.initialize() );
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix,float_decor_names,m_floatDecor);
+  
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix, int_decor_names, m_intDecor);
   assert( m_intDecor.size() == kNIntDecorators);
   assert( m_floatDecor.size() == kNFloatDecorators);
@@ -345,15 +346,21 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
         int_decor[kDecorRegion](particle)=result_r;
         int_decor[kDecorDet](particle) = result_det;
         int_decor[kDecorILayer](particle) = result_iLayer;
+        //IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorResidualLocX],result_residualLocX);
         float_decor[kDecorResidualLocX](particle) = result_residualLocX;
-        float_decor[kDecorPullLocX](particle) = result_pullLocX;
         float_decor[kDecorResidualLocY](particle) = result_residualLocY;
+        float_decor[kDecorPullLocX](particle) = result_pullLocX;
         float_decor[kDecorPullLocY](particle) = result_pullLocY;
         int_decor[kDecorPhiWidth](particle) = result_phiWidth;
         int_decor[kDecorEtaWidth](particle) = result_etaWidth;
         int_decor[kDecorType](particle) = result_measureType;
         return true;
       }
+    }
+    else {
+       // particle below pt threshold for decoration. Since this is not an error now "true" is returned.
+       // If "false" is returned the job would be aborted.
+       return true;
     }
   } else {
     ATH_MSG_ERROR("No valid track link found ");

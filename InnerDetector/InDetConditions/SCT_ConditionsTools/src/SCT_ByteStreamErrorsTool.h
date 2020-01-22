@@ -21,7 +21,7 @@
 #include "Identifier/IdContext.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
@@ -65,8 +65,8 @@ public:
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
   
-  const std::set<IdentifierHash>* getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
-  const std::set<IdentifierHash>* getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
+  const std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
+  const std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
 
   const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets(const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
   const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets() const override; // Used by SCTRawDataProviderTool and others
@@ -83,7 +83,7 @@ private:
   const SCT_ID* m_sct_id{nullptr};
   IdContext m_cntx_sct;
 
-  SG::ReadHandleKey<InDetBSErrContainer> m_bsErrContainerName{this, "ContainerName", "SCT_ByteStreamErrs", "Key of InDetBSErrContainer for SCT"};
+  SG::ReadHandleKey<IDCInDetBSErrContainer> m_bsIDCErrContainerName{this, "IDCByteStreamErrContainer", "SCT_ByteStreamErrs", "SCT BS error key for IDC variant"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // Mutex to protect the contents.

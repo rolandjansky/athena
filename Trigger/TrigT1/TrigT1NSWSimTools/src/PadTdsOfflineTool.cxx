@@ -12,7 +12,6 @@
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -24,6 +23,8 @@
 #include "MuonSimData/MuonSimData.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/EventContext.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -231,20 +232,10 @@ namespace NSWL1 {
             return StatusCode::FAILURE;
         }
         // retrieve the current run number and event number
-        const DataHandle<EventInfo> pevt; 
-        StatusCode sc =evtStore()->retrieve(pevt) ;
-        
-        if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
-            ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current PAD cache" );
-            m_pad_cache_runNumber   = -1;
-            m_pad_cache_eventNumber = -1;
-        } else {
-            m_pad_cache_runNumber = pevt->event_ID()->run_number();
-            m_pad_cache_eventNumber = pevt->event_ID()->event_number();
-        }
+        const EventContext& ctx = Gaudi::Hive::currentContext();
 
-        m_pad_cache_runNumber = pevt->event_ID()->run_number();
-        m_pad_cache_eventNumber = pevt->event_ID()->event_number();
+        m_pad_cache_runNumber = ctx.eventID().run_number();
+        m_pad_cache_eventNumber = ctx.eventID().event_number();
 
         if (m_pad_cache_status==CLEARED) {
             // renew the PAD cache if this is the next event
@@ -319,7 +310,7 @@ namespace NSWL1 {
                             //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
                             //S.I
                             //std::shared_ptr<PadOfflineData> pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
-                            auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                            auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_detManager);
                             //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
                             pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
                             //S.I

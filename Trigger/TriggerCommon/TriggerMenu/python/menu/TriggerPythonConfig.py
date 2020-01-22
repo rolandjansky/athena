@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################################
 # User interface for the configuration, nothing beneath this class need to be studied
@@ -8,11 +8,14 @@ import string
 from collections import defaultdict
 import xml.dom.minidom as minidom
 import xml.etree.cElementTree as etree
+from functools import reduce
 
 from TriggerMenu.menu.HLTObjects import HLTSequence
 
 from AthenaCommon.Logging        import logging
 log = logging.getLogger( 'TriggerPythonConfig' )
+
+import six
 
 class TriggerPythonConfig:
     sCurrentTriggerConfig = None
@@ -98,11 +101,11 @@ class TriggerPythonConfig:
                 return teRemap[te]
             return te
         chain_TEsigs = {} # [chain][TElist] -> list of signatures
-        for sig, chains in self.allChains.iteritems():
+        for sig, chains in six.iteritems (self.allChains):
             keys = chain_TEsigs.keys()
             for c in chains:
                 #tes = string.join(c.getOutputTEs(), ',')
-                tes  = string.join([ renameTE(te, teRenaming) for te in c.getOutputTEs() ], ',')                
+                tes  = ','.join([ renameTE(te, teRenaming) for te in c.getOutputTEs() ])
                 if c.chain_name in keys: # chain already defined before
                     TEsigs = chain_TEsigs[c.chain_name]
                     log.debug('Uniqueness check: TEs in sig=%s: %s', sig, tes)
@@ -113,13 +116,13 @@ class TriggerPythonConfig:
                         TEsigs[tes] = [sig]
                 else: # chain found for the first time
                     chain_TEsigs[c.chain_name] = { tes: [sig] }
-        for c, TEsigs in chain_TEsigs.iteritems():
+        for c, TEsigs in six.iteritems (chain_TEsigs):
             if len(TEsigs) <= 1: continue
-            n = sum(map(lambda x: len(x[1]), TEsigs.iteritems() ) )
+            n = sum(map(lambda x: len(x[1]), six.iteritems (TEsigs) ) )
             m = len(TEsigs)
             log.error('Chain %s defined %d times with %d variants' % (c, n, m))
             i = 0
-            for TE, sigs in TEsigs.iteritems():
+            for TE, sigs in six.iteritems (TEsigs):
                 log.warning('  [%d] TElist=%s : %s' % (i, TE, sigs))
                 i += 1
         del(chain_TEsigs)
@@ -217,7 +220,7 @@ class TriggerPythonConfig:
         log.info("TriggerPythonConfig: checkChains...")
         correct=True
         # repeating definitions
-        ids = map(lambda x: x.chain_name, self.theHLTChains)      
+        ids = [x.chain_name for x in self.theHLTChains]
         repid = filter(lambda x: ids.count(x) > 1, ids)
         for id in repid: 
             log.error("Chain of chain_name "+ str(id) +" used " + str(ids.count(id))+ " times, while can only once") 
@@ -242,8 +245,7 @@ class TriggerPythonConfig:
                 log.debug("TRIGGERTYPE bit undefined for chain: %s will use chain_counter for it: %s",
                           chain.chain_name, chain.chain_counter)
 
-                from string import atoi
-                chain.trigger_type_bits = [atoi(chain.chain_counter)]
+                chain.trigger_type_bits = [int(chain.chain_counter)]
                 
             if len(chain.stream_tag) == 0:                
                 log.error("STREAMTAG undefined for chain: %s", chain.chain_name)
@@ -334,7 +336,7 @@ class TriggerPythonConfig:
         #---------------------------------------------------------------------
         while True:
             # First update the renaming rules based on the previous iteration
-            for outTEs in seq_to_outTEs.itervalues():
+            for outTEs in six.itervalues (seq_to_outTEs):
                 if len(outTEs) <= 1: continue                                       
                 name = chooseName(outTEs)
                 for x in outTEs:
@@ -342,7 +344,7 @@ class TriggerPythonConfig:
 
             # Changing the mapping defined earlier
             # A->B(old), B->C(new) should become A->C
-            for a, b in teRenaming.iteritems():
+            for a, b in six.iteritems (teRenaming):
                 if b in teRenaming:
                     teRenaming[a] = teRenaming[b]
             
@@ -353,7 +355,7 @@ class TriggerPythonConfig:
             for key,outTE in seq_list1:
                 key = renameKey(key, teRenaming)
                 # This is actually slightly faster than dict.get(outTE,outTE)
-                outTE2 = outTE if not outTE in teRenaming else teRenaming[outTE]
+                outTE2 = outTE if outTE not in teRenaming else teRenaming[outTE]
 
                 seq_to_outTEs[key].append(outTE2)
                 seq_list2.add( (key, outTE2) )
@@ -398,7 +400,7 @@ class TriggerPythonConfig:
         seqDict is dictionary {sequence outout te: sequence obj}
         """
         seq = []
-        if not seqDict.has_key(te):
+        if te not in seqDict:
             return seq
         this = seqDict[te]
         seq += [this]
@@ -413,7 +415,7 @@ class TriggerPythonConfig:
         seqDict is dictionary {sequence outout te: sequence obj}
         """
         neededtes = reduce(lambda x,y: x+y, [s.tes for s in chain.siglist], [])
-        if alsorecursive == True:
+        if alsorecursive is True:
             seqs = []
             for te in neededtes:
                 seqs += self.findSequencesRecursively(seqDict, te)

@@ -1,9 +1,12 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from Limits import CaloLimits as CL
+from .Limits import CaloLimits as CL
 IsolationOff = CL.IsolationOff
 
 from copy import deepcopy
+from past.builtins import cmp
+
+import six
 
 class ThresholdValue:
 
@@ -80,6 +83,10 @@ class ThresholdValue:
         return cmp(self.name,o.name)
 
 
+    def __lt__(self, o):
+        return self.__cmp__ (o) < 0
+
+
     def __str__(self):
         return "name=%s, value=%s, eta=(%s-%s)" % (self.name, self.value, self.etamin, self.etamax)
 
@@ -109,7 +116,7 @@ class LVL1Threshold(object):
         return self.name.replace('.','')
 
     def setCableInput(self):
-        from Cabling import Cabling
+        from .Cabling import Cabling
         self.cableinfo = Cabling.getInputCable(self)
         return self
 
@@ -203,7 +210,7 @@ class LVL1Threshold(object):
 
     def xml(self, ind=1, step=2):
         """ Returns XML representation of the LVL1 Threshold """
-        from Lvl1MenuUtil import idgen
+        from .Lvl1MenuUtil import idgen
         seed       = ' seed="%s"' % self.seed if self.ttype=='ZB' else ''
         seed_multi = ' seed_multi="%i"' % self.seed_multi if self.ttype=='ZB' else ''
         bcdelay    = ' bcdelay="%i"' % self.bcdelay if self.ttype=='ZB' else ''
@@ -232,7 +239,7 @@ class LVL1TopoInput(LVL1Threshold):
     """
 
     import re
-    multibitPattern = re.compile("(?P<line>.*)\[(?P<bit>\d+)\]")
+    multibitPattern = re.compile(r"(?P<line>.*)\[(?P<bit>\d+)\]")
 
     #<TriggerThreshold active="1" bitnum="1" id="148" mapping="0" name="4INVM9999-AJ0s6-AJ0s6" type="TOPO" input="ctpcore" version="1">
     #  <Cable connector="CON1" input="CTPCORE" name="TOPO1">
@@ -241,7 +248,7 @@ class LVL1TopoInput(LVL1Threshold):
 
     def __init__(self, triggerlines = None , thresholdName = None , mapping = None , connector = None , firstbit = None , numberOfBits = None , clock = None , ttype = 'TOPO' ):
 
-        if triggerlines != None :
+        if triggerlines is not None :
             # from triggerline
             from TriggerMenu.l1topo.TopoOutput import TriggerLine
             if type(triggerlines)==list:
@@ -275,7 +282,7 @@ class LVL1TopoInput(LVL1Threshold):
 
 
     def setCableInput(self):
-        from Cabling import Cabling
+        from .Cabling import Cabling
         self.cableinfo = Cabling.getInputCable(self)
         return self
 
@@ -334,7 +341,7 @@ class LVL1Thresholds:
         # If both mappings are -1 sort by threshold value and then threshold name
         import re
         thrv1, thrv2 = 0, 0
-        re_thrv = re.compile('(\d+)')
+        re_thrv = re.compile(r'(\d+)')
         mg = re_thrv.search(thr1.name)
         if mg: thrv1 = int(mg.group(1))
         mg = re_thrv.search(thr2.name)
@@ -357,7 +364,7 @@ class LVL1Thresholds:
 
     def __iadd__(self, thr):
         if thr is None: return self
-        if self.thresholdOfName(thr.name) == None:
+        if self.thresholdOfName(thr.name) is None:
             self.thresholds += [ thr ]
         return self
     
@@ -380,7 +387,11 @@ class LVL1Thresholds:
         return None
 
     def xml(self, ind=1, step=2):
-        self.thresholds.sort(LVL1Thresholds.compThreshold)
+        if six.PY2:
+            self.thresholds.sort(LVL1Thresholds.compThreshold)
+        else:
+            import functools
+            self.thresholds.sort(key=functools.cmp_to_key(LVL1Thresholds.compThreshold))
         s = ind * step * ' ' + '<TriggerThresholdList>\n'
         for thr in self.thresholds:
             s += thr.xml(ind+1,step)

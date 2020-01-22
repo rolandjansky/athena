@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Configuration database for ISF_Geant4CommonTools
@@ -15,5 +15,7 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 import AthenaCommon.SystemOfUnits as Units
 
 # Common tools, services and algorithms used by jobs
+addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getEntryLayerToolMT",    "ISF_EntryLayerToolMT")
 addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getEntryLayerTool",      "ISF_EntryLayerTool")
 addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getAFIIEntryLayerTool",  "ISF_AFIIEntryLayerTool")
+addTool("ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfig.getAFIIEntryLayerToolMT",  "ISF_AFIIEntryLayerToolMT")

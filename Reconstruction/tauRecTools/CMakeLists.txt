@@ -84,19 +84,17 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauSubstructureVariables.h
   tauRecTools/TauCommonCalcVars.h
   tauRecTools/TauGenericPi0Cone.h
-  tauRecTools/TauIDPileupCorrection.h
   tauRecTools/TauTrackFilter.h
   tauRecTools/MvaTESVariableDecorator.h
   tauRecTools/MvaTESEvaluator.h
   tauRecTools/CombinedP4FromRecoTaus.h
   tauRecTools/TauTrackClassifier.h
-  tauRecTools/TauChargedPFOCreator.h
+  tauRecTools/TauTrackRNNClassifier.h
   tauRecTools/TauWPDecorator.h
   tauRecTools/TauJetBDTEvaluator.h
   tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauEleOLRDecorator.h
-  tauRecTools/TauProcessorTool.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )
@@ -104,7 +102,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
 # Component(s) in the package:
 if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_library( tauRecToolsLib
-      tauRecTools/*.h Root/*.cxx  ${tauRecToolsLibCintDict}
+      tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx  ${tauRecToolsLibCintDict}
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
@@ -116,7 +114,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
    atlas_add_library( tauRecToolsLib
-      tauRecTools/*.h Root/*.cxx  ${tauRecToolsLibCintDict}
+      tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx  ${tauRecToolsLibCintDict}
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Pythia8_i/Pythia8_i.h"
@@ -12,8 +12,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/std/vector.hpp>
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
@@ -121,7 +119,7 @@ StatusCode Pythia8_i::genInitialize() {
   m_pythia->readString("PDF:pSet= LHAPDF6:cteq6ll.LHpdf");
   
   // have to find any old-style Pythia 8.18x PDF commands and convert them
-  foreach(string &cmd, m_commands){
+  for(string &cmd : m_commands){
     try{
       string val = findValue(cmd, "PDF:LHAPDFset");
       if(val != ""){
@@ -145,7 +143,7 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }
 
-  foreach(const string &param, m_userParams){
+  for(const string &param : m_userParams){
     std::vector<string> splits;
     boost::split(splits, param, boost::is_any_of("="));
     if(splits.size() != 2){
@@ -158,7 +156,7 @@ StatusCode Pythia8_i::genInitialize() {
     m_commands+=param;
   }
 
-  foreach(const string &mode, m_userModes){
+  for(const string &mode : m_userModes){
     std::vector<string> splits;
     boost::split(splits, mode, boost::is_any_of("="));
     if(splits.size() != 2){
@@ -172,7 +170,7 @@ StatusCode Pythia8_i::genInitialize() {
   }
   
   // Now apply the settings from the JO
-  foreach(const string &cmd, m_commands){
+  for(const string &cmd : m_commands){
     
     if(cmd.compare("")==0) continue;
     try{
@@ -525,7 +523,7 @@ StatusCode Pythia8_i::genFinalize(){
   if(m_doLHE3Weights || m_weightIDs.size()>1 ){
     std::cout<<"MetaData: weights = ";
 
-    foreach(const string &id, m_weightIDs){
+    for(const string &id : m_weightIDs){
       
       std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia->info.init_weights->find(id);
       

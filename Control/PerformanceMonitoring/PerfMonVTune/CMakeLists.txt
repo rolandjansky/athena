@@ -10,8 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          TestPolicy )
+                          Control/AthenaKernel )
 
 ####
 # VTune hack for the time-being

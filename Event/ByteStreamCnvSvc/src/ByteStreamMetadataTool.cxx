@@ -10,8 +10,6 @@
 
 #include "ByteStreamMetadataTool.h"
 
-//#include "GaudiKernel/FileIncident.h"
-
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 

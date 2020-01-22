@@ -1,8 +1,9 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from CaloTools.CaloToolsConf import CaloNoiseCondAlg
+CaloNoiseCondAlg=CompFactory.CaloNoiseCondAlg
 from AthenaCommon.Logging import logging
 
 def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):

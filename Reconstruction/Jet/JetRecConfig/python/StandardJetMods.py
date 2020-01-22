@@ -1,4 +1,4 @@
-from JetDefinition import JetModifier
+from .JetDefinition import JetModifier
 
 ########################################################################
 # Define the dictionary of tool configurations using the helpers defined
@@ -69,6 +69,7 @@ jetmomentmods = {
                                    helperfn=JetMomentToolsConfig.getJVFTool,
                                    prereqs = ["mod:TrackMoments"] ),
     "JVT":             JetModifier("JetVertexTaggerTool", "jvt",
+                                   helperfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ]),
     "OriginSetPV":     JetModifier("JetOriginCorrectionTool", "origin_setpv",
                                    prereqs = [ "mod:JVF" ]),

@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/EventContext.h"
@@ -18,12 +18,11 @@ L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode L1Decoder::initialize() {
   ATH_MSG_INFO( "Reading RoIB infromation from: "<< m_RoIBResultKey.objKey() << " : " << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
 
-  if ( m_RoIBResultKey.objKey().empty() ) {
-    renounce( m_RoIBResultKey );
+  if ( m_RoIBResultKey.empty() )
     ATH_MSG_INFO( "RoIBResultKey empty: assume we're running with CTP emulation" );
-  } else {
-    ATH_CHECK( m_RoIBResultKey.initialize( ) );
-  }
+
+  ATH_CHECK( m_RoIBResultKey.initialize(!m_RoIBResultKey.empty()) );
+  ATH_CHECK( m_l1TriggerResultKey.initialize(!m_l1TriggerResultKey.empty()) );
 
   ATH_CHECK( m_summaryKey.initialize() );
   ATH_CHECK( m_startStampKey.initialize() );
@@ -42,8 +41,6 @@ StatusCode L1Decoder::initialize() {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
 
-  ATH_CHECK( m_trigFSRoIKey.initialize() ) ;
-  ATH_CHECK( m_FSDecisions.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -72,7 +69,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   using namespace TrigCompositeUtils;
   const ROIB::RoIBResult dummyResult;
   const ROIB::RoIBResult* roib = &dummyResult;
-  if ( !m_RoIBResultKey.key().empty() ) {
+  if ( !m_RoIBResultKey.empty() ) {
     SG::ReadHandle<ROIB::RoIBResult> roibH( m_RoIBResultKey, ctx );
     roib = roibH.cptr();
     ATH_MSG_DEBUG( "Obtained ROIB result" );
@@ -80,15 +77,25 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   // this should really be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
-  {
-    std::unique_ptr<TrigRoiDescriptorCollection> fsRoIsColl = std::make_unique<TrigRoiDescriptorCollection>();
-    TrigRoiDescriptor* fsRoI = new TrigRoiDescriptor( true ); // true == FS
-    fsRoIsColl->push_back( fsRoI );
-
-    auto handle = SG::makeHandle( m_trigFSRoIKey, ctx );
-    ATH_CHECK( handle.record ( std::move( fsRoIsColl ) ) );
+  const xAOD::TrigComposite* l1TriggerResult = nullptr;
+  if ( !m_l1TriggerResultKey.empty() ) {
+    auto l1TriggerResultCont = SG::makeHandle(m_l1TriggerResultKey, ctx);
+    if (!l1TriggerResultCont.isValid()) {
+      ATH_MSG_ERROR("Failed to retrieve L1TriggerResult with key " << m_l1TriggerResultKey.key());
+      return StatusCode::FAILURE;
+    }
+    if (l1TriggerResultCont->size() != 1) {
+      ATH_MSG_ERROR("Size of the L1TriggerResultContainer is " << l1TriggerResultCont->size() << " but 1 expected");
+      return StatusCode::FAILURE;
+    }
+    l1TriggerResult = l1TriggerResultCont->at(0);
+    if (msgLvl(MSG::DEBUG)) {
+      const std::vector<std::string>& links = l1TriggerResult->linkColNames();
+      ATH_MSG_DEBUG("L1TriggerResult has " << links.size() << " links:");
+      for (std::string_view linkName : links)
+        ATH_MSG_DEBUG("--> " << linkName);
+    }
   }
-
 
   SG::WriteHandle<DecisionContainer> handle = TrigCompositeUtils::createAndStore( m_summaryKey, ctx );
   auto chainsInfo = handle.ptr();
@@ -122,14 +129,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   // for now all the chains that were pre-scaled out are set to re-run in the second pass
   HLT::IDVec rerunChains = prescaledChains; // Perform copy of vector<uint32_t>
   ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun" ) );
-  {
-    SG::WriteHandle<DecisionContainer> handleFSDecisions =    createAndStore(m_FSDecisions, ctx);    
-    auto decision  = TrigCompositeUtils::newDecisionIn( handleFSDecisions.ptr(), "L1" );
-    for ( auto chain: activeChains ) 
-      TrigCompositeUtils::addDecisionID( chain, decision );
-    decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIKey.key(), 0 ) );
 
-  }
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_doCostMonitoring) {
     const static HLT::Identifier costMonitorChain(m_costMonitoringChain);

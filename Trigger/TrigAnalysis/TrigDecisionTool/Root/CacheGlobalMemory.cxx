@@ -24,8 +24,6 @@
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigNavStructure/TriggerElement.h"
 
-#include "boost/foreach.hpp"
-
 #include "TrigSteeringEvent/Lvl1Item.h"
 
 #include "TrigDecisionTool/CacheGlobalMemory.h"
@@ -50,12 +48,16 @@
 
 
 Trig::CacheGlobalMemory::CacheGlobalMemory() :
-  m_store( 0 ),
-  m_unpacker( 0 ),
-  m_navigation(0),
-  m_confItems(0),  
-  m_confChains(0), 
-  m_expressStreamContainer(0), 
+  m_store( nullptr ),
+  m_unpacker( nullptr ),
+  m_navigation(nullptr),
+  m_confItems(nullptr),
+  m_confChains(nullptr),
+  m_expressStreamContainer(nullptr),
+  m_decisionKeyPtr(nullptr),
+  m_oldDecisionKeyPtr(nullptr),
+  m_oldEventInfoKeyPtr(nullptr),
+  m_navigationKeyPtr(nullptr),
   m_bgCode(0)
 {}
 
@@ -339,41 +341,66 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     //so we could in the future use the ones set by the python configuration
     //we're hardcoding in order not to require python configuration changes
 
+    const EventContext context = Gaudi::Hive::currentContext();
+    bool contains_xAOD_decision = false;
+    if (!m_decisionKeyPtr->empty()) {
+       SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_decisionKeyPtr, context);
+      contains_xAOD_decision = decisionReadHandle.isValid();
+    }
 
-    bool contains_xAOD_decision = store()->contains<xAOD::TrigDecision>("xTrigDecision");
 #ifndef XAOD_ANALYSIS
     bool is_l1result_configured = false;
     bool contains_decision = false;
+    bool contains_old_event_info = false;
 
-    contains_decision = store()->contains<TrigDec::TrigDecision>("TrigDecision");
-    if(contains_decision) {
-      const TrigDec::TrigDecision * trigDec(0);
-       store()->retrieve(trigDec,"TrigDecision").ignore();
-       is_l1result_configured = trigDec->getL1Result().isConfigured();
+    if (!m_oldDecisionKeyPtr->empty()) {
+      SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecisionKeyPtr, context);
+      contains_decision = oldDecisionReadHandle.isValid();
+      if (contains_decision) {
+        is_l1result_configured = oldDecisionReadHandle->getL1Result().isConfigured();
+      }
     }
 
-    if( is_l1result_configured ){
-      ATH_MSG_INFO("SG contains AOD decision, use DecisionUnpackerAthena");
-      setUnpacker(new DecisionUnpackerAthena(store(), "TrigDecision"));
+    if (!m_oldEventInfoKeyPtr->empty()) {
+      SG::ReadHandle<EventInfo> oldEventInfoHandle = SG::makeHandle(*m_oldEventInfoKeyPtr, context);
+      contains_old_event_info = oldEventInfoHandle.isValid();
     }
-    else if ( contains_xAOD_decision ){
+
+    // January 2020: Note, switched the order here. DecisionUnpackerStandalone is given preference
+    // over DecisionUnpackerAthena
+    if ( contains_xAOD_decision ){
       ATH_MSG_INFO("SG contains xAOD decision, use DecisionUnpackerStandalone");
-      setUnpacker(new DecisionUnpackerStandalone(store(), "xTrigDecision", "TrigNavigation"));     
+      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_navigationKeyPtr));
     }
-    else {
+    else if( is_l1result_configured ){
+      ATH_MSG_INFO("SG contains AOD decision, use DecisionUnpackerAthena");
+      setUnpacker(new DecisionUnpackerAthena(m_oldDecisionKeyPtr));
+    }
+    else if (contains_old_event_info) {
       ATH_MSG_INFO("SG contains NO(!) L1Result in the AOD TrigDecision, assuming also no HLTResult. Read from EventInfo");
-      setUnpacker(new DecisionUnpackerEventInfo(store(), ""));
+      setUnpacker(new DecisionUnpackerEventInfo(m_oldEventInfoKeyPtr));
     }
 #else
     if ( contains_xAOD_decision ){
       ATH_MSG_INFO("SG contains xAOD decision, use DecisionUnpackerStandalone");
-      setUnpacker(new DecisionUnpackerStandalone(store(), "xTrigDecision", "TrigNavigation"));     
+      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_navigationKeyPtr));
     }
 #endif
-
     
   }//if(!m_unpacker)
-  
+
+  if(!m_unpacker){
+    ATH_MSG_ERROR("No source of Trigger Decision in file. "
+      << "(Looked for xAOD::TrigDecision? "
+      << (m_decisionKeyPtr->empty() ? "NO" : "YES")
+      << " Looked for old TrigDec::TrigDecision? "
+      << (m_oldDecisionKeyPtr->empty() ? "NO" : "YES")
+      << ", looked for old EventInfo? "
+      << (m_oldEventInfoKeyPtr->empty() ? "NO" : "YES")
+      << ". Check UseRun1DecisionFormat and UseOldEventInfoDecisionFormat flags if reading pre-xAOD or BS input).");
+    throw std::runtime_error("Trig::CacheGlobalMemory::assert_decision(): No source of Trigger Decision in file.");
+  }
+
   if( m_unpacker->assert_handle() ) {
     ATH_MSG_VERBOSE("asserted handle");
 

@@ -10,9 +10,11 @@
 # ATLAS default Application Configuration options
 #--------------------------------------------------------------
 
+from __future__ import print_function
+
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.triggerMenuSetup = "LS2_emu_v1"
-
+TriggerFlags.generateMenuDiagnostics=True
 
 
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
@@ -36,11 +38,19 @@ makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
 svcMgr += getHLTConfigSvc()
+TriggerFlags.triggerMenuSetup = "LS2_v1"
+svcMgr += getL1ConfigSvc()
 
-   
-print "EmuStepProcessing: dump top Sequence after CF/DF Tree build"
+from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
+from GaudiSvc.GaudiSvcConf import THistSvc
+svcMgr += THistSvc()
+if hasattr(svcMgr.THistSvc, "Output"):
+    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    setTHistSvcOutput(svcMgr.THistSvc.Output)
+
+print ("EmuStepProcessing: dump top Sequence after CF/DF Tree build")
 from AthenaCommon.AlgSequence import dumpMasterSequence, dumpSequence
 dumpSequence( topSequence )
 #dumpMasterSequence()

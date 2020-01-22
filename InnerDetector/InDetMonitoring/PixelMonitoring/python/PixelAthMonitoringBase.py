@@ -6,9 +6,16 @@
 @file PixelAthMonitoringBase.py
 @brief Helper functions for Run 3 Pixel monitoring algorithm configuration
 '''
-from RecExConfig.AutoConfiguration import GetRunNumber
-runNumber = GetRunNumber()
-runtext = ' (Run ' + str(runNumber) + ')'
+# hack to deal with global variables in this module
+# check if we are in "old-" or "new-style" configuration
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+if ConfigFlags.DQ.isReallyOldStyle:
+    from RecExConfig.AutoConfiguration import GetRunNumber
+    runtext = ' (Run %d)' % GetRunNumber()
+else:
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
+
 
 NumLayersDisk = 3
 NumLayersDBM  = 3
@@ -40,14 +47,17 @@ xbinsem  = [    3,    3,  13,  13,  13,   20,     3,     3]
 xminsem  = [  0.5,  0.5,-6.5,-6.5,-6.5,  -10,   0.5,   0.5]
 xbinstotz= [    3,    3,  13,  13,  13,   20,     3,     3]
 xminstotz= [ -0.5, -0.5,-0.5,-0.5,-0.5, -0.5,  -0.5,  -0.5]
-
+ztotbinsy= [   20,   20,  20,  20,  20,   20,    20,    20]
+ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5,  -0.5,  -0.5]
 
 pp0layers= ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
 pp0xbins = [   24,   24,  22,  38,  52,   14,     14]
 
 lumitext  = ";lumi block"
 lumibinsx = 3000
- 
+
+bcidbinsx = 3600
+
 #labels
 LayersDisk = ["Disk 1", "Disk 2", "Disk 3"] #x EC
 #xBarrel
@@ -138,21 +148,21 @@ def getLayerGroup(helper, alg, layer):
     return layergroups[alg][layer]
 
 
-def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', subDir=False, histname=None):
+def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None):
     '''
     This function configures 2D (Profile) histograms (or maps) for Pixel layers.
 
     Arguments:
-         helper  -- AthMonitorCfgHelper(Old) instance
-         alg     -- algorithm Configurable object returned from addAlgorithm
-         name    -- Name of histogram (Name = name_layer)
-         title   -- Title of histogram (Title = title +' '+layer)
-         path    -- Path in ouput file for histogram
-         type    -- Type of histogram (TH2D, TProfile2D)
+         helper     -- AthMonitorCfgHelper(Old) instance
+         alg        -- algorithm - Configurable object returned from addAlgorithm
+         name       -- Name of histogram (Name = name_layer)
+         title      -- Title of histogram (Title = title +' '+layer)
+         path       -- Path in output file for histogram
+         type       -- Type of histogram (TH2D, TProfile2D)
          lifecycle  -- global life duration of histograms (run, lowstat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
          zmin(zmax) -- fix the displayed range - simply chopping the range!!!
-         opt     -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
-         subDir  -- Put the configured histograms into sub directory named like partion (True, False)
+         opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
+         histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way 
     '''
     if histname is None:
         histname = name
@@ -206,12 +216,12 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
             yatxt += 'module'
         fulltitle   = title + ' {0}'.format(layer) + runtext + xatxt + yatxt
         groupname   = name  + '_{0}'.format(layer)
-        layerGroup = helper.addGroup(alg, groupname)
+        layerGroup = getLayerGroup(helper, alg, layer)
         # sequential list of x-axis bin labels (see defineHistogram)
         labels = []
         for label in PP0LabelX[i]:
             labels.append(label)
-        fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'pos', 'val')
+        fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'pospp0x', 'val')
         fullvarstring += ';' + groupname
         layerGroup.defineHistogram(fullvarstring, 
                                     type='TProfile', path=path, title=fulltitle,
@@ -220,19 +230,19 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
 
 
 
-def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile',
-                           histname=None):
+def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile', histname=None):
     '''
     This function configures 1D (Profile) vs lumi histograms for Pixel layers.
 
     Arguments:
-         helper  -- AthMonitorCfgHelper(Old) instance
-         alg     -- algorithm Configurable object returned from addAlgorithm
-         name    -- Name of histogram (Name = name_layer)
-         title   -- Title of histogram (Title = title +' '+layer)
-         path    -- Path in ouput file for histogram
-         type    -- Type of histogram (TH1D, TProfile)
-         zmin(zmax) -- fix the displayed range
+         helper    -- AthMonitorCfgHelper(Old) instance
+         alg       -- algorithm Configurable object returned from addAlgorithm
+         name      -- Name of histogram (Name = name_layer)
+         title     -- Title of histogram (Title = title +' '+layer)
+         path      -- Path in ouput file for histogram
+         yaxistext -- Text on the y-axis
+         type      -- Type of histogram (TH1D, TProfile)
+         histname  -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way 
     '''
 
     if histname is None:
@@ -247,9 +257,9 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
                                     type=type, path=path, title=fulltitle,
                                     xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
 
-def defineMapVsLumiLayers(helper, alg, name, title, path, ybins, ymin, ymax, yaxistext, type='TH2F'):
+def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], type='TH2F', histname=None):
     '''
-    This function configures 1D (Profile) vs lumi histograms for Pixel layers.
+    This function configures 2D histograms vs lumi for Pixel layers.
 
     Arguments:
          helper  -- AthMonitorCfgHelper(Old) instance
@@ -257,22 +267,30 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, ybins, ymin, ymax, yax
          name    -- Name of histogram (Name = name_layer)
          title   -- Title of histogram (Title = title +' '+layer)
          path    -- Path in ouput file for histogram
+         ybins, ymin, ymax, yaxistext
+                 -- Configure Y-axis
          type    -- Type of TH2 histogram (TH2I, TH2F)
-         zmin(zmax) -- fix the displayed range
+         histname-- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)  
     '''
 
-    for layer in layers:
-        groupname   = name  + '_{0}'.format(layer)
+    if histname is None:
+        histname = name
+    for idx,layer in enumerate(layers):
         fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
-        layerGroup = helper.addGroup(alg, groupname)
+        layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
-        fullvarstring += ',{0}_{1}'.format(name, 'yval')
-        fullvarstring += ';' + groupname
-        layerGroup.defineHistogram(fullvarstring, 
-                                    type=type, path=path, title=fulltitle,
-                                    xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
-                                    ybins=ybins, ymin=ymin, ymax=ymax)
-
+        fullvarstring += ',{0}_{1}'.format(name, 'val')
+        fullvarstring += ';' + histname  + '_{0}'.format(layer)
+        if ( len(ybins)==1 and len(ymins)==1 and len(binsizes)==1):
+            layerGroup.defineHistogram(fullvarstring, 
+                                       type=type, path=path, title=fulltitle,
+                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       ybins=ybins[0], ymin=ymins[0], ymax=ymins[0]+binsizes[0]*ybins[0])
+        elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==len(layers)):
+            layerGroup.defineHistogram(fullvarstring, 
+                                       type=type, path=path, title=fulltitle,
+                                       xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
+                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx])
 
 
 def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None):
@@ -282,13 +300,13 @@ def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, 
     Arguments:
          helper     -- AthMonitorCfgHelper(Old) instance
          alg        -- algorithm Configurable object returned from addAlgorithm
-         name       -- Name of histogram (Name = name+'_'+layer)
+         name       -- Root name of variables and histogram (Name = name+'_'+layer)
          title      -- Title of histogram (Title = title +' '+layer)
          path       -- Path in ouput file for histogram
          xaxistext  -- X-axis title
          yaxistext  -- Y-axis title
          type       -- Type of histogram
-         *name*     -- name of the variable to fill (_common_ to all layers)  
+         histname   -- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)  
     '''
 
     if histname is None:
@@ -313,6 +331,13 @@ def addOnTrackTxt(name, ontrack, wSpace=False):
             name += ' OnTrack'
         else:
             name += '_OnTrack'
+    return name
+
+def addOnTrackToPath(name, ontrack):
+    if ontrack:
+        name += 'OnTrack/'
+    else:
+        name += '/'
     return name
 
 def fullDressTitle(name, ontrack, xaxistext, yaxistext):

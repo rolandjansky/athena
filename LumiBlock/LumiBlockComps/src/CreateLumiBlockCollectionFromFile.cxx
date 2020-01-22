@@ -3,7 +3,6 @@
 */
 
 #include "LumiBlockComps/CreateLumiBlockCollectionFromFile.h"
-#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -45,8 +44,6 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
   // Set to be listener for end of event
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
   ATH_CHECK( incSvc.retrieve() );
-  //incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 
-                                                 // to be after MetaDataSvc.
   incSvc->addListener(this, "MetaDataStop", 50); // pri has to be > 20 to be 
                                                   // before MetaDataSvc and AthenaOutputStream.
 
@@ -238,19 +235,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
 // ********************************************************************
 
-/* WB: commented this out because it looks redundant (27/11/2015)
-  // this incident serves the same purpose as BeginInputFile
-  if (inc.type() == "BeginInputFile") {
-    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-    std::string fileName;
-    if (fileInc == 0) { fileName = "Undefined "; }
-    else { fileName = fileInc->fileName();}
-    ATH_MSG_DEBUG( "BeginInputFile: " << fileName );
-    if(m_LumiBlockInfo.size()>0) {
-      ATH_MSG_WARNING( " BeginInputFile handle detects non-zero size Cached LumiBlockColl" );
-    }
-  }
-  else*/ if(inc.type() == "MetaDataStop") {
+  if(inc.type() == "MetaDataStop") {
     finishUp();
   }
   else {

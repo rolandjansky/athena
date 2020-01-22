@@ -21,14 +21,14 @@ class TestAtlasG4(unittest.TestCase):
             '--postInclude', 'PyJobTransforms/UseFrontier.py',
             '--geometryVersion', 'ATLAS-R2-2016-01-00-01',
             '--DataRunNumber', '284500',
-            '--inputEVNTFile', '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
+            '--inputEVNTFile', '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
             '--outputHITSFile', 'Hits.atlasg4.pool.root',
             # would otherwise fail due to missing HITS file:
             '--outputFileValidation', 'False',
         ]
         subprocess.check_call(command)
 
-        with open(config_picklefilename) as picklefile:
+        with open(config_picklefilename, 'rb') as picklefile:
             job_config_dict = pickle.load(picklefile)
 
         cls._job_config_dict = job_config_dict
@@ -154,7 +154,7 @@ class TestAtlasG4(unittest.TestCase):
 
 
     def test___G4AtlasAlg_ListOfSetProperties(self):
-        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'FlagAbortedEvents', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'KillAbortedEvents', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListTool', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'Verbosities']
+        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'FlagAbortedEvents', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'KillAbortedEvents', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListSvc', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'UserLimitsSvc', 'Verbosities']
         g4atlasalg = self._job_config_dict['G4AtlasAlg']
         actual_list = g4atlasalg.keys()
         expected_property_value_sorted = sorted(expected_list)
@@ -188,9 +188,9 @@ class TestAtlasG4(unittest.TestCase):
         self._assert_Algorithm_property_equal('G4AtlasAlg', 'FastSimMasterTool', expected_tool_name)
 
 
-    def test___G4AtlasAlg_PhysicsListTool_setCorrectly(self):
-        expected_tool_name = 'PhysicsListToolBase/PhysicsListToolBase'
-        self._assert_Algorithm_property_equal('G4AtlasAlg', 'PhysicsListTool', expected_tool_name)
+    def test___G4AtlasAlg_PhysicsListSvc_setCorrectly(self):
+        expected_tool_name = 'PhysicsListSvc'
+        self._assert_Algorithm_property_equal('G4AtlasAlg', 'PhysicsListSvc', expected_tool_name)
 
 
     def test___G4AtlasAlg_SenDetMasterTool_setCorrectly(self):
@@ -198,9 +198,9 @@ class TestAtlasG4(unittest.TestCase):
         self._assert_Algorithm_property_equal('G4AtlasAlg', 'SenDetMasterTool', expected_tool_name)
 
 
-    def test___G4AtlasAlg_G4AtlasSvc_setCorrectly(self):
-        expected_service_name = 'G4AtlasSvc'
-        self._assert_Algorithm_property_equal('G4AtlasAlg', 'G4AtlasSvc', expected_service_name)
+    def test___G4AtlasAlg_UserLimitsSvc_setCorrectly(self):
+        expected_service_name = 'UserLimitsSvc'
+        self._assert_Algorithm_property_equal('G4AtlasAlg', 'UserLimitsSvc', expected_service_name)
 
 
     def test___G4AtlasAlg_UserActionSvc_setCorrectly(self):

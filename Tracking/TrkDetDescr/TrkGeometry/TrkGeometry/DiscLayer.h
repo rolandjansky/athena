@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -113,24 +113,45 @@ namespace Trk {
                                          Trk::PropDirection dir) const override;
 
        /** move the Layer */
-        void moveLayer( Amg::Transform3D& shift ) const override;
+       virtual void moveLayer( Amg::Transform3D& shift ) override;
      
+       /** move the Layer */
+       virtual void moveLayer ATLAS_NOT_CONST_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
+          const_cast<DiscLayer*> (this)->moveLayer(shift);
+       }
+ 
      private:   
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       void resizeLayer(const VolumeBounds& vBounds, double envelope) const override;        
-           
+       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
+              /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
+       virtual void resizeLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds& vBounds,
+                                                            double envelope) const override
+       {
+         const_cast<DiscLayer*> (this)->resizeLayer(vBounds,envelope);
+       }
+
+       /** Resize the layer to the tracking volume - not implemented */
+       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
+                                             const Amg::Vector3D& cCenter,
+                                             double envelop) override;
+
        /** Resize the layer to the tracking volume - not implemented */ 
-       void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelop) const override;
+       virtual void resizeAndRepositionLayer ATLAS_NOT_CONST_THREAD_SAFE (const VolumeBounds& vBounds, 
+                                                            const Amg::Vector3D& cCenter, 
+                                                            double envelop) const override{
+         const_cast<DiscLayer*> (this)->resizeAndRepositionLayer(vBounds,cCenter,envelop);
+       }
+
 
        /** build approach surfaces */
-       void buildApproachDescriptor() const;
+       void buildApproachDescriptor();
     
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
                                       const Amg::Vector3D& dir,
                                       const BoundaryCheck& bcheck) const;    
      protected:
-       mutable IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
+       IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
     
   };
 

@@ -4,8 +4,8 @@
 #ifndef L1DECODER_PRESCALINGEMULATIONTOOL_H 
 #define L1DECODER_PRESCALINGEMULATIONTOOL_H
 
-// STL includes
-#include <string>
+// L1Decoder includes
+#include "IPrescalingTool.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -13,16 +13,16 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
-// L1Decoder includes
-#include "./IPrescalingTool.h"
 
+// STL includes
+#include <string>
 
 
 /**
  * @class Implementation of prescaling tool for the offline use
  * @brief Uses property of this tool to configure the prescaling.
  * The prescaling info is constant over  the whole job. 
- * For running online, where prescaling changes according to conditions another implementation shall be used.
+ * For running online, where prescaling changes according to conditions the @c PrescalingTool shall be used.
  * Prescaling decision is a function of the chain ID only. The seed of the RNG is reset at every event and thus decisions are reproducible.
  **/
 
@@ -43,7 +43,6 @@ public:
  private: 
 
   PrescalingEmulationTool();  
-  //ServiceHandle<IAtRndmGenSvc> m_RNGSvc{ this, "RNGSvc", "AtRanluxGenSvc/AtRanluxGenSvc", "RNG Factory Service" };
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{ this, "EventInfo", "EventInfo", "EventInfo object, source of CTP time used to reseed the RNG" };
   Gaudi::Property<bool> m_keepUnknownChains{ this, "KeepUnknownChains", true, "If True then chains for which prescaling information is not set are kept" }; 
   Gaudi::Property< std::vector<std::string> > m_prescalingConfig{ this, "Prescales", {}, "The prescaling info in the form: \"chainName:PSValue\"" }; 

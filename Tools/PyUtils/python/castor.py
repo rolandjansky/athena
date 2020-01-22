@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file castor.py
 # @brief A simple helper to handle simple tasks with CASTOR
@@ -20,7 +20,7 @@
 #
 # date:   May 2006
 # @author: Sebastien Binet <binet@cern.ch>
-
+from __future__ import print_function
 import commands
 import os
 import fnmatch
@@ -36,7 +36,7 @@ def group(iterator, count):
     """
     itr = iter(iterator)
     while True:
-        yield tuple([itr.next() for i in xrange(count)])
+        yield tuple([itr.next() for i in range(count)])
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision$"
@@ -83,14 +83,14 @@ def nsls(files, prefix=None):
                     for p in paths], [])
     sc, flist = commands.getstatusoutput('nsls %s' % (path,))
     if sc: # command failed
-        print flist
+        print(flist)
         return []
 
     flist = flist.split()
     if not (os.path.basename(files) in ['', '*']): # no need to filter
         pattern = fnmatch.translate(os.path.basename(files))
         flist = filter(lambda x: re.search(pattern, x), flist)
-    if prefix and isinstance(prefix, basestring):
+    if prefix and isinstance(prefix, str):
         return [os.path.join(prefix+path, p) for p in flist]
     else:
         return [os.path.join(path, p) for p in flist]
@@ -135,8 +135,8 @@ def _old_nsls(path) :
             if len(wholepath) >= 2 :
                 tail = wholepath[len(wholepath)-2]
             else :
-                raise Exception, \
-                      "Malformed path to files: <"+path+">"
+                raise Exception \
+                      ("Malformed path to files: <"+path+">")
             
         # Check that the wildcard is not in the path to files
         if tail.count('/') > 0 :
@@ -144,19 +144,19 @@ def _old_nsls(path) :
                 # the / is sitting in last position. Can safely remove it
                 tail = tail[0:len(tail)-1]
             else :
-                raise Exception, \
-                      "No wildcard allowed in the path to files: <"+path+">"
+                raise Exception \
+                      ("No wildcard allowed in the path to files: <"+path+">")
                
             
         path      = path.split(tail)[0]
         if hasWildcard(path) :
             raise ValueError("No wildcard allowed in the path to files: <"+path+">")
-        #print path
+        #print(path)
         
     status,output = commands.getstatusoutput('nsls '+path)
 
     if status != 0 :
-        print output
+        print(output)
         return []
 
     flist = output.splitlines()
@@ -164,7 +164,7 @@ def _old_nsls(path) :
     if wildcards :
         flist = fnmatch.filter(ut,tail)
 
-    for i in xrange(0,len(output)) :
+    for i in range(0,len(output)) :
         if output[i].count(path) < 1:
             output[i] = path+"/"+output[i]
         output[i] = output[i].replace('//','/')
@@ -178,7 +178,7 @@ def pool_nsls( path ) :
     """
     _prefix = 'root://castoratlas/'
     files = nsls(path)
-    for i in xrange(len(files)) :
+    for i in range(len(files)) :
         files[i] = _prefix+files[i]
         pass
 
@@ -191,25 +191,25 @@ def getFileSize( pathToFile = None ) :
     Returns the size in Mb
     """
     if hasWildcard(pathToFile) :
-        raise Exception, \
-              "No wildcard allowed in the path to files: <"+pathToFile+">"
+        raise Exception \
+              ("No wildcard allowed in the path to files: <"+pathToFile+">")
     
     status,output = commands.getstatusoutput( 'nsls -l '+pathToFile )
     #'nsls -l $CASTOR_DIR/$FILE | awk -F ' ' '{print $5}'
 
     if status != 0 :
-        print "** PyCastor ERROR **"
-        print output
+        print("** PyCastor ERROR **")
+        print(output)
         return []
 
     output = output.splitlines()
 
-    #print "output:",output
-    #print "output size= ",len(output)
+    #print("output:",output)
+    #print("output size= ",len(output))
 
     if len(output) != 1 :
-        raise Exception, \
-              "Wrong status (didn't find only *1* file!!)"
+        raise Exception \
+              ("Wrong status (didn't find only *1* file!!)")
 
     output = output[0]
     output = output.split( " " )
@@ -223,7 +223,7 @@ def getFileSize( pathToFile = None ) :
         pass
 
     size = int(result[4])/(1024.*1024.) # size in Mb
-    #print "size = ",size," Mb"
+    #print("size = ",size," Mb")
     
     return size
 
@@ -234,8 +234,8 @@ def stagein( fileListPattern = None, nSlices = 10, verbose = True ) :
     """
     files = nsls( fileListPattern )
     if ( type(files) != type([]) or len(files) < 1 ) :
-        raise Exception, \
-              "Error, no file to stagein !!"
+        raise Exception \
+              ("Error, no file to stagein !!")
         return
 
     slices = list(group(files,nSlices))
@@ -244,12 +244,12 @@ def stagein( fileListPattern = None, nSlices = 10, verbose = True ) :
         stageList = ' -M '.join( [''] + [ s for s in slice ] )
         cmd = 'stager_get %s' % stageList
         if verbose :
-            print ">>> cmd= ",cmd
+            print(">>> cmd= ",cmd)
         status,output = commands.getstatusoutput(cmd)
         
         if status != 0 :
-            print "** PyCastor ERROR **"
-            print output
+            print("** PyCastor ERROR **")
+            print(output)
             pass
         else :
             if verbose :
@@ -270,10 +270,10 @@ def stager_qry(inFiles):
         cmd = "stager_qry -M %s " % ( inFile, )
         sc,out = commands.getstatusoutput( cmd )
         if sc != 0:
-            print "** PyCastor ERROR **"
-            print "## Could not check status of this file [%s] !!" % inFile
-            print "## status sc=", sc
-            print "## output out=", out
+            print("** PyCastor ERROR **")
+            print("## Could not check status of this file [%s] !!" % inFile)
+            print("## status sc=", sc)
+            print("## output out=", out)
         
         #for str in out.split():
         #   print "out_str=", str
@@ -311,29 +311,29 @@ def extract_rfio(inFile, outDir):
         return paths
 
     path_list = grep_path("rfio", file_text)
-    print "rfio_file list extracted from input file =", inFile
-    print "-"*77; print path_list; print "-"*77
+    print("rfio_file list extracted from input file =", inFile)
+    print("-"*77); print(path_list); print("-"*77)
     
     def _print(str):
-        print str
+        print(str)
     
     status_dict = stager_qry(path_list)
     ready_files_list = [file for file in status_dict if status_dict[file] == 1]
-    print "---STAGED (ready to be copied):";  
-    p = map(_print, ready_files_list); print "-"*77
+    print("---STAGED (ready to be copied):")
+    p = map(_print, ready_files_list); print("-"*77)
     
     noready_files_list = [file for file in status_dict if status_dict[file] == 0]
-    print "---NOT STAGED (not ready to be copied):";  
-    p = map(_print, noready_files_list); print "-"*77
+    print("---NOT STAGED (not ready to be copied):")
+    p = map(_print, noready_files_list); print("-"*77)
     
     def _rfcp(file): #aux func. just for reporting purpose
-        print "rfcp ", file
+        print("rfcp ", file)
         return file    
     rfcp( map(_rfcp, ready_files_list), #[file for file in ready_files_list],  
           outDir  )
     
     def _stager_get(file): #aux func. just for reporting purpose
-        print "stager_get -M ", file
+        print("stager_get -M ", file)
         stager_get(file)       
     map(_stager_get, noready_files_list) #[stager_get(file) for file in noready_files_list if 1 print "stager_get -M ", file]
     
@@ -348,8 +348,8 @@ def stager_get(inFile):
     cmd = "stager_get -M %s" % (inFile)
     sc,out = commands.getstatusoutput( cmd )
     if sc != 0:
-        print "** PyCastor ERROR **"
-        print "## Could not stager_get this file [%s] !!" % inFile
+        print("** PyCastor ERROR **")
+        print("## Could not stager_get this file [%s] !!" % inFile)
         allGood = False
         pass
     if allGood:
@@ -367,8 +367,8 @@ def rfcp( inFiles, outDir ):
                                              os.path.basename(inFile) ) )
         sc,out = commands.getstatusoutput( cmd )
         if sc != 0:
-            print "** PyCastor ERROR **"
-            print "## Could not copy this file [%s] !!" % inFile
+            print("** PyCastor ERROR **")
+            print("## Could not copy this file [%s] !!" % inFile)
             allGood = False
             pass
         pass
@@ -386,10 +386,10 @@ def rfstat (pathname):
     cmd = 'rfstat %s' % pathname
     sc, out = commands.getstatusoutput (cmd)
     if sc != 0:
-        print "** PyCastor ERROR **"
-        print ":: command: [%s]" % cmd
-        print ":: status:  [%s]" % sc
-        print out
+        print("** PyCastor ERROR **")
+        print(":: command: [%s]" % cmd)
+        print(":: status:  [%s]" % sc)
+        print(out)
         raise RuntimeError (sc)
 
     stat = dict()

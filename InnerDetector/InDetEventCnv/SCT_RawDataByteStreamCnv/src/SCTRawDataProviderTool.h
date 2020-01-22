@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
@@ -9,10 +9,6 @@
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "AthenaKernel/SlotSpecificObj.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "ByteStreamData/RawEvent.h"
 
 #include "GaudiKernel/ToolHandle.h"
 

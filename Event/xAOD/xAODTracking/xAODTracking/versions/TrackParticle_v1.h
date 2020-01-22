@@ -106,17 +106,30 @@ namespace xAOD {
         /// @brief Returns a SVector of the Perigee track parameters. 
         /// i.e. a vector of
         ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\end{array}\right)\f$
-        const DefiningParameters_t definingParameters() const;
+        DefiningParameters_t definingParameters() const;
         /// Returns the 5x5 symmetric matrix containing the defining parameters covariance matrix.
-        const ParametersCovMatrix_t definingParametersCovMatrix() const;  
+        const ParametersCovMatrix_t definingParametersCovMatrix() const;
+        /// Returns a 5x5 matrix describing which elements of the covariance matrix are known
+        ParametersCovMatrixFilled_t definingParametersCovMatrixFilled() const;
+        /// Returns the diagonal elements of the defining parameters covariance matrix
+        const std::vector< float >& definingParametersCovMatrixDiagVec() const;
+        /// Returns the correlation coefficient associated with the off-diagonal elements of the covariance matrix = cov(X,Y)/sqrt(cov(X,X)*cov(Y,Y))
+        const std::vector< float >& definingParametersCovMatrixOffDiagVec() const;
         /// Returns the length 6 vector containing the elements of defining parameters covariance matrix.
-        const std::vector<float>& definingParametersCovMatrixVec() const;   
+        std::vector<float> definingParametersCovMatrixVec() const;
+        bool definingParametersCovMatrixOffDiagCompr() const ;
         /// Set the defining parameters.     
         void setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP);
         /// Set the defining parameters covariance matrix.
         void setDefiningParametersCovMatrix(const ParametersCovMatrix_t& cov);
         /// Set the defining parameters covariance matrix using a length 15 vector.
+        /// Set the diagonal elements of the defining parameters covariance matrix
+        void setDefiningParametersCovMatrixDiagVec( const std::vector< float >& vec );
+        /// Set the off-diagonal elements of the defining parameters covariance matrix
+        void setDefiningParametersCovMatrixOffDiagVec( const std::vector< float >& vec );
         void setDefiningParametersCovMatrixVec(const std::vector<float>& cov);
+        /// Delete some off-diagonal elements for compression
+        void compressDefiningParametersCovMatrixOffDiag();
         /// The x origin for the parameters.
         float vx() const;
         /// The y origin for the parameters.
@@ -319,6 +332,11 @@ namespace xAOD {
       void resetCache();
  
 private:
+
+      enum covMatrixIndex{d0_index=0, z0_index=1, phi_index=2, th_index=3, qp_index=4};
+      enum covMatrixOffDiagVecComprIndex{d0_phi_index=0, z0_th_index=1, d0_qp_index=2, z0_qp_index=3, phi_qp_index=4, th_qp_index=5};
+      static const std::size_t COVMATRIX_OFFDIAG_VEC_COMPR_SIZE = 6;
+
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(__CLING__) )
       /// @brief Cached MeasuredPerigee, built from this object.

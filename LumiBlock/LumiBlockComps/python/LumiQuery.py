@@ -2,6 +2,7 @@
 
 # module LumiQuery
 from __future__ import print_function
+from past.builtins import long
 
 """ Simple module for interaction with the luminosity metadata in a file. """
 
@@ -74,11 +75,11 @@ def ListFromFile(filename="FewEventsLumi.pool.root", label = "LumiBlockCollectio
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     try:    
         iterRange = getattr( T, label ).size() #T.GetLeaf("vector<LumiBlockRange_p1>.m_start").GetLen() 
-    except AttributeError, a:
+    except AttributeError as a:
         print(a)
         print("The tree", metadatatree, "in file" ,filename, "has no vector<LumiBlockRange_p1>.m_start branch, so I don't understand its format.")
         return    
-    for i in xrange(iterRange): 
+    for i in range(iterRange): 
         LumiRangeList += [ (PyRunLumiP1( getattr( T, label )[i].m_start                           ),PyRunLumiP1( getattr( T, label )[i].m_stop                           ))]
     return [ x for x in LumiRangeList ]
 

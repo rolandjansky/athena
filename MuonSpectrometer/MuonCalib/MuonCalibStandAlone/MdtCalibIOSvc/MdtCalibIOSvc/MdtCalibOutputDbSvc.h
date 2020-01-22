@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -48,11 +48,10 @@
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 class RegionSelectionSvc;
 class MdtCalibInputSvc;
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 // MuonCalib //
 //#include "MuonCalibIdentifier/MdtRegion.h"
@@ -136,7 +135,12 @@ private:
 //access to geomodel
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-  const MuonGM::MuonDetectorManager *m_detMgr;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
 //region selection service
   ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 //calibration input service

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import pickle
 import subprocess
 import unittest
 import os
+import six
 
 
 class TestDigitizationMC16a(unittest.TestCase):
@@ -38,7 +40,7 @@ class TestDigitizationMC16a(unittest.TestCase):
         ]
         subprocess.check_call(command)
 
-        with open(config_picklefilename) as picklefile:
+        with open(config_picklefilename, 'rb') as picklefile:
             job_config_dict = pickle.load(picklefile)
 
         cls._job_config_dict = job_config_dict
@@ -138,14 +140,14 @@ class TestDigitizationMC16a(unittest.TestCase):
                          actual_property_value_sorted,
                          failure_message)
 
-        for key, value in expected_nonstring_properties.iteritems():
+        for key, value in six.iteritems (expected_nonstring_properties):
             expected_Property = eval(value)
             self._assert_Algorithm_property_equal(
                 tested_configurable_name,
                 key,
                 expected_Property)
 
-        for key, value in expected_string_properties.iteritems():
+        for key, value in six.iteritems (expected_string_properties):
             expected_Property = value
             self._assert_Algorithm_property_equal(
                 tested_configurable_name,
@@ -161,7 +163,7 @@ class TestDigitizationMC16a(unittest.TestCase):
         ath_alg_seqence_list = [ alg for alg in eval(ath_alg_seqence_as_str) if alg not in ignore_Algs ]
 
         actual_2nd_ath_alg_sequence_entry = ath_alg_seqence_list[1]
-        print ath_alg_seqence_list
+        print(ath_alg_seqence_list)
         expected_2nd_ath_alg_sequence_entry = "PileUpToolsAlg/StandardSignalOnlyTruthPileUpToolsAlg"
         self.assertEqual(expected_2nd_ath_alg_sequence_entry,
                          actual_2nd_ath_alg_sequence_entry)
@@ -214,7 +216,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___BCM_DigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.BCM_DigitizationTool'
-        expected_property_list = ['DetStore', 'EffDistanceParam', 'EffSharpnessParam', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HitCollName', 'LastXing', 'MIPDeposit', 'ModNoise', 'ModSignal', 'NinoThr', 'OutputRDOKey', 'OutputSDOKey', 'RndmSvc', 'TimeDelay']
+        expected_property_list = ['DetStore', 'EffDistanceParam', 'EffSharpnessParam', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HitCollName', 'LastXing', 'MergeSvc', 'MIPDeposit', 'ModNoise', 'ModSignal', 'NinoThr', 'OutputRDOKey', 'OutputSDOKey', 'RndmSvc', 'TimeDelay']
         expected_nonstring_properties = {'LastXing': '0', 'FirstXing': '-25'}
         expected_string_properties = {'HitCollName': 'BCMHits'}
         self._detailed_ConfigurablePropertiesCheck(
@@ -262,7 +264,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___TRTDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.TRTDigitizationTool'
-        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HardScatterSplittingMode', 'InDetTRTStrawStatusSummaryTool', 'LastXing', 'MagFieldSvc', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'Override_TrtRangeCutProperty', 'PAI_Tool_Ar', 'PAI_Tool_Kr', 'PAI_Tool_Xe', 'RndmSvc', 'SimDriftTimeTool', 'TRT_StrawNeighbourSvc']
+        expected_property_list = ['DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'HardScatterSplittingMode', 'InDetTRTStrawStatusSummaryTool', 'LastXing', 'MagFieldSvc', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'Override_TrtRangeCutProperty', 'PAI_Tool_Ar', 'PAI_Tool_Kr', 'PAI_Tool_Xe', 'RandomSeedOffset', 'RndmSvc', 'SimDriftTimeTool', 'TRT_StrawNeighbourSvc']
         expected_nonstring_properties = {'LastXing': '50', 'FirstXing': '-50'}
         expected_string_properties = {'OutputObjectName': 'TRT_RDOs', 'OutputSDOName': 'TRT_SDO_Map'} # No Input name property
         self._detailed_ConfigurablePropertiesCheck(

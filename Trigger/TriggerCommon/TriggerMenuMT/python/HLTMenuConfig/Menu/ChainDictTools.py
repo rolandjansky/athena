@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
+
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools' )
+log = logging.getLogger( __name__ )
 
 
 def splitInterSignatureChainDict(chainDict):
@@ -97,6 +98,22 @@ def splitChainDict(chainDict):
 
 
 
+def splitChainInDict(chainName):
+      from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+      from DecisionHandling.TrigCompositeUtils import legName
+      chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)
+      if len(chainDict['chainParts']) ==1:
+        return [chainDict]
+                  
+      listOfChainDicts = []     
+      for count, chainDictPart in enumerate(chainDict['chainParts']):
+            onePartChainDict = deepcopy( chainDict )
+            onePartChainDict['chainParts'] = [ chainDictPart ]
+            onePartChainDict['chainName'] = legName(chainName, count)            
+            listOfChainDicts += [onePartChainDict]
+      return listOfChainDicts
+
+          
 def setupTopoStartFrom(topoThresholds, theChainDef):
     from TrigGenericAlgs.TrigGenericAlgsConf import MergeTopoStarts
 

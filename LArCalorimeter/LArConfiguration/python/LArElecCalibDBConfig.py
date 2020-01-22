@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList
@@ -130,15 +131,14 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
                            "Shape":("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape",LArShapeSymAlg),
                            "MinBiasAvc":("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg),
                            "MphysOverMcal":("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal","LArMphysOverMcal",LArMPhysOverMcalSymAlg),
-                           "HVScaleCorr" : ("LArHVScaleCorrComplete", '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None) 
+                           "HVScaleCorr" : ("LArHVScaleCorrComplete", '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None)
                        }
-
 
     result=ComponentAccumulator()
     #Add cabling
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
     result.merge(LArOnOffIdMappingCfg(ConfigFlags))
-    from LArRecUtils.LArRecUtilsConf import LArMCSymCondAlg
+    LArMCSymCondAlg=CompFactory.LArMCSymCondAlg
     result.addCondAlgo(LArMCSymCondAlg(ReadKey="LArOnOffIdMap"))
     folderlist=[]
     for folder in folders:
@@ -151,7 +151,7 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
         if calg is not None:
             result.addCondAlgo(calg(ReadKey=key,WriteKey=key+"Sym"))
 
-        result.merge(addFolderList(ConfigFlags,folderlist))
+    result.merge(addFolderList(ConfigFlags,folderlist))
     return result
         
 

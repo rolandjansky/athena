@@ -36,12 +36,12 @@ class ConfiguredTRTSegmentFinding:
     prefix = 'InDetSegment'
     suffix     = extension
     if usePrdAssociationTool:
-      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(prefix     = prefix,
-                                                                                suffix     = suffix,
+      InDetSegmentPRD_Association = TrackingCommon.getInDetTrackPRD_Association(namePrefix = prefix,
+                                                                                nameSuffix = suffix,
                                                                                 TracksName = list(InputCollections))
       topSequence += InDetSegmentPRD_Association
       if (InDetFlags.doPrintConfigurables()):
-        print InDetSegmentPRD_Association
+        printfunc (InDetSegmentPRD_Association)
 
     # ---------------------------------------------------------------
     #
@@ -63,7 +63,7 @@ class ConfiguredTRTSegmentFinding:
        ToolSvc += InDetTRT_TrackSegmentsMakerPhase
        #InDetTRT_TrackSegmentsMakerPhase.OutputLevel = VERBOSE 
        if (InDetFlags.doPrintConfigurables()):
-         print InDetTRT_TrackSegmentsMakerPhase
+         printfunc (InDetTRT_TrackSegmentsMakerPhase)
 
       else:
        from TRT_TrackSegmentsTool_xk.TRT_TrackSegmentsTool_xkConf import InDet__TRT_TrackSegmentsMaker_BarrelCosmics
@@ -75,7 +75,7 @@ class ConfiguredTRTSegmentFinding:
        ToolSvc += InDetTRT_TrackSegmentsMaker
        #InDetTRT_TrackSegmentsMaker.OutputLevel = VERBOSE
        if (InDetFlags.doPrintConfigurables()):
-         print InDetTRT_TrackSegmentsMaker
+         printfunc (InDetTRT_TrackSegmentsMaker)
 
     else:
       #
@@ -109,7 +109,7 @@ class ConfiguredTRTSegmentFinding:
                                                                         sharedFrac              = sharedFrac)
       ToolSvc += InDetTRT_TrackSegmentsMaker
       if (InDetFlags.doPrintConfigurables()):
-        print InDetTRT_TrackSegmentsMaker
+        printfunc (InDetTRT_TrackSegmentsMaker)
 
     #
     # --- TRT track reconstruction
@@ -123,7 +123,7 @@ class ConfiguredTRTSegmentFinding:
 
       topSequence += InDetTRT_TrackSegmentsFinderPhase
       if (InDetFlags.doPrintConfigurables()):
-       print InDetTRT_TrackSegmentsFinderPhase
+       printfunc (InDetTRT_TrackSegmentsFinderPhase)
 
     else:
 
@@ -142,7 +142,7 @@ class ConfiguredTRTSegmentFinding:
 
      topSequence += InDetTRT_TrackSegmentsFinder
      if (InDetFlags.doPrintConfigurables()):
-      print InDetTRT_TrackSegmentsFinder
+      printfunc (InDetTRT_TrackSegmentsFinder)
       
     #
     # --- load TRT validation alg
@@ -159,7 +159,7 @@ class ConfiguredTRTSegmentFinding:
                                                                                     MinNumberDCs         = MinNumberDCs)
       topSequence += InDetSegmentDriftCircleAssValidation
       if (InDetFlags.doPrintConfigurables()):
-        print InDetSegmentDriftCircleAssValidation
+        printfunc (InDetSegmentDriftCircleAssValidation)
 
     
     

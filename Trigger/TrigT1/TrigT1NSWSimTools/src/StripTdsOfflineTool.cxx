@@ -10,7 +10,6 @@
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 
 
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -24,6 +23,8 @@
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/EventContext.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -231,16 +232,10 @@ namespace NSWL1 {
       // No sector implemented yet!!!
      
       // retrieve the current run number and event number
-      const DataHandle<EventInfo> pevt; 
+      const EventContext& ctx = Gaudi::Hive::currentContext();
 
-      if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
-        ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current STRIP cache" ); 
-        m_strip_cache_runNumber   = -1;
-        m_strip_cache_eventNumber = -1;
-      } else {
-        m_strip_cache_runNumber = pevt->event_ID()->run_number();
-        m_strip_cache_eventNumber = pevt->event_ID()->event_number();
-      }
+      m_strip_cache_runNumber = ctx.eventID().run_number();
+      m_strip_cache_eventNumber = ctx.eventID().event_number();
 
       if (m_strip_cache_status==CLEARED) {
         // renew the STRIP cache if this is the next event
@@ -333,7 +328,7 @@ namespace NSWL1 {
 			        << "  Strip bcTAg ["      << bctag                << "]" );
 
             int isSmall = stName[2] == 'S';
-            int trigger_sector = (isSmall)? stationPhi*2-1 : stationPhi*2-2;
+            int trigger_sector = (isSmall)? stationPhi*2 : stationPhi*2-1;//
             int cache_index    = (stationEta>0)? trigger_sector + 16 : trigger_sector;
             ATH_MSG_DEBUG(     "sTGC Strip hit " << strip_hit_number << ":  Trigger Sector [" << trigger_sector << "]"
 			        << "  Cache Index ["  << cache_index                         << "]" );
@@ -353,17 +348,6 @@ namespace NSWL1 {
             auto strip=std::make_unique<StripOfflineData>(Id,m_sTgcIdHelper,digit);
             strip->set_locX(strip_lpos.x());
             strip->set_locY(strip_lpos.y());
-
-            bool read_strip=readStrip(strip.get(),padTriggers);
-            if (read_strip && (strip->bandId() ==-1 || strip->phiId()==-1 ) ){
-                ATH_MSG_FATAL("StripTdsOfflineTool:NO MATCH ALL \n" <<
-                    "wedge:" << strip->wedge() << "\n"
-                    <<"layer:"<< strip->layer() << "\n"
-                    <<"loc_x:"<< strip->locX()<< "\n");
-                return cStatus::FILL_ERROR;
-            }
-
-            
             int sideid= (stationEta>0) ? 1 : 0;
             int sectortype= (isSmall==1) ? 0 : 1;
             int sectorid=stationPhi;
@@ -376,12 +360,24 @@ namespace NSWL1 {
             strip->setModuleId(moduleid);
             strip->setWedgeId(wedgeid);
             strip->setLayerId(layerid);
-
-            strip->set_readStrip(read_strip);
             strip->set_globX(strip_gpos.x());
             strip->set_globY(strip_gpos.y());
             strip->set_globZ(strip_gpos.z());
             strip->set_locZ(0);
+
+            bool read_strip=readStrip(strip.get(),padTriggers);
+            if (read_strip && (strip->bandId() ==-1 || strip->phiId()==-1 ) ){
+                ATH_MSG_FATAL("StripTdsOfflineTool:NO MATCH ALL \n" <<
+                    "wedge:" << strip->wedge() << "\n"
+                    <<"layer:"<< strip->layer() << "\n"
+                    <<"loc_x:"<< strip->locX()<< "\n");
+                return cStatus::FILL_ERROR;
+            }
+
+            
+
+            //set coordinates above ! readStrip needs that variables !
+            strip->set_readStrip(read_strip);
 
             m_strip_cache.push_back(std::move(strip));
 	      }//collections
@@ -404,88 +400,28 @@ namespace NSWL1 {
       ATH_MSG_DEBUG("StripTdsOfflineTool:ReadStrip: PhiId already set\n" <<"moduleID:"<< strip->moduleId() +1 << "\n"
 		   <<"sectiorID:"<< strip->sectorId() + 1<< "\n" <<"layer:"<<strip->wedge()<< "\n");
     }
-
-    char side= strip->sideId() ? 'A' : 'C';
-    char type= strip->type();
-    sTGCDetectorHelper sTGC_helper;
-
-    sTGCDetectorDescription *sTGC=0;
-    //Get_sTGCDetector's 2nd input value can range from eta=1 to eta=3
-    sTGC = sTGC_helper.Get_sTGCDetector(type,std::abs(strip->moduleId()),strip->sectorId(),strip->wedge(),side);
-
-    if (!sTGC){
-      ATH_MSG_WARNING("StripTdsOfflineTool:ReadStrip: Could not find detector with:\n" <<
-		    "type:" << type << "\n"
- 		     <<"moduleID:"<< strip->moduleId() +1 << "\n"
-		     <<"sectiorID:"<< strip->sectorId() + 1<< "\n"
-		    <<"layer:"<<strip->wedge()<< "\n"
-		     <<"side:"<<side<< "\n");
-      return false;
-    }
-
-    ATH_MSG_DEBUG("StripTdsOfflineTool:Strip: \n" <<
-		 "wedge:" << strip->wedge() << "\n"
-		 <<"layer:"<< strip->layer() << "\n"
-		 <<"loc_x:"<< strip->locX()<< "\n");
-
-    for(const auto& trig :padTriggers){
-        
-        const auto& innerbandsLocMinY=trig->m_trglocalminYInner;
-        const auto& innerbandsLocMaxY=trig->m_trglocalmaxYInner;
-        const auto& outerbandsLocMinY=trig->m_trglocalminYOuter;
-        const auto& outerbandsLocMaxY=trig->m_trglocalmaxYOuter;        
-        const auto& innerLayers=trig->m_trgSelectedLayersInner;
-        const auto& outerLayers=trig->m_trgSelectedLayersOuter;
-        int idxinner=0;
-        for(const auto& lyr : innerLayers){
-                  int loc_min_y = innerbandsLocMinY.at(idxinner);
-                  int loc_max_y = innerbandsLocMaxY.at(idxinner);
-                  auto pad=trig->m_padsInner.at(idxinner);
-                  int trgwedge=pad->multipletId();
-                  if (trgwedge != strip->wedge()||
-                      lyr != strip->layer() ||
+    for(const std::unique_ptr<PadTrigger>& trig :padTriggers){
+        //std::shared_ptr<PadData> padIn=trig->firstPadInner();
+        for(const std::shared_ptr<PadData>& pad : trig->m_pads){
+          if (
                       strip->sideId()!=pad->sideId() ||
                       strip->isSmall()==pad->sectorType() || //strip returns 1 pad returns 0
                       strip->sectorId()!=pad->sectorId() ||
-                      strip->moduleId() !=pad->moduleId() ||
-                      strip->locX() > loc_max_y+3.2 ||
-                      strip->locX() < loc_min_y-3.2 )
-                      
-                  {
-                      idxinner++;
+                      std::abs(strip->etaCenter() )> trig->etaMax() || //use abs / sideC
+                      std::abs(strip->etaCenter() ) < trig->etaMin()
+            )
+            {
                       continue;
-                  }
-                  strip->setBandId(trig->m_bandid);
-                  strip->setPhiId(trig->m_phi_id);
-                  return true;
-        }//inner layers loop
-        
-        int idxouter=0;
-        for(const auto& lyr : outerLayers){
-                  int loc_min_y = outerbandsLocMinY.at(idxouter);
-                  int loc_max_y = outerbandsLocMaxY.at(idxouter);
+            }
+            else{
 
-                  auto pad=trig->m_padsOuter.at(idxouter);
-                  int trgwedge=pad->multipletId();
-                  
-                  if (trgwedge != strip->wedge() ||
-                      lyr != strip->layer() ||
-                      strip->sideId()!=pad->sideId() ||
-                      strip->isSmall()==pad->sectorType() || //strip returns 1 pad returns 0
-                      strip->sectorId()!=pad->sectorId() ||
-                      strip->moduleId() !=pad->moduleId() ||
-                       strip->locX() > loc_max_y+3.2 ||
-                       strip->locX() < loc_min_y-3.2 )
-                  {
-                      idxouter++;
-                      continue;
-                  }
-                  strip->setBandId(trig->m_bandid);
-                  strip->setPhiId(trig->m_phi_id);
+                  strip->setBandId(trig->bandId());
+                  strip->setPhiId(trig->phiId());
                   return true;
-        }//outer layer loop
-        
-    }//padtriggers loop
+            }          
+        }//pad loop
+        return false;
+    }//padtrigger loop
     return false;
   }
 }

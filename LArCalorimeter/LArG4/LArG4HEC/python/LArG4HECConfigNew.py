@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from LArG4HEC.LArG4HECConf import LArHECLocalCalculator
-from LArG4HEC.LArG4HECConf import LArG4__HEC__LocalCalibrationCalculator
-from LArG4HEC.LArG4HECConf import LArG4__HEC__LArHECCalibrationWheelCalculator
-from LArG4HEC.LArG4HECConf import LArG4__HEC__LocalGeometry
-from LArG4HEC.LArG4HECConf import LArHECWheelCalculator
-from LArG4HEC.LArG4HECConf import LArG4__HEC__HECGeometry
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArHECLocalCalculator=CompFactory.LArHECLocalCalculator
+LArG4__HEC__LocalCalibrationCalculator=CompFactory.LArG4__HEC__LocalCalibrationCalculator
+LArG4__HEC__LArHECCalibrationWheelCalculator=CompFactory.LArG4__HEC__LArHECCalibrationWheelCalculator
+LArG4__HEC__LocalGeometry=CompFactory.LArG4__HEC__LocalGeometry
+LArHECWheelCalculator=CompFactory.LArHECWheelCalculator
+LArG4__HEC__HECGeometry=CompFactory.LArG4__HEC__HECGeometry
 from LArG4HEC import HECGeometryType
 
 def LArHECLocalCalculatorCfg(ConfigFlags, name="LArHECLocalCalculator", **kwargs):
@@ -29,7 +30,9 @@ def HECWheelCalculatorCfg(ConfigFlags, name="HECWheelCalculator", **kwargs):
 
 
 def LArHECCalibrationWheelCalculatorCfg(ConfigFlags, name="LArHECCalibrationWheelCalculator", **kwargs):
-    return LArG4__HEC__LArHECCalibrationWheelCalculator(name, **kwargs)
+    result = ComponentAccumulator()
+    result.addService( LArG4__HEC__LArHECCalibrationWheelCalculator(name, **kwargs) )
+    return result
 
 
 def HECCalibrationWheelActiveCalculatorCfg(ConfigFlags, name="HECCalibrationWheelActiveCalculator", **kwargs):

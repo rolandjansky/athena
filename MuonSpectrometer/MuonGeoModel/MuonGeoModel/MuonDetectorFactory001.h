@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonDetectorFactory001_H
@@ -65,7 +65,7 @@ public:
   inline void hasCSC(bool value);
   inline void hasSTgc(bool value);
   inline void hasMM(bool value);
-    
+
 private:
 
   std::string m_DBAtlasVersion;
@@ -91,9 +91,9 @@ private:
   int m_mdtAsBuiltParaFlag;
   bool m_dumpMemoryBreakDown;  
   int m_enableFineClashFixing;
-  bool m_hasCSC;  
-  bool m_hasSTgc;  
-  bool m_hasMM; 
+  bool m_hasCSC;
+  bool m_hasSTgc;
+  bool m_hasMM;
     
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;

@@ -19,24 +19,21 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
 
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
-    fcols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
-    cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks","MuGirlCombinedTracks","MuGirlMETracks","MuGirlStauCombinedTracks"]
-    if not muonCombinedRecFlags.doMuGirlLowBetaMuonCollection:
-        cols = ["MuidMETracks","MuidCombinedTracks","MSOnlyExtrapolatedMuonTracks","MuGirlCombinedTracks","MuGirlMETracks"]
+    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedTracks" ]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker")
     topSequence.MuonCombinedDetailedTrackTruthMaker.TrackCollectionNames = cols 
-    topSequence.MuonCombinedDetailedTrackTruthMaker.DetailedTrackTruthNames = fcols
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     topSequence.MuonCombinedDetailedTrackTruthMaker.HasCSC = MuonGeometryFlags.hasCSC()
-    topSequence.MuonCombinedDetailedTrackTruthMaker.HasSTgc = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
-    topSequence.MuonCombinedDetailedTrackTruthMaker.HasMM = (CommonGeometryFlags.Run() in ["RUN3", "RUN4"])
+    topSequence.MuonCombinedDetailedTrackTruthMaker.HasSTgc = MuonGeometryFlags.hasSTGC()
+    topSequence.MuonCombinedDetailedTrackTruthMaker.HasMM = MuonGeometryFlags.hasMM()
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
-    for i in range(0, len(fcols)):
-        topSequence += TrackTruthSelector(name= fcols[i] + "Selector",
-                                          DetailedTrackTruthName   = fcols[i] + "DetailedTruth",
-                                          OutputName               = fcols[i] + "Truth" )
-        topSequence += TrackParticleTruthAlg(name = fcols[i]+"TruthAlg",
-                                             TrackTruthName=fcols[i]+"Truth",
+    for i in range(0, len(cols)):
+        topSequence += TrackTruthSelector(name= cols[i] + "Selector",
+                                          DetailedTrackTruthName   = cols[i] + "DetailedTruth",
+                                          OutputName               = cols[i] + "Truth" )
+        topSequence += TrackParticleTruthAlg(name = cols[i]+"TruthAlg",
+                                             TrackTruthName=cols[i]+"Truth",
                                              TrackParticleName = colsTP[i] )
         
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg
@@ -49,7 +46,7 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
         if truthStrategy in ['MC15','MC18','MC18LLP']:
             topSequence.MuonTruthAssociationAlg.BarcodeOffset=10000000
     except:
-        print "Failed to read /Simulation/Parameters/ metadata"
+        printfunc ("Failed to read /Simulation/Parameters/ metadata")
         pass
 
 if muonCombinedRecFlags.doTrackPerformance:

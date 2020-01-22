@@ -3,6 +3,7 @@
 # self test of ComponentAccumulator
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
 from AthenaConfiguration.Deduplication import DeduplicationFailed
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -324,7 +325,7 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
 
 class TestDeduplication( unittest.TestCase ):
     def runTest( self ):
-        from IOVDbSvc.IOVDbSvcConf import IOVDbSvc #Test de-duplicating folder-list
+        IOVDbSvc=CompFactory.IOVDbSvc #Test de-duplicating folder-list
         result1=ComponentAccumulator()
         result1.addService(IOVDbSvc(Folders=["/foo"]))
         result1.wasMerged()
@@ -497,10 +498,10 @@ class TestSequencesMerging( unittest.TestCase ):
         ca1.addSequence(seqAND("someSequence"))
 
         print("ca2")
-        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg	
-	ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [    
-	    "SCT_RDO_Container#SCT_RDOs",
-	    "InDetSimDataCollection#SCT_SDO_Map"	    
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        ca2 = OutputStreamCfg(ConfigFlags, "RDO", ItemList = [
+            "SCT_RDO_Container#SCT_RDOs",
+            "InDetSimDataCollection#SCT_SDO_Map"	    
 	])
         ca2.printConfig()
 
@@ -511,7 +512,7 @@ class TestSequencesMerging( unittest.TestCase ):
         self.assertEqual( len(ca1._allSequences), 2, "Dangling sequences not maintained" )
                 
         print("Instantiating top CA")
-        from MainServicesConfig import MainServicesThreadedCfg
+        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
         topca = MainServicesThreadedCfg( ConfigFlags )
         topca.printConfig()
 

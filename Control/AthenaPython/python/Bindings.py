@@ -104,7 +104,8 @@ class _PyAthenaBindingsCatalog(object):
             _msg = _PyAthenaBindingsCatalog.msg
             _msg.error("Problem registering callback for [%s]", klass)
             _msg.error("Exception: %s", err)
-        _PyAthenaBindingsCatalog.instances[klass] = lambda : None
+            cb = lambda : None  # noqa: E731
+        _PyAthenaBindingsCatalog.instances[klass] = cb
         return
 
     @staticmethod
@@ -763,7 +764,7 @@ def _py_init_EventType():
             isa_idx = self.raw_bit_mask[idx]
             return self.bit_mask_typecodes[idx][isa_idx]
         bm = map(decode_bitmask,
-                 xrange(len(self.bit_mask_typecodes)))
+                 range(len(self.bit_mask_typecodes)))
         return tuple(bm)
     cls.bit_mask = property(bit_mask)
     return cls

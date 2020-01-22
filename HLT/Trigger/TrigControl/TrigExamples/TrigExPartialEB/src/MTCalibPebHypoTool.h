@@ -15,6 +15,7 @@
 
 // Gaudi includes
 #include "Gaudi/Parsers/Factory.h" // needed to declare less common Property types
+#include "GaudiKernel/ICPUCrunchSvc.h"
 
 /** @class MTCalibPebHypoTool
  *  @brief Base class for tools used by MTCalibPebHypoAlg
@@ -75,6 +76,10 @@ private:
     this, "BurnTimeRandomly", true,
     "If true, burn time per cycle is a random value from uniform distribution between 0 and the given value"
   };
+  Gaudi::Property<bool> m_doCrunch {
+    this, "Crunch", false,
+    "Crunch CPU instead of sleeping"
+  };
   Gaudi::Property<std::map<std::string,std::vector<uint32_t> > > m_robAccessDictProp {
     this, "ROBAccessDict", {},
     "Dictionary of prefetch/retrieve operations with given ROB IDs. The value is a vector of ROB IDs. "
@@ -104,7 +109,8 @@ private:
   };
 
   // ------------------------- Service or tool handles -------------------------
-  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
+  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc{this, "ROBDataProviderSvc", "ROBDataProviderSvc", "Name of the ROB data provider"};
+  ServiceHandle<ICPUCrunchSvc> m_cpuCrunchSvc{this, "CPUCrunchSvc", "CPUCrunchSvc", "Name of the CPU cruncher"};
 
   // ------------------------- Other private members ---------------------------
   /// The decision id of the tool instance

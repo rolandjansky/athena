@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @package athena_wrapper
 #
@@ -141,6 +141,11 @@ fi
 """           # python execution starts here, the shell never reaches this
 #"""  # extra line to fool emacs
 
+# Don't want to use from __future__ import print_function here: that would
+# then apply to everything that we read with include().
+import builtins
+printfunc = getattr(builtins,'print')
+
 import os, sys
 from AthenaCommon.Include import IncludeError
 from PyJobTransformsCore import trferr, trfconsts
@@ -168,18 +173,18 @@ try:
     ## The athena executable is expected to be the first argument
     athena_exe = sys.argv[ 1 ]
     sys.argv.pop( 0 ) # remove first argument (i.e. athena full path)    
-    print ' '.join( sys.argv ) 
+    printfunc (' '.join( sys.argv ) )
     execfile( athena_exe )
 
 # Known exceptions not deriving from exceptions.Exception
 # (the only way to catch the object)
-except IncludeError, e:
+except IncludeError as e:
     err = trferr.errorHandler.handleException( e )    
 
-except KeyboardInterrupt, e: 
+except KeyboardInterrupt as e: 
     err = trferr.errorHandler.handleException( e )
 
-except SystemExit, e:
+except SystemExit as e:
     err = trferr.errorHandler.handleException( e )
     try:
         ## Retrieve the error argument. Previous version of @c athena.py does not provide any arguments when successful.
@@ -190,7 +195,7 @@ except SystemExit, e:
         if rc == 0:
             raise Exception
     except Exception: # successful athena job
-        print '%s - exit code 0.' % ' '.join( sys.argv )
+        printfunc ('%s - exit code 0.' % ' '.join( sys.argv ))
         sys.exit( 0 )
     else: # unsuccessful athena job
         ## Create a blank JobReport instance and populate it with the error detected.
@@ -198,11 +203,11 @@ except SystemExit, e:
         jobReport.setProducer( 'athena' )
         jobReport.addError( err )
         jobReport.write()
-        print '%s - exit code %s' % ( ' '.join( sys.argv ), rc )
+        printfunc ('%s - exit code %s' % ( ' '.join( sys.argv ), rc ))
         sys.exit( rc )
 
 # Exceptions derived from exceptions.Exception
-except Exception, e:
+except Exception as e:
     err = trferr.errorHandler.handleException( e )
     if err is None:
         err = AtlasErrorCodes.ErrorInfo( acronym = 'ATH_EXC_PYT',
@@ -210,7 +215,7 @@ except Exception, e:
                                          message = '%s: %s' % ( e.__class__.__name__, e.args ) )
 
 # Some throw a string
-except str, e:
+except str as e:
     err = AtlasErrorCodes.ErrorInfo( acronym = 'ATH_EXC_PYT',
                                      severity = AtlasErrorCodes.FATAL,
                                      message = e )

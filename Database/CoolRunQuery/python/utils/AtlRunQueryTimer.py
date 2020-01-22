@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 from contextlib import contextmanager
 
 from time import time
@@ -24,9 +25,9 @@ class TimeCount:
         if self.subcounts:
             # sum up sub counts
             ts = sum([x.totaltime for x in self.subcounts])
-            print "%s%-70s : %f (sub sum %f)" % (5*lvl*" ", self.name, self.totaltime, ts)
+            print ("%s%-70s : %f (sub sum %f)" % (5*lvl*" ", self.name, self.totaltime, ts))
         else:
-            print "%s%-70s : %f" % (5*lvl*" ", self.name, self.totaltime)
+            print ("%s%-70s : %f" % (5*lvl*" ", self.name, self.totaltime))
         # sort sub counters
         sortedByTime = sorted(self.subcounts,key=attrgetter('totaltime'),reverse=True)
         # call print for sub counters
@@ -78,7 +79,7 @@ class TimerStats:
     @classmethod
     def printTimeFlat(cls):
         for name, [time, callcount] in sorted(cls.totalFlat.items(),key=lambda x: x[1][0]):
-            print "%-70s : %f (%i)" % (name, time, callcount)
+            print ("%-70s : %f (%i)" % (name, time, callcount))
 
 
 @contextmanager
@@ -101,4 +102,4 @@ def timer(name):
         TS.saveTime(execTime)
         TS.level -= 1
         TS.context.pop()
-        print "%*s took %.2f sec to %s" % (5*TS.level, "...", execTime, name)
+        print ("%*s took %.2f sec to %s" % (5*TS.level, "...", execTime, name))

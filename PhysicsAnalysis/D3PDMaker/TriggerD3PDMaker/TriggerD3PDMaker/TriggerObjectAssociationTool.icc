@@ -1,10 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TriggerObjectAssociationTool.icc 524222 2012-11-02 16:01:03Z ssnyder $
 /**
  * @file TriggerD3PDMaker/TriggerObjectAssociationTool.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -116,7 +114,7 @@ TriggerObjectAssociationTool<FROM_T, TO_T>::get (const FROM_T& p)
 
   const TO_T* ret = 0;
   float best_dr = -1;
-  BOOST_FOREACH (const TO_T* v, vtmp) {
+  for (const TO_T* v : vtmp) {
      float dr;
      if( m_metric ) {
         dr = m_matchTool->distance (v, &p, m_metric);

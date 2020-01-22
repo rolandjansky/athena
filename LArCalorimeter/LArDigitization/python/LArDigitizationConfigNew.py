@@ -2,21 +2,29 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
+# utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg, LArBadFebCfg
-from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
-from LArRecUtils.LArRecUtilsConfig import LArADC2MeVCondAlgCfg
-from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
-from LArDigitization.LArDigitizationConf import LArPileUpTool, LArDigitMaker
-from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool
-from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
+from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+PileUpXingFolder=CompFactory.PileUpXingFolder
+AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
+# for PileUpTool
+LArPileUpTool=CompFactory.LArPileUpTool
+from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
+from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg, LArBadFebCfg
+from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
+CosmicTriggerTimeTool=CompFactory.CosmicTriggerTimeTool
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+# for Digitization
+LArDigitMaker=CompFactory.LArDigitMaker
+from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
+from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+# for Trigger Tower
+LArTTL1Maker=CompFactory.LArTTL1Maker
 from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
-from LArL1Sim.LArL1SimConf import LArTTL1Maker
-
 
 def useLArFloat(flags):
     """Return bool for simplified transient LArHit with float E,time"""
@@ -72,7 +80,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     """Return ComponentAccumulator with configured LArPileUpTool"""
     acc = LArGMCfg(flags)
 
-    #The LArPileupTool needs: Noise, fSampl, Pedestal,Shape ADC2MeV 
+    #The LArPileupTool needs: Noise, fSampl, Pedestal,Shape ADC2MeV
     # AutoCorrNoise, the list of bad FEBs and the cabling
     acc.merge(LArADC2MeVCondAlgCfg(flags))
     acc.merge(LArBadFebCfg(flags))
@@ -82,7 +90,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     if not flags.Detector.OverlayLAr:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
     if "MaskingTool" not in kwargs:
-        maskerTool = acc.popToolsAndMerge(LArBadChannelMaskerCfg(flags, ["deadReadout", "deadPhys"]))
+        maskerTool = acc.popToolsAndMerge(LArBadChannelMaskerCfg(flags, ["deadReadout", "deadPhys"], ToolName="LArRCBMasker"))
         kwargs["MaskingTool"] = maskerTool
     # defaults
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
@@ -90,9 +98,9 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", -751)
         kwargs.setdefault("LastXing", 101)
-    if flags.Digitization.HighGainFCal and not flags.Detector.OverlayLAr:
+    if (not flags.Digitization.HighGainFCal) and (not flags.Detector.OverlayLAr):
         kwargs.setdefault("HighGainThreshFCAL", 0)
-    if flags.Digitization.HighGainEMECIW and not flags.Detector.OverlayLAr:
+    if (not flags.Digitization.HighGainEMECIW) and (not flags.Detector.OverlayLAr):
         kwargs.setdefault("HighGainThreshEMECIW", 0)
     kwargs.setdefault("RndmEvtOverlay", flags.Detector.OverlayLAr)
     if flags.Digitization.PileUpPremixing:
@@ -124,42 +132,63 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         ]
         acc.addService(AddressRemappingSvc(TypeKeyOverwriteMaps=maps, ProxyDict="ActiveStoreSvc"))
         acc.addService(ProxyProviderSvc(ProviderNames=["AddressRemappingSvc"]))
+        kwargs.setdefault("LArHitContainers", [])
+    else:
+        kwargs.setdefault("LArHitFloatContainers", [])
     acc.setPrivateTools(LArPileUpTool(name, **kwargs))
     return acc
 
 
-def LArDigitMakerBasicCfg(flags, name="LArDigitMaker", **kwargs):
-    """Return ComponentAccumulator with configured LArDigitMaker algorithm"""
+def LArOutputCfg(flags):
+    """Return ComponentAccumulator with Output for LAr. Not standalone."""
     acc = ComponentAccumulator()
-    if "LArPileUpTool" not in kwargs:
-        tool = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
-        kwargs["LArPileUpTool"] = tool
-    
-    acc.addEventAlgo(LArDigitMaker(name, **kwargs))
+    ItemList = []
+    if flags.Digitization.PileUpPremixing:
+        ItemList += ["LArDigitContainer#*LArDigitContainer_MC"]
+    else:
+        ItemList += ["LArRawChannelContainer#*", "LArDigitContainer#LArDigitContainer_MC_Thinned"]
+    if flags.Detector.SimulateHGTD:
+        ItemList += ["LArHitContainer#HGTDDigitContainer_MC"]
+    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 
-def LArDigitMakerCfg(flags, name="LArDigitMaker", **kwargs):
-    """Return ComponentAccumulator with configured LArDigitMaker algorithm and Output"""
-    acc = LArDigitMakerBasicCfg(flags, name, **kwargs)
-    LArItemList = [
-        "LArRawChannelContainer#*",
-        "LArDigitContainer#*",
-        "LArDigitContainer#*LArDigitContainer_MC",
-        "LArDigitContainer#LArDigitContainer_MC_Thinned",
-        "LArHitContainer#HGTDDigitContainer_MC",
-    ]
-    acc.merge(OutputStreamCfg(flags, "RDO", LArItemList))
+def LArDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with LAr digitization configuration"""
+    acc = ComponentAccumulator()
+    if "PileUpTools" not in kwargs:
+        PileUpTools = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
+        kwargs["PileUpTools"] = PileUpTools
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
+    acc.merge(LArRawChannelBuilderAlgCfg(flags))
+    acc.merge(LArDigitThinnerCfg(flags))
+    return acc
+
+
+def LArDigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator with LAr digitization and Output"""
+    acc = LArDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(LArOutputCfg(flags))
+    return acc
+
+
+def LArOverlayDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with LAr Overlay digitization configuration"""
+    acc = ComponentAccumulator()
+    if "DigitizationTool" not in kwargs:
+        kwargs["DigitizationTool"] = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
+    acc.addEventAlgo(LArDigitMaker(**kwargs))
+    # FIXME not complete
     return acc
 
 
 def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower"""
-    acc = LArDigitMakerBasicCfg(flags)
+    acc = LArDigitizationBasicCfg(flags)
     acc.merge(LArFebRodMappingCfg(flags))
     acc.merge(LArCalibIdMappingCfg(flags))
     acc.merge(CaloTriggerTowerCfg(flags))
-    # trigger tower algo
+
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     if not flags.Digitization.DoXingByXingPileUp:
         if flags.Digitization.Pileup or flags.Detector.OverlayLAr:
@@ -174,7 +203,6 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
 def LArTriggerDigitizationCfg(flags, **kwargs):
     """Return ComponentAccumulator for LAr Trigger Tower and Output"""
     acc = LArTriggerDigitizationBasicCfg(flags)
-    acc.merge(LArDigitMakerCfg(flags))
+    acc.merge(LArOutputCfg(flags))
     acc.merge(OutputStreamCfg(flags, "RDO", ["LArTTL1Container#*"]))
     return acc
-

@@ -91,21 +91,52 @@ public:
      * should avoid using this specific function name 'fill' in daughter classes.
      *
      * @param groupHandle A reference of the GenericMonitoringTool to which add variables
-     * @param variables Vector of monitored variables to be saved
+     * @param variables Rvalue reference to vector of monitored variables to be saved. Note,
+     *                  the vector will not be valid after calling this function! Use
+     *                  const lvalue variant if you want to keep your vectors.
      */
     void fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
-               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables ) const;
+               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>&& variables ) const;
 
     /**
-     * Fills a variadic list of variables to a group by reference. Callse BASE FILL.
+     * Fills a vector of variables to a group by reference. Calls BASE FILL.
+     *
+     * At the end of the fillHistograms routine, one should save the monitored variables
+     * to the group. This function wraps the process of getting the desired group by a
+     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(),
+     * which also disables the auto-fill feature to avoid double-filling. Note, users
+     * should avoid using this specific function name 'fill' in daughter classes.
+     *
+     * @param groupHandle A reference of the GenericMonitoringTool to which add variables
+     * @param variables Vector of monitored variables to be saved
+     */
+
+    void fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+               const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& variables ) const {
+        fill(groupHandle, std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables}));
+    };
+
+    /**
+     * Fills a variadic list of variables to a group by reference. Calls BASE FILL.
      *
      * @param groupHandle Reference to the GenericMonitoringTool
      * @param variables... Variadic list of monitored variables to be saved
      */
     template <typename... T>
     void fill( const ToolHandle<GenericMonitoringTool>& groupHandle, T&&... variables ) const {
-        fill(groupHandle,{std::forward<T>(variables)...});
+        fill(groupHandle,std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...}));
     }
+
+    /**
+     * Fills a vector of variables to a group by name. Calls BASE FILL.
+     *
+     * @param groupHandle Reference to the GenericMonitoringTool
+     * @param variables Rvalue reference to vector of monitored variables to be saved. Note,
+     *                  the vector will not be valid after calling this function! Use
+     *                  const lvalue variant if you want to keep your vectors.
+     */
+    void fill( const std::string& groupName,
+               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>&& variables ) const;
 
     /**
      * Fills a vector of variables to a group by name. Calls BASE FILL.
@@ -114,7 +145,9 @@ public:
      * @param variables Vector of monitored variables to be saved
      */
     void fill( const std::string& groupName,
-               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables ) const;
+               const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& variables ) const {
+        fill( getGroup(groupName), std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables}));
+    }
 
     /**
      * Fills a variadic list of variables to a group by name. Calls BASE FILL.
@@ -124,7 +157,7 @@ public:
      */
     template <typename... T>
     void fill( const std::string& groupName, T&&... variables ) const {
-        fill(getGroup(groupName),{std::forward<T>(variables)...});
+        fill(getGroup(groupName),std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...}));
     }
     /** @} */ // end of fill group
 
@@ -345,6 +378,7 @@ protected:
 private:
     typedef std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> MonVarVec_t;
     std::string m_name;
+    std::unordered_map<std::string, size_t> m_toolLookupMap;
 };
 
 #endif

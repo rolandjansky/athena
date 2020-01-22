@@ -19,11 +19,14 @@ class Tree{
  public:
   Tree(const std::vector<std::size_t>&);
 
-  std::size_t getParent(std::size_t) const;
-  std::vector<std::size_t> getSiblings(std::size_t) const;
+  std::size_t parent(std::size_t) const;
+  std::vector<std::size_t> siblings(std::size_t) const;
   std::size_t size() const;
   const std::vector<std::size_t>& leaves() const;
   const std::vector<std::size_t>& firstGeneration() const;
+
+  std::size_t depth(std::size_t) const;
+
  private:
   std::vector<std::size_t> m_parents;
   std::vector<std::vector<std::size_t>> m_children;

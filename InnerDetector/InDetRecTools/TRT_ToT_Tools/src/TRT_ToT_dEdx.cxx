@@ -14,7 +14,7 @@
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+
 #include "TrkSurfaces/Surface.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -49,7 +49,6 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
 
   m_timingProfile         = 0;
   m_trtId                                         = 0;
-  m_trtman                                        = 0;
 }
 
 
@@ -113,12 +112,6 @@ StatusCode TRT_ToT_dEdx::initialize()
     return StatusCode::FAILURE;
   }
 
-  sc = detStore()->retrieve(m_trtman, "TRT");
-  if (sc.isFailure()){
-    ATH_MSG_ERROR ( "Could not get TRT detector manager !" );
-    return StatusCode::FAILURE;
-  }
-
   m_timingProfile=0;
   sc = service("ChronoStatSvc", m_timingProfile);
   if ( sc.isFailure() || 0 == m_timingProfile) {
@@ -128,6 +121,7 @@ StatusCode TRT_ToT_dEdx::initialize()
   // Initialize ReadHandleKey and ReadCondHandleKey
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_ReadKey.initialize());
+  ATH_CHECK(m_trtDetEleContKey.initialize());
 
   sc = m_TRTStrawSummaryTool.retrieve();
   if (StatusCode::SUCCESS!= sc ){
@@ -227,6 +221,14 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideBy
 
   const Trk::TrackParameters* trkP = itr->trackParameters();
   if(trkP==0)return false; 
+
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+  if (not trtDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
+    return false;
+  }
+
   double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
   double Trt_HitTheta = trkP->parameters()[Trk::theta];
@@ -234,7 +236,10 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideBy
   double error = sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
   Identifier DCId = driftcircle->identify();
   int HitPart =  m_trtId->barrel_ec(DCId);
-  const InDetDD::TRT_BaseElement* element = m_trtman->getElement(DCId);
+  //IdentifierHash hashId = m_trtId->straw_layer_hash(DCId);
+  Identifier strawLayerId = m_trtId->layer_id(DCId);                                                                                            
+  IdentifierHash hashId = m_trtId->straw_layer_hash(strawLayerId);                                                                            
+  const InDetDD::TRT_BaseElement* element = elements->getDetectorElement(hashId);
   double strawphi = element->center(DCId).phi();
 
   if ( itr->type(Trk::TrackStateOnSurface::Outlier)  ) return false; //Outliers
@@ -1095,12 +1100,13 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   double T0 =  fitFuncPol_corrRZ(gasType, 0,driftRadius,Layer,StrawLayer,sign,0);
   double  v =  fitFuncPol_corrRZ(gasType, 1,driftRadius,Layer,StrawLayer,sign,0);
   double  s =  fitFuncPol_corrRZ(gasType, 2,driftRadius,Layer,StrawLayer,sign,0);
-  //For IEEE-compatible type double, argument causes exp to overflow if outside [-708.4, 709.8]
+  //_in theory_ For IEEE-compatible type double, argument causes exp to overflow if outside [-708.4, 709.8]
+  //however, overflow still seen when argument is 702; so I restrict these to -600, 600
   const double expArg=(z-l)/s;
-  if (not inRange(expArg, -708.4,709.8)){
+  if (not inRange(expArg, -600.0,600.0)){
     return expArg>0 ? std::numeric_limits<double>::infinity():0.;
   }
-  return T0+z/v*exp(expArg);
+  return T0+(z/v)*exp(expArg);
 }
 
 

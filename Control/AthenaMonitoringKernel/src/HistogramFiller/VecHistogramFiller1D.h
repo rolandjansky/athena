@@ -13,21 +13,35 @@ namespace Monitored {
     VecHistogramFiller1D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller1D(definition, provider) {}
 
-    virtual VecHistogramFiller1D* clone() override { return new VecHistogramFiller1D(*this); };
+    virtual VecHistogramFiller1D* clone() const override {
+      return new VecHistogramFiller1D( *this );
+    }
 
     virtual unsigned fill() override {
       if (m_monVariables.size() != 1) {
         return 0;
       }
 
+      // handling of the cutmask
+      auto cutMaskValuePair = getCutMaskFunc();
+      if (cutMaskValuePair.first == 0) { return 0; }
+      auto cutMaskAccessor = cutMaskValuePair.second;
+
       auto histogram = this->histogram<TH1>();
-      auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+      const auto valuesVector{m_monVariables[0].get().getVectorRepresentation()};
+      if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != valuesVector.size())) {
+        MsgStream log(Athena::getMessageSvc(), "VecHistogramFiller1D");
+        log << MSG::ERROR << "CutMask does not match the size of plotted variable: " 
+            << cutMaskValuePair.first << " " << valuesVector.size() << endmsg;
+      }
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
       for (unsigned i = 0; i < std::size(valuesVector); ++i) {
-        auto value = valuesVector[i];
-        histogram->AddBinContent(i+1, value);
-        histogram->SetEntries(histogram->GetEntries() + value);
+        if (cutMaskAccessor(i)) {
+          auto value = valuesVector[i];
+          histogram->AddBinContent(i+1, value);
+          histogram->SetEntries(histogram->GetEntries() + value);
+        }
       }
 
       return std::size(valuesVector);  

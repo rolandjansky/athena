@@ -7,6 +7,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -21,7 +22,7 @@ def AddNoiseCellBuilderToolCfg (configFlags):
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
     result.merge (CaloNoiseCondAlgCfg (configFlags, 'electronicNoise'))
 
-    from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
+    AddNoiseCellBuilderTool=CompFactory.AddNoiseCellBuilderTool
     tool = AddNoiseCellBuilderTool ('AddNoiseCellBuilderTool',
                                     NoiseKey = 'electronicNoise',
                                     CaloEstimatedGainTool = estimatedGainTool)

@@ -76,7 +76,7 @@ def _configureReadAthenaPool():
         evtloop = getattr(svcMgr, theApp.EventLoop) 
         try: 
             evtloop.EventPrintoutInterval = 10000 
-        except Exception, err: 
+        except Exception:
             msg.info('failed suppressing event loop heartbeat. performances might be sub-par... sorry.') 
             pass 
 

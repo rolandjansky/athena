@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
 from copy import copy
@@ -120,12 +122,12 @@ class XMLNode:
         contType = type(contents).__name__
         if isinstance(contents,XMLNode):
             self.__contents = contents
-#            print "%s: Setting contents %s" % (self.name(),contents.__class__.__name__)
+#            print ("%s: Setting contents %s" % (self.name(),contents.__class__.__name__))
         elif contType == 'list':
-#            print "%s: Setting contents list" % (self.name())
+#            print ("%s: Setting contents list" % (self.name()))
             self.__contents = contents
         else:
-#            print "%s: Setting contents %s" % (self.name(),type(contents).__name__)
+#            print ("%s: Setting contents %s" % (self.name(),type(contents).__name__))
             self.__contents = str(contents)
 
         return self
@@ -136,7 +138,7 @@ class XMLNode:
         if conttype == 'instance': conttype = self.__contents.__class__.__name__
         addtype = type(contents).__name__
         if addtype == 'instance': addtype = contents.__class__.__name__
-#        print "%s: Adding contents %s to %s" % (self.name(),addtype,conttype)
+#        print ("%s: Adding contents %s to %s" % (self.name(),addtype,conttype))
         if self.__contents is None:
             self.setContents(contents)
         elif conttype == 'list':
@@ -258,5 +260,5 @@ if __name__ == '__main__':
     y=XMLNode("FileCatalog")
     y.addContents( XMLNode("META").setAttributes(name="var1", type='string') )
     y.addContents( XMLNode("file1").setAttributes(att_name="apples",att_value=v ) )
-    print y.getXML()
+    print (y.getXML())
     

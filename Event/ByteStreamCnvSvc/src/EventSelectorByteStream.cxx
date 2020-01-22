@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -33,52 +33,22 @@
 #include <algorithm>
 
 // Constructor.
-EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLocator* svcloc) : ::AthService(name, svcloc),
-        m_fileCount(0),
-	m_beginIter(0),
-	m_endIter(0),
-	m_eventSource(0),
-        m_incidentSvc("IncidentSvc", name),
-        m_evtStore( "StoreGateSvc", name ),
-        m_firstFileFired(false),
-        m_beginFileFired(false),
-	m_inputCollectionsFromIS(false),
-	m_NumEvents(0),
- 	m_eventStreamingTool("", this),
-        m_helperTools(this),
-        m_counterTool("", this) {
-   declareProperty("ByteStreamInputSvc",  m_eventSourceName);
-   declareProperty("Input",               m_inputCollectionsProp);
-   declareProperty("MaxBadEvents",        m_maxBadEvts = -1);
-   declareProperty("ProcessBadEvent",     m_procBadEvent = false);
-   declareProperty("SkipEvents",          m_SkipEvents = 0);
-   declareProperty("SkipEventSequence",   m_skipEventSequenceProp);
-
-   declareProperty("HelperTools",         m_helperTools);
-   declareProperty("CounterTool",         m_counterTool);
-   declareProperty("SharedMemoryTool",    m_eventStreamingTool);
+EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLocator* svcloc)
+   : base_class(name, svcloc)
+{
+   declareProperty("HelperTools", m_helperTools);
 
    // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
    // to override the run number coming in on the input stream
-   declareProperty("RunNumber",           m_runNo = 0);
    m_runNo.verifier().setLower(0);
    // The following properties are only for compatibility with
    // McEventSelector and are not really used anywhere
-   declareProperty("EventsPerRun",        m_eventsPerRun = 1000000);
+   // TODO: validate if those are even used
    m_eventsPerRun.verifier().setLower(0);
-   declareProperty("FirstEvent",          m_firstEventNo = 0);
    m_firstEventNo.verifier().setLower(0);
-   declareProperty("FirstLB",             m_firstLBNo = 0);
    m_firstLBNo.verifier().setLower(0);
-   declareProperty("EventsPerLB",         m_eventsPerLB = 1000);
    m_eventsPerLB.verifier().setLower(0);
-   declareProperty("InitialTimeStamp",    m_initTimeStamp = 0);
    m_initTimeStamp.verifier().setLower(0);
-   declareProperty("TimeStampInterval",   m_timeStampInterval = 0);
-   declareProperty("OverrideRunNumber",   m_overrideRunNumber = false);
-   declareProperty("OverrideEventNumber", m_overrideEventNumber = false);
-   declareProperty("OverrideTimeStamp",   m_overrideTimeStamp = false);
-   declareProperty("FileBased", m_filebased = true);
 
    m_inputCollectionsProp.declareUpdateHandler(&EventSelectorByteStream::inputCollectionsHandler, this);
 }
@@ -93,14 +63,19 @@ EventSelectorByteStream::~EventSelectorByteStream() {
 }
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+   if (m_isSecondary.value()) {
+      ATH_MSG_DEBUG("Initializing secondary event selector " << name());
+   } else {
+      ATH_MSG_DEBUG("Initializing " << name());
+   }
+
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
    }
 
    // Check for input setting
-   if (m_filebased && m_inputCollectionsProp.value().size() == 0) {
+   if (m_filebased && m_inputCollectionsProp.value().empty()) {
       ATH_MSG_WARNING("InputCollections not properly set, checking EventStorageInputSvc properties");
       ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
       bool retrieve(false);
@@ -145,7 +120,7 @@ StatusCode EventSelectorByteStream::initialize() {
 
    // Check ByteStreamCnvSvc
    IService* svc;
-   if (!serviceLocator()->getService(m_eventSourceName, svc).isSuccess()) {
+   if (!serviceLocator()->getService(m_eventSourceName.value(), svc).isSuccess()) {
       ATH_MSG_FATAL("Cannot get ByteStreamInputSvc");
       return(StatusCode::FAILURE);
    }
@@ -318,9 +293,6 @@ StatusCode EventSelectorByteStream::stop() {
          FileIncident endInputFileIncident(name(), "EndInputFile", "stop");
          m_incidentSvc->fireIncident(endInputFileIncident);
       }
-      // Fire LastInputFile incident
-      FileIncident lastInputFileIncident(name(), "LastInputFile", "stop");
-      m_incidentSvc->fireIncident(lastInputFileIncident);
    }
    return(StatusCode::SUCCESS);
 }
@@ -400,8 +372,8 @@ StatusCode EventSelectorByteStream::openNewRun() const {
       this->nextFile();
       return openNewRun();
    // check if skipping all events in that file (minus events already skipped)
-   } else if (m_SkipEvents - m_NumEvents > nev) {
-      ATH_MSG_WARNING("skipping more events " << m_SkipEvents-m_NumEvents << "(" << nev <<") than in file " << *m_inputCollectionsIterator << ", try next");
+   } else if (m_skipEvents.value() - m_NumEvents > nev) {
+      ATH_MSG_WARNING("skipping more events " << m_skipEvents.value() - m_NumEvents << "(" << nev <<") than in file " << *m_inputCollectionsIterator << ", try next");
       m_NumEvents += nev;
       m_numEvt[m_fileCount] = nev;
       if (m_eventSource->ready()) m_eventSource->closeBlockIterator(true);
@@ -448,40 +420,14 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
    }
    // Find an event to return
    for (;;) {
-      const RawEvent* pre = 0; 
-      bool badEvent(false);
-      // if event source not ready from init, try next file
-      if (m_filebased && !m_eventSource->ready()) {
-         // next file
-         this->nextFile();
-         if (this->openNewRun().isFailure()) {
-            ATH_MSG_DEBUG("Event source found no more valid files left in input list");
-            m_NumEvents = -1;
-            return StatusCode::FAILURE; 
-         }
-      }
-      try { 
-         pre = m_eventSource->nextEvent(); 
-      } 
-      catch (const ByteStreamExceptions::readError&) { 
-         ATH_MSG_FATAL("Caught ByteStreamExceptions::readError"); 
-         return StatusCode::FAILURE; 
-      } 
-      catch (const ByteStreamExceptions::badFragment&) { 
-         ATH_MSG_ERROR("badFragment encountered");
+      bool badEvent{};
+      StatusCode sc = nextHandleFileTransition(it);
+      if (sc.isRecoverable()) {
          badEvent = true;
+      } else if (sc.isFailure()) {
+         return StatusCode::FAILURE;
       }
-      catch (const ByteStreamExceptions::badFragmentData&) { 
-         ATH_MSG_ERROR("badFragment data encountered");
-         badEvent = true;
-      }
-      // Check whether a RawEvent has actually been provided
-      if (pre == 0) {
-         //ATH_MSG_ERROR("No event built");
-	 it = *m_endIter;
-	 return(StatusCode::FAILURE);
-      }
-      
+
       // increment that an event was found
       ++m_NumEvents;
 
@@ -490,26 +436,26 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          ++n_bad_events;
          ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
          bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
-	 if (toomany) {ATH_MSG_FATAL("too many bad events ");}
+         if (toomany) {ATH_MSG_FATAL("too many bad events ");}
          if (!m_procBadEvent || toomany) {
             // End of file
-	    it = *m_endIter;
-	    return(StatusCode::FAILURE);
-	 }
+            it = *m_endIter;
+            return(StatusCode::FAILURE);
+         }
          ATH_MSG_WARNING("Continue with bad event");
       }
       // Build a DH for use by other components
       StatusCode rec_sg = m_eventSource->generateDataHeader();
-        if (rec_sg != StatusCode::SUCCESS) {
-           ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
+      if (rec_sg != StatusCode::SUCCESS) {
+         ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
       }
 
       // Check whether properties or tools reject this event
-      if ( m_NumEvents > m_SkipEvents && 
+      if ( m_NumEvents > m_skipEvents.value() && 
            (m_skipEventSequence.empty() || m_NumEvents != m_skipEventSequence.front()) ) {
          StatusCode status(StatusCode::SUCCESS);
          // Build event info attribute list
-         if (buildEventAttributeList().isFailure()) ATH_MSG_WARNING("Unable to build event info att list");
+         if (recordAttributeList().isFailure()) ATH_MSG_WARNING("Unable to build event info att list");
          for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
 		         last = m_helperTools.end(); iter != last; iter++) {
             StatusCode toolStatus = (*iter)->postNext();
@@ -545,12 +491,12 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
             ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
 
             bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
-	    if (toomany) {ATH_MSG_FATAL("too many bad events ");}
+	         if (toomany) {ATH_MSG_FATAL("too many bad events ");}
             if (!m_procBadEvent || toomany) {
                // End of file
-	       it = *m_endIter;
-	       return(StatusCode::FAILURE);
-   	    }
+	            it = *m_endIter;
+	         return(StatusCode::FAILURE);
+   	      }
             ATH_MSG_WARNING("Continue with bad event");
          }
       } else {
@@ -566,7 +512,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) const {
    if (jump > 0) {
-      if ( m_NumEvents+jump != m_SkipEvents) {
+      if ( m_NumEvents+jump != m_skipEvents.value()) {
          // Save initial event count
          unsigned int cntr = m_NumEvents;
          // In case NumEvents increments multiple times in a single next call
@@ -576,7 +522,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) 
             }
          }
       }
-      else ATH_MSG_DEBUG("Jump covered by skip event " << m_SkipEvents);
+      else ATH_MSG_DEBUG("Jump covered by skip event " << m_skipEvents.value());
       return(StatusCode::SUCCESS);
    }
    else { 
@@ -584,6 +530,58 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) 
    }
    return(StatusCode::SUCCESS);
 }
+
+//________________________________________________________________________________
+StatusCode EventSelectorByteStream::nextHandleFileTransition(IEvtSelector::Context& it) const
+{
+   const RawEvent* pre{}; 
+   bool badEvent{};
+   // if event source not ready from init, try next file
+   if (m_filebased && !m_eventSource->ready()) {
+      // next file
+      this->nextFile();
+      if (this->openNewRun().isFailure()) {
+         ATH_MSG_DEBUG("Event source found no more valid files left in input list");
+         m_NumEvents = -1;
+         return StatusCode::FAILURE; 
+      }
+   }
+   try { 
+      pre = m_eventSource->nextEvent(); 
+   } 
+   catch (const ByteStreamExceptions::readError&) { 
+      ATH_MSG_FATAL("Caught ByteStreamExceptions::readError"); 
+      return StatusCode::FAILURE; 
+   } 
+   catch (const ByteStreamExceptions::badFragment&) { 
+      ATH_MSG_ERROR("badFragment encountered");
+      badEvent = true;
+   }
+   catch (const ByteStreamExceptions::badFragmentData&) { 
+      ATH_MSG_ERROR("badFragment data encountered");
+      badEvent = true;
+   }
+   // Check whether a RawEvent has actually been provided
+   if (pre == nullptr) {
+      it = *m_endIter;
+      return StatusCode::FAILURE;
+   }
+
+   // If not secondary just return the status code based on if the event is bas
+   if (!m_isSecondary.value()) {
+      // check bad event flag and handle as configured 
+      return badEvent ? StatusCode::RECOVERABLE : StatusCode::SUCCESS;
+   } 
+
+   // Build a DH for use by other components
+   StatusCode rec_sg = m_eventSource->generateDataHeader();
+   if (rec_sg != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
+   }
+
+   return StatusCode::SUCCESS;
+}
+
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) const {
     ATH_MSG_DEBUG(" ... previous");
@@ -723,14 +721,10 @@ StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
    return(StatusCode::SUCCESS);
 }
 
-StatusCode EventSelectorByteStream::buildEventAttributeList() const
+StatusCode EventSelectorByteStream::recordAttributeList() const
 {
-   //ServiceHandle<StoreGateSvc> m_evtStore("StoreGateSvc/StoreGateSvc",this->name());
-   //StatusCode sc = m_evtStore.retrieve();
-   //if (sc.isFailure()) return StatusCode::FAILURE;
    std::string listName("EventInfoAtts");
-   //bool found  = m_evtStore->contains<AthenaAttributeList>(listName);
-   //if (found) {
+
    if (m_evtStore->contains<AthenaAttributeList>(listName)) {
       const AthenaAttributeList* oldAttrList = nullptr;
       if (!m_evtStore->retrieve(oldAttrList, listName).isSuccess()) {
@@ -741,87 +735,98 @@ StatusCode EventSelectorByteStream::buildEventAttributeList() const
          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
          return(StatusCode::FAILURE);
       }
-      //ATH_MSG_ERROR("Event store not cleared properly after previous event");
-      //return StatusCode::FAILURE;
    }
-   // build spec
-   // fill att list spec
-   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
-   AthenaAttributeList* attlist = new AthenaAttributeList(*spec);
-   attlist->extend("RunNumber"  ,"long");
-   attlist->extend("EventNumber","long");
-   attlist->extend("Lumiblock"  ,"int");
-   attlist->extend("BunchID"    ,"int");
-   attlist->extend("CrossingTimeSec", "unsigned int");
-   attlist->extend("CrossingTimeNSec", "unsigned int");
+
+   // build spec and the new attr list
+   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification(); // the newly created attribute list owns the spec
+   auto attrList = std::make_unique<AthenaAttributeList>(*spec);
+
+   // fill the attr list
+   ATH_CHECK(fillAttributeList(attrList.get(), "", false));
+
+   // put result in event store
+   if (m_evtStore->record(std::move(attrList), listName).isFailure()) {
+      return StatusCode::FAILURE;
+   }
+
+   return StatusCode::SUCCESS;
+}
+
+StatusCode EventSelectorByteStream::fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool /* copySource */) const
+{
+   attrList->extend("RunNumber"   + suffix, "long");
+   attrList->extend("EventNumber" + suffix, "long");
+   attrList->extend("Lumiblock"   + suffix, "int");
+   attrList->extend("BunchID"     + suffix,  "int");
+   attrList->extend("CrossingTimeSec"  + suffix, "unsigned int");
+   attrList->extend("CrossingTimeNSec" + suffix, "unsigned int");
 
    // fill attribute list
    const RawEvent* event = m_eventSource->currentEvent();
 
-   (*attlist)["RunNumber"].data<long>() = event->run_no();
+   (*attrList)["RunNumber" + suffix].data<long>() = event->run_no();
    if (event->version() < 0x03010000) {
-     (*attlist)["EventNumber"].data<long>() = event->lvl1_id();
+      (*attrList)["EventNumber" + suffix].data<long>() = event->lvl1_id();
    } else {
-     (*attlist)["EventNumber"].data<long>() = event->global_id();
+      (*attrList)["EventNumber" + suffix].data<long>() = event->global_id();
    }
-   (*attlist)["Lumiblock"].data<int>() = event->lumi_block();
-   (*attlist)["BunchID"].data<int>() = event->bc_id();
+   (*attrList)["Lumiblock" + suffix].data<int>() = event->lumi_block();
+   (*attrList)["BunchID" + suffix].data<int>() = event->bc_id();
 
    unsigned int bc_time_sec = event->bc_time_seconds();
    unsigned int bc_time_ns  = event->bc_time_nanoseconds();
    // bc_time_ns should be lt 1e9.
    if (bc_time_ns > 1000000000) {
-     // round it off to 1e9
-     ATH_MSG_WARNING(" bc_time nanosecond number larger than 1e9, it is " << bc_time_ns << ", reset it to 1 sec");
-     bc_time_ns = 1000000000;
+      // round it off to 1e9
+      ATH_MSG_WARNING(" bc_time nanosecond number larger than 1e9, it is " << bc_time_ns << ", reset it to 1 sec");
+      bc_time_ns = 1000000000;
    }
-   (*attlist)["CrossingTimeSec"].data<unsigned int>() = bc_time_sec;
-   (*attlist)["CrossingTimeNSec"].data<unsigned int>() = bc_time_ns;
+   (*attrList)["CrossingTimeSec" + suffix].data<unsigned int>() = bc_time_sec;
+   (*attrList)["CrossingTimeNSec" + suffix].data<unsigned int>() = bc_time_ns;
 
    const OFFLINE_FRAGMENTS_NAMESPACE::DataType* buffer;
 
    event->status(buffer);
-   attlist->extend("TriggerStatus","unsigned int");
-   (*attlist)["TriggerStatus"].data<unsigned int>() = *buffer;
+   attrList->extend("TriggerStatus" + suffix, "unsigned int");
+   (*attrList)["TriggerStatus" + suffix].data<unsigned int>() = *buffer;
 
-   attlist->extend("ExtendedL1ID","unsigned int");
-   attlist->extend("L1TriggerType","unsigned int");
-   (*attlist)["ExtendedL1ID"].data<unsigned int>() = event->lvl1_id();
-   (*attlist)["L1TriggerType"].data<unsigned int>() = event->lvl1_trigger_type();
+   attrList->extend("ExtendedL1ID"  + suffix, "unsigned int");
+   attrList->extend("L1TriggerType" + suffix, "unsigned int");
+   (*attrList)["ExtendedL1ID" + suffix].data<unsigned int>() = event->lvl1_id();
+   (*attrList)["L1TriggerType" + suffix].data<unsigned int>() = event->lvl1_trigger_type();
 
    // Grab L1 words
    event->lvl1_trigger_info(buffer);
    for (uint32_t iT1 = 0; iT1 < event->nlvl1_trigger_info(); ++iT1) {
-     std::stringstream name;
-     name << "L1TriggerInfo_" << iT1;
-     //ATH_MSG_DEBUG("Adding L1 info " << name.str());
-     attlist->extend(name.str(),"unsigned int");
-     (*attlist)[name.str()].data<unsigned int>() = *buffer;
-     ++buffer;
+      std::stringstream name;
+      name << "L1TriggerInfo_" << iT1;
+      attrList->extend(name.str() + suffix, "unsigned int");
+      (*attrList)[name.str() + suffix].data<unsigned int>() = *buffer;
+      ++buffer;
    } 
 
    // Grab L2 words
    event->lvl2_trigger_info(buffer);
    for (uint32_t iT1 = 0; iT1 < event->nlvl2_trigger_info(); ++iT1) {
-     if (*buffer != 0) {
-       std::stringstream name;
-       name << "L2TriggerInfo_" << iT1;
-       attlist->extend(name.str(),"unsigned int");
-       (*attlist)[name.str()].data<unsigned int>() = *buffer;
-     }
-     ++buffer;
+      if (*buffer != 0) {
+         std::stringstream name;
+         name << "L2TriggerInfo_" << iT1;
+         attrList->extend(name.str() + suffix, "unsigned int");
+         (*attrList)[name.str() + suffix].data<unsigned int>() = *buffer;
+      }
+      ++buffer;
    } 
 
    // Grab EF words
    event->event_filter_info(buffer);
    for (uint32_t iT1 = 0; iT1 < event->nevent_filter_info(); ++iT1) {
-     if (*buffer != 0) {
-       std::stringstream name;
-       name << "EFTriggerInfo_" << iT1;
-       attlist->extend(name.str(),"unsigned int");
-       (*attlist)[name.str()].data<unsigned int>() = *buffer;
-     }
-     ++buffer;
+      if (*buffer != 0) {
+         std::stringstream name;
+         name << "EFTriggerInfo_" << iT1;
+         attrList->extend(name.str() + suffix, "unsigned int");
+         (*attrList)[name.str() + suffix].data<unsigned int>() = *buffer;
+      }
+      ++buffer;
    } 
 
    // Grab stream tags
@@ -829,15 +834,12 @@ StatusCode EventSelectorByteStream::buildEventAttributeList() const
    std::vector<eformat::helper::StreamTag> onl_streamTags;
    eformat::helper::decode(event->nstream_tag(), buffer, onl_streamTags);
    for (std::vector<eformat::helper::StreamTag>::const_iterator itS = onl_streamTags.begin(),
-       itSE = onl_streamTags.end(); itS != itSE; ++itS) {
-     attlist->extend(itS->name,"string");
-     (*attlist)[itS->name].data<std::string>() = itS->type;
+      itSE = onl_streamTags.end(); itS != itSE; ++itS) {
+      attrList->extend(itS->name + suffix, "string");
+      (*attrList)[itS->name + suffix].data<std::string>() = itS->type;
    }
 
-   // put result in event store
-   if (m_evtStore->record(attlist,"EventInfoAtts").isFailure()) return StatusCode::FAILURE;
-   
-   return(StatusCode::SUCCESS);
+   return StatusCode::SUCCESS;
 }
 
 //__________________________________________________________________________
@@ -998,6 +1000,8 @@ StatusCode EventSelectorByteStream::queryInterface(const InterfaceID& riid, void
       *ppvInterface = dynamic_cast<IEvtSelectorSeek*>(this);
    } else if (riid == IEventShare::interfaceID()) {
       *ppvInterface = dynamic_cast<IEventShare*>(this);
+   } else if (riid == ISecondaryEventSelector::interfaceID()) {
+      *ppvInterface = dynamic_cast<ISecondaryEventSelector*>(this);
    } else {
       return(Service::queryInterface(riid, ppvInterface));
    }
@@ -1048,4 +1052,16 @@ StatusCode EventSelectorByteStream::io_reinit() {
    m_inputCollectionsProp = inputCollections;
    
    return(this->reinit());
+}
+
+//__________________________________________________________________________
+void EventSelectorByteStream::syncEventCount(int count) const
+{
+   m_NumEvents = count;
+}
+
+//__________________________________________________________________________
+bool EventSelectorByteStream::disconnectIfFinished(SG::SourceID /* fid */) const
+{
+   return true;
 }

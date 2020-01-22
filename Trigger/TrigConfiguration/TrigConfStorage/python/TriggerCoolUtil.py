@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 import copy, sys
@@ -25,7 +27,7 @@ class TriggerCoolUtil:
         if 'verbose' in args:
             verbose=args['verbose']
         if verbose:
-            print "CompareL1XML([%s, %s], verbose=True)" % (xml1fn,xml2fn)
+            print ("CompareL1XML([%s, %s], verbose=True)" % (xml1fn,xml2fn))
         comparer = CompareL1XML([xml1fn, xml2fn], verbose=verbose)
         comparer.diff()
 
@@ -35,7 +37,7 @@ class TriggerCoolUtil:
         if 'verbose' in args:
             verbose=args['verbose']
         if verbose:
-            print "CompareHLTXML([%s, %s], verbose=True)" % (xml1fn,xml2fn)
+            print ("CompareHLTXML([%s, %s], verbose=True)" % (xml1fn,xml2fn))
         comparer = CompareHLTXML([xml1fn, xml2fn], verbose=verbose)
         comparer.diff()
 
@@ -81,11 +83,12 @@ class TriggerCoolUtil:
             dbname=m.group(1).upper()
             connection = "sqlite://;schema=%s;dbname=%s;" % (dbconn,dbname)
         else:
-            raise RuntimeError, "Can't connect to COOL db %s" % dbconn
+            raise RuntimeError ("Can't connect to COOL db %s" % dbconn)
         try:
             openConn = indirectOpen(connection,readOnly=True,oracle=True,debug=(verbosity>0))
-        except Exception, e:
-            print e
+        except Exception:
+            import traceback
+            traceback.print_exc()
             sys.exit(-1)
         return openConn
 
@@ -177,7 +180,7 @@ class TriggerCoolUtil:
         split = list(Set([b[1] for b in l1] + [b[1] for b in hlt]))
         split.sort()
         c = []
-        print "merging:", split
+        print ("merging:", split)
         for i,startlb in enumerate(split):
             if i<len(split)-1:
                 endlb = split[i+1]-1
@@ -234,7 +237,7 @@ class TriggerCoolUtil:
 
         printPrescales = verbosity>0
         printDisabled = verbosity>1
-        print "LVL1 Menu:"
+        print ("LVL1 Menu:")
         f = db.getFolder( "/TRIGGER/LVL1/Menu" )
         chansel=cool.ChannelSelection.all()
         objs = f.browseObjects( limmin,limmax,chansel)
@@ -265,16 +268,16 @@ class TriggerCoolUtil:
                 if x>0 or printDisabled: doPrint = True
             if not doPrint: continue
             if printPrescales:
-                print "%4i: %-*s PS " % (channel, longestName, itemName[channel]), itemPrescale[channel]
+                print ("%4i: %-*s PS " % (channel, longestName, itemName[channel]), itemPrescale[channel])
             else:
-                print "%4i: %s" % (channel, itemName[channel])
+                print ("%4i: %s" % (channel, itemName[channel]))
                 
 
     @staticmethod
     def printHLTMenu(db, run, verbosity, printL2=True, printEF=True):
         limmin=run<<32
         limmax=((run+1)<<32)-1
-        print "HLT Menu:"
+        print ("HLT Menu:")
         f = db.getFolder( "/TRIGGER/HLT/Menu" )
         chansel=cool.ChannelSelection.all()
         objs = f.browseObjects( limmin,limmax,chansel)
@@ -312,18 +315,18 @@ class TriggerCoolUtil:
         counters.sort()
         for c in counters:
             name = chainNames[c]
-            print "%s %4i: %-*s" % (c[0], c[1], sizeName, name),
+            print ("%s %4i: %-*s" % (c[0], c[1], sizeName, name),)
             if verbosity>0:
                 (version, prescale, passthr, stream, lower) = chainExtraInfo[(name,c[0])]
-                print "[V %1s, PS %*i, PT %*i, by %-*s , => %-*s ]" % \
-                      (version, sizePS, prescale, sizePT, passthr, sizeLow, lower, sizeStr, stream),
-            print
+                print ("[V %1s, PS %*i, PT %*i, by %-*s , => %-*s ]" % \
+                      (version, sizePS, prescale, sizePT, passthr, sizeLow, lower, sizeStr, stream), end='')
+            print()
 
     @staticmethod
     def printStreams(db, run, verbosity):
         limmin=run<<32
         limmax=((run+1)<<32)-1
-        print "Used Streams:"
+        print ("Used Streams:")
         f = db.getFolder( "/TRIGGER/HLT/Menu" )
         chansel=cool.ChannelSelection.all()
         objs = f.browseObjects( limmin,limmax,chansel)
@@ -336,7 +339,7 @@ class TriggerCoolUtil:
                 streamname = streamprescale.split(',')[0]
                 streams.add(streamname)
         for s in sorted(list(streams)):
-            print s
+            print (s)
 
     @staticmethod
     def writeXMLFiles(keys, verbosity):
@@ -344,11 +347,11 @@ class TriggerCoolUtil:
         cmd  = "TrigConf2XMLApp --trigdb TRIGGERDB"
         cmd += " --outputfile %s" % base
         cmd += " --configkey %i --prescalekeyhlt %i --prescalekeylvl1 %i" % (keys['SMK'],keys['HLTPSK'],keys['LVL1PSK'][0][0])
-        if verbosity>0: print cmd
+        if verbosity>0: print (cmd)
         FNULL = open('/dev/null', 'w')
         returncode = subprocess.call(cmd.split(),stdout=FNULL)
         if returncode==0:
-            print "Wrote files L1Menu_%s.xml and HLTMenu_%s.xml" % (base,base)
+            print ("Wrote files L1Menu_%s.xml and HLTMenu_%s.xml" % (base,base))
             return ( "L1Menu_%s.xml" % base, "HLTMenu_%s.xml" % base )
         else:
             return ( None, None )

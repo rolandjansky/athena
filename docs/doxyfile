@@ -771,7 +771,7 @@ WARN_LOGFILE           = doxygen_warnings.log
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = README.md AtlasGeometryCommon AtlasTest Calorimeter Commission Control DataQuality Database DetectorDescription Event External ForwardDetectors Generators InnerDetector LumiBlock MagneticField MuonSpectrometer PhysicsAnalysis Projects Reconstruction Simulation TestBeam TestPolicy TileCalorimeter Tools Tracking graphics 
+INPUT                  = README.md AtlasGeometryCommon AtlasTest Calorimeter Commission Control DataQuality Database DetectorDescription Event External ForwardDetectors Generators InnerDetector LumiBlock MagneticField MuonSpectrometer PhysicsAnalysis Projects Reconstruction Simulation TestBeam TileCalorimeter Tools Tracking graphics 
 INPUT += Trigger HLT
 
 # This tag can be used to specify the character encoding of the source files

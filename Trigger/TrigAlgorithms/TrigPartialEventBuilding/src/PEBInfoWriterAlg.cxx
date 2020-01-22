@@ -77,13 +77,16 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     auto roiELInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
     auto roiEL = roiELInfo.link;
     ATH_CHECK(roiEL.isValid());
-    const TrigRoiDescriptor* roi = *roiEL;
 
     // Create new decision
     Decision* newd = newDecisionIn(decisions);
 
+    // Attach empty PEB Info lists to the new decision
+    ATH_CHECK(newd->setDetail(PEBInfoWriterToolBase::robListKey(), std::vector<uint32_t>()));
+    ATH_CHECK(newd->setDetail(PEBInfoWriterToolBase::subDetListKey(), std::vector<uint32_t>()));
+
     // Push_back to toolInput
-    toolInputs.emplace_back(newd, eventContext, roi, previousDecision);
+    toolInputs.emplace_back(newd, eventContext, roiEL, previousDecision);
 
     // Link to new decision
     linkToPrevious(newd, previousDecision, eventContext);

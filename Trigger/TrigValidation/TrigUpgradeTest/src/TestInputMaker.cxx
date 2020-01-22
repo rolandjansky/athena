@@ -50,20 +50,22 @@ namespace HLTTest {
     // loop over output decisions, navigate to inputs
     for (auto outputHandle: outputHandles) {
       if( not outputHandle.isValid() ) {
-        ATH_MSG_DEBUG( "Got no decisions from output "<< outputHandle.key() << " because handle not valid");
+        ATH_MSG_DEBUG( "TestInputMaker: Got no decisions from output "<< outputHandle.key() << " because handle not valid");
         continue;
       }
       if( outputHandle->size() == 0){ // input filtered out
-        ATH_MSG_ERROR( "Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty. Is this expected?");
+        ATH_MSG_ERROR( "TestInputMaker: Got no decisions from output "<< outputHandle.key()<<": handle is valid but container is empty. Is this expected?");
         return StatusCode::FAILURE;
       }
 
-      ATH_MSG_DEBUG( "Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
+      ATH_MSG_DEBUG( "TestInputMaker: Got output "<< outputHandle.key()<<" with " << outputHandle->size() << " elements" );
       // loop over output decisions in container of outputHandle, follow link to inputDecision
+      int count =0;
       for (const  auto outputDecision : *outputHandle){ 
         const ElementLinkVector<DecisionContainer> inputLinks = getLinkToPrevious(outputDecision);
+	ATH_MSG_DEBUG("Element "<< count << " has " << inputLinks.size() <<" previous links");
         for (const auto input: inputLinks){
-          ATH_MSG_DEBUG( "followed seed link to input "<< input.key() );
+          ATH_MSG_DEBUG( " -- Got seed link to input  "<<input.dataID() <<" and index "<< input.index() );
           const Decision* inputDecision = *input;
           const auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( inputDecision,  m_roisLink.value());
           CHECK( roiELInfo.isValid() );
@@ -75,7 +77,7 @@ namespace HLTTest {
           // link input reco object to outputDecision
           const auto featureLink = featureLinkInfo.link;
           const FeatureOBJ* feature = *featureLink;
-          ATH_MSG_DEBUG(" Found feature " <<m_linkName.value() );
+          ATH_MSG_DEBUG(" --  Found feature " <<m_linkName.value() <<":" << **featureLink);
 
           // merge reco outputs that are linked to the same feature (RoI): this avoids processing the same RoI from TC decisions from different chains
 
@@ -86,13 +88,14 @@ namespace HLTTest {
             auto newFeature = new xAOD::TrigComposite;
             reco_output->push_back(newFeature); 
             newFeature->setObjectLink(m_linkName.value(), featureLink);
-            ATH_MSG_DEBUG(" Added " <<m_linkName.value() << " and " << m_roisLink.value() << " to reco object");
+            ATH_MSG_DEBUG(" --  Added " <<m_linkName.value() << " and " << m_roisLink.value() << " to reco object");
           }
         }//loop over previous inputs
         // For early tests, create TC, link to RoiD, push back onto TCC.
         // Later will output RoID collection directly via tool.        
-      } // loop over decisions      
-    } // loop over input keys
+	count++;
+      } // loop over decisions
+    } // loop over output keys
    
     // Finally, record output
     ATH_MSG_DEBUG("Produced "<<reco_output->size() <<" reco objects and stored in "<<m_recoOutput);

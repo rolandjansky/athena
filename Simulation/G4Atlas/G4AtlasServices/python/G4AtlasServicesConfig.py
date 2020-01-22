@@ -1,8 +1,67 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
-from AthenaCommon import CfgMgr, CfgGetter
-#from G4AtlasApps.SimFlags import simFlags
-#from AthenaCommon.BeamFlags import jobproperties
+from AthenaCommon import CfgMgr
+
+def getReducedStepSizeUserLimitsSvc(name="ReducedStepSizeUserLimitsSvc", **kwargs):
+    from AthenaCommon.SystemOfUnits import millimeter
+    kwargs.setdefault("OutputLevel", 1)
+    kwargs.setdefault("VolumeList", [
+                                    "Atlas::Atlas",
+                                    "BeamPipe::SectionC01",
+                                    "BeamPipe::SectionF01",
+                                    "CALO::CALO",
+                                    "LArMgr::LAr::Barrel::Cryostat::",
+                                    "LArMgr::LAr::DM::SectorEnvelopes",
+                                    "LArMgr::LAr::EMB::GTENF",
+                                    "LArMgr::LAr::Endcap::Cryostat::",
+                                    "LArMgr::MBTS1",
+                                    "LArMgr::MBTS2",
+                                    "LArMgr::Moderator",
+                                    "LArMgr::ModeratorTube",
+                                    "Tile::GirderIron",
+                                    "Tile::GirderMother",
+                                    ])
+    kwargs.setdefault("MaxStep", 10.*millimeter)
+    kwargs.setdefault("MatchType", "contains")
+    return CfgMgr.UserLimitsSvc(name, **kwargs)
+
+
+def getPhysicsListSvc(name="PhysicsListSvc", **kwargs):
+    PhysOptionList = ["G4StepLimitationTool"]
+    from G4AtlasApps.SimFlags import simFlags
+    PhysOptionList += simFlags.PhysicsOptions.get_Value()
+    PhysDecaysList = []
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.simulate.TRT_on():
+        PhysOptionList +=["TRTPhysicsTool"]
+    if DetFlags.simulate.Lucid_on() or DetFlags.simulate.AFP_on():
+        PhysOptionList +=["LucidPhysicsTool"]
+    kwargs.setdefault("PhysOption", PhysOptionList)
+    kwargs.setdefault("PhysicsDecay", PhysDecaysList)
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("PhysicsList", simFlags.PhysicsList.get_Value())
+    if 'PhysicsList' in kwargs:
+        if kwargs['PhysicsList'].endswith('_EMV') or kwargs['PhysicsList'].endswith('_EMX'):
+            raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
+    kwargs.setdefault("GeneralCut", 1.)
+    if hasattr(simFlags, 'NeutronTimeCut') and simFlags.NeutronTimeCut.statusOn:
+        kwargs.setdefault("NeutronTimeCut", simFlags.NeutronTimeCut.get_Value())
+    if hasattr(simFlags, 'NeutronEnergyCut') and simFlags.NeutronEnergyCut.statusOn:
+        kwargs.setdefault("NeutronEnergyCut", simFlags.NeutronEnergyCut.get_Value())
+    if hasattr(simFlags, 'ApplyEMCuts') and simFlags.ApplyEMCuts.statusOn:
+        kwargs.setdefault("ApplyEMCuts", simFlags.ApplyEMCuts.get_Value())
+    ## from AthenaCommon.SystemOfUnits import eV, TeV
+    ## kwargs.setdefault("EMMaxEnergy"     , 7*TeV)
+    ## kwargs.setdefault("EMMinEnergy"     , 100*eV)
+    """ --- ATLASSIM-3967 ---
+        these two options are replaced by SetNumberOfBinsPerDecade
+        which now controls both values.
+    """
+    ## kwargs.setdefault("EMDEDXBinning"   , 77)
+    ## kwargs.setdefault("EMLambdaBinning" , 77)
+    return CfgMgr.PhysicsListSvc(name, **kwargs)
+
 
 def getATLAS_RegionCreatorList():
     regionCreatorList = []
@@ -13,7 +72,6 @@ def getATLAS_RegionCreatorList():
 
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.BeamFlags import jobproperties
     if simFlags.SimulateCavern.get_Value():
         regionCreatorList += ['SX1PhysicsRegionTool', 'BedrockPhysicsRegionTool', 'CavernShaftsConcretePhysicsRegionTool']
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
@@ -37,9 +95,9 @@ def getATLAS_RegionCreatorList():
             ## Shower parameterization overrides the calibration hit flag
             if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
                     and simFlags.CalibrationRun.statusOn and simFlags.CalibrationRun.get_Value() in ['LAr','LAr+Tile','DeadLAr']:
-                print 'You requested both calibration hits and frozen showers / parameterization in the LAr.'
-                print '  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.'
-                print '  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(simFlags.CalibrationRun.get_Value())+')'
+                print ('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+                print ('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+                print ('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(simFlags.CalibrationRun.get_Value())+')')
                 raise RuntimeError('Configuration not allowed')
             if simFlags.LArParameterization() > 0:
                 regionCreatorList += ['EMBPhysicsRegionTool', 'EMECPhysicsRegionTool',
@@ -103,7 +161,7 @@ def getTB_RegionCreatorList():
 
 #########################################################################
 def getStandardFieldSvc(name="StandardField", **kwargs):
-    import MagFieldServices.SetupField
+    import MagFieldServices.SetupField  # noqa: F401
     kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc") # TODO This should probably be based on simFlags.MagneticField?
     #kwargs.setdefault("FieldOn", True)
     return CfgMgr.StandardFieldSvc(name, **kwargs)
@@ -247,7 +305,6 @@ def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
         kwargs.setdefault("RegionCreators", getTB_RegionCreatorList())
         kwargs.setdefault("FieldManagers", getTB_FieldMgrList())
     else:
-        from AthenaCommon.BeamFlags import jobproperties
         if simFlags.SimulateCavern.get_Value():
             kwargs.setdefault("World", 'Cavern')
         else:

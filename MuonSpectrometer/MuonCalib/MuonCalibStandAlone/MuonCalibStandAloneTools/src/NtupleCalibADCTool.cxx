@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -31,7 +31,6 @@
 // MuonGeoModel //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // MuonCalib //
 #include "MdtCalibUtils/GlobalTimeFitter.h"
@@ -161,13 +160,12 @@ for(int i=0;i<3;++i)
                             }	
 */
 m_MDT_fhit_adc.clear();      
-m_MDT_shit_adc.clear();      
+m_MDT_SiHitAdc.clear();      
 
       //  Other parameter
         m_nb_events = 0;
 	m_MdtIdHelper = 0;
 	m_RpcIdHelper = 0;
-	m_detMgr = 0;
 	m_id_tool = 0;
 	
 	m_qfitter = new QuasianalyticLineReconstruction();
@@ -217,8 +215,8 @@ StatusCode NtupleCalibADCTool::initialize(void) {
 // RPC ID helper //
 	ATH_CHECK( detStore()->retrieve(m_RpcIdHelper, m_RPC_ID_helper) );
 
-// muon detector manager //
-	ATH_CHECK( detStore()->retrieve(m_detMgr) );
+//retrieve detector manager from the conditions store
+	ATH_CHECK(m_DetectorManagerKey.initialize());
 
 // muon fixed id tool //
 	ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
@@ -443,11 +441,11 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 		 if(!((hit2->adcCount()>50)&&(hit->adcCount()>50))) continue;
 		 if(hit2->tdcCount()>hit->tdcCount()) 	{
 			 m_MDT_fhit_adc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0); 
-			 m_MDT_shit_adc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
+			 m_MDT_SiHitAdc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
 			                                   	}
 		   else 	{  
 			 m_MDT_fhit_adc[station_identifier]->Fill(hit2->tdcCount(),hit2->adcCount(),1.0); 
-			 m_MDT_shit_adc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
+			 m_MDT_SiHitAdc[station_identifier]->Fill(hit->tdcCount(),hit->adcCount(),1.0);
 			      	} 
 		   								}
 		// counter++;
@@ -625,8 +623,15 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
 // GET THE GEOMETRY OF THE GIVEN CHAMBER //
 ///////////////////////////////////////////
 
+	SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+	const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+	if(MuonDetMgr==nullptr){
+	  ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+	  return; 
+	} 
+
 	Identifier station_id = m_id_tool->fixedIdToId(id);
-	const MuonGM::MdtReadoutElement *MdtRoEl =m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(station_id,1,1,1));
+	const MuonGM::MdtReadoutElement *MdtRoEl =MuonDetMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(station_id,1,1,1));
 
 	m_nb_ml[station_identifier] = m_MdtIdHelper->numberOfMultilayers(station_id);
 	m_nb_ly[station_identifier] = MdtRoEl->getNLayers();
@@ -793,15 +798,15 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
      sprintf(delta_chi2,"%.7s_Segment_delta_chi2",chambername.c_str());
      m_MDT_segment_delta_chi2[station_identifier]= new TH1F(delta_chi2,delta_chi2,100,-5,5);
      m_MDT_segment_delta_chi2[station_identifier]->SetXTitle("Delta_Segment_chi2()");
-     char fhit[100],shit[100];
+     char fhit[100],SiHit[100];
       sprintf(fhit,"%.7s_fristHit_ADC_vs_TDC",chambername.c_str());
-      sprintf(shit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
-      m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,shit,3000, 0,3000,500, 0, 500);
+      sprintf(SiHit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
+      m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,SiHit,3000, 0,3000,500, 0, 500);
       m_MDT_fhit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
       m_MDT_fhit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
-      m_MDT_shit_adc[station_identifier]= new TH2F(shit,shit,3000,0,3000, 500, 0, 500);
-      m_MDT_shit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
-      m_MDT_shit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
+      m_MDT_SiHitAdc[station_identifier]= new TH2F(SiHit,SiHit,3000,0,3000, 500, 0, 500);
+      m_MDT_SiHitAdc[station_identifier]->SetXTitle("ADC count(ns)");	        
+      m_MDT_SiHitAdc[station_identifier]->SetYTitle("TDC count(ns)");	        
 
       m_tfile->cd("..");
 	return;

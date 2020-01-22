@@ -63,14 +63,14 @@ public:
   /// Stream out objects. Provide vector of typeName/key pairs.
   ///   If key is empty, assumes only one object and this
   ///   will fail if there is more than one
-  StatusCode streamObjects(const IAthenaOutputStreamTool::TypeKeyPairs& typeKeys);
+  StatusCode streamObjects(const IAthenaOutputStreamTool::TypeKeyPairs& typeKeys, const std::string& outputName = "");
 
   /// Stream out a vector of objects
   ///   Must convert to DataObject, e.g.
   ///   #include "AthenaKernel/StorableConversions.h"
   ///     T* obj = xxx;
   ///     DataObject* dataObject = SG::asStorable(obj);
-  StatusCode streamObjects(const IAthenaOutputStreamTool::DataObjectVec& dataObjects);
+  StatusCode streamObjects(const IAthenaOutputStreamTool::DataObjectVec& dataObjects, const std::string& outputName = "");
 
   /// Fill refs of an object - done as second iteration over
   /// objects, after streamObject

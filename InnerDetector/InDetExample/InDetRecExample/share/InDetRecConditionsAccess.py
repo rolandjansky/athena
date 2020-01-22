@@ -40,29 +40,80 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 if DetFlags.haveRIO.pixel_on():
     # Load pixel conditions summary service
     from AthenaCommon.AppMgr import ToolSvc
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
     #################
     # Module status #
     #################
     useNewConditionsFormat = False
 
-    if not athenaCommonFlags.isOnline():
-        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
-            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
-        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
-            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
-        if not hasattr(condSeq, "PixelDCSCondStateAlg"):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
-            condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+    if not useNewConditionsFormat:
+        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
-    if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+
+        useCablingConditions = False
+        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
+        rodIDForSingleLink40=0
+        if (globalflags.DataSource()=='geant4'):
+            # ITk:
+            if geoFlags.isSLHC():
+                IdMappingDat = "ITk_Atlas_IdMapping.dat"
+                if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
+                elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
+                elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
+                elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
+            elif (geoFlags.isIBL() == False):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
+            else:
+                # Planar IBL
+                if (geoFlags.IBLLayout() == "planar"):
+                    if (geoFlags.isDBM() == True):
+                        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
+                    else:
+                        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
+                # Hybrid IBL plus DBM
+                elif (geoFlags.IBLLayout() == "3D"):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+        
+        elif (globalflags.DataSource=='data'):
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            runNum = GetRunNumber()
+            if (runNum<222222):
+                useCablingConditions = False
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+                rodIDForSingleLink40=1300000
+            else:
+                useCablingConditions = True
+                rodIDForSingleLink40=1300000
+                # Even though we are reading from COOL, set the correct fallback map.
+                if (runNum >= 344494):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+                elif (runNum >= 314940 and runNum < 344494):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_314940.dat"
+                elif (runNum >= 289350 and runNum < 314940): # 2016
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
+                elif (runNum >= 222222 and runNum < 289350): # 2015
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+                else:
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                    UseDeadMap=True,
-                                    ReadDeadMapKey="/PIXEL/PixMapOverlay",
-                                    UseCalibConditions=True)
+                                      UseDeadmapConditions=(not athenaCommonFlags.isOnline()),
+                                      UseDCSStateConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
+                                      UseDCSStatusConditions=(globalflags.DataSource=='data') and InDetFlags.usePixelDCS(),
+                                      UseTDAQConditions=athenaCommonFlags.isOnline(),
+                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
+                                      UseCalibConditions=True,
+                                      UseCablingConditions=useCablingConditions,
+                                      CablingMapFileName=IdMappingDat)
 
     if useNewConditionsFormat:
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
@@ -71,22 +122,72 @@ if DetFlags.haveRIO.pixel_on():
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
             condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
 
+    if not athenaCommonFlags.isOnline():
+        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+
+    if not hasattr(condSeq, "PixelDCSCondStateAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+
+    if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
+        condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
+
+    if athenaCommonFlags.isOnline():
+        if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):
+            conddb.addFolder("TDAQ_ONL", "/TDAQ/Resources/ATLAS/PIXEL/Modules", className="CondAttrListCollection")
+
+    if not hasattr(condSeq, "PixelTDAQCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg")
+
     #####################
     # Calibration Setup #
     #####################
     if not conddb.folderRequested("/PIXEL/PixCalib"):
         conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+
     if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
         condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
+    #####################
+    # Cabling map Setup #
+    #####################
+    if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+        conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
+
+        if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+            condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+
+    if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
+        if not (globalflags.DataSource() == 'geant4'):
+            conddb.addFolder("PIXEL", "/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+        else:
+            conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+
+    if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+        condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
+
+    if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):
+        if not conddb.folderRequested("/PIXEL/CablingMap"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
+
+    if not hasattr(condSeq, 'PixelCablingCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                       MappingFile=IdMappingDat,
+                                       RodIDForSingleLink40=rodIDForSingleLink40)
+
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
-            if (globalflags.DataSource() == 'data'):
-                conddb.addFolder("PIXEL_OFL","/PIXEL/PixdEdx")
-            else:
-                conddb.addFolder("PIXEL_OFL","/PIXEL/PixdEdx")
-                
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")
+
         if not conddb.folderRequested("/PIXEL/PixReco"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
 
@@ -96,14 +197,10 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
         condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
-        if athenaCommonFlags.isOnline() :
+        if athenaCommonFlags.isOnline():
           PixelOfflineCalibCondAlg.InputSource = 1
         else :
           PixelOfflineCalibCondAlg.InputSource = 2
-
-    if not hasattr(condSeq, 'PixelConfigCondAlg'):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
@@ -112,6 +209,19 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(condSeq, 'PixelDistortionAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
         condSeq += PixelDistortionAlg(name="PixelDistortionAlg")
+
+    if not hasattr(condSeq, 'PixeldEdxAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixeldEdxAlg
+        condSeq += PixeldEdxAlg(name="PixeldEdxAlg")
+        if not athenaCommonFlags.isOnline():
+            PixeldEdxAlg.ReadFromCOOL = True
+        else:
+            PixeldEdxAlg.ReadFromCOOL = False
+            if (globalflags.DataSource=='data'):
+                PixeldEdxAlg.CalibrationFile="dtpar_signed_234.txt"
+            else:
+                PixeldEdxAlg.CalibrationFile="mcpar_signed_234.txt"
+
 
 #
 # --- Load SCT Conditions Services
@@ -126,7 +236,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ConditionsSummaryToolSetup.setup()
     InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConditionsSummaryTool
+        printfunc (InDetSCT_ConditionsSummaryTool)
     
     # Load conditions configuration service and load folders and algorithm for it
     # Load folders that have to exist for both MC and Data
@@ -148,7 +258,7 @@ if DetFlags.haveRIO.SCT_on():
         pass
     try:
         if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
-            print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
+            printfunc ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
             SCTConfigurationFolderPath=''
     except:
         pass
@@ -160,7 +270,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ConfigurationConditionsToolSetup.setup()
     InDetSCT_ConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConfigurationConditionsTool
+        printfunc (InDetSCT_ConfigurationConditionsTool)
 
     # Load calibration conditions tool
     from SCT_ConditionsTools.SCT_ReadCalibDataToolSetup import SCT_ReadCalibDataToolSetup
@@ -168,7 +278,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ReadCalibDataToolSetup.setup()
     InDetSCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ReadCalibDataTool
+        printfunc (InDetSCT_ReadCalibDataTool)
     
     # Load flagged condition tool
     from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
@@ -176,7 +286,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_FlaggedConditionToolSetup.setup()
     InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_FlaggedConditionTool
+        printfunc (InDetSCT_FlaggedConditionTool)
     
     # Load conditions Monitoring tool
     if not athenaCommonFlags.isOnline():
@@ -186,7 +296,7 @@ if DetFlags.haveRIO.SCT_on():
         sct_MonitorConditionsToolSetup.setup()
         InDetSCT_MonitorConditionsTool = sct_MonitorConditionsToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_MonitorConditionsTool
+            printfunc (InDetSCT_MonitorConditionsTool)
 
     if InDetFlags.doSCTModuleVeto():
         from SCT_ConditionsTools.SCT_ModuleVetoToolSetup import SCT_ModuleVetoToolSetup
@@ -194,7 +304,7 @@ if DetFlags.haveRIO.SCT_on():
         sct_ModuleVetoToolSetup.setup()
         InDetSCT_ModuleVetoTool = sct_ModuleVetoToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_ModuleVetoTool
+            printfunc (InDetSCT_ModuleVetoTool)
 
     # Load bytestream errors tool (use default instance without "InDet")
     # @TODO find a better to solution to get the correct tool for the current job.
@@ -203,7 +313,7 @@ if DetFlags.haveRIO.SCT_on():
     sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
     sct_ByteStreamErrorsToolSetup.setup()
     if (InDetFlags.doPrintConfigurables()):
-        print sct_ByteStreamErrorsToolSetup.getTool()
+        printfunc (sct_ByteStreamErrorsToolSetup.getTool())
     
     if InDetFlags.useSctDCS():
         from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
@@ -213,10 +323,10 @@ if DetFlags.haveRIO.SCT_on():
         if InDetFlags.useHVForSctDCS():
             sct_DCSConditionsToolSetup.getStateAlg().UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_DCSConditionsTool
+            printfunc (InDetSCT_DCSConditionsTool)
     
     if (globalflags.DataSource() == 'data'):       
-        print "Conditions db instance is ", conddb.dbdata
+        printfunc ("Conditions db instance is ", conddb.dbdata)
         # Load Tdaq enabled tools for data only and add some to summary tool for data only
         tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
         if (conddb.dbdata == "CONDBR2"):
@@ -228,7 +338,7 @@ if DetFlags.haveRIO.SCT_on():
         sct_TdaqEnabledToolSetup.setup()
         InDetSCT_TdaqEnabledTool = sct_TdaqEnabledToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_TdaqEnabledTool
+            printfunc (InDetSCT_TdaqEnabledTool)
         
         # Configure summary tool
         InDetSCT_ConditionsSummaryTool.ConditionsTools= [ sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
@@ -256,10 +366,13 @@ if DetFlags.haveRIO.SCT_on():
 
     if InDetFlags.doSCTModuleVeto():
         InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
-        
-    
+
+    # @TODO fix this temporary hack to make the configguration of the InDetSCT_ConditionsSummaryTool accessible to TrackingCommon
+    import InDetRecExample.TrackingCommon as TrackingCommon
+    TrackingCommon.def_InDetSCT_ConditionsSummaryTool=InDetSCT_ConditionsSummaryTool
+
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConditionsSummaryTool
+        printfunc (InDetSCT_ConditionsSummaryTool)
 
     # Conditions summary tool without InDetSCT_FlaggedConditionTool
     sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
@@ -327,7 +440,7 @@ if DetFlags.haveRIO.TRT_on():
     InDetTRTCalDbSvc = TRT_CalDbSvc()
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
-        print InDetTRTCalDbSvc
+        printfunc (InDetTRTCalDbSvc)
 
 
     # Dead/Noisy Straw Lists
@@ -376,7 +489,7 @@ if DetFlags.haveRIO.TRT_on():
         InDetTRT_DAQ_ConditionsSvc = TRT_DAQ_ConditionsSvc( name = "InDetTRT_DAQ_ConditionsSvc" )
         ServiceMgr += InDetTRT_DAQ_ConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_DAQ_ConditionsSvc
+            printfunc (InDetTRT_DAQ_ConditionsSvc)
     
     #
     # Load and Configure TRT Conditions Services
@@ -394,7 +507,7 @@ if DetFlags.haveRIO.TRT_on():
                                                               isGEANT4 = useOldStyle)
     ServiceMgr += InDetTRTStrawStatusSummarySvc
     if (InDetFlags.doPrintConfigurables()):
-        print InDetTRTStrawStatusSummarySvc
+        printfunc (InDetTRTStrawStatusSummarySvc)
     InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
 
     # Straw status tool
@@ -454,7 +567,7 @@ if DetFlags.haveRIO.TRT_on():
             InDetTRT_HWMappingSvc = TRT_HWMappingSvc(name="InDetTRT_HWMappingSvc")
             ServiceMgr += InDetTRT_HWMappingSvc
             if (InDetFlags.doPrintConfigurables()):
-                print InDetTRT_HWMappingSvc
+                printfunc (InDetTRT_HWMappingSvc)
 
             from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_DCS_ConditionsSvc
             InDetTRT_DCS_ConditionsSvc = TRT_DCS_ConditionsSvc(name          = "InDetTRT_DCS_ConditionsSvc",
@@ -467,7 +580,7 @@ if DetFlags.haveRIO.TRT_on():
                                                                )
             ServiceMgr += InDetTRT_DCS_ConditionsSvc
             if (InDetFlags.doPrintConfigurables()):
-                print InDetTRT_DCS_ConditionsSvc
+                printfunc (InDetTRT_DCS_ConditionsSvc)
             #InDetTRTConditionsServices.append(InDetTRT_DCS_ConditionsSvc)
     
     # TRT Conditions Summary Service
@@ -476,6 +589,6 @@ if DetFlags.haveRIO.TRT_on():
                                                                 ServiceList = InDetTRTConditionsServices)
     ServiceMgr += InDetTRTConditionsSummaryService
     if (InDetFlags.doPrintConfigurables()):
-        print InDetTRTConditionsSummaryService 
+        printfunc (InDetTRTConditionsSummaryService)
 
         

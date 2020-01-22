@@ -3,18 +3,16 @@
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool") 
-from AthenaCommon.SystemOfUnits import GeV
-
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigPhotonSelectors
 def _IncTool(name, threshold, sel):
 
     log.debug('TrigEgammaPrecisionPhotonHypoTool _IncTool("'+name+'", threshold = '+str(threshold) + ', sel = '+str(sel))
-
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoToolInc    
 
     tool = TrigEgammaPrecisionPhotonHypoToolInc( name ) 
 
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     monTool = GenericMonitoringTool("MonTool_"+name)
     monTool.Histograms = [ defineHistogram('dEta', type='TH1F', path='EXPERT', title="PrecisionPhoton Hypo #Delta#eta_{EF L1}; #Delta#eta_{EF L1}", xbins=80, xmin=-0.01, xmax=0.01),
                            defineHistogram('dPhi', type='TH1F', path='EXPERT', title="PrecisionPhoton Hypo #Delta#phi_{EF L1}; #Delta#phi_{EF L1}", xbins=80, xmin=-0.01, xmax=0.01),
@@ -31,7 +29,6 @@ def _IncTool(name, threshold, sel):
     monTool.HistPath = 'PrecisionPhotonHypo/'+tool.name()
     tool.MonTool = monTool
 
-
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     def same( val ):
         return [val]*( len( tool.EtaBins ) - 1 )
@@ -39,27 +36,16 @@ def _IncTool(name, threshold, sel):
     tool.ETthr          = same( float(threshold) )
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
-    #tool.ET2thr         = same( 90.0*GeV )
 
-    if sel == 'nocut':
-        tool.AcceptAll = True
-        tool.ETthr          = same( float( threshold )*GeV ) 
-        tool.dETACLUSTERthr = 9999.
-        tool.dPHICLUSTERthr = 9999.
+    # configure the selector tool corresponding the selection set by sel
+    tool.PhotonIsEMSelector = TrigPhotonSelectors(sel)
 
-    elif sel == "etcut":
-        tool.ETthr          = same( ( float( threshold ) -  3 )*GeV ) 
-        # No other cuts applied
-        tool.dETACLUSTERthr = 9999.
-        tool.dPHICLUSTERthr = 9999.
-    
     return tool
 
 
 def _MultTool(name):
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoToolMult
     return TrigEgammaPrecisionPhotonHypoToolMult( name )
-
 
 
 def TrigEgammaPrecisionPhotonHypoToolFromDict( d ):
@@ -77,7 +63,6 @@ def TrigEgammaPrecisionPhotonHypoToolFromDict( d ):
     
     name = d['chainName']
 
-    
     # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
     if len(cparts) > 1 or __mult(cparts[0]) > 1:
         tool = _MultTool(name)

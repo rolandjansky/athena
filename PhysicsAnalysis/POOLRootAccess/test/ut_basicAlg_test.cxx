@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,11 +22,6 @@ public:
     return StatusCode::SUCCESS;
   }
 
-  virtual StatusCode beginInputFile() {
-    ATH_MSG_INFO(" Loaded file " );
-    return StatusCode::SUCCESS;
-  }
-
   virtual StatusCode execute() {
     const xAOD::EventInfo* ei = 0;
     CHECK( evtStore()->retrieve( ei ) );
@@ -43,8 +38,6 @@ private:
 // here's the example program
 
 #include "POOLRootAccess/TEvent.h"
-
-#include "GaudiKernel/FileIncident.h"
 
 int main() {
 

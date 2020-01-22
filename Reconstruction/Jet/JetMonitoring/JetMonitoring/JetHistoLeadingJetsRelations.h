@@ -49,7 +49,7 @@ private:
   //ToolHandle<IJetHistoVarTool> m_varY;
   //ToolHandle<IJetHistoVarTool> m_varZ;
   
-  int m_nVar=1;
+  //int m_nVar=1;
   
 };
 #endif

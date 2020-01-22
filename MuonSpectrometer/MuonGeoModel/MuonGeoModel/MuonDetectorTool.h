@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGEOMODEL_MUONDETECTORTOOL_H
@@ -7,6 +7,7 @@
 
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "MuonGeoModel/MuonDetectorFactory001.h"
 
 namespace MuonGM
 {
@@ -29,6 +30,7 @@ public:
 
   // build the geometry 
   virtual StatusCode create() override final;
+  StatusCode createFactory(MuonGM::MuonDetectorFactory001& theFactory);
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;
@@ -64,7 +66,7 @@ private:
   bool m_dumpCscIntAlines;
   bool m_useCscIntAlinesFromGM;
   std::string m_altCscIntAlinesFile;
-  int m_cachingFlag;
+  Gaudi::Property<int> m_cachingFlag { this, "CachingFlag", 1, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)" };
   int m_enableMdtDeformations;
   int m_enableMdtAsBuiltParameters;    
   std::string m_altMdtAsBuiltFile;

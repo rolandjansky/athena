@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def PixelOverlayAlgCfg(flags, name = "PixelOverlay", **kwargs):
@@ -14,10 +15,8 @@ def PixelOverlayAlgCfg(flags, name = "PixelOverlay", **kwargs):
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "PixelRDOs")
     kwargs.setdefault("OutputKey", "PixelRDOs")
 
-    kwargs.setdefault("includeBkg", True)
-
     # Do Pixel overlay
-    from InDetOverlay.InDetOverlayConf import PixelOverlay
+    PixelOverlay=CompFactory.PixelOverlay
     alg = PixelOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -41,7 +40,7 @@ def PixelTruthOverlayCfg(flags, name = "PixelSDOOverlay", **kwargs):
     kwargs.setdefault("OutputKey", "PixelSDO_Map")
 
     # Do Pixel truth overlay
-    from InDetOverlay.InDetOverlayConf import InDetSDOOverlay
+    InDetSDOOverlay=CompFactory.InDetSDOOverlay
     alg = InDetSDOOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -59,8 +58,8 @@ def PixelOverlayCfg(flags):
     acc = ComponentAccumulator()
 
     # Add Pixel overlay digitization algorithm
-    from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationOverlayCfg
-    acc.merge(PixelDigitizationOverlayCfg(flags))
+    from PixelDigitization.PixelDigitizationConfigNew import PixelOverlayDigitizationCfg
+    acc.merge(PixelOverlayDigitizationCfg(flags))
     # Add Pixel overlay algorithm
     acc.merge(PixelOverlayAlgCfg(flags))
     # Add Pixel truth overlay

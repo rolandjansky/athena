@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TrackProcessorUserActionFullG4.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header
 #include "TrackProcessorUserActionFullG4.h"
@@ -44,9 +40,9 @@ namespace G4UA{
       : TrackProcessorUserActionBase(),m_config(config),
         m_entryLayerToolQuick(nullptr),
         m_geoIDSvcQuick(nullptr),
-	m_currentTrack(nullptr)
+        m_currentTrack(nullptr)
     {
-      
+
       if(4<m_config.verboseLevel)
         {
           G4cout << "create TrackProcessorUserActionFullG4" << G4endl;
@@ -79,7 +75,6 @@ namespace G4UA{
       m_entryLayerMap["MUONQ02::MUONQ02"] = m_config.truthVolLevel+1;
       m_entryLayerMap["IDET::IDET"]       = m_config.truthVolLevel+1;
 
-      ::iGeant4::ISFG4GeoHelper::checkVolumeDepth( G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume() , m_config.truthVolLevel);
     }
 
     void TrackProcessorUserActionFullG4::ISFSteppingAction(const G4Step* aStep, ISF::ISFParticle *curISP)
@@ -91,9 +86,9 @@ namespace G4UA{
       const G4StepPoint *preStep  = aStep->GetPreStepPoint();
       const G4StepPoint *postStep = aStep->GetPostStepPoint();
 
-      
+
       AtlasDetDescr::AtlasRegion nextG4GeoID = ::iGeant4::ISFG4GeoHelper::nextGeoId(aStep,
-										    m_config.
+                                                                                    m_config.
                                                                                     truthVolLevel,
                                                                                     m_geoIDSvcQuick);
       if ( curISP->nextGeoID()!=nextG4GeoID ) {
@@ -198,7 +193,10 @@ namespace G4UA{
           if (vname1!=(*it).first) continue;
 
           if (il<=(nLev2+1)) {
-            if (vname1==postTHist->GetVolume(nLev2-il+1)->GetName()) continue;
+            if (vname1 == static_cast<const std::string&>(postTHist->GetVolume(nLev2-il+1)->GetName()))
+            {
+              continue;
+            }
           }
 
           pass=true;

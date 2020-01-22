@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSEnergyInterpolationSpline_h
@@ -32,7 +32,7 @@ public:
   const TSpline3& spline() const {return m_spline;};
 
   ///Initialize simulstate with the mean reconstructed energy in the calorimater expeted from the true kinetic energy
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   void Print(Option_t *option="") const override;
 
@@ -42,9 +42,5 @@ private:
 
   ClassDefOverride(TFCSEnergyInterpolationSpline,1)  //TFCSEnergyInterpolationSpline
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSEnergyInterpolationSpline+;
-#endif
 
 #endif

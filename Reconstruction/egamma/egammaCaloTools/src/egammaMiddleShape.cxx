@@ -4,7 +4,7 @@
 
 #include "egammaMiddleShape.h"
 #include "egammaInterfaces/Iegammaqweta2c.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
 
 #include "CaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -51,12 +51,6 @@ StatusCode egammaMiddleShape::initialize()
     } 
     else ATH_MSG_DEBUG("Tool " << m_egammaqweta2c << " retrieved"); 
 
-    // Create egammaEnergyPositionAllSamples Tool
-    if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 
     return StatusCode::SUCCESS;
 }
@@ -88,7 +82,7 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     }
 
     // check if cluster is in barrel or end-cap
-    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,2);
+    bool in_barrel = egammaEnergyPositionAllSamples::inBarrel(cluster,2);
     CaloSampling::CaloSample sam=CaloSampling::EMB2;
     if (in_barrel) {
         sam=CaloSampling::EMB2; 

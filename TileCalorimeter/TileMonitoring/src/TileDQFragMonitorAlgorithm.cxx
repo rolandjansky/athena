@@ -6,6 +6,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
+#include "TileConditions/TileInfo.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -44,6 +45,10 @@ StatusCode TileDQFragMonitorAlgorithm::initialize() {
   m_badChannelNegNotMaskGroups = Monitored::buildToolMap<int>(m_tools, "TileBadChannelsNegNotMaskMap", Tile::MAX_ROS - 1);
 
   m_badPulseQualityGroups = Monitored::buildToolMap<int>(m_tools, "TileBadPulseQualityMap", Tile::MAX_ROS - 1);
+
+  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
+  m_ADCmaxMinusEps = m_tileInfo->ADCmax() - 0.01;
+  m_ADCmaskValueMinusEps = m_tileInfo->ADCmaskValue() - 0.01;  // indicates channels which were masked in background dataset
 
   return StatusCode::SUCCESS;
 }
@@ -243,7 +248,7 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
 
         monitoredChannel = channel;
 
-        error = TileRawChannelBuilder::CorruptedData(ros, drawer, channel, gain, tile_digits->samples(), minSample, maxSample);
+        error = TileRawChannelBuilder::CorruptedData(ros, drawer, channel, gain, tile_digits->samples(), minSample, maxSample, m_ADCmaxMinusEps, m_ADCmaskValueMinusEps);
 
         if ( (error > 0) &&
              !(m_cabling->isDisconnected(ros, drawer, channel) || m_tileBadChanTool->getAdcStatus(adcId, ctx).isBad()) ) {

@@ -15,13 +15,13 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           GaudiKernel )
 
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_component( GeoModelEnvelopes
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES ${GEOMODEL_LIBRARIES} GeoModelUtilities SGTools StoreGateLib GaudiKernel )
+                     LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GeoModelUtilities SGTools StoreGateLib GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( GeoModelEnvelopes )

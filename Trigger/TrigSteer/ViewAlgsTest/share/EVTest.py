@@ -30,14 +30,16 @@ topSequence += TopHLTSeq
 
 L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
-l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
+l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="", L1TriggerResult="" )
 l1Decoder.prescaler.EventInfo=""
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
 #ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
 l1Decoder.ctpUnpacker = ctpUnpacker
 
-emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="rois.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
+from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
+
+emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="rois.dat", OutputTrigRoIs=mapThresholdToL1RoICollection("EM"), Decisions=mapThresholdToL1DecisionCollection("EM") )
 ThresholdToChainMapping = ["EM7 : HLT_e8", "EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
 
 l1Decoder.roiUnpackers = [emUnpacker]
@@ -52,7 +54,7 @@ viewAlgsContainer = seqAND( "ViewAlgsContainer" )
 
 
 steps = [ parOR("step0Filtering"), parOR("step1InViewReco") ]
-steps[0] += seqFilter( "Step0EM", Inputs=["L1EM"], Outputs=["step0EM"],
+steps[0] += seqFilter( "Step0EM", Inputs=[mapThresholdToL1DecisionCollection("EM")], Outputs=["step0EM"],
                       Chains=[ x.split(':')[-1].strip() for x in ThresholdToChainMapping ] ) # all chains
 
 
@@ -64,7 +66,7 @@ viewAlgsContainer += viewAlg
 algs=[ useExisting( "Step0EM" ) ]
 from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
 EMViewsMaker = TestViewDriver( "EMViewsMaker", OutputLevel = DEBUG, 
-                               RoIsContainer = 'L1EMRoIs', RoIsViewOutput="InViewRoI", 
+                               RoIsContainer = mapThresholdToL1RoICollection("EM"), RoIsViewOutput="InViewRoI", 
                                ClustersViewInput="ViewClusters", Views="EMClusterViews", 
                                ViewNodeName = viewAlgsContainer.name(), Scheduler = AlgScheduler.getScheduler() )
 algs.append( EMViewsMaker )

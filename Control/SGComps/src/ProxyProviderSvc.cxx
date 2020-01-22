@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -50,11 +50,7 @@ const SG::BaseInfoBase* getBaseInfo (CLID clid)
 
 ProxyProviderSvc::ProxyProviderSvc(const std::string& name, 
                                    ISvcLocator* svcLoc): 
-  base_class(name, svcLoc),
-  m_pDataLoader(0)
-{
-  declareProperty("ProviderNames", m_providerNames,
-                  "names of the services to be use as address providers");
+  base_class(name, svcLoc){
   m_providerNames.declareUpdateHandler(&ProxyProviderSvc::providerNamesPropertyHandler, this);
 }
 
@@ -207,16 +203,26 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
   // Must add the primary CLID first.
   bool addedProxy = store.addToStore(dp->clID(), dp).isSuccess();
   //  ATH_MSG_VERBOSE("created proxy for " << tAddr->clID() << "/" << tAddr->name() << "using " << m_pDataLoader->repSvcType());
-
-  // loop over all the transient CLIDs:
-  SG::TransientAddress::TransientClidSet tClid = dp->transientID();
-  for (CLID clid : tClid) {
-    if (clid != dp->clID()) {
-      addedProxy &= (store.addToStore(clid, dp)).isSuccess();
-    }
+  if (!addedProxy) {
+    ATH_MSG_ERROR ("Failed to add proxy to store "
+                   << dp->clID() << "/" << dp->name());
+    delete dp;
+    dp = nullptr;
   }
+  else {
+    // loop over all the transient CLIDs:
+    SG::TransientAddress::TransientClidSet tClid = dp->transientID();
+    for (CLID clid : tClid) {
+      if (clid != dp->clID()) {
+        bool flag = (store.addToStore(clid, dp)).isSuccess();
+        if (!flag) {
+          ATH_MSG_ERROR ("Failed to add proxy to store for symlink "
+                         << clid << "/" << dp->name());
+        }
+        addedProxy &= flag;
+      }
+    }
 
-  if (addedProxy) {
     // loop over all alias'
     for (const std::string& alias : dp->alias()) {
       (store.addAlias(alias, dp)).ignore();
@@ -239,10 +245,8 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
         }
       }
     }
-  } else {
-    delete dp;
-    dp=0;
   }
+
   return dp;
 }
 
@@ -253,7 +257,7 @@ SG::DataProxy*
 ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
 				IProxyRegistry& store)
 {
-  if ( !m_providers.empty() && store.storeID() != StoreID::SIMPLE_STORE ) {
+  if ( !m_providers.empty() ) {
     const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress pTAd (id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());

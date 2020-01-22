@@ -171,10 +171,14 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     
     // process track summary
     
-    const Trk::TrackSummary* summary = NULL;
+    std::unique_ptr<Trk::TrackSummary> cleanup;
+    const Trk::TrackSummary* summary = track->trackSummary();
     
     if (useTrackSummary) {
-      summary = trkSummaryTool->createSummary(*track,prd_to_track_map);
+       if (!track->trackSummary()) {
+          cleanup = trkSummaryTool->summary(*track,prd_to_track_map);
+          summary=cleanup.get();
+       }
 	
       if (summary)
 	{
@@ -293,7 +297,6 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       }
     }
       
-    if (summary) delete summary;
     // ------------------ hits on reconstructed tracks ---------------
       
     for (const Trk::TrackStateOnSurface* hit : *track->trackStateOnSurfaces()) {
@@ -665,8 +668,6 @@ void InDet::TrackStatHelper::print(){
       }
     if (!m_truthMissing)
       {
-	//std::cout << " \t\t\t  ........................................tracks..........................................." << std::endl;
-	//std::cout << " \t\t\tn/event\tSEff\tS+Eff\tEff.\tSEff.pr\tSEff.sd\tSLowP1\tSLowP2\tLowP1\tLowP2\tnoLink\tmultM\t" << std::endl;
 	std::cout << " \t\t\t  ................................tracks................................" << std::endl;
 	std::cout << " \t\t\tn/event\tSEff.pr\tSEff.sd\tSLowP1\tSLowP2\tLowP1\tLowP2\tnoLink\tmultM\t" << std::endl;
 	std::cout << " total     "; printRegion1(ETA_ALL);
@@ -706,27 +707,7 @@ void InDet::TrackStatHelper::print(){
 void InDet::TrackStatHelper::printRegion1(enum eta_region region){
   std::cout  <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(7) << std::setprecision(2)
 	     << "\t" << m_tracks_rec[TRACK_ALL][region]/(float) m_events;
-  /*
-  // tracks / event
-  if (m_tracks_gen_signal[TRACK_ALL][region]) {
-    std::cout << "\t" << m_tracks_gen_signal[TRACK_MATCHED][region]/ (float) m_tracks_gen_signal[TRACK_ALL][region];                 // track efficiency for signal
-  }
-  else {
-    std::cout  << "\t" << "n/a" ;
-  }
-  if (m_tracks_gen[TRACK_ALL_SIGNAL][region]) {
-    std::cout << "\t" << m_tracks_gen[TRACK_MATCHED_SIGNAL][region]/ (float) m_tracks_gen[TRACK_ALL_SIGNAL][region];                 // track efficiency for signal + in time pileup
-  }
-  else {
-    std::cout  << "\t" << "n/a" ;
-  }
-  if (m_tracks_gen[TRACK_ALL][region]) {
-    std::cout << "\t" << m_tracks_gen[TRACK_MATCHED][region]/ (float) m_tracks_gen[TRACK_ALL][region];                 // track efficiency
-  }
-  else {
-    std::cout  << "\t" << "n/a" ;
-  }
-  */
+ 
   if (m_tracks_gen_signal[TRACK_PRIMARY][region]) {
     std::cout << "\t" <<  std::setprecision(4) 
 	      << m_tracks_gen_signal[TRACK_MATCHED_PRIMARY][region]/ (float) m_tracks_gen_signal[TRACK_PRIMARY][region]     // track efficiency wrt. gen primary in signal
@@ -892,36 +873,7 @@ void InDet::TrackStatHelper::printRegionSecondary(enum eta_region region, float 
   else {
     std::cout << "\t" << "n/a" ;
   }
-  /*
-    if (m_tracks_gen[TRACK_PRIMARY][region]) {
-    buffer << "\t" <<  std::setprecision(4) 
-    << m_tracks_gen[TRACK_MATCHED_PRIMARY][region]/ (float) m_tracks_gen[TRACK_PRIMARY][region]     // track efficiency wrt. gen primary
-    <<  std::setprecision(2);
-    }
-    else {
-    buffer  << "\t" << "n/a" ;
-    }
-    if (m_tracks_gen[TRACK_SECONDARY][region]) {
-    buffer << "\t" <<  std::setprecision(4) 
-    << m_tracks_gen[TRACK_MATCHED_SECONDARY][region]/ (float) m_tracks_gen[TRACK_SECONDARY][region]     // track efficiency wrt. gen secondary
-    <<  std::setprecision(2);
-    }
-    else {
-    buffer  << "\t" << "n/a" ;
-    }
-      
-
-    if (m_tracks_rec[TRACK_ALL][region]) {	
-    buffer << "\t" << 100*(m_tracks_rec[TRACK_LOWTRUTHPROB][region]/ (float) m_tracks_rec[TRACK_ALL][region]) << "%"  // track fake rate 
-    << "\t" << 100*(m_tracks_rec[TRACK_LOWTRUTHPROB2][region]/ (float) m_tracks_rec[TRACK_ALL][region]) << "%"  // track fake rate 
-    << "\t" << 100*(m_tracks_rec[TRACK_NOHEPMCPARTICLELINK][region]/ (float) m_tracks_rec[TRACK_ALL][region])  << "%" // rate of tracks without HepMcParticleLink
-    << "\t" << 100*(m_tracks_gen[TRACK_MULTMATCH][region]/ (float) m_tracks_rec[TRACK_ALL][region])  << "%"; // rate of tracks matched to the same truth track
-
-    }
-    else{
-    buffer  << "\tn/a\tn/a\tn/a";
-    }
-  */
+ 
   if (denominator > 0) {     
     std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(4) << std::setprecision(1)
 	      <<"   " << float(m_hits_sec[HIT_ALL    ][region]/denominator) << std::setprecision(2) 

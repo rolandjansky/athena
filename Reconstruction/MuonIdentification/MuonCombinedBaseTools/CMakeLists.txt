@@ -34,7 +34,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils
                           PhysicsAnalysis/MuonID/MuonSelectorTools
                           Reconstruction/MuonIdentification/ICaloTrkMuIdTools
-                          Reconstruction/MuonIdentification/MuGirlInterfaces
                           Reconstruction/MuonIdentification/MuidInterfaces
                           Reconstruction/MuonIdentification/MuonCombinedEvent
                           Reconstruction/MuonIdentification/MuonCombinedToolInterfaces
@@ -68,5 +67,5 @@ atlas_add_component( MuonCombinedBaseTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent AthLinks AthenaBaseComps Identifier EventPrimitives FourMomUtils xAODCaloEvent xAODEventInfo xAODMuon xAODTracking xAODTruth GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils MuonSelectorToolsLib ICaloTrkMuIdTools MuGirlInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces muonEvent MuidEvent ParticleTruth RecoToolInterfaces TrackToCaloLib TrkGeometry TrkSurfaces TrkCaloExtension TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParametersIdentificationHelpers TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces BeamSpotConditionsData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent AthLinks AthenaBaseComps Identifier EventPrimitives FourMomUtils xAODCaloEvent xAODEventInfo xAODMuon xAODTracking xAODTruth GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils MuonSelectorToolsLib ICaloTrkMuIdTools MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces muonEvent MuidEvent ParticleTruth RecoToolInterfaces TrackToCaloLib TrkGeometry TrkSurfaces TrkCaloExtension TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParametersIdentificationHelpers TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces BeamSpotConditionsData )
 

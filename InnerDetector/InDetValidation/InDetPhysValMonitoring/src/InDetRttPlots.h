@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETRTTPLOTS
@@ -62,7 +62,7 @@ public:
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///Fill for efficiency plots
-  void fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood, unsigned int mu=0);
 
   void fillSpectrum(const xAOD::TrackParticle& trackParticle);
   void fillSpectrum(const xAOD::TruthParticle& particle);
@@ -70,7 +70,7 @@ public:
   void fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::Vertex& vertex);
   void fillSpectrum(const xAOD::TrackParticle& trkprt, const xAOD::Vertex& vertex, bool fill);
   void fillSpectrumLinked(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, float weight);
-  void fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w);
+  void fillLinkedandUnlinked(const xAOD::TrackParticle& particle, float Prim_w, float Sec_w, float Unlinked_w, unsigned int nMuEvents=1);
   void fillSpectrumUnlinked2(const xAOD::TrackParticle& particle);
   void fillSingleMatch(const xAOD::TrackParticle& trackParticle);
   void fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle& trackParticle,
@@ -113,7 +113,6 @@ public:
   ///fill for fakes
   void fillFakeRate(const xAOD::TrackParticle& particle, const bool match,
                     const InDetPerfPlot_fakes::Category c = InDetPerfPlot_fakes::ALL);
-  void fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom);
   void fillFakeRateLinked(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
   void fillFakeRateUnlinked(const xAOD::TrackParticle& particle);
 private:

@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-#from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
-from CaloRec.CaloRecConf import CaloCellMaker, CaloCellContainerFinalizerTool     
+from AthenaConfiguration.ComponentFactory import CompFactory
+#LArCellBuilderFromLArRawChannelTool=CompFactory.LArCellBuilderFromLArRawChannelTool
+CaloCellMaker, CaloCellContainerFinalizerTool     =CompFactory.getComps("CaloCellMaker","CaloCellContainerFinalizerTool",)
 from LArCellRec.LArCellBuilderConfig import LArCellBuilderCfg,LArCellCorrectorCfg
 from TileRecUtils.TileCellBuilderConfig import TileCellBuilderCfg
 from CaloCellCorrection.CaloCellCorrectionConfig import CaloCellPedestalCorrCfg, CaloCellNeighborsAverageCorrCfg, CaloCellTimeCorrCfg, CaloEnergyRescalerCfg
@@ -90,7 +91,7 @@ if __name__=="__main__":
     acc.getPrimary().CaloCellsOutputName="AllCaloNew"
     cfg.merge(acc)
     
-    f=open("CaloCellMaker.pkl","w")
+    f=open("CaloCellMaker.pkl","wb")
     cfg.store(f)
     f.close()
 

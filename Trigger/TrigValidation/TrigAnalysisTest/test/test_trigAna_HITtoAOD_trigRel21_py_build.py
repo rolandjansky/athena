@@ -7,6 +7,7 @@
 # If you create a grid version, check art-output in existing grid tests.
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Input
+from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 # HITS -> RDO step in master
 hit2rdo = ExecStep.ExecStep('HITtoRDO')
@@ -51,6 +52,7 @@ test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [hit2rdo, rdo2rdotrig, rdotrig2aod]
 test.check_steps = CheckSteps.default_check_steps(test)
+add_analysis_steps(test)
 
 import sys
 sys.exit(test.run())

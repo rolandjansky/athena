@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/xAOD/xAODCaloEvent
+			  Event/xAOD/xAODTruth
                           Control/CxxUtils
                           GaudiKernel
                           PRIVATE
@@ -36,9 +37,10 @@ atlas_add_component( CaloCalibHitRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver CxxUtils )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDmDetDescr CaloGeoHelpers CaloIdentifier CaloRecLib CaloSimEvent AthenaBaseComps StoreGateLib SGtests Identifier xAODCaloEvent xAODTruth GaudiKernel CaloDetDescrLib CaloEvent AthenaKernel AtlasDetDescr LArRecEvent McParticleEvent TileEvent PathResolver CxxUtils )
 
 # Install files from the package:
 atlas_install_headers( CaloCalibHitRec )
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

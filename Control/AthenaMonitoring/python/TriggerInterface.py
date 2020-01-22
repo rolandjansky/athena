@@ -13,6 +13,7 @@ def getTrigDecisionTool(flags):
     if getTrigDecisionTool.rv:
         return getTrigDecisionTool.rv
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
  
     rv = ComponentAccumulator()
 
@@ -22,14 +23,13 @@ def getTrigDecisionTool(flags):
         getTrigDecisionTool.rv = rv
         return getTrigDecisionTool.rv
 
-    from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
-    cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
-    rv.addPublicTool(cfgtool)
+    cfgsvc = CompFactory.TrigConf__xAODConfigSvc('xAODConfigSvc')
+    rv.addService(cfgsvc)
 
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-    tdt.ConfigTool = cfgtool
-    tdt.NavigationFormat = "TrigComposite"
+    tdt = CompFactory.Trig__TrigDecisionTool('TrigDecisionTool')
+    tdt.TrigConfigSvc = cfgsvc
+
+    tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)
     # Other valid option of NavigationFormat is "TriggerElement" for Run 2 navigation. 
     # This option to be removed and "TrigComposite" the only valid choice once a R2->R3 converter is put in place. 
@@ -39,15 +39,8 @@ def getTrigDecisionTool(flags):
     tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
     # Minimal config needed to read metadata: MetaDataSvc & ProxyProviderSvc
-    from AthenaServices.AthenaServicesConf import MetaDataSvc
-    mdSvc = MetaDataSvc( "MetaDataSvc" )
-    mdSvc.MetaDataContainer = "MetaDataHdr"
-    rv.addService(mdSvc)
-
-    from SGComps.SGCompsConf import ProxyProviderSvc
-    pdps = ProxyProviderSvc( "ProxyProviderSvc" )
-    pdps.ProviderNames += [ "MetaDataSvc" ]
-    rv.addService(pdps)
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    rv.merge(MetaDataSvcCfg(flags))
 
     getTrigDecisionTool.rv = rv
     return rv

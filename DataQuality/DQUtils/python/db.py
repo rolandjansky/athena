@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement
 
@@ -9,10 +9,11 @@ from logging import getLogger; log = getLogger("DQUtils.db")
 import re
 import sys
 from collections import namedtuple
-from cStringIO import StringIO
+from io import StringIO
 from datetime import datetime
 from keyword import iskeyword
 from os.path import dirname
+import six
 
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
@@ -34,10 +35,11 @@ def get_query_range(since, until, runs):
     If `runs` is a two-tuple, then it is used as a (from_run, to_run)
     """
     if runs and (since is None and until is None):
+        from builtins import int
         if isinstance(runs, tuple):
             since, until = (runs[0], 0), (runs[1], 0)
             
-        elif isinstance(runs, (long, int)):
+        elif isinstance(runs, int):
             since, until = (runs, 0), (runs+1, 0)
         else:
             raise RuntimeError("Invalid type for `runs`, should be int or tuple")
@@ -121,7 +123,7 @@ def fetch_iovs(folder_name, since=None, until=None, channels=None, tag="",
         channel_mapping = None # get channel mapping from channel_mapping.py
     else:
         _, _, channelmap = get_channel_ids_names(folder)
-        cm_reversed = dict((value, key) for key, value in channelmap.iteritems())
+        cm_reversed = dict((value, key) for key, value in six.iteritems(channelmap))
         channelmap.update(cm_reversed)
         channel_mapping = channelmap
     
@@ -333,7 +335,7 @@ class Databases(object):
             cool_folder = db.getFolder(folder)
         except Exception as error:
             log.debug('HELP! %s', error.args)
-            args = str(error.args[0] if not isinstance(error.args, basestring) else error.args)
+            args = str(error.args[0] if not isinstance(error.args, str) else error.args)
             log.debug('THIS IS %s', type(args))
             log.debug('Value of boolean: %s', ("not found" in args))
             if not ("cannot be established" in args or
@@ -427,7 +429,7 @@ class Databases(object):
         folderset_path = dirname(folder_name)
         try:
             db.getFolderSet(folderset_path)
-        except Exception, error:
+        except Exception as error:
             caught_error = "Folder set %s not found" % folderset_path
             if caught_error not in error.args[0]:
                 raise
@@ -476,7 +478,7 @@ class Databases(object):
         try:
             db = cls.get_instance(database, False)
             
-        except Exception, error:
+        except Exception as error:
             if not create or "The database does not exist" not in error.args[0]:
                 raise
             
@@ -491,7 +493,7 @@ class Databases(object):
         try:
             folder = db.getFolder(folder_name)
             payload = cool.Record(folder.payloadSpecification())
-        except Exception, error:
+        except Exception as error:
             if not create or "Folder %s not found" % folder_name not in error.args[0]:
                 raise
                 

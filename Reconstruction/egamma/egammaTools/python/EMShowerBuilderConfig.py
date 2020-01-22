@@ -3,10 +3,11 @@
 __doc__ = "ToolFactory to instantiate all EMShowerBuilder with default configuration"
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaCommon.Logging import logging
-from egammaTools.egammaToolsConf import EMShowerBuilder
-from egammaCaloTools.egammaCaloToolsConf import egammaIso, egammaShowerShape
+EMShowerBuilder=CompFactory.EMShowerBuilder
+egammaIso, egammaShowerShape=CompFactory.getComps("egammaIso","egammaShowerShape",)
 from CaloIdentifier import SUBCALO
 
 

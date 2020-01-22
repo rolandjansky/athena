@@ -6,6 +6,9 @@
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.out
+# art-output: *.err
+# art-output: *.log.tar.gz
 # art-output: *.new
 # art-output: *.json
 # art-output: *.root
@@ -17,6 +20,7 @@
 # art-output: LVL1config*.xml
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 import os
 
 # To run single-process transform on MCORE sites
@@ -33,6 +37,7 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
+add_analysis_steps(test, input_file='RDO_TRIG.pool.root')
 
 import sys
 sys.exit(test.run())

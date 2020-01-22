@@ -8,7 +8,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.Configured import Configured 
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-from TriggerMenu.menu.GenerateMenu import GenerateMenu
 
 log = logging.getLogger( "TriggerGetter.py" )
 
@@ -47,9 +46,12 @@ class TriggerGetter(Configured):
         log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d", recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly() )
         log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s, doMT: %s", TF.doL1Topo(), TF.doLVL1(), TF.doLVL2(), TF.doEF(), TF.doHLT(), TF.doMT() )
 
-        if TF.doMT():
-            log.info("configuring MT Trigger, actually nothing happens for now")
+        # RDOtoRDOTrigger MT temporarily coded in the transform skeleton, so skip here
+        if TF.doMT() and rec.readRDO() and rec.doWriteRDO():
+            log.info("Nothing happens in TriggerGetter for RDOtoRDOTrigger MT")
             return True
+        else: #GenerateMenu imports slice flags, which are Menu/MenuMT dependent
+            from TriggerMenu.menu.GenerateMenu import GenerateMenu
         
         willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()
@@ -92,8 +94,18 @@ class TriggerGetter(Configured):
         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-        # tell tdt to use TrigConfigSvc (Since TrigDecisionTool-00-03-40, defaults to not use it) 
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+        from PyUtils.MetaReaderPeekerFull import metadata
+        if "metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys()):
+            # Use xAOD configuration. 
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            if not hasattr(svcMgr, 'xAODConfigSvc'):
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+                svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
+            ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+            ToolSvc.TrigDecisionTool.TrigConfigSvc = svcMgr.xAODConfigSvc
+        else:
+            # Use TrigConfigSvc
+            ToolSvc.TrigDecisionTool.TrigConfigSvc = "TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         from TrigEDMConfig.TriggerEDM import EDMLibraries
         ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
@@ -109,7 +121,7 @@ class TriggerGetter(Configured):
             lvl1 = Lvl1SimulationGetter()  # noqa: F841
             
 
-            if jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT()):
+            if TF.doTransientByteStream() or (jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT())):
                 # Transient BS construction and intialization
                 from ByteStreamCnvSvc import WriteByteStream
                 StreamBS = WriteByteStream.getStream("Transient","StreamBS")

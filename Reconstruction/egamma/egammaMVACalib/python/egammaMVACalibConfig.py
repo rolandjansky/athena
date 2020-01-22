@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaMVACalib.egammaMVACalibConf import egammaMVACalibTool, egammaMVASvc
+egammaMVACalibTool, egammaMVASvc=CompFactory.getComps("egammaMVACalibTool","egammaMVASvc",)
 from ROOT import xAOD
 import cppyy
 cppyy.loadDictionary('xAODEgammaDict')
@@ -58,6 +59,6 @@ if __name__ == "__main__":
     acc = egammaMVASvcCfg(ConfigFlags)
     cfg.merge(acc)
 
-    f = open("egmvatools.pkl", "w")
+    f = open("egmvatools.pkl", "wb")
     cfg.store(f)
     f.close()

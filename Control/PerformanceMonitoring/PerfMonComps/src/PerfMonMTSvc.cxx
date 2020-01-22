@@ -428,12 +428,8 @@ void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
       ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|47t|%3%") % it.first.stepName % it.second.cpu_time % it.first.compName);    
     }
     ATH_MSG_INFO("=======================================================================================");
-
   }
-
 }
-
-
 
 void PerfMonMTSvc::report2Log_Summary() {
 
@@ -583,6 +579,7 @@ void PerfMonMTSvc::report2JsonFile_CompLevel_Time_Parallel(nlohmann::json& j) co
   }
 }
 
+
 void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
   
   // Report component level memory measurements in serial steps
@@ -729,7 +726,6 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_cbk);
 
 }
-
 
 
 std::string PerfMonMTSvc::scaleTime(double timeMeas) const{

@@ -91,9 +91,6 @@ namespace POOL {
             return inputMetaStore()->retrieve( obj, key );
          }
 
-	 //shortcut for access IOVMetadataContainer metadata
-	 std::string retrieveIOVMetadata(const std::string& folder, const std::string& key);
-
          int getEntry( long entry ); //return -1 if failure. otherwise 0
          long getEntries();
 

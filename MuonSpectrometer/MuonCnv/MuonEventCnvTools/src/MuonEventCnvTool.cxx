@@ -12,8 +12,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
-//Muon DD manager
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
@@ -40,35 +39,24 @@ Muon::MuonEventCnvTool::MuonEventCnvTool(
     const std::string& n,
     const IInterface*  p )
     :
-    AthAlgTool(t,n,p),
-    m_muonMgr(nullptr)
+    AthAlgTool(t,n,p)
 {
     declareInterface<ITrkEventCnvTool>(this);   
 }
 
 StatusCode Muon::MuonEventCnvTool::initialize()
 {
-//	StatusCode sc = IPatToTrackToolBase::initialize();
-//	if (sc.isFailure()) return sc;
 
-    // Get Muon Detector Description Manager
-    StatusCode sc = detStore()->retrieve(m_muonMgr);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("Could not get MuonReadoutGeometry DetectorDescription manager");
-        return StatusCode::FAILURE;
-    }else{
-        ATH_MSG_DEBUG( "Found MuonReadoutGeometry DetectorDescription manager at :"<<m_muonMgr);
-    }
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_rpcPrdKey.initialize());
+  ATH_CHECK(m_cscPrdKey.initialize(!m_cscPrdKey.empty())); // check for layouts without CSCs
+  ATH_CHECK(m_tgcPrdKey.initialize());
+  ATH_CHECK(m_mdtPrdKey.initialize());
+  ATH_CHECK(m_mmPrdKey.initialize(!m_mmPrdKey.empty())); // check for layouts without MicroMegas
+  ATH_CHECK(m_stgcPrdKey.initialize(!m_stgcPrdKey.empty())); // check for layouts without STGCs
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
-    ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_CHECK(m_rpcPrdKey.initialize());
-    ATH_CHECK(m_cscPrdKey.initialize());
-    ATH_CHECK(m_tgcPrdKey.initialize());
-    ATH_CHECK(m_mdtPrdKey.initialize());
-    ATH_CHECK(m_mmPrdKey.initialize());
-    ATH_CHECK(m_stgcPrdKey.initialize());
-
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 void 
@@ -102,16 +90,23 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
     const PrepRawData*       prd   = 0;
     const Identifier& id           = rioOnTrack.identify();
 
-    if ( m_muonMgr!=0) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd); 
+    } 
+
+    if ( MuonDetMgr!=0) {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
       if (m_idHelperSvc->isRpc(id)){
-        detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
+        detEl =  MuonDetMgr->getRpcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = rpcClusterLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->isCsc(id)){
-        detEl =  m_muonMgr->getCscReadoutElement( id ) ;
+        detEl =  MuonDetMgr->getCscReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = cscClusterLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->isTgc(id)){
-        detEl = m_muonMgr->getTgcReadoutElement( id ) ;
+        detEl = MuonDetMgr->getTgcReadoutElement( id ) ;
         if ( m_manuallyFindPRDs) prd = tgcClusterLink(id, rioOnTrack.idDE());
         if ( m_fixTGCs && !rioOnTrack.prepRawData() ) {
           // Okay, so we might have hit the nasty issue that the TGC EL is broken in some samples
@@ -121,13 +116,13 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
           el.resetWithKeyAndIndex(m_tgcPrdKey.key(), el.index());
         }
       }else if(m_idHelperSvc->isMdt(id)){
-        detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
+        detEl =  MuonDetMgr->getMdtReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mdtDriftCircleLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->isMM(id)){
-        detEl = m_muonMgr->getMMReadoutElement( id ) ;
+        detEl = MuonDetMgr->getMMReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mmClusterLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->issTgc(id)){
-        detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
+        detEl = MuonDetMgr->getsTgcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = stgcClusterLink(id, rioOnTrack.idDE());
       }else{
         ATH_MSG_WARNING( "Unknown type of Muon detector from identifier :"<< id);
@@ -193,21 +188,28 @@ Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id) const
 {
     const Trk::TrkDetElementBase* detEl = 0;
 
-    if ( m_muonMgr!=0 ) 
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      return detEl; 
+    } 
+
+    if ( MuonDetMgr!=0 ) 
     {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
       if (m_idHelperSvc->isRpc(id)) {
-        detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
+        detEl =  MuonDetMgr->getRpcReadoutElement( id ) ;
       }else if(m_idHelperSvc->isCsc(id)){
-        detEl =  m_muonMgr->getCscReadoutElement( id ) ;
+        detEl =  MuonDetMgr->getCscReadoutElement( id ) ;
       }else if(m_idHelperSvc->isTgc(id)){
-        detEl = m_muonMgr->getTgcReadoutElement( id ) ;
+        detEl = MuonDetMgr->getTgcReadoutElement( id ) ;
       }else if(m_idHelperSvc->isMdt(id)) {
-        detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
+        detEl =  MuonDetMgr->getMdtReadoutElement( id ) ;
       }else if(m_idHelperSvc->issTgc(id)){
-        detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
+        detEl = MuonDetMgr->getsTgcReadoutElement( id ) ;
       }else if(m_idHelperSvc->isMM(id)){
-        detEl = m_muonMgr->getMMReadoutElement( id ) ;
+        detEl = MuonDetMgr->getMMReadoutElement( id ) ;
       }
     }
 

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon import Logging
 
@@ -15,7 +16,7 @@ def GeoModelCfg(configFlags):
 
 
     result=ComponentAccumulator()
-    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    GeoModelSvc=CompFactory.GeoModelSvc
     gms=GeoModelSvc(AtlasVersion=version,
                     SupportedGeometry = int(relversion[0]))
     if configFlags.Detector.Simulate:
@@ -46,5 +47,5 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
 
     acc = GeoModelCfg( ConfigFlags )
-    acc.store( file( "test.pkl", "w" ) )
+    acc.store( open( "test.pkl", "wb" ) )
     Logging.log.info("All OK")

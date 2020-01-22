@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
+
 # art-description: test ttFC_fastSim_fastDigi + ttFC_reco_noSplit_noPseudoT_fastSim_fastDigi
 # art-type: grid
-
-# specify branches of athena that are being targeted:
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: master/Athena
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
+# art-output: *.root
+# art-output: dcube-rdo-truth
+# art-output: dcube-id
+
+inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_reco_noSplit_noPseudoT_fastSim_fastDigi"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
+art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
+dcubeName="ttFC_reco_noSplit_noPseudoT_fastSim_fastDigi"
+dcubeXmlID="${inputXmlDir}/dcube_ID.xml"
+dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_pileup.xml"
+dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --digiSteeringConf "SplitNoMergeFF" \
@@ -28,9 +37,21 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --preDigiInclude="FastTRT_Digitization/preInclude.FastTRT_Digi.Validation.py" \
     --imf False
 
-echo "art-result: $? EVNTtoRDO step"
+rc1=$?
+echo "art-result: ${rc1} EVNTtoRDO"
+rc2=-9999
+if [ ${rc1} -eq 0 ]
+then
+    bash ${art_dcube} ${dcubeName} RDO_truth.root ${dcubeXmlRDO} ${dcubeRefRDO}
+    rc2=$?
+    if [ -d "dcube" ]
+    then
+       mv "dcube" "dcube-rdo-truth"
+    fi
+fi
+echo "art-result: ${rc2} dcubeRDO"
 
-
+# Reconstruction
 FastChain_tf.py --maxEvents 500 \
     --skipEvents 0 \
     --geometryVersion ATLAS-R2-2015-03-01-00 \
@@ -40,22 +61,25 @@ FastChain_tf.py --maxEvents 500 \
     --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
+rc3=$?
+rc4=-9999
+rc5=-9999
+if [ ${rc3} -eq 0 ]
+then
+    # Regression test
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc4=$?
 
-echo "art-result: $? RDOtoAOD step"
-
-ArtPackage=$1
-ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? regression"
-#add an additional payload from the job (corollary file).
-# art-output: InDetStandardPlots.root
-/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_fastSim_fastDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/InDetStandardPlotCompare.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_Refs/test_ttFC_reco_noSplit_noPseudoT_fastSim_fastDigi_InDetStandardPlots.root
-
-
-
-
-# InDetStandardPlots.root -l dcube.log -p -r   -x dcube.xml -s /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/
-
-# art-output: dcube/
-
-echo  "art-result: $? histcomp"
+    # Histogram comparison with DCube
+    bash ${art_dcube} ${dcubeName} InDetStandardPlots.root ${dcubeXmlID} ${dcubeRefID}
+    rc5=$?
+    if [ -d "dcube" ]
+    then
+       mv "dcube" "dcube-id"
+    fi
+fi
+echo  "art-result: ${rc3} RDOtoAOD"
+echo  "art-result: ${rc4} regression"
+echo  "art-result: ${rc5} dcubeID"

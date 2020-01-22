@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaAlgs.egammaAlgsConf import egammaTrackSlimmer
+egammaTrackSlimmer=CompFactory.egammaTrackSlimmer
 
 
 def egammaTrackSlimmerCfg(flags, name='egammaTrackSlimmer', **kwargs):
@@ -12,6 +13,7 @@ def egammaTrackSlimmerCfg(flags, name='egammaTrackSlimmer', **kwargs):
 
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("StreamName", 'StreamAOD')
     kwargs.setdefault("InputElectronContainerName", flags.Egamma.Keys.Output.Electrons)
     kwargs.setdefault("InputPhotonContainerName", flags.Egamma.Keys.Output.Photons)
     kwargs.setdefault("TrackParticleContainerName", flags.Egamma.Keys.Output.GSFTrackParticles)

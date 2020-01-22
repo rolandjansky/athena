@@ -1,25 +1,24 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc
+DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc=CompFactory.getComps("DetectorGeometrySvc","G4AtlasSvc","G4GeometryNotifierSvc","PhysicsListSvc",)
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg
 
 #the geometry tools
 from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
 #the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
-
+#from AthenaCommon import Logging
 
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
     isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
-    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
+    isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" and ConfigFlags.GeoModel.IBLLayout not in ["noIBL", "UNDEFINED"])
 
-    from G4AtlasApps.SimFlags import simFlags
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
@@ -42,37 +41,41 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.SimulateCalo:
         if ConfigFlags.Detector.GeometryLAr:
-            ## Shower parameterization overrides the calibration hit flag
-            if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
-                    and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
-                print('You requested both calibration hits and frozen showers / parameterization in the LAr.')
-                print('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
-                print('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
-                raise RuntimeError('Configuration not allowed')
-
+            pass
             #TODO - migrate below>>
+            ## Shower parameterization overrides the calibration hit flag
+            #if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
+            #        and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
+            #    Logging.log.info('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+            #    Logging.log.info('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+            #    Logging.log.info('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
+            #    raise RuntimeError('Configuration not allowed')
             #if simFlags.LArParameterization() > 0:
-            #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
-            #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
+            if True:
+                regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags), EMECPhysicsRegionToolCfg(ConfigFlags),
+                                      HECPhysicsRegionToolCfg(ConfigFlags), FCALPhysicsRegionToolCfg(ConfigFlags)]
                 # FIXME 'EMBPhysicsRegionTool' used for parametrization also - do we need a second instance??
-            #    regionCreatorList += [EMECParaPhysicsRegionTool(ConfigFlags),
-            #                          FCALParaPhysicsRegionTool(ConfigFlags), FCAL2ParaPhysicsRegionTool(ConfigFlags)]
-            #    if simFlags.LArParameterization.get_Value() > 1:
-            #        regionCreatorList += [PreSampLArPhysicsRegionTool(ConfigFlags), DeadMaterialPhysicsRegionTool(ConfigFlags)]
-            #elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
-            #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
-            #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
-
-
+                regionCreatorList += [EMECParaPhysicsRegionToolCfg(ConfigFlags),
+                                      FCALParaPhysicsRegionToolCfg(ConfigFlags), FCAL2ParaPhysicsRegionToolCfg(ConfigFlags)]
+                #if simFlags.LArParameterization.get_Value() > 1:
+                if False:
+                    pass
+                    #todo - add the line below
+                    #regionCreatorList += [PreSampLArPhysicsRegionToolCfg(ConfigFlags), DeadMaterialPhysicsRegionToolCfg(ConfigFlags)]
+            elif False: # simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
+                regionCreatorList += [EMBPhysicsRegionToolCfg(ConfigFlags), EMECPhysicsRegionToolCfg(ConfigFlags),
+                                      HECPhysicsRegionToolCfg(ConfigFlags), FCALPhysicsRegionToolCfg(ConfigFlags)]
     ## FIXME _initPR never called for FwdRegion??
     #if simFlags.ForwardDetectors.statusOn:
     #    if DetFlags.geometry.FwdRegion_on():
     #        regionCreatorList += ['FwdRegionPhysicsRegionTool']
     #if ConfigFlags.Detector.GeometryMuon:
-    #    regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
-    #    if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
-    #        regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
-    #<<migrate above
+        #todo - add the line below
+        #regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
+        #if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+            #pass
+            #todo - add the line below
+            #regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
     return regionCreatorList
 
 
@@ -270,3 +273,37 @@ def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
     return G4GeometryNotifierSvc(name, **kwargs)
+
+
+def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
+    PhysOptionList = ["G4StepLimitationTool"]
+    PhysOptionList += ConfigFlags.Sim.PhysicsList
+    PhysDecaysList = []
+    if ConfigFlags.Detector.SimulateTRT:
+        PhysOptionList +=["TRTPhysicsTool"]
+    if ConfigFlags.Detector.SimulateLucid or ConfigFlags.Detector.SimulateAFP:
+        PhysOptionList +=["LucidPhysicsTool"]
+    kwargs.setdefault("PhysOption", PhysOptionList)
+    kwargs.setdefault("PhysicsDecay", PhysDecaysList)
+    kwargs.setdefault("PhysicsList", ConfigFlags.Sim.PhysicsList)
+    if 'PhysicsList' in kwargs:
+        if kwargs['PhysicsList'].endswith('_EMV') or kwargs['PhysicsList'].endswith('_EMX'):
+            raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
+    kwargs.setdefault("GeneralCut", 1.)
+    if ConfigFlags.Sim.NeutronTimeCut > 0.:
+        kwargs.setdefault("NeutronTimeCut", ConfigFlags.Sim.NeutronTimeCut)
+
+    if ConfigFlags.Sim.NeutronEnergyCut > 0.:
+        kwargs.setdefault("NeutronEnergyCut", ConfigFlags.Sim.NeutronEnergyCut)
+
+    kwargs.setdefault("ApplyEMCuts", ConfigFlags.Sim.ApplyEMCuts)
+    ## from AthenaCommon.SystemOfUnits import eV, TeV
+    ## kwargs.setdefault("EMMaxEnergy"     , 7*TeV)
+    ## kwargs.setdefault("EMMinEnergy"     , 100*eV)
+    """ --- ATLASSIM-3967 ---
+        these two options are replaced by SetNumberOfBinsPerDecade
+        which now controls both values.
+    """
+    ## kwargs.setdefault("EMDEDXBinning"   , 77)
+    ## kwargs.setdefault("EMLambdaBinning" , 77)
+    return PhysicsListSvc(name, **kwargs)

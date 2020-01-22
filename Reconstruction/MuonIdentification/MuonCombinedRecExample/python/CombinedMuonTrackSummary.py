@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 #
@@ -30,17 +30,9 @@ ToolSvc += InDet__InDetTrackHoleSearchTool( \
   useSCT                       = DetFlags.haveRIO.SCT_on(),
   CountDeadModulesAfterLastHit = True)
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-pixelConditionsSummaryToolSetup.setUseConditions(True)
-pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
-pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
-pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-pixelConditionsSummaryToolSetup.setup()
-InDetPixelConditionsSummaryTool = pixelConditionsSummaryToolSetup.getTool()
+import InDetRecExample.TrackingCommon as TrackingCommon
+InDetPixelConditionsSummaryTool = TrackingCommon.getInDetPixelConditionsSummaryTool()
+
 
 if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   # now get the InDet tools as used for InDet tracks
@@ -109,8 +101,7 @@ if DetFlags.haveRIO.pixel_on():
   # load PixelToTPID tool
   from PixelToTPIDTool.PixelToTPIDToolConf import InDet__PixelToTPIDTool
   ToolSvc += InDet__PixelToTPIDTool( \
-    name                       = "CombinedMuonPixelToTPID",
-    ReadFromCOOL               = True)
+    name                       = "CombinedMuonPixelToTPID")
 
   # set properties into public tools
   ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = InDetPixelConditionsSummaryTool

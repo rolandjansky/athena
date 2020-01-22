@@ -28,6 +28,7 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include <string>
 
@@ -76,6 +77,7 @@ class T2CaloEgammaReFastAlgo : public AthReentrantAlgorithm {
       this, "RoIs", "OutputRoIs", "input RoIs"};
     SG::WriteHandleKey<xAOD::TrigEMClusterContainer> m_clusterContainerKey{
         this, "ClustersName", "CaloClusters", "Calo cluster container"};
+    ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 };
 
 #endif

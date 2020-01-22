@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PerfMonComps/python/DomainsRegistry.py
 # @purpose hold a registry of alg names and their association w/ domain
 # @date September 2009
 # @author Sebastien Binet <binet@cern.ch>
+from __future__ import print_function
+import six
 
 __version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
@@ -84,7 +86,7 @@ class Registry(object):
         self._dirty_db = True
     
         if self.verbose:
-            print ":::flag_domain(%s)..." % (name,)
+            print(":::flag_domain(%s)..." % (name,))
         
         ## if has_domain(name):
         ##     raise RuntimeError(
@@ -112,8 +114,8 @@ class Registry(object):
             self._registry.append((name, self.top_stack, n_algs))
 
         if self.verbose:
-            print ":::flag_domain(%s)... => registry: %r (#algs: %s)" % (
-                name, self._registry, len(alg_names))
+            print(":::flag_domain(%s)... => registry: %r (#algs: %s)" % (
+                name, self._registry, len(alg_names)))
 
         return
 
@@ -197,7 +199,7 @@ class Registry(object):
             next_domain_name = registry[next_domain_idx]
             _,stop_alg = self.domain_start(next_domain_name[0],
                                            registry=registry[next_domain_idx:])
-            #print "----->",stop_alg,domain_idx,next_domain_idx
+            #print("----->",stop_alg,domain_idx,next_domain_idx)
             if stop_alg is None: # bottom of the stack: take rest of the slice
                 stop_idx = None
             else:
@@ -220,8 +222,8 @@ class Registry(object):
         if not self.has_domain(name):
             raise RuntimeError("no such domain [%s]" % name)
 
-        #print ":"*40
-        #print "::: domain_algs(%s)..." % (name,)
+        #print(":"*40)
+        #print("::: domain_algs(%s)..." % (name,))
 
         from AthenaCommon.AlgSequence import AlgSequence
         job = AlgSequence()
@@ -240,8 +242,8 @@ class Registry(object):
         w_registry = self._registry[:]
         itr = 0
         while len(w_alg_names)>0 and w_start is not None:
-            #print "== %s: itr [%i]==\nw_names: %s \nreg: %s" % (
-            #    name, itr, w_alg_names, w_registry)
+            #print("== %s: itr [%i]==\nw_names: %s \nreg: %s" % (
+            #    name, itr, w_alg_names, w_registry))
 
             w_slice = slice(w_start, w_stop)
             w_alg_names = alg_names[w_slice][:]
@@ -249,7 +251,7 @@ class Registry(object):
                 name,
                 registry=w_registry,
                 alg_names=w_alg_names)
-            #print "slice: [%s:%s]" % (start_idx,stop_idx)
+            #print("slice: [%s:%s]" % (start_idx,stop_idx))
             slices.extend(w_alg_names[slice(start_idx,stop_idx)])
             w_start = stop_idx
             itr +=1
@@ -303,7 +305,7 @@ class Registry(object):
             if i >= 1:
                 domain_name = a2d[algs[i-1].getName()]
             a2d[alg_name] = domain_name
-            # print "-->",alg_name,a2d[alg_name]
+            # print("-->",alg_name,a2d[alg_name])
 
         # now, apply user fix-ups...
         for domain,alg_name in self._usr_fixups:
@@ -315,7 +317,7 @@ class Registry(object):
         # build reverse dict too
         from collections import defaultdict
         d2a = defaultdict(list)
-        for alg_name, domain_name in a2d.iteritems():
+        for alg_name, domain_name in six.iteritems (a2d):
             d2a[domain_name].append(alg_name)
         self._d2a_db = dict(d2a)
         
@@ -424,8 +426,8 @@ def _test_main():
         'sub-algs-2': ['subseq_2'],
         }
 
-    print "=== algs:",[c.getName() for c in job.getChildren()]
-    print "=== domains:",pdr.domain_names()
+    print("=== algs:",[c.getName() for c in job.getChildren()])
+    print("=== domains:",pdr.domain_names())
     assert sorted(pdr.domain_names()) == \
            sorted(['core', 'id', 'muons',
                    #'empty', 'empty1', 'empty2',
@@ -434,17 +436,17 @@ def _test_main():
                    'sub-algs-2',
                    ])
     for d in pdr.domain_names():
-        print "::: domain [%s]..." % d
-        #print " ->",pdr.domain_start(d)
+        print("::: domain [%s]..." % d)
+        #print(" ->",pdr.domain_start(d))
         algs = pdr.domain_algs(d)
-        print "    algs:",algs
-        print "    ref: ",ref[d]
+        print("    algs:",algs)
+        print("    ref: ",ref[d])
         assert algs == ref[d]
 
     db = pdr.a2d_db()
     db = pdr.d2a_db()
     
-    print "OK"
+    print("OK")
     return 0
 
 if __name__ == "__main__":

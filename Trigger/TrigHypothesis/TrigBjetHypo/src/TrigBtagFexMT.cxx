@@ -76,7 +76,7 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_CHECK( m_VertexContainerKey.initialize()        );
   ATH_CHECK( m_trkContainerKey.initialize() );
 
-  //  ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
+  ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
   //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
   //  ATH_CHECK( m_outputVertexContainerKey.initialize() );
 
@@ -87,54 +87,59 @@ StatusCode TrigBtagFexMT::initialize() {
 // ----------------------------------------------------------------------------------------------------------------- 
 
 StatusCode TrigBtagFexMT::execute() {
-
+  ATH_MSG_DEBUG( "Executing " << name() << "... " );
+  
   const EventContext& ctx = getContext();
-  
-  ATH_MSG_DEBUG( "Executing TrigBtagFexMT" );
-  ATH_MSG_DEBUG("--- BTAGFEX: EXECUTING");
-  
 
   // Test retrieval of JetContainer
-  SG::ReadHandle<xAOD::JetContainer> jetContainer (m_JetContainerKey);
-  if (!jetContainer.isValid()) {
-    ATH_MSG_ERROR(" cannot retrieve JetContainer with key " << m_JetContainerKey.key());
-    return StatusCode::FAILURE;
-  }
-  if (jetContainer->size() == 0) {
-    ATH_MSG_DEBUG("    BTAGFEX: JetContainer --> empty!");
-  }
-  else {
-    ATH_MSG_DEBUG("    BTAGFEX: JetContainer --> n = " << jetContainer->size());
-  }
+  ATH_MSG_DEBUG( "Attempting to retrieve JetContainer with key " << m_JetContainerKey.key() );
+  SG::ReadHandle< xAOD::JetContainer > jetContainerHandle = SG::makeHandle< xAOD::JetContainer >( m_JetContainerKey,ctx );
+  CHECK( jetContainerHandle.isValid() );
+  const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " jets" );
 
-  // Test retrieval of VertexContainer
-  const xAOD::VertexContainer* vxContainer (0);
-  StatusCode sc = evtStore()->retrieve(vxContainer, m_VertexContainerKey.key());
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR(" cannot retrieve Vertex Container with key " << m_VertexContainerKey.key());
-    return StatusCode::SUCCESS;
-  }
-  if (vxContainer->size()==0) {
-    ATH_MSG_DEBUG("    BTAGFEX: VertexContainer --> empty!");
-    return StatusCode::SUCCESS;
-  }
-  else {
-    ATH_MSG_DEBUG("    BTAGFEX: VertexContainer --> n = " << vxContainer->size());
-  }
+  for ( const xAOD::Jet *jet : *jetContainer )
+    ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->p4().Et() * 1e-3 <<
+		   " eta=" << jet->eta() <<
+		   " phi=" << jet->phi() );
 
 
 
   // Test retrieval of Track Particles
-  SG::ReadHandle< xAOD::TrackParticleContainer > trkContainerHandle = SG::makeHandle( m_trkContainerKey,ctx );
+  ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_trkContainerKey.key() );
+  SG::ReadHandle< xAOD::TrackParticleContainer > trkContainerHandle = SG::makeHandle< xAOD::TrackParticleContainer >( m_trkContainerKey,ctx );
   CHECK( trkContainerHandle.isValid() );
+  const xAOD::TrackParticleContainer *trkContainer =  trkContainerHandle.get();
   ATH_MSG_DEBUG("Retrieved " << trkContainerHandle->size() << " Tracks");
 
-  const xAOD::TrackParticleContainer *trkContainer =  trkContainerHandle.get();
-  
-  for ( auto trk : *trkContainer ) {
-    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() );
-  }
+  for ( const xAOD::TrackParticle *trk : *trkContainer ) 
+    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 <<
+		   " eta=" << trk->eta() <<
+		   " phi=" << trk->phi() );
 
+
+  // Test retrieval of VertexContainer
+  ATH_MSG_DEBUG( "Attempting to retrieve VertexContainer with key " << m_VertexContainerKey.key() );
+  SG::ReadHandle< xAOD::VertexContainer > vxContainerHandle = SG::makeHandle< xAOD::VertexContainer >( m_VertexContainerKey, ctx );
+  CHECK( vxContainerHandle.isValid() );  
+  const xAOD::VertexContainer* vxContainer = vxContainerHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << vxContainer->size() <<" vertices..." );
+
+  for ( const xAOD::Vertex *pv : *vxContainer )
+    ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<<
+		   " y=" << pv->y() <<
+		   " z=" << pv->z() );
+
+
+  // Creating dummy B-Tagging container in order to avoid
+  // warnings from the SGInputLoader
+  std::unique_ptr< xAOD::BTaggingContainer > outputBtagging = std::make_unique< xAOD::BTaggingContainer >();
+  std::unique_ptr< xAOD::BTaggingAuxContainer > outputBtaggingAux = std::make_unique< xAOD::BTaggingAuxContainer >();
+  outputBtagging->setStore( outputBtaggingAux.get() );
+
+  SG::WriteHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
+  CHECK( btaggingHandle.record( std::move( outputBtagging ),std::move( outputBtaggingAux ) ) );
+  ATH_MSG_DEBUG( "Exiting with " << btaggingHandle->size() << " btagging objects" );
 
 
   return StatusCode::SUCCESS;

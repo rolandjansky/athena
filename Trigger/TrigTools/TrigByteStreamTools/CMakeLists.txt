@@ -19,7 +19,7 @@ atlas_add_dictionary( TrigByteStreamToolsDict
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( bin/*.py python/trigbs_replaceLB.py python/trigbs_prescaleL1.py python/slimHLTBSFile.py )
+atlas_install_scripts( bin/*.py python/trigbs_modifyEvent.py python/trigbs_prescaleL1.py python/slimHLTBSFile.py )
 
 # Check python syntax:
 atlas_add_test( flake8

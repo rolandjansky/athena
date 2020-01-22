@@ -9,63 +9,66 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+// Tools & interfaces
 #include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
 #include "MuonRecToolInterfaces/IMuonTrackBuilder.h"
 #include "MuonRecToolInterfaces/IMuonTrackRefiner.h"
-
+#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
+#include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
+#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
+#include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
+#include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+
+// Tracking EDM
 #include "TrkGeometry/MagneticFieldProperties.h"
-
 #include "TrkParameters/TrackParameters.h"
-#include "Identifier/Identifier.h"
-
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkSegment/SegmentCollection.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+
+// Local
+#include "MooTrackFitter.h"
+#include "MooCandidateMatchingTool.h"
+#include "MuPatCandidateTool.h"
+
+// Misc
 #include <vector>
+#include "Identifier/Identifier.h"
 
 class MsgStream;
 
 namespace Trk {
   class Track;
   class PrepRawData;
-  class IPropagator;
-  class IResidualPullCalculator;
-
 }
 
 namespace Muon {
-  class MuonSegment;  
-  class IMuonErrorOptimisationTool;
-  class IMuonHoleRecoveryTool;
-  class IMuonTrackExtrapolationTool;
-  class MooTrackFitter;
-  class MooCandidateMatchingTool;
-  class MuPatCandidateTool;
-  class IMuonTrackToSegmentTool;
-  class IMuonSeededSegmentFinder;
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
+  class MuonSegment;
   class MuPatCandidateBase;
   class MuPatTrack;
   class MuPatSegment;
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonCompetingClustersOnTrackCreator;
 }
 
 static const InterfaceID IID_MooTrackBuilder("Muon::MooTrackBuilder",1,0);
 
 namespace Muon {
 
-  /**  
+  /**
       @class MooTrackBuilder
 
       Tool to combine two segments or a track and a segment to a track.
-      In addition it offers the possibility to combine two segments to one larger segment. 
-      
+      In addition it offers the possibility to combine two segments to one larger segment.
+
       The tool can either be configured to perform a straight line association or an association in the magnetic field.
-      
+
       The following steps are performed:
       - simple match of the input using the MuonSegmentTrackMatcher
       - if match successfull, fit of the input using the MuonSegmentTrackFitter
@@ -82,20 +85,20 @@ namespace Muon {
   public:
     /** @brief default AlgTool constructor */
     MooTrackBuilder(const std::string&, const std::string&, const IInterface*);
-    
+
     /** @brief destructor */
-    ~MooTrackBuilder();
-    
+    ~MooTrackBuilder() = default;
+
     /** @brief initialize method, method taken from bass-class AlgTool */
     StatusCode initialize();
 
     /** @brief finialize method, method taken from bass-class AlgTool */
     StatusCode finalize();
-    
+
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MooTrackBuilder; }
 
-    /** @brief refit track 
+    /** @brief refit track
         @param track the track
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
@@ -107,7 +110,7 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    Trk::Track* combine( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry, 
+    Trk::Track* combine( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
                          const PrepVec* patternPhiHits = 0 ) const;
 
     /** @brief combine two MCTBCandidateEntries
@@ -116,7 +119,7 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    MuonSegment* combineToSegment( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry, 
+    MuonSegment* combineToSegment( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
                                    const PrepVec* patternPhiHits = 0 ) const;
 
     /** @brief combine two segments to a super segment
@@ -143,7 +146,7 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    Trk::Track* combine( const Trk::Track& track, const MuonSegment& seg, 
+    Trk::Track* combine( const Trk::Track& track, const MuonSegment& seg,
                          const PrepVec* patternPhiHits = 0 ) const;
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
@@ -159,7 +162,7 @@ namespace Muon {
         @param segInfo a reference to a MuPatSegment
         @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
      */
-    std::vector<Trk::Track*>* combineWithSegmentFinding( const MuPatTrack& candidate, 
+    std::vector<Trk::Track*>* combineWithSegmentFinding( const MuPatTrack& candidate,
                                                          const MuPatSegment& segInfo,
                                                          const PrepVec* patternPhiHits = 0 ) const;
 
@@ -171,7 +174,7 @@ namespace Muon {
         @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
      */
     std::vector<Trk::Track*>* combineWithSegmentFinding( const MuPatTrack& candidate,
-                                                         const Trk::TrackParameters& pars, 
+                                                         const Trk::TrackParameters& pars,
                                                          const std::set<Identifier>& chIds,
                                                          const PrepVec* patternPhiHits = 0 ) const;
 
@@ -182,11 +185,11 @@ namespace Muon {
         @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
      */
     std::vector<Trk::Track*>* combineWithSegmentFinding( const Trk::Track& track,
-                                                         const Trk::TrackParameters& pars, 
+                                                         const Trk::TrackParameters& pars,
                                                          const std::set<Identifier>& chIds,
                                                          const PrepVec* patternPhiHits = 0 ) const;
 
-    /** @brief find closest TrackParameters to the position. Closest is defined as closest in z in the endcap and 
+    /** @brief find closest TrackParameters to the position. Closest is defined as closest in z in the endcap and
         closest in r in the barrel.
         @param track a reference to a Track
         @param pos a reference to a GlobalPosition
@@ -223,65 +226,65 @@ namespace Muon {
 
     /** @brief look for split tracks in collection and merge them */
     TrackCollection* mergeSplitTracks( const TrackCollection& tracks ) const;
-    
-    /** 
+
+    /**
         @brief interface for tools to find track in the muon system starting from a vector of segments
         @param segments a vector of input segments in a given chamber layer
         @return a pointer to a vector of MuPatTrack objects, zero if no tracks are found.
                 The ownership of the tracks is passed to the client calling the tool.
-        
+
     */
     std::vector<MuPatTrack*>* find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const;
 
     /** @brief interface for tools which refine the hit content of a given track
-	@param track input track
-	@return new refined track. Pointer could be zero, ownership passed to caller
+        @param track input track
+        @return new refined track. Pointer could be zero, ownership passed to caller
     */
     MuPatTrack* refine( MuPatTrack& track ) const;
 
   private:
 
     void removeDuplicateWithReference( std::unique_ptr<Trk::SegmentCollection>& segments,
-				       std::vector<const MuonSegment*>& referenceSegments ) const;
+                                       std::vector<const MuonSegment*>& referenceSegments ) const;
 
 
 
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator 
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator
     insertClustersWithCompetingRotCreation( DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit,
                                             DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end,
                                             std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > >& states
                                             ) const;
-    
 
-    ToolHandle<MooTrackFitter>           m_fitter;
-    ToolHandle<MooTrackFitter>           m_slFitter;
-    ToolHandle<MuPatCandidateTool>       m_candidateHandler; //!< candidate handler
-    ToolHandle<MooCandidateMatchingTool> m_candidateMatchingTool;
-    ToolHandle<IMuonTrackToSegmentTool>  m_trackToSegmentTool;
-    ServiceHandle<IMuonEDMHelperSvc>     m_edmHelperSvc {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+
+    ToolHandle<MooTrackFitter>                        m_fitter              {this, "Fitter", "Muon::MooTrackFitter/MooTrackFitter", "Tool to fit segments to tracks"};
+    ToolHandle<MooTrackFitter>                        m_slFitter            {this, "SLFitter", "Muon::MooTrackFitter/MooSLTrackFitter", "Tool to fit segments to tracks"};
+    ToolHandle<MuPatCandidateTool>                    m_candidateHandler    {this, "CandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"}; //!< candidate handler
+    ToolHandle<MooCandidateMatchingTool>              m_candidateMatchingTool {this, "CandidateMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
+    ToolHandle<IMuonTrackToSegmentTool>               m_trackToSegmentTool  {this, "TrackToSegmentTool", "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"};
+    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc        {this, "edmHelper",
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
-    ToolHandle<MuonEDMPrinterTool>       m_printer;
-    ToolHandle<MuonIdHelperTool>         m_idHelper;
-    ToolHandle<IMuonSeededSegmentFinder> m_seededSegmentFinder;
-    ToolHandle<IMdtDriftCircleOnTrackCreator>  m_mdtRotCreator;
-    ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compRotCreator;
-    ToolHandle<Trk::IPropagator>         m_propagator;
-    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator; 
-    ToolHandle<IMuonHoleRecoveryTool>    m_hitRecoverTool ;    //<! tool to recover holes on track 
-    ToolHandle<IMuonHoleRecoveryTool>    m_muonChamberHoleRecoverTool ;    //<! tool to add holes on track 
-    ToolHandle<IMuonTrackExtrapolationTool> m_trackExtrapolationTool; //<! track extrapolation tool
+    ToolHandle<MuonEDMPrinterTool>                    m_printer             {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};//!< tool to print out EDM objects;
+    ToolHandle<MuonIdHelperTool>                      m_idHelper            {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    ToolHandle<IMuonSeededSegmentFinder>              m_seededSegmentFinder {this, "SeededSegmentFinder", "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};
+    ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator       {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
+    ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compRotCreator      {this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"};
+    ToolHandle<Trk::IPropagator>                      m_propagator          {this, "Propagator", "Trk::STEP_Propagator/MuonPropagator"};
+    ToolHandle<Trk::IResidualPullCalculator>          m_pullCalculator      {this, "PullCalculator", "Trk::ResidualPullCalculator/ResidualPullCalculator"};
+    ToolHandle<IMuonHoleRecoveryTool>                 m_hitRecoverTool      {this, "HitRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};    //<! tool to recover holes on track
+    ToolHandle<IMuonHoleRecoveryTool>                 m_muonChamberHoleRecoverTool {this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};    //<! tool to add holes on track
+    ToolHandle<IMuonTrackExtrapolationTool>           m_trackExtrapolationTool  {this, "Extrapolator", "Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"}; //<! track extrapolation tool
 
-    ToolHandle<IMuonErrorOptimisationTool> m_errorOptimisationTool;
-    ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc; 
-    Trk::MagneticFieldProperties           m_magFieldProperties; //!< magnetic field properties
+    ToolHandle<IMuonErrorOptimisationTool>            m_errorOptimisationTool {this, "ErrorOptimisationTool", ""};
+    ServiceHandle<MagField::IMagFieldSvc>             m_magFieldSvc         {this, "MagFieldSvc", "AtlasFieldSvc"};
+    Trk::MagneticFieldProperties                      m_magFieldProperties  {Trk::FullField}; //!< magnetic field properties
 
-    bool                                         m_doTimeOutChecks;    //!< on/off time out check
-    bool                                         m_useExclusionList;   //!< use exclusion list (bit faster at the price of missing chambers)
-    bool                                         m_useTrackingHistory; //!< use history of the track finding up to now to avoid creating duplicates
-    mutable unsigned int                         m_ncalls;
-    mutable unsigned int                         m_nTimedOut;
-    bool                                         m_recalibrateMDTHits;
+    Gaudi::Property<bool>                             m_doTimeOutChecks     {this,"UseTimeOutGuard" , true };    //!< on/off time out check
+    Gaudi::Property<bool>                             m_useExclusionList    {this, "UseExclusionList" , true };   //!< use exclusion list (bit faster at the price of missing chambers)
+    Gaudi::Property<bool>                             m_useTrackingHistory  {this, "UseTrackingHistory" , true }; //!< use history of the track finding up to now to avoid creating duplicates
+    Gaudi::Property<bool>                             m_recalibrateMDTHits  {this, "RecalibrateMDTHitsOnTrack" , true };
+    mutable std::atomic_uint                          m_ncalls {0};
+    mutable std::atomic_uint                          m_nTimedOut {0};
 
   };
 

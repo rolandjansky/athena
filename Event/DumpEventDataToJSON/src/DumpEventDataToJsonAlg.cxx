@@ -16,11 +16,6 @@ DumpEventDataToJsonAlg::DumpEventDataToJsonAlg(const std::string& name,
 				       ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name,pSvcLocator)
 {
-  declareProperty("OutputLocation", m_outputJSON_Name  );
-}
-
-DumpEventDataToJsonAlg::~DumpEventDataToJsonAlg()
-{ 
 }
 
 StatusCode DumpEventDataToJsonAlg::initialize()
@@ -30,7 +25,9 @@ StatusCode DumpEventDataToJsonAlg::initialize()
   ATH_CHECK( m_jetKeys.initialize() );
   ATH_CHECK( m_caloClustersKeys.initialize() );
   ATH_CHECK( m_muonKeys.initialize() );
-  if (m_extrapolateTracks) {
+  ATH_CHECK( m_trackCollectionKeys.initialize() );
+  
+  if (m_extrapolateTrackParticless) {
     ATH_CHECK( m_extrapolator.retrieve() );
   } else {
     m_extrapolator.disable();
@@ -54,6 +51,7 @@ StatusCode DumpEventDataToJsonAlg::execute ()
   ATH_CHECK(getAndFillArrayOfContainers(j, m_trackParticleKeys, "Tracks"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_muonKeys, "Muons"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_caloClustersKeys, "CaloClusters"));
+  ATH_CHECK(getAndFillArrayOfContainers(j, m_trackCollectionKeys, "Tracks"));
   
   std::string key = std::to_string(eventInfo->eventNumber()) + "/" + std::to_string(eventInfo->runNumber());
   
@@ -69,10 +67,11 @@ StatusCode DumpEventDataToJsonAlg::getAndFillArrayOfContainers(nlohmann::json& e
   for (SG::ReadHandle<TYPE> handle : keys.makeHandles() ){
     ATH_MSG_VERBOSE("Trying to load "<<handle.key());
     ATH_CHECK( handle.isValid() );  
-    ATH_MSG_VERBOSE("Got back  "<<handle->size());
+    ATH_MSG_VERBOSE("Got back "<<handle->size());
     
     for (auto object : *handle ){
-      event[jsonType][handle.key()].push_back( getData(*object) );
+      nlohmann::json tmp = getData(*object);
+      event[jsonType][handle.key()].push_back( tmp );
     }
   }
   return StatusCode::SUCCESS;
@@ -101,7 +100,7 @@ nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::CaloCluster& clust){
 }
 
 
-// Specialisation for Tracks
+// Specialisation for TracksParticles
 template <> 
 nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::TrackParticle& tp){
   nlohmann::json data;
@@ -109,7 +108,7 @@ nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::TrackParticle& tp){
   data["dof"]    = tp.numberDoF();
   data["dparams"] = { tp.d0(), tp.z0(), tp.phi0(), tp.theta(), tp.qOverP() };
   
-  if (!m_extrapolateTracks){
+  if (!m_extrapolateTrackParticless){
     data["pos"] = { { tp.perigeeParameters ().position().x(), tp.perigeeParameters ().position().y(), tp.perigeeParameters ().position().z() } };
     for (unsigned int i=0; i<tp.numberOfParameters() ; ++i ) {
       data["pos"].push_back( {tp.parameterX (i), tp.parameterY (i), tp.parameterZ (i)} );
@@ -147,6 +146,37 @@ nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::TrackParticle& tp){
       ATH_MSG_WARNING("Failure in extrapolation for Track with start parameters "<<startParameters);
     }
   }
+  return data;
+}
+
+// Specialisation for Tracks
+template <>
+nlohmann::json DumpEventDataToJsonAlg::getData(const Trk::Track &track)
+{
+  nlohmann::json data;
+  const Trk::FitQuality *quality = track.fitQuality();
+
+  data["chi2"] = (quality ? quality->chiSquared() : 0.0);
+  data["dof"] = (quality ? quality->doubleNumberDoF() : 0.0);
+
+  const Trk::Perigee *peri = track.perigeeParameters();
+  if (peri)
+  {
+    data["dparams"] = {peri->parameters()[Trk::d0], peri->parameters()[Trk::z0], peri->parameters()[Trk::phi0], peri->parameters()[Trk::theta], peri->parameters()[Trk::qOverP]};
+
+    data["pos"] = {{peri->position().x(), peri->position().y(), peri->position().z()}};
+  }
+  else
+  {
+    data["pos"] = {{}};
+  }
+
+  const DataVector<const Trk::MeasurementBase> *measurements = track.measurementsOnTrack();
+  for (auto meas : *measurements)
+  {
+    data["pos"].push_back({meas->globalPosition().x(), meas->globalPosition().y(), meas->globalPosition().z()});
+  }
+
   return data;
 }
 

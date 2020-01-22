@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include "TrigConfData/DataStructure.h"
-#include <boost/property_tree/json_parser.hpp>
 
 using TV = boost::property_tree::ptree::value_type;  // tree-value type
 using namespace std;
@@ -25,6 +24,7 @@ TrigConf::DataStructure::setData(const ptree & data)
 {
    m_initialized = true;
    m_data = data;
+   update();
 }
 
 
@@ -33,6 +33,7 @@ TrigConf::DataStructure::clear()
 {
    m_initialized = false;
    m_data.clear();
+   update();
 }
 
 bool
@@ -80,11 +81,11 @@ TrigConf::DataStructure::operator[](const std::string & key) const
 }
 
 std::string
-TrigConf::DataStructure::getAttribute(const std::string & key, bool ignoreIfMissing) const
+TrigConf::DataStructure::getAttribute(const std::string & key, bool ignoreIfMissing, const std::string & def) const
 {
    const auto & obj = m_data.get_child_optional(key);
    if( !obj && ignoreIfMissing ) {
-      return "";
+      return def;
    }
    // check if the key points to a plain string value
    if ( !obj.get().empty() ) {

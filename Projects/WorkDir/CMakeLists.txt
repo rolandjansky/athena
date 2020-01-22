@@ -53,6 +53,11 @@ endif()
 # Set up CTest:
 atlas_ctest_setup()
 
+# Generate a compile_commands.json file, which VS Code can use to interpret
+# our code correctly.
+set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL
+   "Create compile_commands.json" FORCE )
+
 # Set up a work directory project:
 set( _useFortran )
 if( ATLAS_USE_FORTRAN )
@@ -68,6 +73,17 @@ unset( _useFortran )
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
+
+# Dump some environment variables for IDE use:
+set( CMAKE_DUMP_ENV_FILE ${CMAKE_BINARY_DIR}/env.txt CACHE FILEPATH
+   "File containing dump of environment variables" )
+
+if( CMAKE_DUMP_ENV_FILE )
+   execute_process(
+      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh printenv
+      COMMAND grep -w ^PYTHONPATH
+      OUTPUT_FILE "${CMAKE_DUMP_ENV_FILE}" )
+endif()
 
 # Set up CPack:
 atlas_cpack_setup()

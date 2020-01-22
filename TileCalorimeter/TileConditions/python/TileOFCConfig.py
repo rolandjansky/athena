@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile OFC conditions tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileOFCCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile OFC conditions algorithm
@@ -96,7 +97,7 @@ def TileCondToolOfcCoolCfg(flags, **kwargs):
 
     acc.merge( TileOFCCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolOfcCool
+    TileCondToolOfcCool=CompFactory.TileCondToolOfcCool
     acc.setPrivateTools( TileCondToolOfcCool(name, TileOfc = ofc) )
 
     return acc
@@ -140,7 +141,7 @@ def TileCondToolOfcCfg(flags, **kwargs):
             autoCorrelationTool = acc.popToolsAndMerge( TileCondToolAutoCrCfg(flags) )
 
     name = 'TileCondToolOfc'
-    from TileConditions.TileConditionsConf import TileCondToolOfc
+    TileCondToolOfc=CompFactory.TileCondToolOfc
     acc.setPrivateTools( TileCondToolOfc(name,
                                          OptFilterDeltaCorrelation = optFilterDeltaCorrelation,
                                          TileCondToolPulseShape = pulseShapeTool,
@@ -176,7 +177,7 @@ if __name__ == "__main__":
 
     acc.printConfig(withDetails = True, summariseProps = True)
     print(acc.getService('IOVDbSvc'))
-    acc.store( open('TileOFC.pkl','w') )
+    acc.store( open('TileOFC.pkl','wb') )
 
     print('All OK')
 

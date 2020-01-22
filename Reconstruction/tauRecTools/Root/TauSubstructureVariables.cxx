@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************//
@@ -337,9 +337,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	float sumPtTrk(0.0);
 
 	// for tau trigger: JVF and sumPtTrack are not available
-	bool inTrigger = tauEventData()->inTrigger();
-
-	if (!inTrigger)
+	if (!m_in_trigger)
 	{
 		std::vector<float> sumPtTrkvec;
 		std::vector<float> jvfvec;

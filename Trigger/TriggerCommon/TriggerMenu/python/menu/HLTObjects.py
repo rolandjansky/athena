@@ -1,11 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import os
-import time
-import re
-import string
-from sys import settrace
 import xml.etree.cElementTree as etree
+from functools import reduce
 
 from AthenaCommon.Logging import logging  # loads logger
 
@@ -21,7 +17,7 @@ class HLTChain:
         """ HLT Signature, internal class of HLT Chain """
         def __init__(self, telist, sigcounter, logic='1'):
             self.sigcounter = sigcounter
-            if type(telist) != type([]):
+            if not isinstance (telist, list):
                 self.tes    = [ telist ]
             else:
                 self.tes    = telist
@@ -44,9 +40,9 @@ class HLTChain:
                 xSignature = etree.SubElement(xlist,'SIGNATURE',
                                               logic='1', signature_counter=str(self.sigcounter))
                 for te in self.tes:
-                    if type(te) != type(''): # check if this is a string
+                    if not isinstance(te, str): # check if this is a string
                         raise Exception("The trigger element: " + str(te) + " in the signature: " + self.sigcounter + "is not a plain string" )
-                    xTriggerElement = etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
+                    etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
                     
     # construction
     def __init__(self, chain_name, chain_counter,
@@ -111,7 +107,7 @@ class HLTChain:
         self.doChainsMerging_Order()
 
     def doChainsMerging_Order(self):
-        if type(self.chains_to_merge) != type([]):
+        if not isinstance (self.chains_to_merge, list):
             logger().error( "Not a chains list given to mergeAndAppendChains for chain: "+ self.chain_name+ " it is: "+ str(type(self.chains_to_merge)) )
             raise Exception("Incorrect usage of: mergeAndAppendChains_Order")
 
@@ -121,9 +117,7 @@ class HLTChain:
         self.siglist = copysigs[0:self.sigs_n_before_merge]
 
         # find out counter of last signature
-        last_counter = 1
         if len(self.siglist) != 0:
-            last_counter = self.siglist[-1].sigcounter
             logger().debug( "The chain: " + self.chain_name + " contains already signatures. Will align sinatures to it." )
 
 
@@ -158,7 +152,7 @@ class HLTChain:
         self.doChainsMerging() # TB this needs to be cut short as we do noeed alignements anymore (TODO remove alignChain(s) etc.)
 
     def doChainsMerging(self):
-        if type(self.chains_to_merge) != type([]):
+        if not isinstance (self.chains_to_merge, list):
             logger().error( "Not a chains list given to mergeAndAppendChains for chain: "+ self.chain_name+ " it is: "+ str(type(self.chains_to_merge)) )
             raise Exception("Incorrect usage of: mergeAndAppendChains")
 
@@ -168,13 +162,11 @@ class HLTChain:
         self.siglist = copysigs[0:self.sigs_n_before_merge]
 
         # find out counter of last signature
-        last_counter = 1
         if len(self.siglist) != 0:
-            last_counter = self.siglist[-1].sigcounter
             logger().debug( "The chain: " + self.chain_name + " contains already signatures. Will align sinatures to it." )
 
 
-        max_counter = 0;
+        max_counter = 0
         for chain in self.chains_to_merge:
             if len(chain.siglist) != 0:
                 max_counter = max(chain.siglist[-1].sigcounter, max_counter)
@@ -201,7 +193,7 @@ class HLTChain:
 
     def evaluateSignatureAfter(self, mySig, otherChain, otherChainSig):
         """ Adds chain binding. Note that at this point action is only scheduled. Real work is done be alignChain method """
-        if type(otherChain) == type(''):
+        if isinstance (otherChain, str):
             self.chainBindings.append( (mySig, otherChain, otherChainSig) )
         else:
             self.chainBindings.append( (mySig, otherChain.chain_name, otherChainSig) )
@@ -272,9 +264,9 @@ class HLTChain:
         self.stream_tag.append( (stream, type, obeyLB, prescale) )
 
     def addGroup(self, name ):
-        if type(name) == type(''):
+        if isinstance (name, str):
             self.groups += [name]
-        if type(name) == type([]):
+        if isinstance (name, list):
             self.groups += name
 
     def xml(self, xChainList):
@@ -292,15 +284,15 @@ class HLTChain:
 
         xTriggerTypeList = etree.SubElement(xChain, 'TRIGGERTYPE_LIST')
         for bit in self.trigger_type_bits:
-            xTriggerType = etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
+            etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
 
         xStreamTagList = etree.SubElement(xChain, 'STREAMTAG_LIST')
         for stream in self.stream_tag:
-            xStreamTag = etree.SubElement(xStreamTagList, 'STREAMTAG',
-                                          stream = stream[0],
-                                          type = stream[1],
-                                          obeyLB = stream[2],
-                                          prescale = str(stream[3]))
+            etree.SubElement(xStreamTagList, 'STREAMTAG',
+                             stream = stream[0],
+                             type = stream[1],
+                             obeyLB = stream[2],
+                             prescale = str(stream[3]))
             
 #         ## remove the CPS group from the EF chain    
 #         if self.chain_name.startwith("EF_"):
@@ -310,7 +302,7 @@ class HLTChain:
 
         xGroupList = etree.SubElement(xChain, 'GROUP_LIST')
         for g in self.groups:
-            xGroup = etree.SubElement(xGroupList, 'GROUP', name = g)
+            etree.SubElement(xGroupList, 'GROUP', name = g)
             
         xSignatureList = etree.SubElement(xChain, 'SIGNATURE_LIST')
         for sig in self.siglist:
@@ -333,20 +325,19 @@ class HLTSequence:
         algos is one or list of algo instances
         """
 
-        if type(inputTEs) == type(""):
-            self.input  = [ inputTEs ]
-        else:
-            self.input  = inputTEs
+        self.input  = inputTEs
+        if not isinstance (self.input, list):
+            self.input = [ self.input ]
 
-        # make algos always to be alist of ... something ...
-        if type(algos) != type([]):
+        # make algos always to be a list of ... something ...
+        if not isinstance (algos, list):
             algos = [ algos ]
         from AthenaCommon.Configurable import ConfigurableAlgorithm
         self.algs = []
         self.algInstances = [] # needed such that configurables don't go out of scope
         for alg in algos:
-            if type(alg) == type(""): # plain string
-                self.algs.append( alg );
+            if isinstance (alg, str): # plain string
+                self.algs.append( alg )
                 logger().warning("Algorithm named %s has no instance. It will not appear in the list of configurables and thus can not be run." % (alg))
             elif issubclass(type(alg), ConfigurableAlgorithm): # configurable given to us
                 self.algs.append(alg.getFullName())
@@ -373,13 +364,13 @@ class HLTSequence:
         """Generates piece of XML used to configure HLT Steering"""
         if not self.used():
             return
-        
+
         xSequence = etree.SubElement(xlist, 'SEQUENCE',
                                      input = reduce(lambda x,y: x+' '+y, self.input),
                                      output = self.output,
                                      algorithm = reduce(lambda x,y: x+' '+y, self.algs))
                                      
-        if self.topo_start_from!= None:
+        if self.topo_start_from is not None:
             xSequence.set('topo_start_from', self.topo_start_from)
 
     def dot(self, algs=True):

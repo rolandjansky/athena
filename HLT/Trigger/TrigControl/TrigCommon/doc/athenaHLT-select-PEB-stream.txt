@@ -2,7 +2,7 @@ The script
 
 athenaHLT-select-PEB-stream.py
 
-allows to select from a bystream file events which belong to a given stream and to write them to a bytestream output file which
+allows to select from a bytestream file events which belong to a given stream and to write them to a bytestream output file which
 obeys the same conventions as the files produced in P1.
 
 athenaHLT-select-PEB-stream.py -h
@@ -26,7 +26,7 @@ global "./athenaHLT-select-PEB-stream.py" options: -[DFPadhlnpsv] | --[dump-opti
  --output-dir|-d      Directory in which the output file should be written (de
                        faults to .)
  --progress-bar|-P    Show progress bar when running interactively
- --start-event|-a     Number of events which should be skippped from the begin
+ --start-event|-a     Number of events which should be skipped from the begin
                         (defaults to 0)
  --verbosity|-v       Log verbosity (defaults to 20)
 
@@ -42,9 +42,9 @@ global "./athenaHLT-select-PEB-stream.py" options: -[DFPadhlnpsv] | --[dump-opti
 Typical workflow for developers:
 --------------------------------
  
-1) Develop new slection code for a new stream and integrate it with the menu
+1) Develop new selection code for a new stream and integrate it with the menu
 
-2) run athenaHLT with the new code and write a bystream outputfile 
+2) run athenaHLT with the new code and write a bytestream output file 
 
 > athenaHLT <options> -f <input-file> -o <athenaHLT-output-file> <job-options-file>
 
@@ -52,7 +52,7 @@ The <athenaHLT-output-file> will contain all events which have triggered, includ
 
 3) Generate a P1 stream file with "athenaHLT-select-PEB-stream.py" from the athenaHLT output file
 
-> athenaHLT-select-PEB-stream.py -s <my-prefered-stream> <athenaHLT-output-file>
+> athenaHLT-select-PEB-stream.py -s <my-preferred-stream> <athenaHLT-output-file>
 
 There will be an output file produced of the form
 

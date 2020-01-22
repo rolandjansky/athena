@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 __doc__ = """FilePreStager for the castor tape system"""
 
@@ -31,9 +33,9 @@ class CastorPreStager(FilePreStager):
         try:
             f = open(filename, 'w')
             for file in listOfFiles:
-                print >>f, self.removePrefix(file)
+                print (self.removePrefix(file), file=f)
             f.close()
-        except IOError, (errno, errMsg):
+        except IOError as errMsg:
             raise FilePreStageError('Got IOError writing out list of files to stage as %s: %s' % (filename, errMsg))
         return filename
         
@@ -93,7 +95,7 @@ class CastorPreStager(FilePreStager):
 #
 # setup for castor2 for atlas  using the env values for STAGE_HOST and STAGE_SVCCLASS
 #
-print "Setting up castor 2 for ATLAS ..."
+print ("Setting up castor 2 for ATLAS ...")
 castorEnv = {}
 castorEnv['RFIO_USE_CASTOR_V2']='YES'
 if os.getenv('STAGE_HOST')!= None:
@@ -105,7 +107,7 @@ if os.getenv('STAGE_SVCCLASS')!= None:
 else:
     castorEnv['STAGE_SVCCLASS']='default'
 for n,v in castorEnv.items():
-    print "%s=%s" % (n,v)
+    print ("%s=%s" % (n,v))
 
 os.environ.update(castorEnv)
 

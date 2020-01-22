@@ -2,7 +2,7 @@
 # Job options to test ROBRequestAlgo
 #
 
-include('TriggerRelease/runHLT_standalone.py')
+include('TriggerJobOpts/runHLT_standalone_run2.py')
 
 from TrigGenericAlgs.test_roblist import robs
 from TrigGenericAlgs.test_rosmap import ros_rob_map

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationTool.h"
@@ -54,7 +54,7 @@ ActsExtrapolationTool::initialize()
     using BField_t = ATLASMagneticFieldWrapper;
     BField_t bField(m_fieldServiceHandle.get());
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
@@ -67,7 +67,7 @@ ActsExtrapolationTool::initialize()
     using BField_t = Acts::ConstantBField;
     BField_t bField(Bx, By, Bz);
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }

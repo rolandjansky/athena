@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArBadFebCondAlg=CompFactory.LArBadFebCondAlg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArKnownBadFebCfg(configFlags, tag=""):
@@ -69,7 +70,7 @@ if __name__=="__main__":
     
     cfg.merge(LArKnownBadFebCfg(ConfigFlags))
     cfg.merge(LArKnownMNBFebCfg(ConfigFlags))
-    f=open("LArBadFebCondAlgos.pkl","w")
+    f=open("LArBadFebCondAlgos.pkl","wb")
     cfg.store(f)
     f.close()
     

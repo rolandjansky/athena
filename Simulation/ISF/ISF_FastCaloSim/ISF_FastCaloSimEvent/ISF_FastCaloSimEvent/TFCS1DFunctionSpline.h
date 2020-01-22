@@ -46,8 +46,4 @@ class TFCS1DFunctionSpline:public TFCS1DFunction
   ClassDef(TFCS1DFunctionSpline,1)  //TFCS1DFunctionSpline
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS1DFunctionSpline+;
-#endif
-
 #endif

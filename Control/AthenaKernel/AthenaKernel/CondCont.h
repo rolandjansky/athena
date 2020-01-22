@@ -1,9 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-//
 /**
  * @file AthenaKernel/CondCont.h
  * @author Vakho, Charles, Scott
@@ -283,7 +280,7 @@ public:
    * The container will take ownership of this object.
    *
    * Returns SUCCESS if the object was successfully inserted;
-   * EXTENDS if the last existing range in the container was extended
+   * EXTENDED if the last existing range in the container was extended
    * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;
@@ -513,7 +510,7 @@ protected:
    * @param ctx Event context for the current thread.
    *
    * Returns SUCCESS if the object was successfully inserted;
-   * EXTENDS if the last existing range in the container was extended
+   * EXTENDED if the last existing range in the container was extended
    * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;
@@ -689,7 +686,7 @@ public:
    * The container will take ownership of this object.
    *
    * Returns SUCCESS if the object was successfully inserted;
-   * EXTENDS if the last existing range in the container was extended
+   * EXTENDED if the last existing range in the container was extended
    * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;
@@ -794,6 +791,7 @@ struct Bases<CondCont<T> >
   typedef CondContBase Base1;               
   typedef NoBase Base2;          
   typedef NoBase Base3;      
+  typedef NoBase Base4;      
 };
 } // namespace SG
 
@@ -894,7 +892,7 @@ public:
    * on the most-derived @c CondCont.
    *
    * Returns SUCCESS if the object was successfully inserted;
-   * EXTENDS if the last existing range in the container was extended
+   * EXTENDED if the last existing range in the container was extended
    * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;

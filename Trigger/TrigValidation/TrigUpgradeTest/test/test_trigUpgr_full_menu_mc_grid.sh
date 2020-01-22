@@ -5,6 +5,9 @@
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.out
+# art-output: *.err
+# art-output: *.log.tar.gz
 # art-output: *.new
 # art-output: *.json
 # art-output: *.root
@@ -15,7 +18,7 @@ export INPUT="ttbar"
 export EVENTS=1000
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="doL1Sim=True;doWriteBS=False;doWriteRDOTrigger=True;"
 

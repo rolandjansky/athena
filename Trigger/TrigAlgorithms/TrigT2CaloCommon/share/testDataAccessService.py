@@ -1,9 +1,11 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 doEmptyMenu=True
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -20,7 +22,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 if TriggerFlags.doCalo:
 
   if ( True ) :
-     from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     
      from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc#, TestCaloDataAccess
      import math
@@ -41,10 +43,13 @@ if TriggerFlags.doCalo:
      #from TrigUpgradeTest.TestUtils import L1DecoderTest
      #l1DecoderTest=L1DecoderTest()
      #topSequence+=l1DecoderTest
+
+     from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection 
     
-     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker, HLTCaloCellSumMaker
+     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+     from TrigCaloRec.TrigCaloRecConf import HLTCaloCellSumMaker
      algo1=HLTCaloCellMaker("testFastAlgo1")
-     algo1.RoIs="StoreGateSvc+EMRoIs"
+     algo1.RoIs=mapThresholdToL1RoICollection("EM")
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
      #algo1.roiMode=False
      algo1.OutputLevel=VERBOSE
@@ -60,16 +65,7 @@ if TriggerFlags.doCalo:
   algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")
   algo.OutputLevel=VERBOSE
 
-  algo.RoIs="StoreGateSvc+EMRoIs"
+  algo.RoIs=mapThresholdToL1RoICollection("EM")
   topSequence += algo
 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
-generateJSON()
-
-from TriggerJobOpts.TriggerFlags import TriggerFlags    
-hltJsonFile = TriggerFlags.inputHLTconfigFile().replace(".xml",".json").replace("HLTconfig","HLTmenu")
-from TrigConfigSvc.TrigConfigSvcConfig import HLTConfigSvc, findFileInXMLPATH
-hltJsonFile = findFileInXMLPATH(hltJsonFile)
-svcMgr += HLTConfigSvc()
-svcMgr.HLTConfigSvc.JsonFileName = hltJsonFile

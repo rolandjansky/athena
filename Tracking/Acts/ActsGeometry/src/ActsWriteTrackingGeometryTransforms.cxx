@@ -59,11 +59,11 @@ StatusCode ActsWriteTrackingGeometryTransforms::execute() {
     }
 
     gid geoID = srf->geoID();
-    os << geoID.value(gid::volume_mask) << ";";
-    os << geoID.value(gid::boundary_mask) << ";";
-    os << geoID.value(gid::layer_mask) << ";";
-    os << geoID.value(gid::approach_mask) << ";";
-    os << geoID.value(gid::sensitive_mask) << ";";
+    os << geoID.volume() << ";";
+    os << geoID.boundary() << ";";
+    os << geoID.layer() << ";";
+    os << geoID.approach() << ";";
+    os << geoID.sensitive() << ";";
 
     os << ctx.eventID().event_number() << ";";
 

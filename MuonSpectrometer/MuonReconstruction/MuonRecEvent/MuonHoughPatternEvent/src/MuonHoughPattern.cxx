@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
 #include "CxxUtils/sincos.h"
 
-MuonHoughPattern::MuonHoughPattern(int id_number,bool ownhits):MuonHoughHitContainer(ownhits),m_id_number(id_number),m_whichsegment(false),m_ephi(-MuonHough::Pi/2.),m_erphi(0.),m_etheta(MuonHough::Pi/2.), m_ertheta(0.),m_ecurvature(1.),m_maximumhistogram(0.)
+MuonHoughPattern::MuonHoughPattern(int id_number,bool ownhits):MuonHoughHitContainer(ownhits),m_id_number(id_number),m_whichsegment(false),m_ephi(-M_PI/2.),m_erphi(0.),m_etheta(M_PI/2.), m_ertheta(0.),m_ecurvature(1.),m_maximumhistogram(0.)
 {
 }
 
@@ -99,7 +99,7 @@ double MuonHoughPattern::calculateEZ()const
     {
       // for each hit the distance from the hit to x,y line through (0,0) in the xy plane is calcualted and then distance*cos(theta) gives z_hit - z
 
-      double distance = m_muonhoughmathutils.signedDistanceToLine(getHit(hitno)->getHitx(),getHit(hitno)->getHity(),0,m_ephi - MuonHough::Pi);
+      double distance = m_muonhoughmathutils.signedDistanceToLine(getHit(hitno)->getHitx(),getHit(hitno)->getHity(),0,m_ephi - M_PI);
       
       double z = getHit(hitno)->getHitz() - (distance * std::cos(m_etheta) / std::sin(m_etheta)); // distance * sin (m_etheta) = L  // - sign correct?
       // hough correction in here?
@@ -283,7 +283,7 @@ void MuonHoughPattern::updateParametersRPhi(bool cosmics)
 
   double phi = std::atan2(sumy,sumx);
   if (cosmics == true) {
-    if (phi > 0) phi -= MuonHough::Pi; // phi between 0,-Pi for cosmics! 
+    if (phi > 0) phi -= M_PI; // phi between 0,-Pi for cosmics! 
   }
 
   //  std::cout << "phi: << : " << phi << std::endl;

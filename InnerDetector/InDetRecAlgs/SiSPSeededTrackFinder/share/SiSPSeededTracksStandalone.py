@@ -88,7 +88,7 @@ globalflags.DetGeo="atlas"
 globalflags.InputFormat="bytestream"
 globalflags.DataSource="data"
 if doPrint:
-    print globalflags
+    printfunc (globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -578,6 +578,7 @@ if not doBeamSpot:
 
 # Set up SiSPSeededTrackFinder (alg)
 # InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
+from InDetRecExample import TrackingCommon as TrackingCommon
 from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDetSiSpTrackFinder"+NewTrackingCuts.extension(),
                                                           TrackTool      = InDetSiTrackMaker,
@@ -585,6 +586,7 @@ InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDe
                                                           SeedsTool      = InDetSiSpacePointsSeedMaker,
                                                           useZvertexTool = InDetFlags.useZvertexTool() and NewTrackingCuts.mode() != "DBM",
                                                           ZvertexTool    = InDetZvertexMaker,
+                                                          TrackSummaryTool = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch(), 
                                                           useNewStrategy = InDetFlags.useNewSiSPSeededTF() and NewTrackingCuts.mode() != "DBM",
                                                           useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                           useZBoundFinding = NewTrackingCuts.doZBoundary() and NewTrackingCuts.mode() != "DBM")
@@ -596,14 +598,14 @@ if not doSCT:
     InDetSiSPSeededTrackFinder.SpacePointsSCTName = ""
 
 if doPrint:
-    print InDetSiSPSeededTrackFinder
+    printfunc (InDetSiSPSeededTrackFinder)
 if numThreads >= 2:
     InDetSiSPSeededTrackFinder.Cardinality = numThreads
 topSequence += InDetSiSPSeededTrackFinder
 
 # Print algorithms
 if doPrint:
-    print topSequence
+    print (topSequence)
 
 # Set the number of events to be processed
 theApp.EvtMax = EvtMax

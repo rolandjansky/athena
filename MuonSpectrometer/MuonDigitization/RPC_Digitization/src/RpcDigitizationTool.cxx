@@ -52,6 +52,27 @@
 #include <iostream>
 #include <fstream>
 
+//12 charge points, 15 BetaGamma points, 180 efficiency points for fcp search
+namespace {
+  constexpr int N_Charge = 12;
+  constexpr int N_Velocity = 15;
+  constexpr double Charge[N_Charge] = {0.1, 0.2, 0.3, 0.33, 0.4, 0.5, 0.6, 0.66, 0.7, 0.8, 0.9, 1.0};
+  constexpr double Velocity[N_Velocity] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.0, 3.0, 10.0, 100.0,1000.0};
+  constexpr double Eff_garfield[N_Charge][N_Velocity] = {
+    {0.8648,0.3476,0.1407,0.0618,0.0368,0.0234,0.0150,0.0120,0.0096,0.0079,0.0038,0.0041,0.0035,0.0049,0.0054},
+    {0.9999,0.9238,0.6716,0.4579,0.3115,0.2238,0.1727,0.1365,0.1098,0.0968,0.0493,0.0451,0.0528,0.0694,0.0708},
+    {1.0000,0.9978,0.9517,0.8226,0.6750,0.5611,0.4674,0.3913,0.3458,0.3086,0.1818,0.1677,0.1805,0.2307,0.2421},
+    {1.0000,0.9994,0.9758,0.8918,0.7670,0.6537,0.5533,0.4856,0.4192,0.3852,0.2333,0.2186,0.2479,0.2957,0.2996},
+    {1.0000,1.0000,0.9972,0.9699,0.9022,0.8200,0.7417,0.6660,0.6094,0.5622,0.3846,0.3617,0.3847,0.4578,0.4583},
+    {1.0000,1.0000,0.9998,0.9956,0.9754,0.9479,0.9031,0.8604,0.8126,0.7716,0.5827,0.5545,0.5865,0.6834,0.6706},
+    {1.0000,1.0000,1.0000,0.9997,0.9968,0.9876,0.9689,0.9464,0.9221,0.8967,0.7634,0.7385,0.7615,0.8250,0.8309},
+    {1.0000,1.0000,1.0000,1.0000,0.9995,0.9952,0.9866,0.9765,0.9552,0.9427,0.8373,0.8127,0.8412,0.8899,0.8891},
+    {1.0000,1.0000,1.0000,1.0000,0.9995,0.9981,0.9918,0.9803,0.9754,0.9602,0.8730,0.8564,0.8746,0.9178,0.9261},
+    {1.0000,1.0000,1.0000,1.0000,1.0000,0.9993,0.9990,0.9951,0.9935,0.9886,0.9419,0.9277,0.9422,0.9686,0.9700},
+    {1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.9998,0.9996,0.9980,0.9966,0.9786,0.9718,0.9748,0.9875,0.9882},
+    {1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,0.9998,1.0000,0.9991,0.9988,0.9913,0.9872,0.9917,0.9970,0.9964}};
+} // fixed arrays for FCP search
+
 
 using namespace MuonGM;
 #define SIG_VEL 4.8  // ns/m
@@ -524,17 +545,9 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 
       ATH_MSG_DEBUG  ( "Global time " << globalHitTime << " G4 time " << G4Time  << " Bunch time " << bunchTime       );
 
-      //std::cout << "Global time " << globalHitTime << " G4 time " << G4Time
-      //          << " Bunch time " << bunchTime      <<  std::endl;
-
       if (m_validationSetup){
-	  RPCSimHit* copyHit = new RPCSimHit(idHit, globalHitTime, hit.localPosition(), hit.trackNumber(),
-					     hit.postLocalPosition(), hit.energyDeposit(), hit.stepLength(), 
-					     hit.particleEncoding(), hit.kineticEnergy());
-	  ATH_MSG_VERBOSE("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime);
-	  ATH_MSG_VERBOSE("Validation:  "<<copyHit->print());
-	  
-	inputSimHitColl->Insert(*copyHit);
+        ATH_MSG_VERBOSE("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime);	  
+        inputSimHitColl->Emplace(idHit, globalHitTime, hit.localPosition(), hit.trackNumber(), hit.postLocalPosition(), hit.energyDeposit(), hit.stepLength(), hit.particleEncoding(), hit.kineticEnergy());
       }
 
       // convert sim id helper to offline id
@@ -590,7 +603,7 @@ StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer
 
       const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(atlasRpcIdeta);// first add time jitter to the time:
 
-      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine).isFailure()) return StatusCode::FAILURE ;
+      if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine, hit).isFailure()) return StatusCode::FAILURE ;
       ATH_MSG_DEBUG ( "SetPhiOn " << m_SetPhiOn << " SetEtaOn " <<  m_SetEtaOn );
 
       for( int imeasphi=0 ;  imeasphi!=2;  ++imeasphi){
@@ -1675,7 +1688,7 @@ StatusCode RpcDigitizationTool::readParameters(){
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine) {
+StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcStrip, const Identifier* IdPhiRpcStrip, bool& undefinedPhiStripStatus, CLHEP::HepRandomEngine* rndmEngine, const RPCSimHit& thehit) {
 
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in DetectionEfficiency" );
 
@@ -2025,6 +2038,25 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const Identifier* IdEtaRpcSt
       }
 
     }
+
+  //Efficiency correction factor for fractional-charged particles(added by Quanyin Li: quli@cern.ch)
+  //link to truth particles and calculate the charge and betagamma
+  const HepMcParticleLink& trkParticle = thehit.particleLink();
+  const HepMC::GenParticle* genparticle = trkParticle.cptr();
+  if(genparticle){
+    const int particlePdgId = genparticle->pdg_id();
+    //only apply efficiency correction to fractional-charged particles based on pdgId betagamma
+    if((static_cast<int>(std::abs(particlePdgId)/10000000) == 2) && (static_cast<int>(std::abs(particlePdgId)/100000) == 200)) {
+      const double eff_sf = FCPEfficiency(genparticle);
+      //Apply scale factor to the 3 Eff.
+      PhiAndEtaEff = PhiAndEtaEff * eff_sf;
+      OnlyEtaEff = OnlyEtaEff * eff_sf;
+      OnlyPhiEff = OnlyPhiEff * eff_sf;
+
+    }
+  }
+
+
 
   float I0	  = PhiAndEtaEff			    ;
   float I1	  = PhiAndEtaEff +  OnlyEtaEff  	    ;
@@ -2884,4 +2916,67 @@ double time_correction(double x, double y, double z)
 {
   double speed_of_light = 299.792458;     // mm/ns
   return sqrt(x*x+y*y+z*z)/speed_of_light; //FIXME use CLHEP::c_light
+}
+double RpcDigitizationTool::FCPEfficiency(const HepMC::GenParticle* genParticle)
+{
+  double qcharge = 1.;
+  double qbetagamma = -1.;
+  const int particlePdgId = genParticle->pdg_id();
+  //charge calculation
+  qcharge = (static_cast<double>((std::abs(particlePdgId) / 1000) % 100)) / (static_cast<double>((std::abs(particlePdgId) / 10) % 100));
+  qcharge = ((static_cast<double>((static_cast<int>(qcharge*100)))))/100;
+  if(particlePdgId < 0.0) qcharge = -qcharge;
+  //BetaGamma calculation
+  const double QPx = genParticle->momentum().px();
+  const double QPy  = genParticle->momentum().py();
+  const double QPz  = genParticle->momentum().pz();
+  const double QE  = genParticle->momentum().e();
+  const double QM2  = std::pow(QE,2)-std::pow(QPx,2)-std::pow(QPy,2)-std::pow(QPz,2);
+  const double QP = std::sqrt(std::pow(QPx,2)+std::pow(QPy,2)+std::pow(QPz,2));
+  double QM;
+  if(QM2>=0.){QM = std::sqrt(QM2);}
+  else {QM = -1.0;}
+  if(QM>0.){qbetagamma = QP/QM;}
+  else {qbetagamma = -1.0;}
+
+  //find the i in the array
+  int i_e = -1;
+  for(int i=0;i<12;i++){
+    if(Charge[i] == std::fabs(qcharge)){i_e = i;break;}
+  }
+  int i_v = -99, j_v = 99;
+  if(qbetagamma != -1){
+    for(int i=0;i<15;i++){
+      if(Velocity[i] <= qbetagamma){i_v = i;}
+    }
+    for(int i=14;i>=0;i--){
+      if(Velocity[i] >= qbetagamma){j_v = i;}
+    }
+  }
+  //calculate the efficiency according to charge and velocity. Using linear function to calculate efficiency of a specific velocity between velocity1 and velocity2
+  double eff_fcp = 1.0 , eff_muon = 1.0;
+  const double delta_v = Velocity[i_v] - Velocity[j_v] ;
+  if(i_e >= 0 && i_e <=11){
+    if(j_v>=0 && j_v<=14 && i_v>=0 && i_v<=14 && (j_v - i_v)==1){
+      eff_fcp = ( Eff_garfield[i_e][i_v] - Eff_garfield[i_e][j_v] ) / delta_v * qbetagamma + ( Eff_garfield[i_e][j_v] * Velocity[i_v] - Eff_garfield[i_e][i_v] * Velocity[j_v] ) / delta_v ;
+      eff_muon = ( Eff_garfield[11][i_v] - Eff_garfield[11][j_v] ) / delta_v * qbetagamma + ( Eff_garfield[11][j_v] * Velocity[i_v] - Eff_garfield[11][i_v] * Velocity[j_v] ) / delta_v ;
+    }
+    else if(i_v == 14 && j_v == 99){
+      eff_fcp = Eff_garfield[i_e][14];
+      eff_muon = Eff_garfield[11][14];
+    }
+    else if(i_v == -99 && j_v == 0){
+      eff_fcp = Eff_garfield[i_e][0];
+      eff_muon = Eff_garfield[11][0];
+    }
+    else {
+      ATH_MSG_WARNING ( "Wrong particle with unknown velocity! Scale factor is set to be 1." );
+    }
+  }
+  else {
+    ATH_MSG_WARNING ( "Wrong particle with unknown charge! Scale factor is set to be 1." );
+  }
+  //A scale factor is calculated by efficiency of fcp / efficiency of muon(charge==1.0
+  const double eff_SF = eff_fcp / eff_muon ;
+  return eff_SF;
 }

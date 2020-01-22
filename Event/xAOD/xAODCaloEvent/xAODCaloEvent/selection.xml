@@ -22,12 +22,15 @@
   </read>
   <class name="xAOD::CaloClusterContainer_v1"
          id="24997BCA-3F6A-4530-8826-822EE9FC3C08" />
+  <typedef name="xAOD::CaloClusterContainer" />
+  <typedef name="xAOD::CaloCluster" />
 
   <class name="xAOD::CaloClusterAuxContainer_v1"
          id="CE498B3B-A32D-43A3-B9B3-C13D136BACFC" />
 
   <class name="xAOD::CaloClusterAuxContainer_v2"
          id="451393B0-69CD-11E4-A739-02163E00A64D" />
+  <typedef name="xAOD::CaloClusterAuxContainer" />
 
   <!-- Link types pointing at clusters: -->
   <class name="DataLink<xAOD::CaloClusterContainer_v1>" />
@@ -41,6 +44,8 @@
   <class name="xAOD::CaloClusterBadChannelData_v1" />
   <class name="std::vector<xAOD::CaloClusterBadChannelData_v1>" />
   <class name="std::vector< std::vector<xAOD::CaloClusterBadChannelData_v1> >" />
+  <typedef name="xAOD::CaloClusterBadChannelData" />
+  <typedef name="xAOD::CaloClusterBadChannelList" />
   
 
   <!-- CaloTower(Container) -->
@@ -53,9 +58,12 @@
 
   <class name="xAOD::CaloTowerContainer_v1"
 	 id="EEA02A0F-98D3-464D-BAF1-1C944A700B8A" />
+  <typedef name="xAOD::CaloTowerContainer" />
+  <typedef name="xAOD::CaloTower" />
 
   <class name="xAOD::CaloTowerAuxContainer_v1"
 	 id="CE74E4D1-D2F4-4CED-8191-EC26D8836575" />
+  <typedef name="xAOD::CaloTowerAuxContainer" />
 
   <class name="xAOD::CaloTowerContainerBase_v1" />
 
@@ -72,6 +80,7 @@
   <class name="std::bitset<3>" />
   <class name="xAOD::CaloVertexedClusterBase"/>
   <class name="xAOD::CaloVertexedTopoCluster"/>
+  <class name="std::vector<std::vector<std::pair<unsigned int, double > > >"/>
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

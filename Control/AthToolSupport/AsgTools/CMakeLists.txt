@@ -12,9 +12,9 @@ if( XAOD_STANDALONE )
    set( deps Control/xAODRootAccessInterfaces Control/xAODRootAccess )
    set( libs xAODRootAccessInterfaces xAODRootAccess )
 else()
-   set( deps Control/xAODRootAccess Control/AthenaBaseComps Control/AthenaKernel Database/IOVDbDataModel
+   set( deps Control/xAODRootAccess Control/AthenaBaseComps Control/AthenaKernel
       GaudiKernel )
-   set( libs AthenaBaseComps AthenaKernel IOVDbDataModel GaudiKernel )
+   set( libs AthenaBaseComps AthenaKernel GaudiKernel )
 endif()
 
 # Declare the package's dependencies:

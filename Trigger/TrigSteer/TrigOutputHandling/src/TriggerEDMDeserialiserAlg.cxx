@@ -19,7 +19,7 @@
 #include "RootUtils/Type.h"
 
 #include "TriggerEDMDeserialiserAlg.h"
-
+#include "TriggerEDMCLIDs.h"
 
 class TriggerEDMDeserialiserAlg::WritableAuxStore : public SG::AuxStoreInternal {
 public:
@@ -102,7 +102,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
   size_t  buffSize = m_initialSerialisationBufferSize;
   std::unique_ptr<char[]> buff( new char[buffSize] );
 
-  // returns a char* buffer that is at minimum as bg as specified in the argument
+  // returns a char* buffer that is at minimum as large as specified in the argument
   auto resize = [&]( size_t neededSize )  {
 		  if ( neededSize > buffSize ) {
 		    buffSize = neededSize;
@@ -110,18 +110,24 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 		  }
 		};  
 
-
+  // the pointers defined below need to be used in decoding consecutive fragments of xAOD containers: 1) xAOD interface, 2) Aux store, 3) decorations
+  // invalid conditions are: invalid interface pointer when decoding Aux store
+  //                         invalid aux store and interface when decoding the decoration
+  // these pointer should be invalidated when: decoding TP containers, aux store when decoding the xAOD interface 
   WritableAuxStore* currentAuxStore = nullptr; // set when decoding Aux
+  SG::AuxVectorBase* xAODInterfaceContainer = nullptr; // set when decoding xAOD interface
+  
   int fragmentCount = 0;
   PayloadIterator start = dataptr->begin();
   while ( start != dataptr->end() )  {
     fragmentCount++;
     const CLID clid{ collectionCLID( start ) };
+    std::string transientTypeName;
+    ATH_CHECK( m_clidSvc->getTypeNameOfID( clid, transientTypeName ) );
     const std::vector<std::string> descr{ collectionDescription( start ) };
-    ATH_CHECK( descr.size() == 3 );
-    std::string transientTypeName{ descr[0] };
-    std::string persistentTypeName{ descr[1] };
-    const std::string key{ descr[2] };
+    ATH_CHECK( descr.size() == 2 );
+    std::string persistentTypeName{ descr[0] };
+    const std::string key{ descr[1] };
     const size_t bsize{ dataSize( start ) };
 
     ATH_MSG_DEBUG( "" );
@@ -170,20 +176,31 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       if ( proxyPtr == nullptr )  {
 	ATH_MSG_WARNING( "Recording of object of CLID " << clid << " and name " << outputName << " failed" );
       }
-      
-      if ( isxAODAuxContainer )  {
+
+      if ( isxAODInterfaceContainer ) {
+	currentAuxStore = nullptr; // the store will be following, setting it to nullptr assure we catch issue with of missing Aux
+	xAODInterfaceContainer = reinterpret_cast<SG::AuxVectorBase*>(dataBucket->object());
+      } else if ( isxAODAuxContainer )  {
 	ATH_CHECK( key.back() == '.' );
 	ATH_CHECK( std::count( key.begin(), key.end(), '.')  == 1 );
+	ATH_CHECK( currentAuxStore == nullptr );
+	ATH_CHECK( xAODInterfaceContainer != nullptr );
+	
 	xAOD::AuxContainerBase* auxHolder = reinterpret_cast<xAOD::AuxContainerBase*>(dataBucket->object());
-	ATH_CHECK( auxHolder != nullptr );	
+	ATH_CHECK( auxHolder != nullptr );
+	xAODInterfaceContainer->setStore( auxHolder );
 	currentAuxStore = new WritableAuxStore();
 	auxHolder->setStore( currentAuxStore );
-      }  else {
+      } else {
 	currentAuxStore = nullptr;
+	xAODInterfaceContainer = nullptr; // invalidate xAOD related pointers	
       }
 
-    } else if ( isxAODDecoration ) {      
-      ATH_CHECK( deserialiseDynAux( transientTypeName, persistentTypeName, key, obj, currentAuxStore) );
+
+    } else if ( isxAODDecoration ) {
+      ATH_CHECK( currentAuxStore != nullptr );
+      ATH_CHECK( xAODInterfaceContainer != nullptr );
+      ATH_CHECK( deserialiseDynAux( transientTypeName, persistentTypeName, key, obj, currentAuxStore, xAODInterfaceContainer ) );
     }
   }
   return StatusCode::SUCCESS;
@@ -192,29 +209,35 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 
 
 StatusCode TriggerEDMDeserialiserAlg::deserialiseDynAux( const std::string& transientTypeName, const std::string& persistentTypeName, const std::string& decorationName,
-							 void* obj,   WritableAuxStore* currentAuxStore ) const {
+							 void* obj,   WritableAuxStore* currentAuxStore, SG::AuxVectorBase* interfaceContainer ) const {
   const bool isPacked = persistentTypeName.find("SG::PackedContainer") != std::string::npos;      
 
   SG::AuxTypeRegistry& registry = SG::AuxTypeRegistry::instance();     
   SG::auxid_t id = registry.findAuxID ( decorationName );
   if (id != SG::null_auxid ) {
     if ( stripStdVec( registry.getVecTypeName(id) ) != stripStdVec(transientTypeName) ) {
-      ATH_MSG_INFO( "Schema evolution required for decoration " << decorationName << " from " << transientTypeName << " to "  <<  registry.getVecTypeName( id ) << " not handled yet"); 
+      ATH_MSG_INFO( "Schema evolution required for decoration \"" << decorationName << "\" from " << transientTypeName << " to "  <<  registry.getVecTypeName( id ) << " not handled yet"); 
       return StatusCode::SUCCESS;
     }
   } else {
       std::string elementTypeName;
       const std::type_info* elt_tinfo = getElementType( transientTypeName, elementTypeName );
       ATH_CHECK( elt_tinfo != nullptr );
-      ATH_MSG_DEBUG( "Dynamic decoration: " << decorationName << " of type " << transientTypeName << " will create a dynamic ID, stored type" << elementTypeName );    
+      ATH_MSG_DEBUG( "Dynamic decoration: \"" << decorationName << "\" of type " << transientTypeName << " will create a dynamic ID, stored type" << elementTypeName );    
       id = SG::getDynamicAuxID ( *elt_tinfo, decorationName, elementTypeName, transientTypeName, false );
   }        
-  ATH_MSG_DEBUG( "Unstreaming decoration " << decorationName << " of type " << transientTypeName  << " aux ID " << id << " class " << persistentTypeName << " packed " << isPacked  );  
-  std::unique_ptr<SG::IAuxTypeVector> vec( registry.makeVectorFromData (id, obj, isPacked, true) );
+  ATH_MSG_DEBUG( "Unstreaming decoration \"" << decorationName << "\" of type " << transientTypeName  << " aux ID " << id << " class " << persistentTypeName << " packed " << isPacked  );  
+  std::unique_ptr<SG::IAuxTypeVector> vec( registry.makeVectorFromData (id, obj, isPacked, true) ); 
   ATH_CHECK( vec.get() != nullptr );
-  ATH_CHECK( currentAuxStore != nullptr );
-  currentAuxStore->addVector(id, std::move(vec), false);
-    
+  ATH_MSG_DEBUG("Size for \"" << decorationName << "\" " << vec->size() << " interface " << interfaceContainer->size_v() );
+  ATH_CHECK( vec->size() == interfaceContainer->size_v() );
+  if ( vec->size() != 0 ) {
+    ATH_CHECK( currentAuxStore != nullptr );
+    currentAuxStore->addVector(id, std::move(vec), false);    
+    // trigger loading of the dynamic varaibles
+    SG::AuxElement::TypelessConstAccessor accessor( decorationName );
+    accessor.getDataArray( *interfaceContainer );
+  }
   return StatusCode::SUCCESS;  
 }
 
@@ -223,7 +246,7 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
 		 << (isxAODInterfaceContainer ?" xAOD Interface Container":"" ) 
 		 << (isxAODAuxContainer ?" xAOD Aux Container ":"" ) 
 		 << ( isDecoration ? " xAOD Decoration" : "") 
-		 << ( isTPContainer ? " T/P Contianer " : "") );
+		 << ( isTPContainer ? " T/P Container " : "") );
   
   const std::vector<bool> typeOfContainer( { isxAODInterfaceContainer, isxAODAuxContainer, isDecoration, isTPContainer } );			     
   const size_t count = std::count( typeOfContainer.begin(), typeOfContainer.end(), true );
@@ -231,12 +254,12 @@ StatusCode TriggerEDMDeserialiserAlg::checkSanity( const std::string& transientT
     ATH_MSG_ERROR( "Could not recognise the kind of container " << transientTypeName );
     return StatusCode::FAILURE;
   } else if (count > 1 ) {
-    ATH_MSG_ERROR( "Ambigous container kind deduced from the transient type name " << transientTypeName );
+    ATH_MSG_ERROR( "Ambiguous container kind deduced from the transient type name " << transientTypeName );
     ATH_MSG_ERROR( "Recognised type as: " 
 		   << (isxAODInterfaceContainer ?" xAOD Interface Context":"" ) 
 		   << (isxAODAuxContainer ?" xAOD Aux Container ":"" ) 
 		   << ( isDecoration ? " xAOD Decoration" : "") 
-		   << ( isTPContainer ? " T/P Contianer " : "") );
+		   << ( isTPContainer ? " T/P Container " : "") );
     return StatusCode::FAILURE;    
   }
   return StatusCode::SUCCESS;
@@ -260,6 +283,6 @@ size_t TriggerEDMDeserialiserAlg::dataSize( TriggerEDMDeserialiserAlg::PayloadIt
 void TriggerEDMDeserialiserAlg::toBuffer( TriggerEDMDeserialiserAlg::PayloadIterator start, char* buffer ) const {
   // move to the beginning of the buffer memory
   PayloadIterator dataStart =  start + NameOffset + nameLength(start) + 1 /*skip size*/;
-  // we rely on continous memory layout of std::vector ...
+  // we rely on continuous memory layout of std::vector ...
   std::memcpy( buffer, &(*dataStart), dataSize( start ) );
 }

@@ -32,9 +32,9 @@ public:
 
   /** Abstract base class virtual destructor */
   virtual ~IMultiComponentStateMerger(){};
-
-  /** Method for merging components based on some criteria of selection */
-  virtual std::unique_ptr<MultiComponentState> merge(const MultiComponentState&) const = 0;
+  
+  /** Method for merging components - ownership of objects is passed */
+  virtual std::unique_ptr<MultiComponentState> merge(Trk::MultiComponentState) const = 0;
 };
 
 } // end Trk namespace

@@ -102,6 +102,7 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
                                                                const std::vector<bool>& mask,
                                                                CaloExtensionCollection& caloextensions) const{
   const size_t numparticles=particles.size();   
+  
   if(mask.size()!=numparticles){
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
     return StatusCode::FAILURE;
@@ -237,8 +238,17 @@ ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars,
 
   // pointers to hold results and go
   std::vector<const TrackStateOnSurface*>* material = nullptr;
-  const auto* caloParameters = m_extrapolator->extrapolate( startPars, propDir, particleType, material, 3 ); 
-  if( material ) {
+ 
+  /* The last argument to the extrapolate  overload 
+   * corresponds  to a GeometrySignature value from
+   * TrkDetDescrUtils/TrkGeometrySignature.h
+   * The extrapolation stop at 
+   * the indicated subdetector exit
+   */
+
+  const std::vector<std::pair<const Trk::TrackParameters *,int>>* caloParameters=
+    m_extrapolator->extrapolate(startPars, propDir, particleType, material, 3);
+  if (material) {
     ATH_MSG_DEBUG("Got material " << material->size() );
     for( auto& m : *material ) {
       ATH_MSG_DEBUG(
@@ -300,8 +310,11 @@ ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars,
         if(p.first->covariance()){
           covariance=new AmgSymMatrix(5)(*(p.first->covariance()));
         }
-        /*Note that the curvilinear parameters (cpars) now own the covariance
-         * it will be deleted by the ParameterT dtor*/
+        /* Note that we need to clone because the parameters are const and
+         * and we change the id.
+         * Perhaps something to consider/fix when the Extrapolator/Extrapolator
+         * interface get updated.
+         */
         const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),
                                                                        p.first->momentum(),
                                                                        p.first->charge(),

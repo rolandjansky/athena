@@ -1,10 +1,20 @@
+from __future__ import print_function
+
 from eflowRec import eflowRecConf
 from InDetTrackSelectionTool import InDetTrackSelectionToolConf
+
+# Use the appropriate containers based on what config is desired
+trackvtxcontainers = {
+    "offline":  ("InDetTrackParticles","PrimaryVertices"),
+    "ftf":      ("HLT_xAODTracks_FS","HLT_EFHistoPrmVtx"),
+    }
+
 # PFTrackSelector
 # This handles the track selection (including lepton veto)
 # and extrapolation into the calorimeter.
 # Parameters: track & vertex container names (offline, HLT, FTK)
-def getPFTrackSel(tracksin, verticesin):
+def getPFTrackSel(tracktype):
+    tracksin,verticesin = trackvtxcontainers[tracktype]
 
     # Configure the extrapolator
     def getExtrapolator():
@@ -13,12 +23,16 @@ def getPFTrackSel(tracksin, verticesin):
         # from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
-        return Trk__ParticleCaloExtensionTool(Extrapolator = InDetTrigExtrapolator)
+        return Trk__ParticleCaloExtensionTool("HLTPF_ParticleCaloExtension",Extrapolator = InDetTrigExtrapolator)
 
-    TrackCaloExtensionTool = eflowRecConf.eflowTrackCaloExtensionTool(TrackCaloExtensionTool=getExtrapolator())
+    TrackCaloExtensionTool = eflowRecConf.eflowTrackCaloExtensionTool("HLTPF_eflowTrkCaloExt",TrackCaloExtensionTool=getExtrapolator())
+    # Don't assume the existence of a pre-built cache
+    # We expect to run PF at most once per event, and not overlap with
+    # other use cases like taus
+    TrackCaloExtensionTool.PFParticleCache = ""
 
     # Configure the track selector
-    PFTrackSelector = eflowRecConf.PFTrackSelector("PFTrackSelector")
+    PFTrackSelector = eflowRecConf.PFTrackSelector("PFTrackSelector_"+tracktype)
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
     TrackSelectionTool = InDetTrackSelectionToolConf.InDet__InDetTrackSelectionTool(
@@ -43,7 +57,7 @@ def getPFTrackSel(tracksin, verticesin):
 # For HLT purposes, no LC calibration is applied and only
 # one essential moment (CENTER_MAG) is computed. This is
 # needed for origin corrections.
-def getPFAlg(clustersin):
+def getPFAlg(clustersin,tracktype):
 
     # The tool to handle cell-level subtraction, default parameters
     CellEOverPTool = eflowRecConf.eflowCellEOverPTool_mc12_JetETMiss()
@@ -55,6 +69,7 @@ def getPFAlg(clustersin):
         matchingtool.ClusterPositionType = 'PlainEtaPhi' # str
         matchingtool.DistanceType        = 'EtaPhiSquareDistance' # str
         matchingtool.MatchCut = matchcut*matchcut
+        return matchingtool
 
     # Default energy subtraction where a single cluster satisfies the expected
     # track calo energy
@@ -93,7 +108,7 @@ def getPFAlg(clustersin):
     pfClusterSel = eflowRecConf.PFClusterSelectorTool("PFClusterSelectorTool",
         clustersName=clustersin,
         calClustersName="")
-    PFAlgorithm = eflowRecConf.PFAlgorithm("PFAlgorithm",
+    PFAlgorithm = eflowRecConf.PFAlgorithm("PFAlgorithm_"+tracktype,
         PFClusterSelectorTool = pfClusterSel,
         SubtractionToolList = [PFCellLevelSubtractionTool,PFRecoverSplitShowersTool],
         BaseToolList = [PFMomentCalculatorTool]
@@ -103,36 +118,33 @@ def getPFAlg(clustersin):
 
 # Convert internal eflowRec track/cluster objects into xAOD neutral/charged
 # particle flow objects
-def getPFOCreators():
-    PFOChargedCreatorAlgorithm = eflowRecConf.PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm",
-        PFOOutputName="HLTChargedParticleFlowObjects"
+def getPFOCreators(tracktype):
+    PFOChargedCreatorAlgorithm = eflowRecConf.PFOChargedCreatorAlgorithm(
+        "PFOChargedCreatorAlgorithm_"+tracktype,
+        PFOOutputName="HLT_{}ChargedParticleFlowObjects".format(tracktype)
         )
 
-    PFONeutralCreatorAlgorithm =  eflowRecConf.PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm",
-        PFOOutputName="HLTNeutralParticleFlowObjects",
+    PFONeutralCreatorAlgorithm =  eflowRecConf.PFONeutralCreatorAlgorithm(
+        "PFONeutralCreatorAlgorithm_"+tracktype,
+        PFOOutputName="HLT_{}NeutralParticleFlowObjects".format(tracktype),
         DoClusterMoments=False # Only CENTER_MAG
         )
     return PFOChargedCreatorAlgorithm, PFONeutralCreatorAlgorithm
 
 # Generate the full PF reco sequence, assuming tracks, vertices, clusters
 # will be created upstream
-def PFHLTSequence(clustersin,tracktype="Offline"):
-    trackvtxcontainers = {
-        "Offline":  ("InDetTrackParticles","PrimaryVertices"),
-        "HLT":      ("",""), # Not set up -- ask MET?
-        "FTK":      ("FTK_TrackParticleContainer","FTK_VertexContainer"),
-        "FTKRefit": ("FTK_TrackParticleContainer_Refit","FTK_VertexContainer_Refit")
-        }
+def PFHLTSequence(dummyflags,clustersin,tracktype):
 
-    tracksin,verticesin = trackvtxcontainers[tracktype]
-
-    PFTrkSel = getPFTrackSel(tracksin, verticesin)
-    PFAlg = getPFAlg(clustersin)
-    PFNCreator, PFCCreator = getPFOCreators()
+    PFTrkSel = getPFTrackSel(tracktype)
+    PFAlg = getPFAlg(clustersin,tracktype)
+    PFCCreator, PFNCreator = getPFOCreators(tracktype)
 
     # Create HLT "parallel OR" sequence holding the PF algs
     # Can be inserted into the jet building sequence
     from AthenaCommon.CFElements import parOR
-    pfSequence = parOR("PFSeq_"+tracktype, [PFTrkSel,PFAlg,PFCCreator,PFNCreator])
+    pfSequence = parOR("HLTPFlow_"+tracktype, [PFTrkSel,PFAlg,PFCCreator,PFNCreator])
+    pfoPrefix = "HLT_"+tracktype
 
-    return pfSequence
+    print (pfSequence)
+
+    return pfSequence, pfoPrefix

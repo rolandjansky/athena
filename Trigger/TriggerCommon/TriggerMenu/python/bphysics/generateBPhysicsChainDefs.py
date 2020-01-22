@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ###########################################################################
 # SliceDef file for Bphysics chains
@@ -123,9 +125,9 @@ def getBphysThresholds(chainDict) :
 
     for part in chainDict['chainParts'] :
         mult = mult + int(part['multiplicity'])
-        if not 'noL1' in  part['extra'] :
+        if 'noL1' not in  part['extra'] :
             mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
-    print "OI multiplicity ", mult, mult_without_noL1
+    print ("OI multiplicity ", mult, mult_without_noL1)
     for dictpart in chainDict['chainParts']:
         #if 'noL1' in  dictpart['extra'] : continue
         if 'mu' in dictpart['trigType']:
@@ -186,7 +188,7 @@ def getBphysElectronThresholds(chainDict) :
                     thr = 900.
                 trkelectrons.append(thr)
                 fexNameExt = fexNameExt + "_"+str(int(dictpart['threshold']))
-    if pid == None :
+    if pid is None :
         log.error( " failed to decode pid for chain "+chainDict['chainName'] )
     return fexNameExt, trkelectrons, mult, pid
 
@@ -569,7 +571,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
 
     # OI make sure that L2Fex is not running, when only 1 muon and therefore only 1 ID RoI is processed at L2
-    if  L2Fex != None :
+    if  L2Fex is not None :
 
         if "btrk" in chainDict['chainName'] : # add wider cone tracking
             [trkfastw, trkprecw] = TrigInDetSequence("BphysicsCone02", "muonBtrk", "IDTrig").getSequence()
@@ -618,8 +620,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
 
     # Here we need to use inputs from Muon sequence and not from TrigBphysMuonCounter_bNmu..
-    if EFFex != None :
-        if EFHypo != None :        
+    if EFFex is not None :
+        if EFHypo is not None :        
             theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
         else :
             theChainDef.addSequence([EFFex],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
@@ -638,9 +640,9 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
 
     if "bTau" in chainDict['chainName'] :
-        #print "OI btrk ", theChainDef
+        #print ("OI btrk ", theChainDef)
             
-        print "OI resulting sequence ", sequence
+        print ("OI resulting sequence ", sequence)
       
     return theChainDef
 
@@ -1166,7 +1168,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2TEname])
     else :
-     if  L2Fex != None :
+     if  L2Fex is not None :
         if mult_without_noL1 == mult :  # no noL1 parts
             theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
             theChainDef.addSignatureL2([L2TEname])
@@ -1229,13 +1231,15 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, do
     #--- 1: L2 first add large cone before duing superEF
     #[trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
     [trkfast, trkprec] = TrigInDetSequence("BphysHighPt", "bphysHighPt", "IDTrig").getSequence()
-    L2TEcount = 0; L2outTEsfast = [];  L2outTEsprec = [];
+    L2TEcount = 0
+    L2outTEsfast = []
+    L2outTEsprec = []
     for L2inputTE in inputTEsL2:
         L2TEcount = L2TEcount + 1
         L2outputTEfast = L2inputTE+'_idfast_'+str(L2TEcount)
         L2outTEsfast.append(L2outputTEfast)
         theChainDef.addSequence(trkfast,L2inputTE, L2outputTEfast)
-        if not "L2Trk2" in chainDict['chainName'] :
+        if "L2Trk2" not in chainDict['chainName'] :
             L2outputTEprec = L2inputTE+'_idprec_'+str(L2TEcount)
             L2outTEsprec.append(L2outputTEprec)
             theChainDef.addSequence(trkprec,L2outputTEfast, L2outputTEprec)
@@ -1331,7 +1335,8 @@ def bMuTrack(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
 
     # Sequence where only the EF mu+track stage is run. FTF+prec tracking run first
     #------- EF Sequences -------
-    EFTEcount = 0; EFoutTEsfast = [];
+    EFTEcount = 0
+    EFoutTEsfast = []
     for EFinputTE in inputTEsEF:
         EFTEcount = EFTEcount + 1
         EFoutputTEfast = EFinputTE+'_idfast_'+str(EFTEcount)
@@ -1341,7 +1346,8 @@ def bMuTrack(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsfast)
         
     
-    EFTEcount = 0; EFoutTEsprec = [];
+    EFTEcount = 0
+    EFoutTEsprec = []
     for EFinputTE in inputTEsEF:
         EFTEcount = EFTEcount + 1
         EFinputTEprec  = EFinputTE+'_idfast_'+str(EFTEcount)
@@ -1481,7 +1487,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
                EFFex  =  EFBMuMuXFex_1_legacyVtx()
         
     elif 'bBmumuxv3' in topoAlgs:
-#        print 'MOOOO in bBmumuxv3'
+#        print ('MOOOO in bBmumuxv3')
         from TrigBphysHypo.TrigL2BMuMuXHypoConfig import L2BMuMuXHypo_EF
         from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_EF
         EFFex  =  L2BMuMuXFex_EF()
@@ -1509,7 +1515,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
             L2Fex  = L2BMuMuFex_DiMu_passL2()
             L2Hypo = L2BMuMuHypo_DiMu_passL2()
     elif 'bBmumuxv3' in topoAlgs:
-#        print 'MOOOO2 in bBmumuxv3'
+#        print ('MOOOO2 in bBmumuxv3')
         from TrigBphysHypo.TrigL2BMuMuXHypoConfig import L2BMuMuXHypo_1
         from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_1
         L2Fex = L2BMuMuXFex_1()
@@ -1566,7 +1572,8 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
         dummyAlgo = PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")
         trkFTK=[dummyAlgo]+trkftk[0]
-        EFTEcount = 0; EFoutputTEsftk = [];
+        EFTEcount = 0
+        EFoutputTEsftk = []
         for EFinputTE in inputTEsEF:
             EFTEcount = EFTEcount + 1
             EFoutputTEftk = EFinputTE+'_ftk'+str(EFTEcount)
@@ -1593,14 +1600,16 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
 
 
     #------- EF Sequences -------
-        EFTEcount = 0; EFoutTEsfast = []; 
+        EFTEcount = 0
+        EFoutTEsfast = []
         for EFinputTE in inputTEsEF:
             EFTEcount = EFTEcount + 1
             EFoutputTEfast = EFinputTE+'_idfast_'+str(EFTEcount)
             EFoutTEsfast.append(EFoutputTEfast)
             theChainDef.addSequence(trkfast,EFinputTE, EFoutputTEfast)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsfast)
-        EFTEcount = 0; EFoutTEsprec = []; 
+        EFTEcount = 0
+        EFoutTEsprec = []
         for EFinputTE in inputTEsEF:
             EFTEcount = EFTEcount + 1        
             EFinputTEprec  = EFinputTE+'_idfast_'+str(EFTEcount)
@@ -1695,14 +1704,16 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         EFHypo = EFBMuMuXHypo_1("EFBEEXHypo_1")
         EFHypo.bphysCollectionKey = "EFBEEXFex"
     #------- EF Sequences -------
-        EFTEcount = 0; EFoutTEsfast = []; 
+        EFTEcount = 0
+        EFoutTEsfast = []
         for EFinputTE in inputTEsEF:
             EFTEcount = EFTEcount + 1
             EFoutputTEfast = EFinputTE+'_idfast_'+str(EFTEcount)
             EFoutTEsfast.append(EFoutputTEfast)
             theChainDef.addSequence(trkfast,EFinputTE, EFoutputTEfast)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsfast)
-        EFTEcount = 0; EFoutTEsprec = []; 
+        EFTEcount = 0
+        EFoutTEsprec = []
         for EFinputTE in inputTEsEF:
             EFTEcount = EFTEcount + 1        
             EFinputTEprec  = EFinputTE+'_idfast_'+str(EFTEcount)

@@ -8,6 +8,7 @@
 #include "RingerSelectorTools/ElectronTAccept.h"
 
 #include "RingerSelectorTools/tools/DeclareBit.h"
+#include <stdexcept>
 
 namespace Ringer {
 

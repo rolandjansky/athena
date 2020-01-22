@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/CheckFlow.h
@@ -58,7 +58,6 @@ private:
   TH3F*   m_ebetapth;
 
   StoreGateSvc*   m_sgSvc;
-  ITHistSvc*      m_thistSvc;
   TruthHelper::GenAccessIO*    m_tesIO;
 };
 

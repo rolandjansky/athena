@@ -8,6 +8,7 @@
 #include "../MixingEventSelector.h"
 #include "../ThinningSvc.h"
 #include "../ThinningOutputTool.h"
+#include "../ThinningCacheTool.h"
 //#include "../EventDumperSvc.h"
 #include "../MemoryRescueSvc.h"
 #include "../FPEControlSvc.h"
@@ -29,6 +30,7 @@
 #include "../OutputStreamSequencerSvc.h"
 #include "../AthenaStopperAlg.h"
 #include "../AthenaHiveEventLoopMgr.h"
+#include "../AthenaMtesEventLoopMgr.h"
 #include "../AthIncFirerAlg.h"
 #include "../ToyNextPassFilterAlg.h"
 #include "../ToyNextPassFilterTool.h"
@@ -43,11 +45,11 @@ DECLARE_COMPONENT( TestRandomSeqAlg )
 DECLARE_COMPONENT( MultipleEventLoopMgr )
 DECLARE_COMPONENT( AthenaEventLoopMgr )
 DECLARE_COMPONENT( AthenaHiveEventLoopMgr )
+DECLARE_COMPONENT( AthenaMtesEventLoopMgr )
 DECLARE_COMPONENT( PyAthenaEventLoopMgr )
 DECLARE_COMPONENT( SimplePOSIXTimeKeeperSvc )
 DECLARE_COMPONENT( MixingEventSelector )
 DECLARE_COMPONENT( ThinningSvc )
-//DECLARE_COMPONENT( EventDumperSvc )
 DECLARE_COMPONENT( MemoryRescueSvc )
 DECLARE_COMPONENT( FPEControlSvc )
 DECLARE_COMPONENT( JobIDSvc )
@@ -67,6 +69,7 @@ DECLARE_COMPONENT( MetaDataSvc )
 DECLARE_COMPONENT( OutputStreamSequencerSvc )
 DECLARE_COMPONENT( AthenaOutputStreamTool )
 DECLARE_COMPONENT( ThinningOutputTool )
+DECLARE_COMPONENT( Athena::ThinningCacheTool )
 DECLARE_COMPONENT( AthenaStopperAlg )
 DECLARE_COMPONENT( AthIncFirerAlg )
 DECLARE_COMPONENT( ToyNextPassFilterAlg )

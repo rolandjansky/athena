@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -29,7 +29,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 	
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 //c - c++
 #include "iostream"
@@ -40,7 +39,7 @@
 //using namespace cool;
 namespace MuonCalib {
 
-CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),  m_version("v0.0"), p_reg_sel_svc(NULL), m_cool_connect(false), m_t0_created(false), m_rt_created(false), m_detMgr(NULL) {
+CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),  m_version("v0.0"), p_reg_sel_svc(NULL), m_cool_connect(false), m_t0_created(false), m_rt_created(false) {
   declareProperty("CoolConnectionString", m_cool_connection_string);
   declareProperty("RtVersion", m_version);
   declareProperty("T0Tag", m_tagt0);
@@ -77,11 +76,7 @@ StatusCode CoolInserter::initialize() {
      
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
-  sc = detStore->retrieve( m_detMgr );
-  if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endmsg;
-    return sc;	 
-  }   
+  ATH_CHECK(m_DetectorManagerKey.initialize());
   
 //get region selection service
   sc=service("RegionSelectionSvc", p_reg_sel_svc);
@@ -189,7 +184,15 @@ bool CoolInserter::StartT0Chamber(const NtupleStationId & sid) {
   m_n_tubes_added=0;
   m_sid=sid;
   m_sid.SetMultilayer(0);
-  if (!m_sid.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), m_detMgr))
+
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return false; 
+  } 
+
+  if (!m_sid.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr))
     return false;
 //get number of tubes
   int max_nly(-1);

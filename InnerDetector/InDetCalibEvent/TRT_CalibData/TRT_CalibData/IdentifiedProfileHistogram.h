@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBDATA__IDENTIFIEDPROFILEHISTOGRAM_H
@@ -57,11 +57,11 @@ public:
   int numberOfIDs() const;
 
   // Statistics calculators
-  const std::vector<float>& abcissa() const;
-  const std::vector<float>& abcissaError() const;
-  const std::vector<float>& average(const SomeIDTag& ident) const;
-  const std::vector<float>& rms(const SomeIDTag& ident) const;
-  const std::vector<float>& averageError(const SomeIDTag& ident) const;
+  const std::vector<float> abcissa() const;
+  const std::vector<float> abcissaError() const;
+  const std::vector<float> average(const SomeIDTag& ident) const;
+  const std::vector<float> rms(const SomeIDTag& ident) const;
+  const std::vector<float> averageError(const SomeIDTag& ident) const;
   float globalAverage(const SomeIDTag& ident) const;
   float globalRMS(const SomeIDTag& ident) const;
   float globalAverageError(const SomeIDTag& ident) const;
@@ -130,7 +130,7 @@ inline int IdentifiedProfileHistogram<SomeIDTag>::globalNumberOfEntries(const So
 }
 
 template <typename SomeIDTag>
-inline const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::abcissaError() const{
+inline const std::vector<float> IdentifiedProfileHistogram<SomeIDTag>::abcissaError() const{
   const std::vector<float> result(m_NumberOfBins, m_BinWidth/sqrt(12.0)); // strictly only valid for weight=CONST 
   return result;
 }
@@ -187,7 +187,7 @@ IdentifiedProfileHistogram<SomeIDTag>::IdentifiedProfileHistogram(const std::str
 }
 
 template <typename SomeIDTag>
-const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::abcissa() const{
+const std::vector<float> IdentifiedProfileHistogram<SomeIDTag>::abcissa() const{
   std::vector<float> result(m_NumberOfBins, m_BinWidth);
   result[0]=m_LowerEdge+m_BinWidth/2.0;
   for (int i=1;i<m_NumberOfBins;i++)
@@ -196,7 +196,7 @@ const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::abcissa() const
 }
 
 template <typename SomeIDTag>
-const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::average(const SomeIDTag& ident) const{
+const std::vector<float> IdentifiedProfileHistogram<SomeIDTag>::average(const SomeIDTag& ident) const{
   std::vector<float> result(m_NumberOfBins, 0.0);
   if (!m_NumberOfEntries.existID(ident))
 //    return result();
@@ -207,7 +207,7 @@ const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::average(const S
 }
 
 template <typename SomeIDTag>
-const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::rms(const SomeIDTag& ident) const{
+const std::vector<float> IdentifiedProfileHistogram<SomeIDTag>::rms(const SomeIDTag& ident) const{
   std::vector<float> result(m_NumberOfBins, 0.0);
   if (!m_NumberOfEntries.existID(ident))
 //    return result();
@@ -218,7 +218,7 @@ const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::rms(const SomeI
 }
 
 template <typename SomeIDTag>
-const std::vector<float>& IdentifiedProfileHistogram<SomeIDTag>::averageError(const SomeIDTag& ident) const{
+const std::vector<float> IdentifiedProfileHistogram<SomeIDTag>::averageError(const SomeIDTag& ident) const{
   std::vector<float> result(m_NumberOfBins, 0.0);
   if (!m_NumberOfEntries.existID(ident))
 //    return result();

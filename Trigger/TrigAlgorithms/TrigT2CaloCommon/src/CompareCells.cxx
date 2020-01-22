@@ -30,7 +30,7 @@ StatusCode CompareCells::initialize() {
 StatusCode CompareCells::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
-  ConstDataVector<CaloCellContainer> c(SG::VIEW_ELEMENTS);
+  CaloConstCellContainer c(SG::VIEW_ELEMENTS);
   m_dataAccessSvc->loadFullCollections( context, c).ignore();
 
   SG::ReadHandle<CaloCellContainer> off(m_calocellcollectionKey,context);

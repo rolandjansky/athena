@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo')
+log = logging.getLogger( __name__ )
 
 '''
 This file defines Event Building identifiers which can be used in chain names.
@@ -16,6 +16,7 @@ LArPEB, LumiPEB, RPCPEB, RPCPEBSecondaryReadout, TrkPEB, JetDS, PhotonDS
 
 # PEB identifiers
 PartialEventBuildingIdentifiers = [
+  'BeamSpotPEB',
   'LArPEB',
   'RPCPEBSecondaryReadout'
 ]
@@ -47,7 +48,7 @@ def getFullHLTResultID():
 
 
 def getAllDataScoutingIdentifiers():
-    return DataScoutingIdentifiers.keys()
+    return list(DataScoutingIdentifiers.keys())
 
 
 def getAllPartialEventBuildingIdentifiers():
@@ -55,4 +56,4 @@ def getAllPartialEventBuildingIdentifiers():
 
 
 def getAllEventBuildingIdentifiers():
-    return PartialEventBuildingIdentifiers + DataScoutingIdentifiers.keys()
+    return PartialEventBuildingIdentifiers + list(DataScoutingIdentifiers.keys())

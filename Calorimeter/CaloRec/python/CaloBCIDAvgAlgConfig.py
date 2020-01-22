@@ -5,13 +5,14 @@
 # Purpose: Configure CaloBCIDAvgAlg.
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def CaloBCIDAvgAlgCfg (flags):
     from IOVDbSvc.IOVDbSvcConfig import addFolderList
-    from CaloRec.CaloRecConf import CaloBCIDAvgAlg
+    CaloBCIDAvgAlg=CompFactory.CaloBCIDAvgAlg
 
     result = ComponentAccumulator()
 
@@ -44,8 +45,8 @@ def CaloBCIDAvgAlgCfg (flags):
                               ShapeKey = 'LArShape32Sym')
 
     else:
-        from LArRecUtils.LArRecUtilsConfig import \
-            LArADC2MeVCondAlgCfg, LArOFCCondAlgCfg, LArAutoCorrTotalCondAlgCfg
+        from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+        from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg, LArAutoCorrTotalCondAlgCfg
         result.merge (LArADC2MeVCondAlgCfg (flags))
         result.merge (LArOFCCondAlgCfg (flags))
         result.merge (LArAutoCorrTotalCondAlgCfg (flags))

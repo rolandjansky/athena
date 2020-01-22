@@ -53,9 +53,10 @@ namespace NSWL1 {
                       const std::string& name,
                       const IInterface* parent);
     virtual ~StripSegmentTool();
-    virtual StatusCode initialize();
-    virtual void handle (const Incident& inc);
-    StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& );
+    virtual StatusCode initialize() override;
+    virtual void handle (const Incident& inc) override;
+    virtual
+    StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& ) override;
 
     
   private:

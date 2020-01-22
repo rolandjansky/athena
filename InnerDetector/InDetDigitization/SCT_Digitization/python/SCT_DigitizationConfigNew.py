@@ -3,6 +3,7 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from SCT_Digitization.SCT_DigitizationConf import (
     SCT_RandomDisabledCellGenerator,
@@ -12,23 +13,28 @@ from SCT_Digitization.SCT_DigitizationConf import (
     SCT_DigitizationTool,
     SCT_Digitization,
 )
-from PileUpComps.PileUpCompsConf import PileUpXingFolder
+PileUpXingFolder=CompFactory.PileUpXingFolder
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
+SCT_RadDamageSummaryTool=CompFactory.SCT_RadDamageSummaryTool
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg, SCT_SiliconConditionsCfg
 from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
 from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the SCT Digitization code
 def SCT_FirstXing():
     return -50
 
+
 def SCT_LastXing():
     return 25
+
 
 def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs):
     """Return ComponentAccumulator with common SCT digitization tool config"""
@@ -53,6 +59,7 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
     acc.setPrivateTools(tool)
     return acc
 
+
 def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured SCT digitization tool"""
     if flags.Digitization.PileUpPremixing:
@@ -64,21 +71,24 @@ def SCT_DigitizationToolCfg(flags, name="SCT_DigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
-def SCT_DigitizationToolHSCfg(flags, name="SCT_DigitizationToolHS", **kwargs):
+
+def SCT_DigitizationHSToolCfg(flags, name="SCT_DigitizationHSTool", **kwargs):
     """Return ComponentAccumulator with hard scatter configured SCT digitization tool"""
     kwargs.setdefault("OutputObjectName", "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
-def SCT_DigitizationToolPUCfg(flags, name="SCT_DigitizationToolPU",**kwargs):
+
+def SCT_DigitizationPUToolCfg(flags, name="SCT_DigitizationPUTool",**kwargs):
     """Return ComponentAccumulator with pileup configured SCT digitization tool"""
     kwargs.setdefault("OutputObjectName", "SCT_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_PU_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 2)
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
-def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
+
+def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**kwargs):
     """Return ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
@@ -88,6 +98,7 @@ def SCT_DigitizationToolOverlayCfg(flags, name="SCT_OverlayDigitizationTool",**k
     tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc
+
 
 def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplitNoMergePU",**kwargs):
     """Return ComponentAccumulator with merged pileup configured SCT digitization tool"""
@@ -99,15 +110,18 @@ def SCT_DigitizationToolSplitNoMergePUCfg(flags, name="SCT_DigitizationToolSplit
     kwargs.setdefault("FrontEnd", "PileupSCT_FrontEnd")
     return SCT_DigitizationCommonCfg(flags, name, **kwargs)
 
+
 def SCT_DigitizationToolGeantinoTruthCfg(flags, name="SCT_GeantinoTruthDigitizationTool", **kwargs):
     """Return Geantino truth configured digitization tool"""
     kwargs.setdefault("ParticleBarcodeVeto", 0)
     return SCT_DigitizationToolCfg(flags, name, **kwargs)
 
+
 def SCT_RandomDisabledCellGeneratorCfg(flags, name="SCT_RandomDisabledCellGenerator", **kwargs):
     """Return configured random cell disabling tool"""
     kwargs.setdefault("TotalBadChannels", 0.01)
     return SCT_RandomDisabledCellGenerator(name, **kwargs)
+
 
 def SCT_AmpCfg(flags, name="SCT_Amp", **kwargs):
     """Return configured amplifier and shaper tool"""
@@ -118,6 +132,7 @@ def SCT_AmpCfg(flags, name="SCT_Amp", **kwargs):
     kwargs.setdefault("Tmin", -25.0)
     kwargs.setdefault("Tmax", 150.0)
     return SCT_Amp(name, **kwargs)
+
 
 def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **kwargs):
     """Return ComponentAccumulator with configured surface charges tool"""
@@ -144,6 +159,7 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     tool.LorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
     acc.setPrivateTools(tool)
     return acc
+
 
 def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     """Return ComponentAccumulator with configured front-end electronics tool"""
@@ -196,6 +212,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     acc.setPrivateTools(SCT_FrontEnd(name, **kwargs))
     return acc
 
+
 def SCT_FrontEndPileupCfg(flags, name="PileupSCT_FrontEnd", **kwargs):
     """Return ComponentAccumulator with pileup-configured front-end electronics tool"""
     kwargs.setdefault("NoiseBarrel", 0.0)
@@ -222,35 +239,66 @@ def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
     return PileUpXingFolder(name, **kwargs)
 
 
-def SCT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs):
-    """Return ComponentAccumulator with basic toolCfg configured SCT digitization"""
+def SCT_OutputCfg(flags):
+    """Return ComponentAccumulator with Output for SCT. Not standalone."""
+    acc = ComponentAccumulator()
+    ItemList = ["SCT_RDO_Container#*"]
+    if flags.Digitization.TruthOutput:
+        ItemList += ["InDetSimDataCollection#*"]
+        acc.merge(TruthDigitizationOutputCfg(flags))
+    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    return acc
+
+
+def SCT_DigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator for SCT digitization"""
+    acc = ComponentAccumulator()
+    if "PileUpTools" not in kwargs:
+        PileUpTools = acc.popToolsAndMerge(SCT_DigitizationToolCfg(flags))
+        kwargs["PileUpTools"] = PileUpTools
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
+    return acc
+
+
+def SCT_OverlayDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with SCT Overlay digitization"""
     acc = ComponentAccumulator()
     if "DigitizationTool" not in kwargs:
-        tool = acc.popToolsAndMerge(toolCfg(flags))
+        tool = acc.popToolsAndMerge(SCT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(SCT_Digitization(name, **kwargs))
-    return acc
-
-def SCT_DigitizationOutputCfg(toolCfg, flags, name, **kwargs):
-    """Return ComponentAccumulator with toolCfg configured SCT Digitization algorithm and OutputStream"""
-    acc = SCT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
-    acc.merge(OutputStreamCfg(flags, "RDO", ["InDetSimDataCollection#*", "SCT_RDO_Container#*"]))
+    acc.addEventAlgo(SCT_Digitization(**kwargs))
     return acc
 
 
-def SCT_DigitizationCfg(flags, name="SCT_Digitization", **kwargs):
-    """Return ComponentAccumulator with standard SCT digitization and Output"""
-    return SCT_DigitizationOutputCfg(SCT_DigitizationToolCfg, flags, name, **kwargs)
+# with output defaults
+def SCT_DigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator for SCT digitization and Output"""
+    acc = SCT_DigitizationBasicCfg(flags, **kwargs)
+    acc.merge(SCT_OutputCfg(flags))
+    return acc
 
+
+def SCT_OverlayDigitizationCfg(flags, **kwargs):
+    """Return ComponentAccumulator with SCT Overlay digitization and Output"""
+    acc = SCT_OverlayDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(SCT_OutputCfg(flags))
+    return acc
+
+
+# additional specialisations
 def SCT_DigitizationHSCfg(flags, name="SCT_DigitizationHS", **kwargs):
-    """Return ComponentAccumulator with Hard Scatter-only SCT digitization and Output"""
-    return SCT_DigitizationOutputCfg(SCT_DigitizationToolHSCfg, flags, name, **kwargs)
+    """Return ComponentAccumulator for Hard-Scatter-only SCT digitization and Output"""
+    acc = SCT_DigitizationHSToolCfg(flags)
+    kwargs["PileUpTools"] = acc.popPrivateTools()
+    acc = SCT_DigitizationBasicCfg(flags, name=name, **kwargs)
+    acc.merge(SCT_OutputCfg(flags))
+    return acc
+
 
 def SCT_DigitizationPUCfg(flags, name="SCT_DigitizationPU", **kwargs):
     """Return ComponentAccumulator with Pile-up-only SCT digitization and Output"""
-    return SCT_DigitizationOutputCfg(SCT_DigitizationToolPUCfg, flags, name, **kwargs)
-
-def SCT_DigitizationOverlayCfg(flags, name="SCT_OverlayDigitization", **kwargs):
-    """Return ComponentAccumulator with Overlay SCT digitization and Output"""
-    return SCT_DigitizationOutputCfg(SCT_DigitizationToolOverlayCfg, flags, name, **kwargs)
-
+    acc = SCT_DigitizationPUToolCfg(flags)
+    kwargs["PileUpTools"] = acc.popPrivateTools()
+    acc = SCT_DigitizationBasicCfg(flags, name=name, **kwargs)
+    acc.merge(SCT_OutputCfg(flags))
+    return acc

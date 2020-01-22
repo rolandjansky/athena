@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "tauRecTools/ITauToolExecBase.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "tauRecTools/TauEventData.h"
@@ -49,16 +48,13 @@ class TauProcessorAlg: public AthAlgorithm
     private:
        
 	void setEmptyTauTrack( xAOD::TauJet* &tauJet,
-			       xAOD::TauTrackContainer* &tauTrackCont);				 
+			       xAOD::TauTrackContainer* tauTrackCont);				 
 
 	ToolHandleArray<ITauToolBase>  m_tools {this, "TauProcessorTools", {}, "Tools processing taus"};
 
 	double m_maxEta; //!< only build taus with eta_seed < m_maxeta
 	double m_minPt;  //!< only build taus with pt_seed > m_minpt
 
-	bool m_doCreateTauContainers;
-
-        //ToolHandleArray<ITauToolExecBase>  m_tools;
 	TauEventData m_data;
 
 	/** @brief tool handles */

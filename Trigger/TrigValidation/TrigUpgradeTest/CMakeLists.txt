@@ -50,9 +50,7 @@ function( _add_test name )
 endfunction( _add_test )
 
 
-_add_test( emu_l1_decoding POST_EXEC_SCRIPT nopost.sh ) # should be moved to the L1Decoder package
-_add_test( emu_scaling_CF  EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
-_add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
+_add_test( emu_step_processing LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*") # should be moved to TriggerMenuMT
 
 # Unit tests of the test scripts
 atlas_add_test( flake8_test_dir
@@ -61,4 +59,5 @@ atlas_add_test( flake8_test_dir
 
 atlas_add_test( TrigValSteeringUT
                 SCRIPT trigvalsteering-unit-tester.py ${CMAKE_CURRENT_SOURCE_DIR}/test
+                PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh )

@@ -38,8 +38,8 @@ def TileJetMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags,'TileMonitoring')
 
     # Adding an TileJetMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileJetMonitorAlgorithm
-    tileJetMonAlg = helper.addAlgorithm(TileJetMonitorAlgorithm, 'TileJetMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tileJetMonAlg = helper.addAlgorithm(CompFactory.TileJetMonitorAlgorithm, 'TileJetMonAlg')
 
     tileJetMonAlg.TileBadChanTool = badChanTool
     tileJetMonAlg.TriggerChain = ''
@@ -138,7 +138,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
         for gain in gains:
             index = 0
             energies = energiesALL[gain]
-            for index in xrange(0, len(energies) + 1):
+            for index in range(0, len(energies) + 1):
                 toEnergy = energies[index] if index < len(energies) else None
                 fromEnergy = energies[index - 1] if index > 0 else None
                 name = 'Cell_time_' + partition + '_' + gain + '_slice_' + str(index)
@@ -177,7 +177,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
         for partition in partitions:
             for gain in gains:
                 energies = energiesALL[gain]
-                for index in xrange(0, len(energies) + 1):
+                for index in range(0, len(energies) + 1):
                     toEnergy = energies[index] if index < len(energies) else 2 * energies[index - 1]
                     fromEnergy = energies[index - 1] if index > 0 else -1000
                     name = 'Cell_ene_' + partition + '_' + gain + '_slice_' + str(index)
@@ -195,9 +195,9 @@ def TileJetMonitoringConfig(flags, **kwargs):
         # 7) Configure 1D histograms with Tile channel time per channel
         channelTime1DGroup = helper.addGroup(tileJetMonAlg, 'TileJetChanTime1D', 'Tile/Jet/ChanTime/')
 
-        for ros in xrange(1, Tile.MAX_ROS):
-            for module in xrange(0, Tile.MAX_DRAWER):
-                for channel in xrange(0, Tile.MAX_CHAN):
+        for ros in range(1, Tile.MAX_ROS):
+            for module in range(0, Tile.MAX_DRAWER):
+                for channel in range(0, Tile.MAX_CHAN):
                     moduleName = Tile.getDrawerString(ros, module)
                     title = 'Time in ' + moduleName + ' channel ' + str(channel) + ';time [ns];N'
                     name = moduleName + '_ch_' + str(channel) + '_1d'
@@ -212,9 +212,9 @@ def TileJetMonitoringConfig(flags, **kwargs):
         # 7) Configure 1D histograms with Tile cell relative energy difference between two channels per even channel
         energyDiffGroup = helper.addGroup(tileJetMonAlg, 'TileJetEnergyDiff', 'Tile/Jet/EnergyDiff/')
 
-        for ros in xrange(1, Tile.MAX_ROS):
-            for module in xrange(0, Tile.MAX_DRAWER):
-                for channel in xrange(0, Tile.MAX_CHAN):
+        for ros in range(1, Tile.MAX_ROS):
+            for module in range(0, Tile.MAX_DRAWER):
+                for channel in range(0, Tile.MAX_CHAN):
                     if not channel % 2:
                         for gain in gains:
                             moduleName = Tile.getDrawerString(ros, module)
@@ -265,7 +265,7 @@ if __name__=='__main__':
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    cfg.store( open('TileJetMonitorAlgorithm.pkl','w') )
+    cfg.store( open('TileJetMonitorAlgorithm.pkl','wb') )
 
     sc = cfg.run(maxEvents=3)
 

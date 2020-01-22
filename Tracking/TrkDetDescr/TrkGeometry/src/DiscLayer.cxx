@@ -141,31 +141,19 @@ double Trk::DiscLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm
    return   Trk::Layer::m_layerMaterialProperties->oppositePostFactor();
 }
 
-void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift) const {
-       /*
-        * AthenaMT note . This method
-        * should not be probably const
-        * const_cast / mutable kind of issue
-        * Looks like a const "setter" 
-        */
+void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift)  {
+       
        Amg::Transform3D transf = shift * (*m_transform);
-       m_transform.set(std::make_unique<Amg::Transform3D>(transf));
-       m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
-       m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
+       m_transform=std::make_unique<Amg::Transform3D>(transf);
+       m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+       m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
        // rebuild that - deletes the current one
        if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
            buildApproachDescriptor();       
 }
 
-void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) const {
-     /*
-      *  AthenaMT note . This method
-      *  should not be probably const
-      *  const_cast / mutable kind of issue
-      *  Looks like a const "setter" 
-      */
-
-    // only do this if the volume bounds a CylinderVolumeBounds
+void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope)  {
+   // only do this if the volume bounds a CylinderVolumeBounds
     const Trk::CylinderVolumeBounds* cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&bounds);
     if (cvb){
         // get the dimensions
@@ -173,8 +161,7 @@ void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope) co
         double rOuter = cvb->outerRadius();
         // (0) first, resize the layer itself
         Trk::DiscBounds* rDiscBounds = new Trk::DiscBounds(rInner+envelope,rOuter-envelope);
-        const_cast<Trk::SharedObject<const Trk::SurfaceBounds>&> (Trk::DiscSurface::m_bounds) 
-        = Trk::SharedObject<const Trk::SurfaceBounds>(rDiscBounds);
+        Trk::DiscSurface::m_bounds = Trk::SharedObject<const Trk::SurfaceBounds>(rDiscBounds);
         // (1) resize the material properties by updating the BinUtility, assuming r/phi binning
         if (Trk::Layer::m_layerMaterialProperties.get() ){
             const BinUtility* layerMaterialBU = Trk::Layer::m_layerMaterialProperties->binUtility();
@@ -245,7 +232,7 @@ const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
 }
 
 /** build approach surfaces */
-void Trk::DiscLayer::buildApproachDescriptor() const {
+void Trk::DiscLayer::buildApproachDescriptor(){
     // delete the current approach descriptor
     delete m_approachDescriptor;
     // create the surface container   
@@ -258,7 +245,7 @@ void Trk::DiscLayer::buildApproachDescriptor() const {
     const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(m_bounds.get());
     if (db){ 
         // create new surfaces
-        Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));   
+        Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition)); 
         Amg::Transform3D* aspTransform = new Amg::Transform3D(Amg::Translation3D(aspPosition));   
         aSurfaces->push_back( new Trk::DiscSurface(aspTransform, db->clone()) );
         aSurfaces->push_back( new Trk::DiscSurface(asnTransform, db->clone()) );
@@ -271,14 +258,8 @@ void Trk::DiscLayer::buildApproachDescriptor() const {
     m_approachDescriptor = new Trk::ApproachDescriptor(aSurfaces);
 }
 
-void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope) const {
-  /*
-        * AthenaMT note . This method
-        * should not be probably const
-        * const_cast / mutable kind of issue
-        * Looks like a const "setter" 
-        */
-     // resize first of all
+void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope)  {
+    // resize first of all
     resizeLayer(vBounds,envelope);
     // now reposition to the potentially center if necessary, do not change layers with no transform
     const Trk::CylinderVolumeBounds* cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&vBounds);
@@ -289,12 +270,12 @@ void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const
                                                          Amg::Vector3D( vCenter + Amg::Vector3D(0.,0.,hLengthZ-0.5*thickness()) );
         if (center().isApprox(nDiscCenter)) return;
         // else set to the new volume center
-        Trk::DiscSurface::m_transform.set(std::make_unique<Amg::Transform3D> (Amg::Translation3D(nDiscCenter)));
+        Trk::DiscSurface::m_transform=std::make_unique<Amg::Transform3D> (Amg::Translation3D(nDiscCenter));
         // delete derived and the cache
-        Trk::DiscSurface::m_center.set(std::make_unique<Amg::Vector3D>(nDiscCenter));
-        Trk::DiscSurface::m_normal.set(nullptr);
+        Trk::DiscSurface::m_center.store(std::make_unique<Amg::Vector3D>(nDiscCenter));
+        Trk::DiscSurface::m_normal.store(nullptr);
     }
     // rebuild the approaching layer 
     if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
-        buildApproachDescriptor();        
+        buildApproachDescriptor();    
 }

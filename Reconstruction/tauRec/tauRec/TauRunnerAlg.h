@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "tauRecTools/ITauToolExecBase.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "tauRecTools/TauEventData.h"
@@ -58,6 +57,8 @@ class TauRunnerAlg: public AthAlgorithm
 	TauEventData m_data;
 
 	SG::ReadHandleKey<xAOD::TauJetContainer> m_tauInputContainer{this,"Key_tauInputContainer","tmp_TauJets","input temp tau key"};
+	SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterInputContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};
+
 	SG::WriteHandleKey<xAOD::TauJetContainer> m_tauOutputContainer{this,"Key_tauOutputContainer","TauJets","output tau data key"};	
 
 	SG::WriteHandleKey<xAOD::PFOContainer> m_neutralPFOOutputContainer{this,"Key_neutralPFOOutputContainer", "TauNeutralParticleFlowObjects", "tau neutral pfo out key"};

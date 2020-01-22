@@ -35,32 +35,32 @@ class StatusCode;
 class SCT_CalibHitmapTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
 {
 
- public:
-  //@name Tool methods, reimplemented
-  //@{
-  SCT_CalibHitmapTool(const std::string&, const std::string&, const IInterface*);
-  virtual ~SCT_CalibHitmapTool() = default;
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  //@}
-  //@name ISCT_CalibHistoTool methods, reimplemented
-  //@{
-  virtual bool book();
-  virtual bool read(const std::string& fileName);
-  virtual bool fill(const bool fromData=false);
-  virtual bool fillFromData();
-  //@}
+   public:
+      //@name Tool methods, reimplemented
+      //@{
+      SCT_CalibHitmapTool(const std::string&, const std::string&, const IInterface*);
+      virtual ~SCT_CalibHitmapTool() = default;
+      virtual StatusCode initialize();
+      virtual StatusCode finalize();
+      //@}
+      //@name ISCT_CalibHistoTool methods, reimplemented
+      //@{
+      virtual bool book();
+      virtual bool read(const std::string& fileName);
+      virtual bool fill(const bool fromData=false);
+      virtual bool fillFromData();
+      //@}
 
- private:
-  const SCT_ID* m_pSCTHelper{nullptr};
-  SCT_ID::const_id_iterator m_waferItrBegin;
-  SCT_ID::const_id_iterator m_waferItrEnd;
-  typedef std::vector<int> VecInt;
-  VecInt* m_sct_waferHash{nullptr};
-  VecInt* m_sct_firstStrip{nullptr};
-  VecInt* m_sct_rdoGroupSize{nullptr};
+   private:
+      const SCT_ID* m_pSCTHelper{nullptr};
+      SCT_ID::const_id_iterator m_waferItrBegin;
+      SCT_ID::const_id_iterator m_waferItrEnd;
+      typedef std::vector<int> VecInt;
+      VecInt* m_sct_waferHash{nullptr};
+      VecInt* m_sct_firstStrip{nullptr};
+      VecInt* m_sct_rdoGroupSize{nullptr};
 
-  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOContainer", "SCT_RDOs"};
+      SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOContainer", "SCT_RDOs"};
 
 };
 #endif

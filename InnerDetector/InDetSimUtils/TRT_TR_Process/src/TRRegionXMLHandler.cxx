@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -20,7 +20,6 @@
 #include "G4LogicalVolumeStore.hh"// For logical volume setup
 
 // For XML parsigin
-#include <boost/foreach.hpp>
 #include "boost/property_tree/xml_parser.hpp"
 #include "boost/property_tree/ptree.hpp"
 
@@ -81,7 +80,7 @@ void TRRegionXMLHandler::Process(const std::string& name)
   boost::property_tree::ptree pt;
   read_xml(is, pt);
 
-  BOOST_FOREACH( boost::property_tree::ptree::value_type const& v, pt.get_child("FADS") ) {
+  for( boost::property_tree::ptree::value_type const& v : pt.get_child("FADS") ) {
     if( v.first == "TRRegionParameters" ) {
 
       std::string volName=v.second.get<std::string>("<xmlattr>.RadiatorName");
@@ -93,7 +92,7 @@ void TRRegionXMLHandler::Process(const std::string& name)
       G4LogicalVolumeStore *g4lvs = G4LogicalVolumeStore::GetInstance();
       unsigned int numberOfVolumes = 0;
       for (const auto log_vol : *g4lvs){
-        if (volName==log_vol->GetName()){
+        if (volName == static_cast<const std::string&>(log_vol->GetName())) {
           TRTRadiatorParameters rad( log_vol,
                                      foilThickness,gasThickness,
                                      (BEflag)regionFlag );

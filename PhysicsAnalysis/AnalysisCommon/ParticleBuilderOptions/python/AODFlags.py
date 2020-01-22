@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   ParticleBuilderOptions/python/AODFlags.py
@@ -102,13 +102,6 @@ class Muon(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     
-class MuonTrackSlimmer(JobProperty):
-    """ If True, add MuonTrackSlimmer
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-    
 class Tau(JobProperty):
     """ If True, add Tau
     """
@@ -116,13 +109,6 @@ class Tau(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     
-class TauTrackSlimmer(JobProperty):
-    """ If True, add TauTrackSlimmer
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 class TrackParticleSlimmer(JobProperty):
     """ If True, add TrackParticleSlimmer which slims last hit
     """
@@ -272,9 +258,9 @@ class AODFlagsContainer(JobPropertyContainer):
             if hasattr(o,'StoredValue'):
                 if o.statusOn and o.allowedTypes==['bool']:
                     if o.get_Value()==True:
-                        print format % (o.__name__, "ON")
+                        print (format % (o.__name__, "ON"))
                     else:
-                        print format % (o.__name__, "--")
+                        print (format % (o.__name__, "--"))
 
     def allSetOff(self):
         self._log.info("AODFlags:: using allSetOff method. Is it usefull ?")
@@ -311,8 +297,8 @@ _list_AOD=[ \
     ThinNegativeEnergyCaloClusters, \
     ThinNegativeEnergyNeutralPFOs, \
     ThinInDetForwardTrackParticles, \
-    Muon,MuonTrackSlimmer, \
-    Tau,TauTrackSlimmer, \
+    Muon, \
+    Tau,\
     TrackParticleSlimmer, TrackParticleLastHitAndPerigeeSlimmer, \
     ParticleJet,JetTag, \
     SpclMC,TruthParticleJet, \

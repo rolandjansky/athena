@@ -4,6 +4,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def SCTOverlayAlgCfg(flags, name = "SCTOverlay", **kwargs):
@@ -14,10 +15,8 @@ def SCTOverlayAlgCfg(flags, name = "SCTOverlay", **kwargs):
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "SCT_RDOs")
     kwargs.setdefault("OutputKey", "SCT_RDOs")
 
-    kwargs.setdefault("includeBkg", True)
-
     # Do SCT overlay
-    from InDetOverlay.InDetOverlayConf import SCTOverlay
+    SCTOverlay=CompFactory.SCTOverlay
     alg = SCTOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -41,7 +40,7 @@ def SCTTruthOverlayCfg(flags, name = "SCTSDOOverlay", **kwargs):
     kwargs.setdefault("OutputKey", "SCT_SDO_Map")
 
     # Do SCT truth overlay
-    from InDetOverlay.InDetOverlayConf import InDetSDOOverlay
+    InDetSDOOverlay=CompFactory.InDetSDOOverlay
     alg = InDetSDOOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -59,8 +58,8 @@ def SCTOverlayCfg(flags):
     acc = ComponentAccumulator()
 
     # Add SCT overlay digitization algorithm
-    from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationOverlayCfg
-    acc.merge(SCT_DigitizationOverlayCfg(flags))
+    from SCT_Digitization.SCT_DigitizationConfigNew import SCT_OverlayDigitizationCfg
+    acc.merge(SCT_OverlayDigitizationCfg(flags))
     # Add SCT overlay algorithm
     acc.merge(SCTOverlayAlgCfg(flags))
     # Add SCT truth overlay

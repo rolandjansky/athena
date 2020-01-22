@@ -28,22 +28,6 @@ namespace DMTest {
 
 
 /**
- * @brief Constructor.
- * @param name The algorithm name.
- * @param svc The service locator.
- */
-xAODTestReadCVec::xAODTestReadCVec (const std::string &name,
-                                    ISvcLocator *pSvcLocator)
-  : AthReentrantAlgorithm (name, pSvcLocator),
-    m_cvecKey ("cvec"),
-    m_writeKey ("")
-{
-  declareProperty ("CVecKey", m_cvecKey);
-  declareProperty ("WriteKey", m_writeKey);
-}
-  
-
-/**
  * @brief Algorithm initialization; called at the beginning of the job.
  */
 StatusCode xAODTestReadCVec::initialize()
@@ -65,6 +49,16 @@ StatusCode xAODTestReadCVec::initialize()
 StatusCode xAODTestReadCVec::execute (const EventContext& ctx) const
 {
   SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
+
+  if (m_brief) {
+    std::ostringstream ost;
+    ost << m_cvecKey.key() << " ";
+    for (const C* c : *cvec) {
+      ost << c->anInt() << " ";
+    }
+    ATH_MSG_INFO (ost.str());
+    return StatusCode::SUCCESS;
+  }
 
   const static C::Accessor<int> anInt2 ("anInt2");
   const static C::Accessor<int> anInt10 ("anInt10");

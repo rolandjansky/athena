@@ -35,8 +35,6 @@ StatusCode Muon::MdtRawDataProvider::initialize() {
 
   ATH_CHECK( m_roiCollectionKey.initialize(m_seededDecoding) );// pass the seeded decoding flag - this marks the RoI collection flag as not used for the case when we decode the full detector
 
-  ATH_CHECK( m_ALineKey.initialize() );
-
   if(m_seededDecoding) {
     // We only need the region selector in RoI seeded mode
     if (m_regionSelector.retrieve().isFailure()) {
@@ -57,12 +55,6 @@ StatusCode Muon::MdtRawDataProvider::finalize() {
 StatusCode Muon::MdtRawDataProvider::execute() {
   ATH_MSG_VERBOSE( "MdtRawDataProvider::execute" );
   
-  SG::ReadCondHandle<ALineMapContainer> readALineHandle(m_ALineKey);
-  if(!readALineHandle.isValid()){
-    ATH_MSG_WARNING("Cannot retrieve ALine Handle "<<m_ALineKey.key());
-    return StatusCode::SUCCESS;
-  }
-
   if(m_seededDecoding) {
     
     // read in the RoIs to process

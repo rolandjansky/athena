@@ -13,12 +13,23 @@ def jetDictFromString(jet_def_string):
     # Python names are more descriptive. May want to sync
     # these names with the SignatureDict, needs coordination with
     # menu group when they start to implement this
-    jetalg, inputtype, clusterscale, jetcalib = jet_def_string.split('_')
+    trkopt = "notrk"
+    if "_ftf" in jet_def_string:
+        jetalg, inputtype, clusterscale, jetcalib, trkopt = jet_def_string.split('_')
+    else:
+        jetalg, inputtype, clusterscale, jetcalib = jet_def_string.split('_')
+
     jetRecoDict = {
         "recoAlg":  jetalg,
         "dataType": inputtype,
         "calib":    clusterscale,
-        "jetCalib": jetcalib
+        "jetCalib": jetcalib,
+        # Default to this for now pending further development.
+        # Ideally it'd be better to deprecate this and instead
+        # take the defaults from SignatureDicts for most
+        # purposes, but this can wait until the needs of clients
+        # are more clear.
+        "trkopt" :  trkopt
     }
     return jetRecoDict
 

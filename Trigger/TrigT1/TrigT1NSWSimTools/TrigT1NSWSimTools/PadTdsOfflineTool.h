@@ -69,9 +69,9 @@ namespace NSWL1 {
                         const std::string& name,
                         const IInterface* parent);
         virtual ~PadTdsOfflineTool();
-        virtual StatusCode initialize();
-        virtual void handle (const Incident& inc);
-        StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1);
+        virtual StatusCode initialize() override;
+        virtual void handle (const Incident& inc) override;
+        virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) override;
 
     public:
         /** @name Sector indices

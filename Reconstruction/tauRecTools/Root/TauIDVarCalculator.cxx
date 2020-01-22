@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -29,7 +29,7 @@ StatusCode TauIDVarCalculator::eventInitialize()
   SG::ReadHandle<xAOD::EventInfo> xEventInfo(m_eventInfoKey);
   m_mu = xEventInfo->averageInteractionsPerCrossing();
 
-  if(!inTrigger()){
+  if(!m_in_trigger){
 
     m_nVtx = int(LOW_NUMBER);    
     // Get the primary vertex container from StoreGate
@@ -59,7 +59,7 @@ StatusCode TauIDVarCalculator::eventInitialize()
 
 StatusCode TauIDVarCalculator::initialize()
 {
-  ATH_CHECK( m_vertexInputContainer.initialize() );
+  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
   ATH_CHECK( m_eventInfoKey.initialize() );
   return StatusCode::SUCCESS;
 }
@@ -67,60 +67,60 @@ StatusCode TauIDVarCalculator::initialize()
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
 {
   //define accessors:
-  static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
+  SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
 
-  static SG::AuxElement::Accessor<float> acc_mu("MU");
+  SG::AuxElement::Accessor<float> acc_mu("MU");
   acc_mu(tau) = m_mu;
 
-  if(!inTrigger()){
-    static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
+  if(!m_in_trigger){
+    SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
     acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0;
   }
   
-  if(inTrigger()){
+  if(m_in_trigger){
     //for old trigger BDT:
-    static SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
+    SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
     //the ID should train on nIsolatedTracks which is static!
     acc_numWideTrk(tau) = tau.nTracks(xAOD::TauJetParameters::classifiedIsolation);
   }
 
-  static SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
+  SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
   float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
     return StatusCode::FAILURE;
   acc_absipSigLeadTrk(tau) = fabs(ipSigLeadTrk);
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
-  if(inTrigger()) return StatusCode::SUCCESS;
+  if(m_in_trigger) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
-  static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
-  static SG::AuxElement::Accessor<float> acc_leadTrackProbHT("leadTrackProbHT");
-  static SG::AuxElement::Accessor<float> acc_leadTrackEta("leadTrackEta");
-  static SG::AuxElement::Accessor<float> acc_absDeltaEta("TAU_ABSDELTAETA");
-  static SG::AuxElement::Accessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
-  static SG::AuxElement::ConstAccessor<float> acc_sumEMCellEtOverLeadTrkPt("sumEMCellEtOverLeadTrkPt");
-  static SG::AuxElement::ConstAccessor<float> acc_etHadAtEMScale("etHadAtEMScale");
-  static SG::AuxElement::ConstAccessor<float> acc_etEMAtEMScale("etEMAtEMScale");
-  static SG::AuxElement::Accessor<float> acc_EMFractionAtEMScaleMOVEE3("EMFRACTIONATEMSCALE_MOVEE3");
-  static SG::AuxElement::Accessor<float> acc_seedTrkSecMaxStripEtOverPt("TAU_SEEDTRK_SECMAXSTRIPETOVERPT");
-  static SG::AuxElement::ConstAccessor<float> acc_secMaxStripEt("secMaxStripEt");
-  static SG::AuxElement::ConstAccessor<float> acc_centFrac("centFrac");
-  static SG::AuxElement::ConstAccessor<float> acc_etOverPtLeadTrk("etOverPtLeadTrk");
-  static SG::AuxElement::Accessor<float> acc_corrftrk("CORRFTRK");
-  static SG::AuxElement::ConstAccessor<float> acc_hadLeakEt("hadLeakEt");
-  static SG::AuxElement::Accessor<float> acc_newhadLeakEt("HADLEAKET");
-  static SG::AuxElement::Accessor<float> acc_trtNhtOverNlt("TAU_TRT_NHT_OVER_NLT");
-  static SG::AuxElement::Accessor<float> acc_centFracCorrected("CORRCENTFRAC");
+  SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
+  SG::AuxElement::Accessor<float> acc_leadTrackProbHT("leadTrackProbHT");
+  SG::AuxElement::Accessor<float> acc_leadTrackEta("leadTrackEta");
+  SG::AuxElement::Accessor<float> acc_absDeltaEta("TAU_ABSDELTAETA");
+  SG::AuxElement::Accessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
+  const SG::AuxElement::ConstAccessor<float> acc_sumEMCellEtOverLeadTrkPt("sumEMCellEtOverLeadTrkPt");
+  const SG::AuxElement::ConstAccessor<float> acc_etHadAtEMScale("etHadAtEMScale");
+  const SG::AuxElement::ConstAccessor<float> acc_etEMAtEMScale("etEMAtEMScale");
+  SG::AuxElement::Accessor<float> acc_EMFractionAtEMScaleMOVEE3("EMFRACTIONATEMSCALE_MOVEE3");
+  SG::AuxElement::Accessor<float> acc_seedTrkSecMaxStripEtOverPt("TAU_SEEDTRK_SECMAXSTRIPETOVERPT");
+  const SG::AuxElement::ConstAccessor<float> acc_secMaxStripEt("secMaxStripEt");
+  const SG::AuxElement::ConstAccessor<float> acc_centFrac("centFrac");
+  const SG::AuxElement::ConstAccessor<float> acc_etOverPtLeadTrk("etOverPtLeadTrk");
+  SG::AuxElement::Accessor<float> acc_corrftrk("CORRFTRK");
+  const SG::AuxElement::ConstAccessor<float> acc_hadLeakEt("hadLeakEt");
+  SG::AuxElement::Accessor<float> acc_newhadLeakEt("HADLEAKET");
+  SG::AuxElement::Accessor<float> acc_trtNhtOverNlt("TAU_TRT_NHT_OVER_NLT");
+  SG::AuxElement::Accessor<float> acc_centFracCorrected("CORRCENTFRAC");
 
   // Will: Fixed variables for R21
-  static SG::AuxElement::Accessor<float> acc_EMFracFixed("EMFracFixed");
-  static SG::AuxElement::Accessor<float> acc_hadLeakFracFixed("hadLeakFracFixed");
-  static SG::AuxElement::Accessor<float> acc_etHotShotDR1("etHotShotDR1"); // replace secMaxStripEt
-  static SG::AuxElement::Accessor<float> acc_etHotShotWin("etHotShotWin"); // replace secMaxStripEt
-  static SG::AuxElement::Accessor<float> acc_etHotShotDR1OverPtLeadTrk("etHotShotDR1OverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
-  static SG::AuxElement::Accessor<float> acc_etHotShotWinOverPtLeadTrk("etHotShotWinOverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
+  SG::AuxElement::Accessor<float> acc_EMFracFixed("EMFracFixed");
+  SG::AuxElement::Accessor<float> acc_hadLeakFracFixed("hadLeakFracFixed");
+  SG::AuxElement::Accessor<float> acc_etHotShotDR1("etHotShotDR1"); // replace secMaxStripEt
+  SG::AuxElement::Accessor<float> acc_etHotShotWin("etHotShotWin"); // replace secMaxStripEt
+  SG::AuxElement::Accessor<float> acc_etHotShotDR1OverPtLeadTrk("etHotShotDR1OverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
+  SG::AuxElement::Accessor<float> acc_etHotShotWinOverPtLeadTrk("etHotShotWinOverPtLeadTrk"); // replace TAU_SEEDTRK_SECMAXSTRIPETOVERPT
 
 
   // EMFracFixed and eHad1AtEMScaleFixed (for acc_hadLeakFracFixed)

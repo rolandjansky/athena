@@ -20,6 +20,6 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
     acc = SCT_GeometryCfg(ConfigFlags)
-    f=open('SCT_GeometryCfg.pkl','w')
+    f=open('SCT_GeometryCfg.pkl','wb')
     acc.store(f)
     f.close()

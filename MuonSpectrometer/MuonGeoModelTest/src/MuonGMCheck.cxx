@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  MuonGeoModel description
  -----------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MuonGMCheck.cxx,v 1.43 2009-03-28 10:59:01 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -17,9 +14,6 @@
 
 #include "MuonGeoModelTest/MuonGMCheck.h"
 
-#include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonDigitContainer/TgcDigitCollection.h"
-#include "MuonDigitContainer/TgcDigit.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "MuonDigitContainer/RpcDigitCollection.h"
 #include "MuonDigitContainer/RpcDigit.h"
@@ -49,7 +43,6 @@
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
 
-//#include "MuonReadoutGeometry/MYSQL.h"
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
 #include "TrkSurfaces/Surface.h"
@@ -61,8 +54,6 @@
 
 #include <fstream>
 #include <sstream>
-
-//
 
 typedef std::istringstream mystream;
 
@@ -213,7 +204,6 @@ MuonGMCheck::execute()
     }
 
     showVmemCpu("execute (start new event)");
-    //
     if (m_testMdtCache) testMdtCache();
     showVmemCpu("execute (after MdtCacheFilling)");
     if (m_testRpcCache) testRpcCache();
@@ -233,11 +223,6 @@ MuonGMCheck::execute()
     if (m_testTgcDetectorElementHash) testTgcDetectorElementHash();
     if (m_testCscDetectorElementHash) testCscDetectorElementHash();
 
-    //
-    //p_MuonMgr->fillCache();
-    
-    //clearCache();
-    //std::cout<<" caching flag = "<<p_MuonMgr->cachingFlag()<<std::endl;
     if (p_MuonMgr->cachingFlag() == 0) p_MuonMgr->clearCache();
     showVmemCpu("execute (after clearing cache)");
     
@@ -246,7 +231,6 @@ MuonGMCheck::execute()
 
 void MuonGMCheck::clearCache() const
 {
-    //std::cout<<" caching flag = "<<p_MuonMgr->cachingFlag()<<std::endl;
     if (p_MuonMgr->cachingFlag() == 0) p_MuonMgr->clearCache();
 }
 
@@ -286,23 +270,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
      ATH_MSG_INFO( " ***** Writing file "<< fileNamePad  );
      std::ofstream fpanelidh(fileNamePanelHashIds.c_str());
      ATH_MSG_INFO( " ***** Writing file "<< fileNamePanelHashIds  );
-     //
+
      fout      << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
      fout1     << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
      fpanelid  << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
      fpad      << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
      fpanelidh << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
-
-     
-//      Identifier chid = m_muonIdHelperTool->rpcIdHelper().channelID(9, 3, 6, 2, 2, 2, 2, 0, 22);
-//      const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(chid);
-//      if (rpc== NULL) std::cout<<" ERROREEEEEEEEEEEEEEEEEEEEEEEEEEEEE "<<std::endl;
-//      else std::cout<<" Rpc exists at  "<<rpc<<" for chid = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)
-//                    <<" Identity is "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpc->identify())<<std::endl;
-//      chid = m_muonIdHelperTool->rpcIdHelper().channelID(9, 3, 6, 2, 2, 1, 1, 0, 1);
-//      const RpcReadoutElement* rpcp = p_MuonMgr->getRpcReadoutElement(chid);
-//      std::cout<<" its parent is at "<<rpcp<<" for chid "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)
-//                    <<" Identity is "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(rpcp->identify())<<std::endl;
 
      double phistr_pitch = 0.;
      double etastr_pitch = 0.;
@@ -311,13 +284,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
 
      for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
      {
-	 //         int st = sname_index + MuonDetectorManager::NRpcStatTypeOff;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NRpcStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
                  {
 		   double keepxC=0.;
@@ -385,17 +355,11 @@ void MuonGMCheck::checkreadoutrpcgeo()
                          for (int idbphi = 1; idbphi<=ndbphi; ++idbphi)
                          {
                              int dbp = m_muonIdHelperTool->rpcIdHelper().doubletPhi(idr);
-			     //fpanelid<<" idbphi, dbp, ndbphi = "<<idbphi<<" "<<dbp<<" "<<ndbphi<<" idThisRpcRE "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)<<" ifParent "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idp)<<std::endl;
                              if (ndbphi>1 && idbphi>1) dbp = idbphi;
                              fout<<" Changing doubletPhi for  "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)
                                       <<" "<<rpc->getTechnologyName()<<"/"
                                       <<rpc->getStationName()<<" dbr, dbz, dbp "<<doubletR<<" "
                                       <<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" "<<dbp<<std::endl;
-                             //fpanelid<<" Changing doubletPhi for  "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)
-                             //         <<" "<<rpc->getTechnologyName()<<"/"
-                             //         <<rpc->getStationName()<<"dbr, dbz, dbp "<<doubletR<<" "
-                             //         <<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" "<<dbp<<std::endl;
-
 
                              for ( int igg=1; igg<3; igg++) 
                              {
@@ -416,9 +380,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                  {                                     
                                      //here (gasgap-level) perform checks on local to global transform
                                      // BMF1 at stEta = 3 stPhi = 6, dbR=1,dbZ=1,dbPhi=1->should be 2 gg=1 or 2
-                                     //HepGeom::Point3D<double> aLocalPoint = HepGeom::Point3D<double>(-1.,-657.8335,351.44592);
-                                     // event 169 
-                                     //Amg::Vector3D aLocalPoint = Amg::Vector3D(-1.,-396.9365,-309.6969);
 				     Amg::Vector3D aLocalPoint = Amg::Vector3D(-1.,62.882732,-47.88338);
                                      Identifier idgg = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
                                                                                 m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
@@ -429,9 +390,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                      double gTheta = aGlobalPoint.theta();
                                      fout<<" Global phi/theta = "<<gPhi<<"/"<<gTheta<<std::endl;
                                      // BMF1 at stEta = 3 stPhi = 6, dbR=1,dbZ=1,dbPhi=1->should be 2 gg=1 or 2
-                                     //fout<<" Global phi/theta differences = "<<gPhi-(-1.953005)<<" "<<gTheta-0.7533895<<std::endl;
-                                     // event 169
-                                     //fout<<" Global phi/theta differences = "<<gPhi-(-0.562994)<<" "<<gTheta-0.9034176<<std::endl;
                                      fout<<" Global phi/theta differences = "<<gPhi-(-2.628506)<<" "<<gTheta-1.1838122<<std::endl;
                                      //end here (gasgap-level)     checks on local to global transform
                                  }
@@ -453,13 +411,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
 						  <<chid<<" "
 						  <<chid.get_identifier32().get_compact()<<" "
 						  <<chid.get_compact()<<" n phi strips = "<<rpc->NphiStrips()<<std::endl;
-					 //std::cout<<"  1st strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
-					 //getEtaPhiPanelBoundaries(rpc, chid, etamin, etamax, phimin, phimax);
 					 getEtaPhiActivePanelBoundaries(rpc, chid, etamin, etamax, phimin, phimax);
 					 getZPhiActivePanelBoundaries(rpc, chid, zmin, zmax, phimin, phimax);
 					 int layerType=0;
 					 if (  doubletR==2 ) layerType=1;
-					 //if ( ((stNameInt<4 || stNameInt==8 || stNameInt==53)&&doubletR==2) || ((stNameInt==9||stNameInt==10)&&doubletR==2) ) layerType=1;
 					 if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && doubletR==1 ) layerType=2;
 					 layerType = layerType*2+m_muonIdHelperTool->rpcIdHelper().gasGap(chid);
 					 fpanelid<<layerType<<" "
@@ -491,15 +446,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
 							  <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
 							  <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 						     fpad<<stNameString.substr(0,3)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-						     // if (dbp==1){
-						     //   xC = rpc->center().x(); yC = rpc->center().y();zC = rpc->center().z();
-						     //   fpanelid<<"NoPad chamberCenter "
-						     // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						     // 	       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-						     //   fout1<<"NoPad chamberCenter "
-						     // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						     // 	    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-						     // }
+
 						   }
 						   else if (ndbz>1 && dbz_index==0){
 						     if (dbp==1){keepxFS = xC;  keepyFS = yC;  keepzFS = zC;fout1<<"keep center for dbp1"<<std::endl;}
@@ -518,17 +465,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
 							  <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
 							  <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 						     fpad<<stNameString.substr(0,3)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-						     if (dbp==2){
-						       // fout1<<"aaa keepx/y/x C = "<<keepxC<<" "<<keepyC<<" "<<keepzC<<std::endl;
-						       // xC = 0.5*(keepxC + rpc->center().x()); yC = 0.5*(keepyC + rpc->center().y()); zC = 0.5*(keepzC + rpc->center().z());
-						       // fpanelid<<"NoPad chamberCenter "
-						       // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						       // 	       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-						       // fout1<<"NoPad chamberCenter "
-						       // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						       // 	    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-
-						     }
 						   }
 						 }
 					       else if (stNameString=="BOS" || stNameString=="BOG" || stNameString=="BOF") 
@@ -557,13 +493,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
 							       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
 						       fpad<<stNameString.substr(0,3)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;  
 						       xC = rpc->center().x(); yC = rpc->center().y();zC = rpc->center().z();
-						       // fpanelid<<"NoPad chamberCenter "
-						       // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						       // 	       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-						       // fout1<<"NoPad chamberCenter "
-						       // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						       // 	    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-
 						     }
 
 						   }
@@ -600,13 +529,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
 								<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl; 
 						       fpad<<stNameString.substr(0,3)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;  
 						       xC = 0.5*(keepxC + rpc->center().x()); yC = 0.5*(keepyC + rpc->center().y()); zC = 0.5*(keepzC + rpc->center().z());
-						       // fpanelid<<"NoPad chamberCenter "
-						       // 	       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						       // 	       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-						       // fout1<<"NoPad chamberCenter "
-						       // 	    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-						       // 	    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
-
 						      }
 
 						   }
@@ -614,24 +536,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
 					      }
 					   }
 				       }
-				     // else if (strip==rpc->NphiStrips())
-				     //   {
-				     // 	 // int stNameInt = m_muonIdHelperTool->rpcIdHelper().stationName(chid);
-				     // 	 // std::string stNameString = m_muonIdHelperTool->rpcIdHelper().stationNameString(stNameInt);
-				     // 	 // int dbR = m_muonIdHelperTool->rpcIdHelper().doubletR(chid);
-				     // 	 // int layerType=0;
-				     // 	 // if (  dbR==2 ) layerType=1;
-				     // 	 // //if ( ((stNameInt<4 || stNameInt==8 || stNameInt==53)&&dbR==2) || ((stNameInt==9||stNameInt==10)&&dbR==2) ) layerType=1;
-				     // 	 // if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && dbR==1 ) layerType=2;
-				     // 	 // layerType = layerType*2+m_muonIdHelperTool->rpcIdHelper().gasGap(chid);
-				     // 	 // //std::cout<<" last strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
-				     // 	 std::cout<<" panel eta:["<<etamin<<","<<etamax<<"] phi:["<<phimin<<","<<phimax<<"]"<<std::endl;
-				     // 	 // fpanelid<<layerType<<" "
-				     // 	 // 	 <<stNameString<<" phi "
-				     // 	 // 	 <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "
-				     // 	 // 	 <<chid.get_identifier32().get_compact()<<" "
-				     // 	 // 	 <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
-				     //   }
+
 
                                      fout<<" StripGlobalPosition "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" pos "
                                          <<rpc->stripPos(chid)<<" Local Position = "<<rpc->localStripPos(chid) <<std::endl;
@@ -661,22 +566,18 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                          fout<<"distance to Phi/Eta RO for center of strip "
                                              <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest0)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest0),chtest0)<<" "
-                                             //<<rpc->distanceToEtaReadoutOld(rpc->stripPos(chtest0),chtest0)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest0),chtest0)<<std::endl;
                                          fout<<"distance to Phi/Eta RO for center of strip "
                                              <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest1)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest1),chtest1)<<" "
-                                             //<<rpc->distanceToEtaReadoutOld(rpc->stripPos(chtest1),chtest1)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest1),chtest1)<<std::endl;
                                          fout<<"distance to Phi/Eta RO for center of strip "
                                              <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest2)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest2),chtest2)<<" "
-                                             //<<rpc->distanceToEtaReadoutOld(rpc->stripPos(chtest2),chtest2)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest2),chtest2)<<std::endl;
                                          fout<<"distance to Phi/Eta RO for center of strip "
                                              <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest3)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest3),chtest3)<<" "
-                                             //<<rpc->distanceToEtaReadoutOld(rpc->stripPos(chtest3),chtest3)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest3),chtest3)<<std::endl;
                                      }
                                      
@@ -703,7 +604,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                                  <<*(rpc->surface(chid)).Trk::Surface::localToGlobal(lpos)<<std::endl;
                                          }
                                      }
-                                     //strip+=rpc->NphiStrips()-1;
                                      strip+=stripStep;
                                  }
                                  measphi = 0;
@@ -711,8 +611,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                           <<" eta strip pitch = "<<rpc->StripPitch(measphi)<<" n. eta strips = "<<rpc->NetaStrips()<<std::endl;
                                  etastr_pitch += rpc->StripPitch(measphi) * rpc->NetaStrips();
                                  netastr      += rpc->NetaStrips();
-                                 //fout<<" ============== phipitch, etapitch "
-                                 //         <<phistr_pitch<<" "<<etastr_pitch <<" nphi, neta "<<nphistr<<" "<<netastr<<std::endl;
 
                                  stripStep = 1;
                                  if (m_check_first_last) stripStep = rpc->NetaStrips()-1;
@@ -728,16 +626,9 @@ void MuonGMCheck::checkreadoutrpcgeo()
 						  <<chid<<" "
 						  <<chid.get_identifier32().get_compact()<<" "
 						  <<chid.get_compact()<<" n eta strips = "<<rpc->NetaStrips()<<std::endl;
-					 //ATH_MSG_WARNING (m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "
-					 //		  <<chid<<" n eta strips = "<<rpc->NetaStrips());
-					 //std::cout<<"  1st strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
-					 //getEtaPhiActivePanelBoundaries(rpc, chid, etamin, etamax, phimin, phimax);
-					 // int stNameInt = m_muonIdHelperTool->rpcIdHelper().stationName(chid);
-					 // std::string stNameString = m_muonIdHelperTool->rpcIdHelper().stationNameString(stNameInt);
-					 // int dbR = m_muonIdHelperTool->rpcIdHelper().doubletR(chid);
+
 					 int layerType=0;
 					 if (  doubletR==2 ) layerType=1;
-					 //if ( ((stNameInt<4 || stNameInt==8 || stNameInt==53)&&dbR==2) || ((stNameInt==9||stNameInt==10)&&dbR==2) ) layerType=1;
 					 if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && doubletR==1 ) layerType=2;
 					 layerType = layerType*2+m_muonIdHelperTool->rpcIdHelper().gasGap(chid);
 					 
@@ -747,11 +638,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
 						 <<chid.get_identifier32().get_compact()<<" "
 						 <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
 				       }
-				     // else if (strip==rpc->NetaStrips())
-				     //   {
-				     // 	 //std::cout<<" last strip: phi="<<rpc->stripPos(chid).phi()<<" eta="<<rpc->stripPos(chid).eta()<<std::endl;
-				     // 	 std::cout<<" panel eta:["<<etamin<<","<<etamax<<"] phi:["<<phimin<<","<<phimax<<"]"<<std::endl;
-				     //   }
+
 				     
                                      fout<<" StripGlobalPosition "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" pos "
                                          <<rpc->stripPos(chid)<<" Local Position = "<<rpc->localStripPos(chid)<<std::endl;
@@ -781,7 +668,6 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                          }
                                      }
                                      strip+=stripStep;
-                                     //strip += rpc->NetaStrips()-1;
                                  }
                                  if (m_check_surfaces_details){
                                      for (int strip = 1; strip<=rpc->NphiStrips(); strip++)
@@ -791,15 +677,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                                                                     dbp, igg, 1, strip);
                                          // Global position
                                          Amg::Vector3D tempGlobalPosition = rpc->stripPos(chid);
-                                         //const Amg::Vector3D *globalPosition = new Amg::Vector3D(tempGlobalPosition);
                                          fout<<"GG: "<<igg<<" dbZ: "<<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" dbP: "<<dbp<<" Phi strip: "<<strip
                                              <<" glob.pos. "
                                              <<tempGlobalPosition.x()<<", "
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-//                                          Amg::Vector3D pointLocPos = rpc->surface(chid).globalToLocal(tempGlobalPosition);
-//                                          const Amg::Vector2D *locPosition = new Amg::Vector2D(pointLocPos.x(),pointLocPos.y());
                                          const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
@@ -814,17 +697,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                                                                     dbp, igg, 0, strip);
                                          // Global position
                                          Amg::Vector3D tempGlobalPosition = rpc->stripPos(chid);
-                                         //const Amg::Vector3D *globalPosition = new Amg::Vector3D(tempGlobalPosition);
                                          fout<<"GG: "<<igg<<" dbZ: "<<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" dbP: "<<dbp<<" Eta strip: "<<strip
                                              <<" glob.pos. "
                                              <<tempGlobalPosition.x()<<", "
                                              <<tempGlobalPosition.y()<<", "
                                              <<tempGlobalPosition.z()<<" ";
                                          // Local position
-//                                           Amg::Vector3D pointLocPos = rpc->surface(chid).globalToLocal(tempGlobalPosition);
-//                                          const Amg::Vector2D *locPosition = new Amg::Vector2D(pointLocPos.x(),pointLocPos.y());
-//                                          fout<<"loc.pos. "
-//                                              << pointLocPos.x()<<" "<<pointLocPos.y()<<" "<<pointLocPos.z()<<std::endl;
                                          const Amg::Vector2D *locPosition = rpc->surface(chid).Trk::Surface::globalToLocal(tempGlobalPosition);
                                          fout<<"loc.pos. "
                                              << locPosition->x()<<" "<<locPosition->y();
@@ -903,24 +781,18 @@ void MuonGMCheck::getPanelEdgeCenter(const MuonGM::RpcReadoutElement* rpc, Ident
 				     double& xLastPhiS, double& yLastPhiS, double& zLastPhiS)
 {
   int n_strips = 0; // in phi or eta dir. depening on measphi-field of chid
-  //  int n_stripsOtherView = 0;
   int view =-1;
-  //int otherview =-1;
   if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(chid))
     {
       // phi panel
       view = 1;
-      //otherview = 0;
       n_strips = rpc->NphiStrips();
-      //n_stripsOtherView = rpc->NetaStrips();
     }
   else
     {
       // eta panel 
       view = 0;
-      //otherview = 1;
       n_strips = rpc->NetaStrips();
-      //n_stripsOtherView = rpc->NphiStrips();
     }
   Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(chid);
   Identifier chidFirst = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
@@ -1051,11 +923,6 @@ void MuonGMCheck::getPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Ident
     zmax   = zFirstStrip;
   }
 
-  // if (m_muonIdHelperTool->rpcIdHelper().stationPhi(chid)==8)
-  //   if (m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(chid)).substr(2,1)=="L")
-  //     {
-  // 	if (phiLastStrip<0) phiLastStrip=phiLastStrip+2.*M_PI;
-  //     }
 
   if ( phiFirstStrip < phiLastStrip ) {
     phimin = phiFirstStrip;
@@ -1085,8 +952,6 @@ void MuonGMCheck::getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc,
       otherview = 0;
       n_strips          = rpc->NphiStrips();
       n_stripsOtherView = rpc->NetaStrips();
-      // stripPitch          = rpc->StripPitch(1);
-      // stripPitchOtherView = rpc->StripPitch(0);
     }
   else
     {
@@ -1095,8 +960,6 @@ void MuonGMCheck::getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc,
       otherview = 1;
       n_strips          = rpc->NetaStrips();
       n_stripsOtherView = rpc->NphiStrips();
-      // stripPitch          = rpc->StripPitch(0);
-      // stripPitchOtherView = rpc->StripPitch(1);
     }
   Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(chid);
   Identifier chidFirst = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
@@ -1173,12 +1036,6 @@ void MuonGMCheck::getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc,
     zmax   = zFirstStrip;
   }
 
-  // if (m_muonIdHelperTool->rpcIdHelper().stationPhi(chid)==8)
-  //   if (m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(chid)).substr(2,1)=="L")
-  //     {
-  // 	if (phiLastStrip<0) phiLastStrip=phiLastStrip+2.*M_PI;
-  //     }
-
   if ( phiFirstStrip<phiLastStrip ) {
     phimin = phiFirstStrip;
     phimax = phiLastStrip;
@@ -1196,24 +1053,18 @@ void MuonGMCheck::checkParentStation()
 {
      ATH_MSG_INFO( " *************************** Global Check for Mdt"  );
 
-     //     bool firsttime = true;
-     //     bool firstspec = false;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NMdtStatType; ++ sname_index) 
      {
-	 //         int st = sname_index;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NMdtStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NMdtStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NMdtStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
                  {
                      const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(sname_index,
                                                                               seta_index,
                                                                               sphi_index,
                                                                               dbr_index);
-                     //std::cerr<<" st_i, zi_i, fi_i, ml_i "<<st<<"/"<<zi<<"/"<<fi<<"/"<<"/"<<dbr_index<<std::endl;
                      if (mdt == NULL) continue;
                      std::cout<<" ///////////////////// Found a MdtReadoutElement for indices = "
                               <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
@@ -1253,7 +1104,6 @@ void MuonGMCheck::checkreadoutmmgeo()
 {
      ATH_MSG_INFO( " *************************** Global Check for MM"  );
 
-     //     if (p_MuonMgr->nsTgcRE() == 0) {
      if (p_MuonMgr->nMMRE() == 0) {
        ATH_MSG_INFO( " No MMReadoutElements found " );
          return;
@@ -1313,10 +1163,9 @@ void MuonGMCheck::checkreadoutmmgeo()
 		     fout<<helper.show_to_string(idC)<<" # of gas gaps = "<<helper.gasGapMax(idC)-helper.gasGapMin(idC)+1<<" ggMax = "<<helper.gasGapMax(idC)<<" number of layers(from geo)= "<<mmC->numberOfLayers(true)<<" nStrips = "<<mmC->numberOfStrips(idC)<<std::endl;
 		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
 		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./3.14159<<std::endl;
-		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./3.14159<<std::endl;
+		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./M_PI<<std::endl;
+		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./M_PI<<std::endl;
 		     Amg::Vector2D lpos(0.,0.);
-		     //		     for (int igg=1;igg<helper.gasGapMax(idA)-helper.gasGapMin(idA)+2;++igg)
 		     for (int igg=1;igg<mmA->numberOfLayers(true)+1;++igg)
 		       {
 			 Identifier idgg_fA =  helper.channelID(helper.parentID(idA),iml+1,igg,1);
@@ -1328,13 +1177,11 @@ void MuonGMCheck::checkreadoutmmgeo()
 			 const Amg::Vector3D *chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
 			 const Amg::Vector3D *chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
 			 fout<<"A-side: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-			     <<" phi "<<chCenter_fA->phi()*180./3.14159<<" "<<chCenter_lA->phi()*180./3.14159<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<" "<<helper.show_to_string(idgg_fA)<<std::endl;
+			     <<" phi "<<chCenter_fA->phi()*180./M_PI<<" "<<chCenter_lA->phi()*180./M_PI<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<" "<<helper.show_to_string(idgg_fA)<<std::endl;
 			 fout<<"C-side: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-			     <<" phi "<<chCenter_fC->phi()*180./3.14159<<" "<<chCenter_lC->phi()*180./3.14159<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<" "<<helper.show_to_string(idgg_fC)<<std::endl;
+			     <<" phi "<<chCenter_fC->phi()*180./M_PI<<" "<<chCenter_lC->phi()*180./M_PI<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<" "<<helper.show_to_string(idgg_fC)<<std::endl;
 		       }
-		     //std::cout<<chCenterA.x()<<" "<<chCenterA.y()<<" "<<chCenterA.z()<<std::endl;
-		     //std::cout<<chCenterC.x()<<" "<<chCenterC.y()<<" "<<chCenterC.z()<<std::endl;
-		     
+
 		   }
 	       }
 	   }
@@ -1403,36 +1250,9 @@ void MuonGMCheck::checkreadoutstgcgeo()
 
 		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
 		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./3.14159<<std::endl;
-		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./3.14159<<std::endl;
-		     // Amg::Vector2D lpos(0.,0.);
-		     // for (int igg=1;igg<helper.gasGapMax(idA)-helper.gasGapMin(idA)+2;++igg)
-		     //   {
-		     // 	 Identifier idgg_fA =  helper.channelID(helper.parentID(idA),iml+1,igg,0,1);
-		     // 	 Identifier idgg_lA =  helper.channelID(helper.parentID(idA),iml+1,igg,0,mmA->numberOfStrips(idA));
-		     // 	 Identifier idgg_fC =  helper.channelID(helper.parentID(idC),iml+1,igg,0,1);
-		     // 	 Identifier idgg_lC =  helper.channelID(helper.parentID(idC),iml+1,igg,0,mmC->numberOfStrips(idC));
-		     // 	 const Amg::Vector3D *chCenter_fA = mmA->surface(idgg_fA).Trk::Surface::localToGlobal(lpos);
-		     // 	 const Amg::Vector3D *chCenter_lA = mmA->surface(idgg_lA).Trk::Surface::localToGlobal(lpos);
-		     // 	 const Amg::Vector3D *chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
-		     // 	 const Amg::Vector3D *chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
-		     // 	 fout<<"A-side/eta: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-		     // 	     <<" phi "<<chCenter_fA->phi()*180./3.14159<<" "<<chCenter_lA->phi()*180./3.14159<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<std::endl;
-		     // 	 fout<<"C-side/eta: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-		     // 	     <<" phi "<<chCenter_fC->phi()*180./3.14159<<" "<<chCenter_lC->phi()*180./3.14159<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<std::endl;
-		     // 	 idgg_fA =  helper.channelID(helper.parentID(idA),iml+1,igg,1,1);
-		     // 	 idgg_lA =  helper.channelID(helper.parentID(idA),iml+1,igg,1,mmA->numberOfStrips(idA));
-		     // 	 idgg_fC =  helper.channelID(helper.parentID(idC),iml+1,igg,1,1);
-		     // 	 idgg_lC =  helper.channelID(helper.parentID(idC),iml+1,igg,1,mmC->numberOfStrips(idC));
-		     // 	 chCenter_fA = mmA->surface(idgg_fA).Trk::Surface::localToGlobal(lpos);
-		     // 	 chCenter_lA = mmA->surface(idgg_lA).Trk::Surface::localToGlobal(lpos);
-		     // 	 chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
-		     // 	 chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
-		     // 	 fout<<"A-side/phi: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-		     // 	     <<" phi "<<chCenter_fA->phi()*180./3.14159<<" "<<chCenter_lA->phi()*180./3.14159<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<std::endl;
-		     // 	 fout<<"C-side/phi: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-		     // 	     <<" phi "<<chCenter_fC->phi()*180./3.14159<<" "<<chCenter_lC->phi()*180./3.14159<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<std::endl;
-		     //   }
+		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./M_PI<<std::endl;
+		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./M_PI<<std::endl;
+
 		   }
 	       }
 	   }
@@ -1458,7 +1278,6 @@ void MuonGMCheck::checkreadoutmdtgeo()
      std::string fileNameEP = "mdt_current_EP_"+gVersion;
      std::string fileNameEP2 = "mdt_current_EP2_"+gVersion;
      std::ofstream fout(fileName.c_str());
-     //std::ofstream fendpoints(fileNameEP.c_str());
      std::ofstream fendpoints;
      if (m_check_blines) fendpoints.open(fileNameEP.c_str());
      std::ofstream fendpoints2(fileNameEP2.c_str());
@@ -1469,17 +1288,12 @@ void MuonGMCheck::checkreadoutmdtgeo()
      bool doHeader = true;
      
      
-     //     bool firsttime = true;
-     //     bool firstspec = false;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NMdtStatType; ++ sname_index) 
      {
-	 //         int st = sname_index;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NMdtStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NMdtStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NMdtStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
 		 bool doChHeader = true;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
                  {
@@ -1488,10 +1302,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
                                                                                     sphi_index,
                                                                                     dbr_index);
                      if (mdt == NULL) continue;
-                     //fendpoints<<" ///////////////////// Found a MdtReadoutElement for indices = "
-                     //         <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
-                     //         <<dbr_index
-                     //         <<std::endl;
+
                      fout<<" ///////////////////// Found a MdtReadoutElement for indices = "
                               <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                               <<dbr_index
@@ -1504,33 +1315,16 @@ void MuonGMCheck::checkreadoutmdtgeo()
 			      <<mdt->getStationName();
 		     if (mdt->hasCutouts()) fout<<" ---- it HAS CUTOUTS"<<std::endl;
 		     else fout<<std::endl;
-                     //fendpoints<<" its offline hash Id = "<<mdt->identifyHash()<<std::endl;
-                     //fendpoints<<" its offline Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr)
-                     //         <<" ////////////////// belongs to module "
-                     //         <<mdt->getTechnologyName()<<"/"
-		     //         <<mdt->getStationName();
-		     //if (mdt->hasCutouts()) fendpoints<<" ---- it HAS CUTOUTS"<<std::endl;
-		     //else fendpoints<<std::endl;
+
 		     // here get B-line 
 		     const BLinePar* bLine = NULL; 
 		     bLine = mdt->getBLinePar();//
-                     //std::cerr<<" bline pointer "<<bLine<<std::endl;
 
-//                      std::cout<<" its offline Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr)
-//                               <<" ////////////////// belongs to module "
-//                               <<mdt->getTechnologyName()<<"/"
-//                               <<mdt->getStationName()<<std::endl;
+
                      Identifier idp = m_muonIdHelperTool->mdtIdHelper().parentID(idr);
                      fout<<"      parent Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idp)<<std::endl;
-//                      std::cout<<"      getStationName(), largeSector(), smallSector(), isInBarrel() "
-//                          <<mdt->getStationName()<<" "
-//                          <<mdt->largeSector()<<" "
-//                          <<mdt->smallSector()<<" "
-//                          <<mdt->isInBarrel()<<std::endl;
-                     //Amg::Vector3D stc = mdt->parentMuonStationPos();
-                     const MuonStation* pms = mdt->parentMuonStation();
 
-                     //fout<<" uffa "<<mdt->getStationName()<<" phi "<<mdt->getStationPhi()<<" "<<mdt->getStationEta()<<" ml "<<mdt->getMultilayer()<<std::endl;
+                     const MuonStation* pms = mdt->parentMuonStation();
                      
                      if (mdt->getStationName() == "BIL2" && mdt->getStationPhi()== 3 && mdt->getStationEta() == 1 )
                      {
@@ -1551,10 +1345,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
                          fout<<" ^^^^^^^^^^^^^^^^^ end   checking transform to amdb lrs "<<std::endl;                         
                      }
                      
-//                     Identifier idp1 = m_muonIdHelperTool->mdtIdHelper().elementID(m_muonIdHelperTool->mdtIdHelper().stationName(idp),
-//                                                                 -m_muonIdHelperTool->mdtIdHelper().stationEta(idp),
-//                                                                 m_muonIdHelperTool->mdtIdHelper().stationPhi(idp));
-                     
+
                      fout<<" Multilayer    = "<<mdt->getMultilayer();
                      fout<<" N tube layers = "<<mdt->getNLayers();
                      fout<<"   tubes/layer = "<<mdt->getNtubesperlayer()<<std::endl;
@@ -1562,16 +1353,6 @@ void MuonGMCheck::checkreadoutmdtgeo()
                      Amg::Vector3D elc = mdt->globalPosition();
                       fout<<" Element centre is at "<<elc
                           <<" cyl. coords R,phi,Z "<<elc.perp()<<" "<<elc.phi()<<" "<<elc.z()<<std::endl;
-//                      fout<<" Element centre is at ("
-//                          <<std::setw(11)<<std::setprecision(9)<<elc.x()<<","
-//                          <<std::setw(11)<<std::setprecision(9)<<elc.y()<<","
-//                          <<std::setw(11)<<std::setprecision(9)<<elc.z()<<")"
-//                          <<" *** cyl. coords R,phi,Z "<<elc.perp()<<" "<<elc.phi()<<" "<<elc.z()<<std::endl;
-//                      fout<<" Element centre is at ("
-//                          <<std::setprecision(11)<<elc.x()<<","
-//                          <<std::setprecision(11)<<elc.y()<<","
-//                          <<std::setprecision(11)<<elc.z()<<std::setprecision(11)<<")"
-//                          <<" *** cyl. coords R,phi,Z "<<elc.perp()<<" "<<elc.phi()<<" "<<elc.z()<<std::endl;
 
                      Identifier chid;
                      for ( int tl=1; tl<=mdt->getNLayers(); tl++) 
@@ -1625,9 +1406,6 @@ void MuonGMCheck::checkreadoutmdtgeo()
                                  double zRO = mdt->signedRODistanceFromTubeCentre(mdt->getMultilayer(),tl,tube);
 				 double halfTubeL =  mdt->getTubeLength(tl,tube)/2.;
 				 
-//                              fout<<" point on the wire at  1m from the center "<<mdt->transform(chid)*Amg::Vector3D(0.,0., 1000.)<<std::endl;
-//                              fout<<" point on the wire at -1m from the center "<<mdt->transform(chid)*Amg::Vector3D(0.,0.,-1000.)<<std::endl;
-//                              fout<<" RO side at "<<mdt->transform(chid)*mdt->tubeFrame_localROPos(chid)<<std::endl;
                                  double z1000RO = 1000.;
                                  if (zRO <0) z1000RO = -1000.;
 				 Amg::Vector3D pzRO = mdt->transform(chid)*Amg::Vector3D(0.,0., zRO);
@@ -1642,7 +1420,6 @@ void MuonGMCheck::checkreadoutmdtgeo()
 				     pzEPsminus = pzEPsplus;
 				     pzEPsplus  = pzEPstmp;
 				   }
-				 //double pzHVamdbS = (mdt->GlobalToAmdbLRSCoords(pzHV)).x();
 				 Amg::Vector3D pz0  = mdt->center(chid);				 
                                  fout<<" point on the wire at 1m from the center @ RO side "<<mdt->transform(chid)*Amg::Vector3D(0.,0., z1000RO)<<std::endl;
                                  fout<<" point on the wire at 1m from the center @ HV side "<<mdt->transform(chid)*Amg::Vector3D(0.,0.,-z1000RO)<<std::endl;
@@ -1700,7 +1477,6 @@ void MuonGMCheck::checkreadoutmdtgeo()
 						   <<" MDT envelop Ssize, LongSsize, Zsize=Height, Rsize=Length "
 						   <<pms->Ssize()<<" "<<pms->LongSsize()<<" "
 						   <<pms->ZsizeMdtStation()<<" "<<pms->RsizeMdtStation()<<std::endl;
-				     //HepGeom::Point3D<double> temp = pms->getBlineFixedPointInAmdbLRS();
 				     HepGeom::Point3D<double> temp = pms->getUpdatedBlineFixedPointInAmdbLRS();
 				     Amg::Vector3D bLineFixedPointAMDBl(temp[0],temp[1],temp[2]);
 				     Amg::Vector3D aLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
@@ -1725,44 +1501,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
 					       <<bLineFixedPoint.z()<<std::endl;
 				     
 				 }				 
-				 
-				 // if (pzROamdbS > 10.) 
-				 // {				     
-				 //     fendpoints<<std::setw(20)<<setiosflags(std::ios::fixed)<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
-				 // 	       <<"     s+ "
-				 // 	       <<std::setw(12)<<setiosflags(std::ios::fixed)
-				 // 	       <<std::setprecision(4)<<" "
-				 // 	       <<pzRO.x()<<" "<<pzRO.y()<<" "<<pzRO.z()<<"   "
-				 // 	       <<"     s=0 "
-				 // 	       <<std::setw(12)<<setiosflags(std::ios::fixed)
-				 // 	       <<std::setprecision(4)<<" "
-				 // 	       <<pz0.x() <<" "<<pz0.y() <<" "<<pz0.z() 
-				 // 	       <<"     s- "
-				 // 	       <<std::setw(12)<<setiosflags(std::ios::fixed)
-				 // 	       <<std::setprecision(4)<<" "
-				 // 	       <<pzHV.x()<<" "<<pzHV.y()<<" "<<pzHV.z()
-				 // 	       <<"    zNativeRO "<<zRO//<<" "<<pzROamdbS
-				 // 	       <<std::endl;
-				 // }
-				 // else if (pzROamdbS < -10.) 
-				 // {				     
-				 //     fendpoints<<std::setw(20)<<setiosflags(std::ios::fixed)<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
-				 // 	       <<"     s- "
-				 // 	       <<std::setw(12)<<setiosflags(std::ios::fixed)
-				 // 	       <<std::setprecision(4)<<" "
-				 // 	       <<pzRO.x()<<" "<<pzRO.y()<<" "<<pzRO.z()<<"   "
-				 // 	       <<"     s=0 "
-				 // 	       <<std::setw(12)<<setiosflags(std::ios::fixed)
-				 // 	       <<std::setprecision(4)<<" "
-				 // 	       <<pz0.x() <<" "<<pz0.y() <<" "<<pz0.z() 
-				 // 	       <<"     s+ "
-				 // 	       <<std::setw(12)<<setiosflags(std::ios::fixed)
-				 // 	       <<std::setprecision(4)<<" "
-				 // 	       <<pzHV.x()<<" "<<pzHV.y()<<" "<<pzHV.z()
-				 // 	       <<"    zNativeRO "<<zRO//<<" "<<pzROamdbS
-				 // 	       <<std::endl;
-				 // }
-				 // else fendpoints<<"A PROBLEM HERE "<<std::endl;
+
 
 				 Amg::Vector3D amdbpos  = mdt->AmdbLRStubePos(chid);
 				 fendpoints << "Amdb LRS rubePos " << amdbpos.x() << " " << amdbpos.y() << " " << amdbpos.z() << std::endl;
@@ -1822,14 +1561,6 @@ void MuonGMCheck::checkreadoutmdtgeo()
 			   }
 			   
                          }
-                         
-//                          tube = mdt->getNtubesperlayer();
-//                          chid   = m_muonIdHelperTool->mdtIdHelper().channelID(idp,mdt->getMultilayer(), tl, tube);
-//                          fout<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
-//                                           <<" wire global pos "<<mdt->tubePos(chid);
-//                          fout<<" Tube length is "<<mdt->tubeLength(chid)<<std::endl;
-//                          fout<<" Amdb LRS tubePos "<<mdt->AmdbLRStubePos(chid)
-//                              <<" transformed to global "<<(*pms->getAmdbLRSToGlobal())*mdt->AmdbLRStubePos(chid)<<std::endl;
 
                          
 
@@ -1879,106 +1610,12 @@ void MuonGMCheck::checkreadouttgcgeo()
      ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
-     
-     //     MYSQL *mysql=  MYSQL::GetPointer();
-     /*
-     for (TgcReadParsIterator it = mysql->TgcRParsBegin(); it != mysql->TgcRParsend(); it++)
-     {
-        TgcReadoutParams* rpar = (*it).second;
-        fout<<" ///////////////////////uffa uffa///////////////////"<<std::endl;
-        fout<<" TgcReadoutParams from mysql at "<<rpar<<" here is name, type, version, wirespacing, nch "
-                     <<rpar->GetName()<<" "<<rpar->chamberType()<<" "<<rpar->readoutVersion()<<" "
-                     <<rpar->wirePitch() <<" "<<rpar->nPhiChambers()
-                     <<std::endl;
-        fout<<" name "<<rpar->GetName()<<" type "<<rpar->chamberType()<<" NphiChambers "
-                 <<rpar->nPhiChambers()<<" nGaps "<<rpar->nGaps()<<" version "<<rpar->readoutVersion()<<std::endl;
-        for (int gg=1; gg<=rpar->nGaps(); ++gg)
-        {
-            fout<<" gap :"<<gg<<" nGangs, nStrips "<<rpar->nGangs(gg)<<" "<<rpar->nStrips(gg)<<std::endl;
-            for (int gang=1; gang<=rpar->nGangs(gg); ++gang)
-            {
-                fout<<" gap :"<<gg<<" gang :"<<gang<<" nWires "<<rpar->nWires(gg,gang)<<std::endl;
-            }
-        }
-    }
-     fout<<" End of check on tgc-readout-parameters"<<std::endl;
-     */
-
-     /*
-     
-     bool firsttime = true;
-     bool firstspec = false;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NTgcStatType; ++ sname_index) 
      {
-         int st = sname_index;
-         for (int seta_index = 0; seta_index<MuonDetectorManager::NTgcStatEta; ++seta_index)
-         {
-             int zi = seta_index + MuonDetectorManager::NTgcStEtaOffset;
-             for (int sphi_index = 0; sphi_index<MuonDetectorManager::NTgcStatPhi; ++sphi_index)
-             {
-                 int fi = sphi_index + 1;
-                 fout<<" indices are "<<sname_index<<" "<<seta_index<<" "<<sphi_index<<std::endl;
-                 
-                 const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
-                                                                                seta_index,
-                                                                                sphi_index);
-                 if (tgc == NULL) continue;
-                 fout<<" ///////////////////// Found a TgcReadoutElement for indices = "
-                          <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
-                          <<std::endl;
-                 Identifier idr = tgc->identify();
-                 fout<<" its offline Id = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idr)
-                          <<" ////////////////// belongs to module "
-                          <<tgc->getTechnologyName()<<"/"
-                          <<tgc->getStationName()<<std::endl;
-                 Identifier idp = m_muonIdHelperTool->tgcIdHelper().parentID(idr);
-                 fout<<"      parent Id = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idp);
-                 
-                 fout<<" N gasgaps layers = "<<tgc->NwirePlanes();
-                 fout<<" N strip planes   = "<<tgc->NstripPlanes()<<std::endl;
-
-                 const TgcReadoutParams* rpar = tgc->getReadoutParams();
-                 Amg::Vector3D tgc_c = (tgc->transform())*Amg::Vector3D(0.,0.,0.);
-                 std::cerr<<"****** read type "<<tgc->getReadoutType()<<" getNGaps() "
-                          <<tgc->getNGaps()<<" d.a. "<<rpar->nGaps()
-                          <<" centre at r,phi,z "
-                          <<tgc_c.perp()<<" "<<tgc_c.phi()<<" "<<tgc_c.z()<<" "
-                          <<std::endl;
-                 for (int ngg=0; ngg<tgc->NwirePlanes(); ++ngg)
-                 {
-                     std::cerr<<"****** getnGangs(gg) "<<tgc->getNGangs(ngg+1)<<"  getnStrips(gg) "
-                              << tgc->getNStrips(ngg+1)<<std::endl;
-                     std::cerr<<"****** getnWire(gg,1/2/3) "
-                              <<tgc->getNWires(ngg+1,1)<<"/"
-                              <<tgc->getNWires(ngg+1,2)<<"/"
-                              <<tgc->getNWires(ngg+1,3)<<" d.a. "
-                              <<rpar->nWires(ngg+1,1)<<"/"
-                              <<rpar->nWires(ngg+1,2)<<"/"
-                              <<rpar->nWires(ngg+1,3)<<std::endl;
-                     
-                     Identifier idch = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 0, 1);
-                     Amg::Vector3D ggcentre = tgc->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
-                     std::cerr<<" For Chamber id "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idch)
-                              <<" gasgap centre is "<<ggcentre<<std::endl;
-                     idch = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
-                     ggcentre = tgc->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
-                     std::cerr<<" For Chamber id "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idch)
-                              <<" gasgap centre is "<<ggcentre<<std::endl;
-
-                 }
-             }
-         }
-     }
-     */
-     for (int sname_index = 0; sname_index<MuonDetectorManager::NTgcStatType; ++ sname_index) 
-     {
-	 //         int st = sname_index;
          for (int seta_index = 5; seta_index<MuonDetectorManager::NTgcStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NTgcStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NTgcStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  fout<<" indices are "<<sname_index<<" "<<seta_index<<" "<<sphi_index<<std::endl;
                  
                  const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
@@ -2051,8 +1688,6 @@ void MuonGMCheck::checkreadouttgcgeo()
                      ggcentre = tgc1->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
                      fout<<" For Chamber id "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
-//                      fout<<" Phi Strip width is "<<tgc->StripWidth(ngg+1)<<std::endl;
-//                      fout<<" the chamber is positioned at "<<tgc->globalPosition()<<std::endl;
 
                      
                      Identifier fg = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 0, 1);
@@ -2066,12 +1701,12 @@ void MuonGMCheck::checkreadouttgcgeo()
                      Amg::Vector3D xlgn = tgc1->channelPos(lgn);
                      fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fg)
                               <<"GM:: first eta gang z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./3.14159<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./3.14159<<" "<<xlg.z()<<std::endl;
+                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
                      fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fgn)
                               <<"GM:: first eta gang z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./3.14159<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./3.14159<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
 
                      Identifier fs = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
                      Identifier ls = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, tgc->getNStrips(ngg+1));
@@ -2083,24 +1718,24 @@ void MuonGMCheck::checkreadouttgcgeo()
                      xlgn = tgc1->channelPos(lsn);
                      fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fs)
                               <<"GM:: first phi strip z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./3.14159<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./3.14159<<" "<<xlg.z()<<std::endl;
+                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
                      fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fsn)
                               <<"GM:: first phi strip z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./3.14159<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./3.14159<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
                      xfg = tgc->localChannelPos(fs);
                      xlg = tgc->localChannelPos(ls);
                      xfgn = tgc1->localChannelPos(fsn);
                      xlgn = tgc1->localChannelPos(lsn);
                      fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fs)
                               <<"GM:: first p_S local z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./3.14159<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./3.14159<<" "<<xlg.z()<<std::endl;
+                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
                      fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fsn)
                               <<"GM:: first p_S local z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./3.14159<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./3.14159<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
 
                      if (m_check_surfaces)
                      {
@@ -2265,27 +1900,6 @@ void MuonGMCheck::checkreadoutcscgeo()
      ATH_MSG_INFO( " *************************** Global Check for Csc"  );
 
 
-     /* 
-     Amg::Transform3D myT = HepGeom::TranslateY3D(-0.5)*HepGeom::RotateZ3D(-0.01);
-
-     //     Amg::Transform3D C2A = HepGeom::TranslateY3D(564.6);
-     Amg::Transform3D C2A = HepGeom::TranslateY3D(571.25);
-     Amg::Transform3D myT_inC = C2A.inverse()*myT*C2A;
-     Amg::Transform3D ImyT_inC =  myT_inC.inverse();
-     ATH_MSG_INFO(" Transform in A-frame" );
-     ATH_MSG_INFO((myT)[0][0]<<" "<<(myT)[0][1]<<" "<<(myT)[0][2]<<" "<<(myT)[0][3] );
-     ATH_MSG_INFO((myT)[1][0]<<" "<<(myT)[1][1]<<" "<<(myT)[1][2]<<" "<<(myT)[1][3] );
-     ATH_MSG_INFO((myT)[2][0]<<" "<<(myT)[2][1]<<" "<<(myT)[2][2]<<" "<<(myT)[2][3] );
-     ATH_MSG_INFO(" Transform in C-frame" );
-     ATH_MSG_INFO((myT_inC)[0][0]<<" "<<(myT_inC)[0][1]<<" "<<(myT_inC)[0][2]<<" "<<(myT_inC)[0][3] );
-     ATH_MSG_INFO((myT_inC)[1][0]<<" "<<(myT_inC)[1][1]<<" "<<(myT_inC)[1][2]<<" "<<(myT_inC)[1][3] );
-     ATH_MSG_INFO((myT_inC)[2][0]<<" "<<(myT_inC)[2][1]<<" "<<(myT_inC)[2][2]<<" "<<(myT_inC)[2][3] );
-     ATH_MSG_INFO(" Inverse Transform in C-frame" );
-     ATH_MSG_INFO((ImyT_inC)[0][0]<<" "<<(ImyT_inC)[0][1]<<" "<<(ImyT_inC)[0][2]<<" "<<(ImyT_inC)[0][3] );
-     ATH_MSG_INFO((ImyT_inC)[1][0]<<" "<<(ImyT_inC)[1][1]<<" "<<(ImyT_inC)[1][2]<<" "<<(ImyT_inC)[1][3] );
-     ATH_MSG_INFO((ImyT_inC)[2][0]<<" "<<(ImyT_inC)[2][1]<<" "<<(ImyT_inC)[2][2]<<" "<<(ImyT_inC)[2][3] );
-     */
-     
      
 
      if (p_MuonMgr->nCscRE() == 0) {
@@ -2301,19 +1915,12 @@ void MuonGMCheck::checkreadoutcscgeo()
      fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
 
-     //     MYSQL *mysql=  MYSQL::GetPointer();
-
-     //     bool firsttime = true;
-     //     bool firstspec = false;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NCscStatType; ++ sname_index) 
      {
-	 //         int st = sname_index;
          for (int seta_index = 1; seta_index<MuonDetectorManager::NCscStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NCscStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NCscStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int ml=0; ml<MuonDetectorManager::NCscChamberLayer; ++ml)
                  {
                      
@@ -2500,100 +2107,38 @@ void MuonGMCheck::checkreadoutcscgeo()
 			     <<"GM:: first phi strip is at z<0 "<<xfszp1<<" last "<<xlszp1<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
 			     <<"GM::  first eta gang z>0 r,p,z "
-			     <<xfwzp.perp()<<" "<<xfwzp.phi()*180./3.14159<<" "<<xfwzp.z()<<" last "
-			     <<xlwzp.perp()<<" "<<xlwzp.phi()*180./3.14159<<" "<<xlwzp.z()<<std::endl;
+			     <<xfwzp.perp()<<" "<<xfwzp.phi()*180./M_PI<<" "<<xfwzp.z()<<" last "
+			     <<xlwzp.perp()<<" "<<xlwzp.phi()*180./M_PI<<" "<<xlwzp.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
 			     <<"GM:: first eta wire z<0 r,p,z "
-			     <<xfwzp1.perp()<<" "<<xfwzp1.phi()*180./3.14159<<" "<<xfwzp1.z()<<" last "
-			     <<xlwzp1.perp()<<" "<<xlwzp1.phi()*180./3.14159<<" "<<xlwzp1.z()<<std::endl;
+			     <<xfwzp1.perp()<<" "<<xfwzp1.phi()*180./M_PI<<" "<<xfwzp1.z()<<" last "
+			     <<xlwzp1.perp()<<" "<<xlwzp1.phi()*180./M_PI<<" "<<xlwzp1.z()<<std::endl;
 
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
 			     <<"GM::  first phi strip z>0 r,p,z "
-			     <<xfszp.perp()<<" "<<xfszp.phi()*180./3.14159<<" "<<xfszp.z()<<" last "
-			     <<xlszp.perp()<<" "<<xlszp.phi()*180./3.14159<<" "<<xlszp.z()<<std::endl;
+			     <<xfszp.perp()<<" "<<xfszp.phi()*180./M_PI<<" "<<xfszp.z()<<" last "
+			     <<xlszp.perp()<<" "<<xlszp.phi()*180./M_PI<<" "<<xlszp.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
 			     <<"GM:: first phi strip z<0 r,p,z "
-			     <<xfszp1.perp()<<" "<<xfszp1.phi()*180./3.14159<<" "<<xfszp1.z()<<" last "
-			     <<xlszp1.perp()<<" "<<xlszp1.phi()*180./3.14159<<" "<<xlszp1.z()<<std::endl;
+			     <<xfszp1.perp()<<" "<<xfszp1.phi()*180./M_PI<<" "<<xfszp1.z()<<" last "
+			     <<xlszp1.perp()<<" "<<xlszp1.phi()*180./M_PI<<" "<<xlszp1.z()<<std::endl;
 
-			 /* 
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
-			     <<"GM::new first eta wire is at z>0 "<<xfwzpNew <<" last "<<xlwzpNew
-			     <<" distance trkGeo-stripPos F="<<(xfwzpNew-xfwzp).perp()<<" distance trkGeo-stripPos L="<<(xlwzpNew-xlwzp).perp()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
-                                  <<"GM::new first eta wire is at z<0 "<<xfwzp1New<<" last "<<xlwzp1New
-			     <<" distance trkGeo-stripPos F="<<(xfwzp1New-xfwzp1).perp()<<" distance trkGeo-stripPos L="<<(xlwzp1New-xlwzp1).perp()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
-                                  <<"GM::new first phi strip is at z>0 "<<xfszpNew <<" last "<<xlszpNew
-			     <<" distance trkGeo-stripPos F="<<(xfszpNew-xfszp).perp()<<" distance trkGeo-stripPos L="<<(xlszpNew-xlszp).perp()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
-                                  <<"GM::new first phi strip is at z<0 "<<xfszp1New<<" last "<<xlszp1New
-			     <<" distance trkGeo-stripPos F="<<(xfszp1New-xfszp1).perp()<<" distance trkGeo-stripPos L="<<(xlszp1New-xlszp1).perp()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
-                                  <<"GM::new first eta gang z>0 r,p,z "
-                                  <<xfwzpNew.perp()<<" "<<xfwzpNew.phi()*180./3.14159<<" "<<xfwzpNew.z()<<" last "
-                                  <<xlwzpNew.perp()<<" "<<xlwzpNew.phi()*180./3.14159<<" "<<xlwzpNew.z()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
-                                  <<"GM::new first eta wire z<0 r,p,z "
-                                  <<xfwzp1New.perp()<<" "<<xfwzp1New.phi()*180./3.14159<<" "<<xfwzp1New.z()<<" last "
-                                  <<xlwzp1New.perp()<<" "<<xlwzp1New.phi()*180./3.14159<<" "<<xlwzp1New.z()<<std::endl;
-
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
-                                  <<"GM::new first phi strip z>0 r,p,z "
-                                  <<xfszpNew.perp()<<" "<<xfszpNew.phi()*180./3.14159<<" "<<xfszpNew.z()<<" last "
-                                  <<xlszpNew.perp()<<" "<<xlszpNew.phi()*180./3.14159<<" "<<xlszpNew.z()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
-                                  <<"GM::new first phi strip z<0 r,p,z "
-                                  <<xfszp1New.perp()<<" "<<xfszp1New.phi()*180./3.14159<<" "<<xfszp1New.z()<<" last "
-                                  <<xlszp1New.perp()<<" "<<xlszp1New.phi()*180./3.14159<<" "<<xlszp1New.z()<<std::endl;
-			 */
-
-                         //Amg::Vector3D lxfwzp = csc->localStripPos(fwzp);
                          Amg::Vector3D lxfszp = csc->localStripPos(fszp);
-                         //Amg::Vector3D lxlwzp = csc->localStripPos(lwzp);
                          Amg::Vector3D lxlszp = csc->localStripPos(lszp);
-                         //Amg::Vector3D lxfwzp1 = csc1->localStripPos(fwzp1);
                          Amg::Vector3D lxfszp1 = csc1->localStripPos(fszp1);
-                         //Amg::Vector3D lxlwzp1 = csc1->localStripPos(lwzp1);
                          Amg::Vector3D lxlszp1 = csc1->localStripPos(lszp1);
 
-                         //temporary {{
-//                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
-//                                   <<"GM:: (local) first eta wire is at z>0 "<<lxfwzp <<" last "<<lxlwzp<<std::endl;
-//                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
-//                                   <<"GM:: (local)first eta wire is at z<0 "<<lxfwzp1 <<" last "<<lxlwzp1<<std::endl;
-//                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
-//                                   <<"GM:: (local)first phi strip is at z>0 "<<lxfszp <<" last "<<lxlszp<<std::endl;
-//                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
-//                                   <<"GM:: (local)first phi strip is at z<0 "<<lxfszp1<<" last "<<lxlszp1<<std::endl;
-                         //}}
                          
                          
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
                                   <<"GM:: first phi_S local z>0 r,p,z "
-                                  <<lxfszp.perp()<<" "<<lxfszp.phi()*180./3.14159<<" "<<lxfszp.z()<<" last "
-                                  <<lxlszp.perp()<<" "<<lxlszp.phi()*180./3.14159<<" "<<lxlszp.z()<<std::endl;
+                                  <<lxfszp.perp()<<" "<<lxfszp.phi()*180./M_PI<<" "<<lxfszp.z()<<" last "
+                                  <<lxlszp.perp()<<" "<<lxlszp.phi()*180./M_PI<<" "<<lxlszp.z()<<std::endl;
                          fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
                                   <<"GM:: first phi_S local z<0 r,p,z "
-                                  <<lxfszp1.perp()<<" "<<lxfszp1.phi()*180./3.14159<<" "<<lxfszp1.z()<<" last "
-                                  <<lxlszp1.perp()<<" "<<lxlszp1.phi()*180./3.14159<<" "<<lxlszp1.z()<<std::endl;
+                                  <<lxfszp1.perp()<<" "<<lxfszp1.phi()*180./M_PI<<" "<<lxfszp1.z()<<" last "
+                                  <<lxlszp1.perp()<<" "<<lxlszp1.phi()*180./M_PI<<" "<<lxlszp1.z()<<std::endl;
 
-                         //temporary{{
-//                          int chl = m_muonIdHelperTool->cscIdHelper().chamberLayer(fwzp);
-//                          int wl  = m_muonIdHelperTool->cscIdHelper().wireLayer(fwzp);
-//                          int chl_n = m_muonIdHelperTool->cscIdHelper().chamberLayer(fwzp1);
-//                          int wl_n  = m_muonIdHelperTool->cscIdHelper().wireLayer(fwzp1);
-//                          Amg::Vector3D lstriplayerpos_wzp = csc->localStripLayerPos(chl,wl,0,1);
-//                          Amg::Vector3D lstriplayerpos_szp = csc->localStripLayerPos(chl,wl,1,1);
-//                          Amg::Vector3D lstriplayerpos_wzn = csc->localStripLayerPos(chl_n,wl,0,1);
-//                          Amg::Vector3D lstriplayerpos_szn = csc->localStripLayerPos(chl_n,wl,1,1);
-//                          fout<<" lstriplayerpos - wires z>0 "<<lstriplayerpos_wzp<<std::endl;
-//                          fout<<" lstriplayerpos - wires z<0 "<<lstriplayerpos_wzn<<std::endl;
-//                          fout<<" lstriplayerpos -strips z>0 "<<lstriplayerpos_szp<<std::endl;
-//                          fout<<" lstriplayerpos -strips z<0 "<<lstriplayerpos_szn<<std::endl;
-//                          fout<<"*********************** "<<std::endl;
-                         //}}
-                     
 
                          if (m_check_surfaces)
                          {
@@ -2784,13 +2329,12 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
         if (nmodules != Set.NreadoutElements())
             std::cout<<" nmod = "<<nmodules<<" != NreadoutElements() "<<nmod<<std::endl;
         // here define the eta and phi(0-2*pi) ranges
-        if (phimin<0) phimin = phimin + 2*M_PI;
-        if (phimax<0) phimax = phimax + 2*M_PI;
-        //double theta_min = Pzmin.theta();
+        coercePositivePhi(phimin);
+        coercePositivePhi(phimax);
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
         std::cout<<"eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax<<std::endl;
-        //
+
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
               << Idhash
@@ -2806,7 +2350,6 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
         
     }
     
-    //fout.close();
     fout0.close();
 }
 
@@ -2953,8 +2496,6 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
 		  mdtPos1[1] *= scaleMin;
 		  mdtPos2[0] *= scaleMin;
 		  mdtPos2[1] *= scaleMin;
-		    // mdtPos1.setPerp(mdtPos.perp()-tubePitch/2.);
-		    // mdtPos2.setPerp(mdtPos.perp()-tubePitch/2.);
                 }
                 else
                 {
@@ -2962,8 +2503,6 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
 		  mdtPos1[1] *= scalePlus;
 		  mdtPos2[0] *= scalePlus;
 		  mdtPos2[1] *= scalePlus;
-                    // mdtPos1.setPerp(mdtPos.perp()+tubePitch/2.);
-                    // mdtPos2.setPerp(mdtPos.perp()+tubePitch/2.);
                 }
             }
             else 
@@ -2973,22 +2512,18 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
 	        mdtPos1[1] *= scaleMin;
 	        mdtPos2[0] *= scalePlus;
 		mdtPos2[1] *= scalePlus;
-                // mdtPos1.setPerp(mdtPos.perp()-tubePitch/2.);
-                // mdtPos2.setPerp(mdtPos.perp()+tubePitch/2.);
                 // correct the z ranges of the first or last tube layer to account for tube staggering
                 if (zpos21 > 1.) 
                 {
 		    scalePlus = (mdtPos2.perp()+tubePitch/2.)/mdtPos2.perp();
 		    mdtPos2[0] *= scalePlus;
 		    mdtPos2[1] *= scalePlus;
-                    // mdtPos2.setPerp(mdtPos2.perp()+tubePitch/2.);
                 }
                 else if (zpos21 < -1.)
                 {
 		    scaleMin  = (mdtPos1.perp()-tubePitch/2.)/mdtPos1.perp();
 		    mdtPos1[0] *= scaleMin;
 		    mdtPos1[1] *= scaleMin;
-                    // mdtPos1.setPerp(mdtPos1.perp()-tubePitch/2.);
                 }
                 if (i<2) 
                 {
@@ -3088,14 +2623,13 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
         }
 
         // here define the eta and phi(0-2*pi) ranges
-        if (phimin<0) phimin = phimin + 2*M_PI;
-        if (phimax<0) phimax = phimax + 2*M_PI;
+        coercePositivePhi(phimin);
+        coercePositivePhi(phimax);
 
         std::cout<<" ***** Z range "<<zmin<<" "<<zmax<<" ***** R range "<<rmin<<" "<<rmax
                  <<" --- eta range "<<emin<<" "<<emax
                  <<" phi range "<<phimin<<" "<<phimax<<std::endl;
 
-//
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
               << Idhash
@@ -3176,11 +2710,7 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       const int chmin = m_muonIdHelperTool->tgcIdHelper().channelMin(chId);
       posmin = tgc->channelPos(gapMax,0,chmin); // gapMin gives posmin!
 
-      // caliculation based on max/min channels in a module
-      //	  etamin = -logf(tan(atan(posmin.perp()/fabs(posmin.z()))/2.));
-      //	  etamax = -logf(tan(atan(posmax.perp()/fabs(posmax.z()))/2.));
-
-      // caliculation based on active sensitive area
+      // calculation based on active sensitive area
       float activeheight;
       Amg::Vector3D posctr;
       posctr = tgc->globalPosition();
@@ -3194,23 +2724,12 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
 
       float phimin, phimax;
 
-      // caliculation based on max/min channels in a module
-      //	  const Identifier chId1  = m_muonIdHelperTool->tgcIdHelper().channelID(elemId,2,1,1);
-      //	  chmax = m_muonIdHelperTool->tgcIdHelper().channelMax(chId1);
-      //	  chmin = m_muonIdHelperTool->tgcIdHelper().channelMin(chId1);
-      //	  posmin = tgc->channelPos(2,1,chmin);
-      //	  posmax = tgc->channelPos(2,1,chmax);
-      //	  phimin = atan2f(posmin.y(),posmin.x());
-      //	  phimax = atan2f(posmax.y(),posmax.x());
-      //	  if (phimin < 0) phimin += 2.*3.141592653589793238;
-      //	  if (phimax < 0) phimax += 2.*3.141592653589793238;
-
-      // caliculation based on active sensitive area
+      // calculation based on active sensitive area
       float activelongside = tgc->longWidth()-tgc->frameXwidth()*2.;
       phimin = atan2f(posctr.y(),posctr.x()) - atan2f(activelongside/2.,posctr.perp()+activeheight/2.);
       phimax = atan2f(posctr.y(),posctr.x()) + atan2f(activelongside/2.,posctr.perp()+activeheight/2.);
-      if (phimin < 0) phimin += 2.*3.141592653589793238;
-      if (phimax < 0) phimax += 2.*3.141592653589793238;
+      if (phimin < 0) phimin += 2.*M_PI;
+      if (phimax < 0) phimax += 2.*M_PI;
   
       fout0 << new_extid
 	    << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -3331,7 +2850,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  						
  							phi_test=gphis_x1.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*M_PI;
  														
  							// phi
  							if(phi_test > phi_max)		{
@@ -3354,7 +2873,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  
  							phi_test=gphis_x2.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*M_PI;
  							
  							// phi
  							if(phi_test > phi_max)	{
@@ -3404,7 +2923,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  							
  							phi_test = getas_x1.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1)) if (phi_test < 0) phi_test += 2.*M_PI;
  							// phi
  							if(phi_test > phi_max)	{
  								Id_phi_max=etas_id;
@@ -3426,7 +2945,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  
  							phi_test = getas_x2.phi();
  							// for detector in (-0.25,0.25) phi interval use +-3,14 phi interval
- 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*3.141592653589793238;
+ 							if(!(aux1==51 && aux3==1))	if (phi_test < 0) phi_test += 2.*M_PI;
  							// phi
  							if(phi_test > phi_max)	{
  								Id_phi_max=etas_id;
@@ -3482,11 +3001,6 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  			int mp_phi_max = m_muonIdHelperTool->cscIdHelper().measuresPhi(Id_phi_max);
  			int mp_eta_min = m_muonIdHelperTool->cscIdHelper().measuresPhi(Id_eta_min);
  			int mp_eta_max = m_muonIdHelperTool->cscIdHelper().measuresPhi(Id_eta_max);
- 			
- 			//Amg::Vector3D phi_min_x = csc->localStripPos(Id_phi_min);
- 			//Amg::Vector3D phi_max_x = csc->localStripPos(Id_phi_max);
- 			//Amg::Vector3D eta_min_x = csc->localStripPos(Id_eta_min);
- 			//Amg::Vector3D eta_max_x = csc->localStripPos(Id_eta_max);
  		
  			std::cout << "--------> phi_min " << phi_min << " mp " << mp_phi_min << " chl " << cl_phi_min << " wl " << wl_phi_min << " strip " << N_phi_min << std::endl;
  			std::cout << "--------> phi_max " << phi_max << " mp " << mp_phi_max << " chl " << cl_phi_max << " wl " << wl_phi_max << " strip " << N_phi_max << std::endl;
@@ -3494,8 +3008,8 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  			std::cout << "--------> eta_max " << eta_max << " mp " << mp_eta_max << " chl " << cl_eta_max << " wl " << wl_eta_max << " strip " << N_eta_max << std::endl;
  			std::cout << "--------> Dphi " << fabs(phi_max-phi_min) << " Deta " << fabs(eta_max-eta_min) << std::endl;
  			
- 			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*3.141592653589793238;
- 			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*3.141592653589793238;
+ 			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*M_PI;
+ 			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*M_PI;
  			
  			fout0 << new_extid
              << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -3539,20 +3053,14 @@ void MuonGMCheck::testRpcCache_here()
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testRpcCache_"+gVersion;
-     //std::ofstream fout(fileName.c_str());
-     //exe_log << MSG::INFO << " ***** Writing file "<< fileName << endmsg;
-     //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
 
      int nre = 0;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
      {
-	 //         int st = sname_index + MuonDetectorManager::NRpcStatTypeOff;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NRpcStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
                  {
                      for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
@@ -3564,25 +3072,12 @@ void MuonGMCheck::testRpcCache_here()
                                                                                         dbz_index);
 
 			 if (rpc == NULL) {
-// 			   std::cout<<"Skipping "<<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
-// 				    <<dbr_index<<" "<<dbz_index
-// 				    <<std::endl;
 			   continue;			 
 			 }
                          nre++;
                          
 
-			 //fout<<" ///////////////////// Found a RpcReadoutElement for indices = "
-			 //    <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
-			 //    <<dbr_index<<" "<<dbz_index
-			 //    <<std::endl;
                          Identifier idr = rpc->identify();
-                         //int ndbphi = rpc->NphiStripPanels();
-                         //fout<<" its offline hash Id = "<<rpc->identifyHash()<<std::endl;
-                         //fout<<" its offline Id = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)
-                         //         <<" ////////////////// belongs to module "
-                         //         <<rpc->getTechnologyName()<<"/"
-                         //         <<rpc->getStationName()<<" # doubletPhi = "<<ndbphi<<std::endl;
 
 			 ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr) );
 			 rpc->fillCache();
@@ -3591,7 +3086,6 @@ void MuonGMCheck::testRpcCache_here()
 	     }
 	 }
      }
-     //fout.close();
      ATH_MSG_INFO(" Rpc cache built !" );
 }
 
@@ -3611,43 +3105,26 @@ void MuonGMCheck::testTgcCache_here()
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testTgcCache_"+gVersion;
-     //std::ofstream fout(fileName.c_str());
-     //ATH_MSG_INFO( " ***** Writing file "<< fileName  );
-     //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
 
      int nre = 0;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NTgcStatType; ++ sname_index) 
      {
-	 //         int st = sname_index;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NTgcStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NTgcStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NTgcStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
-                 //fout<<" indices are "<<sname_index<<" "<<seta_index<<" "<<sphi_index<<std::endl;
                  
                  const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
                                                                                 seta_index,
                                                                                 sphi_index);
                  if (tgc == NULL) continue;
-                 nre++;
-                 //fout<<" ///////////////////// Found a TgcReadoutElement for indices = "
-                 //         <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
-                 //         <<std::endl;                 
+                 nre++;           
                  Identifier idr = tgc->identify();
-                 //fout<<" its offline hash Id = "<<tgc->identifyHash()<<std::endl;
-                 //fout<<" its offline Id = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idr)
-                 //         <<" ////////////////// belongs to module "
-                 //         <<tgc->getTechnologyName()<<"/"
-                 //         <<tgc->getStationName()
-                 //    <<" stEta/stPhi "<<tgc->getStationEta()<<" "<<tgc->getStationPhi()<<std::endl;
                  ATH_MSG_DEBUG(" Filling cache for tgcRE n. "<<nre<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idr) );
                  tgc->fillCache();
              }
          }
      }
-     //fout.close();
      ATH_MSG_INFO(" Tgc cache built !" );
 }
 
@@ -3666,23 +3143,16 @@ void MuonGMCheck::testCscCache_here()
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testCscCache_"+gVersion;
-     //std::ofstream fout(fileName.c_str());
-     //ATH_MSG_INFO( " ***** Writing file "<< fileName  );
-     //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
 
      int nre=0;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NCscStatType; ++ sname_index) 
      {
-	 //         int st = sname_index;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NCscStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NCscStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NCscStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int ml=0; ml<MuonDetectorManager::NCscChamberLayer; ++ml)
                  {   
-                     //fout<<" indices are "<<sname_index<<" "<<seta_index<<" "<<sphi_index<<" ml "<<ml<<std::endl;
                  
                      const CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(sname_index,
                                                                                     seta_index,
@@ -3690,27 +3160,15 @@ void MuonGMCheck::testCscCache_here()
                                                                                     ml);
                      if (csc == NULL) continue;
                      nre++;
-                     //fout<<" ///////////////////// Found a CscReadoutElement for indices = "
-                     //         <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "<<ml
-                     //         <<std::endl;
                      Identifier idr = csc->identify();
-                     //fout<<" its offline hash Id = "<<csc->identifyHash()<<std::endl;
-                     //fout<<" its offline Id = "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idr)
-                     //         <<" ////////////////// belongs to module "
-                     //         <<csc->getTechnologyName()<<"/"
-                     //         <<csc->getStationName()<<" centre at "<<(csc->transform())*Amg::Vector3D(0.,0.,0.)<<std::endl;
-                     //Identifier idp = m_muonIdHelperTool->cscIdHelper().parentID(idr);
-                     //fout<<"      parent Id = "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idp)<<std::endl;
 
 
                      ATH_MSG_DEBUG(" Filling cache for cscRE n. "<<nre<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idr) );
                      csc->fillCache();
-                     //std::cout<<" Filling cache done for cscRE "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idr)<<std::endl;                     
                  }
              }
          }
      }
-     //fout.close();
      ATH_MSG_INFO(" Csc cache built !" );
 }
 void MuonGMCheck::testMdtCache()
@@ -3728,21 +3186,14 @@ void MuonGMCheck::testMdtCache_here()
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testMdtCache_"+gVersion;
-     //std::ofstream fout(fileName.c_str());
-     //ATH_MSG_INFO( " ***** Writing file "<< fileName  );
-     //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
-
 
      int nre=0;
      for (int sname_index = 0; sname_index<MuonDetectorManager::NMdtStatType; ++ sname_index) 
      {
-	 //         int st = sname_index;
          for (int seta_index = 0; seta_index<MuonDetectorManager::NMdtStatEta; ++seta_index)
          {
-	     //             int zi = seta_index + MuonDetectorManager::NMdtStEtaOffset;
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NMdtStatPhi; ++sphi_index)
              {
-		 //                 int fi = sphi_index + 1;
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
                  {
                      const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(sname_index,
@@ -3751,33 +3202,13 @@ void MuonGMCheck::testMdtCache_here()
                                                                                     dbr_index);
                      
                      
-                     //std::cerr<<" st_i, zi_i, fi_i, ml_i "<<st<<"/"<<zi<<"/"<<fi<<"/"<<"/"<<dbr_index<<std::endl;
                      if (mdt == NULL) continue;
                      nre++;
-                     //fout<<" ///////////////////// Found a MdtReadoutElement for indices = "
-                     //         <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
-                     //         <<dbr_index
-                     //         <<std::endl;
                      Identifier idr = mdt->identify();
-                     //fout<<" its offline hash Id = "<<mdt->identifyHash()<<std::endl;
-                     //fout<<" its offline Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr)
-                     //         <<" ////////////////// belongs to module "
-                     //         <<mdt->getTechnologyName()<<"/"
-                     //         <<mdt->getStationName()<<std::endl;
-                     //Identifier idp = m_muonIdHelperTool->mdtIdHelper().parentID(idr);
-                     //fout<<"      parent Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idp)<<std::endl;
-                     //fout<<" Multilayer    = "<<mdt->getMultilayer();
-                     //fout<<" N tube layers = "<<mdt->getNLayers();
-                     //fout<<"   tubes/layer = "<<mdt->getNtubesperlayer()<<std::endl;
-                     
-                     //Amg::Vector3D elc = mdt->center();
-                     //fout<<" Element centre is at "<<elc
-                     //    <<" cyl. coords R,phi,Z "<<elc.perp()<<" "<<elc.phi()<<" "<<elc.z()<<std::endl;
-                     
+
 
                      ATH_MSG_DEBUG(" Filling cache for mdtRE n. "<<nre<<" "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr) );
                      mdt->fillCache();
-                     //std::cout<<" Filling cache done for mdtRE "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr)<<endmsg;
                  } // end of multilayer
              } // end of stPhi
          } // end of stEta
@@ -3854,9 +3285,8 @@ void MuonGMCheck::testMdtDetectorElementHash()
         Amg::Vector3D Pzmax = mdtPos;
         Pzmax[2] = zmaxMod;
         
-        if (phimin<0) phimin = phimin + 2*M_PI;
-        if (phimax<0) phimax = phimax + 2*M_PI;
-        //double theta_min = Pzmin.theta();
+        coercePositivePhi(phimin);
+        coercePositivePhi(phimax);
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
         ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
@@ -3877,7 +3307,6 @@ void MuonGMCheck::testMdtDetectorElementHash()
     }
     ATH_MSG_INFO(" end running " );
     
-    //fout.close();
     fout0.close();
 }
 void MuonGMCheck::testRpcDetectorElementHash()
@@ -3943,9 +3372,8 @@ void MuonGMCheck::testRpcDetectorElementHash()
         Amg::Vector3D Pzmax = rpcPos;
         Pzmax[2] = zmaxMod;
         
-        if (phimin<0) phimin = phimin + 2*M_PI;
-        if (phimax<0) phimax = phimax + 2*M_PI;
-        //double theta_min = Pzmin.theta();
+        coercePositivePhi(phimin);
+        coercePositivePhi(phimax);
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
         ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
@@ -3966,7 +3394,6 @@ void MuonGMCheck::testRpcDetectorElementHash()
     }
     ATH_MSG_INFO(" end running " );
     
-    //fout.close();
     fout0.close();
 }
 
@@ -4032,9 +3459,8 @@ void MuonGMCheck::testTgcDetectorElementHash()
         Amg::Vector3D Pzmax = tgcPos;
         Pzmax[2] = zmaxMod;
         
-        if (phimin<0) phimin = phimin + 2*M_PI;
-        if (phimax<0) phimax = phimax + 2*M_PI;
-        //double theta_min = Pzmin.theta();
+        coercePositivePhi(phimin);
+        coercePositivePhi(phimax);
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
         ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
@@ -4055,7 +3481,6 @@ void MuonGMCheck::testTgcDetectorElementHash()
     }
     ATH_MSG_INFO(" end running " );
     
-    //fout.close();
     fout0.close();
 }
 void MuonGMCheck::testCscDetectorElementHash()
@@ -4120,9 +3545,8 @@ void MuonGMCheck::testCscDetectorElementHash()
         Amg::Vector3D Pzmax = cscPos;
         Pzmax[2] = zmaxMod;
         
-        if (phimin<0) phimin = phimin + 2*M_PI;
-        if (phimax<0) phimax = phimax + 2*M_PI;
-        //double theta_min = Pzmin.theta();
+        coercePositivePhi(phimin);
+        coercePositivePhi(phimax);
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
         ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
@@ -4143,7 +3567,6 @@ void MuonGMCheck::testCscDetectorElementHash()
     }
     ATH_MSG_INFO(" end running " );
     
-    //fout.close();
     fout0.close();
 }
 
@@ -4168,7 +3591,6 @@ void MuonGMCheck::getVmemCpu(int& dVmem, int& dUCpu, int& dSCpu)
     cpu_now[0] = uTime;
     cpu_now[1] = sTime;
 
-    //std::cout<<" cpu_now = "<<cpu_now[0] <<" "<<cpu_now[1]<<std::endl;
     
     dVmem = mem_now - m_mem;
     m_mem = mem_now;
@@ -4177,7 +3599,5 @@ void MuonGMCheck::getVmemCpu(int& dVmem, int& dUCpu, int& dSCpu)
     dSCpu  = cpu_now[1] - m_cpu[1];
     m_cpu[1]  = cpu_now[1];
 
-    //std::cout<<"dU/S cpu "<<dUCpu<<" "<<dSCpu<<std::endl;
-    //std::cout<<" out of getVmemCpu"<<std::endl;
     return;
 }

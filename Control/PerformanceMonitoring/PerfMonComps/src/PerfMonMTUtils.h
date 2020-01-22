@@ -108,6 +108,7 @@ namespace PMonMT {
       wall_time = get_wall_time(); 
 
       Measurement meas;
+      
       meas.cpu_time = cpu_time;
       meas.wall_time = wall_time;
 

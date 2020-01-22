@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------------
@@ -18,14 +18,17 @@ class MsgStream;
 class TBPhase;
 
 
-class TBPhaseCnv_p1  : public T_AthenaPoolTPCnvBase<TBPhase, TBPhase_p1>
+class TBPhaseCnv_p1  : public T_AthenaPoolTPCnvConstBase<TBPhase, TBPhase_p1>
 {
 public:
+  using base_class::transToPers;
+  using base_class::persToTrans;
+
 
   TBPhaseCnv_p1() {}
 
-  virtual void          persToTrans(const TBPhase_p1* pers, TBPhase* trans, MsgStream &log);
-  virtual void          transToPers(const TBPhase* trans, TBPhase_p1* pers, MsgStream &log);
+  virtual void          persToTrans(const TBPhase_p1* pers, TBPhase* trans, MsgStream &log) const override;
+  virtual void          transToPers(const TBPhase* trans, TBPhase_p1* pers, MsgStream &log) const override;
 };
 
 

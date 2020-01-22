@@ -1,12 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.MV2defaultValues import default_values
 from BTagging.MV2defaultValues import MVTM_varNames
 
 # import the MV2Tag configurable
-from JetTagTools.JetTagToolsConf import Analysis__MV2Tag
+Analysis__MV2Tag=CompFactory.Analysis__MV2Tag
 
 def MV2TagCfg( flags, name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a MV2c10Tag tool and returns it.

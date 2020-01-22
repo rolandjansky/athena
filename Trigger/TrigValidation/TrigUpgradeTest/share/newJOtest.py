@@ -11,10 +11,11 @@ from AthenaCommon.AppMgr import theApp
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
-flags.Detector.GeometryPixel = True     
-flags.Detector.GeometrySCT   = True 
-flags.Detector.GeometryTRT   = True 
-flags.Detector.GeometryLAr   = True     
+#Temporarily turning off ID geometery until the configuration is fully migrated 
+flags.Detector.GeometryPixel = False
+flags.Detector.GeometrySCT   = False 
+flags.Detector.GeometryTRT   = False 
+flags.Detector.GeometryLAr   = True
 flags.Detector.GeometryTile  = True     
 flags.Detector.GeometryMDT   = True 
 flags.Detector.GeometryTGC   = True
@@ -85,6 +86,6 @@ acc.printConfig()
 
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname
-with file(fname, "w") as p:
+with open(fname, "wb") as p:
     acc.store( p, nEvents=20, useBootStrapFile=False, threaded=True )
     p.close()

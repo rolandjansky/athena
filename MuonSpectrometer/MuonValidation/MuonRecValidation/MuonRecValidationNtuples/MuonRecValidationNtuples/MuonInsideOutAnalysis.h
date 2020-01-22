@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONINSIDEOUTANALYSIS_H
@@ -7,7 +7,7 @@
 
 #include "MuonRecValidationNtuples/MuonInsideOutAnalysisPlots.h"
 #include "MuonRecValidationNtuples/MuonInsideOutValidationNtuple.h"
-#include "MuGirlStau/TimePointBetaFit.h"
+#include "MuonRecHelperTools/TimePointBetaFitter.h"
 
 class TTree;
 class TDirectory;
@@ -49,7 +49,7 @@ namespace Muon {
                       const std::vector<int>& indexVec, MuonInsideOutAnalysis::MatchingStrategy matchingStrategy, 
                       TrackPlots& trackPlots );
 
-    TimePointBetaFit::FitResult fitBeta( MuonInsideOutValidationNtuple& ntuple, const std::vector<int>& indexVec, std::set<int> type );
+    TimePointBetaFitter::FitResult fitBeta( MuonInsideOutValidationNtuple& ntuple, const std::vector<int>& indexVec, std::set<int> type );
     
     MuonInsideOutAnalysisPlots m_plots;
   };

@@ -15,8 +15,8 @@ decription           : Class description for convolution of GSF material mixture
 #define TrkGsfMaterialMixtureConvolution_H
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -24,7 +24,6 @@ decription           : Class description for convolution of GSF material mixture
 namespace Trk {
 
 class IMultiStateMaterialEffectsUpdator;
-class MultiComponentState;
 class Layer;
 
 class GsfMaterialMixtureConvolution
@@ -68,27 +67,25 @@ public:
 
   //!< Retain for now redundant simplified material effects
   virtual std::unique_ptr<MultiComponentState> 
-    simpliedMaterialUpdate(const MultiComponentState& multiComponentState,
-                           PropDirection direction = anyDirection,
-                           ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
+                             PropDirection direction = anyDirection,
+                             ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
-  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ this,
-                                                           "MaterialEffectsUpdator",
-                                                           "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
-                                                           "" };
-  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{
+  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ 
     this,
-    "MultiComponentStateCombiner",
-    "Trk::MultiComponentStateCombiner/MultiComponentStateCombiner",
+    "MaterialEffectsUpdator",
+    "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
     ""
   };
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler{
+ 
+  ToolHandle<IMultiComponentStateMerger> m_stateMerger{
     this,
-    "MultiComponentStateAssembler",
-    "Trk::MultiComponentStateAssembler/MaterialConvolutionAssembler",
+    "MultiComponentStateMerger",
+    "Trk::QuickCloseComponentsMultiStateMerger/MaterialConvolutionMerger",
     ""
   };
+
 };
 
 } // end Trk namespace

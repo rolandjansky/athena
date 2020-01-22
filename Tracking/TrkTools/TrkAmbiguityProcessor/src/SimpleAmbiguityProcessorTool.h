@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMPLEAMBIGUITYPROCESSORTOOL_H
@@ -15,6 +15,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+
 //need to include the following, since its a typedef and can't be forward declared.
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackSeedMap.h"
@@ -23,43 +27,15 @@
 #include <set>
 #include <vector>
 #include <functional>
+#include <atomic>
+#include <mutex>
 
-#ifdef SIMPLEAMBIGPROCDEBUGCODE
-// --------------- DEBUG CODE
-#include "GeneratorObjects/McEventCollection.h"
-#include "CLHEP/Geometry/Point3D.h"
-typedef HepGeom::Point3D<double> HepPoint3D;
-#include "TrkTruthData/TrackTruthCollection.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "HepMC/GenEvent.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-     typedef std::map<const Trk::Track*, const Trk::Track*> TrackCollectionConnection;
-#ifndef SIMPLEAMBIGPROCDEBUGCODE_CLASS_DEF
-#define SIMPLEAMBIGPROCDEBUGCODE_CLASS_DEF
-     CLASS_DEF( TrackCollectionConnection , 148639440 , 1 )
-#endif
+#include "TrackPtr.h"
 
-#endif
-
-#ifdef SIMPLEAMBIGPROCNTUPLECODE
-// --------------- DEBUG CODE
-#include "xAODEventInfo/EventInfo.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IPartPropSvc.h"
-     class TTree;
-     
-     struct TrackBarcodeStats { 
-       int numhits;
-       int numbarcodes;
-       int numtruthlost;
-       int leadingbarcode;
-       int leadingnumhits;  
-     };
-
-        #ifndef MAXSEEDSPERTRACK
-	#define MAXSEEDSPERTRACK 10
-	#endif    
+#if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
+#define DEBUG_CODE(a) do { a; } while (false)
+#else
+#define DEBUG_CODE(a) do {  } while (false)
 #endif
 
 class AtlasDetectorID;
@@ -76,8 +52,7 @@ namespace Trk {
     public:
 
       // public types
-      typedef std::pair< const Track*, const bool > TrackFittedPair;
-      typedef std::multimap< TrackScore, TrackFittedPair > TrackScoreMap;
+      typedef std::multimap< TrackScore, TrackPtr > TrackScoreMap;
     
       typedef std::set<const PrepRawData*> PrdSignature;
       typedef std::set<PrdSignature> PrdSignatureSet;
@@ -92,44 +67,59 @@ namespace Trk {
 	 @param tracks collection of tracks which will have ambiguities resolved. Will not be 
 	 modified.
 	 The tracks will be refitted if no fitQuality is given at input.
+         @param prd_to_track_map on optional prd-to-track map being filled by the processor.
 	 @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
-	 (i.e. client handles deletion)*/
-      virtual TrackCollection*  process(const TrackCollection*) override;
-      virtual TrackCollection*  process(TracksScores* scoredTracks) override;
+	 (i.e. client handles deletion).
 
-      /** statistics output */
+         If no prd-to-track map is given the processor will create
+         one internally (exported to storegate).*/
+      virtual TrackCollection*  process(const TrackCollection*, Trk::PRDtoTrackMap *prd_to_track_map) const override;
+      virtual TrackCollection*  process(const TracksScores* scoredTracks) const override;
+
+      /** statistics output to be called by algorithm during finalize. */
       virtual void statistics() override;
-
     private:
-      TrackCollection*  process_vector(std::vector<const Track*> &tracks);
 
-      void reset();
-    
+      TrackCollection*  process_vector(std::vector<const Track*> &tracks, Trk::PRDtoTrackMap *prd_to_track_map) const;
+
       /**Add passed TrackCollection, and Trk::PrepRawData from tracks to caches
 	 @param tracks the TrackCollection is looped over, 
 	 and each Trk::Track is added to the various caches. 
 	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(std::vector<const Track*>* tracks);
+      void addNewTracks(const std::vector<const Track*> &tracks,
+                        TrackScoreMap& trackScoreTrackMap,
+                        Trk::PRDtoTrackMap &prd_to_track_map) const;
 
-      void addTrack(const Track* track, const bool fitted);
+      void addTrack(Track* track, const bool fitted,
+                    TrackScoreMap &trackScoreMap,
+                    Trk::PRDtoTrackMap &prd_to_track_map,
+                    std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks) const;
 
-      void solveTracks();
-    
+      TrackCollection *solveTracks(TrackScoreMap &trackScoreTrackMap,
+                                   Trk::PRDtoTrackMap &prd_to_track_map,
+                                   std::vector<std::unique_ptr<const Trk::Track> > &cleanup_tracks) const;
+
       /** add subtrack to map */
-      void addSubTrack( const std::vector<const TrackStateOnSurface*>& tsos);
+      void addSubTrack( const std::vector<const TrackStateOnSurface*>& tsos) const;
 
       /** refit track */
-      void refitTrack( const Trk::Track* track);
+      void refitTrack( const Trk::Track* track,
+                       TrackScoreMap &trackScoreMap,
+                       Trk::PRDtoTrackMap &prd_to_track_map,
+                       std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks) const;
 
       /** refit PRDs */
-      const Track* refitPrds( const Track* track);
+      Track* refitPrds( const Track* track, Trk::PRDtoTrackMap &prd_to_track_map) const;
 
       /** refit ROTs corresponding to PRDs */
-      const Track* refitRots( const Track* track);
+      Track* refitRots( const Track* track) const;
 
       /** print out tracks and their scores for debugging*/
-      void dumpTracks(const TrackCollection& tracks);
-	
+      void dumpTracks(const TrackCollection& tracks) const;
+
+      /** dump the accumulated statistics */
+      void dumpStat(MsgStream &out) const;
+
       // private data members
 
       /** brem recovery mode with brem fit ? */
@@ -166,25 +156,22 @@ namespace Trk {
       /** refitting tool - used to refit tracks once shared hits are removed. 
 	  Refitting tool used is configured via jobOptions.*/
       ToolHandle<ITrackFitter> m_fitterTool;
-	
+
+      ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
+         {this, "AssociationTool", "Trk::PRDtoTrackMapTool" };
+
+      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
+        {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
+
       /** selection tool - here the decision which hits remain on a track and
 	  which are removed are made
       */
       ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
-      /** unsorted container of track and track scores.*/
-      TrackScoreMap m_trackScoreTrackMap;
-	
-      /** signature map to drop double track. */
-      PrdSignatureSet m_prdSigSet;
-
-      /**Tracks that will be passed out of AmbiProcessor. 
-	 Recreated anew each time process() is called*/ 
-      TrackCollection* m_finalTracks;
-
       /** monitoring statistics */
-      int m_Nevents;
-      std::vector<int> m_Ncandidates, m_NcandScoreZero, m_NcandDouble,
+      mutable std::atomic<int> m_Nevents;
+      mutable std::mutex m_statMutex;
+      mutable std::vector<int> m_Ncandidates, m_NcandScoreZero, m_NcandDouble,
 	m_NscoreOk,m_NscoreZeroBremRefit,m_NscoreZeroBremRefitFailed,m_NscoreZeroBremRefitScoreZero,m_NscoreZero,
 	m_Naccepted,m_NsubTrack,m_NnoSubTrack,m_NacceptedBrem,
 	m_NbremFits,m_Nfits,m_NrecoveryBremFits,m_NgoodFits,m_NfailedFits;
@@ -193,138 +180,44 @@ namespace Trk {
       std::vector<float>  m_etabounds;           //!< eta intervals for internal monitoring
 
       /** helper for monitoring and validation: does success/failure counting */
-      void increment_by_eta(std::vector<int>&,const Track*,bool=true);
+      void increment_by_eta(std::vector<int>&,const Track*,bool=true) const;
 
 //==================================================================================================
 //
 //
 //   FROM HERE EVERYTHING IS DEBUGGING CODE !!!
 //
-//
-//  PART 1 : NTUPLE writing
 //==================================================================================================
 
 #if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
-      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationPixel;
-      SG::ReadHandle<PRD_MultiTruthCollection> m_truthPIX;
-      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationSCT;
-      SG::ReadHandle<PRD_MultiTruthCollection> m_truthSCT;
-      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationTRT;
-      SG::ReadHandle<PRD_MultiTruthCollection> m_truthTRT;
+       virtual void ntupleReset() {}
+       virtual void fillEventData(std::vector<const Track*> &tracks)  { (void) tracks; };
+       virtual void findTrueTracks(std::vector<const Track*> &recTracks)  { (void) recTracks; }; 
+       virtual void fillValidationTree(const Trk::Track* track) const { (void) track; }
+       virtual void resetTrackOutliers() {}
+       virtual void setBarcodeStats(const Trk::Track *a_track, TrackScore score) { (void) a_track; (void) score;}
+       virtual void fillBadTrack(const Trk::Track *a_track, const Trk::PRDtoTrackMap &prd_to_track_map)
+         { (void) a_track; (void) prd_to_track_map; }
 
-      bool m_isBackTracking;
-#endif
+       virtual void fillDuplicateTrack(const Trk::Track *a_track) { (void) a_track; }
+       virtual void associateToOrig(const Trk::Track*new_track, const Trk::Track* orig_track) { (void) new_track; (void) orig_track; }
+       virtual void keepTrackOfTracks(const Trk::Track* oldTrack, const Trk::Track* newTrack) { (void) oldTrack; (void) newTrack; }
+       virtual void countTrueTracksInMap(const TrackScoreMap &trackScoreTrackMap) { (void) trackScoreTrackMap; }
+       virtual void rejectedTrack(const Trk::Track*track, const Trk::PRDtoTrackMap &prd_to_track_map)
+         { (void) track; (void) prd_to_track_map; }
 
-#ifdef SIMPLEAMBIGPROCNTUPLECODE
-      
-      /** determine if the ambiguity processor is being used for back tracking */
-      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key;
-    
-      std::map<const Trk::Track*, TrackBarcodeStats>   m_trackBarcodeMap;
-      std::multimap<int,const Trk::Track*>             m_barcodeTrackMap;
+       virtual void fitStatReset() {}
+       virtual void keepFittedInputTrack(const Trk::Track *a_track, TrackScore ascore)
+         { (void) a_track; (void) ascore; }
 
-      /** Pointer to the particle properties svc */
-      ServiceHandle<IPartPropSvc>      m_particlePropSvc;
+       virtual void acceptedTrack(const Trk::Track*track) { (void) track; }
+       virtual void memoriseOutliers(const Trk::Track*track) { (void) track; }
+       virtual void newCleanedTrack(const Trk::Track*new_track, const Trk::Track* orig_track) { (void) new_track; (void) orig_track; }
+       virtual void eventSummary(const TrackCollection *final_tracks) override {(void) final_tracks; }
+       virtual void fillFailedFit(const Trk::Track *a_track, const Trk::PRDtoTrackMap &prd_to_track_map)
+         { (void) a_track; (void) prd_to_track_map; }
 
-      /** ParticleDataTable needed to get connection pdg_code <-> charge */
-      const HepPDT::ParticleDataTable* m_particleDataTable;      
-      
-      // private method to fill the validation tree 
-      void fillValidationTree(const Trk::Track* track) const ; // heather was const
-      
-      // put some validation code is
-      std::string                   m_validationTreeName;        //!< validation tree name - to be acessed by this from root
-      std::string                   m_validationTreeDescription; //!< validation tree description - second argument in TTree
-      std::string                   m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out
-      
-      TTree*                        m_validationTree;            //!< Root Validation Tree
-      
-      /** Ntuple variables */      
-      mutable int                           m_event;
-      mutable int                           m_score;
-      mutable int                           m_duplicate;
-      mutable int                           m_accepted;
-      mutable int                           m_perigeeInfo;
-      mutable int                           m_track;
-      mutable float                         m_eta;
-      mutable float                         m_pt;
-      mutable float                         m_phi;
-      
-      // truth related quantities   
-      mutable float                         m_pT_mc;
-      mutable float                         m_charge_mc;	  
-	  
-      mutable int                           m_author;
-      mutable int                           m_numhits;
-      mutable int                           m_numbarcodes;
-      mutable int                           m_numtruthlost;
-      mutable int                           m_leadingbarcode;
-      mutable int                           m_leadingnumhits;
-      mutable int                           m_barcodeDuplicates;    
-      
-      SG::ReadHandle<Trk::TrackSeedMap> m_trackSeedMap;
-      SG::ReadHandleKey<Trk::TrackSeedMap> m_trackSeedMapLocation;
-      bool m_has_trackSeedMap;
-      
-      mutable int			    m_nseeds;
-      mutable int                           m_seeds[MAXSEEDSPERTRACK];
-      mutable  std::map<const Trk::Track* , Trk::Track*> *m_trackTrackMap;
-#endif
-
-#ifdef SIMPLEAMBIGPROCDEBUGCODE
-//==================================================================================================
-// PART 2 : Output statistics
-//==================================================================================================
-
-    private:
-
-      SG::ReadHandleKey<McEventCollection> m_generatedEventCollectionName;
-      SG::ReadHandleKey<TrackTruthCollection> m_truthCollection;
-      SG::ReadHandleKey<TrackCollectionConnection> m_resolvedTrackConnection;
-      bool m_has_resolvedTrackConnection;
-      SG::WriteHandleKey<TrackCollectionConnection> m_write_resolvedTrackConnection;
-
-      std::set<const Trk::Track*> m_trueTracks;
-      std::map<const Trk::Track*, const Trk::Track*> m_trackHistory;
-
-      void findTrueTracks(const TrackCollection* recTracks);
-      void keepTrackOfTracks(const Trk::Track* oldTrack, const Trk::Track* newTrack);
-      void produceInputOutputConnection();
- 
-      int n_trueFitFails;
-      int n_fitFails;
-      int numOutliersDiff;
-      int numOutliersBefore;
-      int numOutliersAfter;
-      int numFirstFitLost;
-      int numSecondFitLost;
-      int numSharedTruth;
-      int truthBefore;
-      int truthAfter;
-
-      bool isSharedTrack( const Track* track);
-      bool isTrueTrack( const Track* track);
-
-      const PixelID* m_pixelId;
-
-      void addTrackToMap(Trk::Track* Tr);
-      void findSharedTrueTracks(const TrackCollection* recTracks);    
-      void prdTruth(const Track* track);
-      void tsosTruth(const Track* track);
-      const Track* origTrack( const Track* track);
-
-      std::map<const Trk::PrepRawData*, const Trk::Track*> m_tracksShared;
-
-      StatusCode getBremTruth();
-      double originalMomentum( const HepMC::GenEvent* genEvent );
-      double momentumLostByBrem( const HepMC::GenEvent* genEvent ) const;
-      const std::vector<double> fractionOfIncidentMomentumLostPerVertex( const HepMC::GenEvent* genEvent ) const;
-      const std::vector<HepPoint3D> positionsOfBremVertices( const HepMC::GenEvent* genEvent ) const;
-      bool vertexAssociatedWithOriginalTrack( HepMC::GenVertex* genVertex) const;
-
-      Trk::ITruthToTrack*                m_truthToTrack         ;
 #endif // DebugCode
-	
     };
 
 } //end ns

@@ -1,12 +1,14 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from Lvl1Thresholds import LVL1Thresholds
-from Lvl1MenuItems import LVL1MenuItems
-from Lvl1MonCounters import Lvl1MonCounters
-from CaloInfo import CaloInfo
-from MuctpiInfo import MuctpiInfo
-from CTPInfo import CTPInfo
-from Limits import Limits
+from __future__ import print_function
+
+from .Lvl1Thresholds import LVL1Thresholds
+from .Lvl1MenuItems import LVL1MenuItems
+from .Lvl1MonCounters import Lvl1MonCounters
+from .CaloInfo import CaloInfo
+from .MuctpiInfo import MuctpiInfo
+from .CTPInfo import CTPInfo
+from .Limits import Limits
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
@@ -41,7 +43,7 @@ class Lvl1Menu:
         self.CaloInfo = CaloInfo(name='standard', globalEmScale=em_scale, globalJetScale=1)
 
         if self.menuName:
-            from Lvl1MenuUtil import get_smk_psk_Name
+            from .Lvl1MenuUtil import get_smk_psk_Name
             smk_psk_Name = get_smk_psk_Name(self.menuName)
             self.items.menuName = smk_psk_Name["smkName"]
             self.items.pssName  = smk_psk_Name["pskName"]
@@ -49,7 +51,7 @@ class Lvl1Menu:
 
     @staticmethod
     def partitioning():
-        from Lvl1Flags import Lvl1Flags
+        from .Lvl1Flags import Lvl1Flags
         first = Lvl1Flags.MenuPartitioning()
         last = first[1:] + [ Limits.MaxTrigItems ]
         partitioning = dict( zip([1,2,3],zip(first,last)) )
@@ -119,9 +121,9 @@ class Lvl1Menu:
             k = (c[0],c[1])
             if k != cable:
                 cable = k
-                print "\nCable %s, %s" % cable
-                print "================="
-            print "%s  bit %i-%i (%s)" % (c[2],c[3],c[4],c[5])
+                print ("\nCable %s, %s" % cable)
+                print ("=================")
+            print ("%s  bit %i-%i (%s)" % (c[2],c[3],c[4],c[5]))
 
     def checkL1(self):
         """
@@ -172,7 +174,7 @@ class Lvl1Menu:
         bgpart = dict( [("BGRP%i" % bg.internalNumber, bg.menuPartition) for bg in self.CTPInfo.bunchGroupSet.bunchGroups] )
         for item in self.items:
             bgs = [t for t in item.thresholdNames(include_bgrp=True) if t.startswith('BGRP')]
-            if not 'BGRP0' in bgs:
+            if 'BGRP0' not in bgs:
                 log.error('Item %s (partition %i) is not using BGRP0 which is mandatory!' % (item.name,item.partition))
             else:
                 bgs.remove('BGRP0')
@@ -208,32 +210,32 @@ class Lvl1Menu:
                 if item.monitorsHF & k:
                     items_HF[k].add( item.name )
 
-        counts_LF = dict( map(lambda (x,y) : (x,len(y)), items_LF.items() ) )
-        counts_HF = dict( map(lambda (x,y) : (x,len(y)), items_HF.items() ) )
+        counts_LF = dict( map(lambda x : (x[0],len(x[1])), items_LF.items() ) )
+        counts_HF = dict( map(lambda x : (x[0],len(x[1])), items_HF.items() ) )
 
-        lutsLF = ( max(counts_LF.values() ) -1 ) / 8 + 1
-        lutsHF = ( max(counts_HF.values() ) -1 ) / 8 + 1
+        lutsLF = ( max(counts_LF.values() ) -1 ) // 8 + 1
+        lutsHF = ( max(counts_HF.values() ) -1 ) // 8 + 1
 
         
         if lutsLF + lutsHF <= 8:
             log.info("LVL1 monitoring with %i LF groups (%i items) and %i HF groups (%i items)" % (lutsLF, max(counts_LF.values()), lutsHF, max(counts_HF.values())) )
         else:
             log.error("WARNING: too many monitoring items are defined")
-            print "   low frequency  TBP: %i" % counts_LF[TBP]
-            print "                  TAP: %i" % counts_LF[TAP]
-            print "                  TAV: %i" % counts_LF[TAV]
-            print "   required LUTs: %i" % lutsLF
-            print "   high frequency TBP: %i" % counts_HF[TBP]
-            print "                  TAP: %i" % counts_HF[TAP]
-            print "                  TAV: %i" % counts_HF[TAV]
-            print "   required LUTs: %i" % lutsHF
-            print "   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF)
-            print "   LF TBP:\n     %r" % sorted(items_LF[TBP])
-            print "   LF TAP:\n     %r" % sorted(items_LF[TAP])
-            print "   LF TAV:\n     %r" % sorted(items_LF[TAV])
-            print "   HF TBP:\n     %r" % sorted(items_HF[TBP])
-            print "   HF TAP:\n     %r" % sorted(items_HF[TAP])
-            print "   HF TAV:\n     %r" % sorted(items_HF[TAV])
+            print ("   low frequency  TBP: %i" % counts_LF[TBP])
+            print ("                  TAP: %i" % counts_LF[TAP])
+            print ("                  TAV: %i" % counts_LF[TAV])
+            print ("   required LUTs: %i" % lutsLF)
+            print ("   high frequency TBP: %i" % counts_HF[TBP])
+            print ("                  TAP: %i" % counts_HF[TAP])
+            print ("                  TAV: %i" % counts_HF[TAV])
+            print ("   required LUTs: %i" % lutsHF)
+            print ("   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF))
+            print ("   LF TBP:\n     %r" % sorted(items_LF[TBP]))
+            print ("   LF TAP:\n     %r" % sorted(items_LF[TAP]))
+            print ("   LF TAV:\n     %r" % sorted(items_LF[TAV]))
+            print ("   HF TBP:\n     %r" % sorted(items_HF[TBP]))
+            print ("   HF TAP:\n     %r" % sorted(items_HF[TAP]))
+            print ("   HF TAV:\n     %r" % sorted(items_HF[TAV]))
             success = False
         if not success:
             raise RuntimeError("There is a problem in the menu that needs fixing")

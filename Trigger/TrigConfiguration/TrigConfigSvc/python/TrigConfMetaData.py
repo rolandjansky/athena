@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file  TrigConfMetaData.py
 ## @brief Meta data for the trigger configuration
-## $Id: $
 
-from GaudiKernel.GaudiHandles import *
-from GaudiKernel.Proxy.Configurable import *
+from GaudiKernel.Proxy.Configurable import Configurable, ConfigurableUser
 
 class TrigConfMetaData( ConfigurableUser ) :
   """Configurable to store aribitray meta data in the job options

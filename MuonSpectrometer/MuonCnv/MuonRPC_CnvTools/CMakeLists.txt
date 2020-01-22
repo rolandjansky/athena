@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamCnvSvcBase
                           MuonSpectrometer/MuonCablings/RPCcablingInterface
                           MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
-                          MuonSpectrometer/MuonCnv/MuonContainerManager
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -26,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData
                           Tracking/TrkDetDescr/TrkSurfaces
+                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
                           Trigger/TrigT1/TrigT1RPChardware )
 
 # External dependencies:
@@ -36,7 +36,7 @@ atlas_add_component( MuonRPC_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib RPCcablingInterfaceLib MuonContainerManager MuonCondInterface MuonCondData MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces TrigT1RPChardwareLib RPChardware )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib RPCcablingInterfaceLib MuonCondInterface MuonCondData MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces TrigT1RPChardwareLib RPChardware RPC_CondCablingLib)
 
 # Install files from the package:
 atlas_install_headers( MuonRPC_CnvTools )

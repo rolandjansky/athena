@@ -24,7 +24,6 @@
 using HepGeom::Transform3D;
 MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   m_patternCalibration("Muon::MuonPatternCalibration/MuonPatternCalibration", this),
   m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker", this),
@@ -39,7 +38,6 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
 {  
   //tools
   declareProperty("EDMPrinter", m_printer);
-  declareProperty("IdHelper", m_idHelperTool);
   declareProperty("MuonPatternCalibration", m_patternCalibration);
   declareProperty("MuonPatternSegmentMaker", m_patternSegmentMaker);
   declareProperty("SegmentMaker",m_segmentMaker);
@@ -51,7 +49,6 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("PrintSummary",m_printSummary = false);
   declareProperty("MuonClusterSegmentFinder",m_clusterSegMaker);
   //
-  declareProperty("UseNSWMode",m_useNSWMode = false);
   declareProperty("doTGCClust",m_doTGCClust = false);
   declareProperty("doRPCClust",m_doRPCClust = false);
   declareProperty("doClusterTruth",m_doClusterTruth=false);
@@ -65,7 +62,7 @@ MuonSegmentFinderAlg::~MuonSegmentFinderAlg()
 
 StatusCode MuonSegmentFinderAlg::initialize()
 {
-  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
   ATH_CHECK( m_patternCalibration.retrieve() );
   ATH_CHECK( m_patternSegmentMaker.retrieve() ); 
@@ -92,7 +89,7 @@ StatusCode MuonSegmentFinderAlg::initialize()
     m_csc4dSegmentFinder.disable();
 
   ATH_CHECK( m_segmentCollectionKey.initialize() );
-  ATH_CHECK( m_cscPrdsKey.initialize() );
+  ATH_CHECK( m_cscPrdsKey.initialize(!m_cscPrdsKey.empty()) ); // check for layouts without CSCs
   ATH_CHECK( m_mdtPrdsKey.initialize(m_doTGCClust || m_doRPCClust));
   ATH_CHECK( m_rpcPrdsKey.initialize());
   ATH_CHECK( m_tgcPrdsKey.initialize());
@@ -245,12 +242,12 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
   for (; it!=patt->chamberData().end(); ++it) {
     if((*it).prepRawDataVec().empty()) continue;
     const Identifier& id = (*it).prepRawDataVec().front()->identify();
-    if( !m_idHelperTool->isMM(id) && !m_idHelperTool->issTgc(id) ) continue;
+    if( !m_idHelperSvc->isMM(id) && !m_idHelperSvc->issTgc(id) ) continue;
     for(std::vector< const Trk::PrepRawData* >::const_iterator pit = (*it).prepRawDataVec().begin(); pit!=(*it).prepRawDataVec().end(); ++pit) {
 
       const Muon::MuonCluster* cl = dynamic_cast<const Muon::MuonCluster*>(*pit);
       if( !cl ) continue;
-      int sector = m_idHelperTool->sector(id);
+      int sector = m_idHelperSvc->sector(id);
       std::vector<const Muon::MuonClusterOnTrack*>& clusters = clustersPerSector[sector];
       const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
       
@@ -276,7 +273,7 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
 void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
 						  const std::vector<const Muon::RpcPrepDataCollection*> rpcCols, const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) { 
 
-  if( m_useNSWMode ){
+  if(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc()) {
 
     //break the pattern combination into regions and calibrate the PRDs
     std::set<int> calibratedRegions;
@@ -285,7 +282,7 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
 
       if((*it).prepRawDataVec().empty()) continue;
       Identifier id = (*it).prepRawDataVec().front()->identify();
-      if(m_idHelperTool->isMM(id) || m_idHelperTool->issTgc(id) ) continue;
+      if(m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id) ) continue;
 
 
       int regionID = m_patternCalibration->getRegionId(id);
@@ -293,7 +290,7 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
       //check the chamber is not part of a region already calibrated
       std::pair<std::set<int>::iterator,bool> val = calibratedRegions.insert(regionID);
       if(!val.second) continue;
-      ATH_MSG_VERBOSE(" Region " << regionID << " adding chamber " << m_idHelperTool->toStringChamber(id) << " size " << (*it).prepRawDataVec().size() );
+      ATH_MSG_VERBOSE(" Region " << regionID << " adding chamber " << m_idHelperSvc->toStringChamber(id) << " size " << (*it).prepRawDataVec().size() );
 
       std::vector<Muon::MuonPatternChamberIntersect> chambers;
       chambers.push_back( *it );
@@ -301,11 +298,11 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
 
 	if((*rit).prepRawDataVec().empty()) continue;
 	Identifier id2 = (*rit).prepRawDataVec().front()->identify();
-	if(m_idHelperTool->isMM(id2) || m_idHelperTool->issTgc(id2) ) continue;
+	if(m_idHelperSvc->isMM(id2) || m_idHelperSvc->issTgc(id2) ) continue;
 
 	int region = m_patternCalibration->getRegionId(id2);
 	if(region == regionID) {
-	  ATH_MSG_VERBOSE("  adding additional chamber " << m_idHelperTool->toStringChamber(id2) << " size " << (*rit).prepRawDataVec().size() );
+	  ATH_MSG_VERBOSE("  adding additional chamber " << m_idHelperSvc->toStringChamber(id2) << " size " << (*rit).prepRawDataVec().size() );
 	  chambers.push_back( *rit );		  
 	}
       }
@@ -324,7 +321,7 @@ void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombina
 	std::vector<std::vector< const Muon::MdtDriftCircleOnTrack* > >::iterator mdtit = rotit->mdts.begin();	
 	for( ; mdtit!=rotit->mdts.end(); ++mdtit ){
 	  if( mdtit->empty() ) continue;
-	  ATH_MSG_VERBOSE("Calling segment finding for sector " << m_idHelperTool->toString(mdtit->front()->identify()) );
+	  ATH_MSG_VERBOSE("Calling segment finding for sector " << m_idHelperSvc->toString(mdtit->front()->identify()) );
 	  //fit the segments
 	  m_segmentMaker->find( rotit->regionPos, rotit->regionDir, *mdtit, rotit->clusters,
 				hasPhiMeasurements, segs, rotit->regionDir.mag() );

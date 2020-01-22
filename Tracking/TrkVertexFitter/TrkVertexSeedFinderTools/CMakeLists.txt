@@ -65,7 +65,7 @@ function( run_seed_test testName )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/seed_${testName}.sh
                   PROPERTIES TIMEOUT 300
-                  EXTRA_PATTERNS " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version" )
+                  LOG_IGNORE_PATTERN " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|class DataHeader|class PoolToken" )
 endfunction (run_seed_test)
 
 

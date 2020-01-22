@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyPerfMon.py
 # @author: Sebastien Binet <binet@cern.ch>
@@ -23,6 +23,8 @@ _perfMonStates = ('ini','evt','fin')
 from PerfMonComps.PyMonUtils import *
 
 from PyUtils.Decorators import memoize, forking
+
+import six
 
 @memoize
 def _import_ROOT():
@@ -90,7 +92,7 @@ class Svc(object):
                 cfg_type   = 'summary'
                 cfg_class  = 'PyPerfMonSvc'
                 cfg_module = 'PerfMonComps'
-            elif cfgs.has_key(c):
+            elif c in cfgs:
                 cfg = cfgs[c]
                 if isinstance(cfg, ConfigurableAlgorithm): cfg_type = 'alg'
                 elif isinstance(cfg, ConfigurableAlgTool): cfg_type = 'algtool'
@@ -309,7 +311,7 @@ class Svc(object):
                 for l in open('/proc/self/status', 'r'):
                     # lines are of the form:
                     # VmPeak: some value
-                    ll = map(str.strip, l.split(':'))
+                    ll = list(map(str.strip, l.split(':')))
                     k = ll[0]
                     v = ' '.join(ll[1:])
                     statm[k] = v
@@ -429,7 +431,7 @@ class Svc(object):
         ## write out meta-data
         import PyUtils.dbsqlite as dbs
         meta = dbs.open(headerFile, 'n')
-        for k,v in self.meta.iteritems(): meta[k] = v
+        for k,v in six.iteritems (self.meta): meta[k] = v
         meta['version_id'] = '0.4.0' # stream-format + header file
         meta['pmon_tuple_files'] = map( os.path.basename, outFiles[1:] )
         import socket
@@ -446,7 +448,7 @@ class Svc(object):
             for outFile in outFiles:
                 outFileDirName = os.path.dirname(outFile)
                 try: os.chdir(outFileDirName)
-                except OSError,err: pass
+                except OSError as err: pass
                 outFile = os.path.basename(outFile)
                 _msg.info(' --> [%s] => %8.3f kb',
                           outFile,
@@ -455,7 +457,7 @@ class Svc(object):
                 os.remove(outFile)
                 os.chdir(cwd)
                 pass
-        except Exception,err:
+        except Exception as err:
             _msg.warning(err)
             pass
         os.chdir(cwd)
@@ -514,7 +516,7 @@ class PoolMonTool(object):
         outFiles = set()
         from AthenaCommon import CfgMgr
         from AthenaCommon.Configurable import Configurable
-        for c in Configurable.allConfigurables.values():
+        for c in list(Configurable.allConfigurables.values()):
             if not isinstance(c, CfgMgr.AthenaOutputStream): continue
             try:
                 outFile = c.properties()["OutputFile"]
@@ -613,7 +615,7 @@ class PoolMonTool(object):
                                   inFile._fileInfos['size'] / Units.kB,
                                   inFile.dataHeader.nEntries)
                     del inFile               
-                except Exception,err:
+                except Exception as err:
                     _msg.unMute()
                     self.msg.info( "Could not run checkFile on [%s] !!",
                                    inFileName )
@@ -644,7 +646,7 @@ class PoolMonTool(object):
                                    outFile._fileInfos['size'] / Units.kB,
                                    outFile.dataHeader.nEntries)
                     del outFile               
-                except Exception,err:
+                except Exception as err:
                     _msg.unMute()
                     self.msg.info( "Could not run checkFile on [%s] !!",
                                    outFileName )

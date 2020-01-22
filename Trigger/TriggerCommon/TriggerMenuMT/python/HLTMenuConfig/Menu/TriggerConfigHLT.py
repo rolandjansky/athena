@@ -8,9 +8,8 @@
 
 import sys
 from six import itervalues
-
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerConfigHLT' )
+log = logging.getLogger(__name__)
 
 class TriggerConfigHLT(object):
     """
@@ -84,11 +83,11 @@ def getConfFromChainName(chainName, allChainDicts = None):
                     chainPartNames.append('HLT_'+cPName)
                     
     if len(chainPartNames) == 0:
-        log.error("MenuChains.getConfFromChainName: Wrong chain name given: found %s", chainName)
+        log.error("getConfFromChainName: Wrong chain name given: found %s", chainName)
         sys.exit("ERROR, in getConfFromChainName: Wrong chain configuration") 
         return [chainName]
     else:
-        log.info("TriggerConfigHLT.getConfFromChainName: Called chain %s and hypoTool conf %s", chainName, chainPartNames)
+        log.info("getConfFromChainName: Called chain %s and hypoTool conf %s", chainName, chainPartNames)
         return chainPartNames
 
 
@@ -111,3 +110,4 @@ if __name__ == "__main__": # selftest
             log.info("ok, unregistered chain handling works")
         else:
             log.error("unhandled missing chain")
+            

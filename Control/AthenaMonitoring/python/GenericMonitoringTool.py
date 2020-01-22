@@ -1,1 +1,0 @@
-from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram

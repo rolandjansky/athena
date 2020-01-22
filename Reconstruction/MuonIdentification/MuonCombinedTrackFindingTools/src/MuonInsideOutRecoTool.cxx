@@ -26,6 +26,7 @@
 #include "MuonCombinedEvent/MuGirlTag.h"
 #include "xAODTracking/Vertex.h"
 
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 namespace MuonCombined {
 
@@ -40,7 +41,8 @@ namespace MuonCombined {
     m_recoValidationTool(""),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
     m_trackAmbiguityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_layerHashProvider("Muon::MuonLayerHashProviderTool")
+    m_layerHashProvider("Muon::MuonLayerHashProviderTool"),
+    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<MuonInsideOutRecoTool>(this);
@@ -56,6 +58,7 @@ namespace MuonCombined {
     declareProperty("TrackAmbiguityProcessor",m_trackAmbiguityResolver );    
     declareProperty("IDTrackMinPt", m_idTrackMinPt = 2500.0 );
     declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
+    declareProperty("TrackSummeryTool", m_trackSummaryTool );
   }
 
   MuonInsideOutRecoTool::~MuonInsideOutRecoTool() { }
@@ -75,7 +78,9 @@ namespace MuonCombined {
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
     ATH_CHECK(m_trackAmbiguityResolver.retrieve());
-    ATH_CHECK(m_vertexKey.initialize());
+    //trigger does not use primary vertex
+    if(!m_vertexKey.empty()) ATH_CHECK(m_vertexKey.initialize());
+    ATH_CHECK(m_trackSummaryTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -224,6 +229,14 @@ namespace MuonCombined {
       ATH_MSG_WARNING("candidate lookup failed, this should not happen");
       return std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track* >(nullptr,nullptr);
     }
+    // generate a track summary for this candidate
+    if (m_trackSummaryTool.isEnabled()) {
+       const Trk::TrackSummary* summary = selectedTrack->trackSummary();
+       if( !summary ) {
+          Trk::TrackSummary tmpSummary;
+          m_trackSummaryTool->addDetailedTrackSummary(*selectedTrack,tmpSummary);
+       }
+    }
 
     return std::make_pair( std::unique_ptr<const Muon::MuonCandidate>(new Muon::MuonCandidate(*candidate)),
                            new Trk::Track(*selectedTrack) );
@@ -239,25 +252,27 @@ namespace MuonCombined {
     float bs_z = 0.;
  
     const xAOD::Vertex* matchedVertex = nullptr;
-    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
-    if (!vertices.isValid())
-    {
-      ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
-    }
-    else
-    {
-      for ( const auto& vx : *vertices )
-      {
-	for ( const auto& tpLink : vx->trackParticleLinks() )
+    if(!m_vertexKey.empty()){
+      SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+      if (!vertices.isValid())
 	{
-	  if (*tpLink == &idTrackParticle)
-	  {
-	    matchedVertex = vx;
-	    break;
-	  }
-	  if (matchedVertex) break;
+	  ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
 	}
-      }
+      else
+	{
+	  for ( const auto& vx : *vertices )
+	    {
+	      for ( const auto& tpLink : vx->trackParticleLinks() )
+		{
+		  if (*tpLink == &idTrackParticle)
+		    {
+		      matchedVertex = vx;
+		      break;
+		    }
+		  if (matchedVertex) break;
+		}
+	    }
+	}
     }
     if(matchedVertex) {
       bs_x = matchedVertex->x();

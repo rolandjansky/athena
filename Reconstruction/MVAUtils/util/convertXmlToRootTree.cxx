@@ -3,6 +3,7 @@
 */
 
 #include "MVAUtils/BDT.h"
+#include "MVAUtils/TMVAToMVAUtils.h"
 #include "TMVA/Reader.h"
 #include "TMVA/MethodBDT.h"
 
@@ -13,14 +14,13 @@
 #include <TRandom3.h>
 
 #include <vector>
-#include <iostream>
-
+#include <iostream> 
 #include "CxxUtils/checker_macros.h"
 
 using namespace std;
 
 /** 
-    A utility to convert xml files from TMVA into root TTrees for this package.
+    Utility to convert xml files from TMVA into root TTrees for this package.
 
     Usage: convertXmlToRootTree <inFile(xml)> [outFile(root)]
 
@@ -39,7 +39,6 @@ struct XmlVariableInfo {
 };
 TString AnalysisType;
 unsigned int NClass;
-
 
 std::vector<XmlVariableInfo>
 parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
@@ -178,11 +177,11 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
     }
     else // should never happen
       {
-	cerr <<"Unknown type from parser "<< infoType.Data()<<endl;
-	//throw std::runtime_error("Unknown type from parser");
-	//	delete vars.back();
-	vars.pop_back();
-	return 0;
+        cerr <<"Unknown type from parser "<< infoType.Data()<<endl;
+        //throw std::runtime_error("Unknown type from parser");
+        //	delete vars.back();
+        vars.pop_back();
+        return 0;
       }
   }
 
@@ -195,7 +194,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
   if(method_bdt->GetOptions().Contains("BoostType=Grad")) isGrad = true;
   cout << "UseYesNoLeaf? " << useYesNoLeaf << endl;
   cout << "Gradient Boost? " << isGrad << endl;
-  MVAUtils::BDT* bdt = new MVAUtils::BDT( method_bdt, isRegression || isGrad, useYesNoLeaf);
+  std::unique_ptr<MVAUtils::BDT> bdt= TMVAToMVAUtils::convert(method_bdt, isRegression || isGrad, useYesNoLeaf);
   bdt->SetPointers(vars);
 
 
@@ -222,10 +221,6 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
   n->Write();
   f->Close();
   delete f;
-  delete bdt;
-  bdt = nullptr;
-
-
   cout << endl << "Reading BDT from root file and testing " << outFileName << endl;
 
   f = TFile::Open(outFileName, "READ");
@@ -235,7 +230,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
     return 0;
   }
   
-  bdt = new MVAUtils::BDT(bdt_tree);
+  bdt.reset(new MVAUtils::BDT(bdt_tree));
   bdt->SetPointers(vars);
   cout << bdt->GetResponse() << endl;
   cout << "MVAUtils::BDT : "

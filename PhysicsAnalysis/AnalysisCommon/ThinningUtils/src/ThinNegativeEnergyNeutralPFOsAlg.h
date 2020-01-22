@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ThinningHandleKey.h"
+
+#include "xAODPFlow/PFOContainer.h"
 
 class ThinNegativeEnergyNeutralPFOsAlg
 : public ::AthAlgorithm
@@ -43,14 +45,16 @@ public:
     virtual StatusCode  finalize();
     
 private:
-    /// Pointer to IThinningSvc
-    ServiceHandle<IThinningSvc> m_thinningSvc;
+    StringProperty m_streamName
+    { this, "StreamName", "", "Name of the stream for which thinning is being done." };
     
     /// Should the thinning run?
-    bool m_doThinning;
+    BooleanProperty m_doThinning
+    { this, "ThinNegativeEnergyNeutralPFOs", true, "Should the thinning of negative energy neutral PFOs be run?" };
    
     /// Names of the containers to thin
-    std::string m_neutralPFOsKey;
+    SG::ThinningHandleKey<xAOD::PFOContainer> m_neutralPFOsKey
+    { this, "NeutralPFOsKey", "JetETMissNeutralParticleFlowObjects", "StoreGate key for the PFOContainer to be thinned" };
  
     /// Counters
     unsigned long m_nEventsProcessed;

@@ -2,6 +2,7 @@
 """Run tests on G4AtlasToolsConfigNew
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 """
 
 if __name__ == '__main__':
@@ -17,7 +18,7 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  ConfigFlags.Sim.ISF.Run = True
+  ConfigFlags.Sim.ISFRun = True
 
   #Provide input
   from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -48,15 +49,16 @@ if __name__ == '__main__':
 
   from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg
   acc  = SensitiveDetectorMasterToolCfg(ConfigFlags)
-  tool = cfg.popToolsAndMerge(acc)
-  cfg.setPrivateTools(tool)
-  
+  #tool = cfg.popToolsAndMerge(acc)
+  #cfg.setPrivateTools(tool)
+  cfg.merge(acc)
+
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
 
 
   #cfg not being used so complains ...fine now!
-  f=open("test.pkl","w")
+  f=open("test.pkl","wb")
   cfg.store(f) #sets wasmerged = true
   f.close()
 

@@ -16,16 +16,14 @@ class JetChainConfiguration(ChainConfigurationBase):
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
 
-        # interpret the reco configuration only
-        # eventually should just be a subdict in the chainDict
-        recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','cleaning']
-        self.recoDict = { key:self.dict["chainParts"][key] for key in recoKeys }
-        
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractRecoDict
+        self.recoDict = extractRecoDict(self.dict["chainParts"])
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain " + self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 

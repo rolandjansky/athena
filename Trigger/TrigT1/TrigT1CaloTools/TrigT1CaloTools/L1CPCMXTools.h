@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,7 +17,7 @@
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
 
 namespace TrigConf {
-class ITrigConfigSvc;
+class ILVL1ConfigSvc;
 }
 
 namespace LVL1 {
@@ -115,7 +115,7 @@ private:
                      uint8_t peak) const;
 
   /** Trigger configuration service */
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
   /** Number of CP crates */
   int m_crates;

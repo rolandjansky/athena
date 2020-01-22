@@ -3,6 +3,7 @@
 """Define method to construct configured Tile raw channel maker algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileRawChannelMakerCfg(flags, **kwargs):
     """Return component accumulator with configured Tile raw channel maker algorithm
@@ -12,6 +13,9 @@ def TileRawChannelMakerCfg(flags, **kwargs):
     """
 
     acc = ComponentAccumulator()
+
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge( TileInfoLoaderCfg(flags) )
 
     kwargs.setdefault('name', 'TileRChMaker')
     name = kwargs['name']
@@ -61,7 +65,7 @@ def TileRawChannelMakerCfg(flags, **kwargs):
 
     kwargs.setdefault('TileRawChannelBuilder', tileRawChannelBuilder)
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker
+    TileRawChannelMaker=CompFactory.TileRawChannelMaker
     acc.addEventAlgo(TileRawChannelMaker(**kwargs), primary = True)
 
     return acc
@@ -158,7 +162,7 @@ if __name__ == "__main__":
     ConfigFlags.Tile.doOpt2 = True
     ConfigFlags.Tile.doOptATLAS = True
     ConfigFlags.Tile.NoiseFilter = 1
-
+    ConfigFlags.Output.ESDFileName = "myESD.pool.root"
     ConfigFlags.fillFromArgs()
 
     ConfigFlags.lock()
@@ -174,7 +178,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileRawChannelMaker.pkl','w') )
+    acc.store( open('TileRawChannelMaker.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

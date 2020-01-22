@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_SUITE(IOVDbSvcTest )
     BOOST_TEST( iovdbsvc->getKeyInfo(db.fixtureFoldername, info));
     std::string rangeString(info.range);
 
-    BOOST_TEST(db.fixtureFoldername == info.foldername);
+    BOOST_TEST(db.fixtureFoldername == info.folderName);
     BOOST_TEST(info.tag.empty());
     BOOST_TEST("{[100] - [9223372036854775807]}"==rangeString);
     BOOST_TEST(info.retrieved);

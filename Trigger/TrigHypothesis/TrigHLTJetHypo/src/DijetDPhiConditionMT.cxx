@@ -44,7 +44,7 @@ DijetDPhiConditionMT::isSatisfied(const HypoJetVector& ips,
    if(collector){
      std::stringstream ss0;
      const void* address = static_cast<const void*>(this);
-     ss0 << "DijetDPhiConditionMT: " << address << " dphi "
+     ss0 << "DijetDPhiConditionMT: (" << address << ") dphi "
 	 << dphi  <<  " pass: "  <<std::boolalpha << pass <<  " jet group: \n";
      
      std::stringstream ss1;

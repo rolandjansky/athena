@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -16,14 +16,11 @@ decription           : Abstract base class for convolution of material effects
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "GaudiKernel/IAlgTool.h"
 
 namespace Trk {
-
-class MultiComponentState;
 class Layer;
-
 static const InterfaceID IID_IMaterialMixtureConvolution("IMaterialMixtureConvolution", 1, 0);
 
 class IMaterialMixtureConvolution : virtual public IAlgTool
@@ -59,9 +56,9 @@ public:
 
   //!< Retain for now redundant simplified material effects
   virtual std::unique_ptr<MultiComponentState>
-    simpliedMaterialUpdate(const MultiComponentState& multiComponentState,
-                           PropDirection direction = anyDirection,
-                           ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
+                             PropDirection direction = anyDirection,
+                             ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 
 } // end Trk namespace

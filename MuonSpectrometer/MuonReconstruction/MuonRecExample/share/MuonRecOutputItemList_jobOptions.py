@@ -3,7 +3,6 @@ from RecExConfig.RecFlags import rec
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from AthenaCommon.BeamFlags import jobproperties
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 #AOD list, also added to the ESD
@@ -44,9 +43,10 @@ if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
       MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#RPC_Measurements"] 
       MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_MeasurementsAux."] 
       MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#TGC_MeasurementsAllBCs"] 
-      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#TGC_MeasurementsAllBCsAux."] 
-      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#CSC_Clusters"] 
-      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#CSC_ClustersAux."] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#TGC_MeasurementsAllBCsAux."]
+      if MuonGeometryFlags.hasCSC():
+         MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#CSC_Clusters"] 
+         MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#CSC_ClustersAux."] 
       if muonRecFlags.doCreateClusters:
          MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#RPC_Clusters"] 
          MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_ClustersAux."] 
@@ -65,9 +65,8 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
 
 
    #PRDs
-   if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-      MuonESDList+=["Muon::MMPrepDataContainer#MM_Measurements"]
-      MuonESDList+=["Muon::sTgcPrepDataContainer#STGC_Measurements"]
+   if MuonGeometryFlags.hasMM(): MuonESDList+=["Muon::MMPrepDataContainer#MM_Measurements"]
+   if MuonGeometryFlags.hasSTGC(): MuonESDList+=["Muon::sTgcPrepDataContainer#STGC_Measurements"]
    if MuonGeometryFlags.hasCSC():
       MuonESDList+=["Muon::CscPrepDataContainer#CSC_Clusters"]
       MuonESDList+=["Muon::CscStripPrepDataContainer#CSC_Measurements"]
@@ -94,22 +93,22 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
       MuonESDList += [ "TrackRecordCollection#MuonEntryLayerFilter" ]
       MuonESDList += [ "TrackRecordCollection#MuonExitLayerFilter" ]
                
-      MuonESDList += ["PRD_MultiTruthCollection#MDT_TruthMap","PRD_MultiTruthCollection#CSC_TruthMap","PRD_MultiTruthCollection#RPC_TruthMap",
-                      "PRD_MultiTruthCollection#TGC_TruthMap","PRD_MultiTruthCollection#STGC_TruthMap","PRD_MultiTruthCollection#MM_TruthMap"]
+      MuonESDList += ["PRD_MultiTruthCollection#MDT_TruthMap","PRD_MultiTruthCollection#RPC_TruthMap", "PRD_MultiTruthCollection#TGC_TruthMap"]
+      if MuonGeometryFlags.hasCSC(): MuonESDList += ["PRD_MultiTruthCollection#CSC_TruthMap"]
+      if MuonGeometryFlags.hasSTGC(): MuonESDList += ["PRD_MultiTruthCollection#STGC_TruthMap"]
+      if MuonGeometryFlags.hasMM(): MuonESDList += ["PRD_MultiTruthCollection#MM_TruthMap"]
 
       #Track truth
       MuonESDList+=["DetailedTrackTruthCollection#MuonSpectrometerTracksTruth"]
       MuonESDList+=["TrackTruthCollection#MuonSpectrometerTracksTruth"]
 
       if muonRecFlags.writeSDOs():
-         if MuonGeometryFlags.hasCSC():
-            MuonESDList+=["CscSimDataCollection#CSC_SDO"]
+         if MuonGeometryFlags.hasCSC(): MuonESDList+=["CscSimDataCollection#CSC_SDO"]
          MuonESDList+=["MuonSimDataCollection#MDT_SDO"]
          MuonESDList+=["MuonSimDataCollection#RPC_SDO"]
          MuonESDList+=["MuonSimDataCollection#TGC_SDO"]
-         if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-            MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
-            MuonESDList+=["MuonSimDataCollection#MM_SDO"]
+         if MuonGeometryFlags.hasSTGC(): MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
+         if MuonGeometryFlags.hasMM(): MuonESDList+=["MuonSimDataCollection#MM_SDO"]
 
    # commenting if-statement since mandatory for e.g. RPC calibration
    # Write out CSC, RPC, and MDT RDOs.

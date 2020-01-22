@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOLINC_H
-#define TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOLINC_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOLINC_H
+#define TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOLINC_H 1
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODBase/IParticleContainer.h"
@@ -10,10 +10,12 @@
 #include "xAODEgamma/Photon.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionPhotonHypoTool.h"
+#include "PATCore/AcceptData.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 
 /**
  * @class Implementation of the Egamma selection for Photons
@@ -43,7 +45,8 @@ class TrigEgammaPrecisionPhotonHypoToolInc : public extends<AthAlgTool, ITrigEga
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  ToolHandle<IAsgPhotonIsEMSelector> m_egammaPhotonCutIDTool;
   int findCutIndex( float eta ) const;
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGPRECISIONCALOPRECISIONHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_TRIGPRECISIONPHOTONHYPOTOOL_H

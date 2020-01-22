@@ -72,6 +72,7 @@ IOVSvc::IOVSvc( const std::string& name, ISvcLocator* svc )
   declareProperty("preLoadRanges",m_preLoadRanges=false);
   declareProperty("preLoadData",m_preLoadData=false);
   declareProperty("partialPreLoadData",m_partialPreLoadData=true);
+  declareProperty("preLoadExtensibleFolders", m_preLoadExtensibleFolders=true);
   declareProperty("updateInterval", m_updateInterval="Event");
   declareProperty("sortKeys",m_sortKeys=true);
   declareProperty("forceResetAtBeginRun", m_forceReset=false);

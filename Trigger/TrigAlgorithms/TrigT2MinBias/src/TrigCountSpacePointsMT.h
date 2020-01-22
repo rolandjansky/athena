@@ -13,7 +13,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include <string>
 class PixelID;

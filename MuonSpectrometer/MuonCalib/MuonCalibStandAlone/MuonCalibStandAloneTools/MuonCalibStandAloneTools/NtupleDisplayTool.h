@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -43,10 +43,8 @@ class TApplication;
 #include "MdtCalibInterfaces/IMdtPatRecFitter.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-namespace MuonGM{
-class MuonDetectorManager;
-}
 class RegionSelectionSvc;
 
 namespace MuonCalib {
@@ -93,7 +91,12 @@ class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationToo
             //for retrieving the chamber geometry
             ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
                 "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-            const MuonGM::MuonDetectorManager* m_detMgr;
+
+	    // MuonDetectorManager from the conditions store
+	    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+		"MuonDetectorManager", 
+		"Key of input MuonDetectorManager condition data"};    
+
             const MuonCalib::IIdToFixedIdTool *m_id_tool;
             
             

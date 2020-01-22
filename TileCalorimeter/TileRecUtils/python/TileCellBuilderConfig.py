@@ -3,6 +3,7 @@
 """Define method to construct configured Tile Cell builder tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileCellBuilderCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile Cell builder tool
@@ -28,6 +29,9 @@ def TileCellBuilderCfg(flags, **kwargs):
 
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge(TileGMCfg(flags))
+
+    from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
+    acc.merge( TileInfoLoaderCfg(flags) )
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
@@ -57,7 +61,7 @@ def TileCellBuilderCfg(flags, **kwargs):
             kwargs['TileDSPRawChannelContainer'] = tileRawChannelContainerDSP
             acc.merge( corrAlgAcc )
 
-    from TileRecUtils.TileRecUtilsConf import TileCellBuilder
+    TileCellBuilder=CompFactory.TileCellBuilder
     acc.setPrivateTools( TileCellBuilder(**kwargs) )
 
     return acc
@@ -88,4 +92,4 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileCellBuilder.pkl','w') )
+    acc.store( open('TileCellBuilder.pkl','wb') )

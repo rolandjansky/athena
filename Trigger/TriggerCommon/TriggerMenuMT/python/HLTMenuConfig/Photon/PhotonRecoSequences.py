@@ -27,7 +27,10 @@ def precisionPhotonRecoSequence(RoIs):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
     import AthenaCommon.CfgMgr as CfgMgr
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier")
-    ViewVerify.DataObjects = [ ( 'xAOD::CaloClusterContainer','StoreGateSvc+'+ precisionCaloMenuDefs.precisionCaloClusters) ]
+    ViewVerify.DataObjects = [ 
+            ( 'xAOD::CaloClusterContainer','StoreGateSvc+'+ precisionCaloMenuDefs.precisionCaloClusters),
+            ('CaloCellContainer' , 'StoreGateSvc+CaloCells')
+            ]
 
 
 

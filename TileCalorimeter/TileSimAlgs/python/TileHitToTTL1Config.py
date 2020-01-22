@@ -3,6 +3,7 @@
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileHitToTTL1Cfg(flags, **kwargs):
     """Return component accumulator with configured Tile hits to TTL1 algorithm
@@ -43,7 +44,7 @@ def TileHitToTTL1Cfg(flags, **kwargs):
         kwargs.setdefault('TileTTL1Container', 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
 
-    from TileSimAlgs.TileSimAlgsConf import TileHitToTTL1
+    TileHitToTTL1=CompFactory.TileHitToTTL1
     acc.addEventAlgo(TileHitToTTL1(**kwargs), primary = True)
 
     return acc
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.HITS
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.Pileup = False
-
+    ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
@@ -142,7 +143,7 @@ if __name__ == "__main__":
     ConfigFlags.dump()
 
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('TileHitToTTL1.pkl','w') )
+    acc.store( open('TileHitToTTL1.pkl','wb') )
 
     sc = acc.run(maxEvents=3)
     # Success should be 0

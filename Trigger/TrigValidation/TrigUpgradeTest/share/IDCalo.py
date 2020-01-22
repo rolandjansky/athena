@@ -1,8 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -14,7 +16,8 @@ from AthenaCommon.AlgSequence import AthSequencer
 viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
 topSequence += viewSeq
 
-roiCollectionName =  "EMRoIs"  
+from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+roiCollectionName =  mapThresholdToL1RoICollection("EM")  
 
 # View maker alg
 from AthenaCommon import CfgMgr
@@ -33,28 +36,16 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 if TriggerFlags.doID:
 
-  from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+  from TrigInDetConfig.InDetSetup import makeInDetAlgs
   
-  viewAlgs = makeInDetAlgs("FS")
+  viewAlgs = makeInDetAlgs("FS", rois= roiCollectionName)
 
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg
 
 
-
-  for viewAlg in viewAlgs:
-        if "RoIs" in viewAlg.properties():
-            viewAlg.RoIs = roiCollectionName
-        if "roiCollectionName" in viewAlg.properties():
-            viewAlg.roiCollectionName = roiCollectionName
-
-
-   #Adding vertexing
-  #from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices 
+  #Adding vertexing
   from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-  #from TrigInDetConfig.TrigInDetPriVtxConfig
-  #from TrigUpgradeTest.TrigInDetPriVtxConfig import makeVertices
-#TrigInDetConfig/TrigInDetPriVtxConfig
 
   #TODO need to change the name of the output vertex collection to something recordable
   vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", "HLT_xPrimVx"  )
@@ -67,7 +58,7 @@ if TriggerFlags.doID:
 
   allViewAlgorithms += PTAlgs
 
-   #Testing BeamSpotAlg in Run3 configuration
+  #Testing BeamSpotAlg in Run3 configuration
   prefixName = "InDetTrigMT"
   from TrigVertexFitter.TrigVertexFitterConf import TrigPrimaryVertexFitter
   primaryVertexFitter = TrigPrimaryVertexFitter(  name = prefixName + "VertexFitter",

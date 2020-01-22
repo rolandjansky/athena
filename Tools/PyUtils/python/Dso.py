@@ -213,7 +213,7 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
     msg.debug(":"*80)
     def update_db(libname):
         rflx_names={}
-        for i in xrange(rflx.TypeSize()):
+        for i in range(rflx.TypeSize()):
             rflx_type = rflx.TypeAt(i)
             rflx_name = rflx_type.Name(7)
             root_name = _to_rootmap_name(rflx_name)

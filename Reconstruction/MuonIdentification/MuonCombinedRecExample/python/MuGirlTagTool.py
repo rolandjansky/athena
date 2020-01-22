@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ### JobOptions to run MuGirlTag in xAOD
 
@@ -8,7 +8,6 @@ from AthenaCommon.GlobalFlags import globalflags
 
 from RecExConfig.RecFlags import rec
 
-from MuGirl.MuGirlRecoConfig import MuGirlRecoConfig
 from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTrackBuilder,CombinedMuonTrackBuilderFit,MuidSegmentRegionRecoveryTool
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
@@ -18,28 +17,13 @@ from MuonRecExample.MuonRecTools import DCMathSegmentMaker
 ###logfile
 from AthenaCommon.Logging import log
 
-from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-
-###############################################################################
-### Configure MuGirlTag###
-def MuGirlTagToolBase(name, configureForTrigger, doStau, **kwargs ):
-   from AthenaCommon.AppMgr import ToolSvc
-   toolName = "MuGirlRecoTool"
-   if configureForTrigger:
-      toolName = "TrigMuGirlRecoTool"
-   RecoTool = MuGirlRecoConfig(name=toolName,configureForTrigger=configureForTrigger,doStau=doStau)
-   ToolSvc += RecoTool
-   kwargs.setdefault("MuGirlReconstruction",  RecoTool )
-   return CfgMgr.MuonCombined__MuGirlTagTool(name,**kwargs)
-
-def MuGirlTagTool( name='MuGirlTagTool', **kwargs ):
-   return MuGirlTagToolBase(name=name,configureForTrigger=False,doStau=True,**kwargs)
-
-def TrigMuGirlTagTool( name='TrigMuGirlTagTool', **kwargs ):
-   return MuGirlTagToolBase(name=name,configureForTrigger=True,doStau=True,**kwargs)
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
+   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+      kwargs.setdefault("VertexContainer", "")
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
@@ -71,11 +55,9 @@ def MuonStauSeededSegmentFinder( name="MuonStauSeededSegmentFinder", **kwargs ):
     kwargs.setdefault("MdtRotCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
     kwargs.setdefault("SegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
     kwargs.setdefault("SegmentMakerNoHoles", getPublicTool("DCMathStauSegmentMaker") )
-    if not MuonGeometryFlags.hasCSC():
-       kwargs.setdefault("CscPrepDataContainer","")
-    if not (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
-       kwargs.setdefault("sTgcPrepDataContainer","")
-       kwargs.setdefault("MMPrepDataContainer","")
+    if not MuonGeometryFlags.hasCSC(): kwargs.setdefault("CscPrepDataContainer","")
+    if not MuonGeometryFlags.hasSTGC(): kwargs.setdefault("sTgcPrepDataContainer","")
+    if not MuonGeometryFlags.hasMM(): kwargs.setdefault("MMPrepDataContainer","")
 
     return MuonSeededSegmentFinder(name,**kwargs)
 
@@ -83,6 +65,8 @@ def MuonStauSegmentRegionRecoveryTool(name="MuonStauSegmentRegionRecoveryTool",*
    kwargs.setdefault("SeededSegmentFinder", getPublicTool("MuonStauSeededSegmentFinder") )
    kwargs.setdefault("ChamberHoleRecoveryTool", getPublicTool("MuonStauChamberHoleRecoveryTool") )
    kwargs.setdefault("Fitter",  getPublicTool("CombinedStauTrackBuilderFit") )
+   if TriggerFlags.MuonSlice.doTrigMuonConfig and athenaCommonFlags.isOnline:
+      kwargs.setdefault('MdtCondKey', "")
    return MuidSegmentRegionRecoveryTool(name,**kwargs)
 
 def CombinedStauTrackBuilderFit( name='CombinedStauTrackBuilderFit', **kwargs ):
@@ -101,6 +85,8 @@ def MuonStauCandidateTrackBuilderTool( name="MuonStauCandidateTrackBuilderTool",
 
 def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("MuonCandidateTrackBuilderTool", getPublicTool("MuonStauCandidateTrackBuilderTool") )
+   if TriggerFlags.MuonSlice.doTrigMuonConfig:
+      kwargs.setdefault("VertexContainer", "")
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):

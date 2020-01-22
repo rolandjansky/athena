@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """Module of factory functions to control the instantiation of Algorithms.
 
@@ -6,15 +6,9 @@ In some cases instantiation is done by a remote module.
 In thsi case the factory function imports that module and retrieves the
 instance."""
 
-from exc2string import exc2string2
-
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from TrigGenericAlgs.TrigGenericAlgsConf import \
-    PESA__DummyUnseededAllTEAlgo as DummyAlgo
-
-from TrigGenericAlgs.TrigGenericAlgsConf import \
-    PESA__SeededSuperRoiAllTEAlgo as SeededAlgo
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__SeededSuperRoiAllTEAlgo as SeededAlgo  # noqa : F401
 
 # from TrigGenericAlgs.TrigGenericAlgsConf import DummyFEX
 
@@ -25,15 +19,15 @@ from TrigGenericAlgs.TrigGenericAlgsConf import \
 #                                           TrigCaloClusterMaker_topo,
 #                                           TrigLArNoisyROAlgConfig)
 
-from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
+from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo, # noqa: F401
                                            TrigCaloCellMaker_jet_super,
                                            TrigCaloClusterMaker_topo)
 
-from TrigCaloRec.TrigCaloRecConf import (TrigL1BSTowerMaker,)
+from TrigCaloRec.TrigCaloRecConf import (TrigL1BSTowerMaker,) # noqa: F401
 
-from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics
+from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics # noqa: F401
 
-from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
+from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named, # noqa: F401
                                                TrigHLTJetRecFromCluster,
                                                TrigHLTJetRecFromJet,
                                                TrigHLTJetRecGroomer,
@@ -47,16 +41,16 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTJetDSSelector,
                                                TrigHLTTrackMomentHelpers,)
 
-from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2
+from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2 # noqa: F401
 
-from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
+from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter # noqa: F401
 
-from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,
+from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet, # noqa: F401
                                      TrigHIClusterMaker_hijet,
                                      TrigHIEventShapeMaker_hijet,
                                     )
                                     
-from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster
+from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster # noqa: F401
 
 abomination_to_keep_config_weakvalue_dict_intact = []
 
@@ -73,7 +67,7 @@ class Instantiator(object):
 
         try:
             s = a.asString()  # convert alg to a string to be eval'd
-        except Exception, e:
+        except Exception as e:
             m = '%s() call to asString failed for object %s\n%s ' % (
                 self.err_hdr, str(a), str(e))
             raise RuntimeError(m)
@@ -85,14 +79,15 @@ class Instantiator(object):
 
         try:
             alg = eval(s)
-        except Exception, e:
-            tb = exc2string2()
+        except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
             m = '%s() Error instantiating  Algorithm: eval(%s) '\
                 '%s\nTraceback: \n%s'
             m = m % (self.__class__.__name__, s, str(e), tb)
             try:
                 alg = a.alg
-            except:
+            except Exception:
                 m += '\nAttempt to retrieve pre-instantiated Algorithm failed'
 
                 raise RuntimeError(m)
@@ -101,14 +96,14 @@ class Instantiator(object):
 
             try:
                 val = eval(v)
-            except Exception, e:
+            except Exception as e:
                 m = '%s() Error running  eval: '\
                     'name %s value: eval(%s) \n%s' % (err_hdr, k, v, str(e))
                 raise RuntimeError(m)
 
             try:
                 alg.__setattr__(k, val)
-            except Exception, e:
+            except Exception as e:
                 m = '%s() Error inserting a new Algorithm attribute: '\
                     'name %s value: eval(%s) \n%s' % (err_hdr, k, v, str(e))
                 raise RuntimeError(m)

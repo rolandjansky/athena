@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthLinks
                           Control/AthenaBaseComps
                           Control/AthViews
+                          Control/RootUtils
                           Trigger/TrigEvent/TrigSteeringEvent
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigEgamma
@@ -25,13 +26,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMissingET
                           Event/xAOD/xAODTau
                           Event/xAOD/xAODTrigBphys
+                          Event/xAOD/xAODJet
                           Trigger/TrigSteer/DecisionHandling
-                          Control/AthenaMonitoring
+                          Control/AthenaMonitoringKernel
                           Trigger/TrigMonitoring/TrigCostMonitorMT
                           Trigger/TrigAlgorithms/TrigPartialEventBuilding
                           Trigger/TrigDataAccess/TrigSerializeTP
                           Trigger/TrigConfiguration/TrigConfData
-                          Trigger/TrigConfiguration/TrigConfIO
                           Control/AthContainersRoot)
 
 
@@ -43,8 +44,8 @@ atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib TrigConfData TrigConfIOLib
-                   xAODTrigCalo xAODTrigEgamma xAODEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData
+                   xAODTrigCalo xAODTrigEgamma xAODEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot )
 
 atlas_add_component( TrigOutputHandling
                      src/components/*.cxx
@@ -52,6 +53,7 @@ atlas_add_component( TrigOutputHandling
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )
 
 # Tests:
 atlas_add_test( void_record_test

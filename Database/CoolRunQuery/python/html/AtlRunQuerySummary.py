@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQuerySummary.py
@@ -10,6 +10,7 @@
 # Created: Oct 6, 2009
 # ----------------------------------------------------------------
 #
+from __future__ import print_function
 import sys, time
 from array import array                
 from CoolRunQuery.utils.AtlRunQueryUtils  import prettyNumber, durationInSeconds, filesize, importroot
@@ -146,7 +147,7 @@ def DecodeStr( s, tpe ):
     elif 'STR:physics_*' == tpe:
         s = s[0].value
         if len(s) <= 1:
-            print 'Big troubles... in function "AtlRunQuerySummary::DecodeStr": invalid length for "%s"' % tpe
+            print ('Big troubles... in function "AtlRunQuerySummary::DecodeStr": invalid length for "%s"' % tpe)
             sys.exit(1)
         if s[0] <= 0: return 0
         else:         return float(s[1])/s[0]/1.0e6
@@ -437,7 +438,7 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
 
         ### what if just n.a. in one column
         ###if len(v) == 0:
-        ###    print 'Big troubles... in function "AtlRunQuerySummary::MakeSummaryHtml": did not find key "%s" in dictionary' % k[0]
+        ###    print ('Big troubles... in function "AtlRunQuerySummary::MakeSummaryHtml": did not find key "%s" in dictionary' % k[0])
         ###    sys.exit(1)
         table.append( ComputeStats( v ) )
                 

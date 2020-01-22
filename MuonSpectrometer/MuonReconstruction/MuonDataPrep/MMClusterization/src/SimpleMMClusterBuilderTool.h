@@ -10,11 +10,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
-
 //
 // Simple clusterization tool for MicroMegas
 //

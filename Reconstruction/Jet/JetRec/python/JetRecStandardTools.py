@@ -34,6 +34,7 @@ from JetRecTools.JetRecToolsConf import CorrectPFOTool
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
+from JetRecTools.JetRecToolsConf import JetTrackSelectionTool2
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 # PS 5/12/2017 from JetSimTools.JetSimToolsConf import TruthPseudoJetGetter
@@ -129,12 +130,16 @@ jtm += InDet__InDetTrackSelectionTool(
   minPt    = 500
 )
 
-jtm += JetTrackSelectionTool(
+# This tool is only used to access the selector so we use
+# the simplified JetTrackSelectionTool. The other tools definied here
+# could probably also move to this tool.
+
+jtm += JetTrackSelectionTool2(
   "trackselloose",
-  InputContainer  = jtm.trackContainer,
-  OutputContainer = "JetSelectedTracks",
+  # InputContainer  = jtm.trackContainer,
+  # OutputContainer = "JetSelectedTracks",
   Selector        = jtm.trk_trackselloose
-)
+  )
 
 jtm += InDet__InDetTrackSelectionTool(
   "trk_trackselloose_trackjets",
@@ -167,28 +172,16 @@ else:
 #--------------------------------------------------------------
 # Track-vertex association.
 #--------------------------------------------------------------
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
-jtm += CP__TightTrackVertexAssociationTool("jetTightTVAtool", dzSinTheta_cut=3, doPV=True)
 
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__LooseTrackVertexAssociationTool
-jtm += CP__LooseTrackVertexAssociationTool("jetLooseTVAtool")
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
+jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint='Loose')
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
   TrackParticleContainer  = jtm.trackContainer,
   TrackVertexAssociation  = "JetTrackVtxAssoc",
   VertexContainer         = jtm.vertexContainer,
-  TrackVertexAssoTool     = jtm.jetTightTVAtool,
-)
-
-jtm += TrackVertexAssociationTool(
-  "tvassoc_old",
-  TrackParticleContainer  = jtm.trackContainer,
-  TrackVertexAssociation  = "JetTrackVtxAssoc_old",
-  VertexContainer         = jtm.vertexContainer,
-  MaxTransverseDistance   = 1.5,
-  MaxLongitudinalDistance = 1.0e7,
-  MaxZ0SinTheta = 1.5
+  TrackVertexAssoTool     = jtm.jetLooseTVAtool,
 )
 
 #--------------------------------------------------------------

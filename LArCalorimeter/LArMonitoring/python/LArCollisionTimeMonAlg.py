@@ -17,18 +17,16 @@ def LArCollisionTimeMonConfig(inputFlags):
     from TileGeoModel.TileGMConfig import TileGMCfg
     cfg.merge(TileGMCfg(inputFlags))
 
-    from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
-    larCollTimeMonAlg = helper.addAlgorithm(LArCollisionTimeMonAlg,'larCollTimeMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    larCollTimeMonAlg = helper.addAlgorithm(CompFactory.LArCollisionTimeMonAlg,'larCollTimeMonAlg')
 
 
     collTimeGroupName="LArCollisionTimeMonGroup"
 
     larCollTimeMonAlg.CollTimeGroupName=collTimeGroupName
 
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    # FIXME when bunch crossing tool config is improved
-    larCollTimeMonAlg.BunchCrossingTool = BunchCrossingTool("TrigConf" if not inputFlags.Input.isMC else "MC")
-
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    cfg.merge(BunchCrossingCondAlgCfg(inputFlags))
 
     collTimeGroup = helper.addGroup(
         larCollTimeMonAlg,
@@ -263,7 +261,7 @@ if __name__=='__main__':
     collmon.getEventAlgo("larCollTimeMonAlg").nCells=1
     collmon.getEventAlgo("larCollTimeMonAlg").TrainFrontDistance=30
     cfg.merge(collmon) 
-    f=open("CollTimeMon.pkl","w")
+    f=open("CollTimeMon.pkl","wb")
     cfg.store(f)
     f.close()
    

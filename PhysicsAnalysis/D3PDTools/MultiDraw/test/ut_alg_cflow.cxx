@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -51,9 +51,9 @@ int main ()
     std::string tree ("physics");
 
     EL::DirectDriver driver;
-    std::auto_ptr<SH::SampleLocal> mysample (new SH::SampleLocal ("dataset"));
+    std::unique_ptr<SH::SampleLocal> mysample (new SH::SampleLocal ("dataset"));
     mysample->add (input.Data());
-    mysample->setMetaString ("nc_tree", tree);
+    mysample->meta()->setString ("nc_tree", tree);
     SH::SamplePtr sample = mysample.release();
 
     EL::Job job;

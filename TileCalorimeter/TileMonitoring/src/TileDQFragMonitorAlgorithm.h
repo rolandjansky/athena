@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEMONITORING_TILEDQFRAGMONITORALGORITHM_H
@@ -13,7 +13,7 @@
 #include "TileConditions/TileCablingSvc.h"
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -21,6 +21,7 @@
 
 class TileHWID;
 class TileCablingService;
+class TileInfo;
 
 
 /** @class TileDQFragMonitorAlgorithm
@@ -102,6 +103,13 @@ class TileDQFragMonitorAlgorithm : public AthMonitorAlgorithm {
 
     static const int MAX_DMU{16};
     static const int MAX_CORRUPTED_ERROR{13};
+
+    // TileInfo
+    std::string m_infoName = "TileInfo";
+    const TileInfo* m_tileInfo{nullptr};
+    float m_ADCmaxMinusEps;
+    float m_ADCmaskValueMinusEps; //!< indicates channels which were masked in background dataset
+
 };
 
 

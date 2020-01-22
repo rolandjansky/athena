@@ -33,6 +33,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigMuonBackExtrapolator
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
+                          Control/AthenaInterprocess
                           Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelUtilities
@@ -40,7 +41,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           MuonSpectrometer/MuonCablings/MuonCablingData
                           MuonSpectrometer/MuonCalib/MuonCalibEvent
-                          MuonSpectrometer/MuonCnv/MuonContainerManager
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
                           Tools/PathResolver )
@@ -57,7 +57,7 @@ atlas_add_library( TrigL2MuonSALib
                      src/*.cxx
                      PUBLIC_HEADERS TrigL2MuonSA
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo xAODEventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib AthenaInterprocess StoreGateLib SGtests EventInfo xAODEventInfo MuonCablingData MuonCalibEvent MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities )
 
 atlas_add_component( TrigL2MuonSA
                      src/*.cxx
@@ -72,7 +72,7 @@ atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrel
 atlas_add_test( MdtDataPreparator_test
                 SCRIPT python -m TrigL2MuonSA.MdtDataPreparator_test
                 PROPERTIES TIMEOUT 600
-                EXTRA_PATTERNS "-s dead tube" )
+                LOG_SELECT_PATTERN "dead tube" )
 
 atlas_add_test( flake8
                 SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python

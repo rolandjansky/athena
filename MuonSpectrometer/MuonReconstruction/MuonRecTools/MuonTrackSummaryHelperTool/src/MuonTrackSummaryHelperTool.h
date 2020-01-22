@@ -127,7 +127,9 @@ private:
     /** storegate key of MdtPrepDataContainer */
     SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtKey{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
 
-    const MuonGM::MuonDetectorManager*  m_detMgr{nullptr};
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
   };
 }
 #endif 

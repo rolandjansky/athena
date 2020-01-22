@@ -3,6 +3,7 @@
 """Define method to construct configured MBTS time difference algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def MBTSTimeDiffEventInfoAlgCfg(flags, **kwargs):
     """Return component accumulator with configured MBTS time difference algorithm
@@ -22,7 +23,7 @@ def MBTSTimeDiffEventInfoAlgCfg(flags, **kwargs):
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     acc.merge(LArGMCfg(flags))
 
-    from TileRecAlgs.TileRecAlgsConf import MBTSTimeDiffEventInfoAlg
+    MBTSTimeDiffEventInfoAlg=CompFactory.MBTSTimeDiffEventInfoAlg
     acc.addEventAlgo(MBTSTimeDiffEventInfoAlg(**kwargs), primary = True)
 
     return acc
@@ -55,7 +56,7 @@ if __name__ == "__main__":
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)
-    acc.store( open('MBTSTimeDiffEventInfoAlg.pkl','w') )
+    acc.store( open('MBTSTimeDiffEventInfoAlg.pkl','wb') )
 
     sc = acc.run(maxEvents = 3)
 

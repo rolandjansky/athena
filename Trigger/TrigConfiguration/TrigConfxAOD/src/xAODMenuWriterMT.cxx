@@ -55,11 +55,9 @@ namespace TrigConf {
 
       CHECK( m_eventName.initialize() ); // WriteHandleKey
 
-      if (m_isJSONConfig) {
-         CHECK( m_HLTMenuKey.initialize() ); // ReadHandleKey
-         CHECK( m_L1MenuKey.initialize() ); // ReadHandleKey
-      }
-
+      CHECK( m_HLTMenuKey.initialize(m_isJSONConfig) ); // ReadHandleKey
+      CHECK( m_L1MenuKey.initialize(m_isJSONConfig) ); // ReadHandleKey
+ 
       // Clear the internal cache variable:
       m_convertedKeys.clear();
 

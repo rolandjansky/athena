@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -24,9 +24,7 @@ StatusCode MvaTESVariableDecorator::initialize(){
 
   ATH_CHECK( m_eventInfo.initialize() );
 
-  if(!inTrigger()) {
-    ATH_CHECK( m_vertexInputContainer.initialize() );
-  }
+  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
   
   return StatusCode::SUCCESS;
 }
@@ -46,7 +44,7 @@ StatusCode MvaTESVariableDecorator::eventInitialize()
   } 
 
   m_nVtxPU = 0;
-  if(!inTrigger()) {
+  if(!m_vertexInputContainer.key().empty()) {
     // Get the primary vertex container from StoreGate
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     if (!vertexInHandle.isValid()) {
@@ -75,8 +73,8 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   
   // Decorate event info
   
-  static SG::AuxElement::Accessor<float> acc_mu("mu");
-  static SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
+  SG::AuxElement::Accessor<float> acc_mu("mu");
+  SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
   
   acc_mu(xTau) = m_mu;
   acc_nVtxPU(xTau) = m_nVtxPU;
@@ -164,12 +162,12 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   xTau.setDetail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, (float) mean_presampler_frac);
 
   // online-specific, not defined in TauDefs enum
-  static SG::AuxElement::Accessor<float> acc_LeadClusterFrac("LeadClusterFrac");
-  static SG::AuxElement::Accessor<float> acc_UpsilonCluster("UpsilonCluster");
+  SG::AuxElement::Accessor<float> acc_LeadClusterFrac("LeadClusterFrac");
+  SG::AuxElement::Accessor<float> acc_UpsilonCluster("UpsilonCluster");
   acc_LeadClusterFrac(xTau) = (float) lead_cluster_frac;
   acc_UpsilonCluster(xTau) = (float) upsilon_cluster;
 
-  if(inTrigger()) {
+  if(m_in_trigger) {
     return StatusCode::SUCCESS;
   }
 

@@ -1,24 +1,21 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from sys import settrace
+from __future__ import print_function
 
-from l1topo.TopoAlgos import TopoAlgo
-from l1topo.L1TopoMenu import L1TopoMenu
-from l1topo.L1TopoFlags import L1TopoFlags
+from .l1topo.L1TopoMenu import L1TopoMenu
+from .l1topo.L1TopoFlags import L1TopoFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigL1Topo")
 
 class TriggerConfigL1Topo:
     
-    current = None
     def __init__(self, outputFile = None , inputFile = None , menuName = None ):
         """
         inputFile: if set the topo menu will be read from this xml file (not yet implemented)
         outputFile: if no input file is specified the topo menu will be generated and written to outputFile
         menuName: ignored now
         """
-        current = self
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
         self.menuName = TriggerConfigL1Topo.getMenuBaseName(TriggerFlags.triggerMenuSetup())
@@ -34,9 +31,9 @@ class TriggerConfigL1Topo:
         # menu
         self.menu = L1TopoMenu(self.menuName)
         
-        if self.inputFile != None:
+        if self.inputFile is not None:
             """Read menu from XML"""
-            print "Menu input is not implemented!!"
+            print ("Menu input is not implemented!!")
         else:
             """Build menu from menu name"""
 
@@ -51,7 +48,7 @@ class TriggerConfigL1Topo:
     @staticmethod
     def getMenuBaseName(menuName):
         import re 
-        pattern = re.compile('_v\d+(_primaries)?|DC14')
+        pattern = re.compile(r'_v\d+(_primaries)?|DC14')
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]
@@ -76,7 +73,7 @@ class TriggerConfigL1Topo:
     
     def getRegisteredAlgo(self, name):
         if name in self.registeredAlgos:
-#            print "Returning algo: {0}, ID:{1}, reassigning to {2}" .format(self.registeredAlgos[name].name,self.registeredAlgos[name].algoId,self.runningid )
+#            print ("Returning algo: {0}, ID:{1}, reassigning to {2}" .format(self.registeredAlgos[name].name,self.registeredAlgos[name].algoId,self.runningid ))
 #            self.registeredAlgos[name].algoId=self.runningid
             self.runningid+=1
             return self.registeredAlgos[name]
@@ -129,7 +126,7 @@ class TriggerConfigL1Topo:
 
         menuName = TriggerConfigL1Topo.getMenuBaseName(menuName)
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        menumodule = __import__('l1topomenu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('TriggerMenu.l1topomenu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("%s menu contains %i algos." % ( menuName, len(L1TopoFlags.algos()) )) 
         
@@ -140,7 +137,7 @@ class TriggerConfigL1Topo:
         
         Has to run AFTER defineMenu
         """
-        algodefmodule = __import__('l1topomenu.TopoAlgoDef', globals(), locals(), ['TopoAlgoDef'], -1)
+        algodefmodule = __import__('TriggerMenu.l1topomenu.TopoAlgoDef', globals(), locals(), ['TopoAlgoDef'], -1)
         algodefmodule.TopoAlgoDef.registerTopoAlgos(self)
         log.info("Registered %i algos." % ( len(self.registeredAlgos) ) )
 
@@ -152,11 +149,7 @@ class TriggerConfigL1Topo:
         Always to be called after defineMenu()
         """
         
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger('L1Topo.generateMenu')
-
         # add the algos to the menu
-        undefined_alg = False 
         for topooutput in L1TopoFlags.algos():
             topooutput.algo = self.getRegisteredAlgo(topooutput.algoname)
             if topooutput.algo is None:
@@ -164,7 +157,7 @@ class TriggerConfigL1Topo:
 
             topooutput.sortingAlgos = self.findRegisteredSortingAlgoByOutput(topooutput.algo)
 
-            #print "For decision alg %s with inputs %r found the following sorting algs %r" % (topooutput.algo.name, topooutput.algo.inputs, [x.name for x in topooutput.sortingAlgos])
+            #print ("For decision alg %s with inputs %r found the following sorting algs %r" % (topooutput.algo.name, topooutput.algo.inputs, [x.name for x in topooutput.sortingAlgos]))
 
             self.menu += topooutput
 

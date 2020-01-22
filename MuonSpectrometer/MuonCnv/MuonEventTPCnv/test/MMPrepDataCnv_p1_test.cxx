@@ -70,9 +70,9 @@ void test1()
   Amg::MatrixX cov(1,1);
   cov(0,0) = 101;
 
-  std::vector<Identifier> rdoList { Identifier(5432),
-                                    Identifier(5361),
-                                    Identifier(6456) };
+  std::vector<Identifier> rdoList { Identifier(1274),
+                                    Identifier(1234),
+                                    Identifier(1178) };
 
   Muon::MMPrepData trans1 (Identifier (1234),
                            IdentifierHash (1234),

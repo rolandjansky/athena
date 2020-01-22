@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -7,9 +7,7 @@
 // Trigger include(s):
 #include "TrigNavStructure/TrigNavStructure.h"
 
-#define private public
-#   include "TrigSteeringEvent/Lvl1Item.h"
-#undef private
+#include "TrigSteeringEvent/Lvl1Item.h"
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigConfHLTData/HLTChainList.h"
 
@@ -39,10 +37,9 @@ namespace {
 
 namespace Trig {
 
-  DecisionUnpackerStandalone::
-  DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
-			      const std::string& navikey)
-    : m_handle( new DecisionObjectHandleStandalone( sg, deckey, navikey ) )
+  DecisionUnpackerStandalone::DecisionUnpackerStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
+                                                          SG::ReadHandleKey<xAOD::TrigNavigation>* navikey)
+    : m_handle( new DecisionObjectHandleStandalone( deckey, navikey ) )
   {
   }
   
@@ -145,7 +142,7 @@ namespace Trig {
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
       if(!fullNav){
-	ATH_MSG_WARNING("downcast failed");
+        ATH_MSG_WARNING("downcast failed");
       }
       
       fullNav->reset();
@@ -211,15 +208,20 @@ namespace Trig {
          LVL1CTP::Lvl1Item* item = cacheItr->second;
          ATH_MSG_VERBOSE( "Unpacking bits for item: " << ctpid << " "
                           << item->name() );
-         item->m_passBP = get32BitDecision( ctpid,
-                                            m_handle->getDecision()->tbp() );
-         item->m_passAP = get32BitDecision( ctpid,
-                                            m_handle->getDecision()->tap() );
-         item->m_passAV = get32BitDecision( ctpid,
-                                            m_handle->getDecision()->tav() );
-         ATH_MSG_VERBOSE( "     --- bits are: bp: " << item->m_passBP
-                          << " ap: " << item->m_passAP << " av: "
-                          << item->m_passAV );
+         bool passBP = get32BitDecision( ctpid,
+                                         m_handle->getDecision()->tbp() );
+         bool passAP = get32BitDecision( ctpid,
+                                         m_handle->getDecision()->tap() );
+         bool passAV = get32BitDecision( ctpid,
+                                         m_handle->getDecision()->tav() );
+         ATH_MSG_VERBOSE( "     --- bits are: bp: " << passBP
+                          << " ap: " << passAP << " av: "
+                          << passAV );
+
+         LVL1CTP::Lvl1Item itemNew (item->name(), item->hashId(),
+                                    passBP, passAP, passAV,
+                                    item->prescaleFactor());
+         *item = std::move (itemNew);
          itemsByName[ item->name() ] = item;
       }
 

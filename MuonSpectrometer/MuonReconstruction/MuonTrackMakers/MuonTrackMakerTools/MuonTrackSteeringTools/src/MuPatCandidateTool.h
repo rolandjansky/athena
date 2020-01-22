@@ -20,10 +20,17 @@
 #include <vector>
 
 #include "MuPatHitTool.h" // Needed to enfornce build order for reflex dict
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonSegmentInfoExtender.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
+
 
 class MsgStream;
-
-class MdtIdHelper;
 
 namespace Trk {
   class Track;
@@ -38,13 +45,6 @@ namespace MuonGM {
 
 namespace Muon {
 
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
-  class IMuonCompetingClustersOnTrackCreator;
-  class IMuonSegmentSelectionTool;
-  class IMuonSegmentInfoExtender;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
   class MuonSegment;
   class MuPatTrack;
   class MuPatSegment;
@@ -66,7 +66,7 @@ namespace Muon {
     MuPatCandidateTool(const std::string&, const std::string&, const IInterface*);
     
     /** destructor */
-    ~MuPatCandidateTool();
+    ~MuPatCandidateTool() = default;
     
     /** initialize method, method taken from bass-class AlgTool */
     StatusCode initialize();
@@ -172,24 +172,28 @@ namespace Muon {
                                     MeasVec& allHits,
                                     MeasVec& measurementsToBeDeleted ) const;
     
-    ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator;      //<! tool to calibrate MDT hits
-    ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator;      //<! tool to calibrate CSC hits
-    ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator; //<! tool to create competing clusters on track
-    ToolHandle<MuonIdHelperTool>                      m_idHelperTool;       //<! tool to assist with Identifiers
-    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc {this, "edmHelper", 
+    ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator     
+      {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};     //<! tool to calibrate MDT hits
+    ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator     
+      {this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};      //<! tool to calibrate CSC hits
+    ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator 
+      {this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"}; //<! tool to create competing clusters on track
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc 
+      {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
-    ToolHandle<MuonEDMPrinterTool>                    m_printer;            //<! tool to print EDM objects
-    ToolHandle<MuPatHitTool>                          m_hitHandler;         //<! tool to manipulate hit lists
-    ToolHandle<Muon::IMuonSegmentSelectionTool>       m_segmentSelector;    //<! tool to resolve track ambiguities
-    ToolHandle<Muon::IMuonSegmentInfoExtender>        m_segmentExtender;    //<! tool to extend the segment information
+    ToolHandle<MuonEDMPrinterTool>                    m_printer           
+      {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"}; //!< tool to print            //<! tool to print EDM objects
+    ToolHandle<MuPatHitTool>                          m_hitHandler        
+      {this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool", "Tool to manipulate hit lists"};
+    ToolHandle<Muon::IMuonSegmentSelectionTool>       m_segmentSelector   
+      {this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", "Tool to resolve track ambiguities"};
 
-    //const MdtIdHelper* m_mdtIdHelper;
-
-    bool m_createCompetingROTsPhi;
-    bool m_createCompetingROTsEta;
-    bool m_doMdtRecreation;
-    bool m_doCscRecreation;
+    Gaudi::Property<bool>  m_createCompetingROTsPhi {this,"CreateCompetingROTsPhi" , false };
+    Gaudi::Property<bool>  m_createCompetingROTsEta {this,"CreateCompetingROTsEta" , true };
+    Gaudi::Property<bool>  m_doMdtRecreation {this,"DoMdtRecreation" , false };
+    Gaudi::Property<bool>  m_doCscRecreation {this,"DoCscRecreation" , true };
 
     // Mutex to protect the contents.
     mutable std::mutex m_mutex{};

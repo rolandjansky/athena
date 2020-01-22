@@ -130,11 +130,6 @@ ToolSvc += ElectronTrkExtrapolator
 #######                     GSF Realted Packaages                      ########
 ###############################################################################
 ###############################################################################
-
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator')
-ToolSvc += GsfMaterialUpdator
-print      GsfMaterialUpdator
 #
 # component Reduction
 #
@@ -144,6 +139,14 @@ GsfComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name = 'GsfCo
 ToolSvc += GsfComponentReduction
 print      GsfComponentReduction
 
+
+
+from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
+GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator',
+                                                         MultiComponentStateMerger = GsfComponentReduction)
+
+ToolSvc += GsfMaterialUpdator
+print      GsfMaterialUpdator
 
 from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
 ElectronUpdator = ConfiguredKalmanUpdator('ElectronUpdator')
@@ -163,7 +166,6 @@ GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtra
                                        StickyConfiguration           = True,
                                        Navigator                     = ElectronTrkNavigator,
                                        GsfMaterialConvolution        = GsfMaterialUpdator,
-                                       ComponentMerger               = GsfComponentReduction,
                                        SurfaceBasedMaterialEffects   = False )
 ToolSvc += GsfExtrapolator
 

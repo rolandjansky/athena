@@ -1,7 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import sys
 
 from PyCool import cool
@@ -17,7 +18,7 @@ def getCurrentFolderTag(dbname,folderName):
     currentGlobal=resolver.getCurrent().replace("*","ST")
     nextGlobal=resolver.getNext().replace("*","ST")
 
-    print 'currentGlobal: ',currentGlobal
+    print('currentGlobal: ',currentGlobal)
     #2. Open the DB to resolve this gobal tag for the given folder
     dbSvc = cool.DatabaseSvcFactory.databaseService() 
     db = dbSvc.openDatabase(dbname)
@@ -25,18 +26,18 @@ def getCurrentFolderTag(dbname,folderName):
     try:
         current=f.resolveTag(currentGlobal)
     except:
-        print 'Warning: could not resolve ',currentGlobal,' in db: ',dbname
+        print('Warning: could not resolve ',currentGlobal,' in db: ',dbname)
         if "DBR2" in dbname:
-           print 'resolving for the global CONDBR2-BLKPA-2014-00'
+           print('resolving for the global CONDBR2-BLKPA-2014-00')
            tmpGlobal='CONDBR2-BLKPA-2014-00'
         else:      
-           print 'resolving for the global COMCOND-BLKPA-RUN1-06'
+           print('resolving for the global COMCOND-BLKPA-RUN1-06')
            tmpGlobal='COMCOND-BLKPA-RUN1-06'
 
         try:
            current=f.resolveTag('CONDBR2-BLKPA-2014-00')
         except:
-           print 'Also not working, giviing up'
+           print('Also not working, giving up')
            pass
         pass
     if len(nextGlobal)>2:
@@ -65,5 +66,5 @@ if __name__=="__main__":
         sys.stderr.write("Failed to resolve current folder-level tag for folder %s in db %s\n" % (fn,dn))
         sys.exit(-1)
 
-    print currTag
+    print(currTag)
     

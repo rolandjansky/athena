@@ -6,6 +6,7 @@
 #  This should be moved at somewhere in offline.
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 ### Output Name ###
 muFastInfo = "MuonL2SAInfo"
@@ -28,7 +29,7 @@ def RpcDataPreparatorCfg( flags, roisKey ):
     acc.merge( rpcAcc )
 
     # Set Rpc data preparator for MuFast data preparator
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
+    TrigL2MuonSA__RpcDataPreparator=CompFactory.TrigL2MuonSA__RpcDataPreparator
     RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator( RpcPrepDataProvider  = "",
                                                          RpcRawDataProvider   = "",
                                                          DecodeBS = False,
@@ -55,7 +56,7 @@ def TgcDataPreparatorCfg( flags, roisKey ):
     acc.merge( tgcAcc )
 
     # Set Tgc data preparator for MuFast data preparator
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
+    TrigL2MuonSA__TgcDataPreparator=CompFactory.TrigL2MuonSA__TgcDataPreparator
     TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = "",
                                                          TgcRawDataProvider   = "",
                                                          DecodeBS = False,
@@ -82,7 +83,7 @@ def MdtDataPreparatorCfg( flags, roisKey ):
     acc.merge( mdtAcc )
 
     # Set Mdt data preparator for MuFast data preparator
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
+    TrigL2MuonSA__MdtDataPreparator=CompFactory.TrigL2MuonSA__MdtDataPreparator
     MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator( MdtPrepDataProvider  = "",
                                                          MDT_RawDataProvider   = "",
                                                          DecodeBS = False,
@@ -113,7 +114,7 @@ def CscDataPreparatorCfg( flags, roisKey ):
     acc.merge( cscAcc )
 
     # Set Csc data preparator for MuFast data preparator
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
+    TrigL2MuonSA__CscDataPreparator=CompFactory.TrigL2MuonSA__CscDataPreparator
     CscDataPreparator = TrigL2MuonSA__CscDataPreparator( CscPrepDataProvider  = "",
                                                          CscClusterProvider   = "",
                                                          CscRawDataProvider   = "",
@@ -146,14 +147,14 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     acc.merge( cscAcc )
 
     # Set MuFast data preparator
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
+    TrigL2MuonSA__MuFastDataPreparator=CompFactory.TrigL2MuonSA__MuFastDataPreparator
     MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator( CSCDataPreparator = CscDataPreparator,
                                                                MDTDataPreparator = MdtDataPreparator,
                                                                RPCDataPreparator = RpcDataPreparator,
                                                                TGCDataPreparator = TgcDataPreparator )
 
     # Setup the station fitter
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta
+    TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta=CompFactory.getComps("TrigL2MuonSA__MuFastStationFitter","TrigL2MuonSA__PtFromAlphaBeta")
     PtFromAlphaBeta = TrigL2MuonSA__PtFromAlphaBeta()
     if flags.Trigger.run2Config == '2016':
         PtFromAlphaBeta.useCscPt = False
@@ -164,7 +165,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
 
     MuFastStationFitter = TrigL2MuonSA__MuFastStationFitter( PtFromAlphaBeta = PtFromAlphaBeta )
 
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastPatternFinder,TrigL2MuonSA__MuFastTrackFitter,TrigL2MuonSA__MuFastTrackExtrapolator,TrigL2MuonSA__MuCalStreamerTool,TrigL2MuonSA__CscSegmentMaker
+    TrigL2MuonSA__MuFastPatternFinder,TrigL2MuonSA__MuFastTrackFitter,TrigL2MuonSA__MuFastTrackExtrapolator,TrigL2MuonSA__MuCalStreamerTool,TrigL2MuonSA__CscSegmentMaker=CompFactory.getComps("TrigL2MuonSA__MuFastPatternFinder","TrigL2MuonSA__MuFastTrackFitter","TrigL2MuonSA__MuFastTrackExtrapolator","TrigL2MuonSA__MuCalStreamerTool","TrigL2MuonSA__CscSegmentMaker")
     MuFastPatternFinder     = TrigL2MuonSA__MuFastPatternFinder()
     MuFastTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
     MuFastTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
@@ -173,7 +174,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
 
     # Set Reco alg of muFast step
     from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
-    from TrigL2MuonSA.TrigL2MuonSAConf import MuFastSteering
+    MuFastSteering=CompFactory.MuFastSteering
     muFastAlg = MuFastSteering( name                   = "MuFastSteering_Muon"+setup,
                                 DataPreparator         = MuFastDataPreparator,
                                 StationFitter          = MuFastStationFitter,
@@ -192,7 +193,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
 
     # Default backextrapolator is for MC Misaligned Detector
     # Based on MuonBackExtrapolatorForMisalignedDet at TrigMuonBackExtrapolator/TrigMuonBackExtrapolatorConfig.py
-    from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConf import TrigMuonBackExtrapolator
+    TrigMuonBackExtrapolator=CompFactory.TrigMuonBackExtrapolator
     muFastAlg.BackExtrapolator = TrigMuonBackExtrapolator( name        = "MisalignedBackExtrapolator",
                                                            Aligned     = False,
                                                            DataSet     = False )
@@ -273,14 +274,18 @@ def AlignmentBarrelLUTSvcCfg( flags ):
 
 # In the future, above functions should be moved to TrigL2MuonSA package(?)
 
-def l2MuFastAlgCfg( flags, roisKey="MURoIs" ):
+def l2MuFastAlgCfg( flags, roisKey="" ):
 
     acc = ComponentAccumulator()
+
+    if not roisKey:
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        roisKey = mapThresholdToL1RoICollection("MU")
 
     # Get Reco alg of muFast step
     muFastAcc, muFastFex = muFastSteeringCfg( flags, roisKey )  
     muFastFex.MuRoIs = roisKey
-    muFastFex.RecMuonRoI = "RecMURoIs"
+    muFastFex.RecMuonRoI = "HLT_RecMURoIs"
     muFastFex.MuonL2SAInfo = muFastInfo
     muFastFex.forID = "forID"
     muFastFex.forMS = "forMS"
@@ -313,7 +318,7 @@ def l2MuFastRecoCfg( flags ):
 
 def l2MuFastHypoCfg( flags, name="UNSPECIFIED", muFastInfo="UNSPECIFIED" ):
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg
+    TrigMufastHypoAlg=CompFactory.TrigMufastHypoAlg
     muFastHypo = TrigMufastHypoAlg( name )
     muFastHypo.MuonL2SAInfoFromMuFastAlg = muFastInfo 
 

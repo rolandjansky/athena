@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/MMPrepDataContainerCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -26,7 +24,6 @@
 void compare (const Trk::PrepRawData& p1,
               const Trk::PrepRawData& p2)
 {
-  assert (p1.identify() == p2.identify());
   assert (p1.localPosition()[0] == p2.localPosition()[0]);
   assert (p1.rdoList() == p2.rdoList());
   assert (p1.localCovariance() == p2.localCovariance());
@@ -45,6 +42,7 @@ void compare (const Muon::MuonCluster& p1,
 void compare (const Muon::MMPrepData& p1,
               const Muon::MMPrepData& p2)
 {
+  assert (p1.identify() == p2.identify());
   compare (static_cast<const Muon::MuonCluster&>(p1),
            static_cast<const Muon::MuonCluster&>(p2));
   assert (p1.detectorElement() == p2.detectorElement());
@@ -94,12 +92,16 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
   for (int hash=2; hash <= 3; hash++) {
     auto coll = std::make_unique<Muon::MMPrepDataCollection>(IdentifierHash(hash));
 
-    coll->setIdentifier (muo_dd.mmIdHelper()->elementID (55, 1, hash));
+    bool isValid=false;
+    Identifier collId = muo_dd.mmIdHelper()->elementID (55, 1, hash, true, &isValid);
+    assert(isValid==true);
+    coll->setIdentifier (collId);
 
     for (int i=0; i < 10; i++) {
       int offs = i*10 + hash*100;
-      Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash,
-                                                          1, 1, 1+i);
+      isValid=false;
+      Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, hash, 1, 1, muo_dd.mmIdHelper()->channelMin()+i, true, &isValid);
+      assert(isValid==true);
       int clusHash = 567 + offs;
 
       Amg::Vector2D locpos (2.5+offs, 0);
@@ -120,8 +122,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
     cont->addCollection (coll.release(), hash);
   }
 
-  // gcc4.9 doesn't allow returning cont directly here; fixed in 5.2.
-  return std::unique_ptr<const Muon::MMPrepDataContainer> (cont.release());
+  return cont;
 }
 
 
@@ -143,7 +144,8 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
 int main()
 {
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("MuonEventTPCnv_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("MuonEventTPCnv/MuonEventTPCnv_test.txt", pSvcLoc))
+  {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }

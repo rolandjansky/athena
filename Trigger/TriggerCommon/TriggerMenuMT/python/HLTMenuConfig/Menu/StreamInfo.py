@@ -2,7 +2,7 @@
 
 from future.moves.collections import UserList
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.StreamInfo')
+log = logging.getLogger( __name__ )
 
 
 class StreamInfo(UserList):
@@ -28,13 +28,14 @@ class StreamInfo(UserList):
 _all_streams = [
     # PHYSICS STREAMS
     StreamInfo('Main', 'physics', True, True),
+    StreamInfo('CosmicMuons','physics',True,True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
-    StreamInfo('CostMonitoring','calibration', False, False)
+    StreamInfo('CostMonitoring','calibration', False, False),
 ]
 
 

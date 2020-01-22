@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 #include "AFP_RawEv/AFP_RawDataContainer.h"
 #include "AFP_EventTPCnv/AFP_RawDataContainerCnv_p1.h"
 
-void AFP_RawDataContainerCnv_p1::transToPers(const AFP_RawDataContainer* transCont, AFP_RawDataContainer_p1* persCont, MsgStream& log) {
+void AFP_RawDataContainerCnv_p1::transToPers(const AFP_RawDataContainer* transCont, AFP_RawDataContainer_p1* persCont, MsgStream& log) const {
  
   if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In AFP_RawDataContainerCnv_p1::transToPers" << endmsg;
 	
@@ -23,7 +23,7 @@ void AFP_RawDataContainerCnv_p1::transToPers(const AFP_RawDataContainer* transCo
   persCont->efPattern = transCont->GetEFPattern_POT();
 
  }
-void AFP_RawDataContainerCnv_p1::persToTrans(const AFP_RawDataContainer_p1* persCont, AFP_RawDataContainer* transCont, MsgStream& log) {
+void AFP_RawDataContainerCnv_p1::persToTrans(const AFP_RawDataContainer_p1* persCont, AFP_RawDataContainer* transCont, MsgStream& log) const {
 	
 
 if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In  AFP_RawDataContainerCnv_p1::persToTrans" << endmsg;

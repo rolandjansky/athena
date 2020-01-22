@@ -24,23 +24,29 @@ namespace Trk {
 namespace InDet {
 
  /**
-  @class SiCombinatorialTrackFinderData_xk
+    @class SiCombinatorialTrackFinderData_xk
   
-  InDet::SiCombinatorialTrackFinderData_xk holds event dependent data
-  used by SiCombinatorialTrackFinder_xk.
-  @author Susumu.Oda@cern.ch
+    InDet::SiCombinatorialTrackFinderData_xk holds event dependent data
+    used by SiCombinatorialTrackFinder_xk.
+    @author Susumu.Oda@cern.ch
   */
 
   class SiCombinatorialTrackFinderData_xk {
 
-      ///////////////////////////////////////////////////////////////////
-      // Public methods:
-      ///////////////////////////////////////////////////////////////////
-
   public:
+    /**
+     * Constructor
+     */
     SiCombinatorialTrackFinderData_xk();
+
+    /**
+     * Default destructor
+     */
     ~SiCombinatorialTrackFinderData_xk() = default;
 
+    /**
+     * Set tools, service and magnetic field properties
+     */
     void setTools(const Trk::IPatternParametersPropagator* propTool,
                   const Trk::IPatternParametersUpdator* updatorTool,
                   const Trk::IRIO_OnTrackCreator* rioTool,
@@ -49,10 +55,38 @@ namespace InDet {
                   const IInDetConditionsTool* sctCondTool,
                   const Trk::MagneticFieldProperties* fieldProp);
 
-    const Trk::PRDtoTrackMap* PRDtoTrackMap() const { return m_tools.PRDtoTrackMap(); }
+    /**
+     * Set cached pointer to Pixel cluster collection in StoreGate
+     */
+    void setPixContainer(const InDet::PixelClusterContainer* pixcont);
+    /**
+     * Set cached pointer to SCT cluster collection in StoreGate
+     */
+    void setSctContainer(const InDet::SCT_ClusterContainer* sctcont);
 
+    /**
+     * Get cached pointer to Pixel cluster collection in StoreGate
+     */
+    const InDet::PixelClusterContainer* pixContainer() const;
+    /**
+     * Get cached pointer to SCT cluster collection in StoreGate
+     */
+    const InDet::SCT_ClusterContainer* sctContainer() const;
+
+    /**
+     * Get PRD to track map
+     */
+    const Trk::PRDtoTrackMap* PRDtoTrackMap() const;
+
+    /**
+     * Check if this object is initialized by the setTools method
+     */
     bool isInitialized() const;
 
+    /**
+     * @name Getter methods using references
+     */
+    //@{
     SiTrajectory_xk& trajectory();
     Trk::TrackInfo& trackinfo();
     InDet::SiTools_xk& tools();
@@ -76,40 +110,73 @@ namespace InDet {
     double& xi2max();
     double& xi2maxNoAdd();
     double& xi2maxlink();
+    //@}
 
   protected:
+    /**
+     * Dummy method defined in child classes. Is it necessary?
+     */
     virtual void dummy() = 0;
-    void setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {
-      m_tools.setPRDtoTrackMap(prd_to_track_map);
-    }
+    /**
+     * Set PRD to track map
+     */
+    void setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map);
 
   private:
 
+    /// Initialization flag
     bool m_initialized{false};
-    SiTrajectory_xk m_trajectory; // Track trajectory
+    /// Track trajectory
+    SiTrajectory_xk m_trajectory;
+    /// Track info
     Trk::TrackInfo m_trackinfo;
+    /// Hold tools, service, map, etc.
     InDet::SiTools_xk m_tools;
-    std::list<Trk::Track*> m_tracks; // List found tracks
-    int m_nprint{0}; // Kind output information
-    int m_inputseeds{0}; // Number input seeds
-    int m_goodseeds{0}; // Number accepted seeds
-    int m_findtracks{0}; // Number found tracks
-    int m_inittracks{0}; // Number initial tracks
-    int m_roadbug{0}; // Number wrong DE roads
+    /// List of found tracks
+    std::list<Trk::Track*> m_tracks;
+    /// Kind output information(?)
+    int m_nprint{0};
+    /// Number input seeds
+    int m_inputseeds{0};
+    /// Number accepted seeds
+    int m_goodseeds{0};
+    /// Number found tracks
+    int m_findtracks{0};
+    /// Number initial tracks
+    int m_inittracks{0};
+    /// Number wrong DE roads
+    int m_roadbug{0};
+    // Heavy ion flag
     bool m_heavyIon{false};
-    int m_cosmicTrack{0};  // Is it cosmic track (0 or 1)
-    int m_nclusmin{0}; // Min number clusters
-    int m_nclusminb{0}; // Min number clusters
-    int m_nwclusmin{0}; // Min number weighted clusters
-    int m_nholesmax{0}; // Max number holes
-    int m_dholesmax{0}; // Max holes gap
+    /// Is it cosmic track (0 or 1)
+    int m_cosmicTrack{0};
+    /// Min number clusters
+    int m_nclusmin{0};
+    /// Min number clusters
+    int m_nclusminb{0};
+    /// Min number weighted clusters
+    int m_nwclusmin{0};
+    /// Max number holes
+    int m_nholesmax{0};
+    /// Max holes gap
+    int m_dholesmax{0};
+    /// Simple track flag
     bool m_simpleTrack{false};
-    double m_pTmin{0.}; // min pT
-    double m_pTminBrem{0.}; // min pT for brem noise model
-    double m_xi2max{0.}; // max Xi2 for updators
-    double m_xi2maxNoAdd{0.}; // max Xi2 for clusters
-    double m_xi2maxlink{0.}; // max Xi2 for clusters
+    /// min pT
+    double m_pTmin{0.};
+    /// min pT for brem noise model
+    double m_pTminBrem{0.};
+    /// max Xi2 for updators
+    double m_xi2max{0.};
+    /// max Xi2 for clusters
+    double m_xi2maxNoAdd{0.};
+    /// max Xi2 for clusters
+    double m_xi2maxlink{0.};
 
+    /// cached pointer to Pixel cluster collection in StoreGate
+    const InDet::PixelClusterContainer* m_pixcontainer{nullptr};
+    /// cached pointer to SCT cluster collection in StoreGate
+    const InDet::SCT_ClusterContainer* m_sctcontainer{nullptr};
   };
 
 } // end of name space

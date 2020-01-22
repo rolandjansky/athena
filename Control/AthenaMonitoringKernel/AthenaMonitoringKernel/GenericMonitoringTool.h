@@ -22,9 +22,19 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include "AthenaMonitoringKernel/IMonitoredVariable.h"
-#include "AthenaMonitoringKernel/HistogramDef.h"
-#include "AthenaMonitoringKernel/HistogramFiller.h"
+/**
+ * Here, by forward declaring these two classes, which appear as parameters and values
+ * in GenericMonitoringTool functions only as pointers (not as the objects themselves),
+ * we can avoid including those class headers here, moving them to the implementation
+ * file instead. This prevents external dependancy of the public-facing tool on the
+ * internals of AthenaMonitoringKernel.
+ */
+namespace Monitored {
+  /** Forward declaration of HistogramFiller for pointers in GenericMonitoringTool functions */
+  class HistogramFiller;
+  /** Forward declaration of IMonitoredVariable for pointers in GenericMonitoringTool functions */
+  class IMonitoredVariable;
+}
 
 /**
  * @brief Generic monitoring tool for athena components
@@ -85,7 +95,7 @@ public:
   virtual StatusCode stop() override;
 
   /// Retrieve the histogram fillers
-  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const;
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;
   /// Book histograms
   StatusCode book();
   /// Overrride configured booking path
@@ -101,7 +111,7 @@ private:
   Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
 
-  std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_fillers; //!< list of fillers
+  std::unordered_map<std::string, std::vector<std::shared_ptr<Monitored::HistogramFiller>>> m_fillerMap; //!< map from variables to fillers
 };
 
 /**

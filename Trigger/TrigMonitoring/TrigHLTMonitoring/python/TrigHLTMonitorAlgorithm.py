@@ -19,6 +19,7 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doBjet', True)
     acf.addFlag('DQ.Steering.HLT.doCalo', True)
     acf.addFlag('DQ.Steering.HLT.doMuon', True)
+    acf.addFlag('DQ.Steering.HLT.doBphys', True)
 
     return acf
 
@@ -59,6 +60,10 @@ def TrigHLTMonTopConfig(inputFlags):
         from TrigMuonMonitoringMT.TrigMuonMonitoringMTConfig import TrigMuonMonConfig
         result.merge(TrigMuonMonConfig(inputFlags))
 
+    if inputFlags.DQ.Steering.HLT.doBphys:
+        from TrigBphysMonitoring.TrigBphysMonitorAlgorithm import TrigBphysMonConfig
+        result.merge(TrigBphysMonConfig(inputFlags))
+
 
     return result
 
@@ -81,9 +86,9 @@ def TrigHLTMonConfig(inputFlags):
     # Adding algorithms to the helper. 
     # The added algorithm must exist as a .h file 
 
-    from TrigHLTMonitoring.TrigHLTMonitoringConf import TrigHLTMonitorAlgorithm
-    trigHLTMonAlg = helper.addAlgorithm(TrigHLTMonitorAlgorithm,'TrigHLTMonAlg')
-    signatureTrigHLTMonAlg = helper.addAlgorithm(TrigHLTMonitorAlgorithm,'SignatureTrigHLTMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    trigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'TrigHLTMonAlg')
+    signatureTrigHLTMonAlg = helper.addAlgorithm(CompFactory.TrigHLTMonitorAlgorithm,'SignatureTrigHLTMonAlg')
 
 
     ### STEP 3 ###

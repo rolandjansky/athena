@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement
 
@@ -18,6 +18,7 @@ from sys import stdout, stderr
 from ctypes import PyDLL, CDLL, c_void_p, c_char_p, py_object
 
 from six import print_
+import six
 
 pyapi = PyDLL(None)
 this_exe = CDLL(None)
@@ -41,7 +42,7 @@ def fifo():
     filename = pjoin(tmpdir, 'myfifo')
     try:
         mkfifo(filename)
-    except OSError, e:
+    except OSError as e:
         print_("Failed to create FIFO: %s" % e, file=stderr)
         raise
     else:
@@ -99,8 +100,11 @@ def silence(filter_=lambda line: True, file_=stdout):
     if not filter_:
         yield
         return
-    
-    if not type(file_) == file:
+
+    if six.PY3:
+        import io
+        file = io.IOBase
+    if not isinstance(file_, file):
         # Unable to filter because it's not a file instance.
         yield
         return
@@ -108,7 +112,7 @@ def silence(filter_=lambda line: True, file_=stdout):
     saved_stdout = dup(file_.fileno())
     stdout_file = PyFile_AsFile(file_)
     
-    from cStringIO import StringIO
+    from io import StringIO
     filt_content = StringIO()
     
     with nested(fdopen(saved_stdout, "w"), fifo()) as (real_stdout, filename):

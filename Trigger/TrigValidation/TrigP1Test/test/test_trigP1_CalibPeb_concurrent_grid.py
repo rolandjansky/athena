@@ -6,6 +6,9 @@
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.out
+# art-output: *.err
+# art-output: *.log.tar.gz
 # art-output: *.new
 # art-output: *.json
 # art-output: *.root
@@ -24,7 +27,6 @@ ex.forks = 2
 ex.threads = 6
 ex.concurrent_events = 2 # three threads per event
 ex.args = '-c \'concurrent=True\''
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'grid'

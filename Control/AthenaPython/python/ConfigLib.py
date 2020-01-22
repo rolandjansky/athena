@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaPython/ConfigLib.py
 # @purpose functions to ease the configuration of reading/copying files
 # @date January 2010
 
 from __future__ import print_function
+from past.builtins import basestring
+import six
 
 __doc__ = "functions to ease the configuration of reading/copying files"
 __version__ = "$Revision: 285924 $"
@@ -268,11 +270,11 @@ class AutoCfg(object):
         
         from AthenaCommon.AthenaCommonFlags import jobproperties as jp
         acf = jp.AthenaCommonFlags
-        for k,v in self.acf.iteritems():
+        for k,v in six.iteritems (self.acf):
             getattr(acf, k).set_Value_and_Lock(v)
 
         from RecExConfig.RecFlags import rec
-        for k,v in self.rec.iteritems():
+        for k,v in six.iteritems (self.rec):
             globals()[k] = False # FIXME: backward compat...
             getattr(rec, k).set_Value_and_Lock(v)
             

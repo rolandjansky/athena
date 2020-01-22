@@ -20,7 +20,7 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
 #include "EventInfo/EventID.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -35,9 +35,7 @@ class IIOVDbSvc;
  * Struct to hold CLID <-> folder name mapping
  */
 struct FolderInfo {
-  FolderInfo() : clid(CLID_NULL) {}
-  FolderInfo(const CLID& cl, const std::string& k) : clid(cl), key(k) {}
-  CLID clid;
+  CLID clid{CLID_NULL};
   std::string key;
 };
 

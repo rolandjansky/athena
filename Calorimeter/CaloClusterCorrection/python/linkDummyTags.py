@@ -1,12 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id$
 #
 # File: CaloClusterCorrection/python/linkDummyTags.py
 # Created: Aug 2010, sss
 # Purpose: 
 #
+
+from __future__ import print_function
 
 
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
@@ -43,7 +43,7 @@ def link_tag (f, htag, dtag):
     except:
         pass
     f.createTagRelation (htag, dtag)
-    print 'Linked', htag
+    print ('Linked', htag)
     return
 
 

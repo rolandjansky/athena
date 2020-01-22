@@ -76,8 +76,8 @@ class MyAlg( PyAthena.Alg ):
                         if hasattr(v, 'at') and not isinstance(v, (basestring,)):
                             o[i] = list(v)
                 self.msg.info('%s: %r', br, o)
-                print >> self.fd, "%s: %r" % (br, o)
-            except Exception, err:
+                printfunc ("%s: %r" % (br, o), file=self.fd)
+            except Exception as err:
                 self.msg.info(' --> err for [%s]: %s' % (br, err))
                 pass
         return StatusCode.Success

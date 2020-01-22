@@ -1,4 +1,4 @@
-include.block("TriggerRelease/TriggerConfig_TrigMooreHypo.py")
+include.block("TriggerJobOpts/TriggerConfig_TrigMooreHypo.py")
 #
 # Configure a suitable TrigMooreHypo instance
 #

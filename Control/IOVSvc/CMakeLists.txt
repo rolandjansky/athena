@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/AthContainersInterfaces
                           Database/PersistentDataModel
-                          Event/EventInfo
                           Event/xAOD/xAODEventInfo )
 
 # External dependencies:
@@ -30,7 +29,7 @@ atlas_add_library( IOVSvcLib
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools GaudiKernel StoreGateLib SGtests xAODEventInfo PersistentDataModel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools EventInfo )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_component( IOVSvc
                      src/components/*.cxx
@@ -42,7 +41,7 @@ atlas_add_test( IOVSvcTool_test
                 test/IOVSvcTool_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES IOVSvcLib
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
+                LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( IOVSvc_test
@@ -50,7 +49,7 @@ atlas_add_test( IOVSvc_test
                 test/IOVSvc_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES IOVSvcLib
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
+                LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 # Install files from the package:
