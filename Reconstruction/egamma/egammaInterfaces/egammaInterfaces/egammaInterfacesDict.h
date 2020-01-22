@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAINTERFACES_EGAMMAINTERFACESDICT_H
@@ -13,10 +13,7 @@
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  *
- * $Id: egammaInterfacesDict.h,v 1.4 2009-05-15 12:07:32 derue Exp $
  */
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 #include "egammaInterfaces/IEMClusterTool.h"
@@ -35,7 +32,5 @@
 #include "egammaInterfaces/IegammaStripsShape.h"
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
-#include "egammaInterfaces/Iegammaqweta2c.h"
 #include "egammaInterfaces/IegammaMVASvc.h"
 #endif // EGAMMAINTERFACES_EGAMMAINTERFACESDICT_H
