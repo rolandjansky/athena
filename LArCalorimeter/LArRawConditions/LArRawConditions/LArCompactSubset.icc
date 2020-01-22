@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file LArRawConditions/LArCompactSubset.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -19,9 +17,178 @@
  * @brief Default constructor.  Makes an invalid proxy.
  */
 inline
-LArCompactSubsetChannelProxy::LArCompactSubsetChannelProxy()
+LArCompactSubsetConstChannelProxy::LArCompactSubsetConstChannelProxy()
   : m_chan (0),
-    m_subset (0)
+    m_subset (nullptr)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @brief chan The channel index we reference.
+ * @brief subset The subset object within which we live.
+ */
+inline
+LArCompactSubsetConstChannelProxy::LArCompactSubsetConstChannelProxy
+  (unsigned int chan,
+   const LArCompactSubsetVector& subset)
+    : m_chan (chan),
+      m_subset (&subset)
+{
+}
+
+
+/**
+ * @brief Test to see if the proxy is valid.
+ */
+inline
+bool LArCompactSubsetConstChannelProxy::isValid() const
+{
+  return m_subset != 0;
+}
+
+
+/**
+ * @brief Return the time offset for this channel.
+ */
+inline
+float LArCompactSubsetConstChannelProxy::timeOffset() const
+{
+  return m_subset->timeOffset (m_chan);
+}
+
+
+/**
+ * @brief Return the time bin width for this channel.
+ */
+inline
+float LArCompactSubsetConstChannelProxy::timeBinWidth() const
+{
+  return m_subset->timeBinWidth (m_chan);
+}
+
+
+/**
+ * @brief Return the number of time bins for this channel.
+ */
+inline
+size_t LArCompactSubsetConstChannelProxy::getSize () const
+{
+  return m_subset->getSize (m_chan);
+}
+
+
+/**
+ * @brief Return one set of wave data from this channel.
+ * @param which Index of the wave type to return.
+ * @param tbin Time bin index.
+ */
+inline
+LArVectorProxy
+LArCompactSubsetConstChannelProxy::getData (unsigned int which,
+                                            size_t tbin) const
+{
+  return m_subset->getData (which, m_chan, tbin);
+}
+
+
+/**
+ * @brief Return number of shape time bins.
+ */
+inline
+size_t LArCompactSubsetConstChannelProxy::shapeSize() const
+{
+  return m_subset->getSize (m_chan);
+}
+
+
+/**
+ * @brief Return number of shape derivative time bins.
+ */
+inline
+size_t LArCompactSubsetConstChannelProxy::shapeDerSize() const
+{
+  return m_subset->getSize (m_chan);
+}
+
+
+/**
+ * @brief Return shape data.
+ * @param tbin Time bin index.
+ */
+inline
+ILArShape::ShapeRef_t
+LArCompactSubsetConstChannelProxy::shape (size_t tbin) const
+{
+  return m_subset->getData (0, m_chan, tbin);
+}
+
+
+/**
+ * @brief Return shape derivative data.
+ * @param tbin Time bin index.
+ */
+inline
+ILArShape::ShapeRef_t
+LArCompactSubsetConstChannelProxy::shapeDer (size_t tbin) const
+{
+  return m_subset->getData (1, m_chan, tbin);
+}
+
+
+/**
+ * @brief Return number of time bins for OFC A coefficients.
+ */
+inline
+size_t
+LArCompactSubsetConstChannelProxy::OFC_aSize () const
+{
+  return m_subset->getSize (m_chan);
+}
+
+
+/**
+ * @brief Return number of time bins for OFC B coefficients.
+ */
+inline
+size_t
+LArCompactSubsetConstChannelProxy::OFC_bSize () const
+{
+  return m_subset->getSize (m_chan);
+}
+
+
+/**
+ * @brief Return OFC A coefficients.
+ * @param tbin Time bin index.
+ */
+inline
+ILArOFC::OFCRef_t
+LArCompactSubsetConstChannelProxy::OFC_a (size_t tbin) const
+{
+  return m_subset->getData (0, m_chan, tbin);
+}
+
+
+/**
+ * @brief Return OFC B coefficients.
+ * @param tbin Time bin index.
+ */
+inline
+ILArOFC::OFCRef_t
+LArCompactSubsetConstChannelProxy::OFC_b (size_t tbin) const
+{
+  return m_subset->getData (1, m_chan, tbin);
+}
+
+
+/**
+ * @brief Default constructor.  Makes an invalid proxy.
+ */
+inline
+LArCompactSubsetChannelProxy::LArCompactSubsetChannelProxy()
+  : m_subset_nc (nullptr)
 {
 }
 
@@ -35,19 +202,9 @@ inline
 LArCompactSubsetChannelProxy::LArCompactSubsetChannelProxy
   (unsigned int chan,
    LArCompactSubsetVector& subset)
-    : m_chan (chan),
-      m_subset (&subset)
+    : LArCompactSubsetConstChannelProxy (chan, subset),
+      m_subset_nc (&subset)
 {
-}
-
-
-/**
- * @brief Test to see if the proxy is valid.
- */
-inline
-bool LArCompactSubsetChannelProxy::isValid() const
-{
-  return m_subset != 0;
 }
 
 
@@ -61,140 +218,6 @@ LArCompactSubsetChannelProxy::operator= (const LAr2DWaveBase& other)
 {
   assign (other);
   return *this;
-}
-
-
-/**
- * @brief Return the time offset for this channel.
- */
-inline
-float LArCompactSubsetChannelProxy::timeOffset() const
-{
-  return m_subset->timeOffset (m_chan);
-}
-
-
-/**
- * @brief Return the time bin width for this channel.
- */
-inline
-float LArCompactSubsetChannelProxy::timeBinWidth() const
-{
-  return m_subset->timeBinWidth (m_chan);
-}
-
-
-/**
- * @brief Return the number of time bins for this channel.
- */
-inline
-size_t LArCompactSubsetChannelProxy::getSize () const
-{
-  return m_subset->getSize (m_chan);
-}
-
-
-/**
- * @brief Return one set of wave data from this channel.
- * @param which Index of the wave type to return.
- * @param tbin Time bin index.
- */
-inline
-LArVectorProxy
-LArCompactSubsetChannelProxy::getData (unsigned int which,
-                                       size_t tbin) const
-{
-  return m_subset->getData (which, m_chan, tbin);
-}
-
-
-/**
- * @brief Return number of shape time bins.
- */
-inline
-size_t LArCompactSubsetChannelProxy::shapeSize() const
-{
-  return m_subset->getSize (m_chan);
-}
-
-
-/**
- * @brief Return number of shape derivative time bins.
- */
-inline
-size_t LArCompactSubsetChannelProxy::shapeDerSize() const
-{
-  return m_subset->getSize (m_chan);
-}
-
-
-/**
- * @brief Return shape data.
- * @param tbin Time bin index.
- */
-inline
-ILArShape::ShapeRef_t
-LArCompactSubsetChannelProxy::shape (size_t tbin) const
-{
-  return m_subset->getData (0, m_chan, tbin);
-}
-
-
-/**
- * @brief Return shape derivative data.
- * @param tbin Time bin index.
- */
-inline
-ILArShape::ShapeRef_t
-LArCompactSubsetChannelProxy::shapeDer (size_t tbin) const
-{
-  return m_subset->getData (1, m_chan, tbin);
-}
-
-
-/**
- * @brief Return number of time bins for OFC A coefficients.
- */
-inline
-size_t
-LArCompactSubsetChannelProxy::OFC_aSize () const
-{
-  return m_subset->getSize (m_chan);
-}
-
-
-/**
- * @brief Return number of time bins for OFC B coefficients.
- */
-inline
-size_t
-LArCompactSubsetChannelProxy::OFC_bSize () const
-{
-  return m_subset->getSize (m_chan);
-}
-
-
-/**
- * @brief Return OFC A coefficients.
- * @param tbin Time bin index.
- */
-inline
-ILArOFC::OFCRef_t
-LArCompactSubsetChannelProxy::OFC_a (size_t tbin) const
-{
-  return m_subset->getData (0, m_chan, tbin);
-}
-
-
-/**
- * @brief Return OFC B coefficients.
- * @param tbin Time bin index.
- */
-inline
-ILArOFC::OFCRef_t
-LArCompactSubsetChannelProxy::OFC_b (size_t tbin) const
-{
-  return m_subset->getData (1, m_chan, tbin);
 }
 
 
@@ -324,7 +347,7 @@ LArCompactSubsetChannelVector::const_iterator::operator-
  * @param other Other iterator for difference.
  */
 inline
-size_t
+long
 LArCompactSubsetChannelVector::const_iterator::operator-
   (const const_iterator& other) const
 {
@@ -406,6 +429,45 @@ void LArCompactSubsetChannelVector::resize (size_t sz)
 }
 
 
+
+/**
+ * @brief Constructor.
+ * @param febIndex FEB index with which we're associated.
+ * @param subset Subset within which we live.
+ */
+inline
+LArCompactSubsetConstChannelVector::LArCompactSubsetConstChannelVector
+  (size_t febIndex, const LArCompactSubsetVector* subset)
+    : m_febIndex (febIndex),
+      m_subset (subset)
+{
+}
+
+
+/**
+ * @brief Return the size of this vector (number of channels for this FEB).
+ */
+inline
+size_t LArCompactSubsetConstChannelVector::size() const
+{
+  return m_subset->febSize (m_febIndex);
+}
+
+
+/**
+ * @brief Vector indexing.  Returns a channel proxy.
+ * @param i Channel index within the vector.
+ */
+inline
+LArCompactSubsetConstChannelProxy
+LArCompactSubsetConstChannelVector::operator[] (size_t i) const
+{
+  unsigned int chan = m_subset->chanIndex (m_febIndex) + i;
+  assert (chan <= m_subset->chanIndex (m_febIndex+1));
+  return LArCompactSubsetConstChannelProxy (chan, *m_subset);
+}
+
+
 //=========================================================================
 
 
@@ -480,7 +542,7 @@ LArCompactSubsetFebPair::LArCompactSubsetFebPair
 inline
 LArCompactSubsetConstFebPair::LArCompactSubsetConstFebPair
   (size_t febIndex,
-   LArCompactSubsetVector& subset)
+   const LArCompactSubsetVector& subset)
     : first (subset.febIdRef (febIndex)),
       second (febIndex, &subset)
 {
@@ -561,6 +623,100 @@ LArCompactSubsetVector::iterator::operator+ (size_t delta) const
 
 
 /**
+ * @brief Iterator difference.
+ * @param other Other iterator for difference.
+ */
+inline
+LArCompactSubsetVector::iterator::difference_type
+LArCompactSubsetVector::iterator::operator- (const iterator& other) const
+{
+  return m_febIndex - other.m_febIndex;
+}
+
+
+/**
+ * @brief Constructor.
+ * @param febIndex The FEB index to which we point.
+ * @param subset The subset within which we live.
+ */
+inline
+LArCompactSubsetVector::const_iterator::const_iterator (size_t febIndex,
+                                                        const LArCompactSubsetVector& subset)
+  : m_febIndex (febIndex),
+    m_subset (subset)
+{
+}
+
+/**
+ * @brief `Dereference' the iterator.
+ */
+inline
+LArCompactSubsetConstFebPair
+LArCompactSubsetVector::const_iterator::operator*()
+{
+  return LArCompactSubsetConstFebPair (m_febIndex, m_subset);
+}
+
+
+/**
+ * @brief Compare iterators for equality.
+ */
+inline
+bool
+LArCompactSubsetVector::const_iterator::operator== (const const_iterator& other) const
+{
+  return m_febIndex == other.m_febIndex;
+}
+
+
+/**
+ * @brief Compare iterators for inequality.
+ */
+inline
+bool
+LArCompactSubsetVector::const_iterator::operator!= (const const_iterator& other) const
+{
+  return m_febIndex != other.m_febIndex;
+}
+
+
+/**
+ * @brief Advance iterator.
+ */
+inline
+LArCompactSubsetVector::const_iterator&
+LArCompactSubsetVector::const_iterator::operator++()
+{
+  ++m_febIndex;
+  return *this;
+}
+
+
+/**
+ * @brief Adjust iterator.
+ * @param delta Amount by which to advance the iterator.
+ */
+inline
+LArCompactSubsetVector::const_iterator
+LArCompactSubsetVector::const_iterator::operator+ (size_t delta) const
+{
+  return const_iterator (m_febIndex + delta, m_subset);
+}
+
+
+/**
+ * @brief Iterator difference.
+ * @param other Other iterator for difference.
+ */
+inline
+LArCompactSubsetVector::const_iterator::difference_type
+LArCompactSubsetVector::const_iterator::operator- (const const_iterator& other) const
+{
+  return m_febIndex - other.m_febIndex;
+}
+
+
+/**
  * @brief Return the size of this vector.
  */
 inline
@@ -617,12 +773,44 @@ LArCompactSubsetVector::iterator LArCompactSubsetVector::end()
 
 
 /**
+ * @brief Begin iterator.
+ */
+inline
+LArCompactSubsetVector::const_iterator LArCompactSubsetVector::begin() const
+{
+  return const_iterator (0, *this);
+}
+
+
+/**
+ * @brief End iterator.
+ */
+inline
+LArCompactSubsetVector::const_iterator LArCompactSubsetVector::end() const
+{
+  return const_iterator (m_febids.size(), *this);
+}
+
+
+/**
  * @brief Return a reference to a FEB ID variable.
  * @param febIndex Index of the desired FEB ID.
  */
 inline
 LArCompactSubsetVector::FebId&
 LArCompactSubsetVector::febIdRef (size_t febIndex)
+{
+  return m_febids[febIndex];
+}
+
+
+/**
+ * @brief Return a reference to a FEB ID variable.
+ * @param febIndex Index of the desired FEB ID.
+ */
+inline
+const LArCompactSubsetVector::FebId&
+LArCompactSubsetVector::febIdRef (size_t febIndex) const
 {
   return m_febids[febIndex];
 }
@@ -711,3 +899,29 @@ float LArCompactSubsetVector::timeBinWidth (unsigned int /*chan*/) const
 }
 
 
+/**
+ * @brief Helper used by LArConditionsSubset::assign.
+ * @param otherBeg Start of the range to copy.
+ * @param otherEnd End of the range to copy.
+ * @param to The subset to which to copy.
+ * @param copier Helper to copy a single payload object.
+ */
+template <class T, class OTHERIT, class COPIER>
+void LArCompactSubsetVector::copySubset (OTHERIT otherBeg,
+                                         OTHERIT otherEnd,
+                                         LArCompactSubsetVector& to,
+                                         COPIER copier)
+{
+  to.resize (otherEnd - otherBeg);
+  size_t ndx = 0;
+  for (; otherBeg != otherEnd; ++otherBeg, ++ndx) {
+    to[ndx].first = (*otherBeg).first;
+    unsigned int nChannels = (*otherBeg).second.size();
+    to[ndx].second.resize(nChannels);
+    for (size_t i = 0; i < nChannels; i++) {
+      T tmp;
+      copier ((*otherBeg).second[i], tmp);
+      to[ndx].second[i] = tmp;
+    }
+  }
+}

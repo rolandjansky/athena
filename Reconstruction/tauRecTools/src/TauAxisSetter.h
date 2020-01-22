@@ -23,19 +23,14 @@
 
 class TauAxisSetter : public TauRecToolBase {
 public:
-
     TauAxisSetter(const std::string& name);
     ASG_TOOL_CLASS2(TauAxisSetter, TauRecToolBase, ITauToolBase);
+
     ~TauAxisSetter();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode eventInitialize() override;
-    virtual StatusCode finalize() override;
-    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
-
-
-
+    virtual StatusCode finalize() override;
 
 private:
     double m_clusterCone;

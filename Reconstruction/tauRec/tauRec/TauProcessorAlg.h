@@ -28,6 +28,7 @@
  */
 
 class ICaloCellMakerTool;
+class CaloCell_ID;
 
 class TauProcessorAlg: public AthAlgorithm
 {
@@ -56,7 +57,7 @@ class TauProcessorAlg: public AthAlgorithm
 	double m_minPt;  //!< only build taus with pt_seed > m_minpt
 
 	TauEventData m_data;
-
+    const CaloCell_ID* m_cellID;
 	/** @brief tool handles */
 	ToolHandle<ICaloCellMakerTool> m_cellMakerTool;
 

@@ -40,13 +40,8 @@ public:
   //! Algorithm functions
   //-------------------------------------------------------------
   virtual StatusCode initialize() override;
-  virtual StatusCode eventInitialize() override;
   virtual StatusCode execute(xAOD::TauJet& pTau) override;
-  virtual StatusCode eventFinalize() override;
   virtual StatusCode finalize() override;
-
-  virtual void cleanup(xAOD::TauJet* ) { }
-
 
 private:
   ElementLink<xAOD::VertexContainer>

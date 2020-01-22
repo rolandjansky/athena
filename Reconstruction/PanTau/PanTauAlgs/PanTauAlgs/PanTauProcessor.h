@@ -56,8 +56,6 @@ namespace PanTau
        virtual StatusCode initialize();
        virtual StatusCode finalize();
        virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container);
-       virtual StatusCode eventInitialize();
-       virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
        
        virtual void print() const { }
 

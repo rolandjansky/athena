@@ -120,7 +120,8 @@ namespace MuonCombined {
     ATH_CHECK(m_ambiguityProcessor.retrieve());
     ATH_CHECK(m_muonDressingTool.retrieve());
     ATH_CHECK(m_muonSegmentConverterTool.retrieve());
-    ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
+    if(!m_trackSegmentAssociationTool.empty()) ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
+    else m_trackSegmentAssociationTool.disable();
     ATH_CHECK(m_trackQuery.retrieve());
     if(!m_momentumBalanceTool.empty()) ATH_CHECK(m_momentumBalanceTool.retrieve());
     else m_momentumBalanceTool.disable();

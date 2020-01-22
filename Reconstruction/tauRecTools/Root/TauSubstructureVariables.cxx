@@ -79,10 +79,6 @@ StatusCode TauSubstructureVariables::finalize() {
 	return StatusCode::SUCCESS;
 }
 
-StatusCode TauSubstructureVariables::eventInitialize() {
-	return StatusCode::SUCCESS;
-}
-
 
 //************************************
 // Execute method

@@ -22,28 +22,14 @@
 
 class JetSeedBuilder : public TauRecToolBase {
 public:
-
-    //-------------------------------------------------------------
-    //! Constructor
-    //-------------------------------------------------------------
-    ASG_TOOL_CLASS2( JetSeedBuilder, TauRecToolBase, ITauToolBase )
     JetSeedBuilder(const std::string& name);
+    ASG_TOOL_CLASS2( JetSeedBuilder, TauRecToolBase, ITauToolBase )
 
-    //-------------------------------------------------------------
-    //! Destructor
-    //-------------------------------------------------------------
     virtual ~JetSeedBuilder();
 
     virtual StatusCode initialize() override;
-
-    virtual StatusCode finalize() override;
-
-
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
-    
-    virtual StatusCode eventFinalize() override;
-
-    virtual StatusCode eventInitialize() override { return StatusCode::SUCCESS; }
+    virtual StatusCode finalize() override;
 
 private:
     std::string m_jetCollectionName;

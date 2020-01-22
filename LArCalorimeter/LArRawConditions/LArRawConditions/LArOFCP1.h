@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LAROFCP1
@@ -10,6 +10,7 @@
 #include <vector> 
 
 class LArCompactSubsetChannelProxy;
+class LArCompactSubsetConstChannelProxy;
 
 /** c-struct reproducing the structure of the persistent data
  * @author W. Lampl, S. Laplace
@@ -36,6 +37,7 @@ public:
            const std::vector<float>& ofc_b,
            unsigned int index);
   LArOFCP1(const LArCompactSubsetChannelProxy& other);
+  LArOFCP1(const LArCompactSubsetConstChannelProxy& other);
 
   size_t OFC_aSize() const { return waveSize(0); }
   size_t OFC_bSize() const { return waveSize(1); }
@@ -59,7 +61,7 @@ class LArConditionsSubsetTraits<LArOFCP1>
 public:
   typedef unsigned int  FebId; 
   typedef LArCompactSubsetChannelProxy        Reference;
-  typedef LArCompactSubsetChannelProxy        ConstReference;
+  typedef LArCompactSubsetConstChannelProxy   ConstReference;
   typedef LArCompactSubsetChannelPointer      Pointer;
   typedef LArCompactSubsetChannelPointer      ConstPointer;
   typedef LArCompactSubsetChannelVector       ChannelVector; 
@@ -71,6 +73,17 @@ public:
   static ConstReference empty()
   {
     return ConstReference();
+  }
+
+
+  template <class OTHERIT, class COPIER>
+  static void copySubset (OTHERIT otherBeg,
+                          OTHERIT otherEnd,
+                          SubsetVector& to,
+                          COPIER copier)
+  {
+    SubsetVector::copySubset<LArOFCP1> (otherBeg, otherEnd,
+                                        to, copier);
   }
 };
 

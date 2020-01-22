@@ -107,12 +107,6 @@ StatusCode MvaTESEvaluator::initialize(){
 }
 
 //_____________________________________________________________________________
-StatusCode MvaTESEvaluator::eventInitialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
 StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
 
   // Retrieve input variables

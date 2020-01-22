@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -48,7 +48,6 @@ namespace MuonCalib {
     AthAlgorithm(name,pSvcLocator),
     m_storeGate(NULL),
     m_cscCalibTool(NULL),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
     m_chronoSvc(NULL),
     m_outputFileName("output.cal"),
@@ -340,11 +339,7 @@ cerr << "done init services" << endl;
     }
     else
     {
-      if(m_cscCoolStrSvc.retrieve().isFailure())
-      {
-        mLog << MSG::FATAL << "Unable to retrieve CscCoolStrSvc" << endmsg;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(m_readKey.initialize());
     }
 
     /*for(unsigned int stripItr = 0 ; stripItr < m_maxStripHash+1; stripItr++)
@@ -460,8 +455,11 @@ cerr << "done init services" << endl;
     {
       mLog << MSG::FATAL << "Could not find event" << endmsg;
       return StatusCode::FAILURE;
-    }
+    }  
 
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey}; 
+    const CscCondDbData* readCdo{*readHandle};
+       
     //	mLog << MSG::INFO <<"Got raw data " << endmsg;
     //Loop over RODs (data from 2 chambers), each of which is in
     //a single CscRawaData collection
@@ -582,8 +580,7 @@ cerr << "done init services" << endl;
               }
               else{
 
-                if(StatusCode::SUCCESS != m_cscCoolStrSvc->getParameter(ped,"ped",stripHash))
-                {
+                if(!readCdo->readChannelPed(stripHash, ped).isSuccess()){
                   ped = 2054;
                   mLog << (m_ignoreDatabaseError ? MSG::WARNING :  MSG::ERROR) 
                     << "Failed at getting pedestal from COOL for hash " << stripHash << endmsg;
@@ -593,8 +590,7 @@ cerr << "done init services" << endl;
                 }
                 else
                   mLog << MSG::VERBOSE << "Got pedestal of " << ped << endmsg;
-                if(StatusCode::SUCCESS != m_cscCoolStrSvc->getParameter(
-                      noise, "noise", stripHash))
+                if(!readCdo->readChannelNoise(stripHash, noise).isSuccess())
                 {
                   noise = .001;
                   mLog << (m_ignoreDatabaseError ? MSG::WARNING : MSG::ERROR) << "Failed at getting noise from COOL for hash " << stripHash << endmsg;
@@ -1129,6 +1125,9 @@ cerr << "done init services" << endl;
 
     mLog << MSG::INFO << "Printing out parameter " << results.parName() << endmsg;
 
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey}; 
+    const CscCondDbData* readCdo{*readHandle};
+
     out << "\n";
     out << "<NEW_PAR> " << results.parName() << "\n";
     std::string idString;
@@ -1140,7 +1139,7 @@ cerr << "done init services" << endl;
       double value = (*resItr)->value();
       std::string idString;
 
-      m_cscCoolStrSvc->indexToStringId(hashId, "CHANNEL", idString);
+      readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", idString);
 
       out << idString << " " << value << "\n";
     }

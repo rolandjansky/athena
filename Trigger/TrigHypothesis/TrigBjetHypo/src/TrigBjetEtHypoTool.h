@@ -24,12 +24,16 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+
 class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
 
  public:
   struct TrigBjetEtHypoToolInfo {
     TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
     ElementLink< xAOD::JetContainer > jetEL;
+    ElementLink< xAOD::VertexContainer > vertexEL;
     TrigCompositeUtils::Decision* decision;
   };
 

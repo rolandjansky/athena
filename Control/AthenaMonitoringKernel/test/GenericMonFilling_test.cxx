@@ -18,8 +18,9 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
+#include "THashList.h"
 
-TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
+const TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
   TH1* h( nullptr );
   histSvc->getHist( histName, h );
   VALUE( h ) NOT_EXPECTED( ( TH1* )nullptr );
@@ -27,18 +28,19 @@ TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
 }
 
 void resetHist( ITHistSvc* histSvc, const std::string& histName ) {
-  getHist( histSvc, histName )->Reset();
+  TH1* h ATLAS_THREAD_SAFE = const_cast<TH1*>(getHist( histSvc, histName ));
+  h->Reset();
 }
 
 void resetHists( ITHistSvc* histSvc ) {
-  resetHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" );
+  resetHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" );
   resetHist( histSvc, "/EXPERT/TestGroup/Eta" );
   resetHist( histSvc, "/EXPERT/TestGroup/Phi" );
   resetHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask");
 }
 
 double contentInBin1DHist( ITHistSvc* histSvc, const std::string& histName, int bin ) {
-  TH1* h = getHist( histSvc, histName );
+  const TH1* h = getHist( histSvc, histName );
   // this are in fact securing basic correctness of the tests
   VALUE( h )   NOT_EXPECTED( nullptr );
   VALUE( bin >= 1 ) EXPECTED( true );
@@ -126,22 +128,22 @@ bool fill2DWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
     roiPhi = -0.1;
   }
 
-  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi", 1, 1 ) ) EXPECTED( 0 );
-  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi", 1, 2 ) ) EXPECTED( 0 );
-  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi", 2, 1 ) ) EXPECTED( 1 );
-  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi", 2, 2 ) ) EXPECTED( 0 );
+  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta", 1, 1 ) ) EXPECTED( 0 );
+  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta", 1, 2 ) ) EXPECTED( 0 );
+  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta", 2, 1 ) ) EXPECTED( 1 );
+  VALUE( contentInBin2DHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta", 2, 2 ) ) EXPECTED( 0 );
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 ); // counts also visible in 1 D
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 1 ) ) EXPECTED( 1 );
 
   // 2 D Hist fill should not affect 1 D
   resetHists( histSvc );
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 0 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 0 );
   {
     auto monitorIt = Monitored::Group( monTool, roiEta );
     roiEta = 0.2;
     roiPhi = -0.1;
   }
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 0 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 0 );
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 );
 
   {
@@ -149,7 +151,7 @@ bool fill2DWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
     roiEta = 0.2;
     roiPhi = -0.1;
   }
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 0 ); // still no entries as scope used above is not having both needed varaibles
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 0 ); // still no entries as scope used above is not having both needed varaibles
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 ); // no increase of counts
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 1 ) ) EXPECTED( 1 );
 
@@ -168,7 +170,7 @@ bool fillExplicitlyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
     roiEta = 0.2;
     roiPhi = -0.1;
   }
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 0 ); //  auto filling was disabled so no entries
 
@@ -179,7 +181,7 @@ bool fillExplicitlyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
       monitorIt.fill();   // this will fill and disable autoFill
     }
   }
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 3 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 3 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 3 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 3 );
 
@@ -187,7 +189,7 @@ bool fillExplicitlyWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
   {
     Monitored::Group( monTool, roiEta, roiPhi ).fill();
   }
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 4 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 4 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta" )->GetEntries() ) EXPECTED( 4 );
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi" )->GetEntries() ) EXPECTED( 4 );
 
@@ -295,7 +297,7 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
   }
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 1 );
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Phi", 2 ) ) EXPECTED( 1 );
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Eta_vs_Phi" )->GetEntries() ) EXPECTED( 2 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta" )->GetEntries() ) EXPECTED( 2 );
 
   return true;
 }
@@ -368,21 +370,17 @@ bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
 
 bool stringFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc) {
   auto count = Monitored::Scalar<std::string>( "DetID", "SCT" );
-  std::vector<std::string> caloLabels( { "LAr", "LAr", "Tile" } );
   {
     Monitored::Group(monTool, count);
     Monitored::Group(monTool, count);
   }
 
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetEntries() ) EXPECTED( 2 );
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetXaxis()->FindBin("SCT") ) EXPECTED( 1 );
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetXaxis()->FindBin("PIX") ) EXPECTED( 2 );
-  const int sctBin = getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetXaxis()->FindBin("SCT");
-  const int pixBin = getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetXaxis()->FindBin("PIX");
-  const int iblBin = getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetXaxis()->FindBin("IBL");
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetBinContent( sctBin ) ) EXPECTED( 2 );
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetBinContent( pixBin ) ) EXPECTED( 0 );
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetID" )->GetBinContent( iblBin ) ) EXPECTED( 0 );
+  const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/DetID" );
+  VALUE( h->GetEntries() ) EXPECTED( 2 );
+  VALUE( h->GetXaxis()->GetLabels()->GetEntries() ) EXPECTED( 1 );
+  const int sctBin = h->GetXaxis()->FindFixBin("SCT");
+  VALUE( sctBin ) EXPECTED( 1 );
+  VALUE( h->GetBinContent( sctBin ) ) EXPECTED( 2 );
 
   return true;
 }
@@ -402,9 +400,10 @@ bool string2DFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
     Monitored::Group(monTool, countID, countCalo);
   }
   {
-    const int larBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_DetID" )->GetXaxis()->FindBin("LAr");
-    const int sctBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_DetID" )->GetYaxis()->FindBin("SCT");
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_DetID" )->GetBinContent( larBin, sctBin ) ) EXPECTED( 2 );
+    const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/DetID_vs_DetCalo" );
+    const int larBin = h->GetXaxis()->FindFixBin("LAr");
+    const int sctBin = h->GetYaxis()->FindFixBin("SCT");
+    VALUE( h->GetBinContent( larBin, sctBin ) ) EXPECTED( 2 );
   }
   // this should fill like this
   // LAr,  0.2
@@ -414,13 +413,14 @@ bool string2DFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
     Monitored::Group(monTool, countCalo, y);
   }
   {
-    const int larBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetXaxis()->FindBin("LAr");
-    const int tileBin = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetXaxis()->FindBin("Tile");
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( larBin, 1 ) ) EXPECTED( 1 );
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( larBin, 2 ) ) EXPECTED( 0 );
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( larBin, 3 ) ) EXPECTED( 1 );
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( tileBin, 1 ) ) EXPECTED( 0 );
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_y" )->GetBinContent( tileBin, 2 ) ) EXPECTED( 1 );
+    const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/y_vs_DetCalo" );
+    const int larBin = h->GetXaxis()->FindFixBin("LAr");
+    const int tileBin = h->GetXaxis()->FindFixBin("Tile");
+    VALUE( h->GetBinContent( larBin, 1 ) ) EXPECTED( 1 );
+    VALUE( h->GetBinContent( larBin, 2 ) ) EXPECTED( 0 );
+    VALUE( h->GetBinContent( larBin, 3 ) ) EXPECTED( 1 );
+    VALUE( h->GetBinContent( tileBin, 1 ) ) EXPECTED( 0 );
+    VALUE( h->GetBinContent( tileBin, 2 ) ) EXPECTED( 1 );
   }
   // this should fill like this
   // LAr, 1.2
@@ -430,12 +430,13 @@ bool string2DFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
     Monitored::Group(monTool, countCalo, x);
   }
   {
-    const int larBin = getHist( histSvc, "/EXPERT/TestGroup/x_vs_DetCalo" )->GetXaxis()->FindBin("LAr");
-    const int tileBin = getHist( histSvc, "/EXPERT/TestGroup/x_vs_DetCalo" )->GetXaxis()->FindBin("Tile");
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/x_vs_DetCalo" )->GetBinContent( 1, larBin) ) EXPECTED( 0 );
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/x_vs_DetCalo" )->GetBinContent( 2, larBin) ) EXPECTED( 2 );
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/x_vs_DetCalo" )->GetBinContent( 1, tileBin) ) EXPECTED( 0 );
-    VALUE( getHist( histSvc, "/EXPERT/TestGroup/x_vs_DetCalo" )->GetBinContent( 2, tileBin) ) EXPECTED( 1 );
+    const TH1* h = getHist( histSvc, "/EXPERT/TestGroup/DetCalo_vs_x" );
+    const int larBin = h->GetYaxis()->FindFixBin("LAr");
+    const int tileBin = h->GetYaxis()->FindFixBin("Tile");
+    VALUE( h->GetBinContent( 1, larBin) ) EXPECTED( 0 );
+    VALUE( h->GetBinContent( 2, larBin) ) EXPECTED( 2 );
+    VALUE( h->GetBinContent( 1, tileBin) ) EXPECTED( 0 );
+    VALUE( h->GetBinContent( 2, tileBin) ) EXPECTED( 1 );
   }
 
   return true;
