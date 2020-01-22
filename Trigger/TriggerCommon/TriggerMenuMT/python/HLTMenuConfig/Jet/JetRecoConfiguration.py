@@ -104,6 +104,9 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
         if jetRecoDict["trkopt"]=="notrk" and "gsc" in jetRecoDict["jetCalib"]:
             raise ValueError("Track GSC requested but no track source provided!")
 
+        if jetRecoDict["trkopt"]=="notrk" and "subres" in jetRecoDict["jetCalib"]:
+            raise ValueError("Pileup residual calibration requested but no track source provided!")
+
         if jetRecoDict["dataType"]=="tc":
             calibContext,calibSeq = {
                 ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
