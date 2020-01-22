@@ -20,14 +20,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xEGamma
                           AtlasTest/TestTools
                           Control/StoreGate
-                          Trigger/TrigEvent/TrigSteeringEvent
                           )
 
 atlas_add_library( TrigCompositeUtilsLib
                    Root/*.cxx
                    PUBLIC_HEADERS TrigCompositeUtils
-                   LINK_LIBRARIES xAODTrigger GaudiKernel TrigSteeringEvent
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData )
+                   LINK_LIBRARIES xAODTrigger GaudiKernel
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils )
 
 atlas_install_python_modules( python/*.py )
 
@@ -44,6 +43,10 @@ atlas_add_test( TrigTraversal_test
                 SOURCES test/TrigTraversal_test.cxx
                 LINK_LIBRARIES  TestTools xAODTrigger xAODEgamma xAODMuon xAODBase TrigCompositeUtilsLib
                 AthContainers )
+
+atlas_add_test( Combinators_test
+                SOURCES test/Combinators_test.cxx
+                LINK_LIBRARIES TestTools xAODTrigger TrigCompositeUtilsLib AthContainers )
 
 atlas_add_test( flake8
    SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*.py
