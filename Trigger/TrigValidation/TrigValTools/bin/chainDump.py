@@ -58,7 +58,8 @@ def get_parser():
                             'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
                             'TrigSteer_HLT/ChainAcceptance',
                             'TrigSteer_HLT/NumberOfActiveTEs',
-                            'CTPSimulation/L1ItemsAV'],
+                            'CTPSimulation/L1ItemsAV',
+                            'L1/CTPSimulation/output/tavByName'],
                         help='Histograms to use for counts dump. All existing '
                              'histograms from the list are used, default = %(default)s')
     parser.add_argument('--totalHists',
@@ -76,7 +77,8 @@ def get_parser():
                             'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTChain',
                             'TrigSteer_HLT/ChainAcceptance:HLTChain',
                             'TrigSteer_HLT/NumberOfActiveTEs:HLTTE',
-                            'CTPSimulation/L1ItemsAV:L1AV'],
+                            'CTPSimulation/L1ItemsAV:L1AV',
+                            'L1/CTPSimulation/output/tavByName:L1AV'],
                         help='Dictionary defining names of output text files for each '
                              'histogram, default = %(default)s')
     return parser
