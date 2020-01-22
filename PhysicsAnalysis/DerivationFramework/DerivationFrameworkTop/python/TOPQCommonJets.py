@@ -41,11 +41,9 @@ def buildTOPQCA15jets(algseq):
 #================
 def addSoftDropJetsForTop(algseq, outputGroup):
     from DerivationFrameworkJetEtMiss.JetCommon import addSoftDropJets
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCSSKSoftDropJets
     if (globalflags.DataSource()=='geant4'):
         addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=algseq, outputGroup=outputGroup, writeUngroomed=True)
 
-    addCSSKSoftDropJets(algseq, outputGroup)
 
 #================
 # TTC jets
