@@ -38,7 +38,6 @@ AugmentationTools   = []
 
 # Special sequence 
 SeqPHYSLITE = CfgMgr.AthSequencer("SeqPHYSLITE")
-DerivationFrameworkJob += SeqPHYSLITE
 
 #====================================================================
 # TRUTH CONTENT
@@ -363,13 +362,15 @@ scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 #====================================================================
 # MAIN KERNEL
 #====================================================================
+# Put our sequence into the top sequence
+DerivationFrameworkJob += SeqPHYSLITE
+# Add thinning tools kernel
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 SeqPHYSLITE += CfgMgr.DerivationFramework__DerivationKernel(
    "PHYSLITEKernel",
    AugmentationTools = AugmentationTools,
    ThinningTools = thinningTools,
    )
-
 
 #====================================================================
 # CONTENT LIST  
@@ -455,3 +456,5 @@ trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
 
+svcMgr.MetaDataSvc.OutputLevel = DEBUG
+for t in svcMgr.MetaDataSvc.MetaDataTools: t.OutputLevel=DEBUG
