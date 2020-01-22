@@ -19,14 +19,14 @@ class TileID;
 class TauCellVariables : public TauRecToolBase {
 
 public:
-    TauCellVariables(const std::string& name);
+    
     ASG_TOOL_CLASS2(TauCellVariables, TauRecToolBase, ITauToolBase);
+    
+    TauCellVariables(const std::string& name);
     ~TauCellVariables();
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode eventInitialize() override;
-    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -75,16 +75,6 @@ StatusCode TauTrackFinder::initialize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauTrackFinder::finalize() {
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::eventInitialize() {
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::eventFinalize() {
     return StatusCode::SUCCESS;
 }
 

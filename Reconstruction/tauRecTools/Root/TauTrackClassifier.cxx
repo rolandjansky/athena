@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ASG include(s)
@@ -65,6 +65,13 @@ StatusCode TauTrackClassifier::initialize()
   return StatusCode::SUCCESS;
 }
 
+
+StatusCode TauTrackClassifier::finalize()
+{
+  return StatusCode::SUCCESS;
+}
+
+    
 //______________________________________________________________________________
 StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
 {

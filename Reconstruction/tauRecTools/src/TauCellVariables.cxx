@@ -80,10 +80,6 @@ StatusCode TauCellVariables::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauCellVariables::eventInitialize() {
-    return StatusCode::SUCCESS;
-}
-
 StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
     ATH_MSG_DEBUG("execute"); 

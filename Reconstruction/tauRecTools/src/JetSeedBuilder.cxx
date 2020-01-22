@@ -58,18 +58,10 @@ StatusCode JetSeedBuilder::initialize() {
 }
 
 //-------------------------------------------------------------------------
-// initialize
+// finalize 
 //-------------------------------------------------------------------------
 
 StatusCode JetSeedBuilder::finalize() {
-	return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode JetSeedBuilder::eventFinalize() {
 	return StatusCode::SUCCESS;
 }
 

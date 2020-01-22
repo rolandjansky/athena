@@ -33,9 +33,6 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
     virtual StatusCode finalize() override;
-    virtual StatusCode eventInitialize() override { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
-
 
 private:
     int m_ConvTaggerVer; 

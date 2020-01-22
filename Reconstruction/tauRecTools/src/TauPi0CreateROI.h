@@ -31,19 +31,10 @@ public:
     virtual ~TauPi0CreateROI();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode eventInitialize() override;
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer) override;
-    virtual StatusCode eventFinalize() override;
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer, std::vector<CaloCell*>& map) override;
     virtual StatusCode finalize() override;
 
 private:
-
-    /** @brief store cell in output container */ 
-    void storeCell(const CaloCell* /* cell*/, CaloCellContainer& cellContainer);
-
-    /** @brief hash map in order to keep track, which cells have been added to output cell container*/
-    std::vector<CaloCell*> m_addedCellsMap;
-
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
 
 };

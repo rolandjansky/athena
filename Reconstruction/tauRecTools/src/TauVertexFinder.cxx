@@ -52,16 +52,6 @@ StatusCode TauVertexFinder::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauVertexFinder::eventInitialize() {
-  return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauVertexFinder::eventFinalize() {
-  return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
   const xAOD::VertexContainer * vxContainer = 0;
   const xAOD::Vertex* primaryVertex = 0;

@@ -28,18 +28,12 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode eventInitialize() override;
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 						xAOD::PFOContainer& hadronicClusterPFOContainer,
 						xAOD::CaloClusterContainer& pi0CaloClusContainer,
 						const xAOD::CaloClusterContainer& pPi0CaloClusContainer) override;
-    virtual StatusCode eventFinalize() override;
-
-
     
 private:
-
-
     /** @brief fraction of cluster enegry in central EM1 cells */
     float getEM1CoreFrac( const xAOD::CaloCluster* /*pi0Candidate*/);
     
