@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -105,7 +105,7 @@ def getTrackMomentsTool(modspec=""):
 
 def getTrackSumMomentsTool(modspec=""):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
-    print jettrackselloose
+    print (jettrackselloose)
 
     tracksummoments = JetMomentToolsConf.JetTrackSumMomentsTool(
         "trksummoms",
