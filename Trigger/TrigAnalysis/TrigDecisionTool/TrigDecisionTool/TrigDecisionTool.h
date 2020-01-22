@@ -38,7 +38,7 @@
 
 #endif
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 // interface to implement for offline access (outside AtlasTrigger)
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
