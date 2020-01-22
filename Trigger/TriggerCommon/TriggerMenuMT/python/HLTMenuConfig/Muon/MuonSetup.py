@@ -130,6 +130,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
   MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name                     = "MdtRdoToPrepDataTool",
                                                          MdtPrdContainterCacheKey = MuonPrdCacheNames.MdtCache)
+  MdtRdoToMdtPrepDataTool.OutputLevel = DEBUG
 
   ToolSvc += MdtRdoToMdtPrepDataTool
 
