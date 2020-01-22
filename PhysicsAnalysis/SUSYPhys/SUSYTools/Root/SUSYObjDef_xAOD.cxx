@@ -162,6 +162,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleIsoHighPt_WP(""),
     m_eleIsoHighPtThresh(-99.),
     m_eleChID_WP(""),
+    m_eleChIso(true),
     m_runECIS(false),
     m_photonBaselineIso_WP(""),
     m_photonIso_WP(""),
@@ -491,6 +492,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
   declareProperty( "EleIsoHighPtThresh", m_eleIsoHighPtThresh);
   declareProperty( "EleCFT", m_eleChID_WP);
+  declareProperty( "EleCFTIso", m_eleChIso);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
   declareProperty( "EleBaselineD0sig", m_elebaselined0sig);
@@ -1226,6 +1228,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_eleChIso, "Ele.CFTIso", rEnv, true); // use charge ID SFs without iso applied
   configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
