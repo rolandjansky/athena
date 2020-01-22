@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -84,19 +84,17 @@ namespace InDet {
 
 
     // Constructor with parameters:
-    MergedPixelsTool
-      (const std::string& type,
-       const std::string& name,
-       const IInterface* parent);
+    MergedPixelsTool(const std::string& type,
+                     const std::string& name,
+                     const IInterface* parent);
 
     virtual ~MergedPixelsTool() = default;
 
     // Called by the PixelPrepRawDataFormation algorithm once for every pixel 
     // module (with non-empty RDO collection...). 
     // It clusters together the RDOs with a pixell cell side in common.
-    virtual PixelClusterCollection *clusterize
-      (const InDetRawDataCollection<PixelRDORawData>& RDOs,
-       const PixelID& pixelID) const;
+    virtual PixelClusterCollection *clusterize(const InDetRawDataCollection<PixelRDORawData>& RDOs,
+                                               const PixelID& pixelID) const;
     //   void init(int posstrategy, int errorstrategy);
 
     // Once the lists of RDOs which makes up the clusters have been found by the
@@ -164,7 +162,7 @@ namespace InDet {
                                      const InDetDD::SiDetectorElement* element,
                                      const Trk::RectangleBounds* mybounds,
                                      const PixelID& pixelID,
-                                     int groupSize,
+                                     const int& groupSize,
                                      int& clusterNumber) const;
                        
     // Checks if RDOs would be merged. This is based on a 4 cell connected component finding. 
@@ -172,14 +170,14 @@ namespace InDet {
                                            const PixelID& pixelID) const;                   
 
                                           
-    void addClusterNumber(int r, 
-                          int Ncluster,
-                          std::vector<network>& connections,    
+    void addClusterNumber(const int& r, 
+                          const int& Ncluster,
+                          const std::vector<network>& connections,    
                           std::vector<rowcolID>& collectionID) const;
                           
     bool checkDuplication(const PixelID& pixelID,
-                          Identifier rodId, 
-                          int lvl1, 
+                          const Identifier& rdoID, 
+                          const int& lvl1, 
                           std::vector<rowcolID>& collectionID) const;
                        
 
@@ -192,7 +190,7 @@ namespace InDet {
     ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool{this, "SplitProbTool", "", "ToolHandle for the split probability tool"};
     ToolHandle<InDet::IPixelClusterSplitter> m_clusterSplitter{this, "ClusterSplitter", "", "ToolHandle for the split probability tool"};
     BooleanProperty m_doIBLSplitting{this, "DoIBLSplitting", false};
-    BooleanProperty m_doFastClustering{this, "DoFastClustering", true};
+    BooleanProperty m_doFastClustering{this, "DoFastClustering", false};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 

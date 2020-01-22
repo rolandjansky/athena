@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,6 +34,7 @@
 
 using CLHEP::micrometer;
 
+constexpr double tolerance{0.001}; 
 
 namespace InDet {
   
@@ -99,7 +100,7 @@ namespace InDet {
     IdentifierHash idHash = collection.identifyHash();
     
     // Size of RDO's collection:
-    unsigned int RDO_size = collection.size();
+    const unsigned int RDO_size = collection.size();
     if ( RDO_size==0) {
         // Empty RDO collection
         ATH_MSG_DEBUG (" areNeighbours - problems ");
@@ -148,11 +149,11 @@ namespace InDet {
       Identifier rdoID= (*nextRDO)->identify();
       // if a pixel is not skip it in clusterization
       if ( m_usePixelMap && !(m_summaryTool->isGood(idHash,rdoID)) ) continue;
-      int tot = (*nextRDO)->getToT();
-      int lvl1= (*nextRDO)->getLVL1A();
+      const int tot = (*nextRDO)->getToT();
+      const int lvl1= (*nextRDO)->getLVL1A();
       // check if this is a ganged pixel    
       Identifier gangedID;
-      bool ganged= isGanged(rdoID, element, gangedID);  
+      const bool ganged= isGanged(rdoID, element, gangedID);  
       if(ganged) {
         ATH_MSG_VERBOSE("Ganged Pixel, row = " << pixelID.phi_index(rdoID) 
         << "Ganged row = " << pixelID.phi_index(gangedID));   
@@ -166,7 +167,7 @@ namespace InDet {
       
       RDO_GroupVector::iterator firstGroup = rdoGroups.begin();
       RDO_GroupVector::iterator lastGroup  = rdoGroups.end();
-      TOT_GroupVector::iterator totGroup = totGroups.begin();    
+      TOT_GroupVector::iterator totGroup   = totGroups.begin();    
       TOT_GroupVector::iterator lvl1Group  = lvl1Groups.begin();
       
       while( !found && firstGroup!= lastGroup)
@@ -285,7 +286,7 @@ namespace InDet {
     for(std::vector<RDO_Vector *>::iterator group = rdoGroups.begin() ; group!= rdoGroups.end() ; ++group) {
 
       // the size of the inition rdo group
-      size_t groupSize = (**group).size();
+      const size_t groupSize = (**group).size();
       
       // If cluster is empty, i.e. it has been merged with another, 
       // do not attempt to make cluster.
@@ -370,7 +371,7 @@ namespace InDet {
       ATH_MSG_VERBOSE("makeCluster called, number " << clusterNumber);
   
       Identifier gangedID;
-      Identifier elementID = element->identify();
+      const Identifier elementID = element->identify();
       const InDetDD::PixelModuleDesign* design
           (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
       if (not design){
@@ -400,9 +401,9 @@ namespace InDet {
         if ( (*lvl1) < lvl1min ) lvl1min=(*lvl1);
         lvl1++;
         // process identifier
-        Identifier rId =  *rdosBegin;
-        int row = pixelID.phi_index(rId);
-        int col = pixelID.eta_index(rId);
+        const Identifier rId =  *rdosBegin;
+        const int row = pixelID.phi_index(rId);
+        const int col = pixelID.eta_index(rId);
         // flag if cluster contains at least a ganged pixel
         hasGanged = hasGanged || isGanged(rId, element, gangedID);
         DVid.push_back(rId);
@@ -439,12 +440,12 @@ namespace InDet {
         tot++;
       }
       
-      int numberOfPixels = group.size();
+      const int numberOfPixels = group.size();
       InDetDD::SiLocalPosition centroid(sumOfPositions/numberOfPixels);
       const Identifier id = element->identifierOfPosition(centroid);
   
-      int colWidth = colMax-colMin+1;
-      int rowWidth = rowMax-rowMin+1;
+      const int colWidth = colMax-colMin+1;
+      const int rowWidth = rowMax-rowMin+1;
   
       // Compute eta for charge interpolation correction (if required)
       // Two pixels may have tot=0 (very rarely, hopefully)
@@ -472,7 +473,7 @@ namespace InDet {
         // different sensors layout. AA
         float deltax = 0;
         float deltay = 0;
-        float sensorThickness = element->thickness();
+        const float sensorThickness = element->thickness();
         Amg::Vector3D globalPos = element->globalPosition(centroid);
         InDetDD::SiLocalPosition totCorrection(0,0,0);
         if(pixelID.is_barrel(elementID)) {
@@ -505,8 +506,8 @@ namespace InDet {
       // Endcap SR1 Cosmics
       if(m_posStrategy == 20 && !hasGanged  && etaRow>0 && etaCol > 0){
         ATH_MSG_VERBOSE("Endcap cosmics simulation");
-        double deltax = 35*micrometer;
-        double deltay = 35*micrometer;
+        const double deltax = 35*micrometer;
+        const double deltay = 35*micrometer;
         InDetDD::SiLocalPosition pos1 = 
             design->positionFromColumnRow(colMin,rowMin);
         InDetDD::SiLocalPosition pos2 = 
@@ -583,13 +584,13 @@ namespace InDet {
   // which do happen if there is a pair of pixel cells belonging to the 
   // two different groups which have a side in common
   
-  void MergedPixelsTool::checkForMerge(const Identifier& id,
-      MergedPixelsTool::RDO_GroupVector::iterator  baseGroup,
-      MergedPixelsTool::RDO_GroupVector::iterator lastGroup,
-      MergedPixelsTool::TOT_GroupVector::iterator totGroup,
-      MergedPixelsTool::TOT_GroupVector::iterator lvl1Group,
-      const InDetDD::SiDetectorElement* element,
-      const PixelID& pixelID) const
+  void MergedPixelsTool::checkForMerge(const Identifier& id, 
+                                       MergedPixelsTool::RDO_GroupVector::iterator  baseGroup,
+                                       MergedPixelsTool::RDO_GroupVector::iterator lastGroup,
+                                       MergedPixelsTool::TOT_GroupVector::iterator totGroup,
+                                       MergedPixelsTool::TOT_GroupVector::iterator lvl1Group,
+                                       const InDetDD::SiDetectorElement* element,
+                                       const PixelID& pixelID) const
   {
     // Look at each of groups that haven't already been checked to see if
     // RDO identifier is in any of them. If so, copy vector to base group and 
@@ -643,7 +644,7 @@ namespace InDet {
                                                             const PixelID& pixelID) const {
     
     // Size of RDO's collection:
-    unsigned int RDO_size = collection.size();
+    const unsigned int RDO_size = collection.size();
     if ( RDO_size==0) {
         // Empty RDO collection
         ATH_MSG_DEBUG (" areNeighbours - problems ");
@@ -651,8 +652,8 @@ namespace InDet {
     }
     
     // Get Identifier and IdentifierHash for these RDOs
-    Identifier elementID = collection.identify();
-    IdentifierHash idHash = collection.identifyHash();
+    const Identifier elementID = collection.identify();
+    const IdentifierHash idHash = collection.identifyHash();
     
     // If module is bad, do not create a cluster collection
     if (m_useModuleMap && !(m_summaryTool->isGood(idHash))) 
@@ -677,24 +678,22 @@ namespace InDet {
     
     std::vector<rowcolID> collectionID;
 
-    InDetRawDataCollection<PixelRDORawData>::const_iterator RD = collection.begin(), RDE = collection.end();
-    
-    for(; RD!=RDE; ++RD) {
+    for(const auto & rdo : collection) {
       
-      Identifier rdoID= (*RD)->identify();
+      const Identifier rdoID= rdo->identify();
       if (m_usePixelMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
           
-      int lvl1= (*RD)->getLVL1A();      
+      const int lvl1= rdo->getLVL1A();      
       if (checkDuplication(pixelID, rdoID, lvl1, collectionID)) continue;
       
-      int tot = (*RD)->getToT();
+      const int tot = rdo->getToT();
       
       rowcolID   RCI(-1, pixelID.phi_index(rdoID), pixelID.eta_index(rdoID), tot, lvl1, rdoID); 
       collectionID.push_back(RCI);
       
       // check if this is a ganged pixel    
       Identifier gangedID;
-      bool ganged = isGanged(rdoID, element, gangedID);  
+      const bool ganged = isGanged(rdoID, element, gangedID);  
       
       if (not ganged) continue;
           
@@ -767,16 +766,16 @@ namespace InDet {
     clusterCollection->setIdentifier(elementID);
     clusterCollection->reserve(Ncluster);
 
-    std::vector<Identifier> DVid;
-    std::vector<int> Totg;
-    std::vector<int> Lvl1;
+    std::vector<Identifier> DVid = {collectionID.at(0).ID };
+    std::vector<int>        Totg = {collectionID.at(0).TOT};
+    std::vector<int>        Lvl1 = {collectionID.at(0).LVL1};
     
-    DVid.push_back(collectionID.at(0).ID );
-    Totg.push_back(collectionID.at(0).TOT);
-    Lvl1.push_back(collectionID.at(0).LVL1);
-   
     int clusterNumber = 0;
     int NCL0          = 0;
+    
+    DVid.reserve(collectionID.back().NCL);
+    Totg.reserve(collectionID.back().NCL);
+    Lvl1.reserve(collectionID.back().NCL);
 
     ++re;    
     for(int i=1; i<=re; ++i) {
@@ -797,7 +796,7 @@ namespace InDet {
                                             pixelID, 
                                             ++clusterNumber);
         
-        size_t groupSize = DVid.size();        
+        const size_t groupSize = DVid.size();        
         
         // check for splitting
         if ( groupSize >= m_minSplitSize && groupSize <= m_maxSplitSize ) {
@@ -835,9 +834,9 @@ namespace InDet {
         // Preparation for next cluster
         if (i!=re) {
           NCL0   = collectionID.at(i).NCL                     ;
-          DVid.clear(); DVid.push_back(collectionID.at(i).ID );
-          Totg.clear(); Totg.push_back(collectionID.at(i).TOT);
-          Lvl1.clear(); Lvl1.push_back(collectionID.at(i).LVL1);
+          DVid.clear(); DVid = {collectionID.at(i).ID };
+          Totg.clear(); Totg = {collectionID.at(i).TOT};
+          Lvl1.clear(); Lvl1 = {collectionID.at(i).LVL1};
         }
       }
     }
@@ -849,19 +848,18 @@ namespace InDet {
   // Clusterization for fast mode 
   ///////////////////////////////////////////////////////////////////
   
-  void MergedPixelsTool::addClusterNumber(int r, 
-                                          int Ncluster,
-                                          std::vector<network>& connections,                                         
+  void MergedPixelsTool::addClusterNumber(const int& r, 
+                                          const int& Ncluster,
+                                          const std::vector<network>& connections,                                         
                                           std::vector<rowcolID>& collectionID) const {
-                                            
-      for(int i=0; i!=connections.at(r).NC; ++i) {      
-        int k = connections.at(r).CON.at(i);
-        if(collectionID.at(k).NCL < 0) {
-          collectionID.at(k).NCL = Ncluster;
-          addClusterNumber(k, Ncluster, connections, collectionID);
-        }
+    for(int i=0; i!=connections.at(r).NC; ++i) {      
+      const int k = connections.at(r).CON.at(i);
+      if(collectionID.at(k).NCL < 0) {
+        collectionID.at(k).NCL = Ncluster;
+        addClusterNumber(k, Ncluster, connections, collectionID);
       }
     }
+  }
     
     
   /////////////////////////////////////////////////////////////////////
@@ -884,7 +882,7 @@ namespace InDet {
                                                      const InDetDD::SiDetectorElement* element,
                                                      const Trk::RectangleBounds* mybounds,
                                                      const PixelID& pixelID,
-                                                     int groupSize,
+                                                     const int& groupSize,
                                                      int& clusterNumber) const 
   {
     
@@ -899,9 +897,7 @@ namespace InDet {
       InDet::PixelClusterSplitProb splitProbObj = m_splitProbTool->splitProbability(*cluster);
       clusterSplitP1 = splitProbObj.splitProbability(2);
       clusterSplitP2 = splitProbObj.splitProbability(3);
-      ATH_MSG_VERBOSE( "Obtained split prob object with split prob: " << splitProbObj.splitProbability());
       if (!m_clusterSplitter.empty() && splitProbObj.splitProbability() >  m_minSplitProbability ) {
-        ATH_MSG_VERBOSE( "Trying to split cluster ... ");
         splitClusterParts = m_clusterSplitter->splitCluster(*cluster,splitProbObj);
       }
     } else if ( !m_clusterSplitter.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) 
@@ -934,16 +930,15 @@ namespace InDet {
       
       ATH_MSG_VERBOSE( "--> Non-zero cluster split size. Try to use new clusterization...");
       // iterate and make clusters
-      std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIter    = splitClusterParts.begin();
-      std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIterEnd = splitClusterParts.end();
       // use internal clustering if no position is estimated by clustersplitter
-      if ( !(*splitClusterPartsIter).localPosition()) {
+      splitClusters.reserve(splitClusterParts.size());
+      if ( !splitClusterParts.at(0).localPosition() ) {
         ATH_MSG_VERBOSE( "--> Position estimate from new clusterization not available... Use old clusterization");
-        for ( ; splitClusterPartsIter != splitClusterPartsIterEnd; ++splitClusterPartsIter ) {
+        for ( auto& clusterParts : splitClusterParts) {
           // make a new cluster, use standard clusterization to have a consistent clustering used
-          PixelCluster* splitCluster =  makeCluster((*splitClusterPartsIter).identifierGroup(),
-                                                    (*splitClusterPartsIter).totGroup(),
-                                                    (*splitClusterPartsIter).lvl1Group(),
+          PixelCluster* splitCluster =  makeCluster(clusterParts.identifierGroup(), 
+                                                    clusterParts.totGroup(),        
+                                                    clusterParts.lvl1Group(),       
                                                     element,
                                                     pixelID,
                                                     ++clusterNumber,
@@ -954,9 +949,6 @@ namespace InDet {
           splitClusters.push_back(splitCluster);          
         }
       } else {
-        std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIter    = splitClusterParts.begin();
-        std::vector<InDet::PixelClusterParts>::iterator splitClusterPartsIterEnd = splitClusterParts.end();
-
         ATH_MSG_VERBOSE( "--> Processing new splitCluster with n. " << splitClusterParts.size() << " subClusters. ");
         const InDetDD::PixelModuleDesign* design (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
         if (not design){
@@ -964,39 +956,38 @@ namespace InDet {
           delete cluster;
           return StatusCode::FAILURE;
         }
-        for ( size_t iclus = 0 ; splitClusterPartsIter != splitClusterPartsIterEnd; ++splitClusterPartsIter, ++iclus ){
-          const Amg::Vector2D& position=(*(*splitClusterPartsIter).localPosition());
-          const Amg::MatrixX&   error=(*(*splitClusterPartsIter).errorMatrix());
-          const std::vector<int>&   totGroup=(*splitClusterPartsIter).totGroup();
-          const std::vector<int>&   lvl1Group=(*splitClusterPartsIter).lvl1Group();
-          const std::vector<Identifier>& identifierGroup=(*splitClusterPartsIter).identifierGroup();
+        
+        size_t iclus = 0;
+        for ( auto& clusterParts : splitClusterParts ) {          
+          const Amg::Vector2D& position = *clusterParts.localPosition();
+          const Amg::MatrixX& error = *clusterParts.errorMatrix();
+          const std::vector<int>& totGroup = clusterParts.totGroup();
+          const std::vector<int>& lvl1Group = clusterParts.lvl1Group();
+          const std::vector<Identifier>& identifierGroup = clusterParts.identifierGroup();
           
           ATH_MSG_VERBOSE( "--> New Cluster :" << iclus << " - Position: " << position << " error: " << error );
           
           InDetDD::SiLocalPosition subPos(position);
           if (std::abs(subPos.xPhi())>mybounds->halflengthPhi()) {
-            double newxphi= (subPos.xPhi()>0) ? mybounds->halflengthPhi()-0.001 : -mybounds->halflengthPhi()+0.001;
+            const double newxphi= (subPos.xPhi()>0) ? mybounds->halflengthPhi()-tolerance : -mybounds->halflengthPhi()+tolerance;
             subPos.xPhi(newxphi);
           }
           if (std::abs(subPos.xEta())>mybounds->halflengthEta()) {
-            double newxeta= (subPos.xEta()>0) ? mybounds->halflengthEta()-0.001 : -mybounds->halflengthEta()+0.001;
+            const double newxeta= (subPos.xEta()>0) ? mybounds->halflengthEta()-tolerance : -mybounds->halflengthEta()+tolerance;
             subPos.xEta(newxeta);
           }
           
           const Identifier idSubCluster = element->identifierOfPosition(subPos);
-          
-          std::vector<Identifier>::const_iterator rdosBegin = identifierGroup.begin();
-          std::vector<Identifier>::const_iterator rdosEnd = identifierGroup.end();
           
           int rowMin = int(2*(element->width()/element->phiPitch()))+1;
           int rowMax = 0;
           int colMin = int(2*(element->length()/element->etaPitch()))+1;
           int colMax = 0;
           
-          for (; rdosBegin!= rdosEnd; ++rdosBegin) {
-            Identifier rId =  *rdosBegin;
-            int row = pixelID.phi_index(rId);
-            int col = pixelID.eta_index(rId);
+          for (const Identifier& rId : identifierGroup) 
+          {
+            const int row = pixelID.phi_index(rId);
+            const int col = pixelID.eta_index(rId);
             
             if (row < rowMin) { 
               rowMin = row; 
@@ -1012,10 +1003,10 @@ namespace InDet {
             }
           }
           
-          int colWidth = colMax-colMin+1;
-          int rowWidth = rowMax-rowMin+1;
-          double etaWidth = design->widthFromColumnRange(colMin, colMax);
-          double phiWidth = design->widthFromRowRange(rowMin, rowMax);
+          const int colWidth = colMax-colMin+1;
+          const int rowWidth = rowMax-rowMin+1;
+          const double etaWidth = design->widthFromColumnRange(colMin, colMax);
+          const double phiWidth = design->widthFromRowRange(rowMin, rowMax);
           SiWidth siWidth(Amg::Vector2D(rowWidth,colWidth), Amg::Vector2D(phiWidth,etaWidth) );
           
           // create the new cluster
@@ -1033,7 +1024,8 @@ namespace InDet {
                                                          clusterSplitP1,
                                                          clusterSplitP2);
           // fill the vectors with the clusters to add to the cluster collection
-          splitClusters.push_back(splitCluster);          
+          splitClusters.push_back(splitCluster);   
+          iclus++;
         } //end iteration on split clusters
       } //end if no content in split clusters
       
@@ -1074,28 +1066,19 @@ namespace InDet {
   
   
   bool MergedPixelsTool::checkDuplication(const PixelID& pixelID,
-                                          Identifier rdoID, 
-                                          int lvl1, 
+                                          const Identifier& rdoID, 
+                                          const int& lvl1, 
                                           std::vector<rowcolID>& collectionID) const {
     
-    int row2 = pixelID.phi_index(rdoID);
-    int col2 = pixelID.eta_index(rdoID);
-    bool duplicate = false;
-    for (auto& collID : collectionID) {
-      Identifier id = collID.ID;
-      int row1 = pixelID.phi_index(id);
-      int col1 = pixelID.eta_index(id);
- 
-      // duplicate
-      if(row1 == row2 && col1 == col2){
-        duplicate = true;
-        if( collID.LVL1 < lvl1 ) 
-          collID.LVL1 = lvl1;
-        break;
-      }
-    }
-    return duplicate;
-  }
-  
+    // check if duplicates are found. If that is the case, update the LVL1 
+    auto isDuplicate=[pixelID,rdoID](const rowcolID& rc) -> bool {
+      return std::make_tuple(pixelID.phi_index(rdoID), pixelID.eta_index(rdoID)) == std::make_tuple(pixelID.phi_index(rc.ID), pixelID.eta_index(rc.ID));
+    }; 
+    
+    const auto pDuplicate = std::find_if(collectionID.begin(), collectionID.end(),isDuplicate); 
+    const bool foundDuplicate{pDuplicate != collectionID.end()}; 
+    if (foundDuplicate) pDuplicate->LVL1 = std::max(pDuplicate->LVL1, lvl1); 
+    return foundDuplicate;
+  }                                            
 }
 //----------------------------------------------------------------------------
