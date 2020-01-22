@@ -277,7 +277,7 @@ namespace Muon {
     ToolHandle<IMuonTrackExtrapolationTool>           m_trackExtrapolationTool  {this, "Extrapolator", "Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"}; //<! track extrapolation tool
 
     ToolHandle<IMuonErrorOptimisationTool>            m_errorOptimisationTool {this, "ErrorOptimisationTool", ""};
-    ToolHandle<Trk::ITrackSummaryHelperTool>          m_trackSummaryTool;
+    ToolHandle<Trk::ITrackSummaryHelperTool>          m_trackSummaryTool    {this, "TrackSummaryTool", "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"};;
     ServiceHandle<MagField::IMagFieldSvc>             m_magFieldSvc         {this, "MagFieldSvc", "AtlasFieldSvc"};
     Trk::MagneticFieldProperties                      m_magFieldProperties  {Trk::FullField}; //!< magnetic field properties
 

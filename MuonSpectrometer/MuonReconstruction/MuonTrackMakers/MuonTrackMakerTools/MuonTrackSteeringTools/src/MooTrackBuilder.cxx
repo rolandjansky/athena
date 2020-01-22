@@ -32,15 +32,12 @@ namespace Muon {
 
 
   MooTrackBuilder::MooTrackBuilder(const std::string& t,const std::string& n,const IInterface* p)  :
-    AthAlgTool(t,n,p),
-    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
+    AthAlgTool(t,n,p)
   {
     declareInterface<IMuonSegmentTrackBuilder>(this);
     declareInterface<MooTrackBuilder>(this);
     declareInterface<IMuonTrackRefiner>(this);
     declareInterface<IMuonTrackBuilder>(this);
-
-    declareProperty( "TrackSummaryTool", m_trackSummaryTool );
   }
 
   StatusCode MooTrackBuilder::initialize() {
