@@ -45,6 +45,7 @@ import HVFlags
 import SmpCaloIdFlags
 import SmpMsFlags
 import VHFlags
+import TauFlags
 
 #===============================================================
 # Set specific properties for each of the analysis selections
@@ -137,9 +138,17 @@ primRPVLLDESDM.add_JobProperty(doSmpMs)
 class doVH(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doVH)
+
+class doTaus(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    pass
+primRPVLLDESDM.add_JobProperty(doTaus)
+
 
 class prescaleFlags(JobProperty):
     statusOn = True

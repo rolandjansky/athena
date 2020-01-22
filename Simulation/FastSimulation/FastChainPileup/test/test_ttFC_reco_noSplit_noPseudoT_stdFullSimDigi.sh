@@ -9,10 +9,10 @@
 # art-output: dcube-id
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_reco_noSplit_noPseudoT_stdFullSimDigi"
-dcubeXmlID="${inputXmlDir}/dcube_indetplots.xml"
+dcubeXmlID="${inputXmlDir}/dcube_ID.xml"
 dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
 dcubeXmlTruth="${inputXmlDir}/dcube_truth.xml"
 dcubeRefTruth="${inputRefDir}/truth.root"

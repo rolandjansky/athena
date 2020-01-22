@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNGEOMTOOLS_SCTGEOMETRYMANAGERTOOL_H
@@ -91,6 +91,9 @@ namespace InDet
 
     /** creates L2 AlignModules for SCT barrel */
     void buildL2Barrel();
+
+    /** creates L25 AlignModules for SCT barrel */
+    void buildL25Barrel();
 
     /** creates L27 AlignModules for SCT barrel */
     void buildL27Barrel();

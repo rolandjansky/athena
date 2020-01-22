@@ -23,8 +23,10 @@ from AthenaCommon.Configurable import Configurable
 from TriggerMenu.menu.SignatureDicts import METChainParts_Default
 default_cluster_calib = METChainParts_Default["calib"]
 default_jet_calib = METChainParts_Default["jetCalib"]
+default_do_TST = "tst" in METChainParts_Default["addInfo"]
 default_do_FTK = "FTK" in METChainParts_Default["addInfo"]
-default_tst_ceiling = "tstceil" in METChainParts_Default["addInfo"]
+default_muon_or = "muonor" in METChainParts_Default["addInfo"]
+default_do_CVF = "cvf" in METChainParts_Default["clusmod"]
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 import logging
@@ -183,22 +185,22 @@ class EFMissingET_Fex_Jets (HLT__MET__MHTFex):
 
 class TrkMHTFex(HLT__MET__TrkMHTFex):
     __slots__ = []
-    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, tst_ceiling=False):
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, muon_or=False):
         if name == Configurable.DefaultName:
             name = "EFMissingET_Fex_{0}TrackAndJets{1}".format(
                     "FTK" if do_FTK else "",
-                    "_tstceil" if tst_ceiling else "")
-        return super(TrkMHTFex, cls).__new__(cls, name, do_FTK, tst_ceiling)
+                    "_muonor" if muon_or else "")
+        return super(TrkMHTFex, cls).__new__(cls, name, do_FTK, muon_or)
 
-    def __init__(self, name, do_FTK, tst_ceiling):
+    def __init__(self, name, do_FTK, muon_or):
         super(TrkMHTFex, self).__init__(name)
         key_suffix = "FTK" if do_FTK else ""
-        if tst_ceiling:
-            self.TrackSoftTermPtCeiling = 20 * GeV
-            key_suffix += "_tstceil"
-            self.DoMuonOR = False
-        else:
+        if muon_or:
             self.DoMuonOR = True
+            key_suffix += "_muonor"
+        else:
+            self.TrackSoftTermPtCeiling = 20 * GeV
+            self.DoMuonOR = False
         self.MissingETOutputKey = "TrigEFMissingET_trkmht{0}".format(key_suffix)
 
 
@@ -226,40 +228,76 @@ class TrkMHTFex(HLT__MET__TrkMHTFex):
 
 class TrkTCFex(HLT__MET__TrkTCFex):
     __slots__ = []
-    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, tst_ceiling=False):
+    def __new__(cls, name = Configurable.DefaultName, do_FTK=False, do_VS = True, do_SK = True, do_CVF = True, do_TST = True, muon_or=False):
         if name == Configurable.DefaultName:
-            name = "EFMissingET_Fex_{0}TrackAndClusters{1}".format(
+            #Keep the default (VSSK + CVF + TST) name as trktc only
+            #VSSK does not use tracks, keep name accordingly:
+            if not do_CVF and not do_TST:
+                name = "EFMissingET_Fex_{0}{1}topoClusters".format(
+                    "VS" if do_VS else "",
+                    "SK" if do_SK else "")
+            elif not (do_VS and do_SK and do_CVF and do_TST):
+                name = "EFMissingET_Fex_{0}{1}{2}{3}{4}TrackAndClusters{5}".format(
                     "FTK" if do_FTK else "",
-                    "_tstceil" if tst_ceiling else "")
-        return super(TrkTCFex, cls).__new__(cls, name, do_FTK, tst_ceiling)
+                    "VS" if do_VS else "",
+                    "SK" if do_SK else "",
+                    "CVF" if do_CVF else "",
+                    "TST" if do_TST else "",
+                    "_muonor" if (do_TST and muon_or) else "")
+            else:
+                name = "EFMissingET_Fex_{0}TrackAndClusters{1}".format(
+                    "FTK" if do_FTK else "",
+                    "_muonor" if muon_or else "")
+        return super(TrkTCFex, cls).__new__(cls, name, do_FTK, do_VS, do_SK, do_CVF, do_TST, muon_or)
 
-    def __init__(self, name, do_FTK, tst_ceiling):
+    def __init__(self, name, do_FTK, do_VS, do_SK, do_CVF, do_TST, muon_or):
         super(TrkTCFex, self).__init__(name)
         key_suffix = "FTK" if do_FTK else ""
-        if tst_ceiling:
-            key_suffix += "_tstceil"
+        if not (do_VS and do_SK and do_CVF and do_TST):
+            key_suffix += "_cvf" if do_CVF else ""
+            key_suffix += "_tst" if do_TST else ""
+            key_suffix += "muonor" if do_TST and muon_or else""
+
+        if do_TST and muon_or:
+            if not "muonor" in key_suffix:
+                key_suffix += "_muonor"
+            self.DoMuonOR = True
+        else:
             self.TrackSoftTermPtCeiling = 20 * GeV
             self.DoMuonOR = False
-        else:
-            self.DoMuonOR = True
 
-        self.MissingETOutputKey = "TrigEFMissingET_trktc{0}".format(key_suffix)
 
-        self.CVFTool.TrackClusterLinkName = "MatchedExtrapolatedTrackLinks"
+        #modify OutputKey according to algorithm name:
+        if do_VS and do_SK and not do_TST:
+            self.MissingETOutputKey = "TrigEFMissingET_sktc{0}".format(key_suffix)
+        elif not do_VS and not do_SK and do_CVF:
+            self.MissingETOutputKey = "TrigEFMissingET_tc{0}".format(key_suffix)
+        elif do_VS and do_SK and do_CVF and do_TST:
+            self.MissingETOutputKey = "TrigEFMissingET_trktc{0}".format(key_suffix)
+
+        if do_CVF:
+            self.CVFTool.TrackClusterLinkName = "MatchedExtrapolatedTrackLinks"
         # These are set up as private tools so the names don't matter.
-        self.ClusterModTools += [
-                VoronoiWeightTool("VoronoiWeightTool", doSpread=True),
-                SoftKillerWeightTool("SKWeightTool")
-        ]
+        if do_VS:
+            self.ClusterModTools += [ VoronoiWeightTool("VoronoiWeightTool", doSpread=True) ]
+        if do_SK:
+            self.ClusterModTools += [ SoftKillerWeightTool("SKWeightTool") ]
+        #passing flags to Algorithm:
+        self.doVS = do_VS
+        self.doSK = do_SK
+        self.doCVF = do_CVF
+        self.doTST = do_TST
 
         for target in ["Validation", "Online", "Cosmic"]:
             add_monitor(self, target, ["standard"])
 
     def request_inputs(self):
-        inputs = ["clusters", "fs_tracks"]
-        if self.DoMuonOR:
-            inputs.append("muons")
-        return inputs
+        inputlist = ["clusters"]
+        if self.doCVF or self.doTST:
+            inputlist += ["fs_tracks"]
+        if self.doTST and self.DoMuonOR:
+            inputlist += ["muons"]
+        return inputlist
 
 class MuonFex(HLT__MET__MuonFex):
     __slots__ = []
@@ -279,7 +317,9 @@ def getFEX(
         cluster_calib = default_cluster_calib,
         jet_calib = default_jet_calib,
         do_FTK = default_do_FTK,
-        tst_ceiling = default_tst_ceiling):
+        muon_or = default_muon_or,
+        do_CVF = default_do_CVF,
+        do_TST = default_do_TST):
     """
         Get the correct FEX algorithm for this configuration
     """
@@ -292,7 +332,7 @@ def getFEX(
         return EFMissingET_Fex_2sidednoiseSupp()
     elif reco_alg == "cellpufit":
         return EFMissingET_Fex_2sidednoiseSuppPUC()
-    elif reco_alg == "tc":
+    elif reco_alg == "tc" and not do_CVF:
         return EFMissingET_Fex_topoClusters(cluster_calib=cluster_calib)
     elif reco_alg == "pueta":
         return EFMissingET_Fex_topoClustersPS()
@@ -303,9 +343,13 @@ def getFEX(
     elif reco_alg == "mht":
         return EFMissingET_Fex_Jets(key_suffix=jet_calib_string)
     elif reco_alg == "trkmht":
-        return TrkMHTFex(do_FTK = do_FTK, tst_ceiling=tst_ceiling)
+        return TrkMHTFex(do_FTK = do_FTK, muon_or=muon_or)
     elif reco_alg == "trktc":
-        return TrkTCFex(do_FTK = do_FTK, tst_ceiling=tst_ceiling)
+        return TrkTCFex(do_FTK = do_FTK, muon_or=muon_or)
+    elif reco_alg == "sktc":
+        return TrkTCFex(do_FTK = False, do_VS = True, do_SK = True, do_CVF = do_CVF, do_TST = False, muon_or=False)
+    elif reco_alg == "tc":
+        return TrkTCFex(do_FTK = do_FTK, do_VS = False, do_SK = False, do_CVF = True, do_TST = do_TST, muon_or=muon_or)    
     else:
         log.error("Unknown reco algo {0} requested".format(reco_alg) )
         return None
@@ -320,8 +364,10 @@ def getFEXFromDict(chainDict):
         configuration information.
     """
     return getFEX(
-            chainDict["EFrecoAlg"],
-            chainDict["calib"],
-            chainDict["jetCalib"],
-            "FTK" in chainDict["addInfo"],
-            'tstceil' in chainDict["addInfo"])
+            reco_alg = chainDict["EFrecoAlg"],
+            cluster_calib = chainDict["calib"],
+            jet_calib = chainDict["jetCalib"],
+            do_FTK = "FTK" in chainDict["addInfo"],
+            muon_or = 'muonor' in chainDict["addInfo"],
+            do_CVF = 'cvf' in chainDict["clusmod"],
+            do_TST = 'tst' in chainDict["addInfo"])

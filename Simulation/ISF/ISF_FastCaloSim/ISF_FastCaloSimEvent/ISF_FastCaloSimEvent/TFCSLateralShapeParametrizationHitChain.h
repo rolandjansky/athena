@@ -14,7 +14,7 @@ public:
   TFCSLateralShapeParametrizationHitChain(const char* name=nullptr, const char* title=nullptr);
   TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim);
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   virtual void set_geometry(ICaloGeometry* geo) override;
 
@@ -33,9 +33,16 @@ public:
   
   /// Call get_number_of_hits() only once, as it could contain a random number
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  
+  ///Get hit energy from layer energy and number of hits
+  virtual float get_E_hit(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
   ///Give the effective size sigma^2 of the fluctuations that should be generated.
   virtual float get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  
+  ///Get minimum and maximum value of weight for hit energy reweighting
+  virtual float getMinWeight() const;
+  virtual float getMaxWeight() const;
 
   static constexpr float s_max_sigma2_fluctuation=1000;//! Do not persistify!
 

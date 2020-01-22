@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainers/DataVector.h"
@@ -213,8 +213,8 @@ namespace InDet {
 
     // check whether geometry level is allowed
     switch(m_alignLevelBarrel) {
-      case 1: case 2: case 27: case 3:
-        ATH_MSG_INFO("Alignment level for SCT Barrel is "<<m_alignLevelBarrel);
+    case 1: case 2: case 25: case 27: case 3:
+        ATH_MSG_INFO("Alignment level for SCT Barrel is "<<m_alignLevelBarrel); 
         return true;
       default:
         msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for SCT Barrel"<<endmsg;
@@ -301,6 +301,9 @@ namespace InDet {
           case 2:
             buildL2Barrel();
             break;
+          case 25:
+            buildL25Barrel();
+            break;
           case 27:
             buildL27Barrel();
             break;
@@ -374,7 +377,7 @@ namespace InDet {
       // get the element via hash
       SiDetectorElement * element2 = m_detManager->getDetectorElement(id);
       if (element2) {
-        const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
         // add element to respective AlignModule
 
@@ -454,7 +457,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -528,7 +531,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -609,7 +612,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -630,6 +633,102 @@ namespace InDet {
     }
   }
 
+  //_______________________________________________________________________
+  void SCTGeometryManagerTool::buildL25Barrel()
+  {
+    // ========================================
+    // BARREL
+    ATH_MSG_INFO("Preparing the SCT Barrel geometry for L25: 48 rings (12 eta rings x 4 layers)");
+
+    if(!m_alignBarrel) {
+      ATH_MSG_INFO("Warning SCT barrel not being aligned");
+      return;
+    }
+
+    // ========================================
+    // get all modules for Level 25 alignment of the Barrel
+    // 48 staves (ladders)
+
+    const Amg::Transform3D transform = Amg::Transform3D::Identity();
+
+    unsigned int maxHash = m_idHelper->wafer_hash_max();
+    ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
+
+    if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList(static_cast<size_t>(maxHash),0);
+    Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
+
+    for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
+      if (!m_detManager->numerology().useLayer(iLayer))
+        ATH_MSG_INFO("  Layer "<<iLayer<<" not present");
+      for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer); iEta++) {
+	if (!iEta && m_detManager->numerology().skipEtaZeroForLayer(iLayer))
+	  continue;
+        ATH_MSG_DEBUG("iEta "<<iEta);
+
+        // create the AlignModule
+        Trk::AlignModule * mod = new Trk::AlignModule(this);
+        mod->setIdHash(getNextIDHash());
+
+        // even though there is no iEta=0 module for SCT barrel, the
+        // Identifier is still valid so we use it for the stave
+        mod->setIdentifier(m_idHelper->wafer_id(0, iLayer, 0, iEta, 0));
+
+        std::stringstream name;
+        name <<"SCT/Barrel/Layer_"<<iLayer<<"/EtaRing_"<<iEta;
+        mod->setName(name.str());
+
+        if(!moduleSelected(mod)) {
+          ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
+          delete mod;
+          continue;
+        }
+
+        ATH_MSG_DEBUG("Building module "<<mod->name());
+
+        // rotation of the stave alignment frame
+        Amg::RotationMatrix3D rotation; rotation.setIdentity();
+
+	for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
+          ATH_MSG_DEBUG("iPhi "<<iPhi);
+          for (int is = 0; is < 2; is++) { // module side
+
+            const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
+
+            if (element) {
+              // add element to the AlignModule
+              mod->addDetElement(Trk::AlignModule::SCT,element,transform);
+              // and fill the corresponding map
+              (*sctIdHashMap)[element->identifyHash()] = mod;
+            }
+
+            // for the eta-ring alignment frame rotation we use the one of the iPhi=0 (stave 0)
+            // non-stereo side (which is the module local frame)
+            if(iEta==0 && !element2->isStereo())
+              rotation = element2->moduleTransform().rotation();
+          }
+        }
+
+        // we set the alignment frame to be the CoG of the stave
+        // with rotation being the one of the iEta=1 module set above
+        Amg::Translation3D translation(mod->centerOfGravity());
+        Amg::Transform3D localToGlobal = translation * rotation;
+
+      
+        ATH_MSG_DEBUG("Prepared local to global transform :");
+        ATH_MSG_DEBUG(" - translation: "<<localToGlobal.translation().x()<<"  "<<localToGlobal.translation().y()<<"  "<<localToGlobal.translation().z());
+        ATH_MSG_DEBUG(" - rotation:");
+        ATH_MSG_DEBUG("      "<<localToGlobal.rotation()(0,0)<<"  "<<localToGlobal.rotation()(0,1)<<"  "<<localToGlobal.rotation()(0,2));
+        ATH_MSG_DEBUG("      "<<localToGlobal.rotation()(1,0)<<"  "<<localToGlobal.rotation()(1,1)<<"  "<<localToGlobal.rotation()(1,2));
+        ATH_MSG_DEBUG("      "<<localToGlobal.rotation()(2,0)<<"  "<<localToGlobal.rotation()(2,1)<<"  "<<localToGlobal.rotation()(2,2));
+
+        mod->setGlobalFrameToAlignFrameTransform(localToGlobal.inverse());
+
+        m_alignModuleListPtr->push_back(mod);
+      }
+    }
+  }
   //_______________________________________________________________________
   void SCTGeometryManagerTool::buildL27Barrel()
   {
@@ -692,7 +791,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -785,7 +884,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -869,7 +968,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -942,7 +1041,7 @@ namespace InDet {
           ATH_MSG_DEBUG("iPhi "<<iPhi);
           for(int is=0; is<2; is++) { // module side
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
             if (element) {
               // get element location for debugging
               // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -999,7 +1098,7 @@ namespace InDet {
           for (int is = 0; is < 2; is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -1048,7 +1147,7 @@ namespace InDet {
           ATH_MSG_DEBUG("iPhi "<<iPhi);
           for(int is=0; is<2; is++) { // module side
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
             if (element) {
               // get element location for debugging
               // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();
@@ -1125,7 +1224,7 @@ namespace InDet {
           for(int is=0;is<2;is++) { // module side
 
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta, is);
-            const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+            const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
 
             if (element) {
               // get element location for debugging
@@ -1212,7 +1311,7 @@ namespace InDet {
             for(int is=0; is<2; is++) { // module side
 
               const SiDetectorElement * element2 = m_detManager->getDetectorElement(iSide, iWheel, iPhi, iEta, is);
-              const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
+	      const Trk::TrkDetElementBase * element = dynamic_cast<const Trk::TrkDetElementBase *> (element2);
               if (element) {
                 // get element location for debugging
                 // HepGeom::Point3D<double> center = element->transform() * HepGeom::Point3D<double>();

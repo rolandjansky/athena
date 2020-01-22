@@ -79,7 +79,8 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder,
   int m_nSameTrackClusters;
   int m_nSimpleBremSearchClusters;
 
-  float m_numberOfSiHits;
+  unsigned int m_numberOfSiHits;
+  unsigned int m_numberOfPixHits;
   std::string m_inputEgammaRecContainerName;
   std::string m_electronSuperRecCollectionName;
   std::string m_outputElectronSuperClusters;
