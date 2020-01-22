@@ -38,7 +38,6 @@ AugmentationTools   = []
 
 # Special sequence 
 SeqPHYS = CfgMgr.AthSequencer("SeqPHYS")
-DerivationFrameworkJob += SeqPHYS
 
 #====================================================================
 # Truth collections
@@ -182,7 +181,14 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS,algname="QGTaggerToolAlg
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPFAlg")
 
 # fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=DerivationFrameworkJob, algname='PHYSJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
+
+#====================================================================
+# Add our sequence to the top sequence
+#====================================================================
+# Ideally, this should come at the end of the job, but the tau additions
+# below make it such that we need it here
+DerivationFrameworkJob += SeqPHYS
 
 #====================================================================
 # Tau   
@@ -213,7 +219,7 @@ thinningTools.append(PHYSDiTauLowPtTPThinningTool)
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
-
+# Add the kernel for thinning (requires the objects be defined)
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
                                                                        ThinningTools = thinningTools)
@@ -240,9 +246,9 @@ FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Seq
 #====================================================================
 
 from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
-addSoftBVrt(DerivationFrameworkJob,'Loose')
-addSoftBVrt(DerivationFrameworkJob,'Medium')
-addSoftBVrt(DerivationFrameworkJob,'Tight')
+addSoftBVrt(SeqPHYS,'Loose')
+addSoftBVrt(SeqPHYS,'Medium')
+addSoftBVrt(SeqPHYS,'Tight')
 
 #====================================================================
 # CONTENTS   
