@@ -108,6 +108,12 @@ TrigSignatureMoniMT                                INFO HLT_j45_ftf_pf_L1J20    
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_pf_L1J20 decisions                    16        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_L1J15 20        20        18        0         0         0         0         18
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_L1J15 decisions                    18        0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_pf_L1J2019        19        16        0         0         0         0         16
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_pf_L1J20 decisions                    16        0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subresjesgscIS_L1J1520        20        18        0         0         0         0         18
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subresjesgscIS_L1J15 decisions                    18        0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subresjesgscIS_pf_L1J2019        19        15        0         0         0         0         15
+TrigSignatureMoniMT                                INFO HLT_j45_ftf_subresjesgscIS_pf_L1J20 decisions                    15        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J2019        19        18        18        18        0         0         18
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20 decisions                    18        48        48        0         0
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J2019        19        18        18        18        0         0         18
