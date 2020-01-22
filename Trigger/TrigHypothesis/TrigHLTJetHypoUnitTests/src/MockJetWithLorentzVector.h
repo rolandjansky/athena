@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPOUNITTESTS_MOCKJETWITHLORENTZVECTOR_H
@@ -35,8 +35,8 @@ public:
   MOCK_CONST_METHOD0(e, double());
   MOCK_CONST_METHOD0(et, double());
   MOCK_CONST_METHOD0(rapidity, double());
-  TLorentzVector p4() const {return m_lv;}
-  std::string toString() const {
+  virtual TLorentzVector p4() const override {return m_lv;}
+  virtual std::string toString() const override {
     double etav = eta();
     double etv = et();
     std::string s = "et: " + std::to_string(etv) +
