@@ -139,7 +139,7 @@ def setup_lep(TOPQname, ToolSvc):
     elif TOPQname == 'TOPQ5':
         TOPQ_Selection_lep = "( (count("+MU+") >= 1) || (count("+EL+") >= 1) )"
     elif TOPQname == 'TOPQ6':
-        TOPQ_Selection_lep = "( (count("+MU+") >= 1) || (count("+EL+") >= 1) )"
+        TOPQ_Selection_lep = "( ((count("+MU+") >= 1) && (count("+EL+") >= 1)) || ((count("+MU+") >= 2) && (count("+EL+") >= 0)) || ((count("+MU+") >= 0) && (count("+EL+") >= 2)) )"
     else:
         TOPQ_Selection_lep = "1"
 
