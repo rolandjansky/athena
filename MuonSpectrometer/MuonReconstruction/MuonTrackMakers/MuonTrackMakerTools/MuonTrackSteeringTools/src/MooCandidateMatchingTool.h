@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOCANDIDATEMATCHINGTOOL_H
@@ -12,17 +12,12 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-//#include "MuonIdHelpers/MuonStationIndex.h"
-//#include "GeoPrimitives/GeoPrimitives.h"
 #include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "Identifier/Identifier.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
@@ -33,17 +28,12 @@
 
 #include "MuonTrackSegmentMatchResult.h"
 
-
 #include <array>
 #include <atomic>
 #include <string>
 #include <set>
 
-class MsgStream;
-
 namespace Trk {
-  class IPropagator;
-  class IExtrapolator;
   class Track;
   class MeasurementBase;
 }
@@ -68,7 +58,7 @@ namespace Muon {
 
       MooTrackSegmentMatchResult();
 
-      virtual ~MooTrackSegmentMatchResult();
+      virtual ~MooTrackSegmentMatchResult() {};
 
       virtual void clear();
      
@@ -181,8 +171,7 @@ namespace Muon {
     double m_matchChiSquaredCut;
     double m_matchChiSquaredCutTight;
     
-    ToolHandle<MuonIdHelperTool>          m_idHelperTool 
-      {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};       //<! tool to assist with Identifiers
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc 
       {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

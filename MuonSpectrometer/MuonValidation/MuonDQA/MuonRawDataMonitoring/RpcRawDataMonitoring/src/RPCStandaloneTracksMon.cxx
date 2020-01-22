@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -11,9 +11,7 @@
 // Subject: RPC-->Offline Muon Data Quality
 // 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-           
-#include "GaudiKernel/MsgStream.h"
- 
+
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"  
@@ -34,17 +32,13 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
 
-
-#include "MuonIdHelpers/MuonStationIndex.h"
-
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrack/TrackCollection.h"
- 
- 
+
 #include "RpcRawDataMonitoring/RPCStandaloneTracksMon.h"
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"  
      
@@ -52,8 +46,6 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-
-using namespace std;
 
 static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
@@ -178,7 +170,7 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve() );
     
   m_hardware_name_list.push_back("XXX");
   
@@ -535,14 +527,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
             
 		int irpc_clus_size     =  ((*rpcCollection)->rdoList()).size();
 		double irpc_clus_time     =  (*rpcCollection)->time()            ;
-		int irpc_clus_station  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_id)  ;
-		int irpc_clus_eta      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id)   ;
-		int irpc_clus_phi      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id)   ;
-		int irpc_clus_doublr   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id)     ;
-		int irpc_clus_doublz   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id)     ;
-		int irpc_clus_doublphi =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id)   ;
-		int irpc_clus_gasgap   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id)       ;
-		int irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id)  ;
+		int irpc_clus_station  =  m_idHelperSvc->rpcIdHelper().stationName(prd_id)  ;
+		int irpc_clus_eta      =  m_idHelperSvc->rpcIdHelper().stationEta(prd_id)   ;
+		int irpc_clus_phi      =  m_idHelperSvc->rpcIdHelper().stationPhi(prd_id)   ;
+		int irpc_clus_doublr   =  m_idHelperSvc->rpcIdHelper().doubletR(prd_id)     ;
+		int irpc_clus_doublz   =  m_idHelperSvc->rpcIdHelper().doubletZ(prd_id)     ;
+		int irpc_clus_doublphi =  m_idHelperSvc->rpcIdHelper().doubletPhi(prd_id)   ;
+		int irpc_clus_gasgap   =  m_idHelperSvc->rpcIdHelper().gasGap(prd_id)       ;
+		int irpc_clus_measphi  =  m_idHelperSvc->rpcIdHelper().measuresPhi(prd_id)  ;
           
  		// get the average strip and cluster position
  	    		  
@@ -552,7 +544,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  Identifier id = ((*rpcCollection)->rdoList())[i] ;
 		  const MuonGM::RpcReadoutElement* descriptor = MuonDetMgr->getRpcReadoutElement(id);
 		  stripPosC += descriptor->stripPos(id);
-		  int strip = int(m_muonIdHelperTool->rpcIdHelper().strip(id))            ;
+		  int strip = int(m_idHelperSvc->rpcIdHelper().strip(id))            ;
 		  av_strip += float(strip)                         ;
 		}
 		if( irpc_clus_size != 0 ){ 
@@ -565,7 +557,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
             
 	    		  
 		//get information from geomodel to book and fill rpc histos with the right max strip number
-		std::vector<int> rpcstripshift   = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
+		std::vector<int> rpcstripshift   = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),prd_id, 0)  ;
 	    		  
 		int ShiftEtaStripsTot  =  rpcstripshift[8] ;
 		int EtaStripSign       =  rpcstripshift[10];
@@ -578,7 +570,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		m_SummaryHist_Idx = (Settore-1)*m_SummaryHist_Size/16;
  
 		//get name for titles and labels 
-		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
+		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_idHelperSvc->rpcIdHelper(),prd_id, 0)  ;
   	       
                 std::string layer_name               = rpclayersectorsidename[0] ;
                 std::string layertodraw1_name        = rpclayersectorsidename[1] ;
@@ -687,14 +679,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    Identifier prd_idII = (*rpcCollectionII)->identify();
 
 		    int irpc_clus_sizeII     = ((*rpcCollectionII)->rdoList()).size();
-		    int irpc_clus_stationII  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_idII) ;
-		    int irpc_clus_etaII      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_idII)  ;
-		    int irpc_clus_phiII      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_idII)  ;
-		    int irpc_clus_doublrII   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_idII)    ;
-		    int irpc_clus_doublzII   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_idII)    ;
-		    int irpc_clus_doublphiII =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_idII)  ;
-		    int irpc_clus_gasgapII   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_idII)      ; 
-		    int irpc_clus_measphiII  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_idII) ;
+		    int irpc_clus_stationII  =  m_idHelperSvc->rpcIdHelper().stationName(prd_idII) ;
+		    int irpc_clus_etaII      =  m_idHelperSvc->rpcIdHelper().stationEta(prd_idII)  ;
+		    int irpc_clus_phiII      =  m_idHelperSvc->rpcIdHelper().stationPhi(prd_idII)  ;
+		    int irpc_clus_doublrII   =  m_idHelperSvc->rpcIdHelper().doubletR(prd_idII)    ;
+		    int irpc_clus_doublzII   =  m_idHelperSvc->rpcIdHelper().doubletZ(prd_idII)    ;
+		    int irpc_clus_doublphiII =  m_idHelperSvc->rpcIdHelper().doubletPhi(prd_idII)  ;
+		    int irpc_clus_gasgapII   =  m_idHelperSvc->rpcIdHelper().gasGap(prd_idII)      ; 
+		    int irpc_clus_measphiII  =  m_idHelperSvc->rpcIdHelper().measuresPhi(prd_idII) ;
 	   
 		    if(irpc_clus_measphi  == irpc_clus_measphiII )continue;
 		    if(irpc_clus_station  != irpc_clus_stationII )continue;
@@ -712,8 +704,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    float avstripeta = 0        ;
 		    float avstripphi = av_strip ; 
 		  
-		    ShiftEtaStripsTot = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(),prd_idII, 0)[8]  ;  // angelo 07 oct 2009
-		    EtaStripSign      = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(),prd_idII, 0)[10] ;  // angelo 07 oct 2009
+		    ShiftEtaStripsTot = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),prd_idII, 0)[8]  ;  // angelo 07 oct 2009
+		    EtaStripSign      = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),prd_idII, 0)[10] ;  // angelo 07 oct 2009
 
 		    // get the average strip and cluster position
 	            
@@ -724,7 +716,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      Identifier id = ((*rpcCollectionII)->rdoList())[i]             ;
 		      const MuonGM::RpcReadoutElement* descriptor = MuonDetMgr->getRpcReadoutElement(id);
 		      stripPosCII += descriptor->stripPos(id);
-		      avstripeta += float(m_muonIdHelperTool->rpcIdHelper().strip(id)) ;
+		      avstripeta += float(m_idHelperSvc->rpcIdHelper().strip(id)) ;
 		    }
 		    if( irpc_clus_sizeII != 0 ){ 
 		      avstripeta=  avstripeta/ irpc_clus_sizeII ;
@@ -1020,7 +1012,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
             for ( Muon::RpcCoinDataCollection::const_iterator it_collection = (*it_container)->begin(); it_collection != (*it_container)->end(); ++it_collection ) { // each collection is a trigger signal
 	     if( (*it_collection)->isLowPtCoin()  == 0  && (*it_collection)->isHighPtCoin() == 0 ) continue ; 
 	     prdcoll_id   = (*it_collection)->identify();
-             if(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prdcoll_id))continue;
+             if(m_idHelperSvc->rpcIdHelper().measuresPhi(prdcoll_id))continue;
 	     int cointhr = (*it_collection)->threshold();
              descriptor_Atl = MuonDetMgr->getRpcReadoutElement( prdcoll_id );
              eta_atlas = descriptor_Atl->stripPos(prdcoll_id ).eta();
@@ -1028,22 +1020,22 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	     
 	     
 	     //std::cout << " Trigger Hits " << eta_atlas << " "<< phi_atlas <<std::endl;
-             if(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prdcoll_id))continue;
+             if(m_idHelperSvc->rpcIdHelper().measuresPhi(prdcoll_id))continue;
 	     if( std::sqrt( std::fabs(eta_atlas-metrack->eta())*std::fabs(eta_atlas-metrack->eta()) +  std::fabs(phi_atlas-metrack->phi())*std::fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) { 
 	      //Second coin phi view
 	      for( it_container_phi = rpc_coin_container->begin(); it_container_phi != rpc_coin_container->end(); ++it_container_phi ) {
                for ( Muon::RpcCoinDataCollection::const_iterator it_collection_phi = (*it_container_phi)->begin(); it_collection_phi != (*it_container_phi)->end(); ++it_collection_phi ) { // each collection is a trigger signal
 	         if( (*it_collection_phi)->isLowPtCoin()  == 0  && (*it_collection_phi)->isHighPtCoin() == 0 ) continue ; ;
 	         prdcoll_id_phi   = (*it_collection_phi)->identify(); 
-	         if(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prdcoll_id_phi)==0)continue;
+	         if(m_idHelperSvc->rpcIdHelper().measuresPhi(prdcoll_id_phi)==0)continue;
 		 int cointhrphi = (*it_collection)->threshold();
-		 if(m_muonIdHelperTool->rpcIdHelper().stationPhi (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().stationPhi (prdcoll_id_phi))  continue ;	   
-		 if(m_muonIdHelperTool->rpcIdHelper().stationName(prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().stationName(prdcoll_id_phi))  continue ;	   
-		 if(m_muonIdHelperTool->rpcIdHelper().stationEta (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().stationEta (prdcoll_id_phi))  continue ;		   
-		 if(m_muonIdHelperTool->rpcIdHelper().doubletR   (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().doubletR	(prdcoll_id_phi))  continue ;
-		 if(m_muonIdHelperTool->rpcIdHelper().doubletZ   (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().doubletZ	(prdcoll_id_phi))  continue ;
-		 if(m_muonIdHelperTool->rpcIdHelper().doubletPhi (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().doubletPhi (prdcoll_id_phi))  continue ;
-		 if(m_muonIdHelperTool->rpcIdHelper().gasGap     (prdcoll_id) != m_muonIdHelperTool->rpcIdHelper().gasGap	(prdcoll_id_phi))  continue ;  
+		 if(m_idHelperSvc->rpcIdHelper().stationPhi (prdcoll_id) != m_idHelperSvc->rpcIdHelper().stationPhi (prdcoll_id_phi))  continue ;	   
+		 if(m_idHelperSvc->rpcIdHelper().stationName(prdcoll_id) != m_idHelperSvc->rpcIdHelper().stationName(prdcoll_id_phi))  continue ;	   
+		 if(m_idHelperSvc->rpcIdHelper().stationEta (prdcoll_id) != m_idHelperSvc->rpcIdHelper().stationEta (prdcoll_id_phi))  continue ;		   
+		 if(m_idHelperSvc->rpcIdHelper().doubletR   (prdcoll_id) != m_idHelperSvc->rpcIdHelper().doubletR	(prdcoll_id_phi))  continue ;
+		 if(m_idHelperSvc->rpcIdHelper().doubletZ   (prdcoll_id) != m_idHelperSvc->rpcIdHelper().doubletZ	(prdcoll_id_phi))  continue ;
+		 if(m_idHelperSvc->rpcIdHelper().doubletPhi (prdcoll_id) != m_idHelperSvc->rpcIdHelper().doubletPhi (prdcoll_id_phi))  continue ;
+		 if(m_idHelperSvc->rpcIdHelper().gasGap     (prdcoll_id) != m_idHelperSvc->rpcIdHelper().gasGap	(prdcoll_id_phi))  continue ;  
             
 		 if( std::fabs((*it_collection)->time() -  (*it_collection_phi)->time()) > 50. ) continue ;  
 		 if( (*it_collection)->isLowPtCoin() != (*it_collection_phi)->isLowPtCoin()  || (*it_collection)->isHighPtCoin() != (*it_collection_phi)->isHighPtCoin()) continue ; 
@@ -1594,10 +1586,10 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 				    if(phipitch <10||etapitch <10) continue ;
 				    if(phipitch >50||etapitch >50) continue ;
     
-				    Identifier ideta1  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 0, 1)	 ;
-				    Identifier idetaN  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 0, etastripN) ;
-				    Identifier idphi1  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 1, 1)	 ;
-				    Identifier idphiN  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, 1, phistripN) ;
+				    Identifier ideta1  =  m_idHelperSvc->rpcIdHelper().channelID(idr, iz, idp, ig, 0, 1)	 ;
+				    Identifier idetaN  =  m_idHelperSvc->rpcIdHelper().channelID(idr, iz, idp, ig, 0, etastripN) ;
+				    Identifier idphi1  =  m_idHelperSvc->rpcIdHelper().channelID(idr, iz, idp, ig, 1, 1)	 ;
+				    Identifier idphiN  =  m_idHelperSvc->rpcIdHelper().channelID(idr, iz, idp, ig, 1, phistripN) ;
         
               
 				    if( !(rpc->containsId(ideta1)&&rpc->containsId(idetaN)&&rpc->containsId(idphi1)&&rpc->containsId(idphiN) )){
@@ -1702,12 +1694,12 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					irpcstrip = int(hitstripphi+1);
 					if(irpcstrip<1||rpc->NphiStrips()<irpcstrip)continue;
 				      }
-				      Identifier prdcoll_id  =  m_muonIdHelperTool->rpcIdHelper().channelID(idr, iz, idp, ig, imeasphi, irpcstrip) ;
+				      Identifier prdcoll_id  =  m_idHelperSvc->rpcIdHelper().channelID(idr, iz, idp, ig, imeasphi, irpcstrip) ;
        
 				      if( prdcoll_id == 0 )continue;
         
 				      //get information from geomodel to book and fill rpc histos with the right max strip number
-				      std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)  ;
+				      std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),prdcoll_id, 0)  ;
  
 				      int ShiftPhiStrips     =  rpcstripshift[1] ;
 				      int ShiftStrips	     =  rpcstripshift[4] ;
@@ -1722,7 +1714,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 				      m_SummaryHist_Idx = (Settore-1)*m_SummaryHist_Size/16;
  
 				      //get name for titles and labels 
-				      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prdcoll_id, 0)  ;
+				      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_idHelperSvc->rpcIdHelper(),prdcoll_id, 0)  ;
  
                                       std::string layer_name		   = rpclayersectorsidename[0] ;
                                       std::string layertodraw1_name	   = rpclayersectorsidename[1] ;
@@ -1838,14 +1830,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					    ATH_MSG_DEBUG ( "Adding a new cluster " );
                
 					    int irpc_clus_size	 = ((*rpcCollection)->rdoList()).size();
-					    int irpc_clus_station  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_id) ;
-					    int irpc_clus_eta	 =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id)  ;
-					    int irpc_clus_phi	 =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id)  ;
-					    int irpc_clus_doublr   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id)    ;
-					    int irpc_clus_doublz   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id)    ;
-					    int irpc_clus_doublphi =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id)  ;
-					    int irpc_clus_gasgap   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id)      ;
-					    int irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id) ;
+					    int irpc_clus_station  =  m_idHelperSvc->rpcIdHelper().stationName(prd_id) ;
+					    int irpc_clus_eta	 =  m_idHelperSvc->rpcIdHelper().stationEta(prd_id)  ;
+					    int irpc_clus_phi	 =  m_idHelperSvc->rpcIdHelper().stationPhi(prd_id)  ;
+					    int irpc_clus_doublr   =  m_idHelperSvc->rpcIdHelper().doubletR(prd_id)    ;
+					    int irpc_clus_doublz   =  m_idHelperSvc->rpcIdHelper().doubletZ(prd_id)    ;
+					    int irpc_clus_doublphi =  m_idHelperSvc->rpcIdHelper().doubletPhi(prd_id)  ;
+					    int irpc_clus_gasgap   =  m_idHelperSvc->rpcIdHelper().gasGap(prd_id)      ;
+					    int irpc_clus_measphi  =  m_idHelperSvc->rpcIdHelper().measuresPhi(prd_id) ;
              	
 					    if(irpc_clus_station    !=    iname   )continue;
 					    if(irpc_clus_eta	  !=     ieta   )continue;
@@ -1871,7 +1863,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					      Identifier id = ((*rpcCollection)->rdoList())[i]	     ;
 					      const MuonGM::RpcReadoutElement* descriptor = MuonDetMgr->getRpcReadoutElement(id);
 					      stripPosC += descriptor->stripPos(id)	   ;
-					      int strip	   = int(m_muonIdHelperTool->rpcIdHelper().strip(id)) ;
+					      int strip	   = int(m_idHelperSvc->rpcIdHelper().strip(id)) ;
 					      av_strip  += float(strip)		   ;
 					    }
 					    if( irpc_clus_size != 0 ){ 
@@ -1884,37 +1876,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					    Amg::Vector3D Inters3DLCL (0,0,0)  ;
 	  
 					    Vect3DCosL   = ((rpc->transform(ideta1)).inverse())*Vect3DCosL  ;
-//					    if(Vect3DCosL== NULL ) return StatusCode::SUCCESS ;
 					    stripPosCL   = ((rpc->transform(ideta1)).inverse())*stripPosC  ;
-//					    if(stripPosCL== NULL ) return StatusCode::SUCCESS ;
 					    Inters3DLCL  = ((rpc->transform(ideta1)).inverse())*Inters3DG  ;
-//					    if(Inters3DLCL== NULL ) return StatusCode::SUCCESS ;
 					    
 					    if(imeasphi==1){
 					      Vect3DCosL   = ((rpc->transform(idphi1)).inverse())*Vect3DCosL  ;
-//					      if(Vect3DCosL== NULL ) return StatusCode::SUCCESS ;
 					      stripPosCL   = ((rpc->transform(idphi1)).inverse())*stripPosC  ;
-//					      if(stripPosCL== NULL ) return StatusCode::SUCCESS ;
 					      Inters3DLCL  = ((rpc->transform(idphi1)).inverse())*Inters3DG  ;
-//					      if(Inters3DLCL== NULL ) return StatusCode::SUCCESS ;
 					    }
-	    
-					    // std::cout <<imeasphi << " Vect "<< Vect3DCos.x()  << " " <<  Vect3DCos.y()<< "  " << Vect3DCos.z() ;
-					    // std::cout << " "<< Vect3DCosL.x()  << " " <<  Vect3DCosL.y()<< "  " << Vect3DCosL.z() ;		                       
-					    // std::cout << " clus "<< stripPosC.x()  << " " <<  stripPosC.y()<< "  " << stripPosC.z() ;
-					    // std::cout << " "<< stripPosCL.x()  << " " <<  stripPosCL.y()<< "  " << stripPosCL.z() << std::endl;	       
-			  
-					    /*
-					      std::cout << "Look for cluster "<< irpc_clus_station << " iname  " << irpc_clus_eta << "  ieta " <<  irpc_clus_phi
-					      << "  iphi " << irpc_clus_doublr <<  " ir  " << irpc_clus_doublz << " iz " << irpc_clus_doublphi << "  idp " <<
-					      irpc_clus_gasgap << "  ig " << irpc_clus_size  << "  irpc_clus_size " << int(m_muonIdHelperTool->rpcIdHelper().strip(((*rpcCollection)->rdoList())[0]))   << 
-					      " strip e measphi " << irpc_clus_measphi<<std::endl;
-					    */
-    
-
-    
-					    //std::cout << irpc_clus_measphi << " Measphi Found hit at "<< irpc_clus_posx << " " << irpc_clus_posy << " "  << irpc_clus_posz << std::endl;
-
 					    float residuals    = stripPosCL.x()-Inters3DLCL.x();
              	
 					    if (rpcresidualslayer) {rpcresidualslayer->Fill( residuals );}
@@ -2248,14 +2217,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	        ATH_MSG_DEBUG ( "Adding a new cluster " );
 	     
 		int irpc_clus_size     =  ((*rpcCollection)->rdoList()).size();
-		int irpc_clus_station  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_id)  ;
-		int irpc_clus_eta      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id)   ;
-		int irpc_clus_phi      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id)   ;
-		int irpc_clus_doublr   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id)     ;
-		int irpc_clus_doublz   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id)     ;
-		int irpc_clus_doublphi =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id)   ;
-		int irpc_clus_gasgap   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id)       ;
-		int irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id)  ;
+		int irpc_clus_station  =  m_idHelperSvc->rpcIdHelper().stationName(prd_id)  ;
+		int irpc_clus_eta      =  m_idHelperSvc->rpcIdHelper().stationEta(prd_id)   ;
+		int irpc_clus_phi      =  m_idHelperSvc->rpcIdHelper().stationPhi(prd_id)   ;
+		int irpc_clus_doublr   =  m_idHelperSvc->rpcIdHelper().doubletR(prd_id)     ;
+		int irpc_clus_doublz   =  m_idHelperSvc->rpcIdHelper().doubletZ(prd_id)     ;
+		int irpc_clus_doublphi =  m_idHelperSvc->rpcIdHelper().doubletPhi(prd_id)   ;
+		int irpc_clus_gasgap   =  m_idHelperSvc->rpcIdHelper().gasGap(prd_id)       ;
+		int irpc_clus_measphi  =  m_idHelperSvc->rpcIdHelper().measuresPhi(prd_id)  ;
 
 		// get the cluster position
 		const MuonGM::RpcReadoutElement* descriptor = MuonDetMgr->getRpcReadoutElement(prd_id);
@@ -2263,7 +2232,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		const Amg::Vector3D stripPosC = descriptor->stripPos(prd_id);
 	      
 		//get information from geomodel to book and fill rpc histos with the right max strip number
-		std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
+		std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),prd_id, 0)  ;
 	    		  
 		int PanelIndex  	 =  rpcstripshift[13]  ;
 		int Settore            =  rpcstripshift[14];
@@ -2272,7 +2241,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		m_SummaryHist_Idx = (Settore-1)*m_SummaryHist_Size/16;
  
 		//get name for titles and labels
-		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_muonIdHelperTool->rpcIdHelper(),prd_id, 0)  ;
+		std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_idHelperSvc->rpcIdHelper(),prd_id, 0)  ;
   	       
                 std::string layer_name	       = rpclayersectorsidename[ 0]  ;
                 std::string layertodraw1_name	       = rpclayersectorsidename[ 1]  ;
@@ -2289,7 +2258,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
                 std::string ssector_dphi_layer        = rpclayersectorsidename[12]  ;
 	      
 	      
-		irpc_clus_measphi  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id)  ;	
+		irpc_clus_measphi  =  m_idHelperSvc->rpcIdHelper().measuresPhi(prd_id)  ;	
 		
 		const MuonGM::RpcReadoutElement* rpc = 
 		  MuonDetMgr->getRpcRElement_fromIdFields(irpc_clus_station, irpc_clus_eta, irpc_clus_phi, 
@@ -2355,14 +2324,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	     
 	            ATH_MSG_DEBUG ( "Adding a new cluster " );
 	     
-		    int irpc_clus_stationII  =  m_muonIdHelperTool->rpcIdHelper().stationName(prd_idII) ;
-		    int irpc_clus_etaII      =  m_muonIdHelperTool->rpcIdHelper().stationEta(prd_idII)  ;
-		    int irpc_clus_phiII      =  m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_idII)  ;
-		    int irpc_clus_doublrII   =  m_muonIdHelperTool->rpcIdHelper().doubletR(prd_idII)    ;
-		    int irpc_clus_doublzII   =  m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_idII)    ;
-		    int irpc_clus_doublphiII =  m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_idII)  ;
-		    int irpc_clus_gasgapII   =  m_muonIdHelperTool->rpcIdHelper().gasGap(prd_idII)      ; 
-		    int irpc_clus_measphiII  =  m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_idII) ;
+		    int irpc_clus_stationII  =  m_idHelperSvc->rpcIdHelper().stationName(prd_idII) ;
+		    int irpc_clus_etaII      =  m_idHelperSvc->rpcIdHelper().stationEta(prd_idII)  ;
+		    int irpc_clus_phiII      =  m_idHelperSvc->rpcIdHelper().stationPhi(prd_idII)  ;
+		    int irpc_clus_doublrII   =  m_idHelperSvc->rpcIdHelper().doubletR(prd_idII)    ;
+		    int irpc_clus_doublzII   =  m_idHelperSvc->rpcIdHelper().doubletZ(prd_idII)    ;
+		    int irpc_clus_doublphiII =  m_idHelperSvc->rpcIdHelper().doubletPhi(prd_idII)  ;
+		    int irpc_clus_gasgapII   =  m_idHelperSvc->rpcIdHelper().gasGap(prd_idII)      ; 
+		    int irpc_clus_measphiII  =  m_idHelperSvc->rpcIdHelper().measuresPhi(prd_idII) ;
 	   
 	   
 		    if( irpc_clus_stationII  != irpc_clus_station     ) continue ;		 
@@ -3428,12 +3397,9 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 			for (int igap=0; igap!=2; igap++) {
 			  // need to pay attention to BME case - not yet considered here .... 
 			  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcRElement_fromIdFields(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi);
-			  //std::cout <<" iname  "<<iname <<" ieta  "<<ieta-8 << " ir "<< ir<<" idbz  "<<idbz << " idbphi "<<idbphi << " imeasphi "<< imeasphi<<" igap "<<igap<< std::endl;
 			  if ( rpc != NULL ) {
 			    
-			    // Identifier gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, bool check=false, bool* isValid=0) const;
-			    // Identifier panelID  (int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, int measuresPhi, bool check=false, bool* isValid=0) const;
-			    panelId = m_muonIdHelperTool->rpcIdHelper().panelID(iname, ieta-8, int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, igap+1, imeasphi) ; 
+			    panelId = m_idHelperSvc->rpcIdHelper().panelID(iname, ieta-8, int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, igap+1, imeasphi) ; 
 			    
 			    indexplane = ir ;
 			    
@@ -4596,7 +4562,7 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int isec, std::s
       int NetaStripsTotSideC =  0;
       if(rpc != NULL ){
 	Identifier idr = rpc->identify();
-	std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(),idr, 0)  ;
+	std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),idr, 0)  ;
         NphiStrips         =  rpcstripshift[0] ;
         NetaStripsTotSideA =  rpcstripshift[6] ;
         NetaStripsTotSideC =  rpcstripshift[7] ;
@@ -4798,10 +4764,10 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::str
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(), idr, 0)  ;
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(), idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
     Identifier idr_c = rpc_c->identify();
-    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(), idr_c, 0)  ;
+    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(), idr_c, 0)  ;
     NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18];
    
   } 
@@ -4912,10 +4878,10 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(), idr, 0)  ;
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(), idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
     Identifier idr_c = rpc_c->identify();
-    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(MuonDetMgr,m_muonIdHelperTool->rpcIdHelper(), idr_c, 0)  ;
+    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(), idr_c, 0)  ;
     NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18];
    
   } 
@@ -5241,7 +5207,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *   
 	std::ofstream myfile;
 	if(m_rpcfile){
-	  myfile.open ("rpccosmic.txt",ios::out); 
+	  myfile.open ("rpccosmic.txt",std::ios::out); 
 	  myfile << "-------- Counts per Chamber Statistics--------\n";} //only if m_rpcfile==true
 
     

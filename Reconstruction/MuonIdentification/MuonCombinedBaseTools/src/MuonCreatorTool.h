@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCREATORTOOL_H
@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
@@ -22,7 +22,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
 #include "MuonCombinedToolInterfaces/IMuonScatteringAngleSignificance.h" 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
@@ -31,6 +30,17 @@
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "xAODMuon/MuonSegmentAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
+#include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
+#include "MuidInterfaces/IMuonTrackQuery.h"
+#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
+
+#include "TrackSegmentAssociationTool.h"
 
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
@@ -42,23 +52,9 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 namespace Muon {
-  class MuonEDMPrinterTool;
   class MuonSegment;
-  class TrackSegmentAssociationTool;
-}
-namespace Trk {
-  class ITrackParticleCreatorTool;
-  class ITrackAmbiguityProcessorTool;
-  class IPropagator;
-  class ITrkMaterialProviderTool;
-}
-namespace Rec {
-  class IMuonPrintingTool;
-  class IMuonMeanMDTdADCFiller;  
-  class IMuonTrackQuery;
 }
 namespace MuonCombined {
-  class IMuonCombinedTagTool;
   class StacoTag;
   class CombinedFitTag;
   class MuGirlTag;
@@ -73,10 +69,9 @@ namespace MuonCombined {
 
   public:
     MuonCreatorTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCreatorTool(void); // destructor
+    ~MuonCreatorTool() {};
   
     StatusCode initialize();
-    StatusCode finalize();
 
     /** IMuonCreatorTool interface: build muons from ID and MS candidates */    
     void create( const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,
@@ -198,7 +193,7 @@ namespace MuonCombined {
     //bool m_fillMuonTruthLinks;
     
     // helpers, managers, tools
-    ToolHandle<Muon::MuonIdHelperTool>            m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Muon::MuonEDMPrinterTool>          m_printer;
     ServiceHandle<Muon::IMuonEDMHelperSvc>        m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 

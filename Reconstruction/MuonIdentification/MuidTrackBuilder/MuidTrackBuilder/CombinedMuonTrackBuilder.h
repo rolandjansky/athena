@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -13,71 +13,56 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
-# define MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
+#define MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkExInterfaces/IIntersector.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkiPatFitterUtils/IMaterialAllocator.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
+#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
+#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
+#include "MuidInterfaces/IMuidCaloEnergy.h"
+#include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
+#include "MuidInterfaces/IMuonTrackQuery.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+
 #include <atomic>
-
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-namespace MagField {
-    class IMagFieldSvc;
-}
 
 class CaloEnergy;
 class MessageHelper;
-namespace Muon
-{
-    class IMdtDriftCircleOnTrackCreator;
-    class IMuonClusterOnTrackCreator;
-    class IMuonErrorOptimisationTool;
-    class IMuonHoleRecoveryTool;
-    class IMuonTrackCleaner;
-    class MuonIdHelperTool;
-    class MuonEDMPrinterTool;
-}
-namespace Trk
-{
-    class IExtrapolator;
-    class IIntersector;
-    class IMaterialAllocator;
-    class IPropagator;
-    class ITrackSummaryTool;
+
+namespace Trk {
     class PerigeeSurface;
     class PseudoMeasurementOnTrack;
     class RecVertex;
-    class Surface;
     class TrackStateOnSurface;
     class TrackingVolume;
     class Volume;
-    class ITrkMaterialProviderTool;
 }
-namespace Rec
-{
-    class IMuidCaloEnergy;
-    class IMuidCaloTrackStateOnSurface;
-    class IMuonTrackQuery;
-    
-    class CombinedMuonTrackBuilder: public AthAlgTool,
-				    virtual public ICombinedMuonTrackBuilder
-    {
+namespace Rec {
+    class CombinedMuonTrackBuilder: public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
 
     public:
 	CombinedMuonTrackBuilder (const std::string& type, 
 				  const std::string& name,
 				  const IInterface* parent);
-	~CombinedMuonTrackBuilder (void); // destructor
+	~CombinedMuonTrackBuilder(){};
   
 	StatusCode		initialize();
 	StatusCode		finalize();
@@ -234,7 +219,7 @@ namespace Rec
 	ToolHandle<Trk::IExtrapolator>			m_extrapolator;
 	ToolHandle<Trk::ITrackFitter>       		m_fitter;	// curved track fitter
 	ToolHandle<Trk::ITrackFitter>       		m_fitterSL;	// straight line fitter
-	ToolHandle<Muon::MuonIdHelperTool>		m_idHelperTool;
+	ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 	ToolHandle<Trk::IIntersector>       		m_intersector;
 	Trk::MagneticFieldProperties			m_magFieldProperties;
 	ServiceHandle<MagField::IMagFieldSvc>		m_magFieldSvc;
@@ -273,8 +258,8 @@ namespace Rec
    	double						m_vertex3DSigmaRPhi;
 	double						m_vertex3DSigmaZ;
 	double						m_zECToroid;
-        double                                          m_IDMS_xySigma;
-        double                                          m_IDMS_rzSigma;
+    double                                          m_IDMS_xySigma;
+    double                                          m_IDMS_rzSigma;
 	// dummy (unused - kept for backwards compatibility)
 	bool                                            m_indetSlimming; 
 	bool						m_inputSlimming;
@@ -313,10 +298,9 @@ namespace Rec
 	bool                                            m_iterateCombinedTrackFit;
 	bool                                            m_refineELossCombinedTrackFit;
 	bool                                            m_refineELossStandAloneTrackFit;
-        bool                                            m_addElossID;
-        bool                                            m_addIDMSerrors;
-        bool                                            m_useRefitTrackError;
-        const AtlasDetectorID*                          m_DetID;
+    bool                                            m_addElossID;
+    bool                                            m_addIDMSerrors;
+    bool                                            m_useRefitTrackError;
     };
  
 }	// end of namespace

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -12,8 +12,6 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <cmath>
 #include <iomanip>
 #include <vector>
@@ -23,8 +21,6 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkParameters/TrackParameters.h"
@@ -37,8 +33,6 @@
 namespace Rec
 {
  
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
 MuidMuonRecovery::MuidMuonRecovery (const std::string&	type,
 				    const std::string&	name, 
 				    const IInterface*	parent)
@@ -55,9 +49,6 @@ MuidMuonRecovery::MuidMuonRecovery (const std::string&	type,
     declareProperty("PullCut",			m_pullCut = 5);
 }
 
-MuidMuonRecovery::~MuidMuonRecovery()
-{}
-
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 StatusCode
@@ -66,62 +57,19 @@ MuidMuonRecovery::initialize()
     ATH_MSG_INFO( "Initializing MuidMuonRecovery - package version " << PACKAGE_VERSION );
 
     // get the Tools
-    if (m_extrapolator.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
-    }
-    if (m_edmHelperSvc.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_edmHelperSvc );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_edmHelperSvc );
-    }
-    if (m_muonIdHelperSvc.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonIdHelperSvc );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_muonIdHelperSvc );
-    }
-    if (m_printer.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_printer );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_printer );
-    }
-    if (m_residualCalculator.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_residualCalculator );
-	return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_INFO( "Retrieved tool " << m_residualCalculator );
-    }     
-    if (! m_trackBuilder.empty())
-    {
-	if (m_trackBuilder.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackBuilder );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_INFO( "Retrieved tool " << m_trackBuilder );
-	}
+    ATH_CHECK(m_extrapolator.retrieve());
+    ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_MSG_INFO( "Retrieved tool " << m_edmHelperSvc );
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_MSG_INFO( "Retrieved tool " << m_idHelperSvc );
+    ATH_CHECK(m_printer.retrieve());
+    ATH_MSG_INFO( "Retrieved tool " << m_printer );
+    ATH_CHECK(m_residualCalculator.retrieve());
+    ATH_MSG_INFO( "Retrieved tool " << m_residualCalculator );
+    if (! m_trackBuilder.empty()) {
+        ATH_CHECK(m_trackBuilder.retrieve());
+        ATH_MSG_INFO( "Retrieved tool " << m_trackBuilder );
     }
 
     return StatusCode::SUCCESS;
@@ -191,21 +139,21 @@ MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 	
 	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	if ( !id.is_valid() ) continue;
-	Muon::MuonStationIndex::StIndex index = m_muonIdHelperSvc->stationIndex(id);
-	bool measuresPhi = m_muonIdHelperSvc->measuresPhi(id);
+	Muon::MuonStationIndex::StIndex index = m_idHelperSvc->stationIndex(id);
+	bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 	++nmeas;
 
 	if ( measuresPhi )
 	{
 	    if ( phiIndices.count(index) ) continue;
-	    ATH_MSG_DEBUG("Adding phi station " << m_muonIdHelperSvc->toString(id));
+	    ATH_MSG_DEBUG("Adding phi station " << m_idHelperSvc->toString(id));
 	    phiIndices.insert(index);
 	}
-	else if (m_muonIdHelperSvc->isMdt(id) || (m_muonIdHelperSvc->isCsc(id) ) )
+	else if (m_idHelperSvc->isMdt(id) || (m_idHelperSvc->isCsc(id) ) )
 	{
 	    if ( etaIndices.count(index) ) continue;
 	  
-	    ATH_MSG_DEBUG("Adding eta station " << m_muonIdHelperSvc->toString(id));
+	    ATH_MSG_DEBUG("Adding eta station " << m_idHelperSvc->toString(id));
 	    etaIndices.insert(index);
 	}
 	else
@@ -229,13 +177,13 @@ MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 	}
 	if ( ! exPars )
 	{
-	    ATH_MSG_DEBUG("Failed to extrapolate to station" << m_muonIdHelperSvc->toStringChamber(id) );
+	    ATH_MSG_DEBUG("Failed to extrapolate to station" << m_idHelperSvc->toStringChamber(id) );
 	    continue;
 	}
 	const Trk::ResidualPull* res = m_residualCalculator->residualPull( meas,
 									   exPars,
 									   Trk::ResidualPull::Unbiased );
-	ATH_MSG_DEBUG(" " << m_muonIdHelperSvc->toStringChamber(id) << "  residual " << m_printer->print(*res));
+	ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber(id) << "  residual " << m_printer->print(*res));
 	if ( fabs(res->pull().front()) > m_pullCut )
 	{
 	    if ( measuresPhi )
@@ -252,10 +200,10 @@ MuidMuonRecovery::recoverableMatch (const Trk::Track& indetTrack,
 if (msgLvl(MSG::DEBUG)) 
     {
 
-	if ( !m_muonIdHelperSvc->measuresPhi(id) )
+	if ( !m_idHelperSvc->measuresPhi(id) )
        	{
 	    const MuonGM::MuonReadoutElement* detEl = 0;
-	    if ( m_muonIdHelperSvc->isMdt(id) )
+	    if ( m_idHelperSvc->isMdt(id) )
 	    {
 		const Muon::MdtDriftCircleOnTrack* mdt =
 		    dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(meas);
@@ -264,7 +212,7 @@ if (msgLvl(MSG::DEBUG))
 		    detEl = mdt->detectorElement();
 		}
 	    }
-	    else if ( m_muonIdHelperSvc->isCsc(id) )
+	    else if ( m_idHelperSvc->isCsc(id) )
 	    {
 		const Muon::CscClusterOnTrack* csc =
 		    dynamic_cast<const Muon::CscClusterOnTrack*>(meas);
@@ -360,8 +308,8 @@ if (msgLvl(MSG::DEBUG))
     
 	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 	if ( !id.is_valid() ) continue;
-	Muon::MuonStationIndex::StIndex index = m_muonIdHelperSvc->stationIndex(id);
-	bool measuresPhi = m_muonIdHelperSvc->measuresPhi(id);
+	Muon::MuonStationIndex::StIndex index = m_idHelperSvc->stationIndex(id);
+	bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 	if ( cleanEta && !measuresPhi && badEtaIndices.count(index) ) continue;
 	if ( cleanPhi &&  measuresPhi && badPhiIndices.count(index) ) continue;
 	spectrometerMeasurements.push_back(meas);

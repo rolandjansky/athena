@@ -1,27 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonInsideOutRecoTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
-#include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
-#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
-#include "MuonCombinedToolInterfaces/IMuonLayerAmbiguitySolverTool.h"
-#include "MuonCombinedToolInterfaces/IMuonCandidateTrackBuilderTool.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonLayerEvent/MuonLayerPrepRawData.h"
 #include "MuonIdHelpers/MuonStationIndexHelpers.h"
-
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 
 #include "MuonCombinedEvent/MuGirlTag.h"
 #include "xAODTracking/Vertex.h"
@@ -32,7 +19,6 @@ namespace MuonCombined {
 
   MuonInsideOutRecoTool::MuonInsideOutRecoTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_segmentFinder("Muon::MuonLayerSegmentFinderTool/MuonLayerSegmentFinderTool"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
@@ -47,7 +33,6 @@ namespace MuonCombined {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<MuonInsideOutRecoTool>(this);
 
-    declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
     declareProperty("MuonLayerSegmentFinderTool",m_segmentFinder );    
     declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
@@ -61,15 +46,9 @@ namespace MuonCombined {
     declareProperty("TrackSummeryTool", m_trackSummaryTool );
   }
 
-  MuonInsideOutRecoTool::~MuonInsideOutRecoTool() { }
-
-  StatusCode MuonInsideOutRecoTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MuonInsideOutRecoTool::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());    
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_segmentFinder.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
@@ -386,7 +365,7 @@ namespace MuonCombined {
       if( colIt == input->end() ) {
 	continue;
       }
-      ATH_MSG_VERBOSE("  adding " << m_idHelper->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
+      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
       // else add
       output.push_back(*colIt);
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRKPHYSMONITORING_MUONGENERICTRACKSMON_H
@@ -24,7 +24,6 @@
 #include "MuonHistUtils/MuonEnumDefs.h"
  
 #include "TrigConfL1Data/TriggerItem.h"
-//#include "TrigDecisionInterface/ITrigDecisionTool.h"
  
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
@@ -38,7 +37,6 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
@@ -68,11 +66,9 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   MuonGenericTracksMon( const std::string & type, const std::string & name, const IInterface* parent ); 
   virtual ~MuonGenericTracksMon(){;}
   
-  StatusCode initialize();
   virtual StatusCode bookHistograms();   
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();  
-  StatusCode finalize();
 
   //second argument is the souce type
   void plot_lumi(   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_Z, 
@@ -106,19 +102,11 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   std::vector<RecoMuonTrackPlots*>    m_oRecoMuonMETrackPlots;
   std::vector<RecoMuonIDTrackPlots*>  m_oRecoMuonIDTrackPlots;
   std::vector<RecoMuonPlots*>         m_oRecoMuonPlots;
-  //std::vector<RecoMuonPlots*>         m_oRecoMuonForwPlots;
-  //std::vector<RecoMuonPlots*>         m_oRecoMuonCaloPlots;
   std::vector<RecoPhysPlots*>         m_oRecoPhysPlots;
   std::vector<RecoVertexPlots*>       m_oRecoVertexPlots;
 
-  
- protected:
-
-  //
-    
  private:
   
-  StoreGateSvc* m_storeGate;
   std::string m_muonsName;
   std::string m_muonSegmentsName;
   std::string m_muonTracksName;
@@ -144,10 +132,6 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   // ATLAS Detector Description
   // Handle for the trig decision tool
   ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
-  // ToolHandle idHelper
-  //ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls
-  //ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc;
-  //ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
   // MCP muon quality tool
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   // MCP T&P helpers
