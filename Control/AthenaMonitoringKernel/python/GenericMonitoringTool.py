@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -107,7 +107,7 @@ class GenericMonitoringArray:
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
 #  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
-#  @param opt      Histrogram options (see GenericMonitoringTool)
+#  @param opt      Histogram options (see GenericMonitoringTool)
 #  @param labels   Deprecated. Copies value to xlabels.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
@@ -138,7 +138,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     variableAliasSplit = varname.split(';')
     varList = variableAliasSplit[0].split(',')
     if len(variableAliasSplit)==1:
-        alias = '_vs_'.join(varList)
+        alias = '_vs_'.join(reversed(varList))
     elif len(variableAliasSplit)==2:
         alias = variableAliasSplit[1]
     else:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -56,7 +56,7 @@
       monTool = GenericMonitoringTool('MonTool')
       monTool.defineHistogram('eta', path='EXPERT', type='TH1F', title='Eta;;Entries', xbins=40, xmin=-2, xmax=2)
       monTool.defineHistogram('phi', path='EXPERT', type='TH1F', title='Phi;;Entries', xbins=60, xmin=-3.2, xmax=3.2)
-      monTool.defineHistogram('eta,phi', path='EXPERT', type='TH2F', title='Eta vs Phi',
+      monTool.defineHistogram('eta,phi', path='EXPERT', type='TH2F', title='Phi vs Eta',
                               xbins=20, xmin=-2, xmax=2, ybins=30, ymin=-3.2, ymax=3.2)
 
       topSequence.myAlg.MonTool = monTool
