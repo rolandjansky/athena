@@ -68,6 +68,9 @@ StatusCode PerfMonMTSvc::initialize() {
   m_snapshotStepNames.push_back("Event Loop");
   m_snapshotStepNames.push_back("Finalize");
 
+  //Set wall time offset
+  m_eventLevelData.set_wall_time_offset();
+
   /// Configure the auditor
   if( !PerfMon::makeAuditor("PerfMonMTAuditor", auditorSvc(), msg()).isSuccess()) {
     ATH_MSG_ERROR("Could not register auditor [PerfMonMTAuditor]!");
@@ -133,9 +136,6 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
   if( compName == "AthRegSeq" && stepName == "Start") {
     m_measurement.capture_compLevel_serial();
     m_snapshotData[1].addPointStart(m_measurement);
-
-    //Set wall time offset
-    m_eventLevelData.set_wall_time_offset();
   }
 
   // Last thing to be called before finalize step begins
@@ -357,16 +357,6 @@ void PerfMonMTSvc::report2Log_Time_Mem_Serial() {
 // Report the event level measurement as soon as it is captured
 void PerfMonMTSvc::report2Log_EventLevel_instant() const{
 
-  /*
-  double cpu_time = m_eventLevelData.getEventLevelData()[m_eventCounter].cpu_time;
-  double wall_time = m_eventLevelData.getEventLevelData()[m_eventCounter].wall_time;
-
-  long vmem = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("vmem"); // write a getter function
-  long rss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("rss"); // write a getter function
-  long pss = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("pss"); // write a getter function
-  long swap = m_eventLevelData.getEventLevelData()[m_eventCounter].mem_stats.at("swap"); // write a getter function
-  */
-
   double cpu_time = m_eventLevelData.getEventLevelCpuTime(m_eventCounter);
   double wall_time = m_eventLevelData.getEventLevelWallTime(m_eventCounter);
 
@@ -375,13 +365,6 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const{
   long pss = m_eventLevelData.getEventLevelPss(m_eventCounter);
   long swap = m_eventLevelData.getEventLevelSwap(m_eventCounter);
 
-
-  /*
-  long vmem = m_eventLevelData.getCurrentMemoryMetric("vmem",m_eventCounter);
-  long rss = m_eventLevelData.getCurrentMemoryMetric("rss",m_eventCounter);
-  long pss = m_eventLevelData.getCurrentMemoryMetric("pss",m_eventCounter);
-  long swap = m_eventLevelData.getCurrentMemoryMetric("swap",m_eventCounter);
-  */
   ATH_MSG_INFO("CPU Time: " << scaleTime(cpu_time) <<  ", Wall Time: " << scaleTime(wall_time) << ", Vmem: " << scaleMem(vmem) << ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss) << ", Swap: " << scaleMem(swap));
 
 }
