@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -276,7 +276,7 @@ public:
 protected:
 
     /// Access to standard empty value
-    Reference             empty() const;
+    ConstReference        empty() const;
 
     /// Map indexed by gain providing pointers into the data in the
     /// CondMultChanCollection. 
