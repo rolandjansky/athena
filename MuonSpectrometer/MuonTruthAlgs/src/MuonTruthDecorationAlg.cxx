@@ -64,8 +64,7 @@ namespace Muon {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthClassifier.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
-    ATH_CHECK(detStore()->retrieve( m_muonMgr ).isFailure());
-
+    ATH_CHECK(detStore()->retrieve(m_muonMgr));
     return StatusCode::SUCCESS;
   }
 
