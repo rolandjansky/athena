@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/** Author: Ketevi A. Assamagan */
 
 #include "CscCalibTool.h"
 #include "StoreGate/DataHandle.h"
@@ -10,14 +8,12 @@
 
 #include <cmath>
 
-using namespace MuonCalib;
 using std::ostringstream;
 using std::setw;
 
 CscCalibTool::CscCalibTool
 ( const std::string& t, const std::string& n, const IInterface*  p )
-  : base_class(t,n,p),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", n)
+  : base_class(t,n,p)
 {
   declareProperty( "Slope", m_slope = 0.19 );
   declareProperty( "Noise", m_noise = 3.5 );
@@ -100,11 +96,8 @@ StatusCode CscCalibTool::initialize() {
   if (m_onlineHLT) {
     ATH_MSG_DEBUG( "T0BaseFolder and T0PhaseFolder are not loaded!!! HLT COOLDB does not have it!!");
   }
-  
-  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
-    return StatusCode::FAILURE;
-  }
+ 
+  ATH_CHECK(m_readKey.initialize()); 
 
   m_messageCnt_t0base=0;
   m_messageCnt_t0phase=0;
@@ -121,10 +114,12 @@ float CscCalibTool::getPSlope(uint32_t stripHashId) const {
   
   float slope = m_slope;
   if ( m_readFromDatabase && m_slopeFromDatabase ) {
-     if ( !m_cscCoolStrSvc->getSlope(slope,stripHashId) ) {
-       ATH_MSG_WARNING ( " failed to access CSC conditions database - slope - " 
-                         << "strip hash id = " << stripHashId );
-     }
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelPSlope(stripHashId, slope).isSuccess()){
+      ATH_MSG_WARNING ( " failed to access CSC conditions database - slope - " 
+                        << "strip hash id = " << stripHashId );
+    }
   }
   ATH_MSG_DEBUG ( "The slope is " << slope << " for strip hash = " << stripHashId );
 
@@ -174,7 +169,9 @@ double CscCalibTool::stripNoise ( uint32_t stripHashId, const bool convert ) con
 
   float noise = m_noise;  /// ADC counts
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getNoise(noise,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelNoise(stripHashId, noise).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - noise - " 
                       << "strip hash id = " << stripHashId );
       noise = m_noise;
@@ -199,7 +196,9 @@ double CscCalibTool::stripRMS ( uint32_t stripHashId, const bool convert ) const
 
   float rms = m_noise;  /// ADC counts initialized with m_noise...
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getRMS(rms,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelRMS(stripHashId, rms).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - rms - " 
                       << "strip hash id = " << stripHashId );
       rms = m_noise;
@@ -225,7 +224,9 @@ double CscCalibTool::stripF001 ( uint32_t stripHashId, const bool convert ) cons
 
   float f001 = m_noise+m_pedestal;  /// ADC counts initialized with m_noise...
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getF001(f001,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelF001(stripHashId, f001).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - f001 - " 
                       << "strip hash id = " << stripHashId );
       f001 = 3.251*m_noise+m_pedestal;
@@ -249,7 +250,9 @@ double CscCalibTool::stripPedestal ( uint32_t stripHashId, const bool convert ) 
 
   float pedestal = m_pedestal;
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - pedestal - " 
                       << "strip hash id = " << stripHashId );
       pedestal = m_pedestal;
@@ -280,25 +283,17 @@ bool CscCalibTool::isGood ( uint32_t stripHashId ) const
 
 
 int CscCalibTool::stripStatusBit ( uint32_t stripHashId ) const {
-  
-  uint32_t status = 0x0;
+ 
+  int status = 0; 
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getStatus(status,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelStatus(stripHashId, status).isSuccess())
       ATH_MSG_WARNING ( " failed to access CSC conditions database - status - "
                         << "strip hash id = " << stripHashId );
-
-      uint8_t status2 = 0x0;
-      if ( (m_cscCoolStrSvc->getStatus(status2,stripHashId)).isFailure() ) {
-        ATH_MSG_WARNING ( " failed to access CSC conditions database old way - status - "
-                          << "strip hash id = " << stripHashId );
-      }else{
-        ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
-                          << "strip hash id = " << stripHashId );
-      }
-    } else {
-      ATH_MSG_VERBOSE ( "The status word is " << std::hex << status 
-                        << " for strip hash = " << std::dec << stripHashId );
-    }
+    else
+      ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
+                        << "strip hash id = " << stripHashId );
   }
   return status;
 }
@@ -311,7 +306,9 @@ bool CscCalibTool::stripT0phase ( uint32_t stripHashId ) const {
 
   if (! m_onlineHLT ) {
     if ( m_readFromDatabase ) {
-      if ( !m_cscCoolStrSvc->getT0Phase(t0phase,stripHashId) ) {
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+      if(!readCdo->readChannelT0Phase(stripHashId, t0phase).isSuccess()){
         if (m_messageCnt_t0phase < 3) {
           ATH_MSG_WARNING ( " failed to access CSC conditions database - t0phase - "
                             << "strip hash id = " << stripHashId );
@@ -332,7 +329,9 @@ double CscCalibTool::stripT0base ( uint32_t stripHashId ) const {
   float t0base = 0.0;
   if (! m_onlineHLT ) {
     if ( m_readFromDatabase ) {
-      if ( !m_cscCoolStrSvc->getT0Base(t0base,stripHashId) ) {
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+      if(!readCdo->readChannelT0Base(stripHashId, t0base).isSuccess()){
         
         if (m_messageCnt_t0base < 3) {
           ATH_MSG_WARNING ( " failed to access CSC conditions database - t0base - "
@@ -532,7 +531,9 @@ double CscCalibTool::adcCountToFemtoCoulomb(uint32_t stripHashId, const float ad
   float slope    = getPSlope(stripHashId);
 
   if ( m_readFromDatabase ) {
-    if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+    const CscCondDbData* readCdo{*readHandle};
+    if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
       ATH_MSG_DEBUG ( " failed to access CSC conditions database - pedestal - " 
                       << "strip hash id = " << stripHashId );
       pedestal = m_pedestal;
@@ -556,7 +557,9 @@ double CscCalibTool::adcCountToNumberOfElectrons(uint32_t stripHashId, const flo
   float pedestal = m_pedestal;
   float slope    = getPSlope(stripHashId);
   if ( m_readFromDatabase ) {
-     if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+     SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+     const CscCondDbData* readCdo{*readHandle};
+     if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
        ATH_MSG_DEBUG ( "failed to access CSC Conditions database - pedestal - " 
                        << "strip hash id = " << stripHashId );
        pedestal = m_pedestal;
@@ -579,7 +582,9 @@ bool CscCalibTool::adcToCharge(const std::vector<uint16_t>& samples, uint32_t st
    float pedestal = m_pedestal;
    float slope    = getPSlope(stripHashId);
    if ( m_readFromDatabase ) {
-      if ( !m_cscCoolStrSvc->getPedestal(pedestal,stripHashId) ) {
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+      if(!readCdo->readChannelPed(stripHashId, pedestal).isSuccess()){
         ATH_MSG_DEBUG ( "failed to access CSC Conditions database - pedestal - " 
                         << "strip hash id = " << stripHashId );
         pedestal = m_pedestal; 
