@@ -114,6 +114,10 @@ namespace Analysis {
 
     
     SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName (m_jetSVLinkName);
+    if (!h_jetSVLinkName.isAvailable()) {
+      ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << m_jetSVLinkName.key()  );
+      return StatusCode::FAILURE;
+    }
     const std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks = h_jetSVLinkName(myJet);
     
     std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin();
@@ -212,6 +216,10 @@ namespace Analysis {
 					       std::string basename) const {
 
     SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetJFVtxLinkName (m_jetJFVtxLinkName);
+    if (!h_jetJFVtxLinkName.isAvailable()) {
+      ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << m_jetJFVtxLinkName.key()  );
+      return StatusCode::FAILURE;
+    }
     const std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVerticesLinks = h_jetJFVtxLinkName(myJet);
 
     //twotrackVerticesInJet   

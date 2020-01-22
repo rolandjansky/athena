@@ -38,7 +38,6 @@ namespace Trk{
 /** The namespace of all packages in PhysicsAnalysis/JetTagging */
 namespace Analysis
 {
-  class IJetFitterVariablesFactory;
   class IMSVVariablesFactory;
 
   class JetSecVertexingAlg : public AthAlgorithm
@@ -56,7 +55,7 @@ namespace Analysis
         
         StatusCode createSecVkalContainer(xAOD::VertexContainer*, std::vector< ElementLink< xAOD::VertexContainer > >*, const Trk::VxSecVKalVertexInfo*) const;
         StatusCode createJFContainer(xAOD::BTagVertexContainer*, std::vector< ElementLink< xAOD::BTagVertexContainer > >*, const Trk::VxJetFitterVertexInfo*, const xAOD::TrackParticleContainer*) const;
-        ToolHandle<IJetFitterVariablesFactory> m_JFvarFactory;
+
         ToolHandle<IMSVVariablesFactory> m_MSVvarFactory;
 
         std::string m_secVertexFinderBaseName;
