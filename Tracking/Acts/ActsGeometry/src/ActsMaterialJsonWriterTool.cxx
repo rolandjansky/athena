@@ -22,12 +22,12 @@ ActsMaterialJsonWriterTool::initialize()
 {
 
   ATH_MSG_INFO("Starting Material writer");
-  
+
   return StatusCode::SUCCESS;
 }
-  
 
-void 
+
+void
 ActsMaterialJsonWriterTool::write(const DetectorMaterialMaps& detMaterial)
 {
   Acts::JsonGeometryConverter::Config cfg;

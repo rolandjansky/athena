@@ -26,7 +26,7 @@ find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
 
-find_package( Acts COMPONENTS Core )
+find_package( Acts COMPONENTS Core)
 
 # Component(s) in the package:
 
@@ -56,7 +56,7 @@ atlas_add_component( ActsGeometry
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
                      src/ActsMaterialStepConverterTool.cxx
-                     src/ActsMaterialJsonWriterTool.cxx
+                     #src/ActsMaterialJsonWriterTool.cxx
                      src/ActsMaterialTrackWriterSvc.cxx
                      #src/GeomShiftCondAlg.cxx
                      src/ActsAlignmentCondAlg.cxx

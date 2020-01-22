@@ -37,7 +37,7 @@ DECLARE_COMPONENT( ActsObjWriterTool )
 //DECLARE_COMPONENT( ActsExCellWriterSvc )
 DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
 DECLARE_COMPONENT( ActsMaterialStepConverterTool )
-// DECLARE_COMPONENT( ActsMaterialJsonWriterTool )
+//DECLARE_COMPONENT( ActsMaterialJsonWriterTool )
 
 //DECLARE_COMPONENT( GeomShiftCondAlg )
 DECLARE_COMPONENT( NominalAlignmentCondAlg )

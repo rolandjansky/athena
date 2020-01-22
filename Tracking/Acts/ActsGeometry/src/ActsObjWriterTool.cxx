@@ -24,8 +24,8 @@ ActsObjWriterTool::ActsObjWriterTool(const std::string& type, const std::string&
     const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {
-  //declareProperty("OutputDirectory", m_outputDirectory = "");
-  //declareProperty("SubDetectors", m_subDetectors = {});
+  // declareProperty("OutputDirectory", m_outputDirectory = "");
+  // declareProperty("SubDetectors", m_subDetectors = {});
 }
 
 StatusCode
@@ -39,7 +39,7 @@ ActsObjWriterTool::initialize()
 void
 ActsObjWriterTool::write(const ActsGeometryContext& gctx, const Acts::TrackingGeometry& tg) const
 {
-
+  std::cout << "bip" << std::endl; 
   const auto& ctx = Gaudi::Hive::currentContext();
   std::stringstream ss;
   ss << ctx.eventID().run_number() << "_" << ctx.eventID().event_number();

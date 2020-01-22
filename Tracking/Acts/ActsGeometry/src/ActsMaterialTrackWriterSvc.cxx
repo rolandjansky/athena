@@ -225,11 +225,11 @@ ActsMaterialTrackWriterSvc::doWrite(const Acts::RecordedMaterialTrack& mTrack)
     // the material information
     const auto& mprops = mint.materialProperties;
     m_step_length.push_back(mprops.thickness());
-    m_step_X0.push_back(mprops.averageX0());
-    m_step_L0.push_back(mprops.averageL0());
-    m_step_A.push_back(mprops.averageA());
-    m_step_Z.push_back(mprops.averageZ());
-    m_step_rho.push_back(mprops.averageRho());
+    m_step_X0.push_back(mprops.material().X0());
+    m_step_L0.push_back(mprops.material().L0());
+    m_step_A.push_back(mprops.material().Ar());
+    m_step_Z.push_back(mprops.material().Z());
+    m_step_rho.push_back(mprops.material().massDensity());
 
 
   }
