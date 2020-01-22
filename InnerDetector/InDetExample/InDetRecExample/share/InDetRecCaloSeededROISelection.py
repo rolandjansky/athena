@@ -17,7 +17,7 @@ egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloCluste
                                             EMEtRanges = [2300.],
                                             EMFCuts = [0.7],
                                             RetaCut = [0.65],
-                                            HadLeakCut = [0.12]
+                                            HadLeakCut = [0.14]
                                             ) 
 #
 # --- get the builder tool
@@ -27,7 +27,7 @@ InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClus
                                                            EMEnergyOnly = True)
 
 if (InDetFlags.doPrintConfigurables()):
-    print InDetCaloClusterROIBuilder
+    printfunc (InDetCaloClusterROIBuilder)
 
 #
 # --- now load the algorithm
@@ -42,5 +42,5 @@ InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name              
 
 topSequence += InDetCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
-    print InDetCaloClusterROISelector
+    printfunc (InDetCaloClusterROISelector)
 

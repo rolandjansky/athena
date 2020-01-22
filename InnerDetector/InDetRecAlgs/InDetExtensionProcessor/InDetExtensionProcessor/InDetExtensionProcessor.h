@@ -43,6 +43,8 @@ namespace InDet {
     virtual StatusCode execute(const EventContext& ctx) const;
     virtual StatusCode finalize();
   private:
+    MsgStream &dumpStat(MsgStream &out) const;
+
     //! process events
     TrackCollection* createExtendedTracks(const TrackCollection* tracks_in,
                                           const TrackExtensionMap* track_extension_map) const;

@@ -9,6 +9,7 @@
 #define TRIGCONFXAOD_XAODCONFIGSVC_H
 
 // Gaudi/Athena include(s):
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -24,8 +25,25 @@
 // xAOD include(s):
 #include "xAODTrigger/TriggerMenu.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
+#include "xAODTrigger/TriggerMenuAuxContainer.h"
+#include "xAODTrigger/TrigConfKeys.h"
+
+#include <shared_mutex>
 
 namespace TrigConf {
+
+   /**
+    *  @short Small utility class to wrap a pointer to a const xAOD::TriggerMenu
+    *
+    *         The SG::SlotSpecificObj class invokes an object's default constructor
+    *         and does not allow for the object to be later changed, here we wrap
+    *         the pointer we want to store in a trivial class such that it can be
+    *         updated over time to point to different menus in different slots
+    */
+   struct MenuPtrWrapper {
+      MenuPtrWrapper() : m_ptr(nullptr) {}
+      const xAOD::TriggerMenu* m_ptr;
+   };
 
    /**
     *  @short Trigger configuration service used when reading an xAOD file
@@ -144,34 +162,38 @@ namespace TrigConf {
       /// Function setting up the service for a new event
       StatusCode prepareEvent();
 
-      /// Key for the event-level configuration identifier object
-      std::string m_eventName;
-      /// Key for the trigger configuration metadata object
-      std::string m_metaName;
 
-      /// Flag for stopping the job in case of a failure
-      bool m_stopOnFailure;
+      SG::ReadHandleKey<xAOD::TrigConfKeys> m_eventKey{this, "EventObjectName", "TrigConfKeys", 
+        "Key for the event-level configuration identifier object"};
+      Gaudi::Property<std::string> m_metaName{this, "MetaObjectName", "TriggerMenu", 
+        "Key for the trigger configuration metadata object"};
+
+      Gaudi::Property<bool> m_stopOnFailure{this, "StopOnFailure", true, "Flag for stopping the job in case of a failure"};
       /// Internal state of the service
       bool m_isInFailure;
 
-      /// The configuration object of the current input file
-      const xAOD::TriggerMenuContainer* m_tmc;
-      /// The active configuration for the current event
-      const xAOD::TriggerMenu* m_menu;
+      /// The configuration objects copied from all input files
+      std::unique_ptr<xAOD::TriggerMenuAuxContainer> m_tmcAux;
+      /// The configuration objects copied from all input files
+      std::unique_ptr<xAOD::TriggerMenuContainer> m_tmc;
+
+      /// The mutex used to to restrict access to m_tmc when it is being written to
+      std::shared_mutex m_sharedMutex;
+
+      // The menu currently being used by each slot (wrapped 'const xAOD::TriggerMenu' ptr)
+      SG::SlotSpecificObj<MenuPtrWrapper> m_menu;
 
       /// The "translated" LVL1 configuration object
-      CTPConfig m_ctpConfig;
+      SG::SlotSpecificObj<CTPConfig> m_ctpConfig;
       /// The "translated" HLT configuration object
-      HLTChainList m_chainList;
+      SG::SlotSpecificObj<HLTChainList> m_chainList;
       /// The "translated" HLT configuration object
-      HLTSequenceList m_sequenceList;
+      SG::SlotSpecificObj<HLTSequenceList> m_sequenceList;
       /// The "translated" bunch group set object
-      BunchGroupSet m_bgSet;
+      SG::SlotSpecificObj<BunchGroupSet> m_bgSet;
 
-      /// Connection to the event store
-      ServiceHandle< StoreGateSvc > m_eventStore;
       /// Connection to the metadata store
-      ServiceHandle< StoreGateSvc > m_metaStore;
+      ServiceHandle< StoreGateSvc > m_metaStore{this, "MetaDataStore", "InputMetaDataStore"};
 
    }; // class xAODConfigSvc
 

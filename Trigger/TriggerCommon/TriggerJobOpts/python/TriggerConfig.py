@@ -391,7 +391,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     if flags.Output.doWriteAOD:
         outputType = 'AOD'
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord)
+    acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord, disableEventTag=True)
 
     # OutputStream has a data dependency on xTrigDecision
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)

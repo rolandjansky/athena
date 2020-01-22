@@ -21,6 +21,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 #include <sstream>
 #include <iomanip>
@@ -35,7 +36,8 @@ namespace Muon {
   //----------------------------------------------------------------------------------------------------------
 
   MuonTrackSteering::MuonTrackSteering(const std::string& t,const std::string& n,const IInterface* p)
-    : AthAlgTool(t,n,p), m_combinedSLOverlaps(false)
+    : AthAlgTool(t,n,p),
+      m_combinedSLOverlaps(false)
   {
     declareInterface<IMuonTrackFinder>(this);
 
@@ -60,6 +62,7 @@ namespace Muon {
     ATH_CHECK( m_ambiTool.retrieve() );
     ATH_CHECK( m_mooBTool.retrieve() );
     ATH_CHECK( m_trackRefineTool.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
     ATH_CHECK( decodeStrategyVector( m_stringStrategies ) );
     if( m_outputSingleStationTracks ){
       ATH_CHECK( m_segmentFitter.retrieve() );
@@ -646,6 +649,15 @@ namespace Muon {
             if(recoveredTrack){
               delete segmentTrack;
               segmentTrack = recoveredTrack;
+            }
+
+            // generate a track summary for this track 
+            if (m_trackSummaryTool.isEnabled()) {
+              const Trk::TrackSummary* summary = segmentTrack->trackSummary();
+              if( !summary ) {
+                Trk::TrackSummary tmpSummary;
+                m_trackSummaryTool->addDetailedTrackSummary(*segmentTrack,tmpSummary);
+              }
             }
 
             MuPatTrack* can = m_candidateTool->createCandidate( **sit, segmentTrack );

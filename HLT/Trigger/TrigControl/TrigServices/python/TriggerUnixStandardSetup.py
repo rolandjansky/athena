@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -120,9 +120,6 @@ def setupCommonServices():
     svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
     svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
     svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
-
-    # Time to wait before closing DB connections (see ATR-8907)
-    svcMgr.HltEventLoopMgr.dbConnIdleWaitSec = 6
 
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()

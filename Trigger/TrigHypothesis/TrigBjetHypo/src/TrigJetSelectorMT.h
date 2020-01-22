@@ -39,7 +39,7 @@ class TrigJetSelectorMT : public AthAlgorithm {
 
  private:
   Gaudi::Property< double > m_minJetEt {this,"JetMinEt",15,"Minimum of Output Jet Et in GeV"};
-  Gaudi::Property< double > m_maxJetEta {this,"JetMaxEta",3.2,"Maximum eta acceptance of output Jet"};
+  Gaudi::Property< double > m_maxJetEta {this,"JetMaxEta",3.2,"Maximum eta acceptance of output Jet (ID acceptance)"};
 
   Gaudi::Property< double > m_etaHalfWidth {this,"EtaHalfWidth",0.4,"Eta Half Width"};
   Gaudi::Property< double > m_phiHalfWidth {this,"PhiHalfWidth",0.4,"Phi Half Width"};

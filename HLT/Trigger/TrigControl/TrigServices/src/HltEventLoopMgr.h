@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -241,9 +241,6 @@ private:
 
   Gaudi::Property<unsigned long long> m_forceSOR_ns{
     this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
-
-  Gaudi::Property<unsigned int> m_dbIdleWait{
-    this, "dbConnIdleWaitSec", 0, "Seconds to wait before cleaning idle DB connections"};
 
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};

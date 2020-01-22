@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTSOVERLAPRESOLVINGTOOL_H
@@ -14,6 +14,10 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include <vector>
 #include <string>
@@ -21,27 +25,17 @@
 class MsgStream;
 
 namespace Trk {
-  class IPropagator;
-  class IMagneticFieldTool;
   class MagneticFieldProperties;
   class MeasurementBase;
-  class IResidualPullCalculator;
-}
-
-namespace Muon {
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
 }
 
 namespace MuonGM {
   class MdtReadoutElement;
 }
 
-
 namespace Muon {
   
   class MuonSegment;
-
   /**
      @brief tool to match segments
 
@@ -52,13 +46,10 @@ namespace Muon {
     MuonSegmentInOverlapResolvingTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonSegmentInOverlapResolvingTool ();
+    virtual ~MuonSegmentInOverlapResolvingTool() {};
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
     
     /** @brief performance match and return result */
     SegmentMatchResult matchResult( const MuonSegment& seg1, const MuonSegment& seg2 ) const; 
@@ -90,7 +81,7 @@ namespace Muon {
 
     Amg::Vector3D estimateSegmentDirection( const MuonSegment& seg1, const MuonSegment& seg2, double& phi, double& stereoangle ) const;
 
-    ToolHandle<MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool

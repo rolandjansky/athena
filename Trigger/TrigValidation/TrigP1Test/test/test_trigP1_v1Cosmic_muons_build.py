@@ -8,7 +8,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data_cos_CosmicMuons'
 ex.max_events = 100
 ex.args = '-c "setMenu=\'Cosmic_pp_run3_v1\';"'

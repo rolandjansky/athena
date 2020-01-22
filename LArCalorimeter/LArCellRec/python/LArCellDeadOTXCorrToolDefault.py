@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def LArCellDeadOTXCorrToolDefault(name='LArCellDeadOTXCorr'):
 
@@ -8,7 +8,7 @@ def LArCellDeadOTXCorrToolDefault(name='LArCellDeadOTXCorr'):
         theLArCellDeadOTXCorr = LArCellDeadOTXCorr(name)
     except:
         mlog.error("could not get handle to LArCellDeadOTXCorr Quit")
-        print traceback.format_exc()
+        traceback.print_exc()
         return False 
     from AthenaCommon.GlobalFlags import globalflags
 

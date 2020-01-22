@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUCELLVARIABLES_H
@@ -23,13 +23,12 @@ public:
     ASG_TOOL_CLASS2(TauCellVariables, TauRecToolBase, ITauToolBase);
     ~TauCellVariables();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode eventInitialize();
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-    virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode eventInitialize() override;
+    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
 
-    virtual void print() const { }
 
 
 private:
@@ -38,9 +37,6 @@ private:
     double m_EMSumThr;  //!< threshold for 4-vector EM sum
     double m_EMSumR;    //!< radius for 4-vector EM sum
     double m_cellCone;  //!< outer cone for cells used in calculations
-
-    const LArEM_ID* m_emid;
-    const TileID* m_tileid;
 
     /** 
      * enable cell origin correction 

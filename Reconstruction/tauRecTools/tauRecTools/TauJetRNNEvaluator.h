@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUJETRNNEVALUATOR_H
@@ -32,8 +32,8 @@ public:
     TauJetRNNEvaluator(const std::string &name = "TauJetRNNEvaluator");
     virtual ~TauJetRNNEvaluator();
 
-    StatusCode initialize();
-    StatusCode execute(xAOD::TauJet &tau);
+    StatusCode initialize() override;
+    StatusCode execute(xAOD::TauJet &tau) override;
     // Getter for the underlying RNN implementation
     TauJetRNN *get_rnn_0p();
     TauJetRNN *get_rnn_1p();

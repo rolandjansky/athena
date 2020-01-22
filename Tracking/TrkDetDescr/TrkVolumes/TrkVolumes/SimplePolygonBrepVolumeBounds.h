@@ -97,7 +97,7 @@ namespace Trk {
     std::ostream& dump(std::ostream& sl) const override;
 
   private:  
-    void processSubVols() const;
+    void processSubVols();
     Trk::PlaneSurface* sideSurf(Amg::Transform3D,unsigned int,unsigned int) const;
     bool Xor(bool x, bool y) const;
     
@@ -118,7 +118,7 @@ namespace Trk {
 
     std::vector<std::pair<double,double> > TriangulatePolygon(const std::vector<std::pair<double,double> >& Vertices ) const;
     
-    std::vector<std::pair<double,double> > TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices ) const;
+    std::vector<std::pair<double,double> > TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices );
 
     std::vector<std::pair<double,double> > m_xyVtx;          //!< generating xy vertices
     double m_halfX;                                         //!< halflength in x - to define enclosing rectangle 
@@ -128,8 +128,8 @@ namespace Trk {
 #undef double
 #endif    
     
-    mutable int m_ordering;                         //!< -1 not set/ 1 anticlockwise / 0  clockwise 
-    mutable const Trk::Volume* m_combinedVolume;    //!< triangulated polygon   
+    int m_ordering;                                 //!< -1 not set/ 1 anticlockwise / 0  clockwise 
+    const Trk::Volume* m_combinedVolume;            //!< triangulated polygon   
     const Trk::Volume* m_envelope;                  //!< simplified envelope
          
    /** There's only one single object Acessor for the moment

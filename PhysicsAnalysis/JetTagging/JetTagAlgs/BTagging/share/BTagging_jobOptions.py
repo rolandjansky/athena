@@ -71,5 +71,5 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
           #jetname.JetModifiers += [ btagger ]
           #jetname.lock()
           if BTaggingFlags.OutputLevel < 3:
-            print ConfInstance.getJetCollectionTool(jet[:-4])
+            printfunc (ConfInstance.getJetCollectionTool(jet[:-4]))
 

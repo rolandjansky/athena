@@ -41,7 +41,7 @@ public:
 
    virtual StatusCode updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) override;
 
-   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& tname) override;
+   virtual StatusCode DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) override;
 
    std::unique_ptr<DataHeader_p5> poolReadObject_p5();
    std::unique_ptr<DataHeader_p6> poolReadObject_p6();

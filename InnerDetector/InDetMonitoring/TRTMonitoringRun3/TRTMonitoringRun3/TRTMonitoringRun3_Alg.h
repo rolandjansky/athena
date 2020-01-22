@@ -7,7 +7,6 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "AthenaMonitoringKernel/HistogramDef.h"
 
 #include "TRandom3.h"
 

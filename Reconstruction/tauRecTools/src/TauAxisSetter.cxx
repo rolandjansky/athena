@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -29,7 +29,6 @@ m_doCellCorrection(false),
 m_doAxisCorrection(true)
 {
     declareProperty("ClusterCone", m_clusterCone);
-    declareProperty("tauContainerKey", m_tauContainerKey = "TauJets");
     declareProperty("CellCorrection", m_doCellCorrection);
     declareProperty("AxisCorrection", m_doAxisCorrection = true);
 }

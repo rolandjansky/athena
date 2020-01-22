@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0CLUSTERSCALER_H
@@ -28,13 +28,12 @@ public:
     ASG_TOOL_CLASS2(TauPi0ClusterScaler, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0ClusterScaler();
 
-    virtual StatusCode initialize();
-    virtual StatusCode eventInitialize();
-    virtual StatusCode finalize();
-    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer); 
-    virtual StatusCode eventFinalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode eventInitialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer) override; 
+    virtual StatusCode eventFinalize() override;
 
-    virtual void print() const { }
 
 private:
 

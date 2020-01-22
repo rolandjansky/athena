@@ -50,8 +50,6 @@ private:
   SG::WriteHandleKey<TRT_RDO_Container> m_outputKey{this, "OutputKey", "TRT_RDOs", "WriteHandleKey for Output TRT_RDO_Container"};
   SG::ReadHandleKey<InDetSimDataCollection> m_signalInputSDOKey{this, "SignalInputSDOKey", "Sig_TRT_SDO_Map", "ReadHandleKey for Signal Input InDetSimDataCollection for TRT"};
 
-  BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
-
   // Following tools, services and configurables are there only for the correct of HT hits
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service"};      // Random number service
 

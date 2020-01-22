@@ -1,0 +1,51 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+# This gets read by the kubernetes driver to configure the job
+# submission.  It will replace a number of special keywords (called
+# %%NAME%%) with special values determined at run time.  This file
+# will be pasted together many times, as the usual EventLoop job has
+# many subjobs.  The user can replace this with his own file if he
+# wants to use different options.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  # use this when there is a fixed name
+  #name: eventloop-%%JOBINDEX%%
+  generateName: eventloop-%%JOBINDEX%%-
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: job
+        image: %%DOCKERIMAGE%%
+        command:
+        - bash
+        - -c 
+        - |
+          echo world
+          echo my job index is $JOB_INDEX
+          %%COMMAND%%
+        env:
+        - name: JOB_INDEX
+          value: "%%JOBINDEX%%"
+        volumeMounts:
+        - mountPath: %%SUBMITDIR%%
+          name: submit-dir
+        - mountPath: /Users/nils/cache/local
+          name: data-dir
+      volumes:
+      - name: submit-dir
+        hostPath:
+          # directory location on host
+          path: %%SUBMITDIR%%
+          # this field is optional
+          type: Directory
+      - name: data-dir
+        hostPath:
+          # directory location on host
+          path: /Users/nils/cache/local
+          # this field is optional
+          type: Directory

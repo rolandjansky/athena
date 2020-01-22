@@ -45,14 +45,14 @@ const CLID& T_AthenaPoolCustCnv<TRANS, PERS>::classID() {
 //__________________________________________________________________________
 template <class TRANS, class PERS>
 template <class P>
-void T_AthenaPoolCustCnv<TRANS, PERS>::setPlacementForP(P& /*p*/, const std::string& key) {
+void T_AthenaPoolCustCnv<TRANS, PERS>::setPlacementForP(P& /*p*/, const std::string& key, const std::string& output) {
    const std::string typenm = ClassName<P>::name();
-   this->setPlacementWithType(typenm, key);
+   this->setPlacementWithType(typenm, key, output);
 }
 //__________________________________________________________________________
 template <class TRANS, class PERS>
 template <class P>
-StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::objectToPool(P* pObj, Token*& token, const std::string& key) {
+StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::objectToPool(P* pObj, Token*& token, const std::string& key, const std::string& output) {
    const static std::string className = ClassName<P>::name();
    // Check dictionary
    // Allow for multiple class names
@@ -69,7 +69,7 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::objectToPool(P* pObj, Token*& token
          this->m_classDesc = (*itClass).second;
       }
    }
-   setPlacementForP(*pObj, key);
+   setPlacementForP(*pObj, key, output);
    token = this->m_athenaPoolCnvSvc->registerForWrite(this->m_placement, pObj, this->m_classDesc);
    return(StatusCode::SUCCESS);
 }
@@ -94,7 +94,7 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::poolToObject(const Token*& token, P
 }
 //__________________________________________________________________________
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
+StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, IOpaqueAddress*& /*pAddr*/) {
    const std::string className = ClassName<TRANS>::name();
    ATH_MSG_DEBUG("Called DataObjectToPers for " << pObj << ": " << className << ", with key " << pObj->name() << ", map size = " << m_persMap.size());
    PERS* persObj = nullptr;
@@ -103,7 +103,7 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, 
 }
 //__________________________________________________________________________
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) {
    const std::string className = ClassName<TRANS>::name();
    ATH_MSG_DEBUG("Called DataObjectToPool for " << pObj << ": " << className << ", with key " << pObj->name() << ", map size = " << m_persMap.size());
    PERS* persObj = nullptr;
@@ -125,17 +125,17 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, 
       }
    }
    Token* token = nullptr;
-   StatusCode status = objectToPool<PERS>(persObj, token, key);
+   StatusCode status = objectToPool<PERS>(persObj, token, pObj->name(), *pAddr->par());
    // Null/empty token means ERROR
    if (token == nullptr || token->classID() == Guid::null()) {
       ATH_MSG_ERROR("Failed to get Token for class (type/key) " << className << "/" << pObj->name());
       return(StatusCode::FAILURE);
    }
    // Update IOpaqueAddress for this object.
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pObj->registry()->address());
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr != nullptr) {
-      tokAddr->setToken(token); token = nullptr; // Token will be inserted into DataHeader, which takes ownership
-   } else { // No address (e.g. satellite DataHeader), delete Token
+      tokAddr->setToken(token); token = nullptr;
+   } else {
       delete token; token = nullptr;
       return(StatusCode::FAILURE);
    }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0CREATEROI_H
@@ -30,14 +30,11 @@ public:
     ASG_TOOL_CLASS2(TauPi0CreateROI, TauRecToolBase, ITauToolBase);
     virtual ~TauPi0CreateROI();
 
-    virtual StatusCode initialize();
-    virtual StatusCode eventInitialize();
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer);
-    virtual StatusCode eventFinalize();
-    virtual StatusCode finalize();
-
-    virtual void cleanup(xAOD::TauJet* ) { }
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode eventInitialize() override;
+    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer) override;
+    virtual StatusCode eventFinalize() override;
+    virtual StatusCode finalize() override;
 
 private:
 

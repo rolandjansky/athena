@@ -1,15 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -23,13 +16,12 @@
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/DiskListEOS.h>
 #include <SampleHandler/DiskListLocal.h>
+#include <SampleHandler/MessageCheck.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/SampleLocal.h>
 #include <SampleHandler/SamplePtr.h>
 #include <TString.h>
 #include <memory>
-
-#include <iostream>
 
 //
 // method implementations
@@ -199,27 +191,38 @@ namespace SH
   recurse (std::map<std::string,SamplePtr>& samples, DiskList& list,
 	   const std::vector<std::string>& hierarchy) const
   {
+    using namespace msgScanDir;
+
+    ANA_MSG_DEBUG ("scanning directory: " << list.dirname());
     while (list.next())
     {
-      std::auto_ptr<DiskList> sublist (list.openDir());
+      std::unique_ptr<DiskList> sublist (list.openDir());
 
       if (sublist.get() != 0)
       {
 	if (hierarchy.size() <= m_maxDepth)
 	{
+          ANA_MSG_DEBUG ("descending into directory " << list.path());
 	  std::vector<std::string> subhierarchy = hierarchy;
 	  subhierarchy.push_back (list.fileName());
 	  recurse (samples, *sublist, subhierarchy);
-	}
+	} else
+        {
+          ANA_MSG_DEBUG ("maxDepth exceeded, skipping directory " << list.path());
+        }
       } else
       {
 	if (hierarchy.size() > m_minDepth &&
 	    RCU::match_expr (m_filePattern, list.fileName()))
 	{
+          ANA_MSG_DEBUG ("adding file " << list.path());
 	  std::vector<std::string> subhierarchy = hierarchy;
 	  subhierarchy.push_back (list.fileName());
 	  addSampleFile (samples, subhierarchy, list.path());
-	}
+	} else
+        {
+          ANA_MSG_DEBUG ("skipping file " << list.path());
+        }
       }
     }
   }
