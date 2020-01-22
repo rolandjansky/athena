@@ -59,7 +59,7 @@ else()
       Trigger/TrigEvent/TrigNavStructure
       Trigger/TrigEvent/TrigNavigation
       Trigger/TrigEvent/TrigStorageDefinitions
-      Trigger/TrigSteer/TrigComposite
+      Trigger/TrigSteer/TrigCompositeUtils
       PRIVATE
       Control/AthenaBaseComps
       Control/AthenaKernel
