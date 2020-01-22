@@ -129,21 +129,21 @@ class W_SMEFT(PowhegV2):
         self.add_keyword("Zmass")
         self.add_keyword("Zwidth")
         # SMEFT operator coefficients
-        for coefficient_name in ["ReGEw", "ImGEw", "ReGEe", "ImGEe"]:
+        for coefficient_name in ["ReGEw", "ImGEw"]:
             self.add_keyword(coefficient_name)
-        for coefficient in ["ReGUw_{flavours}", "ImGUw_{flavours}", "ReGUe_{flavours}", "ImGUe_{flavours}", "ReLeQu3_{flavours}", "ImLeQu3_{flavours}", "ReLeQu_{flavours}", "ImLeQu_{flavours}"]:
+        for coefficient in ["ReGUw_{flavours}", "ImGUw_{flavours}", "ReLeQu3_{flavours}", "ImLeQu3_{flavours}", "ReLeQu_{flavours}", "ImLeQu_{flavours}"]:
             for flavours in ["{}{}".format(*x) for x in itertools.product(["u", "c", "t"], repeat=2)]:
                 coefficient_name = coefficient.format(flavours=flavours)
                 self.add_keyword(coefficient_name)
-        for coefficient in ["ReGDw_{flavours}", "ImGDw_{flavours}", "ReGDe_{flavours}", "ImGDe_{flavours}", "ReLedQ_{flavours}", "ImLedQ_{flavours}"]:
+        for coefficient in ["ReGDw_{flavours}", "ImGDw_{flavours}", "ReLedQ_{flavours}", "ImLedQ_{flavours}"]:
             for flavours in ["{}{}".format(*x) for x in itertools.product(["d", "s", "b"], repeat=2)]:
                 coefficient_name = coefficient.format(flavours=flavours)
                 self.add_keyword(coefficient_name)
-        for coefficient in ["QphiU_{flavours}", "Uphi_{flavours}", "QLu_{flavours}", "Ceu_{flavours}", "CLu_{flavours}"]:
+        for coefficient in ["QphiU_{flavours}", "QLu_{flavours}"]:
             for flavours in ["uu", "uc", "ut", "cc", "ct", "tt"]:
                 coefficient_name = coefficient.format(flavours=flavours)
                 self.add_keyword(coefficient_name)
-        for coefficient in ["QphiD_{flavours}", "Dphi_{flavours}", "QLd_{flavours}", "Ced_{flavours}", "CLd_{flavours}", "Qe_{flavours}"]:
+        for coefficient in ["QphiD_{flavours}", "QLd_{flavours}"]:
             for flavours in ["dd", "ds", "db", "ss", "sb", "bb"]:
                 coefficient_name = coefficient.format(flavours=flavours)
                 self.add_keyword(coefficient_name)
