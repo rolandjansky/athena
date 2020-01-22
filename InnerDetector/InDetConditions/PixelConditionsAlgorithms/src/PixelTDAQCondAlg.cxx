@@ -30,7 +30,6 @@ StatusCode PixelTDAQCondAlg::initialize() {
 }
 
 StatusCode PixelTDAQCondAlg::execute(const EventContext& ctx) const {
-  ATH_MSG_INFO("PixelTDAQCondAlg::execute()");
 
   SG::WriteCondHandle<PixelTDAQData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
