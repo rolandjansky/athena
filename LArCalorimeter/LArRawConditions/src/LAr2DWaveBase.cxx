@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -77,7 +77,7 @@ LAr2DWaveBase::LAr2DWaveBase(float timeOffset,
  * @brief Constructor for channel data from a compact subset.
  * @param other Reference to the source channel data.
  */
-LAr2DWaveBase::LAr2DWaveBase (const LArCompactSubsetChannelProxy& other)
+LAr2DWaveBase::LAr2DWaveBase (const LArCompactSubsetConstChannelProxy& other)
 {
   if (!other.isValid()) {
     // Invalid source --- do the same as the default ctor.

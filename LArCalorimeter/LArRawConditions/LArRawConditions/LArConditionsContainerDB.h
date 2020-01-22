@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -613,8 +613,7 @@ LArConditionsContainerDB<T>::getNonConst(const FebId febId, const int channel)
 {
     typename ConditionsHashMap::iterator it = m_febHashMap.find (febId);
     if (it == m_febHashMap.end()) {
-      // Unknown FEB
-      return Traits::empty();
+      throw std::runtime_error ("Unknown FEB");
     }
 
     ChannelVector& vec = *it->second;

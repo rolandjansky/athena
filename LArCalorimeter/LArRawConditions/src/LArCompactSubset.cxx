@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -27,12 +27,12 @@
 void LArCompactSubsetChannelProxy::assign (const LAr2DWaveBase& other)
 {
   size_t chanSize = other.waveSize(0);
-  m_subset->setTimings (m_chan, other.timeOffset(), other.timeBinWidth());
+  m_subset_nc->setTimings (m_chan, other.timeOffset(), other.timeBinWidth());
   for (unsigned int which = 0; which < LAr2DWaveBase::nWaves; ++which) {
     assert (chanSize == other.waveSize(which));
     for (unsigned int tbin = 0; tbin < chanSize; tbin++)
-      m_subset->setData (which, m_chan, tbin, chanSize,
-                         other.wave(which, tbin));
+      m_subset_nc->setData (which, m_chan, tbin, chanSize,
+                            other.wave(which, tbin));
   }
 }
 
@@ -82,7 +82,7 @@ void LArCompactSubsetVector::resize (size_t sz)
  * @brief Release any allocated but unused storage.
  * Called by the P->T converter after conversion is complete.
  */
-void LArCompactSubsetVector::trim()
+void LArCompactSubsetVector::shrink_to_fit()
 {
   std::vector<float> tmp_data (m_data);
   m_data.swap (tmp_data);
