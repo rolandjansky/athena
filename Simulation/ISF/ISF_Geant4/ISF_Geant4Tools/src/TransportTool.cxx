@@ -450,17 +450,6 @@ StatusCode iGeant4::G4TransportTool::releaseEvent()
 }
 
 //________________________________________________________________________
-// Act as particle broker for G4 secondaries
-void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
-{
-  ATH_MSG_VERBOSE( "Caught secondary particle push() from Geant4" );
-
-  Slot& slot = *m_slots;
-  Slot::lock_t lock (slot.m_mutex);
-  slot.m_secondariesMap[ parent ].push_back( particle );
-}
-
-//________________________________________________________________________
 HepMC::GenEvent* iGeant4::G4TransportTool::genEvent(McEventCollection* mcEventCollection) const
 {
 

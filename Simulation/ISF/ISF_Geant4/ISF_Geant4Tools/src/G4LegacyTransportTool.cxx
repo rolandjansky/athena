@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -370,17 +370,6 @@ StatusCode iGeant4::G4LegacyTransportTool::releaseEvent()
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   return StatusCode::SUCCESS;
-}
-
-//________________________________________________________________________
-// Act as particle broker for G4 secondaries
-void iGeant4::G4LegacyTransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
-{
-  ATH_MSG_VERBOSE( "Caught secondary particle push() from Geant4" );
-
-  Slot& slot = *m_slots;
-  Slot::lock_t lock (slot.m_mutex);
-  slot.m_secondariesMap[ parent ].push_back( particle );
 }
 
 //________________________________________________________________________
