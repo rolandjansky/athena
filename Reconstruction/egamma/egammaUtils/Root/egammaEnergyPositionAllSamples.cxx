@@ -62,21 +62,21 @@ bool egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster &cluster, 
     return false; // endcap
   } else if (cluster.inBarrel() && cluster.inEndcap()) {
     switch (sampling) {
-    case 0: {
-      return isCrackBarrel(cluster,CaloSampling::PreSamplerB, CaloSampling::PreSamplerE);
-    }
-    case 1: {
-      return isCrackBarrel(cluster,CaloSampling::EMB1, CaloSampling::EME1);
-    }
-    case 2: {
-      return isCrackBarrel(cluster,CaloSampling::EMB2, CaloSampling::EME2);
-    }
-    case 3: {
-      return isCrackBarrel(cluster,CaloSampling::EMB3, CaloSampling::EME3);
-    }
-    default: {
-      return true; // barrel default
-    }
+      case 0: {
+        return isCrackBarrel(cluster, CaloSampling::PreSamplerB, CaloSampling::PreSamplerE);
+      }
+      case 1: {
+        return isCrackBarrel(cluster, CaloSampling::EMB1, CaloSampling::EME1);
+      }
+      case 2: {
+        return isCrackBarrel(cluster, CaloSampling::EMB2, CaloSampling::EME2);
+      }
+      case 3: {
+        return isCrackBarrel(cluster, CaloSampling::EMB3, CaloSampling::EME3);
+      }
+      default: {
+        return true; // barrel default
+      }
     }
   }
 
