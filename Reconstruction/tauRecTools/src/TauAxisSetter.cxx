@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -29,7 +29,6 @@ m_doCellCorrection(false),
 m_doAxisCorrection(true)
 {
     declareProperty("ClusterCone", m_clusterCone);
-    declareProperty("tauContainerKey", m_tauContainerKey = "TauJets");
     declareProperty("CellCorrection", m_doCellCorrection);
     declareProperty("AxisCorrection", m_doAxisCorrection = true);
 }
@@ -97,22 +96,11 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
 	tauDetectorAxis += tempClusterVector;
     }
     
-    if  (nConstituents == 0)
-      {
-	StatusCode sc;
-	bool isCosmics = false;
-	if (tauEventData()->hasObject("IsCosmics?")) {
-	  sc = tauEventData()->getObject("IsCosmics?", isCosmics);
-	}
-	 
-	// If running cosmic triggers, don't worry about not having clusters in tau
-	if(sc.isSuccess() && tauEventData()->inTrigger() && isCosmics){
-	  ATH_MSG_WARNING("this tau candidate does not have any constituent clusters! breaking off tau tool chain and not recording this candidate!");
-	} else {
-	  ATH_MSG_DEBUG("this tau candidate does not have any constituent clusters! breaking off tau tool chain and not recording this candidate!");
-	}
-	return StatusCode::FAILURE;
-      }
+    if  ( 0 == nConstituents )
+    {
+	    ATH_MSG_DEBUG("this tau candidate does not have any constituent clusters!");
+	    return StatusCode::FAILURE;
+    }
 
     ATH_MSG_VERBOSE("jet axis:" << (*pTau.jetLink())->pt()<< " " << (*pTau.jetLink())->eta() << " " << (*pTau.jetLink())->phi()  << " " << (*pTau.jetLink())->e() );
     // save values for detector axis.

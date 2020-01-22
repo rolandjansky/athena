@@ -22,8 +22,6 @@
 #include <cstdlib>
 
 // Athena //
-// #include "GaudiKernel/MsgStream.h"
-
 
 #include "Identifier/IdentifierHash.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
@@ -78,14 +76,8 @@ MdtDqaTubeEfficiency::MdtDqaTubeEfficiency(float nsigma, float chi2Cut,
                  bool useNewCalibConstants, bool useTimeCorrections) : 
   m_muonIdHelperTool(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), p_calib_input_svc(NULL),
   m_histoManager(NULL),
-  //m_tfile(NULL), m_tfile_debug(NULL), m_hit_ntuple(NULL),
-  //m_cal_region(NULL),
   m_qfitter(NULL),
-  //m_nb_trigger(-1),
   m_nb_stations(-1)
-  //m_h_distance(NULL), m_h_nb_hit_tubes(NULL),
-  //m_h_layer_efficiency(NULL), m_h_layer_fakerate(NULL), m_h_chamber_efficiency(NULL),
-  //m_h_chamber_fakerate(NULL), m_h_chi2(NULL)
 {
   m_nsigma = nsigma;
   m_chi2Cut = chi2Cut;
@@ -112,7 +104,6 @@ StatusCode MdtDqaTubeEfficiency::initialize(const Muon::MuonIdHelperTool *muonId
   //ToString ts;
 
   string RegionName = p_reg_sel_svc->GetRegionSelection();
-  //cout << " MdtDqaTubeEfficiency::initialize - RegionName: "<<RegionName<< endl;
 
   const std::vector<MuonCalib::NtupleStationId> stationsInRegion = p_reg_sel_svc->GetStationsInRegions();
 
@@ -127,27 +118,13 @@ StatusCode MdtDqaTubeEfficiency::initialize(const Muon::MuonIdHelperTool *muonId
   for (int istation=0;istation<m_nb_stations;istation++) {
     for (int k=0;k<4;k++) m_nb_layers_tubes[istation][k] = -1;
   }
-  //cout << " end of first for loop " << endl;
-
-  /*
-    std::vector<MuonCalib::NtupleStationId>::const_iterator itstation;
-    for (itstation = stationsInRegion.begin();
-    itstation!=stationsInRegion.end(); itstation++) {
-    cout << "in the loop. itest = "<<itest++ << endl;
-    string stationNameString = (itstation)->regionId();
-    cout << " stationName : "<< stationNameString << endl; 
-    }
-  */
 
   for (int istation=0;istation<m_nb_stations;istation++) {
     string stationNameString = stationsInRegion.at(istation).regionId();
-    // cout << " initializing vector m_nb_layers_tubes. istation : "<< istation
-    //     << " stationName: "<< stationNameString << endl; 
     string chamberType = stationNameString.substr(0,3);
     int phi_id = stationsInRegion.at(istation).GetPhi();
     int eta_id = stationsInRegion.at(istation).GetEta();
 
-    // string fullStationName = chamberType+"_"+ts(phi_id)+"_"+ts(eta_id);
     Identifier station_id = m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
     int stationIntId = static_cast<int>(station_id.get_identifier32().get_compact());
     int numberOfML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
@@ -200,8 +177,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
   DCSLFitter *fitter = new DCSLFitter();
   GlobalTimeFitter *GTFitter = new GlobalTimeFitter(fitter);
   const IRtRelation *calibRt(0);
-  //  const IRtResolution * GTFitResol(0); 
-  IRtRelation *GTFitRt(0);
+  const IRtRelation *GTFitRt(0);
   if ( m_GTFitON ) {
     if (!m_useNewCalibConstants ) {
       GTFitRt = GTFitter->getDefaultRtRelation();
@@ -213,20 +189,9 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 
     MuonCalibSegment segment(*segments[k]);
 
-    // if (segment.fittedT0() == 0. ) {
-    //    cout << "DEBUG DEBUG DEBUG segment failed t0 refinement " << endl;
-    //    continue;
-    // }
-    
     //---------------//
     //-- Variables --//
     //---------------//
-    
-    /*
-      if(m_qfitter==NULL){ 
-      m_qfitter = new QuasianalyticLineReconstruction();
-      }
-    */
     
     int nb_hits;
      
@@ -244,7 +209,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     //
     // Get REGION and STATION of the first hit of the segment :
     // 
- //    int stationNameId = Mid.stationName();
     int phi  = Mid.phi();
     int eta  = Mid.eta();
     string stationNameStr = Mid.stationNameString();
@@ -260,11 +224,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
       bool sameChamber = samestation && samephi && sameeta;
       if (!sameChamber){
 	segInOneChamber = false;
-	// cout<< " DEBUG DEBUG segInOneChamber = false " << endl;
-	// cout<< " DEBUG DEBUG Station " << stationNameStr<<" "<< ((segment.mdtHOT()[l])->identify()).stationNameString() << endl;
-	// cout<< " DEBUG DEBUG phi "<< phi<<" "<<((segment.mdtHOT()[l])->identify()).phi() << endl;
-	// cout<< " DEBUG DEBUG eta "<< eta<<" "<<((segment.mdtHOT()[l])->identify()).eta() << endl;
-	
 	// REINCLUDE THE BREAK !
 	break;
       }
@@ -297,27 +256,20 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
       }
     }
 
-    // if (numberOfML == 1 ) return StatusCode::SUCCESS;
     if (numberOfML == 1 ) continue;  // GO TO NEXT SEGMENT
 
     int  minNumOfHits = numberOfLayers*2 - 1;
 
-    // if(segment.mdtHitsOnTrack()<minNumOfHits) return StatusCode::SUCCESS;
     if((int)segment.mdtHitsOnTrack()<minNumOfHits) continue;  // GO TO NEXT SEGMENT
 
     // Get Histograms
     TFile *mdtDqaRoot =  m_histoManager->rootFile();
     string region = chamb.getRegion();
-    //if ( stationNameStr.substr(0,1) == "E" ) region = "Endcap";
     string side = chamb.getSide();
 
     PhiEtaNameConverter phiEtaConverter;
-    //string chamberType = stationNameStr;
     string chamberType = chamb.getName();
 
-    // string fullStationName = chamberType+"_"+ts(phi)+"_"+ts(eta);
-    // cout << " TEST TEST STATIONNAME : fullStationName = " << fullStationName << endl;
-    //     int sector = phiEtaConverter.phi_8to16(stationNameId,phi);
     string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
     string effiDirName = chamberDirName+"/Efficiency";
     string expertDirName = chamberDirName+"/Expert";
@@ -327,7 +279,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     TDirectory *expertRootDir = mdtDqaRoot->GetDirectory(expertDirName.c_str());
   
     if ( !chamberRootDir || !effiRootDir ) {
-      //cout << " ERROR : dqa Directory " << chamberDirName <<" does NOT EXIST "<< endl;
       delete GTFitter; GTFitter=0;
       return StatusCode::FAILURE;
     }
@@ -343,7 +294,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     histoName = "EfficiencyCounts";
     heffiCounts = (TH1F*) expertRootDir->FindObjectAny(histoName.c_str());
     if (!heffiEntries || !heffiCounts ) {
-      //cout << "MdtDqa Efficiency histogram :" << histoName<<" NOT FOUND " << endl;
       delete GTFitter; GTFitter=0;
       return StatusCode::FAILURE;
     }
@@ -364,11 +314,9 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
       if (m_useNewCalibConstants ) {
 	calibRt = p_calib_input_svc->GetRtRelation(id);
 	if (calibRt==NULL ) {
-	  //cout << "MdtDqaTubeEfficiency:: WARNING Rt NOT FOUND - SEGMENT SKIPPED" << endl;
 	  continue;
 	}
-	GTFitRt = const_cast<IRtRelation *> (calibRt);
-	//           GTFitResol = p_calib_input_svc->GetResolution(id);
+	GTFitRt = calibRt;
 	GTFitter->setRtRelation(GTFitRt);
 	// here a method on GTFitter should be implemented to setResolution !
 	// something like
@@ -385,7 +333,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 	   it!=raw_hits->rawMdtHitCollectionEnd(); ++it) {   // LOOP OVER RawHitCollection 
 	
 	if (GTFitRt==NULL) {
-	  //cout << "MdtDqaTubeEfficiency:: WARNING GTFitRt NOT FOUND - HIT SKIPPED" << endl;
 	  continue;
 	}
 	MuonCalibRawMdtHit *hit = *it;
@@ -404,23 +351,9 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 	  hit->setDriftRadius(newRadius);
 	  hit->setDriftRadiusError(newResol);
 
-	  // cout << " DEBUG DEBUG : NEW time radius resol : " 
-	  //     << newDriftTime<<" "<<newRadius<<" "<<newResol<< endl;
-	  
 	} // close IF the hit is in the same chamber
       } // END LOOP OVER RawHitCollection
     } //END IF GTFIT ON
-    // START DEBUG TO COMPARE t0-Refit Method with t0RPC timing corrections
-    // 
-    /*
-      string histoType;
-      TH2F * h2;
-      histoType = "t0FitVst0RPC";
-      h2 = (TH2F*) m_histoManager->GetHisto("DEBUG",histoType);
-      h2->Fill(toffset,toffset);
-    */
-    //
-    // END DEBUG
     
     // RECALIBRATION with NEW CALIB CONSTANTS if GTFIT is OFF 
     if (m_useNewCalibConstants && !m_GTFitON ) {
@@ -433,7 +366,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
         const IRtRelation *rt_relation = p_calib_input_svc->GetRtRelation(id);
         const IRtResolution *spat_res  = p_calib_input_svc->GetResolution(id);
         if (t0==NULL || rt_relation==NULL || spat_res==NULL) {
-	  //cout << "MdtDqaTubeEfficiency:: WARNING calib constants NOT FOUND - HIT SKIPPED" << endl;
 	  continue;
         }
 
@@ -447,19 +379,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
         segHit->setDriftTime(newDriftTime);
         segHit->setDriftRadius(newRadius, newResol);
       } // END OVER MdtCalibHitBase in the segment
-
-      /*
-	double origSegdirY=segment.direction().y();
-	double origSegdirZ=segment.direction().z();
-	double origSegposY=segment.position().y();
-	double origSegposZ=segment.position().z();
-	double origSegaseg=0.;
-	double origSegbseg=0.;
-	if (origSegdirZ !=0. ) {
-	origSegaseg=origSegdirY/origSegdirZ;
-	origSegbseg= origSegposY - origSegaseg*origSegposZ; 
-	}
-      */
 
       // Recalibrate all rawhits on this chamber
       const MuonCalibRawHitCollection *raw_hits(event.rawHitCollection());
@@ -479,7 +398,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 	  const IRtResolution *spat_res  = p_calib_input_svc->GetResolution(id);
 
 	  if (t0==NULL || rt_relation==NULL || spat_res==NULL) {
-	    //cout << "MdtDqaTubeEfficiency:: WARNING calib constants NOT FOUND - HIT SKIPPED" << endl;
 	    continue;
 	  }
 
@@ -498,85 +416,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
       } // END LOOP OVER RawHitCollection
     } // CLOSE If m_useNewCalibConstants
     // END RECALIBRATION with NEW CALIB CONSTANTS 
-    
-    /*
-    // RECALIBRATION from GlobalTimeFit
-    if ( m_GTFitON ) {
-    // Recalibrate all MdtCalibHitBase on the segment 
-    // (in case calibrations used now are different from those of original segments)
-    for (unsigned int l=0; l<segment.mdtHitsOnTrack(); l++) {   // LOOP OVER MdtCalibHitBase in the segment
-    MdtCalibHitBase * segHit = segment.mdtHOT()[l]; 
-    MuonFixedId id(segHit->identify());
-    if (GTFitRt==NULL) {
-    cout << "MdtDqaTubeEfficiency:: WARNING GTFitRt NOT FOUND - HIT SKIPPED" << endl;
-    continue;
-    }
-    unsigned short rawTime = segHit->tdcCount();
-    double newDriftTime = (double)rawTime*25./32. - toffset;
-    double newRadius = GTFitRt->radius(newDriftTime);
-    double newResol(9999.);
-    if ( m_useNewCalibConstants ) {
-    if (!m_defaultResol) newResol = GTFitResol->resolution(newDriftTime);
-    if (m_defaultResol) newResol = defaultResolution(newRadius);
-    } else {
-             // newResol = GTFitter->getDefaultResolution(newRadius);
-             newResol = defaultResolution(newRadius);
-        }
-        segHit->setDriftTime(newDriftTime);
-        segHit->setDriftRadius(newRadius, newResol);
-    } // END OVER MdtCalibHitBase in the segment
-
-    // refit segment after recalibration 
-    // (is this useful here? we refit anyway with excluded hits)
-    if (m_useNewCalibConstants || m_GTFitON ) fitter->fit(segment);
-
-    //
-    double origSegdirY=segment.direction().y();
-    double origSegdirZ=segment.direction().z();
-    double origSegposY=segment.position().y();
-    double origSegposZ=segment.position().z();
-    double origSegaseg=0.;
-    double origSegbseg=0.;
-    if (origSegdirZ !=0. ) {
-    origSegaseg=origSegdirY/origSegdirZ;
-    origSegbseg= origSegposY - origSegaseg*origSegposZ; 
-    }
-    //
-
-    // Recalibrate all rawhits on this chamber
-    const MuonCalibRawHitCollection *raw_hits(event.rawHitCollection());
-    for (MuonCalibRawHitCollection::MuonCalibRawMdtHitVecCit it=
-    raw_hits->rawMdtHitCollectionBegin();
-    it!=raw_hits->rawMdtHitCollectionEnd(); ++it) {   // LOOP OVER RawHitCollection 
-    
-    if (GTFitRt==NULL) {
-    cout << "MdtDqaTubeEfficiency:: WARNING GTFitRt NOT FOUND - HIT SKIPPED" << endl;
-    continue;
-    }
-    MuonCalibRawMdtHit *hit = *it;
-    bool samestation( (hit->identify()).stationNameString()==stationNameStr );
-    bool samephi( (hit->identify()).phi()==phi );
-    bool sameeta( (hit->identify()).eta()==eta );
-    bool sameChamber = samestation && samephi && sameeta;
-    if (p_reg_sel_svc->isInRegion(hit->identify()) && sameChamber ){
-    int rawTime = hit->tdcCount();
-    double newDriftTime = (double)rawTime*25./32. - toffset;
-    double newRadius = GTFitRt->radius(newDriftTime);
-    double newResol(9999.);
-    if (m_defaultResol) newResol = defaultResolution(newRadius);
-    if (!m_defaultResol) newResol = GTFitter->getDefaultResolution(newRadius); //it is in fact the same
-    hit->setDriftTime(newDriftTime);
-    hit->setDriftRadius(newRadius);
-    hit->setDriftRadiusError(newResol);
-    
-    // cout << " DEBUG DEBUG : NEW time radius resol : " 
-    //     << newDriftTime<<" "<<newRadius<<" "<<newResol<< endl;
-    
-    } // close IF the hit is in the same chamber
-    } // END LOOP OVER RawHitCollection
-    } // CLOSE If m_GTFitON
-    // END RECALIBRATION from GlobalTimeFit
-*/
 
 
     // Now everything is recalibrated and segments are ready.
@@ -585,7 +424,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     track0 = MTStraightLine(segment.position(),segment.direction(),
 			    Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0));
 
-    // cout << " DEBUG DEBUG : Start analysis on a new segment --- " << endl;
     // loop over MultiLayers
     for (int multilayer=1; multilayer<=numberOfML; multilayer++) {  // LOOP OVER MULTILAYERS
       
@@ -617,22 +455,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 
 	fitter->fit(segment,hit_selection);
 
-	/*
-	  double newSegdirY=segment.direction().y();
-	  double newSegdirZ=segment.direction().z();
-	  double newSegposY=segment.position().y();
-	  double newSegposZ=segment.position().z();
-	  double newSegaseg=0.;
-	  double newSegbseg=0.;
-	  if (newSegdirZ !=0. ) {
-	  newSegaseg=newSegdirY/newSegdirZ;
-	  newSegbseg= newSegposY - newSegaseg*newSegposZ; 
-	  // cout<< " DEBUG DEBUG COMPARE ORIG vs NEW Segment " << endl
-	  //     << " ORIG a, b " << origSegaseg <<" " << origSegbseg <<  endl
-	  //     << " new  a, b " << newSegaseg <<" " << newSegbseg <<  endl;
-	  }
-	*/
-	
 	if ((int)segment.mdtHitsOnTrack() < minNumOfHits ) continue;
 	if (segment.chi2()>m_chi2Cut)  continue;
 	
@@ -674,16 +496,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 	  MTStraightLine tube = MTStraightLine( tube_position, tube_direction,
 						Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0) );
 
-	  // DEBUG GEOMETRY :
-	  // cout << " CHAMBER, eta, phi, ML, LY, TUBE, x, y, z : "<< stationNameStr<<" "<<eta<<" "<<phi
-	  //      << " " << multilayer <<" "<< layer <<" "<<k+1 <<" " 
-	  //      << (MdtRoEl->tubePos(multilayer,layer,k+1)).x() <<" "
-	  //      << (MdtRoEl->tubePos(multilayer,layer,k+1)).y() <<" "
-	  //     << (MdtRoEl->tubePos(multilayer,layer,k+1)).z() <<" " << endl;
-	  //debug: check geometry
-	  //cout << "AMDpos: " << tube_position 
-	  //   << ", mypos: " << wire_position[multilayer-1][layer-1][k] << endl;
-          
 	  double distance = TMath::Abs(track1.signDistFrom(tube));
 	  
 	  if ( distance < (MdtRoEl->innerTubeRadius()) ){
@@ -803,10 +615,8 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
     p_reg_sel_svc->GetStationsInRegions();
   
   ToString ts;
-  // cout << " TEST TEST Finalize : start loop over regions loop size: "<< stationsInRegion.size()<<endl;
   //loop over stations in region
   for ( int istation=0; istation<m_nb_stations; istation++ ) {
- //       int stationNameId = stationsInRegion.at(istation).GetStation();
     int phi = stationsInRegion.at(istation).GetPhi();
     int eta = stationsInRegion.at(istation).GetEta();
     string stationNameString = stationsInRegion.at(istation).regionId();
@@ -828,17 +638,10 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
     if (numberOfTubes[0]>0 || numberOfTubes[1]>0 ) numberOfML = 1;
     if (numberOfTubes[0]>0 && numberOfTubes[1]>0 ) numberOfML = 2;
     
-    /*string region = "Barrel";
-      if ( stationNameString.substr(0,1) == "E" ) region = "Endcap";
-      string side = "A";
-      if (eta<0) side = "C";*/
     string region= chamb.getRegion();
     string side=chamb.getSide();
     
     PhiEtaNameConverter phiEtaConverter;
-    //        int sector = phiEtaConverter.phi_8to16(stationNameId,phi);
-    //string chamberDirName = m_histoManager->GetMdtDirectoryName( region, side, 
-    //                        sector, chamberType, abs(eta) );
     string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
     
     string effiDirName = chamberDirName+"/Efficiency";
@@ -848,7 +651,6 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
     TDirectory *expertRootDir = mdtDqaRoot->GetDirectory(expertDirName.c_str());
     
     if ( !chamberRootDir || !effiRootDir ) {
-      //cout << " ERROR : dqa Directory " << chamberDirName <<" does NOT EXIST "<< endl;
       return StatusCode::FAILURE;
     }
     
@@ -856,14 +658,12 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
     TH1F *heffiEntries;
     TH1F *heffiCounts;
 
-    // effiRootDir->cd();
     expertRootDir->cd();
     histoName = "EfficiencyEntries";
     heffiEntries = (TH1F*) expertRootDir->FindObjectAny(histoName.c_str());
     histoName = "EfficiencyCounts";
     heffiCounts = (TH1F*) expertRootDir->FindObjectAny(histoName.c_str());
     if (!heffiEntries || !heffiCounts ) {
-      //cout << "MdtDqa Efficiency histogram :" << histoName<<" NOT FOUND in "<<chamberDirName << endl;
       return StatusCode::FAILURE;
     }
     
@@ -908,7 +708,6 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
 	    histoName = "b_EfficiencyPerTube";
 	    heffi = (TH1F*) chamberRootDir->FindObjectAny(histoName.c_str());
 	    if (!heffi) {
-	      //cout << "MdtDqa Efficiency histogram :" << histoName<<" NOT FOUND in " <<chamberDirName << endl;
 	      continue;
 	    }
 	    heffi->SetBinContent(ibin,efficiency);
@@ -918,7 +717,6 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
 	    effiRootDir->cd();
 	    heffi= (TH1F*) effiRootDir->FindObjectAny(histoName.c_str());
 	    if (!heffi) {
-	      //cout << "MdtDqa Efficiency histogram :" << histoName<<" NOT FOUND in " << effiDirName<< endl;
 	      continue;
 	    }
 	    heffi->SetBinContent(iTube,efficiency);

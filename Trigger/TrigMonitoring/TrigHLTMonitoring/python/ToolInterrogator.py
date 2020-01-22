@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
+
+from __future__ import print_function
 
 import sys
 # needed for getting package names etc. of tools
@@ -29,25 +31,26 @@ class ToolInterrogator:
         "Set up all trigger-monitoring tools, such that they can be interrogated."
 
         
-        print "Now setting up all trigger-monitoring tools."
-        print ""
-        print "#"*10
-        print ""
+        print ("Now setting up all trigger-monitoring tools.")
+        print ("")
+        print ("#"*10)
+        print ("")
+
+        from importlib import import_module
 
         # load all tools in PackagesToInterrogate
         for key, value in self.packages_to_interrogate.PackagesToInterrogate.iteritems():
 
             # first import the tool from the package
-            exec "from %s import %s" % (value['PackageName'],value['ToolName'])
-
-            # then initialise the tool
-            exec "%s()" % (value['ToolName'])
+            mod = import_module (value['PackageName'])
+            toolcls = getattr (mod, value['ToolName'])
+            toolcls()
 
         
-        print ""
-        print "#"*10
-        print ""
-        print "All trigger-monitoring tools have now been set up."
+        print ("")
+        print ("#"*10)
+        print ("")
+        print ("All trigger-monitoring tools have now been set up.")
 
 
     def get_available_trigger_monitoring_tools(self):
@@ -66,7 +69,7 @@ class ToolInterrogator:
             # (no TrigMonTools do this)
             # specifically skip tools with scope resolution operators in their names (why do they have these here!?)
             if "::" in tool.getName():
-                print "Skipping",tool.getName(),"as its name contains a scope resolution operator '::'."
+                print ("Skipping",tool.getName(),"as its name contains a scope resolution operator '::'.")
                 continue
 
             # OLD:
@@ -90,7 +93,7 @@ class ToolInterrogator:
 
 
         # return the list of monitoring tools
-        print "mon_tools =",mon_tools
+        print ("mon_tools =",mon_tools)
         return mon_tools
 
 
@@ -99,7 +102,7 @@ class ToolInterrogator:
 
         # check that we have been given a valid name
         if not hasattr(ToolSvc,tool_ToolSvc_name):
-            print "ToolSvc does not contain a tool named",tool_ToolSvc_name
+            print ("ToolSvc does not contain a tool named",tool_ToolSvc_name)
             return -1
 
 
@@ -111,8 +114,7 @@ class ToolInterrogator:
             return -1
 
         # get tool Dll
-        tool_Dll = ""
-        exec "tool_Dll = ToolSvc.%s.getDlls()" % (tool_ToolSvc_name)
+        tool_Dll = getattr(ToolSvc, tool_ToolSvc_name).getDlls()
 
         # the slice_name, the key in packages_to_interrogate.PackagesToInterrogate
         slice_name = ''
@@ -136,8 +138,8 @@ class ToolInterrogator:
         if slice_name == '':
 
             #if not, return -1
-            print ""
-            print "Additional info not found for ToolSvc tool ", tool_ToolSvc_name
+            print ("")
+            print ("Additional info not found for ToolSvc tool ", tool_ToolSvc_name)
             return -1
 
         else:
@@ -172,23 +174,20 @@ class ToolInterrogator:
         tool_info = {}
 
         # first we get its properties
-        tool_properties = ""
-        exec "tool_properties = ToolSvc.%s.properties()" % (tool_ToolSvc_name)
+        tool = getattr (ToolSvc, tool_ToolSvc_name)
+        tool_properties = tool.properties()
 
         # we also get the property 'no value' string for this tool (to use later)
-        tool_novalue = ""
-        exec "tool_novalue = ToolSvc.%s.propertyNoValue" % (tool_ToolSvc_name)
+        tool_novalue = tool.propertyNoValue
 
         # and we get the default property values
-        tool_default_properties = ""
-        exec "tool_default_properties = ToolSvc.%s.getDefaultProperties()" % (tool_ToolSvc_name)
+        tool_default_properties = tool.getDefaultProperties()
 
         # then we check these properties
         for prop,value in tool_properties.iteritems():
 
             # does the tool really have this property?
-            tool_property_truth = False
-            exec "tool_property_truth = hasattr(ToolSvc.%s,prop)" % (tool_ToolSvc_name)
+            tool_property_truth = hasattr (tool, prop)
 
             # if it does not...
             # then the value has likely not been set
@@ -229,9 +228,9 @@ class ToolInterrogator:
                 # if throwaway_test_object != value:
 
                 #     
-                #     print "In",tool_ToolSvc_name,", the object",prop,"has the value",value
-                #     print "However, after json dumping and loading, this object has the value",throwaway_test_object
-                #     print "As these values are not equal, the object can not be stored and accurately retrieved from the database, and thus will not be stored."
+                #     print ("In",tool_ToolSvc_name,", the object",prop,"has the value",value)
+                #     print ("However, after json dumping and loading, this object has the value",throwaway_test_object)
+                #     print ("As these values are not equal, the object can not be stored and accurately retrieved from the database, and thus will not be stored.")
 
                 #     # do nothing, as we shall not store this item
                 #     continue
@@ -258,12 +257,11 @@ class ToolInterrogator:
             return {}
 
         # now we import the MonitCategory, and set it as monitCategoryObject so that we have an easy handle on it
-        monitCategoryObject = ""
-        exec "import %s as monitCategoryObject" % (monitCategoryName)
+        from importlib import import_module
+        monitCategoryObject = import_module (monitCategoryName)
 
         # next we need to find out what this monitCategoryObject contains
-        monitCategoryObject_properties = ""
-        exec "monitCategoryObject_properties = dir(monitCategoryObject)"
+        monitCategoryObject_properties = dir(monitCategoryObject)
 
         # only some of the things in monitCategoryObject_properties are of interest to us
         # we store those items in the dict monitCategoryObject_interesting_properties
@@ -274,8 +272,7 @@ class ToolInterrogator:
             if not item_name.startswith('__'):
 
                 # get the value of this item
-                item_value = ""
-                exec "item_value = monitCategoryObject.%s" % (item_name)
+                item_value = getattr (monitCategoryObject, item_name)
 
                 # test if this value is JSON serializable
                 try:
@@ -292,9 +289,9 @@ class ToolInterrogator:
                     # if throwaway_test_object != item_value:
 
                     #     
-                    #     print "In",monitCategoryName,", the object",item_name,"has the value",item_value
-                    #     print "However, after json dumping and loading, this object has the value",throwaway_test_object
-                    #     print "As these values are not equal, the object can not be stored and accurately retrieved from the database, and thus will not be stored."
+                    #     print ("In",monitCategoryName,", the object",item_name,"has the value",item_value)
+                    #     print ("However, after json dumping and loading, this object has the value",throwaway_test_object)
+                    #     print ("As these values are not equal, the object can not be stored and accurately retrieved from the database, and thus will not be stored.")
 
                     #     # do nothing, as we shall not store this item
                     #     continue

@@ -2,26 +2,22 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef MUONCALIB_MUONCALIBALG_H
 #define MUONCALIB_MUONCALIBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonPrdSelector/MuonIdCutTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class MdtIdHelper;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+/* #include "StoreGate/ReadCondHandleKey.h" */
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class ICscStripFitter;
 
 class TileTBID;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Muon {
   class RpcPrepData;
@@ -100,7 +96,11 @@ namespace MuonCalib {
     /** retrieve event trigger time information from storegate and convert to MuonCalibTriggerTimeInfo */
     const MuonCalibTriggerTimeInfo* retrieveTriggerTimeInfo() const;
 
-    const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to MuonDetectorManager 
+    /** retrieve MuonDetectorManager from the conditions store */
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	"MuonDetectorManager", 
+	"Key of input MuonDetectorManager condition data"};    
+
     std::string m_globalPatternLocation;            //!< Location of the MuonCalibPattern in StoreGate
 
     /* RtCalibration initialization */
@@ -116,13 +116,10 @@ namespace MuonCalib {
     // time samples and extract strip charge
     ToolHandle<ICscStripFitter> m_stripFitter;
 
-
     // Tool to cut on identifiers
     ToolHandle<IMuonIdCutTool> m_muonIdCutTool;
    
-    /* Tool for Identifier Helpers */
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     std::vector <const MuonCalibEvent*> m_events;         //!< vector holding pointers to events, for deletion at finalize
 

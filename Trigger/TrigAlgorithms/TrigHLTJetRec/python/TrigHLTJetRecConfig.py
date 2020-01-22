@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.SystemOfUnits import GeV
 
@@ -10,7 +12,7 @@ from GaudiKernel.Constants import (VERBOSE,
                                    ERROR,
                                    FATAL,)
 
-import TrigHLTJetRecConf
+from TrigHLTJetRec import TrigHLTJetRecConf
 from TrigHLTJetRec.TrigHLTJetRecConf import (IParticleNullRejectionTool,
                                              IParticlePtEtaRejectionTool,
                                              NonPositiveEnergyRejectionTool)
@@ -151,15 +153,17 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
     # Build the modifier
     try:
         calibmod = jrcf.find(alg, rad, inp, seq, config, evsprefix)
-    except Exception, e:
-        print "Exception raised within jrcf when finding the trimmed jet calib modifier"
+    except Exception as e:
+        print ("Exception raised within jrcf when finding the trimmed jet calib modifier")
+        import traceback
+        traceback.print_exc()
         raise e
 
     # Check if we found it or not
     if not calibmod:
         raise RuntimeError(error%("failed to find trimmed jet calib modifier"))
     
-    print "Adding calibration modifier: ",str(calibmod)
+    print ("Adding calibration modifier: ",str(calibmod))
     return calibmod
 
 def addTrkMomsTool(toolname,
@@ -184,8 +188,8 @@ def addTrkMomsTool(toolname,
                                           TrackSelector = jtm.trackselloose)
         
         jtm += trkmomsTool
-        print 'TrigHLTJetRecConfig.addTrkMomsTool '\
-            'Added trkmoms tools "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig.addTrkMomsTool '\
+            'Added trkmoms tools "%s" to jtm' % toolname)
 
 
 def _getIsData():
@@ -216,8 +220,8 @@ def addJVFTool(toolname,
                                         IsTrigger=True,)
         
         jtm += jvfTool
-        print 'TrigHLTJetRecConfig.addJVFTool '\
-            'Added jvf tool "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvf tool "%s" to jtm' % toolname)
 
 
 def addJVTTool(toolname,
@@ -235,8 +239,8 @@ def addJVTTool(toolname,
                                       VertexContainer = vcSGkey)
         
         jtm += jvtTool
-        print 'TrigHLTJetRecConfig.addJVFTool '\
-            'Added jvt tool "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvt tool "%s" to jtm' % toolname)
 
 
 # *** FTK track moment tool helpers set up ***
@@ -271,8 +275,8 @@ def _getTVassocTool(toolname, **options):
         # Add the TVA tool to the JetTool Manager,
         tvassocTool = configTVassocTool(toolname, **options)
         jtm += tvassocTool
-        print 'TrigHLTJetRecConfig._getTVassocTool '\
-            'Added tvassoc tools "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getTVassocTool '\
+            'Added tvassoc tools "%s" to jtm' % toolname)
         
     return tvassocTool
 
@@ -281,8 +285,8 @@ def _getJetBuildToolDebug0():
     getattr(ToolSvc,"jconretriever").unlock()
     getattr(ToolSvc,"jconretriever").OutputLevel = 1
     getattr(ToolSvc,"jconretriever").lock()
-    print "FS scan Builder looks like.."
-    print getattr(ToolSvc,name+"Finder").JetBuilder
+    print ("FS scan Builder looks like..")
+    print (getattr(ToolSvc,name+"Finder").JetBuilder)
     getattr(ToolSvc,name+"Finder").unlock()
     getattr(ToolSvc,name+"Finder").OutputLevel = 1
     getattr(ToolSvc,name+"Finder").JetBuilder.setOutputLevel = 1
@@ -539,7 +543,7 @@ def _getJetBuildTool2(merge_param,
         mymods.append(jtm.clsmoms)
     if secondary_label == 'GhostTrack': # ghost track association expected, will want track moments.
         if not hasattr(jtm, 'trkmoms_'+trkopt):
-            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no track moment tools configured. Continuing without trkmodifers."
+            print ("In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no track moment tools configured. Continuing without trkmodifers.")
         else:        
             trkmoms_ghosttrack = getattr(jtm, 'trkmoms_'+trkopt)
             trkmoms_ghosttrack.unlock()
@@ -547,7 +551,7 @@ def _getJetBuildTool2(merge_param,
             trkmoms_ghosttrack.lock()
             mymods.append(trkmoms_ghosttrack)
         if not hasattr(jtm, 'jvf_'+trkopt):
-            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations."
+            print ("In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations.")
         else:        
             jvf_ghosttrack = getattr(jtm, 'jvf_'+trkopt)
             jvf_ghosttrack.unlock()
@@ -555,7 +559,7 @@ def _getJetBuildTool2(merge_param,
             jvf_ghosttrack.lock()
             mymods.append(jvf_ghosttrack)
         if not hasattr(jtm, 'jvt_'+trkopt):
-            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVT tool configured. Continuing without jvt calculations."
+            print ("In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVT tool configured. Continuing without jvt calculations.")
         else:        
             jvt_ghosttrack = getattr(jtm, 'jvt_'+trkopt)
             mymods.append(jvt_ghosttrack)
@@ -617,11 +621,11 @@ def _getJetBuildTool2(merge_param,
 
     for jr in jtm.trigjetrecs:
         if jr.name() == name:
-            print 'returning existing TriggerJetBuildTool with name', name
+            print ('returning existing TriggerJetBuildTool with name', name)
             return jr
     
 
-    print 'adding new jet builder ', name
+    print ('adding new jet builder ', name)
     assert cluster_calib in ('LC', 'EM')
     
     getter_label = cluster_calib + 'Topo'
@@ -642,14 +646,15 @@ def _getJetBuildTool2(merge_param,
             iParticleRejectionTool=iParticleRejectionTool,
             OutputLevel=OutputLevel,)
             
-    except Exception, e:
-        print 'error adding new jet builder %s' % name
-        print 'exception', e
-        print 'traceback', exc2string2()
+    except Exception as e:
+        print ('error adding new jet builder %s' % name)
+        print ('exception', e)
+        import traceback
+        traceback.print_exc()
         raise e
 
     nname = jetBuildTool.name()
-    print 'name comparison', name, nname, hasattr(jtm, nname)
+    print ('name comparison', name, nname, hasattr(jtm, nname))
 
     # try:
     #    if not hasattr(jtm,"jbldTrigger"):
@@ -830,8 +835,10 @@ def _getJetTrimmerTool2 (merge_param,
                                                       ptfrac
                                                       )
         if calibmod: mymods.append(calibmod)
-    except Exception, e:
-        print 'Error building trimmed jet calibration modifier for %s' % name
+    except Exception as e:
+        print ('Error building trimmed jet calibration modifier for %s' % name)
+        import traceback
+        traceback.print_exc()
         raise e
 
     if do_substructure:
@@ -866,7 +873,7 @@ def _getJetTrimmerTool2 (merge_param,
     for jr in jtm.trigjetrecs:
         if jr.name() == name: return jr
     
-    print 'adding new jet trimmer ', name
+    print ('adding new jet trimmer ', name)
     try:
         # Ask the jtm to creat and register the trimmer
         jetTrimmerTool = jtm.addTriggerJetTrimmer(
@@ -877,15 +884,16 @@ def _getJetTrimmerTool2 (merge_param,
             OutputLevel=OutputLevel,
         )
 
-    except Exception, e:
-        print 'error adding new jet trimmer %s' % name
-        print exc2string2()
-        print 'length jtm.trigjetrecs %d' % len(jtm.trigjetrecs)
+    except Exception as e:
+        print ('error adding new jet trimmer %s' % name)
+        import traceback
+        traceback.print_exc()
+        print ('length jtm.trigjetrecs %d' % len(jtm.trigjetrecs))
         for jr in jtm.trigjetrecs:
-            print jr.name()
+            print (jr.name())
         raise e    
             
-    print '_getJetTrimmerTool2(): jetTrimmerTool %s ' % jetTrimmerTool.name()
+    print ('_getJetTrimmerTool2(): jetTrimmerTool %s ' % jetTrimmerTool.name())
 
     return jetTrimmerTool
 
@@ -968,8 +976,8 @@ def _getEnergyDensityTool(toolname, **options):
         energyDensityTool = configHLTEventDensityTool(toolname, **options)
         jtm += energyDensityTool
         energyDensityTool = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getEnergyDensityTool '\
-            'Added energyDensity tools "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getEnergyDensityTool '\
+            'Added energyDensity tools "%s" to jtm' % toolname)
 
     return energyDensityTool
 
@@ -993,8 +1001,8 @@ def _getPseudoJetSelectorAll(toolname, **options):
         selector = TrigHLTJetRecConf.PseudoJetSelectorAll(name=toolname)
         jtm += selector
         selector = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getPseudoJetSelectorAll '\
-            'Added selector "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getPseudoJetSelectorAll '\
+            'Added selector "%s" to jtm' % toolname)
 
     return selector
 
@@ -1019,8 +1027,8 @@ def _getPseudoJetSelectorEtaPt(toolname, **kwds):
 
         jtm += selector
         selector = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getPseudoJetSelectorEtaPt '\
-            'Added selector "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getPseudoJetSelectorEtaPt '\
+            'Added selector "%s" to jtm' % toolname)
 
     return selector
 
@@ -1046,8 +1054,8 @@ def _getIParticleSelectorAll(toolname, **options):
             name=toolname)
         jtm += selector
         selector = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getIParticleSelectorAll '\
-            'Added selector "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getIParticleSelectorAll '\
+            'Added selector "%s" to jtm' % toolname)
 
     return selector
 
@@ -1072,8 +1080,8 @@ def _getIParticleSelectorEtaPt(toolname, **kwds):
 
         jtm += selector
         selector = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getIParticleSelectorEtaPt '\
-            'Added selector "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getIParticleSelectorEtaPt '\
+            'Added selector "%s" to jtm' % toolname)
 
     return selector
 
@@ -1099,8 +1107,8 @@ def _getIParticleNullRejectionTool(toolname, **kwds):
             name=toolname, **kwds)
         jtm += rejecter
         rejecter = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getIParticleNullRectionTool '\
-            'Added rejecter "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getIParticleNullRectionTool '\
+            'Added rejecter "%s" to jtm' % toolname)
 
     return rejecter
 
@@ -1124,8 +1132,8 @@ def _getNonPositiveEnergyRejectionTool(toolname, **kwds):
             name=toolname, **kwds)
         jtm += rejecter
         rejecter = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getNonPositiveEnergyRectionTool '\
-            'Added rejecter "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getNonPositiveEnergyRectionTool '\
+            'Added rejecter "%s" to jtm' % toolname)
 
     return rejecter
 
@@ -1150,8 +1158,8 @@ def _getIParticlePtEtaRejectionTool(toolname, **kwds):
 
         jtm += rejecter
         rejecter = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getIParticlePtEtaRejectionTool '\
-            'Added rejecter "%s" to jtm' % toolname
+        print ('TrigHLTJetRecConfig._getIParticlePtEtaRejectionTool '\
+            'Added rejecter "%s" to jtm' % toolname)
 
     return rejecter
 
@@ -1198,9 +1206,9 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         if 'ftk' in trkopt:
             m = "FTK opt switched on. Setting ghost label and adding "\
             "extra pseudojet getter."
-            print m
-            print "FTK jet container output collection label is %s" % (
-                output_collection_label)
+            print (m)
+            print ("FTK jet container output collection label is %s" % (
+                output_collection_label))
 
             # ghost tracks will be loaded into this getter.
             secondary_label = 'GhostTrack'
@@ -1228,11 +1236,11 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             trkopt = trkopt,
             secondary_label=secondary_label, # needed for retrieving the track psjgetter and configuring and adding of track modifiers.
             )
-        print 'after jetbuild'
+        print ('after jetbuild')
         
         self.output_collection_label = output_collection_label
         # self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
-        print 'end of jets'
+        print ('end of jets')
 
 ################### Groomer class ##################################
 
@@ -1294,7 +1302,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         )
         
 
-        print 'after trimming jetbuild'
+        print ('after trimming jetbuild')
         
         self.jetTrimTool = _getJetTrimmerTool2(
             merge_param=float(int(merge_param))/10.,
@@ -1309,7 +1317,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
 
         self.output_collection_label = output_collection_label
         # self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
-        print ' TrigHLTJetRecGroomer constructor ends'
+        print (' TrigHLTJetRecGroomer constructor ends')
 
 
 ################### Frome Jet class ################################
@@ -1362,7 +1370,7 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
 
         self.output_collection_label = output_collection_label
         # self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
-        print 'Jet from jets'
+        print ('Jet from jets')
 
 class TrigHLTJetRecFromTriggerTower(
         TrigHLTJetRecConf.TrigHLTJetRecFromTriggerTower):
@@ -1574,14 +1582,13 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
                 ):
 
         global jtm
-
         TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
 
         self.OutputLevel = OutputLevel
         self.output_collection_label = output_collection_label+ '_' + name + '_'+cluster_calib
 
         # Use cluster_calib, sk_grid_param_eta, and sk_grid_param_phi to configure the offline tool
-        print "SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi)
+        print ("SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi))
 
         # Temp hardcode enum value as this is code that will be dropped
         xaodtype_calocluster = 1
@@ -1614,7 +1621,7 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
         jtm.add(skclustModSeq)
         self.skclustModSeqTool = skclustModSeq
         
-        print "SK clusters from clusters"
+        print ("SK clusters from clusters")
 
 # Track Moment helper class                                                     
 class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):

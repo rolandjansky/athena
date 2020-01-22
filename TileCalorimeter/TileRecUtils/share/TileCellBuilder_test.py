@@ -392,7 +392,7 @@ class PrepareDataAlg (Alg):
 
             mask = 0
             for chan in baddq.get (icoll, []):
-                mask |= (1<<(chan/3))
+                mask |= (1<<(chan//3))
             coll.setFragMemoryPar(mask)
 
             for addr, data in colldata:

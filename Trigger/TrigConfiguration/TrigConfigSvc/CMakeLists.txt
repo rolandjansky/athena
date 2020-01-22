@@ -38,10 +38,9 @@ find_package( cx_Oracle )
 find_package( nlohmann_json )
 
 atlas_add_component( TrigConfigSvc
-                     src/*.cxx
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
-                     LINK_LIBRARIES AthAnalysisBaseCompsLib AthenaBaseComps TrigConfIOLib TrigConfData TrigConfStorage TrigConfL1Data L1TopoConfig EventInfo AthenaMonitoringLib nlohmann_json::nlohmann_json )
+                     LINK_LIBRARIES AthAnalysisBaseCompsLib AthenaBaseComps TrigConfIO TrigConfData TrigConfStorage TrigConfL1Data L1TopoConfig EventInfo AthenaMonitoringLib nlohmann_json::nlohmann_json )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

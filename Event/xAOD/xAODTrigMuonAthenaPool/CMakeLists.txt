@@ -35,10 +35,10 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODTRIGMONATHENAPOOL_REFERENCE_TAG
        xAODTrigMuonAthenaPoolReference-01-00-00 )
-  run_tpcnv_test( xAODTrigMuonAthenaPool_20.1.7.2   AOD-20.1.7.2-full
+  run_tpcnv_legacy_test( xAODTrigMuonAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODTrigMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRIGMONATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( xAODTrigMuonAthenaPool_21.0.79   AOD-21.0.79-full
+  run_tpcnv_legacy_test( xAODTrigMuonAthenaPool_21.0.79   AOD-21.0.79-full
                    REQUIRED_LIBRARIES xAODTrigMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRIGMONATHENAPOOL_REFERENCE_TAG} )
 else()

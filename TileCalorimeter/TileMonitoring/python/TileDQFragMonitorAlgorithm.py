@@ -49,7 +49,9 @@ def TileDQFragMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags, 'TileDQFragMonAlgCfg')
 
     runNumber = flags.Input.RunNumber[0]
-    _TileDQFragMonitoringCore(helper, runNumber, **kwargs)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    _TileDQFragMonitoringCore(helper, CompFactory.TileDQFragMonitorAlgorithm,
+                             runNumber, **kwargs)
 
     accumalator = helper.result()
     result.merge(accumalator)
@@ -79,19 +81,19 @@ def TileDQFragMonitoringConfigOld(flags, **kwargs):
     from RecExConfig.AutoConfiguration import GetRunNumber
     runNumber = GetRunNumber()
 
-    _TileDQFragMonitoringCore(helper, runNumber, **kwargs)
+    from TileMonitoring.TileMonitoringConf import TileDQFragMonitorAlgorithm
+    _TileDQFragMonitoringCore(helper, TileDQFragMonitorAlgorithm, runNumber, **kwargs)
 
     return helper.result()
 
-def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
+def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
 
     ''' Function to configure TileDQFragMonitorAlgorithm algorithm in the monitoring system.'''
 
     run = str(runNumber)
 
-    # Adding an TileDQFragMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileDQFragMonitorAlgorithm
-    tileDQFragMonAlg = helper.addAlgorithm(TileDQFragMonitorAlgorithm, 'TileDQFragMonAlg')
+    # Adding an TileDQFragMonitorAlgorithm algorithm to the helper; try to accommodate old/new configuration styles
+    tileDQFragMonAlg = helper.addAlgorithm(algConfObj, 'TileDQFragMonAlg')
 
     for k, v in kwargs.items():
         setattr(tileDQFragMonAlg, k, v)
@@ -106,7 +108,7 @@ def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
     errorStateGroup = helper.addGroup(tileDQFragMonAlg, 'TileEventsWithErrEventInfoLB', 'Tile/DMUErrors')
     errorStateGroup.defineHistogram('lumiBlock;TileEventsWithErrEventInfo', path = 'BadDrawers', type='TH1F',
                                     title = '# events with Tile error state in EventInfo;LumiBlock;# events with error',
-                                    xbins = 1000, xmin = -0.5, xmax = 999.5)
+                                    xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
 
     # 3) Configure histogram with number of consecutive bad Tile modules
     consecutiveBadGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModules', 'Tile/DMUErrors')
@@ -118,7 +120,8 @@ def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
     consecutiveBadLBGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModulesLB', 'Tile/DMUErrors')
     consecutiveBadLBGroup.defineHistogram('lumiBlock,TileConsecutiveBad;TileConsecutiveBadLB', path = 'BadDrawers', type='TH2F',
                                           title = 'Max # Tile consecutive bad modules;LumiBlock;# consecutive bad modules',
-                                          xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 17, ymin = -0.5, ymax = 16.5)
+                                          xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 17, ymin = -0.5, ymax = 16.5,
+                                          opt = 'kAddBinsDynamically')
 
 
     from TileMonitoring.TileMonitoringCfgHelper import getPartitionName
@@ -187,7 +190,7 @@ def _TileDQFragMonitoringCore(helper, runNumber, **kwargs):
         name = 'lumiBlock,fractionOfBadDMUs;FracTileDigiErrors' + moduleName
 
         tool.defineHistogram(name, title = title, path = 'DMUErrors', type = 'TProfile',
-                             xbins = 1000, xmin = -0.5, xmax = 999.5)
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
 
 
 

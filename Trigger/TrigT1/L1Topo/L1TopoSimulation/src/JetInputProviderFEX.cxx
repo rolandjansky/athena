@@ -77,9 +77,10 @@ JetInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    
+  const xAOD::JetRoIContainer* gFEXJet = nullptr;   // jets from gFEX (will make it an array later)
   if( evtStore()->contains< xAOD::JetRoIContainer >(m_gFEXJetLoc) ) {
-    CHECK ( evtStore()->retrieve( m_gFEXJet, m_gFEXJetLoc ) );
-    ATH_MSG_DEBUG( "Retrieved gFEX Jet container '" << m_gFEXJetLoc << "' with size " << m_gFEXJet->size());
+    CHECK ( evtStore()->retrieve( gFEXJet, m_gFEXJetLoc ) );
+    ATH_MSG_DEBUG( "Retrieved gFEX Jet container '" << m_gFEXJetLoc << "' with size " << gFEXJet->size());
   }
   else {
     ATH_MSG_WARNING("No xAOD::JetRoIContainer with SG key '" << m_gFEXJetLoc.toString() << "' found in the event. No JET input for the L1Topo simulation.");
@@ -87,7 +88,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   }
 
 
-  for(const xAOD::JetRoI * topoData : * m_gFEXJet) {
+  for(const xAOD::JetRoI * topoData : * gFEXJet) {
 
     ATH_MSG_DEBUG( "JET TOB with : et large = " << setw(4) << topoData->et8x8() << ", et small " << topoData->et4x4()
 		   << ", eta = " << setw(2) <<  topoData->eta() << ", phi = " << topoData->phi()

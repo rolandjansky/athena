@@ -10,7 +10,6 @@ import os
 import sys
 import signal
 import subprocess
-import psutil
 from enum import Enum
 from threading import Timer
 from TrigValTools.TrigValSteering.Common import get_logger, art_result
@@ -36,6 +35,7 @@ class Step(object):
         self.result = None
         self.auto_report_result = False
         self.required = False
+        self.depends_on_previous = False
         self.timeout = None
 
     def get_log_file_name(self):
@@ -75,12 +75,19 @@ class Step(object):
         (it has to be a list to be mutable).
         '''
         # Produce backtrace for the parent and all children
-        parent = psutil.Process(pid)
-        backtrace = ''
-        for proc in [parent] + parent.children(recursive=True):
-            backtrace += '\nTraceback for {} PID {}:\n'.format(proc.name(), proc.pid)
-            backtrace += subprocess.check_output('$ROOTSYS/etc/gdb-backtrace.sh {}'.format(proc.pid),
-                                                 stderr=subprocess.STDOUT, shell=True)
+
+        try:
+            import psutil
+            parent = psutil.Process(pid)
+            backtrace = ''
+            for proc in [parent] + parent.children(recursive=True):
+                backtrace += '\nTraceback for {} PID {}:\n'.format(proc.name(), proc.pid)
+                backtrace += subprocess.check_output('$ROOTSYS/etc/gdb-backtrace.sh {}'.format(proc.pid),
+                                                     stderr=subprocess.STDOUT, shell=True)
+        except ImportError:
+            # psutil is missing in LCG_96 python3
+            backtrace = 'psutil not available; no backtrace generated'
+
         backtrace_list[0] = backtrace
 
         # Kill the process

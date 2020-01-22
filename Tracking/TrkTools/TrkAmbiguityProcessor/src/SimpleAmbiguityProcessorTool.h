@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMPLEAMBIGUITYPROCESSORTOOL_H
@@ -116,7 +116,10 @@ namespace Trk {
 
       /** print out tracks and their scores for debugging*/
       void dumpTracks(const TrackCollection& tracks) const;
-	
+
+      /** dump the accumulated statistics */
+      void dumpStat(MsgStream &out) const;
+
       // private data members
 
       /** brem recovery mode with brem fit ? */

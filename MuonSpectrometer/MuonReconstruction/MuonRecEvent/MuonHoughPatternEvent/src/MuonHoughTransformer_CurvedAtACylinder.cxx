@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_CurvedAtACylinder.h"
@@ -70,7 +70,7 @@ void MuonHoughTransformer_CurvedAtACylinder::fillHit(MuonHoughHit* hit, double w
       const double weight_curvature = weight * 1./ (1.+m_eventsize_weightfactor*(thetas[0]-hit->getTheta()));    //* m_weightcurvature[i]; // m_eventsize_weightfactor is defined in MuonHoughTransformer::fill(event)      
 
       // Remove theta solutions outside 0 - 180 degree range
-      if (thetas[0] > 0. && thetas[0] < MuonHough::Pi) { 
+      if (thetas[0] > 0. && thetas[0] < M_PI) { 
 	double theta_in_grad = thetas[0] * MuonHough::rad_degree_conversion_factor;
 
 	const double weight_curvature_theta = weight_curvature * (0.5+0.5*std::sin(thetas[0]));
@@ -81,7 +81,7 @@ void MuonHoughTransformer_CurvedAtACylinder::fillHit(MuonHoughHit* hit, double w
       // negative curvature (for negative i)
       
       // Remove theta solutions outside 0 - 180 degree range
-      if (thetas[1] > 0. && thetas[1] < MuonHough::Pi) { 
+      if (thetas[1] > 0. && thetas[1] < M_PI) { 
 	double theta_in_grad = thetas[1] * MuonHough::rad_degree_conversion_factor;
 
 	const double weight_curvature_theta = weight_curvature * (0.5+0.5*std::sin(thetas[1]));	
@@ -245,7 +245,7 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
 	      cos_phi += scphi.cs;
 	      
               const double theta =  m_muonhoughmathutils.thetaForCurvedHit(invcurvature,event->getHit(i));
-              if ( theta > 0 && theta < MuonHough::Pi) {
+              if ( theta > 0 && theta < M_PI) {
 		if (printlevel>=4)
 		  {
 		    std::cout << "MuonHoughTransformer_CurvedAtACylinder::hit added to houghpattern! Sector number: " << sectorhit << std::endl;

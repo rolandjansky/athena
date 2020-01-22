@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
-import user
+from __future__ import print_function
+
 import os
 import sys
-import commands
 from AthenaCommon import ChapPy
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###-----------------------------------------------------
 ## For compatibility with ATN tests
@@ -15,10 +19,10 @@ from TestTools.iobench import workDir
 from TestTools.iobench import ScOutput
 from TestTools.iobench import BenchSequence
 
-print "#"*80
-print "## StoreGate test... [producer/consumer-DataPool-bench]"
-print "#"*80
-print ":::   No DataPool ",
+print ("#"*80)
+print ("## StoreGate test... [producer/consumer-DataPool-bench]")
+print ("#"*80)
+print (":::   No DataPool ", end='')
 athena = ChapPy.Athena(
     jobOptions = [
     ChapPy.JobOptionsCmd( "SGDATAPOOL=False" ),
@@ -29,10 +33,10 @@ athena = ChapPy.Athena(
 athena.EvtMax = 100
 sc = athena.run()
 if sc != 0:
-    print "ERROR"
+    print ("ERROR")
     sys.exit(sc)
 
-print "::: With DataPool ",
+print ("::: With DataPool ", end='')
 athena = ChapPy.Athena(
     jobOptions = [
     ChapPy.JobOptionsCmd( "SGDATAPOOL=True" ),
@@ -43,19 +47,19 @@ athena = ChapPy.Athena(
 athena.EvtMax = 100
 sc = athena.run()
 if sc != 0:
-    print "ERROR"
+    print ("ERROR")
     sys.exit(sc)
 
-sc,out = commands.getstatusoutput(
+sc,out = subprocess.getstatusoutput(
     "perfmon.py %s %s -o %s -l dp,nodp -s \"m.name!=''\"" % (
              "withdatapool.pmon.gz",
              "nodatapool.pmon.gz",
              "datapool.root"
              )
     )
-print "All tests SUCCESSFULLY completed"
+print ("All tests SUCCESSFULLY completed")
     
-print ""
-print "#"*80
-print "## Bye."
-print "#"*80
+print ("")
+print ("#"*80)
+print ("## Bye.")
+print ("#"*80)

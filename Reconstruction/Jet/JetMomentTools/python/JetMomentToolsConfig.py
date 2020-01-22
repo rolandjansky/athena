@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -12,23 +12,8 @@ from AthenaCommon import Logging
 jetmomentlog = Logging.logging.getLogger('JetMomentToolsConfig')
 
 from JetRecTools import JetRecToolsConfig
+from JetRecTools.JetRecToolsConfig import trackcollectionmap
 from JetMomentTools import JetMomentToolsConf
-
-# May need to specify non-standard tracking collections, e.g. for trigger
-# Testing code -- move to another module and perhaps allow extensions
-# e.g. in a dedicated trigger collections module to keep online/offline
-# code more factorised
-trackcollectionmap = {
-    # Offline track collections
-    "": {
-        "Tracks":           "InDetTrackParticles",
-        "JetTracks":        "JetSelectedTracks",
-        "Vertices":         "PrimaryVertices",
-        "TVA":              "JetTrackVtxAssoc",
-        "GhostTracks":      "PseudoJetGhostTrack",
-        "GhostTracksLabel": "GhostTrack",
-    }
-}
 
 def getCaloQualityTool():
     caloqual = JetMomentToolsConf.JetCaloQualityTool(
@@ -83,7 +68,7 @@ def getConstitFourMomTool(jetdef):
 
 # Jet vertex fraction with selection.
 def getJVFTool(modspec=""):
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
 
     jvf = JetMomentToolsConf.JetVertexFractionTool(
         "jvf",
@@ -106,7 +91,7 @@ def getJVTTool(modspec=""):
 
 
 def getTrackMomentsTool(modspec=""):
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
 
     trackmoments = JetMomentToolsConf.JetTrackMomentsTool(
         "trkmoms",
@@ -119,7 +104,8 @@ def getTrackMomentsTool(modspec=""):
     return trackmoments
 
 def getTrackSumMomentsTool(modspec=""):
-    jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
+    print (jettrackselloose)
 
     tracksummoments = JetMomentToolsConf.JetTrackSumMomentsTool(
         "trksummoms",

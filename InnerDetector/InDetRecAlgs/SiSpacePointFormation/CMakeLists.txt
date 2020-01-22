@@ -8,7 +8,7 @@ atlas_subdir( SiSpacePointFormation )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/AthenaMonitoring
+                          Control/AthenaMonitoringKernel
                           Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
@@ -32,7 +32,7 @@ atlas_add_library( SiSpacePointFormationLib
                    src/*.cxx
                    PUBLIC_HEADERS SiSpacePointFormation
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData TrkSpacePoint VxVertex SiSpacePointToolLib BeamSpotConditionsData AthenaMonitoringLib
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData TrkSpacePoint VxVertex SiSpacePointToolLib BeamSpotConditionsData AthenaMonitoringKernelLib
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr xAODEventInfo InDetIdentifier )
 
 atlas_add_component( SiSpacePointFormation

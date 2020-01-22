@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from future.utils import iteritems
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+import six
 
 ####################################################################
 #
@@ -91,7 +91,7 @@ if not TriggerFlags.doMT():
 
 def preplist(input):
     triglist = []
-    for k,val in input.iteritems():
+    for k,val in six.iteritems (input):
         for j in val:
             triglist.append(k + "#" + j)
     return triglist
@@ -113,6 +113,8 @@ if TriggerFlags.doMT():
     
     log.info("configuring MT Trigger")
     TriggerFlags.triggerMenuSetup = "LS2_v1"
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.CostMonitoring.doCostMonitoring = True
 
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
@@ -132,8 +134,9 @@ if TriggerFlags.doMT():
     svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
     from L1Decoder.L1DecoderConfig import L1Decoder
-    topSequence += L1Decoder()
+    topSequence += L1Decoder(L1TriggerResult="") # L1 simulation sequence doesn't produce L1Trigger result yet
     
+    TriggerFlags.doTransientByteStream = True
     include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
 
@@ -147,7 +150,6 @@ if TriggerFlags.doMT():
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
     from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
     triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
     Configurable.configurableRun3Behavior=False
@@ -178,8 +180,10 @@ if TriggerFlags.doMT():
     from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
-
-    
+    #-------------------------------------------------------------
+    # Non-ComponentAccumulator Cost Monitoring
+    #-------------------------------------------------------------
+    include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")    
 
 if rec.doFileMetaData():
    from RecExConfig.ObjKeyStore import objKeyStore
@@ -340,5 +344,5 @@ ServiceMgr.MessageSvc.Format = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
 
 import AthenaCommon.Configurable as Configurable
 Configurable.log.setLevel( INFO )
-print topSequence
+printfunc (topSequence)
 

@@ -75,7 +75,11 @@ namespace LArG4
         /// Gather the hits into the WriteHandle from all the SDs
         void EndOfAthenaEvent();
 
+#ifdef SDWRAPPER_TEST//here use conditional compiling to solve the private members accessing problem from test code since adding-friend method can not work in this context(where there are two layer namespaces)
+      public:
+#else
       private:
+#endif
 
         /// The hit container name
         std::string m_hitCollName;

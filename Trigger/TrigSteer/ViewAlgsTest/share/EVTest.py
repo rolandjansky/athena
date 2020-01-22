@@ -30,7 +30,7 @@ topSequence += TopHLTSeq
 
 L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
-l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
+l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="", L1TriggerResult="" )
 l1Decoder.prescaler.EventInfo=""
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )

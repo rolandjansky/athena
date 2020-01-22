@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhysicalVolumeAccessor.h"
@@ -34,7 +34,7 @@ PhysicalVolumeAccessor::PhysicalVolumeAccessor(std::string name,
   for (int i=0;i<m_theLogicalVolume->GetNoDaughters();i++)
     {
       G4VPhysicalVolume *pv=m_theLogicalVolume->GetDaughter(i);
-      if (PVname==(pv->GetName()))
+      if (PVname == static_cast<const std::string&>(pv->GetName()))
         {
           m_thePhysicalVolumes[pv->GetCopyNo()]=pv;
         }
@@ -60,7 +60,7 @@ void PhysicalVolumeAccessor::SetPhysicalVolumeList(std::string name)
   for (int i=0;i<m_theLogicalVolume->GetNoDaughters();i++)
     {
       G4VPhysicalVolume *pv=m_theLogicalVolume->GetDaughter(i);
-      if (name==(pv->GetName()))
+      if (name == static_cast<const std::string&>(pv->GetName()))
         {
           m_thePhysicalVolumes[pv->GetCopyNo()]=pv;
         }

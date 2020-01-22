@@ -3,10 +3,11 @@
 __doc__ = "Tool configuration to instantiate all egammaCaloTools with default configuration"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-from egammaTrackTools.egammaTrackToolsConf import EMExtrapolationTools
+EMExtrapolationTools=CompFactory.EMExtrapolationTools
 
 def EMExtrapolationToolsCfg(flags, **kwargs):
 
@@ -44,9 +45,11 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     acc.setPrivateTools(emExtrapolationTools)
     return acc
 
+
 def EMExtrapolationToolsCacheCfg(flags, **kwargs):
     kwargs.setdefault("name", "EMExtrapolationToolsCache")
     kwargs.setdefault("useCaching", True)
+    kwargs.setdefault("useLastCaching", True)
     return EMExtrapolationToolsCfg(flags, **kwargs)
 
 

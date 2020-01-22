@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,7 +78,6 @@ namespace Muon
       mutable std::vector<int>* m_rpcSectorIx;  //!< sector number 1-16, odd=large, even=small
       mutable std::vector<int>* m_rpcStationIx;  //!< describe 
       mutable std::vector<int>* m_rpcMeasuresPhi; //!< describe
-      mutable std::vector<int>* m_tgcSectorIx;  //!< sector number 1-16, odd=large, even=small
       mutable std::vector<int>* m_tgcStationIx;  //!< describe 
       mutable std::vector<int>* m_tgcMeasuresPhi; //!< describe
     }; 

@@ -6,7 +6,7 @@
 #define TRIGMUONHYPOMT_TRIGMUONEFCOMBINERHYPOTOOL_H 1
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h" 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "xAODMuon/MuonContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 class StoreGateSvc;

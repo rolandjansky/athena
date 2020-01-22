@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigSliceSettings.py
 ##
 ##
+
+from __future__ import print_function
 
 """ InDetTrigSliceSettings
 """
@@ -236,29 +238,31 @@ class InDetTrigSliceSettingsDB:
     monptmin['muon'] = 12 * GeV
     self.db['monPtMin']=monptmin
 
-  def __getitem__(self, (quantity, slice)):
+  def __getitem__(self, p):
+    (quantity, slice) = p
     v = None
-    #print 'Getting quantity ', quantity, ' for ', slice 
+    #print ('Getting quantity ', quantity, ' for ', slice )
     try:
       q = self.db[quantity]
       try:
         v = q[slice]
       except:
-        print 'get InDetTrigSliceSettingsDB has no slice %s configured' % slice
+        print ('get InDetTrigSliceSettingsDB has no slice %s configured' % slice)
     except:
-      print 'get InDetTrigSliceSettingsDB has no quantity %s configured' % quantity
+      print ('get InDetTrigSliceSettingsDB has no quantity %s configured' % quantity)
 
     return v
 
-  def __setitem__(self, (quantity, slice), value):
+  def __setitem__(self, p, value):
+    (quantity, slice) = p
     try:
       q = self.db[quantity]
       try:
         q[slice] = value
       except:
-        print 'set InDetTrigSliceSettingsDB has no slice %s configured' % slice
+        print ('set InDetTrigSliceSettingsDB has no slice %s configured' % slice)
     except:
-      print 'set InDetTrigSliceSettingsDB has no quantity %s configured' % quantity
+      print ('set InDetTrigSliceSettingsDB has no quantity %s configured' % quantity)
 
 
 

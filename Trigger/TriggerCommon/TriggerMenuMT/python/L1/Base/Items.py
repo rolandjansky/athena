@@ -8,6 +8,8 @@ from ..Config.MonitorDef import MonitorDef
 from .PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
 from .MenuUtils import binstr
 
+from past.builtins import cmp
+
 
 log = logging.getLogger("Menu.L1.Base.Items")
 

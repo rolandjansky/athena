@@ -791,6 +791,7 @@ struct Bases<CondCont<T> >
   typedef CondContBase Base1;               
   typedef NoBase Base2;          
   typedef NoBase Base3;      
+  typedef NoBase Base4;      
 };
 } // namespace SG
 

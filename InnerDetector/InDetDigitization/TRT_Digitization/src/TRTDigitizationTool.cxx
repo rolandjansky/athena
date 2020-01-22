@@ -19,7 +19,7 @@
 #include "TRTDigCondFakeMap.h"
 
 #include "TRTNoise.h"
-
+#include "TRTDigiHelper.h"
 #include "TRTElectronicsNoise.h"
 
 #include "Identifier/Identifier.h"
@@ -237,11 +237,14 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndmEngine,
-                                               CLHEP::HepRandomEngine* elecNoiseRndmEngine,
-                                               CLHEP::HepRandomEngine* elecProcRndmEngine,
-                                               CLHEP::HepRandomEngine* fakeCondRndmEngine) {
+StatusCode TRTDigitizationTool::lateInitialize() {
 
+  // setup the RNGs which are only used in the first event
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseInitRndmEngine = getRandomEngine("TRT_Noise", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseElecRndmEngine = getRandomEngine("TRT_Noise_Electronics", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseThreshRndmEngine = getRandomEngine("TRT_Noise_ThresholdFluctuations", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *noiseElecResetRndmEngine = getRandomEngine("TRT_ElectronicsNoiseReset", m_randomSeedOffset);
   m_first_event=false;
 
   if (m_condDBdigverfoldersexists) {
@@ -261,7 +264,7 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
 
   TRTElectronicsNoise *electronicsNoise(nullptr);
   if ( m_settings->noiseInUnhitStraws() || m_settings->noiseInSimhits() ) {
-    electronicsNoise = new TRTElectronicsNoise(m_settings, elecNoiseRndmEngine);
+    electronicsNoise = new TRTElectronicsNoise(m_settings, noiseElecRndmEngine);
   }
   // ElectronicsProcessing is needed for the regular straw processing,
   // but also for the noise (it assumes ownership of electronicsnoise )
@@ -284,9 +287,10 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
     //        straw noise-frequencies:
     m_pNoise = new TRTNoise( m_settings,
                              m_manager,
-                             noiseRndmEngine,
-                             elecNoiseRndmEngine,
-                             elecProcRndmEngine,
+                             noiseInitRndmEngine,
+                             noiseElecRndmEngine,
+                             noiseThreshRndmEngine,
+                             noiseElecResetRndmEngine,
                              m_pDigConditions,
                              m_pElectronicsProcessing,
                              electronicsNoise,
@@ -429,11 +433,11 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // if StatusHT == 6 thats emulate argon, ==7 that's emulate krypton
     bool emulateArFlag = m_sumTool->getStatusHT(idStraw) == 6;
     bool emulateKrFlag = m_sumTool->getStatusHT(idStraw) == 7;
-
+    const int statusHT = m_sumTool->getStatusHT(idStraw);
     m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
                                        m_alreadyPrintedPDGcodeWarning,
                                        m_cosmicEventPhase, //m_ComTime,
-                                       StrawGasType(idStraw),
+                                       TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, &msg()),
                                        emulateArFlag,
                                        emulateKrFlag,
                                        strawRndmEngine,
@@ -464,15 +468,14 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
-  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
   CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
   CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
-    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
+    if(this->lateInitialize().isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -593,6 +596,15 @@ CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& 
 }
 
 //_____________________________________________________________________________
+CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  rngWrapper->setSeed( streamName, ctx.slot(), randomSeedOffset, ctx.eventID().run_number() );
+  return *rngWrapper;
+}
+
+//_____________________________________________________________________________
 StatusCode TRTDigitizationTool::mergeEvent() {
   std::vector<std::pair<unsigned int, int> >::iterator ii(m_seen.begin());
   std::vector<std::pair<unsigned int, int> >::iterator ee(m_seen.end());
@@ -603,15 +615,14 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Set the RNGs to use for this event.
   CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions");
   CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
-  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_Noise");
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool");
   CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
   CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
   CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
 
   if (m_first_event) {
-    if(this->lateInitialize(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine,fakeCondRndmEngine).isFailure()) {
+    if(this->lateInitialize().isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -860,34 +871,6 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
 }
 
 //_____________________________________________________________________________
-int TRTDigitizationTool::StrawGasType(Identifier& TRT_Identifier) const {
-
-  // TRT/Cond/StatusHT provides: enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) }
-  // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
-  // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
-
-  int strawGasType=99;
-
-  if (m_UseGasMix==0) { // use StatusHT
-    int stat =  m_sumTool->getStatusHT(TRT_Identifier);
-    if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
-    else if  ( stat==5 )            { strawGasType = 1; } // Kr
-    else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
-    else if  ( stat==6 )            { strawGasType = 0; } // Xe
-    else if  ( stat==7 )            { strawGasType = 0; } // Xe
-    // stat==6 is emulate argon, make it xenon here,
-    // and emulate argon later with reduced TR eff.
-    // stat==7 is emulate krypton, make it xenon here too.
-  }
-  else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
-  else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
-  else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
-
-  return strawGasType;
-
-}
-
-//_____________________________________________________________________________
 
 StatusCode TRTDigitizationTool::ConditionsDependingInitialization() {
 
@@ -913,38 +896,6 @@ StatusCode TRTDigitizationTool::ConditionsDependingInitialization() {
 }
 
 //_____________________________________________________________________________
-unsigned int TRTDigitizationTool::getRegion(int hitID) {
-
-  // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
-
-  const int mask(0x0000001F);
-  const int word_shift(5);
-  int layerID, ringID, wheelID;
-  unsigned int region(0);
-
-  if ( !(hitID & 0x00200000) ) { // barrel
-
-    hitID >>= word_shift;
-    layerID = hitID & mask;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    ringID = hitID & mask;
-    region = ( (layerID < 9) && (ringID == 0) ) ? 1 : 2;
-
-  } else { // endcap
-
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    wheelID = hitID & mask;
-    region = wheelID < 8 ?  3 : 4;
-
-  }
-
-  return region;
-
-}
-
 double TRTDigitizationTool::getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine) {
   // 13th February 2015: replace ComTime with a hack (fixme) based on an
   // event phase distribution from Alex (alejandro.alonso@cern.ch) that

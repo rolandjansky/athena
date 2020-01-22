@@ -14,11 +14,10 @@
 # art-output: *.pmon.gz
 # art-output: *perfmon*
 
-export INPUT="run2dataFTK" # FTK doesn't matter here - using this dataset because of larger stats
 export EVENTS=1000
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
 export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;"
 

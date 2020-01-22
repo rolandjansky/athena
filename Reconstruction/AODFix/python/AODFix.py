@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """@package AODFix 
 
@@ -24,8 +24,8 @@ from AthenaCommon.Logging import logging
 
 logAODFix = logging.getLogger( 'AODFix' )
 
-from AODFix_base import AODFix_base
-from AODFix_r210 import AODFix_r210
+from .AODFix_base import AODFix_base
+from .AODFix_r210 import AODFix_r210
 
 _aodFixInstance = AODFix_base()
 

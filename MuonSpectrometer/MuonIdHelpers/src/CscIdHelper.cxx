@@ -5,14 +5,8 @@
 /**
  * ==============================================================================
  * ATLAS Muon Identifier Helpers Package
- * -----------------------------------------
  * ==============================================================================
  */
-
-//<doc><file> $Id: CscIdHelper.cxx,v 1.44 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
-
-/// Includes
 
 #include "MuonIdHelpers/CscIdHelper.h"
 
@@ -22,11 +16,10 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include <mutex>
 
-
 /// Constructor/Destructor
 
 CscIdHelper::CscIdHelper() : MuonIdHelper("CscIdHelper"), m_CHAMBERLAYER_INDEX(0),
-  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0), m_hasChamLay1(false) {}
+  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_stripMaxPhi(UINT_MAX), m_stripMaxEta(UINT_MAX), m_hasChamLay1(false) {}
 
 /// Destructor
 
@@ -346,7 +339,50 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   (*m_Log) << MSG::INFO
 	   << "Initializing CSC hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
-  
+
+  // now we have to set the stripMax values (for the stripMax(id) function)
+  // this could be also done on an event-by-event basis as for stripMin(id)
+  // however, for all existing layouts there are only 2 possible values for stripMax,
+  // namely those for layers which measure phi (measuresPhi(id)=true) and the rest.
+  // thus, we initialize 2 member variables here to speed up calling the function during runtime
+  // loop on the channel Identifiers and check (for consistency!) that really only
+  // two maximum numbers of strips (w/o measuresPhi) are around
+  ExpandedIdentifier expId;
+  IdContext strip_context = channel_context();
+  for (const auto &id : m_channel_vec) {
+    if (get_expanded_id(id, expId, &strip_context)) {
+      (*m_Log) << MSG::ERROR
+      << "Failed to retrieve ExpandedIdentifier from Identifier " << id.get_compact() << endmsg;
+      return 1;
+    }
+    bool measuresPhi = this->measuresPhi(id);
+    for (unsigned int i = 0; i < m_full_channel_range.size(); ++i) {
+      const Range& range = m_full_channel_range[i];
+      if (range.match(expId)) {
+        const Range::field& phi_field = range[m_CHANNEL_INDEX];
+        if (!phi_field.has_maximum()) {
+          (*m_Log) << MSG::ERROR
+          << "Range::field for phi at position " << i << " does not have a maximum" << endmsg;
+          return 1;
+        }
+        unsigned int max = phi_field.get_maximum();
+        if (measuresPhi) {
+          if (m_stripMaxPhi!=UINT_MAX && m_stripMaxPhi!=max) {
+            (*m_Log) << MSG::ERROR
+            << "Maximum of Range::field for phi (" << max << ") is not equal to m_stripMaxPhi=" << m_stripMaxPhi << endmsg;
+            return 1;
+          } else m_stripMaxPhi = max;
+        } else {
+          if (m_stripMaxEta!=UINT_MAX && m_stripMaxEta!=max) {
+            (*m_Log) << MSG::ERROR
+            << "Maximum of Range::field for phi (" << max << ") is not equal to m_stripMaxEta=" << m_stripMaxEta << endmsg;
+            return 1;
+          } else m_stripMaxEta = max;
+        }
+      }
+    }
+  }
+
   // check whether the current layout contains chamberLayer 1 Identifiers (pre-Run3) in the vector of module Identifiers
   if (m_module_vec.size() && chamberLayer(m_module_vec.at(0))==1) m_hasChamLay1 = true;
   m_init = true;
@@ -484,8 +520,8 @@ int CscIdHelper::get_hash_fromGeoHash(const IdentifierHash& geoHash, IdentifierH
       }
       unsigned int geoHashNoOff = geoHash - offset;
       // orientation equals measuresPhi
-      // second, get maxStrip (cf. stripMax() function)
-      int maxStrip = (orientation) ? m_phiStripMax : m_etaStripMax;
+      // second, get maxStrip by just using the member variables set in initialize()
+      int maxStrip = (orientation) ? m_stripMaxPhi : m_stripMaxEta;
       // next, get the station (cf. get_geo_hash_calc()):
       // if chamberType is 0, it is a small station, i.e. station 50, else 51
       // (cf. DetectorDescription/IdDictParser/data/IdDictMuonSpectrometer_R.03.xml)
@@ -789,41 +825,8 @@ int CscIdHelper::stripMin(const Identifier& id) const
 
 int CscIdHelper::stripMax(const Identifier& id) const
 {
-  if (measuresPhi(id)){ 
-    if (m_phiStripMax) return m_phiStripMax; 
-  } else { 
-    if (m_etaStripMax) return m_etaStripMax; 
-  } 
-  
-  // Okay, so now need to fill values.
- 
-  ExpandedIdentifier expId;
-  IdContext strip_context = channel_context();
-  if (!get_expanded_id(id, expId, &strip_context))
-    {
-      for (unsigned int i = 0; i < m_full_channel_range.size(); ++i)
-	{
-	  const Range& range = m_full_channel_range[i];
-	  if (range.match(expId))
-	    {
-	      const Range::field& phi_field = range[m_CHANNEL_INDEX];
-	      if (phi_field.has_maximum())
-		{  
-		  if (measuresPhi(id)){
-        auto max = phi_field.get_maximum();
-		    m_phiStripMax = max;
-        return max;
-		  } else {
-        auto max = phi_field.get_maximum();
-		    m_etaStripMax = max;
-        return max;
-		  } 
-		}
-	    }
-	}
-    }
-  /// Failed to find the max
-  return (-999);
+  if (measuresPhi(id)) return m_stripMaxPhi;
+  else return m_stripMaxEta;
 }
 
 /// Public validation of levels

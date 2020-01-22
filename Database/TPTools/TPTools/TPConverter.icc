@@ -72,12 +72,16 @@ toPersistentWithKey_impl( const TRANS *trans,
 }
 
 class IdentifiableContainerBase;
+class IdentifiableValueContainerBase;
 template< class TRANS_BASE, class TRANS, class PERS >
 TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
 createTransient ([[maybe_unused]] const PERS* persObj, MsgStream &log)
 {
     if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
       log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+    }else if constexpr(std::is_base_of< IdentifiableValueContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value){
+      log << "IdentifiableValueContainerBase is not compatable with createTransient" << std::endl;
       return nullptr;
     }
     else{
@@ -89,7 +93,6 @@ createTransient ([[maybe_unused]] const PERS* persObj, MsgStream &log)
     }
 }
 
-class IdentifiableContainerBase;
 template< class TRANS_BASE, class TRANS, class PERS >
 TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
 createTransientWithKey ([[maybe_unused]] const PERS* persObj,
@@ -98,6 +101,9 @@ createTransientWithKey ([[maybe_unused]] const PERS* persObj,
 {
     if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
       log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+    }else if constexpr(std::is_base_of< IdentifiableValueContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value){
+      log << "IdentifiableValueContainerBase is not compatable with createTransient" << std::endl;
       return nullptr;
     }
     else{
@@ -117,7 +123,10 @@ TRANS* TPConverterConstBase<TRANS, PERS>::createTransientConst
   if constexpr(std::is_base_of< IdentifiableContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value) {
       log << "IdentifiableContainerBase is not compatable with createTransient" << std::endl;
       return nullptr;
-    }
+   }else if constexpr(std::is_base_of< IdentifiableValueContainerBase, TRANS>::value && !std::is_default_constructible<TRANS>::value){
+      log << "IdentifiableValueContainerBase is not compatable with createTransient" << std::endl;
+      return nullptr;
+  }
   else{
     // this is by default equivalent to 'new TRANS()'
     std::unique_ptr<TRANS> trans = std::make_unique<TRANS>();

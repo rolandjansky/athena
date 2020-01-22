@@ -7,6 +7,7 @@
 
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -21,7 +22,7 @@ def LBDurationCondAlgCfg (configFlags):
     result.merge (addFolders (configFlags, folder, 'TRIGGER',
                               className = 'AthenaAttributeList'))
 
-    from LumiBlockComps.LumiBlockCompsConf import LBDurationCondAlg
+    LBDurationCondAlg=CompFactory.LBDurationCondAlg
     alg = LBDurationCondAlg (name,
                              LBLBFolderInputKey = folder,
                              LBDurationOutputKey = 'LBDurationCondData')

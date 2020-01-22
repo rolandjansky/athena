@@ -248,7 +248,7 @@ class PoolFile(object):
 
         print("## Looping over all events now ...")
         isFirstEvent = True
-        for i in xrange(transientTree.GetEntries()):
+        for i in range(transientTree.GetEntries()):
             if EventInfo_br.GetEntry(i) <= 0 or TrigDecision_br.GetEntry(i) <= 0 :
                 print(":: could not get entry #%i" % i)
                 break

@@ -26,6 +26,6 @@ assert( job.MyCustomAlg.RndmFactor == 33. )
 theApp.EvtMax = 2
 
 # Print the final job for reference purposes
-print job
+printfunc (job)
 
 # End of AthExJobOptions_CustomTopAlgorithmJobOptions.py

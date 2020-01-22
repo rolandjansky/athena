@@ -1,12 +1,14 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
 createHLTMenuExternally=True # menu will be build up explicitly here 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 ##########################################
 # menu
@@ -72,15 +74,19 @@ if opt.doMuonSlice == True:
     MuonChains  = []
 
     # step1
-    step1mufast=ChainStep("Step1_muFast", [ muFastSequence() ])
+    mufastS= muFastSequence()
+    step1mufast=ChainStep("Step1_muFast", [ mufastS ])
     # step2
-    step2muComb=ChainStep("Step2_muComb", [ muCombSequence() ])
+    mucombS = muCombSequence()
+    step2muComb=ChainStep("Step2_muComb", [ mucombS ])
 
     # step3
-    step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSASequence() ])
+    muEFSAS = muEFSASequence()
+    step3muEFSA=ChainStep("Step3_muEFSA", [ muEFSAS ])
     step3muIso =ChainStep("Step3_muIso",  [ muIsoSequence() ])
     # step4
-    step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBSequence() ])
+    muEFCBS = muEFCBSequence()
+    step4muEFCB=ChainStep("Step4_muEFCB", [ muEFCBS ])
 
     emptyStep=ChainStep("Step2_empty")
 
@@ -93,20 +99,20 @@ if opt.doMuonSlice == True:
 
     # multi muon trigger
     # 2muons symmetric
-    step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ muFastSequence()], multiplicity=[2])
-    step2_2muComb_sym= ChainStep("Step1_2muComb_sym", [ muCombSequence()], multiplicity=[2])
+    step1_2mufast_sym= ChainStep("Step1_2muFast_sym", [ mufastS], multiplicity=[2])
+    step2_2muComb_sym= ChainStep("Step2_2muComb_sym", [ mucombS], multiplicity=[2])
     
-    step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSASequence()], multiplicity=[2])
-    step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBSequence()], multiplicity=[2])
+    step3_2muEFSA_sym= ChainStep("Step3_2muEFSA_sym", [ muEFSAS], multiplicity=[2])
+    step4_2muEFCB_sym= ChainStep("Step4_2muEFCB_sym", [ muEFCBS], multiplicity=[2])
  
     MuonChains += [ makeChain(name='HLT_2mu6Comb_L12MU6',  L1Thresholds=["MU6"], ChainSteps=[ step1_2mufast_sym, step2_2muComb_sym ])]
 
     # 2muons asymmetric (this will change): 2 sequences, 2 seeds
-    step1_2mufast_asym= ChainStep("Step1_2muFast_asym", [ muFastSequence(), muFastSequence()], multiplicity=[2])
-    step2_2muComb_asym= ChainStep("Step1_2muComb_asym", [ muCombSequence(), muCombSequence()], multiplicity=[2])
+    step1_2mufast_asym= ChainStep("Step1_2muFast_asym", [ mufastS, mufastS], multiplicity=[1,1])
+    step2_2muComb_asym= ChainStep("Step1_2muComb_asym", [ mucombS, mucombS], multiplicity=[1,1])
     
-    step3_2muEFSA_asym= ChainStep("Step3_2muEFSA_asym", [ muEFSASequence(), muEFSASequence()], multiplicity=[2])
-    step4_2muEFCB_asym= ChainStep("Step4_2muEFCB_asym", [ muEFCBSequence(), muEFCBSequence()], multiplicity=[2])
+    step3_2muEFSA_asym= ChainStep("Step3_2muEFSA_asym", [ muEFSAS, muEFSAS], multiplicity=[1,1])
+    step4_2muEFCB_asym= ChainStep("Step4_2muEFCB_asym", [ muEFCBS, muEFCBS], multiplicity=[1,1])
     
     
     MuonChains += [ makeChain(name='HLT_mu6_mu4_L12MU4',
@@ -118,7 +124,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=[""],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=["FSNOSEED"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 
@@ -150,8 +156,8 @@ if opt.doJetSlice == True:
     step_a10r=ChainStep("Step_jet_a10r", [jetSeq_a10r])
     
     jetChains  = [
-        makeChain(name='HLT_j45_L1J20',  L1Thresholds=["J20"],   ChainSteps=[step_a4_tc_em]  ),
-        makeChain(name='HLT_j85_L1J20',  L1Thresholds=["J20"],ChainSteps=[step_a4_tc_em]  ),
+        makeChain(name='HLT_j45_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
+        makeChain(name='HLT_j85_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
         makeChain(name='HLT_j420_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
         makeChain(name='HLT_j260_320eta490_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
       # makeChain(name='HLT_j225_gsc420_boffperf_split',   ChainSteps=[step_a4_tc_em]  ),
@@ -174,14 +180,14 @@ if opt.doBjetSlice == True:
 
     jetSequence = jetMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf")
 
-    step0 = ChainStep("Step0_bjet", [jetSequence] )
-    step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
-    step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
+    step1 = ChainStep("Step1_bjet", [jetSequence] )
+    step2 = ChainStep("Step2_bjet", [getBJetSequence('j')])
+    step3 = ChainStep("Step3_bjet", [getBJetSequence('btag')])
 
-    bjetChains  = [                                                                                                                                                                         
-          makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] ),
-          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] ),
-          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] )
+    bjetChains  = [
+          makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] )
         ]
     testChains += bjetChains
 

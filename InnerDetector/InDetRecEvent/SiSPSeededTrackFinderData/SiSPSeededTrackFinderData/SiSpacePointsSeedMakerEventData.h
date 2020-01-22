@@ -23,16 +23,27 @@
 
 namespace InDet {
 
+ /**
+  @class InDet::SiSpacePointsSeedMakerEventData
+  
+  InDet::SiSpacePointsSeedMakerEventData holds event dependent data
+  used by ISiSpacePointsSeedMaker.
+  The object is owened by SiSPSeededTrackFinder.
+  Some data members are not used depending on ToolType.
+  @author Susumu.Oda@cern.ch
+  */
+
   class SiSpacePointsSeedMakerEventData {
   public:
+    /// enums to specify which SiSpacePointsSeedMaker owns the object.
     enum ToolType {
-      ATLxk,
-      BeamGas,
-      Cosmic,
-      HeavyIon,
-      ITK,
-      LowMomentum,
-      Trigger
+      ATLxk, //!< SiSpacePointsSeedMaker_ATLxk
+      BeamGas, //!< SiSpacePointsSeedMaker_BeamGas
+      Cosmic, //!< SiSpacePointsSeedMaker_Cosmic
+      HeavyIon, //!< SiSpacePointsSeedMaker_HeavyIon
+      ITK, //!< SiSpacePointsSeedMaker_ITK
+      LowMomentum, //!< SiSpacePointsSeedMaker_LowMomentum
+      Trigger ///!< SiSpacePointsSeedMaker_Trigger
     };
 
     bool initialized{false};
@@ -78,14 +89,16 @@ namespace InDet {
     float ftrigW{0.};
     float umax{0.};    
 
-    ///////////////////////////////////////////////////////////////////
-    // Beam geometry
-    // Updated only in buildBeamFrameWork,
-    // which is called by newEvent and newRegion
-    ///////////////////////////////////////////////////////////////////
-    float xbeam[4]{0., 1., 0., 0.}; // x,ax,ay,az - center and x-axis direction
-    float ybeam[4]{0., 0., 1., 0.}; // y,ax,ay,az - center and y-axis direction
-    float zbeam[4]{0., 0., 0., 1.}; // z,ax,ay,az - center and z-axis direction
+    /**
+     * @name Beam geometry
+     * Updated only in buildBeamFrameWork,
+     * which is called by newEvent and newRegion
+     */
+    //@{
+    float xbeam[4]{0., 1., 0., 0.}; //!< x,ax,ay,az - center and x-axis direction
+    float ybeam[4]{0., 0., 1., 0.}; //!< y,ax,ay,az - center and y-axis direction
+    float zbeam[4]{0., 0., 0., 1.}; //!< z,ax,ay,az - center and z-axis direction
+    //@}
 
     std::vector<int> r_index;
     std::vector<int> r_map;
@@ -98,10 +111,11 @@ namespace InDet {
 
     std::set<float> l_vertex;
 
-    ///////////////////////////////////////////////////////////////////
-    // Tables for 3 space points seeds search
-    // Updated in many mthods
-    ///////////////////////////////////////////////////////////////////
+    /**
+     * @name Tables for 3 space points seeds search
+     * Updated in many mthods
+     */
+    //@{
     std::vector<InDet::SiSpacePointForSeed*> SP;
     std::vector<InDet::SiSpacePointForSeedITK*> SP_ITK;
     std::vector<float> Zo;
@@ -112,6 +126,7 @@ namespace InDet {
     std::vector<float> X;
     std::vector<float> Y;
     std::vector<float> Er;
+    //@}
 
     InDet::SiSpacePointsSeed seedOutput;
 
@@ -164,6 +179,8 @@ namespace InDet {
     std::multimap<float,InDet::SiSpacePointsProSeedITK*> seeds_ITK;
     std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator seed_ITK;
 
+    /// Initialize data members based on ToolType enum.
+    /// This method has to be called just after creation in SiSPSeededTrackFinder.
     void initialize(ToolType type,
                     int maxsizeSP,
                     int maxOneSize,

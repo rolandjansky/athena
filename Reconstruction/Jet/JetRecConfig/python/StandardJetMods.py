@@ -1,4 +1,4 @@
-from JetDefinition import JetModifier
+from .JetDefinition import JetModifier
 
 ########################################################################
 # Define the dictionary of tool configurations using the helpers defined

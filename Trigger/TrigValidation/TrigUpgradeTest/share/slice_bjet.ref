@@ -1,12 +1,12 @@
-TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J100100       100       0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J100 decisions                    0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J100100       100       0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J100 decisions                    0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J100100       100       0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J100 decisions                    0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j360_ftf_subjesgscIS_bmv2c1077_split_L1J100100       100       0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j360_ftf_subjesgscIS_bmv2c1077_split_L1J100 decisions                    0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20100       100       30        30        30        30        30        
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20 decisions                    30        59        59        59        
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20100       100       30        30        30        30        30        
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20 decisions                    30        59        59        59        
+TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J10020        20        0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J100 decisions                    0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J10020        20        0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J100 decisions                    0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J10020        20        0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J100 decisions                    0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j360_ftf_subjesgscIS_bmv2c1077_split_L1J10020        20        0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j360_ftf_subjesgscIS_bmv2c1077_split_L1J100 decisions                    0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J2020        20        5         5         5         5         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20 decisions                    5         5         5         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J2020        20        5         5         5         5         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20 decisions                    5         5         5         

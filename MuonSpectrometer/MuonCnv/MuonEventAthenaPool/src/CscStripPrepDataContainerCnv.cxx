@@ -14,10 +14,6 @@
 // Id includes
 // #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
-// #include "MuonReadoutGeometry/MuonDetectorManager.h"
-// #include "MuonReadoutGeometry/CscReadoutElement.h"
-
-
 
 CscStripPrepDataContainerCnv::CscStripPrepDataContainerCnv(ISvcLocator* svcloc) :
 CscStripPrepDataContainerCnvBase(svcloc),

@@ -48,7 +48,6 @@ topSequence += AthenaPoolTestDataReader( "AthenaPoolTestDataReader" )
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
 #rds ClassIDSvc = Service( "ClassIDSvc" )
@@ -57,7 +56,8 @@ AthenaPoolTestDataReader.OutputLevel = DEBUG
 #svcMgr.StoreGateSvc = Service( "StoreGateSvc" )
 #svcMgr.StoreGateSvc.Dump = TRUE 
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # Turn on the tree cache for the CollectionTree - tree cache only

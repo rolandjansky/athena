@@ -100,7 +100,7 @@ def standardJetMonitoring(inputFlags):
     """
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'ExampleAthMonitorCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'JetMonitoring')
 
     ak4conf = jetMonAntiKt4LCTopo()
     ak4conf.toAlg(helper) # adds the ak4conf as a JEtMonitoringAlg to the helper

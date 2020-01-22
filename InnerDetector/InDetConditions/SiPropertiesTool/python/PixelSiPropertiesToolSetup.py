@@ -50,11 +50,11 @@ class PixelSiPropertiesToolSetup:
  
     if not hasattr(condSeq,"PixelDCSCondHVAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
-      condSeq += PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=hvFolder, UseConditions=True)
+      condSeq += PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=hvFolder)
 
     if not hasattr(condSeq,"PixelDCSCondTempAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
-      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=tempFolder, UseConditions=True)
+      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=tempFolder)
 
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(condSeq, "PixelSiPropertiesCondAlg"):

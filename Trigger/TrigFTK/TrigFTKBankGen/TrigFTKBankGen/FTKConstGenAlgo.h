@@ -53,7 +53,6 @@ public:
    
  private:
 
-  ITHistSvc *m_thistSvc;
   bool m_merging;
   bool m_genconst;
   bool m_subregion;
@@ -65,7 +64,6 @@ public:
   std::string m_extractpath;  
   
   std::string m_outfilename; // the algorithm mostly produce a single file, if set this is the name of the file, a default option is otherwise used
-  TFile *m_file;
   TFile *m_good_file;
   TFile *m_cfile;
   TTree *m_ctree;
@@ -78,11 +76,8 @@ public:
   int m_nfile;
   int m_addPattReturnCode;
   float m_nsector;
-  bool m_match;
  
   double m_pr;
-
-  int m_nevent;
 
   int m_nplane;
   int m_nplane8;

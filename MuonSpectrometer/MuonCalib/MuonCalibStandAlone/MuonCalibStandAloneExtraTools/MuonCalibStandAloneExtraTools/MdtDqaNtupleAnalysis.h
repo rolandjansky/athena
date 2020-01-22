@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-//*********************************************************//
-// 
-// 
-// 
-// 
-//*********************************************************//
 
 #ifndef SRC_MDTDQANTUPLEANALYSIS_H
 #define SRC_MDTDQANTUPLEANALYSIS_H
@@ -35,10 +28,6 @@
 
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
-//
-// class HistogramManager;
-//
-
 class RegionSelectionSvc;
 
 namespace MuonCalib {
@@ -55,46 +44,23 @@ namespace MuonCalib {
   class MdtDqaNtupleAnalysis {
   public:
     MdtDqaNtupleAnalysis(bool verbose, std::string outputFileName);     //!< default constructor
-    ~MdtDqaNtupleAnalysis();   //!< destructor
+    virtual ~MdtDqaNtupleAnalysis() = default;   //!< destructor
 
     StatusCode initialize(RegionSelectionSvc *, HistogramManager *, int, float);
     StatusCode finalize();
     
     void handleEvent(const MuonCalibEvent &event, int eventnumber, const std::vector<MuonCalibSegment *> &segments, unsigned int position );  
-
-  //  void bookHistos();                                //!< Booking of the histograms
-  //  void writeHistos();                               //!< writing of the histograms.
-
-
     void histogramAnalysis(TFile * rootfile);
-    //  void tubeEfficiency();
-
-    //=============
 
     int segmentStation(MuonCalibSegment *segment );
     int segmentEta(MuonCalibSegment *segment );
     int segmentPhi(MuonCalibSegment *segment );
 
-    //==========
-
   private:
-    //
     RegionSelectionSvc *p_reg_sel_svc;
     HistogramManager *m_histoManager;
-//     TString      m_filetitle;
-//     TFile*       m_file;
-//     TDirectory*  m_dir;
-
     bool m_verbose;
     int m_DeadElementsAlgorithm;
-//     bool m_fillHistos;
-//     bool m_doFinalize;
-
-//     TChain* m_chainToRead;
-//     ostringstream m_histoFileName;
-//     int m_runNumber;
-//     int m_nEvents;
-//     int m_firstEvent;
     int m_SectorMin;
     int m_SectorMax;
     bool m_analyseBarrel;
@@ -102,6 +68,7 @@ namespace MuonCalib {
     bool m_analyseEndcapC;
 
     float m_ADCCUT;
+    int m_evtCounter; 
 
     std::string m_outputFileName;
     std::vector<MdtDqaDb*> m_MdtDqaDbList;

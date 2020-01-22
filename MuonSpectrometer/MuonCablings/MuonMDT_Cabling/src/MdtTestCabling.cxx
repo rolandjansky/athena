@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMDT_Cabling/MdtTestCabling.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 MdtTestCabling::MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
@@ -19,8 +17,7 @@ StatusCode MdtTestCabling::initialize()
 {
   ATH_CHECK( m_chronoSvc.retrieve() );
 
-  // initialize the pointer to the MdtIdHelper
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
   m_chrono1 = "newcab";
   m_chrono2 = "oldcab";
@@ -188,7 +185,7 @@ bool MdtTestCabling::testMap()
                                  << "  chanId 0x" << MSG::hex << chanId << MSG:: dec );
 
 		  ATH_MSG_ERROR( "converted to station: " << station
-                                 << " name: " << m_muonIdHelperTool->mdtIdHelper().stationNameString(station)
+                                 << " name: " << m_idHelperSvc->mdtIdHelper().stationNameString(station)
                                  << " eta: " << eta << " phi: " << phi << " multi: " << multi
                                  << " layer: " << layer << " tube: " << tube );
 

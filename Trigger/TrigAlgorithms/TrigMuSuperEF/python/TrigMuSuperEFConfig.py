@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-from TrigMuSuperEFMonitoring import TrigMuSuperEFMonitoring,TrigMuSuperEFValidationMonitoring
+from .TrigMuSuperEFMonitoring import TrigMuSuperEFMonitoring,TrigMuSuperEFValidationMonitoring
 from TrigMuonEF.TrigMuonEFMonitoring import TrigMuonEFStandaloneToolMonitoring,TrigMuonEFCombinerToolMonitoring,TrigMuonEFStandaloneToolValidationMonitoring,TrigMuonEFCombinerToolValidationMonitoring
 from TrigMuonEF.TrigMuonEFConf import TrigMuonEFTrackIsolationTool
 
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
-from TrigMuSuperEFConf import TrigMuSuperEF
+from .TrigMuSuperEFConf import TrigMuSuperEF
 from AthenaCommon.BeamFlags import jobproperties
 
 from AthenaCommon.CfgGetter import getPublicTool
@@ -82,15 +82,6 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         # only add TrigMuGirl monitoring if it is run
         if doTrigMuGirl:
             self.MuGirlTool = getPublicTool("TMEF_MuonInsideOutRecoTool")
-            #from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
-            #montool = TrigMuGirlToolMonitoring()
-            #print montool
-            #monTools.append( montool )
-
-        # turn off PrepRawData decoders in MuGirl
-        if doTrigMuGirl:
-            from MuGirlCandidate.MuGirlCandidateConf import MuGirlNS__CandidateTool
-            MuGirlNS__CandidateTool.doDecoding = False
 
         if self.UseL2Info:
             self.TMEF_standaloneTrackTool.useL2Hits=True

@@ -15,6 +15,8 @@ from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, AllowedOutputFormat
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerEDM')
 
+import six
+
 #************************************************************
 #
 #  For Run 3
@@ -501,8 +503,8 @@ def getTPList(version=2):
         bslist = getHLTBSTypeList()
     else:
         bslist = list(set(getL2BSTypeList() + getEFBSTypeList()))
-
-    for t,d in EDMDetails.iteritems():
+        
+    for t,d in six.iteritems (EDMDetails):
         colltype = t
         if 'collection' in d:
             colltype = EDMDetails[t]['collection']
@@ -562,7 +564,7 @@ def getEDMLibraries():
 def InsertContainerNameForHLT(typedict):
     import re
     output = {}
-    for k,v in typedict.iteritems():
+    for k,v in six.iteritems (typedict):
         newnames = []
         for el in v:
             if el.startswith('HLT_') or el == 'HLT':

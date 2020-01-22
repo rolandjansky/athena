@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMON_SEQ_H
@@ -70,6 +70,7 @@ class TrigMonSeq
   void print(const TrigConfSeq &confg, std::ostream &os = std::cout) const;
   
  private:
+  friend class TrigMonSeqCnv_p1;
   
   uint32_t                m_encoded;     // Encoded data (see below)
   std::vector<TrigMonAlg> m_alg;         // Algorithm execution and/or caching records

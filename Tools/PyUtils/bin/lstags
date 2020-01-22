@@ -9,6 +9,8 @@
 # @author:  Frank Winklmeier
 #
 
+from __future__ import print_function
+
 import sys, os
 from PyUtils.Decorators import memoize
 
@@ -53,7 +55,7 @@ def main():
    for pkg in packages:
       msg = "{}".format(pkg.split("/")[-1] if opt.quiet else pkg)
       if opt.tag: msg += " uses {}".format(packages[pkg]) # <unknown> in current infrastructure 
-      print msg
+      print (msg)
 
    return 0
 

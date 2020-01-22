@@ -3,10 +3,11 @@
 __doc__ = "Instantiate egammaRecBuilder with default configuration"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTools.EMTrackMatchBuilderConfig import EMTrackMatchBuilderCfg
 from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
-from egammaAlgs.egammaAlgsConf import egammaRecBuilder
+egammaRecBuilder=CompFactory.egammaRecBuilder
 
 
 def egammaRecBuilderCfg(flags, name='egammaRecBuilder', **kwargs):

@@ -4,7 +4,6 @@
 #------------------------------------------------------------------------#
 def setupMenu():
 
-    from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenu.menu.Physics_pp_v7.py' )
@@ -81,17 +80,6 @@ def setupMenu():
         ['2mu4',                    'L1_2MU4',  [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
 
         ]
-
-
-    if TriggerFlags.doFTK():
-        TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
-
-            ['mu26_ivarmedium_FTK_L1MU20MU21_FTK',   'L1_MU20_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-            ['mu6_idperf_FTK_L1MU6_FTK',             'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-            ['mu6_idperf_FTKRefit_L1MU6_FTK',        'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-#            ['mu22_mu8noL1_FTKFS_L1MU20MU21_FTK',    'L1_MU20MU21_FTK', ['L1_MU20_FTK',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
-          ['mu22_mu8noL1_FTKFS_L1MU20_FTK',    'L1_MU20_FTK', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
-            ]
 
 
 
@@ -551,7 +539,7 @@ class Prescales:
         'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_xe50',
         'e17_lhmedium_nod0_tau25_medium1_tracktwo_xe50',
         ]
-    HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0, -1] ])))
+    HLTPrescales.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0, -1] ])))
 
     L1Prescales_cosmics  = {}
     HLTPrescales_cosmics = {}
@@ -586,7 +574,7 @@ class Prescales:
         'tau8_cosmic_track',
         'tilecalib_laser',
         ]
-    HLTPrescales_cosmics.update(dict(map(None,chain_list,len(chain_list)*[ [1, 0, 0] ])))
+    HLTPrescales_cosmics.update(dict(zip(chain_list,len(chain_list)*[ [1, 0, 0] ])))
 
 
 ######################################################
@@ -946,6 +934,6 @@ chain_list=[
     'zdcpeb_L1ZDC_A_C',
     'timeburner',
     ]
-Prescales.HLTPrescales_tight_physics_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+Prescales.HLTPrescales_tight_physics_prescale.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################
 

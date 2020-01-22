@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSERVICES_TRIGRDBMANAGER_H
 #define TRIGSERVICES_TRIGRDBMANAGER_H
@@ -12,9 +12,6 @@
 #include "CoralKernel/Context.h"
 #include "RelationalAccess/IConnectionService.h"
 
-// System includes
-#include <unistd.h>
-
 /**
  * Helper to manage database connections
  *
@@ -26,10 +23,9 @@ public:
   /**
    * Close database connections
    *
-   * @param idleWaitSec  seconds to wait before cleaning idle connections
    * @param msg          reference to MsgStream
    */
-  static StatusCode closeDBConnections(unsigned int idleWaitSec, MsgStream& msg)
+  static StatusCode closeDBConnections(MsgStream& msg)
   {
     // Cleanup of dangling database connections from RDBAccessSvc
     ServiceHandle<IRDBAccessSvc> rdbAccessSvc("RDBAccessSvc", "TrigRDBManager");
@@ -39,14 +35,6 @@ public:
     else {
       msg << MSG::ERROR << "Cleaning up RDBAccessSvc connections failed" << endmsg;
       return StatusCode::FAILURE;
-    }
-
-    // sleep some time to allow the closing of DB connections;
-    // actual timeout depends on connection parameters, we seem to have 5 seconds
-    // timeouts in some places: https://its.cern.ch/jira/browse/ATR-8907
-    if (idleWaitSec > 0) {
-      msg << MSG::INFO << "Waiting " << idleWaitSec << " seconds..." << endmsg;
-      sleep(idleWaitSec);
     }
 
     // Instantiate connection service

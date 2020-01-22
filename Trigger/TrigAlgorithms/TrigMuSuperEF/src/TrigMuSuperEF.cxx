@@ -1351,8 +1351,10 @@ HLT::ErrorCode TrigMuSuperEF::buildMuons(const MuonCandidateCollection* muonCand
   ATH_MSG_DEBUG("Call m_muonCreatorTool->create");
   MuonCombined::IMuonCreatorTool::OutputData output(*m_muonContainer);
   output.combinedTrackParticleContainer = combinedTrackParticles;
+  output.combinedTrackCollection = m_combTrkTrackColl;
 
   output.extrapolatedTrackParticleContainer = extrapolatedTrackParticles;
+  output.extrapolatedTrackCollection = m_extrTrkTrackColl;
 
   std::vector<const MuonCombined::InDetCandidateToTagMap*> tagMaps;
   for(auto tmap : m_tagMaps){

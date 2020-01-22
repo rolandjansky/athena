@@ -50,7 +50,7 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
 	    
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'	    
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
 	    
             self.Tools = tools
 

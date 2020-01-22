@@ -27,5 +27,5 @@ ISF::EnergyParticleOrderingTool::~EnergyParticleOrderingTool()
 ISF::ParticleOrder ISF::EnergyParticleOrderingTool::computeOrder(const ISFParticle &p) const
 {
   // Multiply to make use of float info
-  return (int)(p.ekin() * 10000.0);
+  return (int)(p.ekin() * 100.0);
 }

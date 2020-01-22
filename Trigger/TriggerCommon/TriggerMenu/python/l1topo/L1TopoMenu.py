@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from TopoOutput import TriggerLine
+from .TopoOutput import TriggerLine
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenu.l1topo.L1TopoMenu")
 

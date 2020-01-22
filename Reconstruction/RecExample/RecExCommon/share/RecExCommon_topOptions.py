@@ -145,13 +145,12 @@ if rec.doFileMetaData():
 
 #Output file TagInfo and metadata
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
-#if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
-
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.beamType(),
+                                            "beam_energy": str(jobproperties.Beam.energy()),
+                                            "triggerStreamOfFile": str(rec.triggerStream()),
+                                            "project_name": str(rec.projectName()),
+                                            "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
+                                            })
 # Build amitag list
 amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
@@ -162,9 +161,9 @@ except:
 
 # append new if previous exists otherwise take the new alone 
 if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", metadata['AMITag'] + "_" + rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : metadata['AMITag'] + "_" + rec.AMITag()})
 else:
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
 
 
 
@@ -172,14 +171,14 @@ AODFix_addMetaData()
 RecoFix_addMetaData()
 
 if rec.oldFlagCompatibility:
-    print "RecExCommon_flags.py flags values:"
+    printfunc ("RecExCommon_flags.py flags values:")
     try:
         for o in RecExCommonFlags.keys():
-            exec 'print "%s =",%s ' % (o,o)
+            printfunc ("%s =" % o, globals()[o])
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot delete"
+        printfunc ("WARNING RecExCommonFlags not available, cannot delete")
 else:
-    print "Old flags have been deleted"
+    printfunc ("Old flags have been deleted")
 
 # end flag settings section
 ##########################################################################
@@ -394,8 +393,8 @@ elif rec.readAOD():
 
 
 if rec.OutputLevel() <= DEBUG:
-    print " Initial content of objKeyStore "
-    print objKeyStore
+    printfunc (" Initial content of objKeyStore ")
+    printfunc (objKeyStore)
 
 # typical objKeyStore usage
 # objKeyStore.addStreamESD("Type1","Key1"] )
@@ -729,12 +728,12 @@ if globalflags.InputFormat.is_bytestream() and disableRPC:
    newList=[]
    for i in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
       if i.startswith("Rpc"):
-         print "removing from ByteStreamAddressProviderSvc ",i
+         printfunc ("removing from ByteStreamAddressProviderSvc ",i)
       else:
          newList+=[i]
 
    svcMgr.ByteStreamAddressProviderSvc.TypeNames=newList
-   print svcMgr.ByteStreamAddressProviderSvc.TypeNames
+   printfunc (svcMgr.ByteStreamAddressProviderSvc.TypeNames)
 
 # do it now, because monitoring is actually adding stuff to ByteStreamAddressProvider
 if globalflags.InputFormat.is_bytestream():
@@ -906,7 +905,7 @@ if rec.doWriteTAG():
         rec.doWriteTAG=False
         treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
 else: # minimal TAG to be written into AOD
-    print "Using EventInfoAttList"
+    printfunc ("Using EventInfoAttList")
 
 if rec.doWriteRDO():
     #Create output StreamRDO
@@ -1050,8 +1049,8 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         seq += TriggerSelectorAlg('TriggerAlg1')
         seq.TriggerAlg1.TriggerSelection = rec.triggerFilterList()
         pass
-    except Exception, e:
-        logRecExCommon_topOptions.error('Trigger filtering not set up, reason: ' + `e`)
+    except Exception as e:
+        logRecExCommon_topOptions.error('Trigger filtering not set up, reason: %s' % e)
         pass
 ##--------------------------------------------------------
 
@@ -1170,7 +1169,7 @@ if rec.doWriteESD():
 
     # consistency check : make sure oks streamESD==CILMergeESD and included in transient
     #FIXME many problem. #* to remove, datavector to be removed plus basic thing missing
-    print "DRDR now consistency checks with three list"
+    printfunc ("DRDR now consistency checks with three list")
     streamesd=objKeyStore['streamESD']()
     transient=objKeyStore['transient']()
     mergeesd=CILMergeESD()
@@ -1602,7 +1601,7 @@ if not rec.oldFlagCompatibility:
             if i in varInit:
                 logRecExCommon_topOptions.warning("Variable %s has been re-declared, forbidden !" % i)
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot check"
+        printfunc ("WARNING RecExCommonFlags not available, cannot check")
 
 
 
@@ -1664,7 +1663,7 @@ try:
         # Define the output file name
         StreamTAG.OutputCollection = athenaCommonFlags.PoolTAGOutput()
         logRecExCommon_topOptions.info("StreamTAG Itemlist dump:")
-        print StreamTAG.ItemList
+        printfunc (StreamTAG.ItemList)
 
 except Exception:
     treatException ("problem setting up TAG output")

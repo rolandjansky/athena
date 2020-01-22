@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import re
-re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?(?:_(?P<minEta>\d+)eta(?P<maxEta>\d+))?)?(?:_L1(?P<L1>.*))?$')
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import GeV
@@ -24,13 +22,6 @@ def TrigBjetEtHypoToolFromDict( chainDict ):
                   'maxEta' : chainPart['etaRange'].split('eta')[1],
                   'L1' : None }
     
-    # chain = conf
-    # match = re_Bjet.match( chain )
-    # conf_dict = match.groupdict()
-
-    # for k, v in default_conf.items():
-    #     if k not in conf_dict: conf_dict[k] = v
-    #     if conf_dict[k] == None: conf_dict[k] = v
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
     tool = TrigBjetEtHypoTool( name )
@@ -52,11 +43,13 @@ def TrigBjetEtHypoToolFromName( name, conf ):
     
 ####################################################################################################
 
+
 if __name__ == "__main__":
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigBjetEtHypoToolFromName( "HLT_j45_ftf_subjesgscIS_boffperf_split","HLT_j45_ftf_subjesgscIS_boffperf_split" )
+    t = TrigBjetEtHypoToolFromName( "HLT_j35_ftf_subjesgscIS_boffperf_split_L1J15","HLT_j35_ftf_subjesgscIS_boffperf_split_L1J15" )
     assert t, "can't configure boffperf split"
 
     log.info( "\n\n TrigBjetEtHypoToolFromName ALL OK\n\n" )
+

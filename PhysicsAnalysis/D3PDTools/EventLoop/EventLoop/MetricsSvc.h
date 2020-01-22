@@ -57,7 +57,7 @@ namespace EL
     /// effects: do all the processing that needs to be done once per file
     /// guarantee: no-fail
   private:
-    virtual EL::StatusCode fileExecute () override;
+    virtual StatusCode fileExecute () override;
 
 
     /// effects: do the post-processing for each input file
@@ -65,7 +65,7 @@ namespace EL
     /// failures: out of memory
     /// failures: in/out trees or input file not available
   private:
-    virtual EL::StatusCode endOfFile () override;
+    virtual StatusCode endOfFile () override;
 
 
     /// effects: create the output TTrees 
@@ -73,13 +73,13 @@ namespace EL
     /// failures: out of memory
     /// failures: output already exists
   private:
-    virtual EL::StatusCode histInitialize () override;
+    virtual StatusCode histInitialize () override;
 
 
     /// effects: process the next event
     /// guarantee: no-fail
   private:
-    virtual EL::StatusCode execute () override;
+    virtual StatusCode execute () override;
 
 
     /// effects: do the job post-processing
@@ -87,7 +87,7 @@ namespace EL
     /// failures: out of memory
     /// failures: in/out trees or input file not available
   private:
-    virtual EL::StatusCode histFinalize () override;
+    virtual StatusCode histFinalize () override;
 
 
 

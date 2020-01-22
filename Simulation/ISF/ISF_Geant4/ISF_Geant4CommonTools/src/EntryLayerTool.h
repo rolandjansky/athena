@@ -51,7 +51,7 @@ namespace ISF {
     virtual StatusCode  initialize() override final;
 
     /** handle for incident service */
-    void handle(const Incident& inc);
+    virtual void handle(const Incident& inc) override;
 
     /** Check if given particle passes the EntryLayer filters */
     virtual bool passesFilters( const ISFParticle& particle) override final;

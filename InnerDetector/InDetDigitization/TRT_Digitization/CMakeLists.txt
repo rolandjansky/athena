@@ -45,7 +45,6 @@ atlas_add_component( TRT_Digitization
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel PileUpToolsLib AthenaPoolUtilities GeoModelUtilities GeoPrimitives Identifier EventInfo GeneratorObjects TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetRawData InDetSimData InDetSimEvent MagFieldInterfaces HitManagement )
 
 # Install files from the package:
-atlas_install_headers( TRT_Digitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

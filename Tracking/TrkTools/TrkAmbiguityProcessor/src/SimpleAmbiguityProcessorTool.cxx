@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleAmbiguityProcessorTool.h"
@@ -162,134 +162,139 @@ void Trk::SimpleAmbiguityProcessorTool::statistics()
 {
 
   if (msgLvl(MSG::INFO)) {
+     MsgStream &out=msg(MSG::INFO);
+     out << " -- statistics:" << std::endl;
+     dumpStat(out);
+     out << endmsg;
+  }
+}
+
+void Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
     std::lock_guard<std::mutex> lock( m_statMutex );
-    ATH_MSG_INFO (name() << " -- statistics:");
-    std::streamsize ss = std::cout.precision();
+    std::streamsize ss = out.precision();
     int iw=9;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of events processed      :   "<< m_Nevents << std::endl;
-    std::cout << "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM--- " << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of candidates at input   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of events processed      :   "<< m_Nevents << std::endl;
+    out << "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM--- " << std::endl;
+    out << "---------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of candidates at input   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ncandidates[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "  - candidates rejected score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  - candidates rejected score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandScoreZero[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "  - candidates rejected as double :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  - candidates rejected as double :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NcandDouble[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  candidates with good score      :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "---------------------------------------------------------------------------------" << std::endl;
+    out << "  candidates with good score      :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreOk[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
     if (m_tryBremFit) {
-      std::cout << "  + recovered after brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  + recovered after brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefit[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
     }
-    std::cout << "  candidates rejected score 0     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  candidates rejected score 0     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NscoreZero[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
     if (m_tryBremFit) {
-      std::cout << "  + rejected failed brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  + rejected failed brem refit    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitFailed[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-      std::cout << "  + rejected brem refit score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  + rejected brem refit score 0   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NscoreZeroBremRefitScoreZero[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
     }
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  number of normal fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "---------------------------------------------------------------------------------" << std::endl;
+    out << "  number of normal fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
     if (m_tryBremFit) {
-      std::cout << "  + 2nd brem fit for failed fit   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  + 2nd brem fit for failed fit   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NrecoveryBremFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-      std::cout << "  normal brem fits for electrons  :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  normal brem fits for electrons  :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NbremFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
     }
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  sum of succesful fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "---------------------------------------------------------------------------------" << std::endl;
+    out << "  sum of succesful fits           :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NgoodFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "  sum of failed fits              :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  sum of failed fits              :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NfailedFits[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of subtracks created     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "---------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of subtracks created     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NsubTrack[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::endl;
-    std::cout << "  Number of candidates excluded   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  Number of candidates excluded   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_NnoSubTrack[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of tracks accepted       :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "---------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of tracks accepted       :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 	      << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Naccepted[Trk::SimpleAmbiguityProcessorTool::iDBM] << std::endl;
     if (m_tryBremFit) {
-      std::cout << "  including number of brem fits   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  including number of brem fits   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
 		<< m_NacceptedBrem[Trk::SimpleAmbiguityProcessorTool::iEndcap] << std::endl;
     }
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-    std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
+    out << "---------------------------------------------------------------------------------" << std::endl;
+    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
 	      << "    definition: ( 0.0 < Barrel < " << m_etabounds[iBarrel-1] << " < Transition < " << m_etabounds[iTransi-1]
 	      << " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout.precision (ss);
-  }
-  return;
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    out.precision (ss);
 }
 
 //==================================================================================================
@@ -361,7 +366,7 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process_vector(std::vector<
   std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map_cleanup;
   if (!prd_to_track_map) {
      // create internal PRD-to-track map
-     prd_to_track_map_cleanup = std::move( m_assoTool->createPRDtoTrackMap() );
+     prd_to_track_map_cleanup = m_assoTool->createPRDtoTrackMap();
      prd_to_track_map = prd_to_track_map_cleanup.get();
   }
   //put tracks into maps etc

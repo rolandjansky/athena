@@ -20,6 +20,7 @@
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfData/L1Menu.h"
+
 #include "TrigConfL1Data/DeadTime.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/CTPConfigOnline.h"
@@ -94,7 +95,7 @@ LVL1ConfigSvc::writeConfigToDetectorStore() {
       TrigConf::JsonFileLoader fileLoader;
       fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
-      if( fileLoader.loadFile( m_l1FileName, *l1menu ).isSuccess() ) {
+      if( fileLoader.loadFile( m_l1FileName, *l1menu ) ) {
          ATH_MSG_INFO( "Loaded L1 menu file " << m_l1FileName.value() );
       } else {
          ATH_MSG_WARNING( "Failed loading L1 menu file " << m_l1FileName.value());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/ExtraTreeTrackFillerTool.h"
@@ -19,7 +19,6 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -48,7 +47,6 @@ ExtraTreeTrackFillerTool::ExtraTreeTrackFillerTool(const std::string &type, cons
   AthAlgTool(type, name, parent),
   m_idToFixedIdTool( "MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool" ),
   m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-  m_muonIdHelper(NULL),
   m_author(0) {
   declareInterface<IExtraTreeFillerTool>(this);
   declareProperty("TrackCollectionKey", m_trackCollectionKey);
@@ -59,6 +57,9 @@ ExtraTreeTrackFillerTool::ExtraTreeTrackFillerTool(const std::string &type, cons
 }
 	
 StatusCode ExtraTreeTrackFillerTool::initialize() {
+
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
   if(!m_trackCollectionKey.size()) {
     ATH_MSG_FATAL("No TrackCollectionKey set!");
     return StatusCode::FAILURE;
@@ -126,39 +127,32 @@ void ExtraTreeTrackFillerTool::handleTrack(const Trk::Track *track, unsigned int
 inline void ExtraTreeTrackFillerTool::storeMeasurement(const Trk::MeasurementBase *measurement, const Trk::TrackStateOnSurface *tsos, unsigned int &index) {
   int type = -1;
   const Trk::RIO_OnTrack *rot = dynamic_cast<const Trk::RIO_OnTrack*> (measurement) ;
+  double error = std::sqrt(measurement->localCovariance()(0,0));
   MuonFixedId id;
-  const Trk::CompetingRIOsOnTrack *rotc = 0;
   Identifier idc;
   bool ismdt = false;
   if (rot) { 
     type = 1;
-    if (m_muonIdHelper->is_muon(rot->identify())) {
+    if (m_idHelperSvc->isMuon(rot->identify())) {
       id = m_idToFixedIdTool->idToFixedId(rot->identify());
-      if(m_muonIdHelper->is_mdt(rot->identify())) ismdt = true;
+      if(m_idHelperSvc->isMdt(rot->identify())) ismdt = true;
     }
   } else { 
-    rotc = dynamic_cast<const Trk::CompetingRIOsOnTrack*> (measurement);
+    const Trk::CompetingRIOsOnTrack *rotc = dynamic_cast<const Trk::CompetingRIOsOnTrack*> (measurement);
     if (rotc) {
       idc = rotc->rioOnTrack(0).identify();
-      if (m_muonIdHelper->is_muon(idc)) id = m_idToFixedIdTool->idToFixedId(idc);
+      if (m_idHelperSvc->isMuon(idc)) id = m_idToFixedIdTool->idToFixedId(idc);
       type = 2;
+      if(id.is_tgc()) error = errorCompetingRot(rotc);
     } else {
       const Trk::PseudoMeasurementOnTrack *rotp = dynamic_cast<const Trk::PseudoMeasurementOnTrack*> (measurement);
       if (rotp) {
-	type = 3;
+        type = 3;
       }
     }
   }
   Amg::Vector3D pos = measurement->globalPosition();
   const Trk::TrackParameters *trackPars = tsos->trackParameters();
-  /*	if(m_debug) {
-	std::cout << " global position measurement " << pos << std::endl;
-	if ( trackPars ) {
-	Amg::Vector3D lp = trackPars->position();  
-	std::cout << " track parameter position " << lp << std::endl;
-	}
-        }*/
-//	if(!trackPars) continue;
   if (ismdt) {
     // Store for Mdt wire position (crossed by track for local Z) 
     Amg::Vector2D lpos(0., trackPars ? trackPars->parameters()[Trk::locZ] : 0.);
@@ -173,16 +167,11 @@ inline void ExtraTreeTrackFillerTool::storeMeasurement(const Trk::MeasurementBas
   } else if( measurement->localParameters().contains(Trk::locY) ){
     driftRadius = measurement->localParameters()[Trk::locY];
   }
-  //if(m_debug&&ismdt)  std::cout << " driftRadius " <<   driftRadius << std::endl;
-  double error = std::sqrt(measurement->localCovariance()(0,0)); 
-  if(id.is_tgc()&&rotc) {
-    error = errorCompetingRot(rotc);
-  }
-  const Trk::ResidualPull* resPull = 0;
+
   double residual = -999.;
   double pull = -999.;
   if( trackPars ) {
-    resPull = m_pullCalculator->residualPull( measurement, trackPars, Trk::ResidualPull::Unbiased );
+    const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( measurement, trackPars, Trk::ResidualPull::Unbiased );
     if( resPull ){
       residual = resPull->residual().front();
       pull = resPull->pull().front();
@@ -220,6 +209,7 @@ inline void ExtraTreeTrackFillerTool::storeMeasurement(const Trk::MeasurementBas
   //  widely used, and this is the only place where driftTime is needed. (E. Diehl)
   m_hitBranch->fillBranch( muonHit, driftTime, index );
   if (type == 2 && (id.is_rpc() || id.is_tgc()) ) {
+    const Trk::CompetingRIOsOnTrack *rotc = dynamic_cast<const Trk::CompetingRIOsOnTrack*> (measurement);
     ATH_MSG_DEBUG(" Competing rio " << type << " error " << error);
     if( rotc->numberOfContainedROTs() > 1) {       
       for (unsigned int i=1; i<rotc->numberOfContainedROTs(); i++) {
@@ -254,11 +244,7 @@ StatusCode ExtraTreeTrackFillerTool::retrieveTools() {
     ATH_MSG_FATAL("Failed to reteive pullCalculator!");
     return StatusCode::FAILURE;
   }
-  if(!detStore()->retrieve( m_detMgr ).isSuccess()) {
-    ATH_MSG_FATAL("Failed to retrieve MuonDetectorManager");
-    return StatusCode::FAILURE;
-  }
-  m_muonIdHelper = m_detMgr->mdtIdHelper();
+
 //initialize segment author set if not done
   if(m_segment_authors.size() && !m_segment_authors_set.size()) {
     for(std::vector<int>::const_iterator it=m_segment_authors.begin(); it!=m_segment_authors.end(); it++) {

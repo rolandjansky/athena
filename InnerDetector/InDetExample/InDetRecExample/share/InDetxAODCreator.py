@@ -6,7 +6,7 @@ from RecExConfig.ObjKeyStore   import cfgKeyStore
 def getCollectionNameIfInFile(coll_type,coll_name) :
     from RecExConfig.AutoConfiguration import IsInInputFile
     if not IsInInputFile(coll_type,coll_name) :
-        print 'DEBUG getRecTrackParticleNameIfInFile set %s' % coll_name
+        printfunc ('DEBUG getRecTrackParticleNameIfInFile set %s' % coll_name)
         return coll_name
     else :
         return ""
@@ -30,9 +30,9 @@ doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracki
                     and not InDetFlags.doLowPtLargeD0() and InDetFlags.doParticleConversion()
 
 if doCreation:
-    print "Creating xAOD::TrackParticles from Trk::Tracks"
+    printfunc ("Creating xAOD::TrackParticles from Trk::Tracks")
 if doConversion:
-    print "Converting Rec::TrackParticles to xAOD::TrackParticles"
+    printfunc ("Converting Rec::TrackParticles to xAOD::TrackParticles")
 
 
 
@@ -52,7 +52,7 @@ if InDetFlags.doSplitReco()  and is_mc:
     topSequence += xAODTruthCnvPU
 
 def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
-    from AthenaCommon.AppMgr import theApp, ToolSvc
+    from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,'InDetxAODParticleCreatorTool'+suffix) :
         return getattr(ToolSvc,'InDetxAODParticleCreatorTool')
 
@@ -89,12 +89,12 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
 
     ToolSvc += InDetxAODParticleCreatorTool
     if InDetFlags.doPrintConfigurables():
-        print InDetxAODParticleCreatorTool
+        printfunc (InDetxAODParticleCreatorTool)
     return InDetxAODParticleCreatorTool
 
 
 def isValid(name) :
-    return name != None and name != ""
+    return name is not None and name != ""
 
 def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, topSequence, prd_to_track_map=None, suffix="") :
     '''
@@ -159,6 +159,11 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
     if not InDetFlags.doDBMstandalone(): 
         if doCreation :
             createTrackParticles(InputTrackCollection, InputTrackCollectionTruth, InDetKeys.xAODTrackParticleContainer(),topSequence)
+            from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+            from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+            for col in InDetPhysValFlags.validateExtraTrackCollections() :
+                prefix=extractCollectionPrefix(col)
+                createTrackParticles(col,"", prefix+"TrackParticles", topSequence)
         if doConversion :
             convertTrackParticles(getRecTrackParticleNameIfInFile(InDetKeys.TrackParticles()),
                                   InDetKeys.TrackParticlesTruth() ,

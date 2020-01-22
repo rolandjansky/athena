@@ -12,15 +12,11 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.InDetCandidateTool","InDetCandidateTool")
 
-addTool("MuonCombinedRecExample.MuGirlTagTool.MuGirlTagTool","MuGirlTagTool")
-addTool("MuonCombinedRecExample.MuGirlTagTool.TrigMuGirlTagTool","TrigMuGirlTagTool")
-
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonInsideOutRecoTool","MuonInsideOutRecoTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonCandidateTrackBuilderTool","MuonCandidateTrackBuilderTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonLayerSegmentMatchingTool","MuonLayerSegmentMatchingTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonLayerAmbiguitySolverTool","MuonLayerAmbiguitySolverTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonRecoValidationTool","MuonRecoValidationTool")
-
 addTool("MuonCombinedRecExample.MuGirlTagTool.DCMathStauSegmentMaker","DCMathStauSegmentMaker")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauChamberHoleRecoveryTool","MuonStauChamberHoleRecoveryTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauSeededSegmentFinder","MuonStauSeededSegmentFinder")
@@ -30,6 +26,7 @@ addTool("MuonCombinedRecExample.MuGirlTagTool.CombinedStauTrackBuilder",'Combine
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauCandidateTrackBuilderTool","MuonStauCandidateTrackBuilderTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauInsideOutRecoTool","MuonStauInsideOutRecoTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonStauRecoTool","MuonStauRecoTool")
+
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedFitTagTool","MuonCombinedFitTagTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
 addTool("Trk::TrackParticleCreatorTool","TrackParticleCreatorTool")

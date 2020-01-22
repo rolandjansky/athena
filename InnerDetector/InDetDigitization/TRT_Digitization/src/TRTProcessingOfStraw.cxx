@@ -11,8 +11,9 @@
 #include "TRTDigCondBase.h"
 
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "ITRT_SimDriftTimeTool.h"
 #include "TRTDigSettings.h"
+#include "TRTDigiHelper.h"
 
 //TRT detector information:
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -278,7 +279,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   // We need the straw id several times in the following  //
   //////////////////////////////////////////////////////////
   const int hitID((*i)->GetHitID());
-  unsigned int region(getRegion(hitID));
+  unsigned int region(TRTDigiHelper::getRegion(hitID));
   const bool isBarrel(region<3 );
   //const bool isEC    (!isBarrel);
   //const bool isShort (region==1);
@@ -434,6 +435,10 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
               {
                 particleCharge =  (particleEncoding>0 ? 1. : -1.) *(((abs(particleEncoding) / 100000.0) - 100.0) * 1000.0);
               }
+            else if ((static_cast<int>(abs(particleEncoding)/10000000) == 2) && (static_cast<int>(abs(particleEncoding)/100000)==200))
+              {
+                particleCharge =  (particleEncoding>0 ? 1. : -1.) *((double)((abs(particleEncoding) / 1000) % 100) / (double)((abs(particleEncoding) / 10) % 100));
+              }
           }
         else
           {
@@ -568,7 +573,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
   deposits.clear();
 
-  unsigned int region(getRegion(hitID));
+  unsigned int region(TRTDigiHelper::getRegion(hitID));
   const bool isBarrel(region<3 );
   const bool isEC    (!isBarrel);
   const bool isShort (region==1);
@@ -830,36 +835,5 @@ Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedH
   ATH_MSG_WARNING ( "Could not find global coordinate of a straw - drifttime calculation will be inaccurate" );
   const Amg::Vector3D def(0.0,0.0,0.0);
   return def;
-
-}
-
-//________________________________________________________________________________
-unsigned int TRTProcessingOfStraw::getRegion(int hitID) {
-  // 1=barrelShort, 2=barrelLong, 3=ECwheelA, 4=ECwheelB
-  const int mask(0x0000001F);
-  const int word_shift(5);
-  int layerID, ringID, wheelID;
-  unsigned int region(0);
-
-  if ( !(hitID & 0x00200000) ) { // barrel
-
-    hitID >>= word_shift;
-    layerID = hitID & mask;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    ringID = hitID & mask;
-    region = ( (layerID < 9) && (ringID == 0) ) ? 1 : 2;
-
-  } else { // endcap
-
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    wheelID = hitID & mask;
-    region = wheelID < 8 ?  3 : 4;
-
-  }
-
-  return region;
 
 }

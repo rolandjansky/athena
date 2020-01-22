@@ -25,7 +25,7 @@
 #include "CaloRec/CaloClusterProcessor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "TrigCaloRec/TrigCaloQuality.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 

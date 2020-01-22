@@ -9,8 +9,8 @@ def LArDigitMonConfig(inputFlags):
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
-    from LArMonitoring.LArMonitoringConf import LArDigitMonAlg
-    larDigitMonAlg = helper.addAlgorithm(LArDigitMonAlg,'larDigitMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    larDigitMonAlg = helper.addAlgorithm(CompFactory.LArDigitMonAlg,'larDigitMonAlg')
 
     summaryGroupName="Summary"
     nslots=[]

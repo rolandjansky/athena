@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 """
 #
 # the configuration of tools of wider usage
@@ -27,7 +29,7 @@ InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrack
                                                       )
 ToolSvc += InDetTrigFastTrackSummaryTool
 if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigFastTrackSummaryTool
+    print (     InDetTrigFastTrackSummaryTool)
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
@@ -39,7 +41,7 @@ InDetTrigTrackSummaryToolWithHoleSearch = Trk__TrackSummaryTool(name = "InDetTri
                                                       )
 ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
 if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackSummaryToolWithHoleSearch
+    print (     InDetTrigTrackSummaryToolWithHoleSearch)
 
 
 InDetTrigTrackSummaryToolSharedHitsWithTRTPid = \
@@ -51,7 +53,7 @@ InDetTrigTrackSummaryToolSharedHitsWithTRTPid = \
 
 ToolSvc += InDetTrigTrackSummaryToolSharedHitsWithTRTPid
 if (InDetTrigFlags.doPrintConfigurables()):
-    print      InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+    print (     InDetTrigTrackSummaryToolSharedHitsWithTRTPid)
 
 
 # HACK to emulate run2 behaviour

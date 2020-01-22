@@ -20,7 +20,7 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 

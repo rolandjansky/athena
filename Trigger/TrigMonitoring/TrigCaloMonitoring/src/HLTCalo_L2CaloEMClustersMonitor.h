@@ -6,7 +6,7 @@
 #define TRIGCALOMONITORING_HLTCALO_L2CALOEMCLUSTERSMONITOR_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

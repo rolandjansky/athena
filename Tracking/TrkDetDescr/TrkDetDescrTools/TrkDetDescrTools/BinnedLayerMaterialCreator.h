@@ -47,10 +47,10 @@ namespace Trk {
         StatusCode finalize();
 
         /** process the material properties */
-        const LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const;
+        LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const;
         
         /** create layer material properties from layer material properties - simply clones */
-        const LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const;
+        LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const;
         
         
     private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigFTKBankGen/FTKBankGenAlgo.h"
 #include "TrigFTKBankGen/FTKConstGenAlgo.h"
@@ -849,8 +849,8 @@ void FTKConstGenAlgo::constantgen()
     eigvec[i]= &eigvec_v[ndim*i]; 
   }
 
-  geo_const =(struct geo_constants *) malloc(nsector*sizeof(struct geo_constants));
-  gcorth =(struct geo_constants *) malloc(nsector*sizeof(struct geo_constants));
+  geo_const =(geo_constants *) malloc(nsector*sizeof(geo_constants));
+  gcorth =(geo_constants *) malloc(nsector*sizeof(geo_constants));
     
   for(int i=0;i<nsector;i++){
     geo_const[i].Vd = (double *) calloc(ndim,sizeof(double));
@@ -2034,7 +2034,7 @@ void FTKConstGenAlgo::make_subregion()
     if(nlayer==11 || nlayer==8) ndim=nlayer+3;//w/o IBL or 1st stage
     else if(nlayer==12) ndim=nlayer+4;//IBL
 
-    tmp_const =(struct geo_constants *) malloc(nsector*sizeof(struct geo_constants));
+    tmp_const =(geo_constants *) malloc(nsector*sizeof(geo_constants));
     sectorID=(int *) calloc(nsector,sizeof(int));
     for(int j=0;j<nsector;j++){
       tmp_const[j].Vd = (double *) calloc(ndim,sizeof(double));
@@ -2157,17 +2157,17 @@ void FTKConstGenAlgo::make_subregion()
       sprintf(gcon_filename[sub],"corrgen_raw_%dL_%dM_reg%d_sub%d.gcon",nlayer,m_nsubregion,i,sub);
       gcon_file = fopen(gcon_filename[sub],"w");
       for(int j=0;j<6;j++){
-	fprintf(gcon_file,init_line[j].c_str());
+	fprintf(gcon_file,"%s",init_line[j].c_str());
 	fprintf(gcon_file,"\n");
       }
       fprintf(gcon_file," %d\n",nlayer);
-      fprintf(gcon_file,init_line[6].c_str());
+      fprintf(gcon_file,"%s",init_line[6].c_str());
       fprintf(gcon_file,"\n");
       fprintf(gcon_file,"%d\n",sub_nsector);
-      fprintf(gcon_file,init_line[7].c_str());
+      fprintf(gcon_file,"%s",init_line[7].c_str());
       fprintf(gcon_file,"\n");
       fprintf(gcon_file," %d\n",2);
-      fprintf(gcon_file,init_line[8].c_str());
+      fprintf(gcon_file,"%s",init_line[8].c_str());
       for(int id=0;id<sub_nsector;id++){
 	fprintf(gcon_file,"sector\n");
 	fprintf(gcon_file,"%d\n",id);

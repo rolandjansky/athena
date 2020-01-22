@@ -19,15 +19,13 @@ def exc2string2():
 try:
     from TriggerMenu.commonUtils.LeptonIsoEDConfig import TrigHLTEnergyDensityCentral, TrigHLTEnergyDensityForward
 
-    from TrigGenericAlgs.TrigGenericAlgsConf import (PESA__DummyCombineAlgo,
-                                                     PESA__DummyUnseededAllTEAlgo as DummyAlgo)
+    from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
     
     from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
                                             TrigCaloClusterMaker_topo)
 
     from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
-                                            TrigCaloTowerMaker_eGamma,
-                                            TrigCaloCellMaker_eGamma_cells)
+                                            TrigCaloTowerMaker_eGamma)
     from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
     
 except Exception:

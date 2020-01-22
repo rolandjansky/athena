@@ -3,12 +3,11 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from RngComps.RngCompsConf import (
-    AtDSFMTGenSvc,
-    AtRanluxGenSvc,
-    AtRndmGenSvc,
-    AthRNGSvc,
-)
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+
+AtDSFMTGenSvc,AtRanluxGenSvc,AtRndmGenSvc,AthRNGSvc=\
+CompFactory.getComps("AtDSFMTGenSvc","AtRanluxGenSvc","AtRndmGenSvc","AthRNGSvc")
 
 # Translate between names in AthRNGSvc and elsewhere
 AthEngines = {

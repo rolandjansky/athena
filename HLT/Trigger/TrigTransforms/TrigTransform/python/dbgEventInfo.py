@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #### This is the dbgEventInfo class for the Debug Stream event analysis
+
+from __future__ import print_function
 
 import logging
 msg = logging.getLogger("PyJobTransforms." + __name__)
@@ -9,7 +11,6 @@ msg = logging.getLogger("PyJobTransforms." + __name__)
 import eformat
 import sys
 import os
-import commands
 from TrigTransform.dbgHltResult import * 
 #hltResult
 import cppyy
@@ -17,7 +18,8 @@ import cppyy
 from PyUtils import RootUtils
 ROOT = RootUtils.import_root()
 import ROOT
-from ROOT import *
+from ROOT import gStyle, gROOT
+
 
 class dbgEventInfo:
 
@@ -177,10 +179,10 @@ class dbgEventInfo:
                 for i in range(32):
                     L1IDed = ( event.lvl1_trigger_info()[j] >> i) & 0x1
                     id = i+k*32
-                #print 'L1 Item ID, WordSet, Name:',id, l, i,k #, L1Chain_Names[id]
+                #print ('L1 Item ID, WordSet, Name:',id, l, i,k #, L1Chain_Names[id])
                     if (L1IDed):
                         id = i+k*32
-                    #print 'L1 Item ID, WordSet, Name:',id, l , L1Chain_Names[id]
+                    #print ('L1 Item ID, WordSet, Name:',id, l , L1Chain_Names[id])
                         if (l==1):
                             self.L1_Triggered_BP.push_back(L1Chain_Names[id])
                         if (l==3):
@@ -218,11 +220,11 @@ class dbgEventInfo:
         #Prints chains and their information
         ch = cppyy.makeClass('HLT::Chain')(s)
         #ch.deserialize(s)
-        print ".... chain %-3d : %s Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
-            % ( counter, self.HLT_Chain_Names[ch.getChainCounter()], ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(), ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str())
+        print (".... chain %-3d : %s Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
+            % ( counter, self.HLT_Chain_Names[ch.getChainCounter()], ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(), ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str()))
 
     def get_all_chains(self,blob):
-        print "... chains:"
+        print ("... chains:")
         for i in range(len(blob)):
             self.get_chain(i, blob[i])
 
@@ -236,7 +238,7 @@ class dbgEventInfo:
         ef_event_count = 0 
         for rob  in event.children():
             if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_EVENT_FILTER:
-                print '..', rob.__class__.__name__, 'source:', rob.source_id(), 'source ID: 0x%x' % rob.source_id().code(), 'size:', rob.fragment_size_word()*4
+                print ('..', rob.__class__.__name__, 'source:', rob.source_id(), 'source ID: 0x%x' % rob.source_id().code(), 'size:', rob.fragment_size_word()*4)
                 try:
                     
                     self.HLT_res.load(rob)
@@ -286,10 +288,10 @@ class dbgEventInfo:
                     found = True
                     ef_event_count += 1
                     
-                except Exception, ex:
-                    print '... **** problems in analyzing payload', ex
-                    print '... **** raw data[:10]', list(rob.rod_data())[:10]
-                    print ".. EOF HLTResult for EF"
+                except Exception as ex:
+                    print ('... **** problems in analyzing payload', ex)
+                    print ('... **** raw data[:10]', list(rob.rod_data())[:10])
+                    print (".. EOF HLTResult for EF")
         if not found:
             msg.info("No HLT Result for EF")
 

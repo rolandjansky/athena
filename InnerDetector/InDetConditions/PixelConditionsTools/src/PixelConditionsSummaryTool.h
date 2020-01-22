@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelConditionsTools/PixelConditionsSummaryTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Return pixel module/FE status.
+ */
 
 #ifndef PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
 #define PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
@@ -20,6 +26,9 @@
 
 #include "PixelConditionsData/PixelModuleData.h"
 //#include "PixelConditionsData/PixelDeadMapCondData.h"
+#include "PixelConditionsData/PixelDCSStateData.h"
+#include "PixelConditionsData/PixelDCSStatusData.h"
+#include "PixelConditionsData/PixelTDAQData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
@@ -51,18 +60,15 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     std::vector<int> m_activeState;
     std::vector<int> m_activeStatus;
 
-    bool m_useDCSState;
     bool m_useByteStream;
-    bool m_useTDAQ;
-    bool m_useDeadMap;
 
-    SG::ReadCondHandleKey<PixelModuleData> m_condDCSStateKey
+    SG::ReadCondHandleKey<PixelDCSStateData> m_condDCSStateKey
     {this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_condDCSStatusKey
+    SG::ReadCondHandleKey<PixelDCSStatusData> m_condDCSStatusKey
     {this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_condTDAQKey
+    SG::ReadCondHandleKey<PixelTDAQData> m_condTDAQKey
     {this, "PixelTDAQCondData", "PixelTDAQCondData", "Pixel TDAQ conditions key"};
 
     SG::ReadCondHandleKey<PixelModuleData> m_condDeadMapKey

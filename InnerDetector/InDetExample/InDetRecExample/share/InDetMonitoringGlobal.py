@@ -42,7 +42,7 @@ if InDetFlags.doMonitoringGlobal():
   
   #ToolSvc += InDetGlobalSynchMonTool
   if (InDetFlags.doPrintConfigurables()):
-      print InDetGlobalSynchMonTool
+      printfunc (InDetGlobalSynchMonTool)
 
   #######################################################
   #                                                     #
@@ -55,7 +55,7 @@ if InDetFlags.doMonitoringGlobal():
   
       #ToolSvc += InDetGlobalErrorMonTool
       if (InDetFlags.doPrintConfigurables()):
-          print InDetGlobalErrorMonTool
+          printfunc (InDetGlobalErrorMonTool)
 
   
   ##################################################
@@ -107,7 +107,7 @@ if InDetFlags.doMonitoringGlobal():
       
   #ToolSvc += InDetGlobalTrackMonTool
   if (InDetFlags.doPrintConfigurables()):
-      print InDetGlobalTrackMonTool
+      printfunc (InDetGlobalTrackMonTool)
   
   ####################################################
   #                                                  #
@@ -123,7 +123,7 @@ if InDetFlags.doMonitoringGlobal():
         InDetGlobalPixelTool.FilterTools += [GetFilledBunchFilterTool()]
       #ToolSvc += InDetGlobalPixelTool
       if (InDetFlags.doPrintConfigurables()):
-          print InDetGlobalPixelTool
+          printfunc (InDetGlobalPixelTool)
   
   ####################################################
   #                                                  #
@@ -138,7 +138,7 @@ if InDetFlags.doMonitoringGlobal():
   #   InDetGlobalBCMTool.FilterTools += [GetFilledBunchFilterTool()]
   # ToolSvc += InDetGlobalBCMTool
   # if (InDetFlags.doPrintConfigurables()):
-  #     print InDetGlobalBCMTool
+  #     printfunc (InDetGlobalBCMTool)
 
   ####################################################
   #                                                  #
@@ -158,7 +158,7 @@ if InDetFlags.doMonitoringGlobal():
         InDetGlobalBeamSpotMonTool.FilterTools += [GetFilledBunchFilterTool()]
       #ToolSvc += InDetGlobalBeamSpotMonTool
       if (InDetFlags.doPrintConfigurables()):
-          print InDetGlobalBeamSpotMonTool
+          printfunc (InDetGlobalBeamSpotMonTool)
 
   ####################################################
   #                                                  #
@@ -200,7 +200,7 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
 
   #ToolSvc += InDetGlobalPrimaryVertexMonTool
   if (InDetFlags.doPrintConfigurables()):
-          print InDetGlobalPrimaryVertexMonTool
+          printfunc (InDetGlobalPrimaryVertexMonTool)
 
   InDetGlobalManager.AthenaMonTools += [ InDetGlobalPrimaryVertexMonTool]
 
@@ -219,7 +219,7 @@ if InDetFlags.doMonitoringGlobal():
                                                 )
   
   if not hasattr(ToolSvc, 'monTrigDecTool') and rec.doTrigger == True:
-    print "Trigger decision tool not found: including it now"
+    printfunc ("Trigger decision tool not found: including it now")
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
     monTrigDecTool = Trig__TrigDecisionTool(name=DQMonFlags.nameTrigDecTool(),
                                             OutputLevel=ERROR,
@@ -238,4 +238,4 @@ if InDetFlags.doMonitoringGlobal():
   ####################################################
   topSequence+=InDetGlobalManager
   if (InDetFlags.doPrintConfigurables()):
-      print InDetGlobalManager
+      printfunc (InDetGlobalManager)

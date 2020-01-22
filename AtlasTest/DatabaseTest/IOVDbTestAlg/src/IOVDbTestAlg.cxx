@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "IOVDbTestAlg/IOVDbTestAlg.h"
+#include "IOVDbTestAlg.h"
 
 // IOVDbTest includes
 #include "RegistrationServices/IIOVRegistrationSvc.h"

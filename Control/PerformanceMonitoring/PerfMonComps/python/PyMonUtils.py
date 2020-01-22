@@ -120,7 +120,6 @@ if sys.platform == 'darwin':
         from os import getpid,sysconf
         from sys import platform
         from resource import getrusage, RUSAGE_SELF
-        from string import split as ssplit
         cpu = getrusage(RUSAGE_SELF)
         cpu = (cpu.ru_utime+cpu.ru_stime) * 1e3 # in milliseconds
         # The following is placeholder code for the Mac to get vmem and rss in bytes. This is available
@@ -141,12 +140,11 @@ else:
         from os import getpid,sysconf
         from sys import platform
         from resource import getrusage, RUSAGE_SELF
-        from string import split as ssplit
         cpu = getrusage(RUSAGE_SELF)
         cpu = (cpu.ru_utime+cpu.ru_stime) * 1e3 # in milliseconds
         pageSize = sysconf('SC_PAGE_SIZE')/Units.MB
         mem = open('/proc/%d/statm'%getpid(),'r')
-        mem = ssplit(mem.readlines()[0])
+        mem = mem.readlines()[0].split()
         vmem = int(mem[0])*pageSize
         rss  = int(mem[1])*pageSize
         return cpu,vmem,rss

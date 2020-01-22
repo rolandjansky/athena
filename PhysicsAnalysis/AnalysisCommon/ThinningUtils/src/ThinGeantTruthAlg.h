@@ -20,7 +20,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ThinningHandleKey.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -61,9 +61,6 @@ public:
  
 private:
 
-    /// Pointer to IThinningSvc
-    ServiceHandle<IThinningSvc> m_thinningSvc;
-    
     /// Should the thinning run?
     bool m_doThinning;
    
@@ -72,14 +69,17 @@ private:
  
     /// Geant-decayed longer lived particles
     std::vector<int> m_longlived;
-    
-    SG::ReadHandleKey<xAOD::TruthParticleContainer>  m_truthParticlesKey {this, 
+
+    StringProperty m_streamName
+    { this, "StreamName", "", "Stream for which thinning is to be done." };
+
+    SG::ThinningHandleKey<xAOD::TruthParticleContainer>  m_truthParticlesKey {this, 
         "TruthParticlesKey", 
         "TruthParticles", 
         "Name of the input Truth Particle container"};
 
 
-    SG::ReadHandleKey<xAOD::TruthVertexContainer> m_truthVerticesKey{this, 
+    SG::ThinningHandleKey<xAOD::TruthVertexContainer> m_truthVerticesKey{this, 
         "TruthVerticesKey", 
         "TruthVertices", 
         "Name of the input Truth Vertices container"};

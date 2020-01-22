@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,8 +26,6 @@
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "MuonRDO/TgcRdoContainer.h"
-
-#include "MuonDigitContainer/TgcDigitContainer.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
@@ -385,6 +383,14 @@ TgcRawDataValAlg::fillEfficiency(){
 
   // Retrieve current coincidence container from storegate
   SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_trg_container(m_outputCoinCollectionLocation);
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE; 
+  } 
   
   // Loop over TGCCoinContainer
   Muon::TgcCoinDataContainer::const_iterator it_end=tgc_trg_container->end();
@@ -409,7 +415,7 @@ TgcRawDataValAlg::fillEfficiency(){
         
         // Get channel position
         Identifier id = tcd->channelIdIn();
-        const MuonGM::TgcReadoutElement*  pReadoutElementTGC = m_muonMgr->getTgcReadoutElement(id);
+        const MuonGM::TgcReadoutElement*  pReadoutElementTGC = MuonDetMgr->getTgcReadoutElement(id);
         const Amg::Vector3D channelPos = pReadoutElementTGC->channelPos(id); //global position 
         
         // Add position information to vectors
@@ -424,7 +430,7 @@ TgcRawDataValAlg::fillEfficiency(){
         
         // Get channel position
         Identifier id = tcd->channelIdIn();
-        const MuonGM::TgcReadoutElement*  pReadoutElementTGC = m_muonMgr->getTgcReadoutElement(id);
+        const MuonGM::TgcReadoutElement*  pReadoutElementTGC = MuonDetMgr->getTgcReadoutElement(id);
         const Amg::Vector3D channelPos = pReadoutElementTGC->channelPos(id); //global position 
         
         // Add position information to vectors
@@ -473,7 +479,7 @@ TgcRawDataValAlg::fillEfficiency(){
             if(m_hitIdVects[CURR][ac][ws][eta][phi48][l].size()==1){
               // Fill channel variables
               chIds[ws][l] = m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)) + m_SLBoffset[ws][ac][eta][l];
-              const MuonGM::TgcReadoutElement*  pReadoutElementTGC = m_muonMgr->getTgcReadoutElement(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0));
+              const MuonGM::TgcReadoutElement*  pReadoutElementTGC = MuonDetMgr->getTgcReadoutElement(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0));
               const Amg::Vector3D channelPos = pReadoutElementTGC->channelPos(m_hitIdVects[CURR][ac][ws][eta][phi48][l].at(0)); //global position 
               chEtas[ws][l] = channelPos.eta();
               chPhis[ws][l] = channelPos.phi();

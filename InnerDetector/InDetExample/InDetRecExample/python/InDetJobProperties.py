@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 
 #
@@ -124,7 +125,13 @@ class doPseudoTracking(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False 
-    
+
+class doIdealPseudoTracking(InDetFlagsJobProperty):
+    """Run pseudoTracking with 100\% hit assignment efficiency"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class doSplitReco(InDetFlagsJobProperty):
     """Turn running of the truth seeded pseudo tracking only for pileup on and off. 
        Only makes sense to run on RDO file where SplitDigi was used!"""
@@ -2621,6 +2628,7 @@ _list_InDetJobProperties = [Enabled,
                             doPrintConfigurables,
                             doNewTracking,
                             doPseudoTracking,
+                            doIdealPseudoTracking,
                             doSplitReco,
                             doxKalman,
                             doiPatRec,

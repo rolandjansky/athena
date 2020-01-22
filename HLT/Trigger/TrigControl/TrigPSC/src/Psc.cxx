@@ -11,7 +11,6 @@
  */
 
 #include "TrigPSC/Psc.h"
-#include "TrigPSC/Config.h"
 #include "TrigPSC/PscIssues.h"
 #include "TrigPSC/Utils.h"
 #include "TrigKernel/ITrigEventLoopMgr.h"
@@ -61,12 +60,8 @@ namespace
 }
 
 //--------------------------------------------------------------------------------
-// C'tor and D'tor
+// Destructor
 //--------------------------------------------------------------------------------
-psc::Psc::Psc ()
-{
-}
-
 psc::Psc::~Psc ()
 {
   if (m_pesaAppMgr) { 

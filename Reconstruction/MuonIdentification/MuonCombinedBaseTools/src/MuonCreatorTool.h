@@ -110,10 +110,12 @@ namespace MuonCombined {
     /// takes ownership of the track
     ElementLink<xAOD::TrackParticleContainer>
       createTrackParticleElementLink( ElementLink<TrackCollection> trackLink,
-        xAOD::TrackParticleContainer& trackParticleContainer) const ;
+				      xAOD::TrackParticleContainer& trackParticleContainer,
+				      TrackCollection* trackCollection = 0) const ;
 
     ElementLink<xAOD::MuonSegmentContainer> createMuonSegmentElementLink( ElementLink<Trk::SegmentCollection> segLink,
-        xAOD::MuonSegmentContainer& xaodSegments) const ;
+									  xAOD::MuonSegmentContainer& xaodSegments,
+									  Trk::SegmentCollection* muonSegmentCollection = 0) const ;
 
   private:
     void resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,

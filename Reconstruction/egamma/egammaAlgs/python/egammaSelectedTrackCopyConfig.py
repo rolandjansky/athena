@@ -2,11 +2,12 @@
 
 __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
-from AthenaCommon.Logging import logging
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
-from egammaAlgs.egammaAlgsConf import egammaSelectedTrackCopy
+from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+egammaCaloClusterSelector = CompFactory.egammaCaloClusterSelector
+egammaSelectedTrackCopy = CompFactory.egammaSelectedTrackCopy
 
 
 def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
@@ -18,8 +19,12 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
 
     if "egammaCaloClusterSelector" not in kwargs:
         egammaCaloClusterGSFSelector = egammaCaloClusterSelector(name='caloClusterGSFSelector',
-                                                                 EMEtRanges = [2500.],
-                                                                 EMFCuts = [0.7]
+                                                                 EMEtRanges=[2300.],
+                                                                 EMFCuts=[0.5],
+                                                                 # 3x7/7x7=0.429. Below this
+                                                                 # there is more energy outside the
+                                                                 # 3x7 core than inside
+                                                                 RetaCut=[0.45]
                                                                  )
 
         kwargs["egammaCaloClusterSelector"] = egammaCaloClusterGSFSelector
@@ -29,9 +34,10 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
         kwargs["ExtrapolationTool"] = extraptool.popPrivateTools()
         acc.merge(extraptool)
 
-    kwargs.setdefault("ClusterContainerName", flags.Egamma.Keys.Internal.EgammaTopoClusters)
-    kwargs.setdefault("TrackParticleContainerName", flags.Egamma.Keys.Input.TrackParticles)
-    kwargs.setdefault("narrowDeltaPhiBrem", 0.20)
+    kwargs.setdefault("ClusterContainerName",
+                      flags.Egamma.Keys.Internal.EgammaTopoClusters)
+    kwargs.setdefault("TrackParticleContainerName",
+                      flags.Egamma.Keys.Input.TrackParticles)
 
     egseltrkcpAlg = egammaSelectedTrackCopy(name, **kwargs)
 

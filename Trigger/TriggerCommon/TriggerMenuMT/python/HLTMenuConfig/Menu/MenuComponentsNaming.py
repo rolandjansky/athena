@@ -35,11 +35,17 @@ class CFNaming(object):
         return CFNaming.simplifyOutName("HLTNav_" + IMname + "__" + filterOut)
 
     @staticmethod
-    def hypoAlgOutName(HypoName, HypoInput):
+    def hypoAlgOutNameOld(HypoName, HypoInput):
         name = CFNaming.simplifyOutName("HLTNav_" + HypoName + "__" + HypoInput)
         # remove the IM parts from hypos output
         return "__".join( filter(lambda frag: not (frag.startswith("IM") or frag.startswith("F")), name.split("__")) )
 
+    @staticmethod
+    def hypoAlgOutName(HypoName):
+        name = CFNaming.simplifyOutName("HLTNav_" + HypoName)
+        return name
+
+    
     @staticmethod
     def comboHypoName(HypoName):
         return "ComboHypo_" + HypoName
@@ -59,8 +65,8 @@ class CFNaming(object):
         return "%s%d_for_%s"%(HypoName,ncopy,StepName)
 
     @staticmethod
-    def comboHypoOutputName(inputName):
-        return CFNaming.simplifyOutName("HLTNav_combo_" + inputName )
+    def comboHypoOutputName(comboName, inputName):
+        return CFNaming.simplifyOutName("HLTNav_" + comboName+"_"+ inputName )
 
     @staticmethod
     def stepRecoNodeName(HLTNodeName, StepCFName):

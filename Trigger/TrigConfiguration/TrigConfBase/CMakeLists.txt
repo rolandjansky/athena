@@ -7,8 +7,9 @@ atlas_subdir( TrigConfBase )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
-   PRIVATE
-   Control/AthenaBaseComps )
+  PRIVATE
+  Control/AthenaBaseComps
+  )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex thread )
@@ -24,12 +25,14 @@ atlas_install_joboptions( share/*.py )
 
 # Tests:
 if( NOT XAOD_STANDALONE )
+
    atlas_add_component( TrigConfBaseTest
       test/TrigConfMsgAlg.cxx
       LINK_LIBRARIES TrigConfBase AthenaBaseComps )
 
    atlas_add_test( trigconf_msg_athena_test
       SCRIPT athena.py TrigConfBase/test_TrigConfMsgAlg.py )
+
 endif()
 
 if( APPLE )

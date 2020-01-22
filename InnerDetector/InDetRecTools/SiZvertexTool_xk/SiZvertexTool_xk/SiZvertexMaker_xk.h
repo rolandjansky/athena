@@ -7,10 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiZvertexMaker_xk
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for primary vertices z-coordinates generation (xKalman algorithm)
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +36,16 @@ namespace InDet {
 
   class SiSpacePointsSeedMakerEventData;
 
+  /**
+   * @class SiZvertexMaker_xk
+   * Class for primary vertices z-coordinates generation (xKalman algorithm)
+   *
+   * In AthenaMT, event dependent cache inside SiZvertexMaker_xk
+   * is not preferred. SiSpacePointsSeedMakerEventData class holds
+   * event dependent data for SiZvertexMaker_xk and ISiSpacePointsSeedMaker.
+   * Its object is instantiated in SiSPSeededTrackFinder::execute.
+   */
+
   class SiZvertexMaker_xk : public extends<AthAlgTool, ISiZvertexMaker>
   {
     ///////////////////////////////////////////////////////////////////
@@ -49,20 +55,21 @@ namespace InDet {
   public:
       
     ///////////////////////////////////////////////////////////////////
-    // Standard tool methods
+    /// @name Standard tool methods
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     SiZvertexMaker_xk(const std::string&,
                       const std::string&,
                       const IInterface*);
     virtual ~SiZvertexMaker_xk() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Methods to initialize tool for new event or region
+    /// @name Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual std::list<Trk::Vertex> newEvent(SiSpacePointsSeedMakerEventData& data) const override;
     virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
                                              const std::vector<IdentifierHash>&,
@@ -71,28 +78,36 @@ namespace InDet {
                                              const std::vector<IdentifierHash>&,
                                              const std::vector<IdentifierHash>&,
                                              const IRoiDescriptor&) const override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Print internal tool parameters and status
+    /// @name Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual MsgStream& dump(MsgStream& out) const override;
-      
+    //@}
+
   protected:
       
     ///////////////////////////////////////////////////////////////////
     // Protected data and methods
     ///////////////////////////////////////////////////////////////////
-      
+
+    /// @name Tool handles
+    //@{
     ToolHandle<InDet::ISiSpacePointsSeedMaker> m_seedsgenerator
     {this, "SeedMakerTool", "InDet::SiSpacePointsSeedMaker_ATLxk"};
+    //@}
 
+    /// @name Properties
+    //@[
     IntegerProperty m_nspoint{this, "SeedSize", 2};
     IntegerProperty m_histsize{this, "HistSize", 500};
     IntegerProperty m_mincontent{this, "minContent", 20};
     DoubleProperty m_zmin{this, "Zmin", -250.};
     DoubleProperty m_zmax{this, "Zmax", +250.};
     DoubleProperty m_ratio{this, "minRatio", 0.25};
+    //@}
 
     ///////////////////////////////////////////////////////////////////
     // Protected methods

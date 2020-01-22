@@ -36,9 +36,10 @@ if not 'InputDirectory' in dir():
         InputDirectory = "/eos/atlas/atlascerngroupdisk/det-tile/test"
     else:
         if RunFromLocal:
-            InputDirectory = "/afs/cern.ch/user/t/tilecomm/w0/rawdata"
+            #InputDirectory = "/afs/cern.ch/user/t/tilecomm/w0/rawdata"
+            InputDirectory = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TileRecEx"
 else:
-    if InputDirectory.startswith("/afs/"):
+    if InputDirectory.startswith("/afs/") or InputDirectory.startswith("/cvmfs/") :
         RunFromLocal = True
                                                                     
 

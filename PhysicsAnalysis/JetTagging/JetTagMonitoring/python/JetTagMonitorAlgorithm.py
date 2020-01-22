@@ -32,9 +32,9 @@ def JetTagMonitorConfig(inputFlags):
     # is the algorithm.
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    from JetTagMonitoring.JetTagMonitoringConf import JetTagMonitorAlgorithm
+    from AthenaConfiguration.ComponentFactory import CompFactory
     #jetTagGeneral = helper.addAlgorithm(JetTagMonitorAlgorithm,'JetTagGeneral')
-    jetTagMonAlg = helper.addAlgorithm(JetTagMonitorAlgorithm,'JetTagMonAlg')
+    jetTagMonAlg = helper.addAlgorithm(CompFactory.JetTagMonitorAlgorithm,'JetTagMonAlg')
     #anotherJetTagMonAlg = helper.addAlgorithm(JetTagMonitorAlgorithm,'AnotherJetTagMonAlg')
 
     # If for some really obscure reason you need to instantiate an algorithm

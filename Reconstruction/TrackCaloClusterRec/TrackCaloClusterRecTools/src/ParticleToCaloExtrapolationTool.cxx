@@ -150,7 +150,7 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
   const Trk::TrackParameters* startPar = nullptr;
 
   
-  if (particle.isAvailable<std::vector<float> >( "definingParametersCovMatrix" ) and 
+  if (particle.isAvailable<std::vector<float> >( "definingParametersCovMatrixDiag" ) and particle.isAvailable<std::vector<float> >( "definingParametersCovMatrixOffDiag" ) and
       particle.isAvailable<float>( "vx" ) and particle.isAvailable<float>( "vy" ) ) {
     startPar = &particle.perigeeParameters();
   } else {

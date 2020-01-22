@@ -158,11 +158,19 @@ private:
   const AtlasDetectorID* m_detID;
   const PixelID* m_pixelID;
   
-  ToolHandle< IExtendedTrackSummaryTool > m_trackSummaryTool;
-  ToolHandle< IExtrapolator >  m_extrapolator;
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertex;
-  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool;
-
+ //Need to change to private when is safe to do so
+  PublicToolHandle<IExtendedTrackSummaryTool> m_trackSummaryTool{this,
+    "TrackSummaryTool","Trk::TrackSummaryTool/AtlasTrackSummaryTool"};
+  
+  PublicToolHandle<IExtrapolator>  m_extrapolator{this,
+    "Extrapolator","Trk::Extrapolator/AtlasExtrapolator"};
+  
+  ToolHandle<Reco::ITrackToVertex> m_trackToVertex{this,
+    "TrackToVertex","Reco::TrackToVertex/TrackToVertex"};
+  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool{this,
+    "MuonSummaryTool","Muon::MuonHitSummaryTool/MuonHitSummaryTool"};
+ 
+ 
   /** to query magnetic field configuration */
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
   ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;

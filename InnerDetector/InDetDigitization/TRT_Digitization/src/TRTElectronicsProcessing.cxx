@@ -12,6 +12,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 #include "TRTDigSettings.h"
+#include "TRTDigiHelper.h"
 
 #include <iostream>
 #include <limits>
@@ -502,41 +503,9 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
 }
 
 //_____________________________________________________________________________
-unsigned int TRTElectronicsProcessing::getRegion(int hitID) {
-
-  // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
-  const int mask(0x0000001F);
-  const int word_shift(5);
-  int layerID, ringID, wheelID;
-  unsigned int region(0);
-
-  if ( !(hitID & 0x00200000) ) { // barrel
-
-    hitID >>= word_shift;
-    layerID = hitID & mask;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    ringID = hitID & mask;
-    region = ( (layerID < 9) && (ringID == 0) ) ? 1 : 2;
-
-  } else { // endcap
-
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    hitID >>= word_shift;
-    wheelID = hitID & mask;
-    region = wheelID < 8 ?  3 : 4;
-
-  }
-
-  return region;
-
-}
-
-//_____________________________________________________________________________
 double TRTElectronicsProcessing::getHighThreshold ( int hitID, int strawGasType ) {
   double highthreshold(0.);
-  switch ( getRegion(hitID) ) {
+  switch ( TRTDigiHelper::getRegion(hitID) ) {
   case 1: highthreshold = m_settings->highThresholdBarShort(strawGasType);  break;
   case 2: highthreshold = m_settings->highThresholdBarLong(strawGasType);   break;
   case 3: highthreshold = m_settings->highThresholdECAwheels(strawGasType); break;
@@ -556,7 +525,7 @@ void TRTElectronicsProcessing::HTt0Shift(int hitID) {
   // htT0shiftBarShort, htT0shiftBarLong, htT0shiftECAwheels and m_htT0shiftECBwheels
 
   int t0Shift(0); // in 0.78125 ns steps
-  switch ( getRegion(hitID) ) {
+  switch ( TRTDigiHelper::getRegion(hitID) ) {
   case 1: t0Shift = m_settings->htT0shiftBarShort();  break;
   case 2: t0Shift = m_settings->htT0shiftBarLong();   break;
   case 3: t0Shift = m_settings->htT0shiftECAwheels(); break;
@@ -602,7 +571,7 @@ void TRTElectronicsProcessing::LTt0Shift( int hitID, int strawGasType ) {
   // ltT0shiftBarShort, ltT0shiftBarLong, ltT0shiftECAwheels and m_ltT0shiftECBwheels
 
   int t0Shift(0); // in 0.78125 ns steps
-  switch ( getRegion(hitID) ) {
+  switch ( TRTDigiHelper::getRegion(hitID) ) {
   case 1: t0Shift = m_settings->ltT0shiftBarShort(strawGasType);  break;
   case 2: t0Shift = m_settings->ltT0shiftBarLong(strawGasType);   break;
   case 3: t0Shift = m_settings->ltT0shiftECAwheels(strawGasType); break;

@@ -3,8 +3,9 @@
 __doc__ = "Configure the electron and photon selectors."
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTools.egammaToolsConf import EMPIDBuilder
+EMPIDBuilder=CompFactory.EMPIDBuilder
 from ROOT import egammaPID
 import cppyy
 cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
@@ -52,7 +53,7 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         acc.merge(TightLHSelectorAcc)
 
     # Multi Lepton
-    from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronMultiLeptonSelector
+    AsgElectronMultiLeptonSelector=CompFactory.AsgElectronMultiLeptonSelector
     if "genericIsEMselectors" not in kwargs:
         MultiLeptonSelector = AsgElectronMultiLeptonSelector("MultiLeptonSelector")
         kwargs["genericIsEMselectors"] = [MultiLeptonSelector]

@@ -15,6 +15,9 @@ ExampleMonitorAlgorithm::~ExampleMonitorAlgorithm() {}
 
 StatusCode ExampleMonitorAlgorithm::initialize() {
     using namespace Monitored;
+    // initialize superclass
+    ATH_CHECK( AthMonitorAlgorithm::initialize() );
+    
     m_abGroups1 = buildToolMap<int>(m_tools,"ExampleMonitor",2);
     m_abGroups2 = buildToolMap<std::vector<int>>(m_tools,"ExampleMonitor",4,2);
 
@@ -22,7 +25,7 @@ StatusCode ExampleMonitorAlgorithm::initialize() {
     std::vector<std::string> clusters = {"clusterX","clusterB"};
     m_cGroups1 = buildToolMap<int>(m_tools,"ExampleMonitor",layers);
     m_cGroups2 = buildToolMap<std::map<std::string,int>>(m_tools,"ExampleMonitor",layers,clusters);
-    return AthMonitorAlgorithm::initialize();
+    return StatusCode::SUCCESS;
 }
 
 

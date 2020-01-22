@@ -58,7 +58,7 @@ using Muon::MdtDriftCircleOnTrack;
 Csc4dSegmentMaker::
 Csc4dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
 : AthAlgTool(type, aname, parent),
-  m_dumped(0), m_dump(false), m_pgm(0), m_phelper(0),
+  m_dumped(0), m_dump(false),
   m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
 {
@@ -92,15 +92,6 @@ StatusCode Csc4dSegmentMaker::initialize(){
   ATH_MSG_DEBUG ( "  Max phi slope: " << m_max_slope_phi );
   ATH_MSG_DEBUG ( "  Max segments/chamber: " << m_max_seg_per_chamber );
   ATH_MSG_DEBUG ( "  SegmentTool: " << m_segmentTool.typeAndName() );
-
-  // Retrieve the detector descriptor.
-  if ( detStore()->retrieve(m_pgm).isFailure() ) {
-    ATH_MSG_FATAL ( " Cannot retrieve MuonReadoutGeometry " );
-    return StatusCode::FAILURE;
-  }
-
-  m_phelper = m_pgm->cscIdHelper();
-  
 
   if ( m_segmentTool.retrieve().isFailure() ) {
     ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_segmentTool );

@@ -234,8 +234,6 @@ private:
 
   Amg::Vector3D getGlobalPosition( int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit );
 
-  unsigned int getRegion(int hitID);
-
   //Magnetic field stuff
   MagField::IMagFieldSvc* m_magneticfieldsvc;
   mutable Athena::MsgStreamMember m_msg;

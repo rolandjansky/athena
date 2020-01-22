@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           )
 
 # External dependencies:
-find_package( PythonLibs )
 find_package( requests )
 find_package( six )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
@@ -48,4 +47,7 @@ atlas_add_alias( tree-orderer "tree-orderer.py" )
 atlas_add_test( RootUtils
    SCRIPT test/test_RootUtils.py
    PROPERTIES TIMEOUT 300
-   EXTRA_PATTERNS "Ran 1 test in |CheckABICompatibility|standard library|import imp|imp module" )
+   LOG_IGNORE_PATTERN "Ran 1 test in |CheckABICompatibility|standard library|import imp|imp module" )
+
+atlas_add_test( fprint_test
+                SCRIPT python -m PyUtils.fprint )

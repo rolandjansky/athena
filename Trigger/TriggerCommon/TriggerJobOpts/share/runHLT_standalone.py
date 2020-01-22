@@ -1,305 +1,234 @@
-##############################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+################################################################################
 # TriggerJobOpts/runHLT_standalone.py
 #
-#   jobOption file to run HLT standalone (independant of RecExCommon)
+#   Job options to run HLT standalone in AthenaMT
 #
-# Input could be Pool/RDO or BS
+#   The file can be used as an include in other JO:
+#      include('TriggerJobOpts/runHLT_standalone.py')
+#   or directly to run the HLT:
+#      athena --threads=1 --filesInput=input.pool.root TriggerJobOpts/runHLT_standalone.py
 #
-# Input file: (athena only)
-#   Pool: set by "PoolRDOInput"
-#   BS:   set by "BSRDOInput"
+# Several flags are supported on the command line to steer these job options, for example
+# by adding -c "setMenu='MC_pp_run3_v1'". See below for a complete list of all flags and their default
+# value. If used in athena.py the auto-configuration is used to setup most flags correctly.
 #
-# L1Topo/L1 configuration are fixed
-#   set by "setLVL1XML" 
+# Additional "modifiers" can be specified by using
+#   -c "myModifier=True/False"
+# Existing modifiers can be found in "TriggerJobOpts/python/Modifiers.py"
 #
-# HLT configuration uses Python configuration
-#   set by "setMenu" (can also include prescales)
-#   if used for MC, one needs to set "setupForMC" to True
-#   Individual slices can be run by doing "test<sliceName>=True"
-#   Individual signatures can be removed/added putting them in
-#     "removeSignatures" and "addSignatures"
-#     e.g. "addSignatures={'MuonSlice': ['mu6_ef']}"
+class opt:
+    setupForMC       = None           # force MC setup
+    setMenu          = 'LS2_v1'
+    setDetDescr      = None           # force geometry tag
+    setGlobalTag     = None           # force global conditions tag
+    useCONDBR2       = True           # if False, use run-1 conditions DB
+    condOverride     = {}             # overwrite conditions folder tags e.g. '{"Folder1":"Tag1", "Folder2":"Tag2"}'
+    doHLT            = True           # run HLT?
+    doID             = True           # TriggerFlags.doID
+    doCalo           = True           # TriggerFlags.doCalo
+    doMuon           = True           # TriggerFlags.doMuon
+    doDBConfig       = None           # dump trigger configuration
+    trigBase         = None           # file name for trigger config dump
+    enableCostD3PD   = False          # enable cost monitoring
+    doWriteRDOTrigger = False         # Write out RDOTrigger?
+    doWriteBS        = True           # Write out BS?
+    doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
+    doL1Sim          = False          # (re)run L1 simulation
+    isOnline         = True           # isOnline flag
+    doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
+    createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
+    endJobAfterGenerate = False       # Finish job after menu generation
+    failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
+    decodeLegacyL1 = True             # Decode L1 RoIs from legacy L1 systems through RoIBResult for HLT seeding
+    decodePhaseIL1 = False            # Decode L1 RoIs from Run-3 L1 systems through L1TriggerResult for HLT seeding
+#Individual slice flags
+    doEgammaSlice     = True
+    doMuonSlice       = True
+    doMinBiasSlice    = True
+    doJetSlice        = True
+    doMETSlice        = True
+    doBjetSlice       = True
+    doTauSlice        = True
+    doCombinedSlice   = True
+    doBphysicsSlice   = True
+    doStreamingSlice  = True
+    doMonitorSlice    = True
+    doBeamspotSlice   = True
+    reverseViews      = False
+    filterViews       = False
+    enabledSignatures = []
+    disabledSignatures = []
+
+
 #
-# HLT configuration from existing XML file
-#   set by "setHLTXML"
-#
-# Geometry and conditions
-#   CommisDB         set by "useCOMCONDDB"
-#   Geometry         set by "setDetDescr"
-#   Conditions       set by "setGlobalTag"
-#   Folder overrides set by condOverride='{"Folder1":"Tag1", "Folder2":"Tag2"}'
-#
-# Special modifiers
-#   Currently certain options needs to be modified depending on the type of data
-#   Good defaults are provided for running on physics MC and cosmics Data
-#   Change by specifying list in "setModifiers" or turn modifiers on/off
-#    by doing "myModifier=True/False"
-#   Existing modifiers can be found in "TriggerJobOpts/python/Modifiers.py"
-#
-# Predefined setups
-#   certain menu configurations can be run just by doing
-#     testPhysicsV6=True or
-#     testMCV6=True or
-#     testPhysicsV6MC=True
-#   Note that for the addition of "MC" option. This is used for getting the MC setup.
-#
-# Usage:
-#  
-#   run with athenaHLT:
-#      athenaHLT -f input.data -c testPhysicsV6=True -l DEBUG -n 25 TriggerJobOpts/runHLT_standalone.py
-#      or with multiple files
-#      athenaHLT -f "['input1.data','input2.data']" -c testPhysicsV6=True -n 25 TriggerJobOpts/runHLT_standalone.py
-#      or, for writing BS output:
-#      athenaHLT -f input.data -c testPhysicsV6=True -n 25 -o outBS TriggerJobOpts/runHLT_standalone.py
-#      or, with online THistSvc
-#      athenaHLT -M -l DEBUG -c testPhysicsV6=True -n 25 TriggerJobOpts/runHLT_standalone.py
-#
-#   run with athena:
-#      BS input: athena.py -c "testPhysicsV6=True;BSRDOInput=['raw.data']" TriggerJobOpts/runHLT_standalone.py
-#      RDO input: athena.py -c "testPhysicsV6=True;PoolRDOInput=['file.pool.root']" TriggerJobOpts/runHLT_standalone.py
-#
-# Select slice(s) to test:
-#   set one or more of the following flags to True in the jo:
-#      testEgamma, testMuon, testTau, testJet, testBjet, testMET, testBphysics
-#    e.g.:
-#      athenaHLT -f input.data -l DEBUG -n 25 -c "testTau=True;testPhysicsV6=True" TriggerJobOpts/runHLT_standalone.py
-#
-#===========================================================================================
+################################################################################
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone.py')
-
-#predefined menu setups accessible using 'test<NAME>[MC]=True' commandline
-menuMap={
-         #Run-3 preparation menu
-         'LS2V1':           ('LS2_v1',                  'TriggerMenuXML/LVL1config_LS2_v1.xml'),         
-
-         #2018 menus:       menu name                   L1 xml file
-         'HIV5':            ('Physics_HI_v5',           'TriggerMenuXML/LVL1config_Physics_HI_v5.xml'),
-         'MCHIV5':          ('MC_HI_v5',                'TriggerMenuXML/LVL1config_Physics_HI_v5.xml'),
-
-         #2017 menus:       menu name                   L1 xml file
-         'PhysicsV7':       ('Physics_pp_v7',           'TriggerMenuXML/LVL1config_Physics_pp_v7.xml'),
-         'MCV7':            ('MC_pp_v7',                'TriggerMenuXML/LVL1config_MC_pp_v7.xml'),
-
-         #2016 menus:       menu name                   L1 xml file
-         'PhysicsV6':       ('Physics_pp_v6',           'TriggerMenuXML/LVL1config_Physics_pp_v6.xml'),
-         'MCV6':            ('MC_pp_v6',                'TriggerMenuXML/LVL1config_MC_pp_v6.xml'),
-         'HIV4':            ('Physics_HI_v4',           'TriggerMenuXML/LVL1config_Physics_HI_v4.xml'),
-         'MCHIV4':          ('MC_HI_v4',                'TriggerMenuXML/LVL1config_Physics_HI_v4.xml'),
-
-         #2015 menus:       menu name                   L1 xml file
-         'PhysicsV5':       ('Physics_pp_v5',           'TriggerMenuXML/LVL1config_Physics_pp_v5.xml'),
-         'MCV5':            ('MC_pp_v5',                'TriggerMenuXML/LVL1config_MC_pp_v5.xml'),
-         'LS1V1':           ('LS1_v1',                  'TriggerMenuXML/LVL1config_Physics_pp_v4.xml'),
-         'DC14':            ('DC14',                    ''),
-         'HIV3':            ('Physics_HI_v3',           'TriggerMenuXML/LVL1config_Physics_HI_v3.xml'),
-         'MCHIV3':          ('MC_HI_v3',                'TriggerMenuXML/LVL1config_Physics_HI_v3.xml'),
-
-         #2012 menus:       menu name                   L1 xml file
-         'PhysicsV4':       ('Physics_pp_v4',           'TriggerMenuXML/LVL1config_Physics_pp_v4.xml'),
-         'MCV4':            ('MC_pp_v4',                'TriggerMenuXML/LVL1config_Physics_pp_v4.xml'),
-         'L1V4':            ('L1_pp_v4',                'TriggerMenuXML/LVL1config_L1_pp_v4.xml'),
-         'ALFAV2':          ('L1_alfa_v2',              'TriggerMenuXML/LVL1config_L1_alfa_v2.xml'),
-         'HIV2':            ('Physics_HI_v2',           'TriggerMenuXML/LVL1config_Physics_HI_v2.xml'),
-         'MCHIV2':          ('MC_HI_v2',                'TriggerMenuXML/LVL1config_Physics_HI_v2.xml'),
-
-         #2011 menus:          menu name                      L1 xml file
-         'CosmicPPV2':      ('Physics_pp_v2_cosmics_prescale',           'TriggerMenuXML/LVL1config_Physics_pp_v2.xml'),
-         'PhysicsV2':       ('Physics_pp_v2',           'TriggerMenuXML/LVL1config_Physics_pp_v2.xml'),
-         'MCV2':            ('MC_pp_v2',                'TriggerMenuXML/LVL1config_MC_pp_v2.xml'),
-         'L1V2':            ('L1_pp_v2',                'TriggerMenuXML/LVL1config_L1_pp_v2.xml'),
-         'HIV1':            ('Physics_HI_v1',           'TriggerMenuXML/LVL1config_Physics_HI_v1.xml'),
-         'MCHIV1':          ('MC_HI_v1',                'TriggerMenuXML/LVL1config_Physics_HI_v1.xml'),
-         'PhysicsV3':       ('Physics_pp_v3',           'TriggerMenuXML/LVL1config_Physics_pp_v3.xml'),
-         'MCV3':            ('MC_pp_v3',                'TriggerMenuXML/LVL1config_Physics_pp_v3.xml'),
-         'L1V3':            ('L1_pp_v3',                'TriggerMenuXML/LVL1config_L1_pp_v3.xml'),
-         'ALFAV1':          ('L1_alfa_v1',              'TriggerMenuXML/LVL1config_L1_alfa_v1.xml'),
-         
-         #2010 menus:          menu name                      L1 xml file
-         'InitialBeamV2':   ('InitialBeam_v2',          'TriggerMenuXML/LVL1config_InitialBeam_v2.xml'),
-         'MCInitialBeamV2': ('MC_InitialBeam_v2',       'TriggerMenuXML/LVL1config_InitialBeam_v2.xml'),
-         'CosmicV2':        ('Cosmic_v2',               'TriggerMenuXML/LVL1config_InitialBeam_v2.xml'),
-
-         'InitialBeamV3':   ('InitialBeam_v3',          'TriggerMenuXML/LVL1config_InitialBeam_v3.xml'),
-         'MCInitialBeamV3': ('MC_InitialBeam_v3',       'TriggerMenuXML/LVL1config_InitialBeam_v3.xml'),
-         'CosmicV3':        ('Cosmic_v3',               'TriggerMenuXML/LVL1config_InitialBeam_v3.xml'),
-
-         'PhysicsV1':       ('Physics_pp_v1',           'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
-         'MCV1':            ('MC_pp_v1',                'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
-         'CosmicPPV1':      ('Physics_pp_v1_cosmics_prescale','TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
-
-         #Upgrade menus:       menu name                   L1 xml file
-         'MCPhaseII':       ('MC_PhaseII',           'TriggerMenuXML/LVL1config_MC_PhaseII.xml'),
-}
-
-# Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
-menuMap['CurrentMenu'] = menuMap['PhysicsV7']
-
-newMenuSetup=0
-for name in menuMap:
-    for key in ['','MC']:
-        if ('test'+name+key in dir()):
-            newMenuSetup+=1
-            setMenu=menuMap[name][0]
-            setLVL1XML=menuMap[name][1]
-            if len(menuMap[name])<=2:
-                # topo menu xml derived from l1 menu name
-                setL1TopoXML=menuMap[name][1].replace("/LVL1","/L1Topo")
-            else:
-                # topo menu xml explicitly given
-                setL1TopoXML=menuMap[name][2]
-                
-            if 'setupForMC' not in dir():
-                setupForMC=(key=='MC')
-                print 'Setting setupForMC = ',setupForMC
-
-if 'setupForMC' not in dir():
-    setupForMC=False
-
-if newMenuSetup>1:
-    log.fatal('More than one menu requested')
-    import sys
-    sys.exit(1)
-if newMenuSetup==0 and not ('setMenu' in dir()):
-    log.fatal('No trigger menu specified, use e.g. testPhysicsV6=True')
-    import sys
-    sys.exit(1)
-
-#setup options for standalone configurations
-
-defaultOptions={ 
-    'setMenu'          : setMenu,
-    'setupForMC'       : setupForMC,
-    'setLVL1XML'       : 'TriggerMenuXML',
-    'setL1TopoXML'     : 'TriggerMenuXML',
-    'setHLTXML'        : None,
-    'removeSignatures' : {},
-    'addSignatures'    : {},
-    'setDetDescr'      : None,
-    'setGlobalTag'     : None,
-    'useCONDBR2'       : True,
-    'condOverride'     : {},
-    'emptyMenu'        : False,
-    'PoolRDOInput'     : None,
-    'BSRDOInput'       : None,
-    'OutputLevel'      : INFO,
-    'HLTOutputLevel'   : INFO,
-    'EvtMax'           : -1,
-    'SkipEvents'       :  0,
-}
-
-
-#-------------------------------------------------------------
-# Transfer flags into TriggerFlags
-#-------------------------------------------------------------
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-
-# To turn off HLT for athena running
-TriggerFlags.doHLT = True
-if 'doHLT' in dir():
-    TriggerFlags.doHLT = bool(doHLT)
-    del doHLT
-    
-# To extract the Trigger configuration
-if "doDBConfig" in dir():
-    TriggerFlags.Online.doDBConfig = bool(doDBConfig)
-    del doDBConfig
-if "trigBase" in dir():
-    TriggerFlags.Online.doDBConfigBaseName = trigBase
-    del trigBase
-
-
-#set geometry and conditions
-if setupForMC:   # for MC
-    defaultOptions['useCOMCONDDB']=False
-else:            # for data
-    defaultOptions['useCOMCONDDB']=True
-    defaultOptions['setDetDescr']=TriggerFlags.OnlineGeoTag()
-    defaultOptions['setGlobalTag']=TriggerFlags.OnlineCondTag()
-
-# Setup list of modifiers
-defaultOptions['setModifiers']=[#Common modifiers for MC and data
-                                'noLArCalibFolders',
-                                'ForceMuonDataType',
-                                'useNewRPCCabling',
-                                'enableCostMonitoring', 
-                                'enableCoherentPS',
-                                'useOracle',
-                                'detailedErrorStreams',
-                                'optimizeChainOrder',    
-                                'enableHotIDMasking',
-                                'openThresholdRPCCabling',
-                                #special streaming setup
-                                #'enable7BitL1TTStreaming',
-]
-
-if setupForMC:  # MC modifiers
-    defaultOptions['setModifiers']+=['BFieldFromDCS']
-else:           # More data modifiers
-    defaultOptions['setModifiers']+=[
-                                'allowCOOLUpdates',
-                                'useHLTMuonAlign',
-                                #Check for beamspot quality flag
-                                'UseBeamSpotFlagForBjet',
-                                'UseParamFromDataForBjet',
-                                #Use online luminosity
-                                'useOnlineLumi',
-                                #for running with real data
-                                'DisableMdtT0Fit',
-                                #Setup mufast tuning for data
-                                'UseLUTFromDataForMufast',
-                                'UseRPCTimeDelayFromDataForMufast',
-                                #Set muComb/muIso Backextrapolator tuned for real data
-                                'UseBackExtrapolatorDataForMuIso',
-                                #Monitoring for L1 muon group
-                                'muCTPicheck',
-                                #Monitoring L1Topo at ROB level
-                                'L1TopoCheck',
-                                'forceTileRODMap',
-                                #for tests with data:
-                                #'ignoreErrorStream', #nothing goes to debug stream
-                                #'inclusiveErrorStream', #errors go to both debug and physics streams
-                                #'ignoreL1Vetos',  #also run L2 prescaled and disabled L1 items
-                                #'disablePixels',
-                                #'disableSCTBarrel',
-                                'useDynamicAlignFolders',
-                                'enableALFAMon',
-    ]
-
-#make some more common trig cost operations easier to setup
-if 'enableCostD3PD' in dir() or 'enableRateD3PD' in dir():
-    enableCostMonitoring = True # This goes without saying!
-    enableCostForCAF = True # This sets the cost mon to monitor every event and always export the data.
 
 #-------------------------------------------------------------
 # Setup options
 #-------------------------------------------------------------
 log.info('Setup options:')
+defaultOptions = [a for a in dir(opt) if not a.startswith('__')]
 for option in defaultOptions:
-    if option in dir():
-        print ' %20s = %s' % (option,str(globals()[option]))
-    else:
-        globals()[option]=defaultOptions[option]
-        print ' %20s = (Default) %s' % (option,str(globals()[option]))
+    if option in globals():
+        setattr(opt, option, globals()[option])
+        print(' %20s = %s' % (option, getattr(opt, option)))
+    else:        
+        print(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
-#we don't want anything further on to depend on these flags
-del newMenuSetup
-del setupForMC
+
+import re
+
+sliceRe = re.compile("^do.*Slice")
+slices = [a for a in dir(opt) if sliceRe.match(a)]
+if opt.doEmptyMenu is True:
+    log.info("Disabling all slices")
+    for s in slices:
+        if s in globals():
+            log.info("re-enabling %s ", s)
+            setattr(opt, s, globals()[s])
+        else:
+            setattr(opt, s, False)
+else:
+    for s in slices:
+        if s in globals():
+            setattr(opt, s, globals()[s])
+
+# Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
+# This is temporary and will be re-worked for after M3.5
+for s in slices:
+    signature = s[2:].replace('Slice', '')
+
+    if eval('opt.'+s) is True:
+        enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.enabledSignatures.append( enabledSig )
+    else:
+        disabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
+        opt.disabledSignatures.append( disabledSig )
+
+#-------------------------------------------------------------
+# Setting Global Flags
+#-------------------------------------------------------------
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.BeamFlags import jobproperties
+import TriggerJobOpts.Modifiers
+
+# Auto-configuration for athena
+if len(athenaCommonFlags.FilesInput())>0:
+    import PyUtils.AthFile as athFile
+    af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
+    globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
+    globalflags.DataSource = 'data' if af.fileinfos['evt_type'][0]=='IS_DATA' else 'geant4'
+    # Set isOnline=False for MC inputs unless specified in the options
+    if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
+        log.info("Setting isOnline = False for MC input")
+        opt.isOnline = False
+    # Set geometry and conditions tags
+    if opt.setDetDescr is None:
+        opt.setDetDescr = af.fileinfos.get('geometry',None)
+    if opt.setGlobalTag is None:
+        opt.setGlobalTag = af.fileinfos.get('conditions_tag',None) or \
+            (TriggerFlags.OnlineCondTag() if opt.isOnline else 'CONDBR2-BLKPA-2018-13')
+    TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
+
+else:   # athenaHLT
+    globalflags.InputFormat = 'bytestream'
+    globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
+    if '_run_number' not in dir():
+        import PyUtils.AthFile as athFile
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
+        _run_number = af.run_number[0]
+
+    TriggerJobOpts.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber =_run_number
+    del _run_number
+
+
+# Set final Cond/Geo tag based on input file, command line or default
+globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
+globalflags.ConditionsTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
+
+# Other defaults
+jobproperties.Beam.beamType = 'collisions'
+jobproperties.Beam.bunchSpacing = 25
+globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
+
+log.info('Configured the following global flags:')
+globalflags.print_JobProperties()
+
+# Set default doL1Sim option depending on input type (if not set explicitly)
+if 'doL1Sim' not in globals():
+    opt.doL1Sim = globalflags.DataSource != 'data'
+    log.info('Setting default doL1Sim=%s because globalflags.DataSource=%s', opt.doL1Sim, globalflags.DataSource())
+
+#-------------------------------------------------------------
+# Transfer flags into TriggerFlags
+#-------------------------------------------------------------
+
+# To turn off HLT for athena running
+TriggerFlags.doHLT = bool(opt.doHLT)
+    
+# To extract the Trigger configuration
+TriggerFlags.Online.doDBConfig = bool(opt.doDBConfig)
+if opt.trigBase is not None:
+    TriggerFlags.Online.doDBConfigBaseName = opt.trigBase
+
+# Setup list of modifiers
+# Common modifiers for MC and data
+setModifiers = ['noLArCalibFolders',
+                'ForceMuonDataType',
+                'useNewRPCCabling',
+                'enableCostMonitoring',
+                #'enableCoherentPS',
+                'useOracle',
+                'enableHotIDMasking',
+                'openThresholdRPCCabling',
+]
+
+if globalflags.DataSource.is_geant4():  # MC modifiers
+    setModifiers += ['BFieldFromDCS']
+else:           # More data modifiers
+    setModifiers += ['allowCOOLUpdates',
+                     'BFieldAutoConfig',
+                     'useHLTMuonAlign',
+                     #Check for beamspot quality flag
+                     'UseBeamSpotFlagForBjet',
+                     'UseParamFromDataForBjet',
+                     #Use online luminosity
+                     'useOnlineLumi',
+                     #for running with real data
+                     'DisableMdtT0Fit',
+                     #Setup mufast tuning for data
+                     'UseLUTFromDataForMufast',
+                     'UseRPCTimeDelayFromDataForMufast',
+                     #Set muComb/muIso Backextrapolator tuned for real data
+                     'UseBackExtrapolatorDataForMuIso',
+                     #Monitoring for L1 muon group
+                     #'muCTPicheck',
+                     #Monitoring L1Topo at ROB level
+                     #'L1TopoCheck',
+                     'forceTileRODMap',
+    ]
+
+TriggerFlags.doID = opt.doID
+TriggerFlags.doMuon = opt.doMuon
+TriggerFlags.doCalo = opt.doCalo
 
 #-------------------------------------------------------------
 # Modifiers
 #-------------------------------------------------------------
-
 modifierList=[]
-import TriggerJobOpts.Modifiers
-if '_run_number' in dir(): TriggerJobOpts.Modifiers._run_number = _run_number
-
-try:  # Temporary backwards compatible hack
-    from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
-    meta = TrigConfMetaData()
-except:
-    log.warning("TrigConfigSvc.TrigConfMetaData not available in this release")
-    meta = None
+from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
+meta = TrigConfMetaData()
     
 for mod in dir(TriggerJobOpts.Modifiers):
     if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'): continue
@@ -311,153 +240,45 @@ for mod in dir(TriggerJobOpts.Modifiers):
             if mod in setModifiers: setModifiers.remove(mod)
     if mod in setModifiers:
         modifierList+=[getattr(TriggerJobOpts.Modifiers,mod)()]
-        if meta: meta.Modifiers += [mod]    # store in trig conf meta data
+        meta.Modifiers += [mod]    # store in trig conf meta data
         setModifiers.remove(mod)
 
 if setModifiers:
     log.error('Unknown modifier(s): '+str(setModifiers))
 
 
-#-------------------------------------------------------------
-# Setting TriggerFlags
-#-------------------------------------------------------------
+# never include this
 include.block("RecExCond/RecExCommon_flags.py")
-log = logging.getLogger('runHLT_standalone.py')
-
-TriggerFlags.doHLTpersistency=False
-TriggerFlags.writeBS=True
-TriggerFlags.abortOnConfigurationError=True
-
-TriggerFlags.triggerMenuSetup=setMenu
-
-def stripPrescales(menu):
-    import re
-    m = re.match('(.*v\d(?:_primaries)?).*', menu)
-    return m.groups()[0] if m else menu
-
-# L1 Topo
-if setL1TopoXML=='TriggerMenuXML':    
-    setL1TopoXML='TriggerMenuXML/L1Topoconfig_'+stripPrescales(setMenu)+'.xml'
-TriggerFlags.inputL1TopoConfigFile   = setL1TopoXML
-TriggerFlags.readL1TopoConfigFromXML = True
-TriggerFlags.outputL1TopoConfigFile  = None
-
-# LVL1 config
-if setLVL1XML=='TriggerMenuXML':
-    setLVL1XML='TriggerMenuXML/LVL1config_'+stripPrescales(setMenu)+'.xml'
-TriggerFlags.inputLVL1configFile=setLVL1XML
-TriggerFlags.readLVL1configFromXML=True
-TriggerFlags.outputLVL1configFile=None
-
-# HLT config
-TriggerFlags.enableMonitoring = ['Online']
-TriggerFlags.readHLTconfigFromXML=False
-if setHLTXML!=None:
-    TriggerFlags.readHLTconfigFromXML=True
-    TriggerFlags.inputHLTconfigFile = setHLTXML
-
-log.info("Trigger xml files L1Topo : in = %s , out = %s (read from XML = %s)" % (TriggerFlags.inputL1TopoConfigFile(), TriggerFlags.outputL1TopoConfigFile(), TriggerFlags.readL1TopoConfigFromXML() ) )
-log.info("Trigger xml files LVL1   : in = %s , out = %s (read from XML = %s)" % (TriggerFlags.inputLVL1configFile(),   TriggerFlags.outputLVL1configFile(), TriggerFlags.readLVL1configFromXML() ) )
-log.info("Trigger xml files HLT    : in = %s , out = %s (read from XML = %s)" % (TriggerFlags.inputHLTconfigFile(),    TriggerFlags.outputHLTconfigFile(), TriggerFlags.readHLTconfigFromXML() ) )
-
-
-
-# define a unique HLT configuration xml when running in a partition
-import os
-if "TDAQ_PARTITION" in os.environ:
-    from TriggerJobOpts import Utils
-    ident = Utils.uniqueFileName()
-    TriggerFlags.outputHLTconfigFile ="outputHLTconfig_%s.xml" % ident
-    TriggerFlags.inputHLTconfigFile  ="outputHLTconfig_%s.xml" % ident
-
-### detector flags - we always run with everything on now
-TriggerFlags.doID=True
-TriggerFlags.doMuon=True
-TriggerFlags.doCalo=True
-
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.isOnline = True
-
-#TriggerFlags.CosmicSlice.testCosmic=False #Makes cosmic slice more quiet by default
 
 #-------------------------------------------------------------
-# Setting Global Flags
+# Setting DetFlags
 #-------------------------------------------------------------
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.InputFormat='bytestream'  # default for athenaMT/PT
+if globalflags.InputFormat.is_bytestream():
+    TriggerFlags.doLVL1 = False
 
-# Input format and file for athena running
-if BSRDOInput!=None:
-    globalflags.InputFormat='bytestream'
-    if type(BSRDOInput)==type(''):
-        athenaCommonFlags.BSRDOInput=[BSRDOInput]
-    else:
-        athenaCommonFlags.BSRDOInput=BSRDOInput
-    athenaCommonFlags.FilesInput = athenaCommonFlags.BSRDOInput()
-elif PoolRDOInput!=None:    
-    globalflags.InputFormat='pool'
-    if type(PoolRDOInput)==type(''):
-        athenaCommonFlags.PoolRDOInput=[PoolRDOInput]
-    else:
-        athenaCommonFlags.PoolRDOInput=PoolRDOInput
-    athenaCommonFlags.FilesInput = athenaCommonFlags.PoolRDOInput()
-
-# Conditions and geometry tag
-if globalflags.InputFormat.is_pool() and (setDetDescr==None or setGlobalTag==None):
-    import PyUtils.AthFile as athFile
-    af = athFile.fopen(athenaCommonFlags.PoolRDOInput()[0])
-    if setDetDescr==None:
-        setDetDescr=af.fileinfos.get('geometry',None)
-        log.info('Geometry tag not specified. Setting from file meta data: setDetDescr="%s"' % setDetDescr)
-    if setGlobalTag==None:
-        setGlobalTag=af.fileinfos.get('conditions_tag',None)
-        log.info('Global conditions tag not specified. Setting from file meta data: setGlobalTag="%s"' % setGlobalTag)
-
-if setDetDescr==None:
-    raise RuntimeError('No geometry tag specified. Please use "setDetDescr" to set it.')
-if setGlobalTag==None:
-    raise RuntimeError('No global conditions tag specified. Please use "setGlobalTag" to set it.')
-
-if useCOMCONDDB:
-    globalflags.DetGeo='commis'
-    globalflags.DataSource='data'
-    if useCONDBR2:
-        if hasattr(globalflags,'DatabaseInstance'):
-            globalflags.DatabaseInstance='CONDBR2'
-        else:
-            log.error('This release does not support the use of CONDBR2')
-    else:
-        if hasattr(globalflags,'DatabaseInstance'):
-            globalflags.DatabaseInstance='COMP200'
+from AthenaCommon.DetFlags import DetFlags
+if TriggerFlags.doLVL1():
+    DetFlags.detdescr.all_setOn()
+if TriggerFlags.doID():
+    DetFlags.detdescr.ID_setOn()
+    DetFlags.makeRIO.ID_setOn()
 else:
-    globalflags.DetGeo='atlas'
-    globalflags.DataSource='geant4'
-        
-globalflags.DetDescrVersion=setDetDescr
-globalflags.Luminosity='zero'
-globalflags.ConditionsTag=setGlobalTag
-
-from AthenaCommon.BeamFlags import jobproperties
-if ('Cosmic' in setMenu) or ('LS1_v1' in setMenu):
-    jobproperties.Beam.beamType = 'cosmics'
+    DetFlags.ID_setOff()
+if TriggerFlags.doMuon():
+    DetFlags.detdescr.Muon_setOn()
+    DetFlags.makeRIO.all_setOn()
 else:
-    jobproperties.Beam.beamType = 'collisions'
+    DetFlags.Muon_setOff()
+if TriggerFlags.doCalo():
+    DetFlags.detdescr.Calo_setOn()
+    from LArConditionsCommon.LArCondFlags import larCondFlags
+    larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
+else:
+    DetFlags.Calo_setOff()
 
-if globalflags.InputFormat=='bytestream':
-    if '_run_number' not in dir():
-        import PyUtils.AthFile as athFile
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
-        _run_number = af.run_number[0]
-
-    from RecExConfig.RecFlags import rec
-    rec.RunNumber =_run_number
-
-    if _run_number>=276073:       #start of periodD1, 25ns bunch spacing 
-        jobproperties.Beam.bunchSpacing=25
-        log.info('Bunch spacing set to %dns for a bytestream input. It can be overriden by BunchSpacing50ns=True'
-                 % jobproperties.Beam.bunchSpacing())
-
+DetFlags.Print()
 
 # RecEx flags
 from RecExConfig.RecFlags import rec
@@ -469,78 +290,216 @@ rec.doAOD = False
 rec.doTruth = False
 
 #-------------------------------------------------------------
-# Menu
-#  - allow to run individual slices by simply doing testSliceName=True
-#  - for more detailed control use "addSignatures" and "removeSignatures" directly
-#-------------------------------------------------------------
-sliceList=[]
-slicesToRun=[]
-for prop in dir(TriggerFlags):
-    if prop[-5:]=='Slice':
-        sliceName=prop
-        sliceList+=[sliceName]
-        if dir().count('test'+sliceName[:-5]) and globals()['test'+sliceName[:-5]]:
-            slicesToRun+=[sliceName]
-
-if slicesToRun or emptyMenu:
-    slicesToDisable=set(sliceList).difference(slicesToRun)
-    #make a list of slices to disable once the menu has been setup
-    for slice in slicesToDisable:
-        removeSignatures[slice]='ALL'
-else:
-    slicesToRun=['All']
-
-#-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
     mod.preSetup()
 
+#--------------------------------------------------------------
+# Conditions setup.
+#--------------------------------------------------------------
+from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
+conddb.setGlobalTag(globalflags.ConditionsTag())
 
-# should maybe implement the actual filter with regular expressions for added flexibility 
-def enableDisableChains():
-    # this functions is called in menu generations after the
-    # default signatures have been setup according to choice of menu
-    for s in sliceList:
-        slice=getattr(TriggerFlags,s)
-        if s in removeSignatures:
-            remove=removeSignatures[s]
-            log.warn('Disabling '+str(remove)+' of '+s)
-            if remove=='ALL':
-                signatures_all = slice.signatures.get_Value()  # Save the chain definitions
-                slice.signatures.set_Value([])                 # Remove all chains
-            else:
-                slice.disableSignatures(remove)
-        if s in addSignatures:
-            add=addSignatures[s]            
-            slice.enableSignatures([sig for sig in signatures_all if sig[0] in add])
-            log.info('Enabled '+str(add)+' in '+s)
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
+#--------------------------------------------------------------
+# Increase scheduler checks and verbosity
+#--------------------------------------------------------------
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.EnableVerboseViews( True )
 
-from TriggerMenu.menu.GenerateMenu import GenerateMenu
-
-GenerateMenu.overwriteSignaturesWith(enableDisableChains)
-
-
-log.info("=============== Running slices: ===============")
-for s in slicesToRun:
-    log.info(s)
-log.info("===============================================")
+#--------------------------------------------------------------
+# Set the FailIfNoProxy property of SGInputLoader
+#--------------------------------------------------------------
+if not hasattr(topSequence,"SGInputLoader"):
+    log.error('Cannot set FailIfNoProxy property because SGInputLoader not found in topSequence')
+    theApp.exit(1)
+topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
 
 
-#-------------------------------------------------------------
-# Setup trigger
-#-------------------------------------------------------------
-include("TriggerJobOpts/Trigger_topOptions_standalone.py")
-log = logging.getLogger('runHLT_standalone.py')
+#--------------------------------------------------------------
+# Event Info setup
+#--------------------------------------------------------------
+# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
+if globalflags.InputFormat.is_pool():
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+        from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+        xAODEventInfoCnvAlgDefault(sequence=topSequence)
 
 # ----------------------------------------------------------------
-# Number of events to be processed - for athena
+# Detector geometry 
 # ----------------------------------------------------------------
-theApp.EvtMax = EvtMax
-if hasattr(svcMgr,"EventSelector"):
-    svcMgr.EventSelector.SkipEvents = SkipEvents 
-    
+# Always enable AtlasFieldSvc
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.BField_setOn()
+include ("RecExCond/AllDet_detDescr.py")
+
+from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+svcMgr += RegSelSvcDefault()
+
+if TriggerFlags.doID():
+    include( "InDetRecExample/InDetRecCabling.py" )
+
+if TriggerFlags.doCalo():
+    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
+    svcMgr.ToolSvc += TrigDataAccess()
+    if globalflags.InputFormat.is_pool():
+        TriggerFlags.doTransientByteStream = True # enable transient BS if TrigDataAccess is used with pool data
+
+if TriggerFlags.doMuon():
+    TriggerFlags.MuonSlice.doTrigMuonConfig=True
+    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    import MuonRecExample.MuonReadCalib      # noqa: F401
+    if globalflags.InputFormat.is_pool():
+        include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
+
+    include ("MuonRecExample/MuonRecLoadTools.py")
+
+# ----------------------------------------------------------------
+# Pool input
+# ----------------------------------------------------------------
+if globalflags.InputFormat.is_pool():
+    import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
+    svcMgr.PoolSvc.AttemptCatalogPatch=True
+    # enable transient BS 
+    if TriggerFlags.doTransientByteStream():
+        log.info("setting up transient BS")
+        include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
+     
+# ----------------------------------------------------------------
+# ByteStream input
+# ----------------------------------------------------------------
+elif globalflags.InputFormat.is_bytestream():
+
+    # This is only needed running athena (as opposed to athenaHLT)
+    if not hasattr(svcMgr,"ByteStreamCnvSvc"):
+        from ByteStreamCnvSvc import ReadByteStream   # noqa
+        # Define the input
+        svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.FilesInput()
+        theApp.ExtSvc += [ "ByteStreamCnvSvc"]
+
+    # Online specific setup of BS converters
+    include( "TriggerJobOpts/jobOfragment_ReadBS_standalone.py" )    
+
+
+# ---------------------------------------------------------------
+# Trigger config
+# ---------------------------------------------------------------
+TriggerFlags.triggerMenuSetup = opt.setMenu
+TriggerFlags.readLVL1configFromXML = True
+TriggerFlags.outputLVL1configFile = None
+
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+l1JsonFile = generateL1Menu()
+
+from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+svcMgr += getL1ConfigSvc()
+
+
+# ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
+if opt.doL1Sim:
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    topSequence += Lvl1SimulationSequence()
+
+
+# ---------------------------------------------------------------
+# HLT prep: RoIBResult and L1Decoder
+# ---------------------------------------------------------------
+l1decoder = None
+if opt.doL1Unpacking:
+    if globalflags.InputFormat.is_bytestream():
+        # Create inputs for L1Decoder from ByteStream
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+        L1ByteStreamDecodersRecExSetup(
+            enableRun2L1=opt.decodeLegacyL1,
+            enableRun3L1=opt.decodePhaseIL1)
+    if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
+        from L1Decoder.L1DecoderConfig import L1Decoder
+        l1decoder = L1Decoder("L1Decoder")
+        if not opt.decodeLegacyL1:
+            l1decoder.RoIBResult = ""
+        if not opt.decodePhaseIL1:
+            l1decoder.L1TriggerResult = ""
+        topSequence += l1decoder
+    else:
+        from TrigUpgradeTest.TestUtils import L1EmulationTest
+        topSequence += L1EmulationTest()
+
+
+# ---------------------------------------------------------------
+# HLT generation
+# ---------------------------------------------------------------
+
+if not opt.createHLTMenuExternally:
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()
+
+    # define the function that enable the signatures
+    def signaturesToGenerate():
+        TriggerFlags.Slices_all_setOff()
+        for sig in opt.enabledSignatures:
+            eval(sig)
+
+    menu.overwriteSignaturesWith(signaturesToGenerate)
+
+    # generating the HLT structure requires 
+    # the L1Decoder to be defined in the topSequence
+    menu.generateMT()
+
+    if opt.endJobAfterGenerate:
+        import sys
+        sys.exit(0)
+
+
+
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
+svcMgr += getHLTConfigSvc()
+setupHLTPrescaleCondAlg()
+
+if not opt.createHLTMenuExternally:
+    # the generation of the prescale set file from the menu (with all prescales set to 1)
+    # is not really needed. If no file is provided all chains are either enabled or disabled,
+    # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+    from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
+    createHLTPrescalesFileFromMenu()
+
+
+
+# ---------------------------------------------------------------
+# ID conditions
+# ---------------------------------------------------------------
+
+if TriggerFlags.doID:
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPixelClusterSplitting = False
+  
+    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
+    from AthenaCommon.Include import include
+    include("InDetRecExample/InDetRecConditionsAccess.py")
+
+
+# ---------------------------------------------------------------
+# Monitoring
+# ---------------------------------------------------------------
+if not hasattr(svcMgr, 'THistSvc'):
+    from GaudiSvc.GaudiSvcConf import THistSvc
+    svcMgr += THistSvc()
+if hasattr(svcMgr.THistSvc, "Output"):
+    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    setTHistSvcOutput(svcMgr.THistSvc.Output)
+
 #-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------
@@ -550,14 +509,95 @@ for mod in modifierList:
 #-------------------------------------------------------------
 # Conditions overrides
 #-------------------------------------------------------------    
-if len(condOverride)>0:
-    from IOVDbSvc.CondDB import conddb    
-    for folder,tag in condOverride.iteritems():
-        log.warn('Overriding folder %s with tag %s' % (folder,tag))
+if len(opt.condOverride)>0:
+    for folder,tag in opt.condOverride.iteritems():
+        log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
-                
-if not TriggerFlags.Online.doValidation():  # Suppress this printout in ATN tests
+
+if svcMgr.MessageSvc.OutputLevel<INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
-    print AlgSequence
-    print ServiceMgr
+    print(svcMgr)
+
+#-------------------------------------------------------------
+# Use parts of NewJO
+#-------------------------------------------------------------
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior+=1
+from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+# Output flags
+isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
+if opt.doWriteRDOTrigger:
+    if isPartition:
+        log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
+        theApp.exit(1)
+    rec.doWriteRDO = False  # RecExCommon flag
+    ConfigFlags.Output.doWriteRDO = True  # new JO flag
+    ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+if opt.doWriteBS:
+    rec.doWriteBS = True  # RecExCommon flag
+    TriggerFlags.writeBS = True  # RecExCommon flag
+    ConfigFlags.Output.doWriteBS = True  # new JO flag
+    ConfigFlags.Trigger.writeBS = True  # new JO flag
+
+# ID Cache Creators
+ConfigFlags.lock()
+triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
+Configurable.configurableRun3Behavior-=1
+
+# Trigger output
+if opt.doWriteBS or opt.doWriteRDOTrigger:
+    from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectHypoDecisionObjects, triggerOutputCfg
+    from AthenaCommon.CFElements import findAlgorithm,findSubSequence
+    hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
+    filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
+
+    summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
+    if not summaryMakerAlg:
+        log.warning("Failed to find DecisionSummaryMakerAlg")
+
+    if l1decoder and summaryMakerAlg:
+        decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryMakerAlg )
+        decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
+        log.debug("Decision Objects to write to output [hack method - should be replaced with triggerRunCfg()]")
+        log.debug(decObj)
+    else:
+        log.warning("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
+        decObj = []
+        decObjHypoOut = []
+
+    Configurable.configurableRun3Behavior+=1
+    acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjHypoOut, summaryMakerAlg)
+    Configurable.configurableRun3Behavior-=1
+    acc.appendToGlobals()
+
+#-------------------------------------------------------------
+# Non-ComponentAccumulator Cost Monitoring
+#-------------------------------------------------------------
+include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")
+
+#-------------------------------------------------------------
+# Debugging for view cross-dependencies
+#-------------------------------------------------------------
+if opt.reverseViews or opt.filterViews:
+    from TriggerJobOpts.TriggerConfig import collectViewMakers
+    viewMakers = collectViewMakers( topSequence )
+    theFilter = []
+    if opt.filterViews:
+        theFilter = [ "Cache", "EventInfo", "HLT_EFHistoPrmVtx" ]
+    for alg in viewMakers:
+        alg.ReverseViewsDebug = opt.reverseViews
+        alg.FallThroughFilter = theFilter
+
+#-------------------------------------------------------------
+# Disable overly verbose and problematic ChronoStatSvc print-out
+#-------------------------------------------------------------
+include("TriggerTest/disableChronoStatSvcPrintout.py")
+
+#-------------------------------------------------------------
+# Print top sequence
+#-------------------------------------------------------------
+from AthenaCommon.AlgSequence import dumpSequence
+dumpSequence(topSequence)
