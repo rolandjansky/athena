@@ -117,3 +117,26 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
                          xbins=100, xmin=0, xmax=2500)
          ]
       return
+
+# online event loop manager
+from TrigServicesConf import HltEventLoopMgr as _HltEventLoopMgr
+class HltEventLoopMgr(_HltEventLoopMgr):
+   __slots__ = ()
+
+   def __init__(self, name='HltEventLoopMgr'):
+      super(HltEventLoopMgr, self).__init__(name)
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
+      self.MonTool.defineHistogram('ErrorAlgName,ErrorCode', path='EXPERT', type='TH2I',
+                                   title='Error StatusCodes per algorithm;Algorithm name;StatusCode',
+                                   xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+      self.MonTool.defineHistogram('TotalTime', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (all events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeAccepted', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (accepted events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeRejected', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (rejected events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
+      return
