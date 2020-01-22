@@ -961,22 +961,22 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
   }
 
-   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronChargeFlipTaggerTool#Calculating_the_ECIDS_decision
-   std::string tmpIsoWP = m_eleIso_WP;
-   std::string tmpIDWP = m_eleId;
-   // Only Medium/TightIDs supported for now. Only Gradient and FCTight supported for now
-   if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH") {
-     ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for ECID SFs, falling back to MediumLLH for SF purposes");
-     tmpIDWP = "MediumLLH";
-   }
-   if (tmpIsoWP != "FCTight" && tmpIsoWP != "Gradient") {
-     ATH_MSG_WARNING("Your Electron Iso WP ("+tmpIsoWP+") is not supported for ECID SFs, falling back to Gradient for SF purposes");
-     tmpIsoWP = "Gradient";
-   }
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ElectronChargeFlipTaggerTool#Calculating_the_ECIDS_decision
+  std::string tmpIsoWP = m_eleIso_WP;
+  std::string tmpIDWP = m_eleId;
+  // Only Medium/TightIDs supported for now. Only Gradient and FCTight supported for now
+  if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH") {
+    ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for ECID SFs, falling back to MediumLLH for SF purposes");
+    tmpIDWP = "MediumLLH";
+  }
+  if (tmpIsoWP != "FCTight" && tmpIsoWP != "Gradient") {
+    ATH_MSG_WARNING("Your Electron Iso WP ("+tmpIsoWP+") is not supported for ECID SFs, falling back to Gradient for SF purposes");
+    tmpIsoWP = "Gradient";
+  }
 
-   toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_eleIso_WP + m_eleChID_WP;
-   CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/additional/efficiencySF.ChargeID."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+"_ECIDSloose.root");
-   m_runECIS = m_eleChID_WP.empty() ? false : true;
+  toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_eleIso_WP + m_eleChID_WP;
+  CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/additional/efficiencySF.ChargeID."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+"_ECIDSloose.root");
+  m_runECIS = m_eleChID_WP.empty() ? false : true;
 
   // Electron charge mis-identification SFs
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LatestRecommendationsElectronIDRun2#Scale_factors_for_electrons_char
@@ -985,15 +985,24 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_elecChargeEffCorrTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/"+toolName);
 
     // Reset this variable as more Iso WPs are supported for the below
-   std::string tmpIsoWP = m_eleIso_WP; 
-    if ( !check_isOption(tmpIsoWP, m_el_iso_support) ) { //check if supported
-	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP
-			 << " is no longer supported. This will almost certainly cause a crash now.");
+    std::string tmpIsoWP = m_eleIso_WP; 
+    std::string tmpIDWP = m_eleId;
+    if ( m_eleChIso && !check_isOption(tmpIsoWP, m_el_iso_support) ) { //check if supported
+      	ATH_MSG_WARNING( "Your electron Iso WP: " << m_eleIso_WP << " is no longer supported. This will almost certainly cause a crash now.");
+    }
+    if (tmpIDWP != "MediumLLH" && tmpIDWP != "TightLLH" && !(tmpIDWP=="LooseAndBLayerLLH" && m_eleChIso==false) ) { //check if supported
+         ATH_MSG_WARNING("Your Electron ID WP ("+tmpIDWP+") is not supported for charge ID SFs, falling back to MediumLLH for SF purposes");
+         tmpIDWP = "MediumLLH";
     }
 
     std::string chfFile("ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/chargeEfficiencySF."+tmpIDWP+"_d0z0_v13_"+tmpIsoWP+".root");
+    if (!m_eleChIso) { 
+       chfFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/charge_misID/chargeEfficiencySF."+tmpIDWP+"_d0z0_v13.root"; 
+       ATH_MSG_WARNING( "ElectronChargeEfficiencyCorrectionTool: using charge ID SF without Iso applied!");
+    }
+    ATH_MSG_DEBUG( "ElectronChargeEfficiencyCorrectionTool correctionFileName: " << chfFile );
 
-    ATH_CHECK( m_elecChargeEffCorrTool.setProperty("CorrectionFileName",chfFile) );
+    ATH_CHECK( m_elecChargeEffCorrTool.setProperty("CorrectionFileName", chfFile) );
 
     if (!isData()) {
       ATH_CHECK ( m_elecChargeEffCorrTool.setProperty("ForceDataType", (int) data_type) );
