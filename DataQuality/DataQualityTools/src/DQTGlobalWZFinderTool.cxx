@@ -286,16 +286,30 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
       // T&P trigger rate
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mutrigtp_matches = TH1F_LW::create("m_mutrigtp_matches", "Muon trigger TP stats", 3, -0.5, 2.5), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mutrigtp_matches_BCID_pileup = new TH3F("m_mutrigtp_matches_BCID_pileup", "Muon trigger TP stats", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mutrigtp_matches_BCID_2t47_pileup = new TH3F("m_mutrigtp_matches_BCID_2t47_pileup", "Muon trigger TP stats", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mutrigtp_matches_BCID_indiv_pileup = new TH3F("m_mutrigtp_matches_BCID_indiv_pileup", "Muon trigger TP stats", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
 
       // T&P muon eff
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_os = TH1F_LW::create("m_muloosetp_match_os", "Muon loose TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_ss = TH1F_LW::create("m_muloosetp_match_ss", "Muon loose TP match SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_os = TH1F_LW::create("m_muloosetp_nomatch_os", "Muon loose TP nomatch OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_ss = TH1F_LW::create("m_muloosetp_nomatch_ss", "Muon loose TP nomatch SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_os_BCID_pileup = new TH3F("m_muloosetp_match_os_BCID_pileup", "Muon loose TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_os_BCID_2t47_pileup = new TH3F("m_muloosetp_match_os_BCID_2t47_pileup", "Muon loose TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_os_BCID_indiv_pileup = new TH3F("m_muloosetp_match_os_BCID_indiv_pileup", "Muon loose TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_ss_BCID_pileup = new TH3F("m_muloosetp_match_ss_BCID_pileup", "Muon loose TP match SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_ss_BCID_2t47_pileup = new TH3F("m_muloosetp_match_ss_BCID_2t47_pileup", "Muon loose TP match SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_match_ss_BCID_indiv_pileup = new TH3F("m_muloosetp_match_ss_BCID_indiv_pileup", "Muon loose TP match SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_os_BCID_pileup = new TH3F("m_muloosetp_nomatch_os_BCID_pileup", "Muon loose TP nomatch OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_os_BCID_2t47_pileup = new TH3F("m_muloosetp_nomatch_os_BCID_2t47_pileup", "Muon loose TP nomatch OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_os_BCID_indiv_pileup = new TH3F("m_muloosetp_nomatch_os_BCID_indiv_pileup", "Muon loose TP nomatch OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_ss_BCID_pileup = new TH3F("m_muloosetp_nomatch_ss_BCID_pileup", "Muon loose TP nomatch SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_ss_BCID_2t47_pileup = new TH3F("m_muloosetp_nomatch_ss_BCID_2t47_pileup", "Muon loose TP nomatch SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muloosetp_nomatch_ss_BCID_indiv_pileup = new TH3F("m_muloosetp_nomatch_ss_BCID_indiv_pileup", "Muon loose TP nomatch SS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV,50, 0, 50, 200, 0, 100)).isFailure();
 
       // T&P muon inner detector
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mu_InDet_tp_match_os = TH1F_LW::create("m_mu_InDet_tp_match_os", "Muon inner detector TP match OS", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
@@ -307,11 +321,20 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_os = TH1F_LW::create("m_eltrigtp_matches_os", "Electron trigger TP stats", 3, -0.5, 2.5), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_ss = TH1F_LW::create("m_eltrigtp_matches_ss", "Electron trigger TP stats", 3, -0.5, 2.5), lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_os_BCID_pileup = new TH3F("m_eltrigtp_matches_os_BCID_pileup", "Electron trigger TP stats vs. BCID", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_os_BCID_2t47_pileup = new TH3F("m_eltrigtp_matches_os_BCID_2t47_pileup", "Electron trigger TP stats vs. BCID_2t47", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_os_BCID_indiv_pileup = new TH3F("m_eltrigtp_matches_os_BCID_indiv_pileup", "Electron trigger TP stats vs. BCID_indiv", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_ss_BCID_pileup = new TH3F("m_eltrigtp_matches_ss_BCID_pileup", "Electron trigger TP stats vs. BCID", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_ss_BCID_2t47_pileup = new TH3F("m_eltrigtp_matches_ss_BCID_2t47_pileup", "Electron trigger TP stats vs. BCID_2t47", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_eltrigtp_matches_ss_BCID_indiv_pileup = new TH3F("m_eltrigtp_matches_ss_BCID_indiv_pileup", "Electron trigger TP stats vs. BCID_indiv", 3, -0.5, 2.5, 50, 0, 50, 200, 0, 100)).isFailure();
      
       // Measure Z-count as a function of position in train
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_pileup_zee = TH2F_LW::create("m_BCID_pileup_zee", "m_BCID_pileup_zee", 50, 0, 50, 200, 0, 100)).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_pileup_zmm = TH2F_LW::create("m_BCID_pileup_zmm", "m_BCID_pileup_zmm", 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_2t47_pileup_zee = TH2F_LW::create("m_BCID_2t47_pileup_zee", "m_BCID_2t47_pileup_zee", 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_2t47_pileup_zmm = TH2F_LW::create("m_BCID_2t47_pileup_zmm", "m_BCID_2t47_pileup_zmm", 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_indiv_pileup_zee = TH2F_LW::create("m_BCID_indiv_pileup_zee", "m_BCID_indiv_pileup_zee", 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_BCID_indiv_pileup_zmm = TH2F_LW::create("m_BCID_indiv_pileup_zmm", "m_BCID_indiv_pileup_zmm", 50, 0, 50, 200, 0, 100)).isFailure();
       
       // T&P electron eff
       double m_zCutHigh_elTP = 250; 
@@ -329,12 +352,30 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
                                        lumiBlock).isFailure();
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss   = TH1F_LW::create("m_ele_template_ss"   , "template ss"   ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV),
                                        lumiBlock).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_os_BCID_pileup  = new TH3F("m_ele_tight_bad_os_BCID_pileup"  , "1tight 1bad os" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_os_BCID_2t47_pileup  = new TH3F("m_ele_tight_bad_os_BCID_2t47_pileup"  , "1tight 1bad os" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_os_BCID_indiv_pileup  = new TH3F("m_ele_tight_bad_os_BCID_indiv_pileup"  , "1tight 1bad os" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_ss_BCID_pileup  = new TH3F("m_ele_tight_bad_ss_BCID_pileup"  , "1tight 1bad ss" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_ss_BCID_2t47_pileup  = new TH3F("m_ele_tight_bad_ss_BCID_2t47_pileup"  , "1tight 1bad ss" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_bad_ss_BCID_indiv_pileup  = new TH3F("m_ele_tight_bad_ss_BCID_indiv_pileup"  , "1tight 1bad ss" ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_os_BCID_pileup = new TH3F("m_ele_tight_good_os_BCID_pileup" , "1tight 1good os",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_os_BCID_2t47_pileup = new TH3F("m_ele_tight_good_os_BCID_2t47_pileup" , "1tight 1good os",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_os_BCID_indiv_pileup = new TH3F("m_ele_tight_good_os_BCID_indiv_pileup" , "1tight 1good os",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_ss_BCID_pileup = new TH3F("m_ele_tight_good_ss_BCID_pileup" , "1tight 1good ss",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os_BCID_pileup   = new TH3F("m_ele_template_os_BCID_pileup"   , "template os"  ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
-      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss_BCID_pileup   = new TH3F("m_ele_template_ss_BCID_pileup"   , "template ss"  ,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_ss_BCID_2t47_pileup = new TH3F("m_ele_tight_good_ss_BCID_2t47_pileup" , "1tight 1good ss",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_tight_good_ss_BCID_indiv_pileup = new TH3F("m_ele_tight_good_ss_BCID_indiv_pileup" , "1tight 1good ss",nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os_BCID_pileup   = new TH3F("m_ele_template_os_BCID_pileup"   , "template os"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os_BCID_2t47_pileup   = new TH3F("m_ele_template_os_BCID_2t47_pileup"   , "template os"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_os_BCID_indiv_pileup   = new TH3F("m_ele_template_os_BCID_indiv_pileup"   , "template os"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss_BCID_pileup   = new TH3F("m_ele_template_ss_BCID_pileup"   , "template ss"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss_BCID_2t47_pileup   = new TH3F("m_ele_template_ss_BCID_2t47_pileup"   , "template ss"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
+      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_template_ss_BCID_indiv_pileup   = new TH3F("m_ele_template_ss_BCID_indiv_pileup"   , "template ss"	,nzbins_elTP, m_zCutLow_elTP*GeV, m_zCutHigh_elTP*GeV, 50, 0, 50, 200, 0, 100)).isFailure();
       
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_elContainertp_nomatch = TH1F_LW::create("m_elContainertp_nomatch" , "m_elContainertp_nomatch" ,nzbins_elTP, m_zCutLow_elTP*GeV, 
                                                                                                             m_zCutHigh_elTP*GeV), lumiBlock).isFailure();
@@ -345,7 +386,7 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
 
     if (m_isSimulation) {
       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
-
+      
       if (m_writeTTrees){
 
         // Currently we hide the ttrees in the m_isSimulation check
@@ -404,6 +445,10 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      
      //Get position in train
      m_distance_from_front = m_bcTool->distanceFromFront(thisEventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+     // Check if the bunch is in a train
+     m_is_in_train = m_bcTool->isInTrain(thisEventInfo->bcid());
+     // Get length of train
+     m_train_length = m_bcTool->distanceFromFront(thisEventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings) + m_bcTool->distanceFromTail(thisEventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings) + 1;
      // Get pileup per lb
      m_pileup_per_lb = lbInteractionsPerCrossing();
 
@@ -421,14 +466,14 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        evtStore()->retrieve(missETcont,m_METName);
        missET = (*missETcont)["FinalClus"];
        if (!missET){
-     ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET " << m_METName);
-     if (!m_printedErrorMet)
-       ATH_MSG_WARNING("Cannot retrieve " << m_METName);
-     m_printedErrorMet = true;
+         ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET " << m_METName);
+         if (!m_printedErrorMet)
+           ATH_MSG_WARNING("Cannot retrieve " << m_METName);
+         m_printedErrorMet = true;
        }
        else {
-     phiMet = missET->phi();
-     metMet = missET->met();
+         phiMet = missET->phi();
+         metMet = missET->met();
        }
      }
      else {
@@ -827,9 +872,9 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      }   
 
      if (zee_os_pass) 
-       m_BCID_pileup_zee->Fill(m_distance_from_front, m_pileup_per_lb, 1); 
+       fillBCIDHistos(m_BCID_pileup_zee, m_BCID_2t47_pileup_zee, m_BCID_indiv_pileup_zee);
      if (zmm_os_pass)
-       m_BCID_pileup_zmm->Fill(m_distance_from_front, m_pileup_per_lb, 1);
+       fillBCIDHistos(m_BCID_pileup_zmm, m_BCID_2t47_pileup_zmm, m_BCID_indiv_pileup_zmm);
      
      //JPsi and Upsilon counter
      if (isJPsimumu && trigChainsArePassed(m_Jpsi_mm_trigger)) {
@@ -845,7 +890,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          if (mass > 3038 && mass < 3156) {
            ++m_JPsiCounterSBG[0];
            if(m_doTrigger) {
-             ATH_MSG_DEBUG("ABOUT TO CHECK JPSI TRIGGER");
+             ATH_MSG_DEBUG("ABOUT TO CHECK JPSI TRIGGER CHAIN");
              if( trigChainsArePassed(m_Jpsi_mm_trigger) ) {
                ++m_JPsiCounterSBG[1];
              }
@@ -1019,12 +1064,12 @@ void DQTGlobalWZFinderTool::doEleTriggerTP(const xAOD::Electron* el1, const xAOD
   if (!m_isSimulation){
     if(os){ 
       m_eltrigtp_matches_os->Fill(matched, m_evtWeight);
-      m_eltrigtp_matches_os_BCID_pileup->Fill(matched, m_distance_from_front, m_pileup_per_lb, m_evtWeight); 
+      fillBCIDHistos(matched, m_eltrigtp_matches_os_BCID_pileup, m_eltrigtp_matches_os_BCID_2t47_pileup, m_eltrigtp_matches_os_BCID_indiv_pileup);
     }
       
     if(ss){
       m_eltrigtp_matches_ss->Fill(matched, m_evtWeight);
-      m_eltrigtp_matches_ss_BCID_pileup->Fill(matched, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      fillBCIDHistos(matched, m_eltrigtp_matches_ss_BCID_pileup, m_eltrigtp_matches_ss_BCID_2t47_pileup, m_eltrigtp_matches_ss_BCID_indiv_pileup);
     }
   }
 
@@ -1430,7 +1475,7 @@ void DQTGlobalWZFinderTool::doMuonTriggerTP(const xAOD::Muon* mu1, const xAOD::M
   }
   if (!m_isSimulation){
     m_mutrigtp_matches->Fill(matched,m_evtWeight); 
-    m_mutrigtp_matches_BCID_pileup->Fill(matched, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+    fillBCIDHistos(matched, m_mutrigtp_matches_BCID_pileup, m_mutrigtp_matches_BCID_2t47_pileup, m_mutrigtp_matches_BCID_indiv_pileup);
   }
 
 
@@ -1587,11 +1632,13 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
         } 
       }
 
-      if (matched){
+	  if (matched){
         m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 0 : 1;
         if (!m_isSimulation){
           (opp_sign) ? m_muloosetp_match_os->Fill(mass)   : m_muloosetp_match_ss->Fill(mass);
-          (opp_sign) ? m_muloosetp_match_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_match_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+          //(opp_sign) ? m_muloosetp_match_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_match_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+          (opp_sign) ? fillBCIDHistos(mass, m_muloosetp_match_os_BCID_pileup, m_muloosetp_match_os_BCID_2t47_pileup, m_muloosetp_match_os_BCID_indiv_pileup) 
+                     : fillBCIDHistos(mass, m_muloosetp_match_ss_BCID_pileup, m_muloosetp_match_ss_BCID_2t47_pileup, m_muloosetp_match_ss_BCID_indiv_pileup);
         }
         if (m_writeTTrees){
           m_muon_reco_tptree->Fill();
@@ -1601,7 +1648,9 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
         m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 2 : 3;
         if (!m_isSimulation){
           (opp_sign) ? m_muloosetp_nomatch_os->Fill(mass) : m_muloosetp_nomatch_ss->Fill(mass);
-          (opp_sign) ? m_muloosetp_nomatch_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_nomatch_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+          //(opp_sign) ? m_muloosetp_nomatch_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_nomatch_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+          (opp_sign) ? fillBCIDHistos(mass, m_muloosetp_nomatch_os_BCID_pileup, m_muloosetp_nomatch_os_BCID_2t47_pileup, m_muloosetp_nomatch_os_BCID_indiv_pileup) 
+                     : fillBCIDHistos(mass, m_muloosetp_nomatch_ss_BCID_pileup, m_muloosetp_nomatch_ss_BCID_2t47_pileup, m_muloosetp_nomatch_ss_BCID_indiv_pileup);
         }
         if (m_writeTTrees){
           m_muon_reco_tptree->Fill();
@@ -1884,32 +1933,68 @@ void DQTGlobalWZFinderTool::fillEleEffHistos(bool tag_good, bool probe_good, boo
   if(os){
     if(probe_good){
       m_ele_tight_good_os->Fill(mass);  
-      m_ele_tight_good_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      //m_ele_tight_good_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      fillBCIDHistos(mass, m_ele_tight_good_os_BCID_pileup, m_ele_tight_good_os_BCID_2t47_pileup, m_ele_tight_good_os_BCID_indiv_pileup);
     }
     else{
       m_ele_tight_bad_os->Fill(mass);
-      m_ele_tight_bad_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      //m_ele_tight_bad_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      fillBCIDHistos(mass, m_ele_tight_bad_os_BCID_pileup, m_ele_tight_bad_os_BCID_2t47_pileup, m_ele_tight_bad_os_BCID_indiv_pileup);
     }    
     if(probe_anti_good){
       m_ele_template_os->Fill(mass);  
-      m_ele_template_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight); 
+      //m_ele_template_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight); 
+      fillBCIDHistos(mass, m_ele_template_os_BCID_pileup, m_ele_template_os_BCID_2t47_pileup, m_ele_template_os_BCID_indiv_pileup);
     }
   }
 
   if (!os){
     if(probe_good){
       m_ele_tight_good_ss->Fill(mass);
-      m_ele_tight_good_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      //m_ele_tight_good_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      fillBCIDHistos(mass, m_ele_tight_good_ss_BCID_pileup, m_ele_tight_good_ss_BCID_2t47_pileup, m_ele_tight_good_ss_BCID_indiv_pileup);
     }
     else{
       m_ele_tight_bad_ss->Fill(mass);
-      m_ele_tight_bad_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      //m_ele_tight_bad_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      fillBCIDHistos(mass, m_ele_tight_bad_ss_BCID_pileup, m_ele_tight_bad_ss_BCID_2t47_pileup, m_ele_tight_bad_ss_BCID_indiv_pileup);
     }
     if(probe_anti_good){
       m_ele_template_ss->Fill(mass);   
-      m_ele_template_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      //m_ele_template_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
+      fillBCIDHistos(mass, m_ele_template_ss_BCID_pileup, m_ele_template_ss_BCID_2t47_pileup, m_ele_template_ss_BCID_indiv_pileup);
     }
   }
+}
+
+
+void DQTGlobalWZFinderTool::fillBCIDHistos(TH2F_LW *h_48b, TH2F_LW *h_2t47b, TH2F_LW *h_indiv){
+  if (m_train_length == 48) 
+    h_48b->Fill(m_distance_from_front, m_pileup_per_lb, 1); 
+  if (m_train_length != 48 && m_is_in_train) 
+    h_2t47b->Fill(m_distance_from_front, m_pileup_per_lb, 1); 
+  if (!m_is_in_train) 
+    h_indiv->Fill(m_distance_from_front, m_pileup_per_lb, 1); 
+}
+
+
+void DQTGlobalWZFinderTool::fillBCIDHistos(int matched, TH3F* h_48b, TH3F* h_2t47b, TH3F* h_indiv){
+  if (m_train_length == 48) 
+    h_48b->Fill(matched, m_distance_from_front, m_pileup_per_lb, 1); 
+  if (m_train_length != 48 && m_is_in_train) 
+    h_2t47b->Fill(matched, m_distance_from_front, m_pileup_per_lb, 1); 
+  if (!m_is_in_train) 
+    h_indiv->Fill(matched, m_distance_from_front, m_pileup_per_lb, 1); 
+}
+
+
+void DQTGlobalWZFinderTool::fillBCIDHistos(double mass, TH3F* h_48b, TH3F* h_2t47b, TH3F* h_indiv){
+  if (m_train_length == 48) 
+    h_48b->Fill(mass, m_distance_from_front, m_pileup_per_lb, 1); 
+  if (m_train_length != 48 && m_is_in_train) 
+    h_2t47b->Fill(mass, m_distance_from_front, m_pileup_per_lb, 1); 
+  if (!m_is_in_train) 
+    h_indiv->Fill(mass, m_distance_from_front, m_pileup_per_lb, 1); 
 }
 
 
