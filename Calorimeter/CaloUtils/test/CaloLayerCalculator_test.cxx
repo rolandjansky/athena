@@ -9,8 +9,14 @@
  * @date March, 2006
  * @brief Component test for CaloLayerCalculator.
  */
+
 #ifndef XAOD_STANDALONE
 #undef NDEBUG
+
+//This is a test so need to be thread safe
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -50,7 +56,7 @@ bool is_equal (double x1, double x2)
 }
 
 
-static CaloPhiRange range;
+static const CaloPhiRange range;
 static const float deta = 0.025f;
 static const float dphi = static_cast<float> (2*M_PI / 256);
 

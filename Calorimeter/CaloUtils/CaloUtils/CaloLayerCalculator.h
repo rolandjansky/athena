@@ -342,7 +342,7 @@ private:
     double m_s01r; // phi_raw-weighted energy sum.
 
     /// Phi-wrapping helper.
-    static CaloPhiRange s_range;
+    static const CaloPhiRange s_range;
   };
   friend struct Helper;
   //@}
