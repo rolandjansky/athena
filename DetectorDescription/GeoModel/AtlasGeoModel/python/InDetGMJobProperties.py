@@ -133,6 +133,11 @@ class useDynamicAlignFolders(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class dumpInDetGDML(JobProperty):
+    """ Use to turn on dumping of InDet GDML output files from Geant4 """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 # add to jobproperties
 class InDetGeometryFlags_JobProperties(JobPropertyContainer):
@@ -183,6 +188,7 @@ jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(IBLLayout)
 jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isSLHC)
 jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isDBM)
 jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(useDynamicAlignFolders)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(dumpInDetGDML)
 
 InDetGeometryFlags = jobproperties.InDetGeometryFlags_JobProperties
 InDetGeometryFlags.setupValuesFromDB()
