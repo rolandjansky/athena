@@ -699,8 +699,6 @@ void PerfMonMTSvc::divideData2Steps_serial(){
 
   }
   m_stdoutVec_serial.push_back(m_compLevelDataMap_ini);
-  //m_stdoutVec_serial.push_back(m_compLevelDataMap_start);
-  //m_stdoutVec_serial.push_back(m_compLevelDataMap_stop);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_fin);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_plp);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_cbk);
@@ -721,7 +719,6 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
   }
 
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_evt);
-  //m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_stop);
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_plp);
   m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_cbk);
 
