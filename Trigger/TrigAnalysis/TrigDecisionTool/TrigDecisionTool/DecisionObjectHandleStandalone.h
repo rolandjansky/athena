@@ -12,8 +12,6 @@
 #include <string>
 
 // ASG include(s):
-#include "AsgTools/AsgToolsConf.h"
-
 #include "AsgTools/AsgMessaging.h"
 
 // xAOD include(s):

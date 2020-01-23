@@ -20,12 +20,11 @@
  *
  ***********************************************************************************/
 
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/ToolHandle.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h" 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "AthenaBaseComps/AthMessaging.h"
 
 
@@ -56,7 +55,7 @@ namespace Trig {
     public asg::AsgMetadataTool,
     virtual Trig::ITrigDecisionTool,
     public TrigDecisionToolCore
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
     , public AthMessaging
 #endif   
   { 
@@ -81,7 +80,7 @@ namespace Trig {
 
     StatusCode finalize();
 
-    #ifdef ASGTOOL_ATHENA
+    #ifndef XAOD_STANDALONE
     void outputlevelupdateHandler(Property& p);  //propagates outputlevel changes to the Logger
     
     #endif
@@ -121,7 +120,7 @@ namespace Trig {
  
 
     //full Athena
-    #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+    #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;    //!< trigger configuration service handle
     ToolHandle<HLT::Navigation> m_fullNavigation;
     #endif

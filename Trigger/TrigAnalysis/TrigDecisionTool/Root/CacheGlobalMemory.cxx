@@ -40,7 +40,7 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "AthenaBaseComps/AthCheckMacros.h"
 #else
 #include "AsgTools/Check.h"

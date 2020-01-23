@@ -430,10 +430,10 @@ StatusCode TauProcessorTool::execute(){
 
 //________________________________________
 StatusCode TauProcessorTool::finalize(){
-#if defined(ASGTOOL_STANDALONE)
+#if defined(XAOD_STANDALONE)
   for (auto tool : m_tools)
     ATH_CHECK(tool->finalize());
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
   return StatusCode::SUCCESS;
 }
@@ -453,7 +453,7 @@ StatusCode TauProcessorTool::readConfig() {
   // removed once all tools are updated to have a config path declared.
   // in athena getProperties returns std::vector<Property*>
   // in rc     getProperties returns std::map<std::string,Property*>
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   bool configPathDeclared = false;
   for (Property* property : getProperties())
   {
@@ -464,12 +464,12 @@ StatusCode TauProcessorTool::readConfig() {
     }
   }
   if (!configPathDeclared)
-#elif defined(ASGTOOL_STANDALONE)
+#elif defined(XAOD_STANDALONE)
   PropertyMgr::PropMap_t property_map = getPropertyMgr()->getProperties();
   if (property_map.find("ConfigPath") == property_map.end())
 #else
 #   error "What environment are we in?!?"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
   {
     ATH_MSG_INFO("No config file path property declared yet, this is not recommended");
     return StatusCode::SUCCESS;
@@ -498,7 +498,7 @@ StatusCode TauProcessorTool::readConfig() {
     }
     else {
       StatusCode sc;
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       // get type of variable with the entry name
       const std::type_info* type = getProperty(lList->At( i )->GetName()).type_info();
 
@@ -537,16 +537,16 @@ StatusCode TauProcessorTool::readConfig() {
       else if (type == Property::STRING)
         sc = this->setProperty(lList->At( i )->GetName(),
           env.GetValue(lList->At( i )->GetName(),""));
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
       else {
         sc = StatusCode::FAILURE;
       }
       if (!sc.isSuccess()) {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
         ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type->name());
 #else
         ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type);
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
         return StatusCode::FAILURE;
       }
     }

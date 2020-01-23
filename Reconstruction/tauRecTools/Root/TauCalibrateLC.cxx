@@ -17,7 +17,7 @@
 #include "TH1D.h"
 
 //included eventually from ITauToolBase
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 using CLHEP::GeV;

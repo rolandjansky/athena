@@ -12,7 +12,6 @@
 #define TrigDecisionTool_DecisionObjectHandleAthena_h
 
 #include <string>
-#include "AsgTools/AsgToolsConf.h"
 #include "StoreGate/DataHandle.h"
 
 

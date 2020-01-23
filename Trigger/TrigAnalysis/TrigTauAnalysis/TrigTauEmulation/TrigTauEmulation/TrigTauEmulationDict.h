@@ -21,7 +21,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/ToolHandleArray.h"
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
 // Helper macro for declaring the setProperty functions to the dictionary:
 #define SETPROPERTY_INSTAN( TYPE )                                            \
