@@ -232,26 +232,6 @@ void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifier
     handlePRDHash( IdentifierHash(iHash), *rdoContainer, idWithDataVect);
   }
 
-
-  /*             
-  // unseeded mode
-  for (MdtCsmContainer::const_iterator rdoColli = rdoContainer->begin(); rdoColli!=rdoContainer->end(); ++rdoColli) {
-    
-    auto rdoColl = *rdoColli;
-    if (rdoColl->empty()) continue;
-    ATH_MSG_DEBUG("A new csm here with " << rdoColl->size() <<" amt hits inside ");
-
-    if(processCsm(rdoColl, idWithDataVect).isFailure()) {
-      ATH_MSG_DEBUG("processCsm returns a bad StatusCode - keep going for new data collections in this event");
-    }
-  }
-  // finally sort the collections
-  if (m_sortPrepData) {
-    for( auto it = m_mdtPrepDataContainer->begin();it != m_mdtPrepDataContainer->end(); ++it) {
-      sortMdtPrdCollection(*it);
-    }
-  }
-  */
 }
 
 void Muon::MdtRdoToPrepDataToolCore::sortMdtPrdCollection( const Muon::MdtPrepDataCollection* col ){
@@ -268,10 +248,12 @@ void Muon::MdtRdoToPrepDataToolCore::sortMdtPrdCollection( const Muon::MdtPrepDa
 
 bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect ) {
   
-  // if in prep data the chamber already exists ... do nothing
-  //if( m_mdtPrepDataContainer->indexFind(hash) != m_mdtPrepDataContainer->end() ){
-  //  return true;
-  //}
+  // Check PRD container for the hash, if it exists, we already decoded fully
+  if( m_mdtPrepDataContainer->tryAddFromCache(hash) ){
+    ATH_MSG_DEBUG("RDO hash " << hash << " already decoded and inside PRD container cache");
+    return true;
+  }
+
   IdentifierHash rdoHash = hash; // before BMEs were installed, RDOs were indexed by offline hashes (same as PRD)
   if (m_BMEpresent) { // after BMEs were installed, the RDOs are indexed by the detectorElement hash of a multilayer
     Identifier elementId;
@@ -304,7 +286,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       }
       else if(rdoColli != rdoContainer.end()){
         // Handle just one
-        ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash2 );
+        ATH_MSG_WARNING("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash2 );
         if ( processCsm(*rdoColli, idWithDataVect).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
           return false;
@@ -312,14 +294,14 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       }
       else if(rdoColli2 != rdoContainer.end()){
         // Handle just one
-        ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash );
+        ATH_MSG_WARNING("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash );
         if ( processCsm(*rdoColli2, idWithDataVect).isFailure() ) {
           ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
           return false;
         }
       }
       else{
-        ATH_MSG_DEBUG("handlePRDHash: hash id " << (unsigned int)(hash) << " not found in RDO container");
+        ATH_MSG_WARNING("handlePRDHash: hash id " << hash << " not found in RDO container, and is BME - Missing " << rdoHash << " " << rdoHash2);
       }
     } // End of m_BMEpresent
     else{
@@ -523,7 +505,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
       ATH_MSG_ERROR("Hash1 and Hash2 are different for special case : " << hash1 << " " << hash2);
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG(" Number of AmtHit in this Csm (1) " << rdoColl->size() <<" CSM id is "<<m_idHelper->toString(elementId1));
+    ATH_MSG_DEBUG(" Number of AmtHit in this Csm (1) " << rdoColl->size()  <<" CSM id is "<<m_idHelper->toString(elementId1));
     ATH_MSG_DEBUG(" Number of AmtHit in this Csm (2) " << rdoColl2->size() <<" CSM id is "<<m_idHelper->toString(elementId2));
   }
 
@@ -822,24 +804,17 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
   }
   ATH_MSG_VERBOSE("HashId = "<<(int)mdtHashId);
 
-  if (m_mdtPrepDataContainer->indexFind(mdtHashId)!=m_mdtPrepDataContainer->end()) {
-    ATH_MSG_DEBUG("In ProcessCSM - collection already contained in IDC");
-    return StatusCode::FAILURE;
-  }
-
-  MdtPrepDataCollection * driftCircleColl = new MdtPrepDataCollection(mdtHashId);
+  // Check the IDC cache (no write handles here)
+  MdtPrepDataContainer::IDC_WriteHandle lock = m_mdtPrepDataContainer->getWriteHandle( mdtHashId );
+  if( lock.alreadyPresent() ){
+    ATH_MSG_DEBUG("MdtPrepDataCollection already contained in IDC " << elementId << " " << mdtHashId);
+    return StatusCode::SUCCESS;
+  }  
+  
+  std::unique_ptr<MdtPrepDataCollection> driftCircleColl ( new MdtPrepDataCollection( mdtHashId ) );
   idWithDataVect.push_back(mdtHashId);
   driftCircleColl->setIdentifier(elementId);
-  ATH_MSG_DEBUG("A new MdtPrepDataCollection here with hashId " << (unsigned int)mdtHashId);
-  //MdtPrepDataContainer::KEY key = m_mdtPrepDataContainer->key(elementId);
-
-  if (StatusCode::SUCCESS != m_mdtPrepDataContainer->addCollection(driftCircleColl, mdtHashId)) {
-    ATH_MSG_DEBUG("In ProcessCSMtwin - Couldn't record in the Container MDT Drift Circle Collection with hashID = "
-                  << (int)mdtHashId <<" ext. id = "
-                  << m_idHelper->toString(elementId));
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("MdtPrepDataCollection added to the container");
+  ATH_MSG_DEBUG("Created MdtPrepDataCollection (not found in cache) " << mdtHashId);
 
   // for each Csm, loop over AmtHit, converter AmtHit to digit
   // retrieve/create digit collection, and insert digit into collection
@@ -1315,9 +1290,15 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsmTwin(const MdtCsm *rdoColl,
     }
       
       
-  } // end for( iter_map = mdtDigitColl.begin(); iter_map != mdtDigitColl.end(); iter_map++ ) {
+  } // end for( iter_map = mdtDigitColl.begin(); iter_map != mdtDigitColl.end(); iter_map++ )
     
-    
+  // Finished decoding RDO to PRD, so now we record the collection in the container
+  StatusCode status_lock = lock.addOrDelete(std::move( driftCircleColl ));
+  if (status_lock.isFailure()) {
+    ATH_MSG_ERROR ( "Could not insert MdtCsmPrepdataCollection into MdtCsmPrepdataContainer..." );
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
