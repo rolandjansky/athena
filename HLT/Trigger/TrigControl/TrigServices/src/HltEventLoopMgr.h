@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/Timeout.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -28,9 +29,6 @@
 
 // TDAQ includes
 #include "eformat/write/FullEventFragment.h"
-
-// ROOT includes
-#include <TH2I.h>
 
 // System includes
 #include <atomic>
@@ -48,7 +46,6 @@ class IHiveWhiteBoard;
 class IIncidentSvc;
 class IJobOptionsSvc;
 class IScheduler;
-class ITHistSvc;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
 class IIoComponentMgr;
@@ -77,7 +74,6 @@ public:
   /// @name Gaudi state transitions (overriden from AthService)
   ///@{
   virtual StatusCode initialize() override;
-  virtual StatusCode start() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   ///@}
@@ -176,21 +172,18 @@ private:
    **/
   StatusCode drainAllSlots();
 
-  /// Register monitoring histograms with THistSvc
-  void bookHistograms();
-
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
   ServiceHandle<IJobOptionsSvc>      m_jobOptionsSvc;
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
-  ServiceHandle<ITHistSvc>           m_THistSvc;
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
   ServiceHandle<IConversionSvc>      m_outputCnvSvc{this, "OutputCnvSvc", "OutputCnvSvc"};
   ToolHandle<TrigCOOLUpdateHelper>   m_coolHelper{this, "CoolUpdateTool", "TrigCOOLUpdateHelper"};
   ToolHandle<HLTResultMTMaker>       m_hltResultMaker{this, "ResultMaker", "HLTResultMTMaker"};
+  ToolHandle<GenericMonitoringTool>  m_monTool{this, "MonTool", "", "Monitoring tool"};
 
   SmartIF<IHiveWhiteBoard> m_whiteboard;
   SmartIF<IAlgResourcePool> m_algResourcePool;
@@ -242,9 +235,6 @@ private:
   Gaudi::Property<unsigned long long> m_forceSOR_ns{
     this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
 
-  Gaudi::Property<unsigned int> m_dbIdleWait{
-    this, "dbConnIdleWaitSec", 0, "Seconds to wait before cleaning idle DB connections"};
-
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 
@@ -252,9 +242,6 @@ private:
     this, "EventInfoRHKey", "EventInfo", "StoreGate key for reading xAOD::EventInfo"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
-
-  // ------------------------- Monitoring histograms ---------------------------
-  TH2I* m_errorCodePerAlg{nullptr}; ///< Non-success StatusCodes per algorithm name
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields

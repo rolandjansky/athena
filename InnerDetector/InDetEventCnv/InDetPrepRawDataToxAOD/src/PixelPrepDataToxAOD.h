@@ -1,6 +1,12 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file InDetPrepRawDataToxAOD/PixelPrepDataToxAOD.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date November, 2019
+ * @brief Store pixel data in xAOD.
+ */
 
 ///////////////////////////////////////////////////////////////////
 // PixelPrepDataToxAOD.h
@@ -20,7 +26,10 @@
 #include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
-#include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelDCSStateData.h"
+#include "PixelConditionsData/PixelDCSStatusData.h"
+#include "PixelConditionsData/PixelDCSHVData.h"
+#include "PixelConditionsData/PixelDCSTempData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
@@ -112,16 +121,16 @@ private:
   SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
   {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
-  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStateKey
+  SG::ReadCondHandleKey<PixelDCSStateData> m_condDCSStateKey
   {this, "PixelDCSStateCondData", "PixelDCSStateCondData", "Pixel FSM state key"};
 
-  SG::ReadCondHandleKey<PixelModuleData> m_condDCSStatusKey
+  SG::ReadCondHandleKey<PixelDCSStatusData> m_condDCSStatusKey
   {this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
 
-  SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp
+  SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
   {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
 
-  SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV
+  SG::ReadCondHandleKey<PixelDCSHVData> m_readKeyHV
   {this, "ReadKeyHV",    "PixelDCSHVCondData", "Key of input bias voltage conditions folder"};
 
   ToolHandle<IInDetConditionsTool> m_pixelSummary

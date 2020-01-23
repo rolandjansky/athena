@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArShapeP2.h"
@@ -30,6 +30,12 @@ LArShapeP2::LArShapeP2(float timeOffset,
 
 
 LArShapeP2::LArShapeP2 (const LArCompactSubsetChannelProxy& other)
+  : LAr2DWaveBase (other)
+{
+}
+
+
+LArShapeP2::LArShapeP2 (const LArCompactSubsetConstChannelProxy& other)
   : LAr2DWaveBase (other)
 {
 }

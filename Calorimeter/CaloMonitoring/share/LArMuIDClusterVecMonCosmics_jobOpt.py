@@ -1,4 +1,4 @@
-#Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # LArMuIDVecMon_jobOpt.py   R. Kehoe 07/03/06
 # LArMuIDVecMon_jobOpt.py   H. Hadavand 07/30/07 --migrate to MMTB
 # LArMuIDVecMon_jobOpt.py   F. Spano' 08/15/07 --modify name of MonMan to CaloMon
@@ -37,9 +37,9 @@ else:
 
 if not (rec.triggerStream()=='CosmicCalo'):
   tmp_useBeamBackgroundRemoval = FALSE
-  print "not CosmicCalo stream"
+  printfunc ("not CosmicCalo stream")
 
-print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
+printfunc ("tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval)
 
 LArCosmicsClusterMon = CaloClusterVecMon(
   name           = "LArCosmicsClusterMon",

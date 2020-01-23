@@ -282,11 +282,6 @@ resolveLink (const xAOD::CutBookkeeper* old,
 
 } // anonymous namespace
 
-//
-// (Merge) method required by base clase GenericMetdataTool
-//   Note that the implementation of the IMetaDataTool interface 
-//   is done in GenericMetadataTool and configured by properties 
-//   of that class
 StatusCode
 BookkeeperTool::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                              const xAOD::CutBookkeeperContainer* otherCont ) 

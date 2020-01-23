@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -136,8 +136,10 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
     return sc;
   }
 
-  // Initialize readhandle key
-  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_lumiDataKey.initialize ( !m_lumiDataKey.key().empty() ));
+  if (m_lumiDataKey.key().empty()) {
+     ATH_MSG_INFO("Luminosity conditions data key not set. No mu correction." );
+  }
 
   // Initialize readCondHandle key
   ATH_CHECK(m_trtDetEleContKey.initialize());
@@ -199,12 +201,11 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
     return rio;
   }
 
-  float mu = -10;
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-  if (eventInfo.isValid()) {
-
-                mu = (float)           eventInfo->averageInteractionsPerCrossing();
-      }
+  float mu = 0;
+  if (!m_lumiDataKey.empty()) {
+     SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey);
+     mu = lumiData->lbAverageInteractionsPerCrossing();
+  }
 
   DataVector<TRT_RDORawData>::const_iterator r,rb=rdo->begin(),re=rdo->end(); 
 

@@ -23,7 +23,7 @@ class TileCellFromCellIDCGetter ( Configured )  :
             theTileCellFromCellIDCGetter=TileCellFromCellIDCGetter()
         except Exception:
             mlog.error("could not get handle to TileCellFromCellIDCGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileCellFromCellIDCGetter.usable():
@@ -38,7 +38,7 @@ class TileCellFromCellIDCGetter ( Configured )  :
             from TileRecAlgs.TileRecAlgsConf import TileCellIDCToCell                
         except Exception:
             mlog.error("could not import TileRecAlgs.TileCellIDCToCell")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileCellIDCToCell=TileCellIDCToCell()

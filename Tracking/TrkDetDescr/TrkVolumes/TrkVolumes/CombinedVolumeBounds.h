@@ -40,7 +40,7 @@ namespace Trk {
    @author Sarka.Todorova@cern.ch 
   */
     
- class CombinedVolumeBounds : public VolumeBounds {
+ class ATLAS_NOT_THREAD_SAFE CombinedVolumeBounds : public VolumeBounds {
   
   public:
     /**Default Constructor*/

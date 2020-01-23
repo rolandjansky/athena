@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
+from __future__ import print_function
 from time import time
 import sys
 
@@ -29,7 +30,7 @@ class EventSelector(RunLBBasedCondition):
         # some preparation: compile the show patterns
         start = time()
 
-        print self,
+        print (self, end='')
         sys.stdout.flush()
         newrunlist = []
         connection = coolDbConn.GetSFODBConnection()
@@ -70,8 +71,8 @@ class EventSelector(RunLBBasedCondition):
         runlist = [r for r in runlist if r.runNr in newrunlist]
         
         duration = time() - start
-        if self.applySelection: print " ==> %i runs found (%.2f sec)" % (len(runlist),duration)
-        else:                   print " ==> Done (%g sec)" % duration
+        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:                   print (" ==> Done (%g sec)" % duration)
         return runlist
 
     def passes(self,values,key):

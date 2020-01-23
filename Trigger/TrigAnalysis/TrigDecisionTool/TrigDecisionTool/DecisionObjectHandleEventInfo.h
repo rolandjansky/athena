@@ -20,6 +20,8 @@
 #include "EventInfo/EventInfo.h"
 #include "AsgTools/AsgMessaging.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 class TriggerInfo;
 class EventInfo;
 class StoreGateSvc;
@@ -32,13 +34,12 @@ namespace Trig {
 					public DataHandle<EventInfo>
   {
   public:
-    DecisionObjectHandleEventInfo( EventPtr_t sg, const std::string& key );
-    virtual void reset (bool hard) override;
+    DecisionObjectHandleEventInfo( SG::ReadHandleKey<EventInfo>* oldEventInfoKey );
+    virtual void reset (bool hard = false) override;
     virtual TriggerInfo const * getDecision() const override;
     virtual void const * getNavigation() const override; 
   private:
-    StoreGateSvc* m_sg;
-    const std::string m_key;
+    SG::ReadHandleKey<EventInfo>* m_oldEventInfoKey;
     mutable EventInfo const * m_object;
   };
 }

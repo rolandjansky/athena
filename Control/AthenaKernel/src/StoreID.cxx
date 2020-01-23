@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaKernel/StoreID.h"
 #include <string>
@@ -10,9 +10,8 @@ static const std::vector<std::string> STORENAMES {
     "StoreGateSvc",
     "DetectorStore",
     "ConditionStore",
-    "InputMetaDataStore",
     "MetaDataStore",
-    "SpareStore",
+    "InputMetaDataStore",
     "PileupStore",
     "UnknownStore"
       };
@@ -51,7 +50,7 @@ StoreID::findStoreID(const std::string& storeNamePrefix) {
     }
   case 'M':
     {
-      return StoreID::SIMPLE_STORE;
+      return StoreID::METADATA_STORE;
       break;
     }
   case 'P':
@@ -61,16 +60,7 @@ StoreID::findStoreID(const std::string& storeNamePrefix) {
     }
   case 'S':
     {
-      if (storeNamePrefix.at(ist+1)=='p'){
-	return StoreID::SPARE_STORE;
-      }else{
-	return StoreID::EVENT_STORE;
-      }
-      break;
-    }
-  case 'T':
-    {
-      return StoreID::METADATA_STORE;
+      return StoreID::EVENT_STORE;
       break;
     }
   default:

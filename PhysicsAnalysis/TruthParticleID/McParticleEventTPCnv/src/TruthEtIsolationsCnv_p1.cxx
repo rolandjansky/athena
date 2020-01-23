@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthEtIsolationsCnv_p1.cxx 
@@ -19,28 +19,11 @@
 #include "GeneratorObjects/McEventCollection.h"
 
 // McParticleEvent includes
-#define private public
-#define protected public
 #include "McParticleEvent/TruthEtIsolations.h"
-#undef private
-#undef protected
 
 // McParticleEventTPCnv includes
 #include "McParticleEventTPCnv/TruthEtIsolationsCnv_p1.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 typedef TruthEtIsolations_p1::EtIsolMap_t    EtIsolMap_p;
 typedef TruthEtIsolations_p1::EtIsolBc_t     EtIsolBc_p;
@@ -50,7 +33,7 @@ typedef TruthEtIsolations::EtIsolMap_t       EtIsolMap_t;
 void 
 TruthEtIsolationsCnv_p1::persToTrans( const TruthEtIsolations_p1* pers, 
                                       TruthEtIsolations* trans,
-                                      MsgStream& msg ) 
+                                      MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Loading TruthEtIsolations from persistent state..."
@@ -96,7 +79,7 @@ TruthEtIsolationsCnv_p1::persToTrans( const TruthEtIsolations_p1* pers,
 void 
 TruthEtIsolationsCnv_p1::transToPers( const TruthEtIsolations* trans,
 				      TruthEtIsolations_p1* pers, 
-				      MsgStream& msg ) 
+				      MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthEtIsolations..."

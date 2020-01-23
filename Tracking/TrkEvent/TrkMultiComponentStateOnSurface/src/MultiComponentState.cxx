@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -16,47 +16,33 @@ decription           : Implementation code for MultiComponentState class
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 
-Trk::MultiComponentState::~MultiComponentState()
-{
-  /*
-   * Cleanup the const TrackParticle* ptr
-   */
-  Trk::MultiComponentState::const_iterator component = this->begin();
-  Trk::MultiComponentState::const_iterator end = this->end();
-  for (; component != end; ++component) {
-    delete component->first;
-  }
-  this->clear();
-}
-
-Trk::MultiComponentState*
-Trk::MultiComponentState::clone() const
+std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentStateHelpers::clone(const Trk::MultiComponentState& in)
 {
   auto clonedState = std::make_unique<Trk::MultiComponentState>();
-  clonedState->reserve(this->size());
-  Trk::MultiComponentState::const_iterator component = this->begin();
-  for (; component != this->end(); ++component) {
-    const Trk::TrackParameters* clonedParameters = component->first->clone();
-    clonedState->emplace_back(clonedParameters, component->second);
+  clonedState->reserve(in.size());
+  for (const ComponentParameters& component : in) {
+    clonedState->emplace_back(component.first->clone(), component.second);
   }
-  return clonedState.release();
+  return clonedState;
 }
 
-Trk::MultiComponentState*
-Trk::MultiComponentState::cloneWithScaledError(double errorScaleLocX,
-                                               double errorScaleLocY,
-                                               double errorScalePhi,
-                                               double errorScaleTheta,
-                                               double errorScaleQoverP) const
+std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentStateHelpers::cloneWithScaledError(const Trk::MultiComponentState& in,
+                                                      double errorScaleLocX,
+                                                      double errorScaleLocY,
+                                                      double errorScalePhi,
+                                                      double errorScaleTheta,
+                                                      double errorScaleQoverP)
 {
   auto stateWithScaledErrors = std::make_unique<Trk::MultiComponentState>();
-  stateWithScaledErrors->reserve(this->size());
-  Trk::MultiComponentState::const_iterator component = this->begin();
-  for (; component != this->end(); ++component) {
-    const Trk::TrackParameters* trackParameters = component->first;
+  stateWithScaledErrors->reserve(in.size());
+  for (const ComponentParameters& component : in) {
+
+    const Trk::TrackParameters* trackParameters = component.first.get();
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
     if (!originalMatrix) {
-      return this->clone();
+      return clone(in);
     }
 
     auto covarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
@@ -68,44 +54,60 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScaleLocX,
       (*covarianceMatrix)(3, 3) = (*originalMatrix)(3, 3) * (errorScaleTheta * errorScaleTheta);
       (*covarianceMatrix)(4, 4) = (*originalMatrix)(4, 4) * (errorScaleQoverP * errorScaleQoverP);
 
-      covarianceMatrix->fillSymmetric(0, 1, (*originalMatrix)(0, 1) * (errorScaleLocX * errorScaleLocY));
-      covarianceMatrix->fillSymmetric(0, 2, (*originalMatrix)(0, 2) * (errorScaleLocX * errorScalePhi));
-      covarianceMatrix->fillSymmetric(0, 3, (*originalMatrix)(0, 3) * (errorScaleLocX * errorScaleTheta));
-      covarianceMatrix->fillSymmetric(0, 4, (*originalMatrix)(0, 4) * (errorScaleLocX * errorScaleQoverP));
+      covarianceMatrix->fillSymmetric(
+        0, 1, (*originalMatrix)(0, 1) * (errorScaleLocX * errorScaleLocY));
+      covarianceMatrix->fillSymmetric(
+        0, 2, (*originalMatrix)(0, 2) * (errorScaleLocX * errorScalePhi));
+      covarianceMatrix->fillSymmetric(
+        0, 3, (*originalMatrix)(0, 3) * (errorScaleLocX * errorScaleTheta));
+      covarianceMatrix->fillSymmetric(
+        0, 4, (*originalMatrix)(0, 4) * (errorScaleLocX * errorScaleQoverP));
 
-      covarianceMatrix->fillSymmetric(1, 2, (*originalMatrix)(1, 2) * (errorScaleLocY * errorScalePhi));
-      covarianceMatrix->fillSymmetric(1, 3, (*originalMatrix)(1, 3) * (errorScaleLocY * errorScaleTheta));
-      covarianceMatrix->fillSymmetric(1, 4, (*originalMatrix)(1, 4) * (errorScaleLocY * errorScaleQoverP));
+      covarianceMatrix->fillSymmetric(
+        1, 2, (*originalMatrix)(1, 2) * (errorScaleLocY * errorScalePhi));
+      covarianceMatrix->fillSymmetric(
+        1, 3, (*originalMatrix)(1, 3) * (errorScaleLocY * errorScaleTheta));
+      covarianceMatrix->fillSymmetric(
+        1, 4, (*originalMatrix)(1, 4) * (errorScaleLocY * errorScaleQoverP));
 
-      covarianceMatrix->fillSymmetric(2, 3, (*originalMatrix)(2, 3) * (errorScalePhi * errorScaleTheta));
-      covarianceMatrix->fillSymmetric(2, 4, (*originalMatrix)(2, 4) * (errorScalePhi * errorScaleQoverP));
+      covarianceMatrix->fillSymmetric(
+        2, 3, (*originalMatrix)(2, 3) * (errorScalePhi * errorScaleTheta));
+      covarianceMatrix->fillSymmetric(
+        2, 4, (*originalMatrix)(2, 4) * (errorScalePhi * errorScaleQoverP));
 
-      covarianceMatrix->fillSymmetric(3, 4, (*originalMatrix)(3, 4) * (errorScaleTheta * errorScaleQoverP));
+      covarianceMatrix->fillSymmetric(
+        3, 4, (*originalMatrix)(3, 4) * (errorScaleTheta * errorScaleQoverP));
 
     } else {
-      return this->clone();
+      return clone(in);
     }
     const AmgVector(5)& par = trackParameters->parameters();
-    const TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
-      par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covarianceMatrix.release());
+    TrackParameters* newTrackParameters =
+      trackParameters->associatedSurface().createTrackParameters(par[Trk::loc1],
+                                                                 par[Trk::loc2],
+                                                                 par[Trk::phi],
+                                                                 par[Trk::theta],
+                                                                 par[Trk::qOverP],
+                                                                 covarianceMatrix.release());
     // Push back new component
-    stateWithScaledErrors->emplace_back(newTrackParameters, component->second);
+    stateWithScaledErrors->emplace_back(newTrackParameters, component.second);
   }
-  return stateWithScaledErrors.release();
+  return stateWithScaledErrors;
 }
 
-Trk::MultiComponentState*
-Trk::MultiComponentState::cloneWithScaledError(double errorScale) const
+std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentStateHelpers::cloneWithScaledError(const Trk::MultiComponentState& in,
+                                                      double errorScale)
 {
 
   auto stateWithScaledErrors = std::make_unique<Trk::MultiComponentState>();
-  stateWithScaledErrors->reserve(this->size());
-  Trk::MultiComponentState::const_iterator component = this->begin();
-  for (; component != this->end(); ++component) {
-    const Trk::TrackParameters* trackParameters = component->first;
+  stateWithScaledErrors->reserve(in.size());
+  for (const ComponentParameters& component : in) {
+
+    const Trk::TrackParameters* trackParameters = component.first.get();
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
     if (!originalMatrix) {
-      return this->clone();
+      return clone(in);
     }
 
     auto covarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
@@ -131,23 +133,26 @@ Trk::MultiComponentState::cloneWithScaledError(double errorScale) const
     covarianceMatrix->fillSymmetric(3, 4, (*originalMatrix)(3, 4) * errorScale);
 
     const AmgVector(5)& par = trackParameters->parameters();
-    const TrackParameters* newTrackParameters = trackParameters->associatedSurface().createTrackParameters(
-      par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], covarianceMatrix.release());
+    TrackParameters* newTrackParameters =
+      trackParameters->associatedSurface().createTrackParameters(par[Trk::loc1],
+                                                                 par[Trk::loc2],
+                                                                 par[Trk::phi],
+                                                                 par[Trk::theta],
+                                                                 par[Trk::qOverP],
+                                                                 covarianceMatrix.release());
 
     // Push back new component
-    stateWithScaledErrors->emplace_back(newTrackParameters, component->second);
+    stateWithScaledErrors->emplace_back(newTrackParameters, component.second);
   }
-  return stateWithScaledErrors.release();
+  return stateWithScaledErrors;
 }
 
 bool
-Trk::MultiComponentState::isMeasured() const
+Trk::MultiComponentStateHelpers::isMeasured(const Trk::MultiComponentState& in)
 {
   bool isMeasured = true;
-  Trk::MultiComponentState::const_iterator component = this->begin();
-  Trk::MultiComponentState::const_iterator end = this->end();
-  for (; component != end; ++component) {
-    const AmgSymMatrix(5)* originalMatrix = component->first->covariance();
+  for (const ComponentParameters& component : in) {
+    const AmgSymMatrix(5)* originalMatrix = component.first->covariance();
     if (!originalMatrix)
       isMeasured = false;
     break;
@@ -156,87 +161,72 @@ Trk::MultiComponentState::isMeasured() const
 }
 
 void
-Trk::MultiComponentState::renormaliseState(double norm)
+Trk::MultiComponentStateHelpers::renormaliseState(Trk::MultiComponentState& in, double norm)
 {
-
-  Trk::MultiComponentState::iterator component = this->begin();
-  Trk::MultiComponentState::iterator end = this->end();
   // Determine total weighting of state
   double sumWeights = 0.;
-  for (; component != end; ++component) {
-    sumWeights += component->second;
+  for (const ComponentParameters& component : in) {
+    sumWeights += component.second;
   }
   if (sumWeights == 0) {
     return;
   }
-
   double normalise = norm / sumWeights;
-  component = this->begin();
-  for (; component != end; ++component) {
-    component->second = component->second * normalise;
+  for (ComponentParameters& component : in) {
+    component.second = component.second * normalise;
   }
 }
 
 MsgStream&
-Trk::MultiComponentState::dump(MsgStream& out) const
+Trk::MultiComponentStateHelpers::dump(MsgStream& out, const MultiComponentState& in)
 {
 
-  Trk::MultiComponentState::const_iterator component = this->begin();
-
+  Trk::MultiComponentState::const_iterator component = in.begin();
   out << "***************** Multi-Component State print *****************" << std::endl;
-
-  out << "State address: " << this << std::endl;
-
+  out << "State address: " << &in << std::endl;
   int componentCounter(1);
-  int stateSize = this->size();
-
-  for (; component != this->end(); ++component, ++componentCounter) {
+  int stateSize = in.size();
+  for (; component != in.end(); ++component, ++componentCounter) {
     out << "Component " << componentCounter << " of " << stateSize << std::endl;
-    out << "Component address: " << component->first << std::endl;
+    out << "Component address: " << component->first.get() << std::endl;
     out << "Track parameters: " << *(component->first) << std::endl;
     out << "Weight: " << component->second << std::endl;
     out << "------------------------------------------------" << std::endl;
   }
-
   out << "********************** End of state print *********************" << std::endl;
-
   return out;
 }
 
 std::ostream&
-Trk::MultiComponentState::dump(std::ostream& out) const
+Trk::MultiComponentStateHelpers::dump(std::ostream& out, const MultiComponentState& in)
 {
 
-  Trk::MultiComponentState::const_iterator component = this->begin();
-
+  Trk::MultiComponentState::const_iterator component = in.begin();
   out << "***************** Multi-Component State print *****************" << std::endl;
-
-  out << "State address: " << this << std::endl;
-
+  out << "State address: " << &in << std::endl;
   int componentCounter(1);
-  int stateSize = this->size();
-
-  for (; component != this->end(); ++component, ++componentCounter) {
+  int stateSize = in.size();
+  for (; component != in.end(); ++component, ++componentCounter) {
     out << "Component " << componentCounter << " of " << stateSize << std::endl;
-    out << "Component address: " << component->first << std::endl;
+    out << "Component address: " << component->first.get() << std::endl;
     out << "Track parameters: " << *(component->first) << std::endl;
     out << "Weight: " << component->second << std::endl;
     out << "------------------------------------------------" << std::endl;
   }
-
   out << "********************** End of state print *********************" << std::endl;
-
   return out;
 }
 
 MsgStream&
-Trk::operator<<(MsgStream& stream, const Trk::MultiComponentState& multiComponentState)
+Trk::MultiComponentStateHelpers::operator<<(MsgStream& stream,
+                                            const Trk::MultiComponentState& multiComponentState)
 {
-  return multiComponentState.dump(stream);
+  return dump(stream, multiComponentState);
 }
 
 std::ostream&
-Trk::operator<<(std::ostream& stream, const MultiComponentState& multiComponentState)
+Trk::MultiComponentStateHelpers::operator<<(std::ostream& stream,
+                                            const MultiComponentState& multiComponentState)
 {
-  return multiComponentState.dump(stream);
+  return dump(stream, multiComponentState);
 }

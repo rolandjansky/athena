@@ -72,7 +72,7 @@ macro( _add_test name )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
       PROPERTIES TIMEOUT 600
-      EXTRA_PATTERNS "Opened file:|find dictionary for type|is already in|[0-9]+ bytes" )
+      LOG_IGNORE_PATTERN "Opened file:|find dictionary for type|is already in|[0-9]+ bytes" )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
@@ -99,7 +99,7 @@ _add_test( ut_xaodrootaccess_tstore_test )
 # These also can't run with just AtlasCore.
 #atlas_add_test( ut_xaodrootaccess_tpyevent_test
 #   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600
-#  EXTRA_PATTERNS "/Root/TAuxStore" )
+#  LOG_IGNORE_PATTERN "/Root/TAuxStore" )
 #atlas_add_test( ut_xaodrootaccess_tpystore_test
 #   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
 #atlas_add_test( ut_xaodrootaccess_transtree2_test

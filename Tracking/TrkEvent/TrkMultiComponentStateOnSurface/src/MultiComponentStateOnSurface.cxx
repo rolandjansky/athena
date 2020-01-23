@@ -101,9 +101,12 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(const Trk::Measu
   , m_mixtureModeQoverP(0.)
 {}
 
-Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(const Trk::MultiComponentStateOnSurface& other)
+Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface(
+  const Trk::MultiComponentStateOnSurface& other)
   : TrackStateOnSurface(other)
-  , m_multiComponentState(other.components() ? other.components()->clone() : nullptr)
+  , m_multiComponentState(
+      other.components() ? Trk::MultiComponentStateHelpers::clone(*(other.components())).release()
+                         : nullptr)
   , m_mixtureModeQoverP(other.mixtureModeQoverP())
 {}
 
@@ -119,7 +122,9 @@ Trk::MultiComponentStateOnSurface::clone() const
   const Trk::MeasurementBase* measurementBase =
     this->measurementOnTrack() ? this->measurementOnTrack()->clone() : nullptr;
   const Trk::TrackParameters* trackParameters = this->trackParameters() ? this->trackParameters()->clone() : nullptr;
-  const Trk::MultiComponentState* multiComponentState = this->components() ? this->components()->clone() : nullptr;
+  const Trk::MultiComponentState* multiComponentState =
+    this->components() ? Trk::MultiComponentStateHelpers::clone(*(this->components())).release()
+                       : nullptr;
   const Trk::FitQualityOnSurface* fitQualityOnSurface =
     this->fitQualityOnSurface() ? new Trk::FitQualityOnSurface(*(this->fitQualityOnSurface())) : nullptr;
   const Trk::MaterialEffectsBase* materialEffectsOnTrack =

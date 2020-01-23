@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATSEGMENT_H
@@ -14,19 +14,20 @@
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include <mutex>
 #include <set>
 
 namespace Muon {
 
   class MuPatTrack;
 
-  /** 
-      @brief segment candidate object. 
+  /**
+      @brief segment candidate object.
       The purpose of the segment candidate is three folded:
       - provide the generic MuPatCandidateBase interface for tracks
       - keep track of tracks the segment is accociated to
-      - cache additional information that cannot be stored on the track 
-      
+      - cache additional information that cannot be stored on the track
+
       The following information is cached:
       - the segment quality integer calculated by the MuonSegmentSelectionTool
       - the MuonSegmentQuality
@@ -70,23 +71,23 @@ namespace Muon {
       int    m_ISC0    ;//! Mboy Nbering
       int    m_IWDRAT1 ;//! Mboy Nbering
       int    m_IWDRAT2 ;//! Mboy Nbering
-      
+
       int    m_JFDRAT  ; //! Octant Number
-  
+
       double m_FFDRAT  ; //! Phi   angle
       double m_GGDRAT  ; //! Gamma angle
-      
+
       double m_EZDRAT  ; //! Error associated to CSC clusters
 
       double m_SSDRAT1 ; //! S in SZT system for the upper layer
       double m_ZZDRAT1 ; //! Z in SZT system for the upper layer
       double m_TTDRAT1 ; //! T in SZT system for the upper layer
-  
+
       double m_SSDRAT2 ; //! S in SZT system for the lower layer
       double m_ZZDRAT2 ; //! Z in SZT system for the lower layer
       double m_TTDRAT2 ; //! T in SZT system for the lower layer
-      
-    }; 
+
+    };
 
     MboyInfo * mboyInfo;
 
@@ -125,26 +126,33 @@ namespace Muon {
     /** @brief Keeping track of number of object instances */
     static void removeInstance();
 
-    static unsigned int s_numberOfInstantiations;    //<! current number of objects of this type in memory
-    static unsigned int s_maxNumberOfInstantiations; //<! maximum number of objects of this type in memory
-    static unsigned int s_numberOfCopies;            //<! number of times the copy constructor was called since last reset
+    static unsigned int s_numberOfInstantiations ATLAS_THREAD_SAFE;    //<! current number of objects of this type in memory
+    static unsigned int s_maxNumberOfInstantiations ATLAS_THREAD_SAFE; //<! maximum number of objects of this type in memory
+    static unsigned int s_numberOfCopies ATLAS_THREAD_SAFE;            //<! number of times the copy constructor was called since last reset
+    static std::mutex s_mutex;                       //<! to remove race condition in addInstance()
 
     std::set<MuPatTrack*> m_associatedTracks; //<! list of associated tracks
 
-  };
+  }; // class MuPatSegment
 
   //
   // static inline functions implementations
   //
   inline unsigned int MuPatSegment::maxNumberOfInstantiations() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     return s_maxNumberOfInstantiations;
   }
 
   inline unsigned int MuPatSegment::numberOfCopies() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     return s_numberOfCopies;
   }
 
   inline void MuPatSegment::addInstance() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     ++s_numberOfInstantiations;
     if ( s_numberOfInstantiations > s_maxNumberOfInstantiations ) {
       s_maxNumberOfInstantiations = s_numberOfInstantiations;
@@ -152,8 +160,23 @@ namespace Muon {
   }
 
   inline void MuPatSegment::removeInstance() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
     if ( s_numberOfInstantiations > 0 ) --s_numberOfInstantiations;
   }
+
+  inline void MuPatSegment::resetMaxNumberOfInstantiations() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
+    s_maxNumberOfInstantiations = 0;
+  }
+
+  inline void MuPatSegment::resetNumberOfCopies() {
+    const std::lock_guard<std::mutex> lock(s_mutex);
+
+    s_numberOfCopies = 0;
+  }
+
 
   //
   // inline member functions implementations
@@ -161,32 +184,32 @@ namespace Muon {
   inline const Trk::TrackParameters& MuPatSegment::entryPars() const {
     return *segPars;
   }
-  
+
   struct SortSegInfoByR {
-    bool operator()( const MuPatSegment* c1, const MuPatSegment* c2 ){  
+    bool operator()( const MuPatSegment* c1, const MuPatSegment* c2 ){
       return operator()(*c1,*c2);
-    } 
-    bool operator()( const MuPatSegment& c1, const MuPatSegment& c2 ){  
+    }
+    bool operator()( const MuPatSegment& c1, const MuPatSegment& c2 ){
       return c1.segment->globalPosition().perp() < c2.segment->globalPosition().perp();
-    } 
+    }
   };
   struct SortSegInfoByZ {
-    bool operator()( const MuPatSegment* c1, const MuPatSegment* c2 ){  
+    bool operator()( const MuPatSegment* c1, const MuPatSegment* c2 ){
       return operator()(*c1,*c2);
-    } 
-    bool operator()( const MuPatSegment& c1, const MuPatSegment& c2 ){  
+    }
+    bool operator()( const MuPatSegment& c1, const MuPatSegment& c2 ){
       return fabs(c1.segment->globalPosition().z()) < fabs(c2.segment->globalPosition().z());
-    } 
+    }
   };
   struct SortSegInfoByQuality {
-    bool operator()( const MuPatSegment* c1, const MuPatSegment* c2 ){  
+    bool operator()( const MuPatSegment* c1, const MuPatSegment* c2 ){
       return operator()(*c1,*c2);
-    } 
-    bool operator()( const MuPatSegment& c1, const MuPatSegment& c2 ){  
+    }
+    bool operator()( const MuPatSegment& c1, const MuPatSegment& c2 ){
       return c1.quality > c2.quality;
-    } 
+    }
   };
 
-}
+} // namespace Muon
 
 #endif

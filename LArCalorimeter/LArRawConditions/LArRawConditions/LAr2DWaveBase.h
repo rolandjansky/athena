@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -39,6 +39,7 @@
 #include "LArElecCalib/LArVectorProxy.h"
 #include <vector>
 class LArCompactSubsetChannelProxy;
+class LArCompactSubsetConstChannelProxy;
 
 
 /**
@@ -96,7 +97,7 @@ public:
    * @brief Constructor for channel data from a compact subset.
    * @param other Reference to the source channel data.
    */
-  LAr2DWaveBase(const LArCompactSubsetChannelProxy& other);
+  LAr2DWaveBase(const LArCompactSubsetConstChannelProxy& other);
 
 
   /**

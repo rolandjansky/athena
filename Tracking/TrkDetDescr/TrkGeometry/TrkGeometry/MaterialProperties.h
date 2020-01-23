@@ -73,6 +73,9 @@ namespace Trk {
 
       /** Return the stored Material */
       const Material& material() const;
+ 
+      /** Return the stored Material */
+      Material& material() ;
       
       /** Return the radiation length */
       float x0() const;
@@ -131,6 +134,9 @@ namespace Trk {
 
   /** Return method for the full material */
   inline const Material& MaterialProperties::material() const 
+    { return m_material; }
+
+  inline Material& MaterialProperties::material() 
     { return m_material; }
 
   /** Return method for thicknes in units of radiation length - dimensionless */

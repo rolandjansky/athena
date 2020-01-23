@@ -66,7 +66,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "EvtPersistencySvc.CnvServices":unifySet,
                "PoolSvc.ReadCatalog":unifySet,
                "ProxyProviderSvc.ProviderNames":unifySet,
-               "TagInfoMgr.ExtraTagValuePairs":unifySetOfPairs,
+               "TagInfoMgr.ExtraTagValuePairs":unifyAppendDict,
                "AthenaOutputStream.ItemList":unifySet,
                "AthenaPoolCnvSvc.PoolAttributes":unifySet,
                "*.HypoTools": unifySet,
@@ -79,6 +79,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "*.InputMakerOutputDecisions": unifySet,
                "AddressRemappingSvc.TypeKeyRenameMaps": unifySet,
                "AuditorSvc.Auditors": unifySet,
+               "MetaDataSvc.MetaDataTools": unifySet,
                }
 
 def setUnificationFunction(key, function):

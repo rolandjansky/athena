@@ -25,7 +25,7 @@ InDetSCTHitsTool = SCTHitsNoiseMonTool ( name = "InDetSCTHitsNoiseMonTool",
                                          tracksName = tracksName )
 
 if (InDetFlags.doPrintConfigurables()):
-  print InDetSCTHitsTool
+  printfunc (InDetSCTHitsTool)
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonTool
 InDetSCTTracksMonTool = SCTTracksMonTool ( name             = "InDetSCTTracksMonTool",
@@ -38,7 +38,7 @@ if jobproperties.Beam.beamType()=='collisions':
   InDetSCTTracksMonTool.FilterTools += [GetFilledBunchFilterTool()]
 
 if (InDetFlags.doPrintConfigurables()):
-  print InDetSCTTracksMonTool
+  printfunc (InDetSCTTracksMonTool)
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
 InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
@@ -58,7 +58,7 @@ if jobproperties.Beam.beamType()=='collisions':
   InDetSCTErrMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
 if (InDetFlags.doPrintConfigurables()):
-  print InDetSCTErrMonTool
+  printfunc (InDetSCTErrMonTool)
                
 
 
@@ -88,7 +88,7 @@ if jobproperties.Beam.beamType()=='collisions':
   InDetSCTHitEffMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
 if (InDetFlags.doPrintConfigurables()):
-  print InDetSCTHitEffMonTool
+  printfunc (InDetSCTHitEffMonTool)
 
 if not useNewAlgs:
   from SCT_Monitoring.SCT_MonitoringConf import SCTLorentzMonTool
@@ -107,7 +107,7 @@ if not useNewAlgs:
     InDetSCTLorentzMonTool.FilterTools += [GetFilledBunchFilterTool()]
   
   if (InDetFlags.doPrintConfigurables()):
-    print InDetSCTLorentzMonTool
+    printfunc (InDetSCTLorentzMonTool)
 
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -133,4 +133,4 @@ else:
 
 topSequence += InDetSCTMonMan
 if (InDetFlags.doPrintConfigurables()):
-  print InDetSCTMonMan
+  printfunc (InDetSCTMonMan)

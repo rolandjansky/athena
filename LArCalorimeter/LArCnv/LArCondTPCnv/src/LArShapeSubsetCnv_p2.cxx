@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define private public
@@ -148,7 +148,7 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
     transObj->m_channel       = persObj->m_subset.m_channel;
     transObj->m_groupingType  = persObj->m_subset.m_groupingType;
 
-    transObj->m_subset.trim();
+    transObj->m_subset.shrink_to_fit();
 }
 
 

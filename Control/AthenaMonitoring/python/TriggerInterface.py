@@ -23,11 +23,12 @@ def getTrigDecisionTool(flags):
         getTrigDecisionTool.rv = rv
         return getTrigDecisionTool.rv
 
-    cfgtool = CompFactory.TrigConf__xAODConfigTool('xAODConfigTool')
-    rv.addPublicTool(cfgtool)
+    cfgsvc = CompFactory.TrigConf__xAODConfigSvc('xAODConfigSvc')
+    rv.addService(cfgsvc)
 
     tdt = CompFactory.Trig__TrigDecisionTool('TrigDecisionTool')
-    tdt.ConfigTool = cfgtool
+    tdt.TrigConfigSvc = cfgsvc
+
     tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)
     # Other valid option of NavigationFormat is "TriggerElement" for Run 2 navigation. 
@@ -38,13 +39,8 @@ def getTrigDecisionTool(flags):
     tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
     # Minimal config needed to read metadata: MetaDataSvc & ProxyProviderSvc
-    mdSvc = CompFactory.MetaDataSvc( "MetaDataSvc" )
-    mdSvc.MetaDataContainer = "MetaDataHdr"
-    rv.addService(mdSvc)
-
-    pdps = CompFactory.ProxyProviderSvc( "ProxyProviderSvc" )
-    pdps.ProviderNames += [ "MetaDataSvc" ]
-    rv.addService(pdps)
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    rv.merge(MetaDataSvcCfg(flags))
 
     getTrigDecisionTool.rv = rv
     return rv

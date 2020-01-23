@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 __all__ = [ 'ConfiguredMuonRec', 'GetMuonRec', 'CompositeMuonRec' ]
@@ -89,7 +89,7 @@ class ConfiguredMuonRec(object):
             dataKeys = self.dataKeys()
             if len(dataKeys) > 0:
                 lines.append('## Storegate Data Keys: ##')
-                keys = dataKeys.keys()
+                keys = list(dataKeys.keys())
                 inKeys = self.registeredInputKeys()
                 outKeys = self.registeredOutputKeys()
                 keys.sort() # show alphabetically

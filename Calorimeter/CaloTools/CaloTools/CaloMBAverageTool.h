@@ -42,7 +42,7 @@ private:
   const DataHandle<ILArMinBiasAverage> m_dd_minbiasAverage; 
   ToolHandle<ILArOFCTool> m_OFCTool;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
+  const CaloIdManager*     m_caloIdMgr = nullptr;
   const CaloCell_ID*       m_calo_id;
 
 

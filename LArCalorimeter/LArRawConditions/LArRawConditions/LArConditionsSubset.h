@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -76,12 +76,44 @@ public:
   typedef FebPair&                                     FebPairReference;
   typedef typename std::vector<FebPair>                SubsetVector;
 
-  static T& empty()
+  static const T& empty()
   {
-    static T dum;
+    static const T dum {};
     return dum;
   }
+
+
+  /**
+   * @brief Helper used by LArConditionsSubset::assign.
+   * @param otherBeg Start of the range to copy.
+   * @param otherEnd End of the range to copy.
+   * @param to The subset to which to copy.
+   * @param copier Helper to copy a single payload object.
+   */
+  template <class OTHERIT, class COPIER>
+  static void copySubset (OTHERIT otherBeg,
+                          OTHERIT otherEnd,
+                          SubsetVector& to,
+                          COPIER copier);
 };
+
+
+template <class T>
+template <class OTHERIT, class COPIER>
+void LArConditionsSubsetTraits<T>::copySubset (OTHERIT otherBeg,
+                                               OTHERIT otherEnd,
+                                               SubsetVector& to,
+                                               COPIER copier)
+{
+  to.reserve (std::distance (otherBeg, otherEnd));
+  for (; otherBeg != otherEnd; ++otherBeg) {
+    ChannelVector v (otherBeg->second.size());
+    for (size_t i = 0; i < otherBeg->second.size(); i++) {
+      copier (otherBeg->second[i], v[i]);
+    }
+    to.emplace_back (otherBeg->first, std::move (v));
+  }
+}
 
 
 template<class T> 
@@ -119,6 +151,14 @@ public:
 
     /// Constructor with initializing set of FEB ids
     LArConditionsSubset(const std::vector<FebId>&  ids, unsigned int gain);
+
+
+    /// Copy from another subset object.
+    /// COPIER is a functional to copy the payload, with signature
+    ///  (const T&, T*)
+    template <class U, class COPIER>
+    void assign (const LArConditionsSubset<U>& other,
+                 COPIER copier);
     
 
     /// destructor
@@ -166,8 +206,11 @@ public:
     unsigned int            nConditions() const;
 
     /// Initialize with set of FEB ids
-    void                    initialize (const std::vector<FebId>  ids, 
+    void                    initialize (const std::vector<FebId>&  ids, 
 					unsigned int gain);
+
+    /// Reallocate to match size actually used.
+    void shrink_to_fit();
 
 
     /// set gain
@@ -182,6 +225,10 @@ public:
     /// Insert a new channel id / T pair correction. If new channel id
     /// is the same as an existing one, the new T replaces the old T
     void                    insertCorrection (ChannelId id, const T& cond);
+
+    /// Insert a group of corrections.
+    /// They must be properly sorted.
+    void                    insertCorrections (CorrectionVec&& corrs);
 
     //Get NCHANNELPERFEB
     unsigned                channelVectorSize() const;
@@ -282,6 +329,28 @@ LArConditionsSubset<T>::LArConditionsSubset(const std::vector<FebId>&  ids,
     }
     // Fill map for future lookups
     fillMap();
+}
+
+
+template<class T>
+template <class U, class COPIER>
+void LArConditionsSubset<T>::assign (const LArConditionsSubset<U>& other,
+                                     COPIER copier)
+{
+  m_subsetMap.clear();
+  m_gain = other.gain();
+  m_channel = other.channel();
+  m_groupingType = other.groupingType();
+
+  Traits::copySubset (other.subsetBegin(), other.subsetEnd(), m_subset, copier);
+
+  size_t corrsz = other.correctionVecSize();
+  auto otherCorr = other.correctionVecBegin();
+  m_correctionVec.resize (corrsz);
+  for (size_t i = 0; i < corrsz; i++) {
+    m_correctionVec[i].first = otherCorr[i].first;
+    copier (otherCorr[i].second, m_correctionVec[i].second);
+  }
 }
 
 
@@ -455,8 +524,10 @@ LArConditionsSubset<T>::nConditions() const
 template<class T>
 inline 
 void                 
-LArConditionsSubset<T>::initialize (const std::vector<FebId>  ids, unsigned int gain)
+LArConditionsSubset<T>::initialize (const std::vector<FebId>&  ids, unsigned int gain)
 {
+    m_correctionVec.clear();
+
     // resize the subset
     m_subset.resize(ids.size());
     m_gain = gain;
@@ -470,6 +541,15 @@ LArConditionsSubset<T>::initialize (const std::vector<FebId>  ids, unsigned int 
     // Fill map for future lookups
     fillMap();
 }
+
+template<class T>
+inline 
+void                 
+LArConditionsSubset<T>::shrink_to_fit()
+{
+  m_subset.shrink_to_fit();
+}
+
 
 template<class T>
 inline 
@@ -502,6 +582,21 @@ LArConditionsSubset<T>::insertCorrection (ChannelId id, const T& cond)
 {
     m_correctionVec.push_back(CorrectionPair(id,cond));
     std::sort(m_correctionVec.begin(), m_correctionVec.end(), PairSort());
+}
+
+
+template<class T>
+inline 
+void 
+LArConditionsSubset<T>::insertCorrections (CorrectionVec&& corrs)
+{
+  if (m_correctionVec.empty()) {
+    m_correctionVec = std::move (corrs);
+  }
+  else {
+    m_correctionVec.insert (m_correctionVec.end(), corrs.begin(), corrs.end());
+    std::sort(m_correctionVec.begin(), m_correctionVec.end(), PairSort());
+  }
 }
 
 

@@ -92,9 +92,11 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     }
 
     void ThermalNoise(double thermalNoise, SiChargedDiodeCollection &chargedDiodes, CLHEP::HepRandomEngine *rndmEngine) const {
-      for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
+      for (SiChargedDiodeOrderedIterator i_chargedDiode=chargedDiodes.orderedBegin();
+           i_chargedDiode!=chargedDiodes.orderedEnd(); ++i_chargedDiode)
+      {
         SiCharge charge(thermalNoise*CLHEP::RandGaussZiggurat::shoot(rndmEngine),0,SiCharge::noise);
-        (*i_chargedDiode).second.add(charge);
+        (*i_chargedDiode)->add(charge);
       }
       return;
     }
@@ -145,9 +147,9 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
       int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
       int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
-      for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
+      for (SiChargedDiodeOrderedIterator i_chargedDiode=chargedDiodes.orderedBegin(); i_chargedDiode!=chargedDiodes.orderedEnd(); ++i_chargedDiode) {
         if (CLHEP::RandFlat::shoot(rndmEngine)<moduleData->getDisableProbability(barrel_ec,layerIndex)) {
-          SiHelper::disabled((*i_chargedDiode).second,true,false);
+          SiHelper::disabled(**i_chargedDiode,true,false);
         }
       }
       return;

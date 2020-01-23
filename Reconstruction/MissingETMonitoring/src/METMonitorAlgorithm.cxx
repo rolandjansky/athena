@@ -3,7 +3,7 @@
 */
 #include "MissingETMonitoring/METMonitorAlgorithm.h" 
 #include "xAODMissingET/MissingET.h" 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODJet/Jet.h" 
 
 

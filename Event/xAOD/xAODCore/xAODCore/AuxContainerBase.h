@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODCORE_AUXCONTAINERBASE_H
 #define XAODCORE_AUXCONTAINERBASE_H
@@ -164,12 +164,15 @@ namespace xAOD {
       /// @name Functions implementing the SG::IAuxStoreCompression interface
       /// @{
 
-      virtual void setCompressedAuxIDs ( const std::set<std::string>& attributes ) override;
+      virtual void setCompressedAuxIDs ( const std::vector< std::set< std::string > >& attributes ) override;
 
-      virtual SG::auxid_set_t getCompressedAuxIDs() const override;
+      virtual SG::auxid_set_t getCompressedAuxIDs( const bool& highComp = true ) const override;
 
-      virtual float getCompressedValue ( float value ) const override;
+      virtual float getCompressedValue ( const float& value, const bool& highComp = true ) const override;
 
+      virtual void setCompressionBits ( const std::vector< unsigned int >& nbits ) override;
+
+      virtual unsigned int getCompressionBits ( const bool& highComp = true ) const override;
       /// @}
 
       /// @name Functions managing the instance name of the container

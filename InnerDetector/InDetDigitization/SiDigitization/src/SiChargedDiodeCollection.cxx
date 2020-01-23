@@ -46,6 +46,7 @@ SiChargedDiodeCollection::~SiChargedDiodeCollection()
 void SiChargedDiodeCollection::clear() {
   m_sielement = 0;
   m_chargedDiodes.erase(m_chargedDiodes.begin(), m_chargedDiodes.end() );
+  m_orderedChargedDiodes.clear();
 }
 
 // Add a new SiCharge to the collection 
@@ -79,7 +80,10 @@ void SiChargedDiodeCollection::add(const SiCellId & diode,
     chargedDiode.add(charge);
     if (charge.processType() == SiCharge::extraNoise) SiHelper::noise(chargedDiode,true);
     // add the new charged diode to the charged diode collection
-    m_chargedDiodes.insert(std::map<SiCellId,SiChargedDiode>::value_type(diode,chargedDiode));
+    auto p = m_chargedDiodes.emplace(diode,chargedDiode);
+    if (!m_orderedChargedDiodes.empty()) {
+      m_orderedChargedDiodes.insert (&p.first->second);
+    }
   }
 }
 
@@ -113,7 +117,10 @@ void SiChargedDiodeCollection::add(const SiCellId & diode,
     // add the new charge to it
     chargedDiode.add(totcharge);
     // add the new charged diode to the charged diode collection
-    m_chargedDiodes.insert(std::map<SiCellId,SiChargedDiode>::value_type(diode,chargedDiode));
+    auto p = m_chargedDiodes.emplace(diode,chargedDiode);
+    if (!m_orderedChargedDiodes.empty()) {
+      m_orderedChargedDiodes.insert (&p.first->second);
+    }
   }
 }
 
@@ -145,3 +152,10 @@ SiChargedDiode * SiChargedDiodeCollection::find(Identifier siId) {
   const SiCellId cellId        = m_sielement->cellIdFromIdentifier(siId);
   return find(cellId);
 }		      
+
+void SiChargedDiodeCollection::order()
+{
+  for (auto& p : m_chargedDiodes) {
+    m_orderedChargedDiodes.insert (&p.second);
+  }
+}

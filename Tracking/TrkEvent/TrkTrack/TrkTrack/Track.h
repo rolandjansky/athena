@@ -38,8 +38,8 @@ namespace Trk
      *
      * A Track typically is constructed via
      *
-     * - Trk::FitQuality          - the fit quality of a track
-     * - A DataVector of Trk::TrackStateOnSurface
+     * - A pointer to a const Trk::FitQuality  - the fit quality of a track
+     * - A pointer to a DataVector of const Trk::TrackStateOnSurface
      *
      * A TrackStateOnSurface is a sub-container, which holds
      * various properties defining a Track, on a particular surface.
@@ -52,34 +52,42 @@ namespace Trk
      * 
      * This class provides convenient helpers to retrieve and cache
      * DataVectors (VIEW ELEMENTs) to 
-     * - TrackParameters
-     * - Measurements
-     * - Outliers
-     * from the TrackStateOnSurface DataVector
+     * - const TrackParameters
+     * - const Measurements
+     * - const Outliers
+     * from the const TrackStateOnSurface DataVector
      *
      * It also allows for retrieving/caching 
      * the Track Parameter at perigee
      *
+     * The above are implemented via lazy initialization of 
+     * the relevant cache employing  CxxUtils::CachedValue
      *
      *  Furthermore a Track can contain 
      * - Trk::TrackInfo
-     * - Trk::TrackSummary - used to cache the TrackSummary. Might be 0! 
+     * - Trk::TrackSummary* - used to cache the TrackSummary. Might be nullptr! 
      * 
-     * They can be modified for a non-const Track 
-     * But not for a const one
-     *  
+     * const /non-const method overloads:
+     *
+     * None of the above can be modified for a const Trk::Track 
+     * 
+     * For a non-const Trk::Track  the non-const method overloads allow for
+     * - Retrieving a non-const Trk::TrackInfo
+     * - Retrieving a ptr to a non-const Trk::TrackSummary (can be nullptr)
+     * - Retrieving a ptr to a non-const DataVector<const TrackStateOnSurface>.
+     *   If elements are added/removed from this DataVector 
+     *   one could possible consider calling reset() so as the previously 
+     *   cached values to be cleared.
+     * 
      * For the TrackSummary one still needs 
      * to use the TrackSummaryTool to create it.
-     *The SummaryTool will return the cashed pointer if it exists.
-     *  
      *
      * Please look at the mainpage of this package (see the link at the top
      * of the page) for more information.
      *
      * @author edward.moyse@cern.ch
      * @author Kirill.Prokofiev@cern.ch
-     *
-     * MT modification Christos
+     * @author Christos Anastopoulos (MT modifications)
      */
     
     class Track
@@ -172,17 +180,17 @@ namespace Trk
        const DataVector<const MeasurementBase>* outliersOnTrack() const;	            
 
        /**									            
-        * return a pointer to a const DataVector of TrackStateOnSurfaces. 		            
+        * return a pointer to a const DataVector of const TrackStateOnSurfaces. 		            
         *		
-        * The pointer will be NULL (==0) if the track was created without	            
+        * The pointer will be nullptr if the track was created without	            
         * TrackStateOnSurfaces. 						            
         */									            
        const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const{
          return m_trackStateVector;
        }
        /** 
-        * return a pointer to a non-const DataVector of TrackStateOnSurfaces. 		            
-        * The pointer will be NULL (==0) if the track was created without   
+        * return a pointer to a non-const DataVector of const TrackStateOnSurfaces. 		            
+        * The pointer will be nullptr if the track was created without   
         * TrackStateOnSurfaces.			            
         */				            
        DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() {
@@ -204,13 +212,13 @@ namespace Trk
        }
         											            
        /**									            
-        * Returns  a const pointer to the Trk::TrackSummary owned by this const track (could be 0)     
+        * Returns  a const pointer to the Trk::TrackSummary owned by this const track (could be nullptr)     
         */									            
        const Trk::TrackSummary* trackSummary() const{
          return m_trackSummary;
        }
        /**									            
-        * Returns a  pointer to the Trk::TrackSummary owned by this  track (could be 0)     
+        * Returns a  pointer to the Trk::TrackSummary owned by this  track (could be nullptr)     
         */									            
        Trk::TrackSummary* trackSummary() {
          return m_trackSummary;
@@ -219,7 +227,6 @@ namespace Trk
        /**
         * reset all caches
         */
-
        void reset();
 
        /**									            

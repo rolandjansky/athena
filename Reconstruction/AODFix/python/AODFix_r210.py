@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
 
 logAODFix_r210 = logging.getLogger( 'AODFix_r210' )
 
-from AODFix_base import AODFix_base
+from .AODFix_base import AODFix_base
 
 class AODFix_r210(AODFix_base):
     ''' This class just performs AODFix on 21.0.X releases
@@ -111,9 +111,9 @@ class AODFix_r210(AODFix_base):
 
                 topSequence += SAbtagger
             except AttributeError as error:
-                print '#BTAG# --> ' + str(error)
-                print '#BTAG# --> ' + jet
-                print '#BTAG# --> ' + AuthorSubString[i]
+                print ('#BTAG# --> ' + str(error))
+                print ('#BTAG# --> ' + jet)
+                print ('#BTAG# --> ' + AuthorSubString[i])
 
 
     def egammaStrips_postSystemRec(self, topSequence):

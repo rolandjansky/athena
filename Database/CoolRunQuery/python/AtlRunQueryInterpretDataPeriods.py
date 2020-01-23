@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Periods are assigned an ordinate by which they can be sorted
 """
 
+from __future__ import print_function
 from PyUtils.Decorators import memoize
 
 
@@ -46,9 +47,9 @@ def getSortedAvailablePeriods():
     from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
     available_periods = ARQ_COMA.get_all_periods()
     available_periods.sort()
-    #print '\nAvailable periods:\n'
+    #print ('\nAvailable periods:\n')
     #for i,p in enumerate(available_periods):
-    #    print p
+    #    print (p)
     return available_periods
 
 
@@ -72,7 +73,7 @@ def getListOfPeriodsFromOrdinateRange(begin, end, requiredProjectName, specialDa
                 (vdmyear, vdmperiod, vdmsubperiod) = specialData
                 if year==vdmyear and (vdmperiod+vdmsubperiod)==period:
                     list_of_periods += [ (year, period, full_name) ]
-                    print p,"--> include"
+                    print (p,"--> include")
             continue
 
         if ordcode % 100 == 0:  # no full periods as they are already listed in the numbered periods
@@ -82,7 +83,7 @@ def getListOfPeriodsFromOrdinateRange(begin, end, requiredProjectName, specialDa
             continue
 
         list_of_periods += [ (year, period, full_name) ]
-        print p,"--> include"
+        print (p,"--> include")
     return list_of_periods
 
 
@@ -93,8 +94,8 @@ def getDataPeriodsWithinRange( period_range ):
     m2 = pshort.match(period_range[1])
 
     if m1==None or m2==None:
-        if m1==None: print "Invalid specification of begin of range",period_range[0]
-        if m2==None: print "Invalid specification of end of range",  period_range[1]
+        if m1==None: print ("Invalid specification of begin of range",period_range[0])
+        if m2==None: print ("Invalid specification of end of range",  period_range[1])
         sys.exit(0)
 
     m1 = m1.groupdict()
@@ -107,7 +108,7 @@ def getDataPeriodsWithinRange( period_range ):
     m1['subperiod'] = int(m1['subperiod']) if m1['subperiod'] else 0
     m2['subperiod'] = int(m2['subperiod']) if m2['subperiod'] else 99
 
-    #print "Interpret run range: %r - %r" % (m1,m2)
+    #print ("Interpret run range: %r - %r" % (m1,m2))
 
     # ordinate
     p1c = 10000*m1['year'] + 100*(ord(m1['period'].upper())-65) + m1['subperiod']
@@ -133,25 +134,25 @@ def GetRuns( arg ):
         # last X runs pattern
         m = pat_last.match(arg)
         if m:
-            #print "Pattern 'Last N'"
+            #print ("Pattern 'Last N'")
             list_of_runs += [ "last%s" % m.group(1) ]
             continue
 
         # run numbers
         if pat_number.match(tag):
-            #print "Pattern 'List of runs'"
+            #print ("Pattern 'List of runs'")
             list_of_runs += [tag]
             continue
 
         # run number range
         if pat_range.match(tag):
-            #print "Pattern 'Range of runs'"
+            #print ("Pattern 'Range of runs'")
             list_of_runs += [tag]
             continue
 
 
         if '-' in tag: # range
-            #print "Pattern 'Range of periods'"
+            #print ("Pattern 'Range of periods'")
             list_of_periods = getDataPeriodsWithinRange( tag.split('-') )
             list_of_runs += getRunsFromPeriods(list_of_periods)
             continue
@@ -159,7 +160,7 @@ def GetRuns( arg ):
 
         # various AllYear versions
         if not '.' in tag or tag.endswith(".All") or tag.endswith(".AllYear") or tag.endswith(".periodAllYear"):
-            #print "Pattern 'AllYear'"
+            #print ("Pattern 'AllYear'")
             allyear = 0
             projectName = None
             # no tag means AllYear
@@ -175,7 +176,7 @@ def GetRuns( arg ):
             if allyear==0:
                 raise RuntimeError("Can't interpret run period %s" % tag)
 
-            print "Interpret period: AllYear for %i" % (2000+allyear)
+            print ("Interpret period: AllYear for %i" % (2000+allyear))
 
             # ordinate
             p1c = 10000*allyear
@@ -183,7 +184,7 @@ def GetRuns( arg ):
 
             list_of_periods = getListOfPeriodsFromOrdinateRange(p1c, p2c, projectName)
 
-            print list_of_periods
+            print (list_of_periods)
 
             list_of_runs += getRunsFromPeriods(list_of_periods)
             continue
@@ -198,12 +199,12 @@ def GetRuns( arg ):
         d = { 'projname' : None }
         m = re.match( "20(?P<year>\d{2})\.(period)?(?P<period>[a-zA-Z]|VdM)(?P<subperiod>\d+)?$", tag, re.I )
         if m:
-            #print "Pattern '2015.(period)A1'"
+            #print ("Pattern '2015.(period)A1'")
             d.update( m.groupdict() )
         else:
             m = re.match( "(?P<projname>data(?P<year>\d{2})_.*?)\.(period)?(?P<period>[a-zA-Z]|VdM)(?P<subperiod>\d+)?$", tag, re.I )
             if m:
-                #print "Pattern 'dataYY_TTT.(period)A1'"
+                #print ("Pattern 'dataYY_TTT.(period)A1'")
                 d.update( m.groupdict() )
             else:
                 d = None
@@ -211,7 +212,7 @@ def GetRuns( arg ):
         if d:
             d['subperiod'] = int(d['subperiod']) if d['subperiod'] else 0
 
-            print "Interpret period: %r" % d
+            print ("Interpret period: %r" % d)
             if len(d['period'])==1:
                 # ordinate
                 p1c = 10000*int(d['year']) + 100*(ord(d['period'].upper())-65) + d['subperiod']
@@ -229,7 +230,7 @@ def GetRuns( arg ):
             continue
 
     if len(list_of_runs)==0:
-        print "No runs matching pattern"
+        print ("No runs matching pattern")
 
     return list_of_runs
 
@@ -242,9 +243,9 @@ if __name__=='__main__':
 
 
     if len(sys.argv) <= 1:
-        print 'No data period argument given, try\n%s data15_13TeV.A'
+        print ('No data period argument given, try\n%s data15_13TeV.A')
         sys.exit(1)
 
 
-    print GetRuns( sys.argv[1] )
+    print (GetRuns( sys.argv[1] ))
 

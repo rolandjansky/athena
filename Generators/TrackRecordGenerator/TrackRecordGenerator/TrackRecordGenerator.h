@@ -47,6 +47,7 @@ class TrackRecordGenerator : public GenModule {
    std::string m_recordName;  //!< TrackRecord collection name
    bool m_stopParticles;      //!< Stop particles before simulation
    float m_stopped_tminus, m_stopped_tplus; //!< Bounds for random time
+   bool m_add_cL; //!< For stopped particles, add c*L to the time
 };
 
 #endif

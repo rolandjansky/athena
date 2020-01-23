@@ -58,10 +58,12 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
 
     void startTimer(unsigned int duration, unsigned int intervals);
     void stopTimer();
+    void fill(const double, const double) const;
+
+   private:
     void updatePublished(unsigned int duration) const;
     void callback() const;
 
-   private:
     mutable LockedHandle<TH2> m_bufferHistogram;
     mutable LockedHandle<TH2> m_histogram;
     std::mutex m_mutex;
@@ -102,8 +104,10 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
   int nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
+  int nBinsX() const;
   int nBunchBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
   int nBCIDbinsX() const;
+  int nSequenceBinsX() const;
   int nBinsY() const;
   int nRateBinsY() const;
   int nBunchBinsY(SG::ReadHandle<TrigConf::L1Menu>& ) const;

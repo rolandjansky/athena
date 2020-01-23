@@ -6,7 +6,7 @@
 #define BOOKKEEPERTOOL_H
 
 /** @file BookkeeperTool.h
- *  @brief This class is an implementation of the GenericMetadataTool
+ *  @brief This class is an implementation of the AsgMetadataTool
  *  for the xAOD::CutBookkeeperContainer.
  *  @author Jack Cranshaw <cranshaw@anl.gov>
  *  $Id: $

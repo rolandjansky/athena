@@ -76,6 +76,10 @@ def IOVDbSvcCfg(configFlags):
     from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg 
     result.merge(TagInfoMgrCfg(configFlags)[0])
     
+    # Set up MetaDataSvc                                                                                             
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    result.merge(MetaDataSvcCfg(configFlags, ["IOVDbMetaDataTool"]))
+
     return result
 
 

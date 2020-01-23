@@ -26,13 +26,13 @@ T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::T_AthenaPoolCustomCnvWithKey(ISvcLoca
 }
 
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
+StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPers(DataObject* pObj, IOpaqueAddress*& /*pAddr*/) {
    ATH_MSG_VERBOSE("In DataObjectToPers() for key = " << pObj->name());
    return(StatusCode::SUCCESS);
 }
 
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) {
    ATH_MSG_VERBOSE("In DataObjectToPool() for key = " << pObj->name());
    TRANS* obj = nullptr;
    PERS* persObj = nullptr;
@@ -42,13 +42,13 @@ StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(DataObjec
       return(StatusCode::FAILURE);
    }
    try {
-     persObj = createPersistentWithKey(obj, key);
+     persObj = createPersistentWithKey(obj, pObj->name());
    } catch (std::exception &e) {
       ATH_MSG_ERROR("Failed to create persistent object: " << e.what());
       return(StatusCode::FAILURE);
    }
    Token* token = nullptr;
-   StatusCode status = this->objectToPool(persObj, token, key);
+   StatusCode status = this->objectToPool(persObj, token, pObj->name(), *pAddr->par());
    keepPoolObj(persObj);
    // Null/empty token means ERROR
    if (token == nullptr || token->classID() == Guid::null()) {
@@ -56,10 +56,10 @@ StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(DataObjec
       return(StatusCode::FAILURE);
    }
    // Update IOpaqueAddress for this object.
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pObj->registry()->address());
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr != nullptr) {
-      tokAddr->setToken(token); token = nullptr; // Token will be inserted into DataHeader, which takes ownership
-   } else { // No address (e.g. satellite DataHeader), delete Token
+      tokAddr->setToken(token); token = nullptr;
+   } else {
       delete token; token = nullptr;
       return(StatusCode::FAILURE);
    }

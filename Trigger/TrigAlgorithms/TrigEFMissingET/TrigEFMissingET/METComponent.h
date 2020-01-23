@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /******************************************************************************
@@ -25,7 +25,8 @@ namespace HLT { namespace MET {
    * The reason for doing this is that the EDM doesn't allow += operators etc
    * which makes interacting with it rather painful and (maybe?) slow.
    */
-  struct METComponent {
+  class METComponent {
+  public:
     METComponent() {}
     /// Initialize from an xAOD::TrigMissingET object
     METComponent(const xAOD::TrigMissingET& met);

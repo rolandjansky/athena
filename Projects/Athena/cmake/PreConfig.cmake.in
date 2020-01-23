@@ -9,13 +9,12 @@ set( ATLAS_PYTHON_CHECKER "@ATLAS_PYTHON_CHECKER@"
    CACHE STRING "Python checker command to run during Python module compilation" )
 
 # Due to the way CMake handles propagation of targets to dependees,
-# if the ActsCore target is not available before `find_package(Athena)` 
-# is called, packages using it might get duplicate library linkage command line
-# parameters, leading to linking errors. Consistently importing targets here
-# solves this issue.
+# any "external" that is used through imported targets in the build need
+# to be imported explicitly here.
+set( _quietFlag )
 if( Athena_FIND_QUIETLY )
-   find_package( Acts QUIET COMPONENTS Core )
-else()
-   find_package( Acts COMPONENTS Core )
+  set( _quietFlag QUIET )
 endif()
-
+find_package( Acts ${_quietFlag} COMPONENTS Core )
+find_package( nlohmann_json ${_quietFlag} )
+unset( _quietFlag )

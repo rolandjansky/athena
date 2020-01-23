@@ -69,7 +69,7 @@ if len(runNumbers)>0:
         rec.doTrigger=False
         recAlgs.doTrigger=False
         if not 'DQMonFlags' in dir():
-            print "TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now"
+            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
         DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)
@@ -81,7 +81,7 @@ if len(runNumbers)>0:
         mlog.warning("turning off hlt [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='Lvl1Only'].")
         TriggerFlags.dataTakingConditions='Lvl1Only'
         if not 'DQMonFlags' in dir():
-            print "TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now"
+            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
         DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)
@@ -91,7 +91,7 @@ if len(runNumbers)>0:
         mlog.warning("turning off lvl1 [rec.doTrigger=True, recAlgs.doTrigger=True, and TriggerFlags.dataTakingConditions='HltOnly'].")
         TriggerFlags.dataTakingConditions='HltOnly'
         if not 'DQMonFlags' in dir():
-            print "TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now"
+            printfunc ("TrigTier0/TriggerConfigCheckHLTpsk.py: DQMonFlags not yet imported - I import them now")
             from AthenaMonitoring.DQMonFlags import DQMonFlags
 #        DQMonFlags.doHLTMon.set_Value_and_Lock(False)
         DQMonFlags.useTrigger.set_Value_and_Lock(False)

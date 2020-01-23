@@ -27,8 +27,8 @@
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "PhiComps.h"
 using namespace Monitored;
 

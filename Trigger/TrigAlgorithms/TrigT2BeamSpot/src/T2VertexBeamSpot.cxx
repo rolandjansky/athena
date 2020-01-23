@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //============================================================
 // $Id: T2VertexBeamSpot.cxx 793164 2017-01-20 03:59:26Z ssnyder $
@@ -49,21 +49,10 @@ HLT::TEVec getAllTEs(const std::vector<HLT::TEVec>& tes_in){
    return allTEs;
 }
 
-void stripTrackList( TrigVertexCollection& coll )
-{
-   for ( TrigVertexCollection::iterator vertex = coll.begin(); vertex != coll.end(); ++vertex ) {
-      // Drop the track list from the vertex so we won't persist it.
-      //FIXME: There is no interface for this yet, so for the moment we'll just clear the list.
-      TrackInVertexList* vertexTracks =  (*vertex)->tracks() ;
-      if ( vertexTracks ) vertexTracks->clear();
-   }
-}
-
 // Constructor
 T2VertexBeamSpot::T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLocator )
   : HLT::AllTEAlgo(name, pSvcLocator){ 
    
-   declareProperty( "BeamSpotTool",  m_beamSpotTool   ); 
    declareProperty( "TrackCollections",  m_trackCollections = {"TrigFastTrackFinder_Tracks"}  ); 
    declareProperty( "VertexCollection",  m_outputVertexCollectionKey =  "myVertices"  ); 
 
@@ -329,7 +318,6 @@ HLT::ErrorCode T2VertexBeamSpot::attachFeatureVertex( TrigVertexCollection &myVe
    newColl->clear( SG::VIEW_ELEMENTS );
    newColl->swap( myVertexCollection ); // swaps ownership
    // Strip list of tracks from the vertex so we don't persist them.
-   stripTrackList( *newColl );
 
    HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
    const HLT::ErrorCode status = attachFeature( outputTE, newColl.release() , m_beamSpotTool->m_vertexCollName );
@@ -375,7 +363,6 @@ HLT::ErrorCode T2VertexBeamSpot::attachFeatureSplitVertex(DataVector< TrigVertex
       // Wrestle back ownership of this collection from DataVector
       mySplitVertexCollections.swapElement( i, 0, newColl );
       // Strip list of tracks from the vertex so we don't persist them
-      stripTrackList( *newColl );
 
       const HLT::ErrorCode status = attachFeature( outputTE, newColl, collName.str() );
       if ( status != HLT::OK ) {

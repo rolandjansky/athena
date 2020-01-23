@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ InDet::TRT_DriftCircleOnTrackRecalibrateTool::~TRT_DriftCircleOnTrackRecalibrate
 
 StatusCode InDet::TRT_DriftCircleOnTrackRecalibrateTool::initialize()
 {
-  StatusCode sc = AlgTool::initialize(); 
+  StatusCode sc = AlgTool::initialize();
 
   if(m_drifttool.retrieve().isFailure()){
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_drifttool << endmsg;
@@ -62,14 +62,8 @@ StatusCode InDet::TRT_DriftCircleOnTrackRecalibrateTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (!m_trtErrorScalingKey.key().empty()) {
-    ATH_CHECK(m_trtErrorScalingKey.initialize());
-    ATH_MSG_DEBUG("Detected need for scaling trt errors.");
-  }
-  if (!m_eventInfoKey.key().empty()) {
-    ATH_CHECK(m_eventInfoKey.initialize());
-  }
-
+  ATH_CHECK(m_trtErrorScalingKey.initialize(!m_trtErrorScalingKey.key().empty()));
+  ATH_CHECK(m_lumiDataKey.initialize ( !m_lumiDataKey.key().empty() && !m_trtErrorScalingKey.key().empty()));
   return sc;
 }
 
@@ -118,7 +112,6 @@ const Trk::RIO_OnTrack* InDet::TRT_DriftCircleOnTrackRecalibrateTool::correct
     rot=m_riontrackTube->correct(rio,TP);
   }
   else {
-
     // precision hit
     //
     const InDetDD::TRT_BaseElement* pE = DC->detectorElement(); if(!pE) return 0;
@@ -142,20 +135,17 @@ const Trk::RIO_OnTrack* InDet::TRT_DriftCircleOnTrackRecalibrateTool::correct
     Amg::MatrixX cov(DC->localCovariance()*escale2);
 
     if (!m_trtErrorScalingKey.key().empty()) {
-
-      SG::ReadHandle< xAOD::EventInfo>  eventInfo (m_eventInfoKey);
-      double mu;
-      if (!eventInfo.isValid()) {
-        ATH_MSG_ERROR("Cant retrieve EventInfo"); 
-        mu = 0.;
-      } else {
-        mu = eventInfo->averageInteractionsPerCrossing();
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+      double mu=0.;
+      if (!m_lumiDataKey.empty()) {
+          SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey,ctx);
+          mu = lumiData->lbAverageInteractionsPerCrossing();
       }
 
       bool endcap = false;
       if(dynamic_cast<const InDetDD::TRT_EndcapElement*>(pE)) endcap = true;
       // SG::ReadCondHandle<TRTRIO_OnTrackErrorScaling> error_scaling( m_trtErrorScalingKey );
-      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_trtErrorScalingKey );
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_trtErrorScalingKey,ctx);
       cov = check_cast<TRTRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov, endcap, mu);
     }
 
