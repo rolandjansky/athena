@@ -21,7 +21,7 @@ class W_SMEFT(PowhegV2):
     Publication (please cite if using this process): https://arxiv.org/abs/1804.07407  https://arxiv.org/abs/1703.04751
     Brief manual (highly recommended reading if using this process): accessible on LXPlus etc. at $POWHEGPATH/POWHEG-BOX-V2/W_smeft/Docs/manual-BOX-W_smeft.pdf
 
-    @author Timothée Theveneaux-Pelzer  <tpelzer@cern.ch>
+    @author Timoth\'ee Theveneaux-Pelzer  <tpelzer@cern.ch>
     """
 
     def __init__(self, base_directory, **kwargs):
@@ -37,7 +37,7 @@ class W_SMEFT(PowhegV2):
         self.validation_functions.append("validate_decays")
 
         ## List of allowed decay modes
-        self.allowed_decay_modes = ["w > e+ ve", "w > e- ve~", "w > mu+ vm", "w > mu- vm~", "w > tau+ vt", "w > tau vt~"]
+        self.allowed_decay_modes = ["w- > e- ve~", "w- > mu- vm~", "w- > tau- vt~", "w+ > e+ ve", "w+ > mu+ vm", "w+ > tau+ vt"]
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphaem")
@@ -73,6 +73,7 @@ class W_SMEFT(PowhegV2):
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
         self.add_keyword("icsimax")
+        self.add_keyword("idvecbos", hidden=True)
         self.add_keyword("ih1")
         self.add_keyword("ih2")
         self.add_keyword("itmx1", 5)
@@ -159,5 +160,6 @@ class W_SMEFT(PowhegV2):
         self.expose()  # convenience call to simplify syntax
         self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers
-        __decay_mode_lookup = {"e+ e-": 1, "mu+ mu-": 2, "tau+ tau-": 3, "ve ve~": 4, "vm vm~": 5, "vt vt~": 6}
+        self.parameters_by_keyword("idvecbos")[0].value = 24 * [-1, +1][self.decay_mode.startswith("w+")]
+        __decay_mode_lookup = {"e- ve~": 1, "mu- vm~": 2, "tau- vt~": 3, "e+ ve": 1, "mu+ vm": 2, "tau+ vt": 3}
         self.parameters_by_keyword("vdecaymode")[0].value = __decay_mode_lookup[self.decay_mode.split("> ")[1]]
