@@ -69,8 +69,8 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
                 // copy to the persistent object
 
                 // check indexes
-                if (dataIndex  >= persObj->m_vShape.size()    ||
-                    dataIndex  >= persObj->m_vShapeDer.size() ||
+                if (dataIndex + nPhases*nSamples > persObj->m_vShape.size()  ||
+                    dataIndex + nPhases*nSamples > persObj->m_vShapeDer.size() ||
                     timeIndex >= persObj->m_timeOffset.size() ||
                     timeIndex >= persObj->m_timeBinWidth.size()) {
                     log << MSG::ERROR 
@@ -96,6 +96,9 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
                 ++timeIndex;
                 dataIndex += nPhases * nSamples;
             }
+            else {
+              transObj->m_subset[i].second[j].assign (LArShapeP2());
+            }
         }
     }
     
@@ -113,13 +116,14 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
     // Loop over corrections
     for (unsigned int i = 0; i < ncorrs; ++i){
         // check indexes
-        if (dataIndex  >= persObj->m_vShape.size()    ||
-            dataIndex  >= persObj->m_vShapeDer.size() ||
+        if (dataIndex + nPhases*nSamples  > persObj->m_vShape.size()    ||
+            dataIndex + nPhases*nSamples  > persObj->m_vShapeDer.size() ||
             timeIndex >= persObj->m_timeOffset.size() ||
             timeIndex >= persObj->m_timeBinWidth.size()) {
             log << MSG::ERROR 
                 << "LArShapeSubsetCnv_p2::persToTrans - data index too large: dataIndex size shape, size shapeDer, timeIndex timeOffset size, timeBinWidth size " 
-                << dataIndex  << " " << persObj->m_vShape.size() << " " 
+                << dataIndex  << " " << persObj->m_vShape.size() << " "
+                << nPhases << " " << nSamples << " "
                 << persObj->m_vShapeDer.size() << " " << timeIndex << " "
                 << persObj->m_timeOffset.size() << " " 
                 << persObj->m_timeBinWidth.size()
@@ -244,7 +248,7 @@ LArShapeSubsetCnv_p2::transToPers(const LArShapeTransType2* transObj,
         // first correction - couldn't find it from channels
         const LArShapeP2& shapes = transObj->m_correctionVec[0].second;
         nPhases             = shapes.shapeSize();
-        nSamples            = shapes.shape(0).size();
+        nSamples            = nPhases ? shapes.shape(0).size() : 0;
     }
     
     // Save sizes

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define private public
@@ -100,10 +100,10 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
    
     for (unsigned int i = 0; i < ncorrs; ++i){ // Loop over corrections
       
-        if (chIndex    >= persObj->m_dt.size()) {// check indexes
+        if (cwvIndex    >= persObj->m_vDAC.size()) {// check indexes
             log << MSG::ERROR 
-                << "LArCaliWaveSubsetCnv_p2::persToTrans - CaliWave index too large: WaveIndex/sizeInFile " 
-                << chIndex << " " << persObj->m_dt.size() << " " << endmsg;
+                << "LArCaliWaveSubsetCnv_p2::persToTrans - CaliWave index too large: cwvIndex/sizeInFile " 
+                << cwvIndex << " " << persObj->m_vDAC.size() << " " << endmsg;
             return;
         }
 		
@@ -115,6 +115,12 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 		unsigned int nDAC=persObj->m_vDAC[cwvIndex];
 		cwvIndex++;
 		for (unsigned int nD=0;nD<nDAC;nD++){	
+                        if (chIndex    >= persObj->m_dt.size()) {// check indexes
+                          log << MSG::ERROR 
+                              << "LArCaliWaveSubsetCnv_p2::persToTrans - CaliWave index too large: WaveIndex/sizeInFile " 
+                              << chIndex << " " << persObj->m_dt.size() << " " << endmsg;
+                          return;
+                        }
 		
 			double time 	= persObj->m_dt[chIndex];
 			unsigned int f  = persObj->m_flag[chIndex];
@@ -279,9 +285,9 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
 					persObj->m_dt.push_back(CWV[dv].getDt());
 					persObj->m_flag.push_back(CWV[dv].getFlag());
 					persObj->m_DAC.push_back(CWV[dv].getDAC() | (CWV[dv].getIsPulsedInt()<<16));
-					std::vector<double> w=CWV[dv].getWave();
-					std::vector<double> e=CWV[dv].getErrors();
-					std::vector<int> 	t=CWV[dv].getTriggers();
+					const std::vector<double>& w=CWV[dv].getWave();
+					const std::vector<double>& e=CWV[dv].getErrors();
+					const std::vector<int>& t=CWV[dv].getTriggers();
                 	for (unsigned int k = 0; k< w.size(); ++k){
 						persObj->m_vAmplitudes.push_back(w[k]);
 						persObj->m_vErrors.push_back(e[k]);
@@ -310,9 +316,9 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
       		persObj->m_dt.push_back(CWV[dv].getDt());
       		persObj->m_flag.push_back(CWV[dv].getFlag());
       		persObj->m_DAC.push_back(CWV[dv].getDAC() | (CWV[dv].getIsPulsedInt()<<16));
-			std::vector<double> w=CWV[dv].getWave();
-      		std::vector<double> e=CWV[dv].getErrors();
-      		std::vector<int>  	t=CWV[dv].getTriggers();
+		const std::vector<double>& w=CWV[dv].getWave();
+      		const std::vector<double>& e=CWV[dv].getErrors();
+      		const std::vector<int>&  	t=CWV[dv].getTriggers();
       		persObj->m_samples=w.size();					//	std::cout<<" samples: "<<w.size()<<std::endl;
       		for (unsigned int k = 0; k< w.size(); ++k){
 				persObj->m_vAmplitudes.push_back(w[k]);

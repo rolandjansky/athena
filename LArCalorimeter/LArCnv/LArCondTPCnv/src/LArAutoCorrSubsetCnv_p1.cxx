@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define private public
@@ -67,7 +67,7 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
                 // and copy to the persistent object
 
                 // check indexes
-                if (autocorrIndex    >= persObj->m_vAutoCorr.size()) {
+                if (autocorrIndex + nAutoCorrs > persObj->m_vAutoCorr.size()) {
                     log << MSG::ERROR 
                         << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
                         << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
@@ -111,7 +111,7 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
     // Loop over corrections
     for (unsigned int i = 0; i < ncorrs; ++i){
         // check indexes
-        if (autocorrIndex    >= persObj->m_vAutoCorr.size()) {
+        if (autocorrIndex + nAutoCorrs > persObj->m_vAutoCorr.size()) {
             log << MSG::ERROR 
                 << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
                 << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
