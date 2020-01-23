@@ -188,8 +188,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // m_compLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_serial.
     // There should be a more clever way!
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_ini;
-    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_start;
-    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_stop;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_fin;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_cbk; // callback
@@ -205,7 +203,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // m_aggParallelCompLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_parallel.
     // There should be a more clever way!
     std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_evt;
-    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_stop;
     std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_plp;
     std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_cbk;
 

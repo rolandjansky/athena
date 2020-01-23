@@ -686,10 +686,6 @@ void PerfMonMTSvc::divideData2Steps_serial(){
 
     if(it.first.stepName == "Initialize")
       m_compLevelDataMap_ini[it.first] = it.second;
-    if(it.first.stepName == "Start")
-      m_compLevelDataMap_start[it.first] = it.second;
-    if(it.first.stepName == "Stop")
-      m_compLevelDataMap_stop[it.first] = it.second;
     if(it.first.stepName == "Finalize")
       m_compLevelDataMap_fin[it.first] = it.second; 
     if(it.first.stepName == "preLoadProxy")
@@ -709,8 +705,6 @@ void PerfMonMTSvc::divideData2Steps_parallel(){
 
     if(it.first.stepName == "Execute")
       m_aggParallelCompLevelDataMap_evt[it.first] = it.second;
-    if(it.first.stepName == "Stop")
-      m_aggParallelCompLevelDataMap_stop[it.first] = it.second;
     if(it.first.stepName == "preLoadProxy")
       m_aggParallelCompLevelDataMap_plp[it.first] = it.second;
     if(it.first.stepName == "Callback")
