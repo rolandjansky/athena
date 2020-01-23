@@ -14,7 +14,6 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
-
 # =============================================
 # Private sequence here
 # =============================================
@@ -115,6 +114,7 @@ TAUP1TauTPThinningTool  = DerivationFramework__TauTrackParticleThinning(
 ToolSvc += TAUP1TauTPThinningTool
 thinningTools.append(TAUP1TauTPThinningTool)
 
+
 # truth thinning here:
 import DerivationFrameworkTau.TAUPThinningHelper 
 TAUP1TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP1",
@@ -122,13 +122,15 @@ TAUP1TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP1
                                                                           ToolSvc)
 
 thinningTools += TAUP1TruthThinningTools
+
+
 # =============================================
 # Skimming tool
 # =============================================
 
 elRequirement = "( count( Electrons.DFCommonElectronsLHLoose && (Electrons.pt > 20.0*GeV) && (abs(Electrons.eta) < 2.6) ) >= 1 )"
 muRequirement = "( count( (Muons.pt > 10.0*GeV) && (abs(Muons.eta) < 2.0) && Muons.DFCommonGoodMuon ) < 1 )"
-tauRequirement = "( count( (TauJets.pt > 12.0*GeV) && (abs(TauJets.eta) < 2.6) && (abs(TauJets.charge) == 1.0) ) >= 1 )"
+tauRequirement = "( count( ((TauJets.pt > 12.0*GeV || TauJets.ptFinalCalib > 12.0*GeV) && (abs(TauJets.eta) < 2.6) && (abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3)) ) || (TauJets.nTracks == 2 && TauJets.BDTJetScoreSigTrans > 0.03 && (TauJets.pt > 27.0*GeV || TauJets.ptFinalCalib > 27.0*GeV) ) ) >= 1 )"
 
 expression = elRequirement + " && " + muRequirement + " && " + tauRequirement
 
@@ -139,15 +141,6 @@ TAUP1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(
 
 ToolSvc += TAUP1SkimmingTool
 
-# =============================================
-# Standard jets
-# =============================================
-if globalflags.DataSource() == "geant4":
-  print 'Adding AntiKt4TruthJets here'
-  #addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=DerivationFrameworkJob, outputGroup="TAUP1")
-  reducedJetList = ["AntiKt4TruthJets"]
-  replaceAODReducedJets(reducedJetList,TAUP1seq, "TAUP1")
-  from DerivationFrameworkTau.TauTruthCommon import *
 
 # =============================================
 # Create derivation Kernel
