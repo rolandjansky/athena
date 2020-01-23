@@ -42,13 +42,10 @@
 #include <utility>
 #include <vector>
 
-class MsgStream;
-
 namespace Muon {
   class MuPatSegment;
   class MuonTrackSteeringStrategy;
   class MuPatTrack;
-  class MuonSegmentCombination;
 }
 
 namespace Muon {

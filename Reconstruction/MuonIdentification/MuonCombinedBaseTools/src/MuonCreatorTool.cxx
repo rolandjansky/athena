@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -12,14 +12,6 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-#include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
-#include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
-#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCreatorTool.h"
@@ -38,7 +30,6 @@
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -48,39 +39,25 @@
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 
-#include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
-
 #include "muonEvent/CaloEnergy.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "TrackToCalo/CaloCellCollector.h"
 
-#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
-
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
-#include "MuidInterfaces/IMuonTrackQuery.h"
 #include "MuidEvent/FieldIntegral.h"
-
-#include "TrackSegmentAssociationTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "StoreGate/ReadCondHandle.h"
 
-//#include "xAODTruth/TruthEventContainer.h"
-
-
 namespace MuonCombined {
  
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
   MuonCreatorTool::MuonCreatorTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
     m_makeMSPreExtrapLink(false),
     m_haveAddedCaloInformation(false),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
     m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
@@ -100,7 +77,6 @@ namespace MuonCombined {
   {
     declareInterface<IMuonCreatorTool>(this);
     declareProperty("MakeTrackAtMSLink",m_makeMSPreExtrapLink=false);
-    declareProperty("MuonIdHelperTool",m_idHelper );
     declareProperty("Printer",m_printer );
     declareProperty("ParticleCaloExtensionTool", m_caloExtTool);      
     declareProperty("MuonPrinter",m_muonPrinter );
@@ -127,21 +103,15 @@ namespace MuonCombined {
     declareProperty("AssociateSegmentsToLowBetaMuons",m_segLowBeta = false);
     declareProperty("UseCaloCells",m_useCaloCells = true);
     declareProperty("MakeSAMuons", m_doSA=false);
-    //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
     declareProperty("TrackQuery", m_trackQuery);
      
   }
-
-  MuonCreatorTool::~MuonCreatorTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCreatorTool::initialize() {
 
     if( m_buildStauContainer ) ATH_MSG_DEBUG(" building Stau container ");
 
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
     ATH_CHECK(m_caloExtTool.retrieve());
@@ -178,10 +148,6 @@ namespace MuonCombined {
 
     ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCreatorTool::finalize() {
     return StatusCode::SUCCESS;
   }
 
@@ -1461,7 +1427,7 @@ namespace MuonCombined {
       
       // only consider RPC hits
       Identifier mid = m_edmHelperSvc->getIdentifier(*meas);
-      if( !m_idHelper->isMuon(mid) || !m_idHelper->isRpc(mid) ) continue;
+      if( !m_idHelperSvc->isMuon(mid) || !m_idHelperSvc->isRpc(mid) ) continue;
       
       // lambda to add a hit
       auto addHit = [&]( const Trk::MeasurementBase& meas) { 
@@ -1747,8 +1713,8 @@ namespace MuonCombined {
 	    nAEOT++;
 	    std::set<unsigned int> chIdSet;
 	    for(auto id : aeot->vectorOfAffectedTSOS()) {
-	      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
-	      chIdSet.insert( m_idHelper->chamberIndex(id) );
+	      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
+	      chIdSet.insert( m_idHelperSvc->chamberIndex(id) );
 	    }
 	    std::vector<unsigned int> chIdVec;
 	    std::copy(chIdSet.begin(), chIdSet.end(), std::back_inserter(chIdVec));
