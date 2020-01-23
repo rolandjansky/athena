@@ -63,8 +63,6 @@ double egammaqweta2c::RelPosition(float eta, float etacell) {
 
   if (eta == -999.)
     return -999;
-  //  float aetacell = fabs(etacell);
-  //  float etarel = fmod((double)aeta,0.025)/0.025;
   // position within cell (-cellsize/2 - cellsize/2)
   const double x = fabs(eta - etacell - 0.025 / 2.);
   const double g = 0.025;
