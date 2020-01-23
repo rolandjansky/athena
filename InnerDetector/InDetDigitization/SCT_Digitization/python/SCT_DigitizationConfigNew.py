@@ -92,8 +92,8 @@ def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**k
     """Return ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_SDO_Map")
+    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "SCT_RDOs")
+    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -186,10 +186,10 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     else:
         kwargs.setdefault("NoiseOn", True)
         kwargs.setdefault("AnalogueNoiseOn", True)
-    # In overlay MC, only analogue noise is on. Noise hits are not added.
-    if flags.Detector.Overlay and flags.Input.isMC:
+    # In overlay MC, only analogue noise is on (off for data). Noise hits are not added.
+    if flags.Detector.Overlay:
         kwargs["NoiseOn"] = False
-        kwargs["AnalogueNoiseOn"] = True
+        kwargs["AnalogueNoiseOn"] = flags.Input.isMC
     # Use Calibration data from Conditions DB, still for testing purposes only
     kwargs.setdefault("UseCalibData", True)
     # Setup the ReadCalibChip folders and Svc
@@ -266,7 +266,11 @@ def SCT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(SCT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(SCT_Digitization(**kwargs))
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
+    acc.addEventAlgo(SCT_Digitization(name="SCT_OverlayDigitization", **kwargs))
     return acc
 
 
