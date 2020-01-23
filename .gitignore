@@ -9,3 +9,45 @@
 *.pyc
 .asetup*
 .cproject
+
+# Compiled source #
+###################
+*.pcm
+*.so
+*.d
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Plots #
+#########
+*.eps
+*.pdf
+*.jpg
+*.png
+
+# Data files #
+##############
+*.root
+*.dat
+*.res
+*.txt
+
+# OS generated files #
+######################
+.DS_Store
+._*
+
+
+backup_ZdcAnalysis/*
+Simulation/*

@@ -365,7 +365,7 @@ void ZDCFitExpFermiLinearPrePulse::SetPrePulseT0Range(float tmin, float tmax)
 
 void ZDCFitExpFermiLinearPrePulse::DoInitialize(float initialAmp, float initialT0)
 {
-  float _slope = initialAmp / initialT0;  // to be studied more
+  float _slope = initialAmp / initialT0;  // to be studied more ??? limit 0.1 0.05
   float _const = 0.25 * initialAmp;
   GetWrapperTF1()->SetParLimits(4, -_slope, _slope);
   GetWrapperTF1()->SetParLimits(5, -_const, _const);
@@ -379,6 +379,175 @@ void ZDCFitExpFermiLinearPrePulse::DoInitialize(float initialAmp, float initialT
 }
 
 void ZDCFitExpFermiLinearPrePulse::SetT0FitLimits(float t0Min, float t0Max)
+{
+  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  theTF1->SetParLimits(1, t0Min, t0Max);
+}
+
+
+
+
+
+
+
+
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+//
+ZDCFitComplexPrePulse::ZDCFitComplexPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2) :
+  ZDCPrePulseFitWrapper(new TF1(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 7)),
+  m_tau1(tau1), m_tau2(tau2)
+{
+  // Create the reference function that we use to evaluate ExpFermiFit more efficiently
+  //
+  std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
+
+  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+
+  m_expFermiFunc->SetParameter(0, 1);
+  m_expFermiFunc->SetParameter(1, 0);
+  m_expFermiFunc->SetParameter(2, m_tau1);
+  m_expFermiFunc->SetParameter(3, m_tau2);
+
+  m_norm     = 1. / m_expFermiFunc->GetMaximum();
+  m_timeCorr = m_tau1 * std::log(m_tau2 / m_tau1 - 1.0);
+
+  // Now set up the actual TF1
+  //
+  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+
+  theTF1->SetParLimits(0,    5, 2048);
+  theTF1->SetParLimits(1, tmin, tmax);
+  theTF1->SetParLimits(2,    0, 2048);
+  theTF1->SetParLimits(3,    0,   40);
+  theTF1->SetParLimits(6,    0, 1024);
+
+  theTF1->SetParName(0, "Amp");
+  theTF1->SetParName(1, "T0");
+  theTF1->SetParName(2, "Amp_{pre}");
+  theTF1->SetParName(3, "T0_{pre}");
+  theTF1->SetParName(4, "s_{b}");
+  theTF1->SetParName(5, "c_{b}");
+  theTF1->SetParName(6, "Amp_{exp}");
+}
+
+void ZDCFitComplexPrePulse::SetPrePulseT0Range(float tmin, float tmax)
+{
+  if (tmin > GetTMin()) {
+    GetWrapperTF1()->ReleaseParameter(3);
+    GetWrapperTF1()->SetParLimits(3, tmin, tmax);
+  }
+  else {
+    // GetWrapperTF1()->FixParameter(3, tmin * 1.01);
+    GetWrapperTF1()->SetParLimits(3, 0, tmax);  // bill
+  }
+}
+
+void ZDCFitComplexPrePulse::DoInitialize(float initialAmp, float initialT0)
+{
+  float _slope = abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
+  float _const = abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
+  GetWrapperTF1()->SetParLimits(4, -_slope, _slope);  // if the lower limit is set to 0, there will be some fit fail issue...
+  GetWrapperTF1()->SetParLimits(5, -_const, _const);
+
+  GetWrapperTF1()->SetParameter(0, initialAmp);
+  GetWrapperTF1()->SetParameter(1, initialT0);
+  GetWrapperTF1()->SetParameter(2,  5);
+  GetWrapperTF1()->SetParameter(3, 10);
+  GetWrapperTF1()->SetParameter(4,  0);
+  GetWrapperTF1()->SetParameter(5,  0);
+  GetWrapperTF1()->SetParameter(6,  1);
+}
+
+void ZDCFitComplexPrePulse::SetT0FitLimits(float t0Min, float t0Max)
+{
+  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+  theTF1->SetParLimits(1, t0Min, t0Max);
+}
+
+
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+//
+ZDCFitGeneralPulse::ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, float tau1, float tau2) :
+  ZDCPrePulseFitWrapper(new TF1(("ExpFermiPrePulse" + tag).c_str(), this, tmin, tmax, 9)),
+  m_tau1(tau1), m_tau2(tau2)
+{
+  // Create the reference function that we use to evaluate ExpFermiFit more efficiently
+  //
+  std::string funcNameRefFunc = "ExpFermiPerPulseRefFunc" + tag;
+
+  m_expFermiFunc = new TF1(funcNameRefFunc.c_str(), ZDCFermiExpFit, -50, 100, 4);
+
+  m_expFermiFunc->SetParameter(0, 1);
+  m_expFermiFunc->SetParameter(1, 0);
+  m_expFermiFunc->SetParameter(2, m_tau1);
+  m_expFermiFunc->SetParameter(3, m_tau2);
+
+  m_norm     = 1. / m_expFermiFunc->GetMaximum();
+  m_timeCorr = m_tau1 * std::log(m_tau2 / m_tau1 - 1.0);
+
+  // Now set up the actual TF1
+  //
+  TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
+
+  theTF1->SetParLimits(0,    5, 2048);
+  theTF1->SetParLimits(1, tmin, tmax);
+  theTF1->SetParLimits(2,    0, 2048);
+  theTF1->SetParLimits(3,    0,   40);
+  theTF1->SetParLimits(6,    0, 1024);
+  theTF1->SetParLimits(7,    0, 2048);
+  theTF1->SetParLimits(8,  100,  163);
+
+  theTF1->SetParName(0, "Amp");
+  theTF1->SetParName(1, "T0");
+  theTF1->SetParName(2, "Amp_{pre}");
+  theTF1->SetParName(3, "T0_{pre}");
+  theTF1->SetParName(4, "s_{b}");
+  theTF1->SetParName(5, "c_{b}");
+  theTF1->SetParName(6, "Amp_{exp}");
+  theTF1->SetParName(7, "Amp_{post}");
+  theTF1->SetParName(8, "T0_{post}");
+}
+
+void ZDCFitGeneralPulse::SetPrePulseT0Range(float tmin, float tmax)
+{
+  if (tmin > GetTMin()) {
+    if (tmin < 0) tmin = 0;
+    GetWrapperTF1()->SetParLimits(3, tmin, tmax);
+  }
+  else {
+    GetWrapperTF1()->SetParLimits(3, 0, tmax);  // bill
+  }
+}
+
+void ZDCFitGeneralPulse::SetPostPulseT0Range(float tmin, float tmax, float initialPostT0)
+{
+  GetWrapperTF1()->SetParLimits(8, tmin, tmax);  // bill
+  // float iniPostT0 = tmax - 7.25;
+  float iniPostT0 = initialPostT0;
+  GetWrapperTF1()->SetParameter(8, iniPostT0); // bill
+}
+
+void ZDCFitGeneralPulse::DoInitialize(float initialAmp, float initialT0)
+{
+  float _slope = abs(initialAmp / initialT0);  // to be studied more ??? limit 0.1 0.05
+  float _const = abs(0.1 * initialAmp);       // reduce from 0.25 to 0.1 fix some fail issue
+  GetWrapperTF1()->SetParLimits(4, -_slope, _slope);  // if the lower limit is set to 0, there will be some fit fail issue...
+  GetWrapperTF1()->SetParLimits(5, -_const, _const);
+
+  GetWrapperTF1()->SetParameter(0, initialAmp);
+  GetWrapperTF1()->SetParameter(1, initialT0);
+  // GetWrapperTF1()->SetParameter(2,   5);
+  // GetWrapperTF1()->SetParameter(3,  10);
+  GetWrapperTF1()->FixParameter(4,   0);
+  GetWrapperTF1()->SetParameter(5,   0);
+  // GetWrapperTF1()->SetParameter(6,   1);
+  GetWrapperTF1()->SetParameter(7,   5);
+  // GetWrapperTF1()->SetParameter(8, 120);
+}
+
+void ZDCFitGeneralPulse::SetT0FitLimits(float t0Min, float t0Max)
 {
   TF1* theTF1 = ZDCFitWrapper::GetWrapperTF1();
   theTF1->SetParLimits(1, t0Min, t0Max);

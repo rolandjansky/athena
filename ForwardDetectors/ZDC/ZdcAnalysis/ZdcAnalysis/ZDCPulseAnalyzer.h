@@ -39,7 +39,8 @@ public:
         // -------------------------
         BadT0Bit              = 12, //  &4096
         ExcludeEarlyLGBit     = 13, //  &8192
-        ExcludeLateLGBit      = 14  //  &16384
+        ExcludeLateLGBit      = 14, //  &16384
+        preExpTailBit         = 15  //  &32768
        };
 
 private:
@@ -49,6 +50,7 @@ private:
   //
   static std::string s_fitOptions;
   static bool s_quietFits;
+  static bool s_saveFitFunc;
   static TH1* s_undelayedFitHist;
   static TH1* s_delayedFitHist;
   static TF1* s_combinedFitFunc;
@@ -139,23 +141,33 @@ private:
   // Dynamic data loaded for each pulse (event)
   // ==========================================
 
+  // -----------------------
   // Statuses
   //
   bool m_haveData;
+
   bool m_havePulse;
-  bool m_fail;
   bool m_useLowGain;
+  bool m_fail;
   bool m_HGOverflow;
+
   bool m_HGUnderflow;
+  bool m_PSHGOverUnderflow;
   bool m_LGOverflow;
   bool m_LGUnderflow;
-  bool m_PSHGOverUnderflow;
-  bool m_preExpTail;
+
   bool m_prePulse;
   bool m_postPulse;
   bool m_fitFailed;
-  bool m_badT0;
   bool m_badChisq;
+
+  bool m_badT0;
+  bool m_ExcludeEarly;
+  bool m_ExcludeLate;
+  bool m_preExpTail;
+
+  bool m_fixPrePulse;
+  // -----------------------
 
   bool  m_backToHG_pre;
   float m_baselineCorr;
@@ -172,26 +184,40 @@ private:
   int m_maxSampl;
   int m_minSampl;
 
+  float m_initialExpAmp;  // Bill
   float m_minDeriv2nd;
   int   m_minDeriv2ndIndex;
 
   float m_fitTMax;          // event-by-event specified fit tmax
   float m_fitTMin;          // event-by-event specified fit tmin
 
+  float m_fitPostT0lo;      // use to assign lower bound of post pulse T0
+
   float m_initialPrePulseT0;
   float m_initialPrePulseAmp;
+
+  float m_initialPostPulseT0;
 
   float m_fitAmplitude;
   float m_fitAmpError;
   float m_fitTime;
   float m_fitTimeSub;
   float m_fitTimeCorr;
+  float m_fitTCorr2nd; // bill
   float m_fitTau1;
   float m_fitTau2;
   float m_fitChisq;
+  float m_fitPreT0;    // bill
+  float m_fitPreAmp;   // bill
+  float m_fitPostT0;   // bill
+  float m_fitPostAmp;  // bill
+  float m_fitExpAmp;   // bill
   float m_amplitude;
   float m_ampError;
   float m_preSampleAmp;
+  float m_preAmplitude;   // bill
+  float m_postAmplitude;  // bill
+  float m_expAmplitude;   // bill
   float m_bkgdMaxFraction;
   float m_delayedBaselineShift;
 
@@ -269,7 +295,8 @@ public:
   ~ZDCPulseAnalyzer();
 
   static void SetFitOPtions(std::string fitOptions) { s_fitOptions = fitOptions;}
-  static void SetQuietFits(bool quiet) {s_quietFits = quiet;}
+  static void SetQuietFits  (bool quiet) {s_quietFits = quiet;}
+  static void SetSaveFitFunc(bool save ) {s_saveFitFunc = save;}
   static bool QuietFits() {return s_quietFits;}
 
   void EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline = false);
@@ -317,30 +344,48 @@ public:
                           std::vector<float> ADCSamplesHGDelayed, std::vector<float> ADCSamplesLGDelayed);
 
   bool HaveData() const {return m_haveData;}
-  bool HavePulse() const {return m_havePulse;}
-  bool Failed() const {return m_fail;}
-  bool BadChisq() const {return m_badChisq;}
-  bool BadT0() const {return m_badT0;}
-  bool FitFailed() const {return m_fitFailed;}
-  bool PrePulse() const {return m_prePulse;}
-  bool PostPulse() const {return m_postPulse;}
+
+  // ------------------------------------------------------------
+  // Status bit setting functions
+  //
+  bool HavePulse()  const {return m_havePulse;}
   bool UseLowGain() const {return m_useLowGain;}
-
+  bool Failed()     const {return m_fail;}
   bool HGOverflow() const {return m_HGOverflow;}
-  bool HGUnderflow() const {return m_HGUnderflow;}
-  bool LGOverflow() const {return m_LGOverflow;}
-  bool LGUnderflow() const {return m_LGUnderflow;}
 
+  bool HGUnderflow()       const {return m_HGUnderflow;}
   bool PSHGOverUnderflow() const {return m_PSHGOverUnderflow;}
+  bool LGOverflow()        const {return m_LGOverflow;}
+  bool LGUnderflow()       const {return m_LGUnderflow;}
 
+  bool PrePulse()  const {return m_prePulse;}
+  bool PostPulse() const {return m_postPulse;}
+  bool FitFailed() const {return m_fitFailed;}
+  bool BadChisq()  const {return m_badChisq;}
+
+  bool BadT0()          const {return m_badT0;}
+  bool ExcludeEarlyLG() const {return m_ExcludeEarly;}
+  bool ExcludeLateLG()  const {return m_ExcludeLate;}
+  bool preExpTail()     const {return m_preExpTail;}
+  // ------------------------------------------------------------
+
+
+  // ---------------------------
+  // Get fit parameters
+  //
   float GetFitAmplitude() const {return m_fitAmplitude;}
-  float GetFitT0() const {return m_fitTime;}
-  float GetT0Sub() const {return m_fitTimeSub;}
-  float GetT0Corr() const {return m_fitTimeCorr;}
-  float GetChisq() const {return m_fitChisq;}
-
-  float GetFitTau1() const {return m_fitTau1;}
-  float GetFitTau2() const {return m_fitTau2;}
+  float GetFitT0()        const {return m_fitTime;}
+  float GetT0Sub()        const {return m_fitTimeSub;}
+  float GetT0Corr()       const {return m_fitTimeCorr;}
+  float GetChisq()        const {return m_fitChisq;}
+  float GetFitTau1()      const {return m_fitTau1;}
+  float GetFitTau2()      const {return m_fitTau2;}
+  float GetFitPreT0()     const {return m_fitPreT0;}      // bill
+  float GetFitPreAmp()    const {return m_preAmplitude;}  // bill
+  float GetFitPostT0()    const {return m_fitPostT0;}     // bill
+  float GetFitPostAmp()   const {return m_postAmplitude;} // bill
+  float GetFitExpAmp()    const {return m_expAmplitude;}  // bill
+  // ---------------------------
 
   float GetAmplitude() const {return m_amplitude;}
   float GetAmpError() const {return m_ampError;}
@@ -413,6 +458,32 @@ public:
     return theGraph;
   }
 
+
+  TGraphErrors* GetGraph() const {
+    //
+    // We defer filling the histogram if we don't have a pulse until the histogram is requested
+    //
+    GetHistogramPtr();
+
+    TGraphErrors* theGraph = new TGraphErrors(m_Nsample);
+    size_t npts = 0;
+
+    for (int ipt = 0; ipt < m_fitHist->GetNbinsX(); ipt++) {
+      theGraph->SetPoint(npts, m_fitHist->GetBinCenter(ipt + 1), m_fitHist->GetBinContent(ipt + 1));
+      theGraph->SetPointError(npts++, 0, m_fitHist->GetBinError(ipt + 1));
+    }
+
+    TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
+    theGraph->GetListOfFunctions()->Add(func_p);
+    theGraph->SetName(( std::string(m_fitHist->GetName()) + "not_combinaed").c_str());
+
+    theGraph->SetMarkerStyle(20);
+    theGraph->SetMarkerColor(1);
+
+    return theGraph;
+  }
+
+
   std::unique_ptr<TH1> GetFitPulls() const
   {
     int nbins = (m_useDelayed ? 2 * m_Nsample : m_Nsample);
@@ -423,6 +494,54 @@ public:
     }
 
     return hist;
+  }
+
+  TGraphErrors* GetUndelayedGraph() const {
+    //
+    // We defer filling the histogram if we don't have a pulse until the histogram is requested
+    //
+    GetHistogramPtr();
+
+    TGraphErrors* theGraph = new TGraphErrors(m_Nsample);
+    size_t npts = 0;
+
+    for (int ipt = 0; ipt < m_fitHist->GetNbinsX(); ipt++) {
+      theGraph->SetPoint(npts, m_fitHist->GetBinCenter(ipt + 1), m_fitHist->GetBinContent(ipt + 1));
+      theGraph->SetPointError(npts++, 0, m_fitHist->GetBinError(ipt + 1));
+    }
+
+    TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
+    theGraph->GetListOfFunctions()->Add(func_p);
+    theGraph->SetName(( std::string(m_fitHist->GetName()) + "undelayed").c_str());
+
+    theGraph->SetMarkerStyle(20);
+    theGraph->SetMarkerColor(1);
+
+    return theGraph;
+  }
+
+  TGraphErrors* GetDelayedGraph() const {
+    //
+    // We defer filling the histogram if we don't have a pulse until the histogram is requested
+    //
+    GetHistogramPtr();
+
+    TGraphErrors* theGraph = new TGraphErrors(m_Nsample);
+    size_t npts = 0;
+
+    for (int iDelayPt = 0; iDelayPt < m_delayedHist->GetNbinsX(); iDelayPt++) {
+      theGraph->SetPoint(npts, m_delayedHist->GetBinCenter(iDelayPt + 1), m_delayedHist->GetBinContent(iDelayPt + 1) - m_delayedBaselineShift);
+      theGraph->SetPointError(npts++, 0, m_delayedHist->GetBinError(iDelayPt + 1));
+    }
+    std::cout << "here" << std::endl;
+    TF1* func_p = (TF1*) m_fitHist->GetListOfFunctions()->Last();
+    theGraph->GetListOfFunctions()->Add(func_p);
+    theGraph->SetName(( std::string(m_fitHist->GetName()) + "delayed").c_str());
+
+    theGraph->SetMarkerStyle(20);
+    theGraph->SetMarkerColor(kBlue);
+
+    return theGraph;
   }
 
   void Dump() const;

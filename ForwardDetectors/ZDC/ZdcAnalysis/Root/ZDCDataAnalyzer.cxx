@@ -22,12 +22,12 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, int nSamp
   m_currentLB(-1),
   m_moduleMask(0),
   m_moduleSum( {{0, 0}}),
-  m_moduleSumErrSq({{0, 0}}),
-  m_moduleSumPreSample({{0, 0}}),
-  m_calibModuleSum({{0, 0}}),
-  m_calibModuleSumErrSq({{0, 0}}),
-  m_averageTime({{0, 0}}),
-  m_fail({{false, false}})
+m_moduleSumErrSq({{0, 0}}),
+m_moduleSumPreSample({{0, 0}}),
+m_calibModuleSum({{0, 0}}),
+m_calibModuleSumErrSq({{0, 0}}),
+m_averageTime({{0, 0}}),
+m_fail({{false, false}})
 {
   m_moduleDisabled[0] = {{false, false, false, false}};
   m_moduleDisabled[1] = {{false, false, false, false}};
@@ -142,6 +142,12 @@ void ZDCDataAnalyzer::SetFitTimeMax(float tmax) {
     }
   }
 }
+
+
+void ZDCDataAnalyzer::SetSaveFitFunc(bool save) {
+  ZDCPulseAnalyzer::SetSaveFitFunc(save);
+}
+
 
 void ZDCDataAnalyzer::SetTauT0Values(const ZDCModuleBoolArray& fixTau1, const ZDCModuleBoolArray& fixTau2,
                                      const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2,
@@ -361,6 +367,17 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   }
 
   (*m_msgFunc_p)(ZDCMsg::Verbose, ("Loading undelayed and delayed data for event index " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) +  ", " + std::to_string(module)));
+
+  // if (msgLvl (MSG::VERBOSE)) {
+  //   ANA_MSG_VERBOSE (" Number of HG and LG samples = " << HGSamples.size() << ", " << LGSamples.size());
+  //   for (size_t sample = 0; sample < HGSamples.size(); sample++) {
+  //     ANA_MSG_VERBOSE ("HGSample[" << sample << "] = " << HGSamples[sample]);
+  //   }
+
+  //   for (size_t sample = 0; sample < HGSamples.size(); sample++) {
+  //     ANA_MSG_VERBOSE ("HGSampleDelayed[" << sample << "] = " << HGSamplesDelayed[sample]);
+  //   }
+  // }
 
   ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
