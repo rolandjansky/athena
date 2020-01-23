@@ -1,12 +1,12 @@
 #
-#Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration                                                                                           
+#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                                                                           
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 #from MdtRawDataMonitoring.MdtRawMonLabels import *
-from MdtMonUtils import getMDTLabel
-from MDTTubeMax import tubeMax
-from MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
+from .MdtMonUtils import getMDTLabel
+from .MDTTubeMax import tubeMax
+from .MDTChambers import mdtBA,mdtBC,mdtEA,mdtEC
 
 def MdtMonitoringConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -266,7 +266,7 @@ def MdtMonitoringConfig(inputFlags):
             title_MDTNumberOfHitsPerML="NumberOfHitsIn"+iregion+ilayer+"PerMultiLayer_ADCCut"
             thisLabelx,thisLabely=getMDTLabel(title_MDTNumberOfHitsPerML+"_labelx",title_MDTNumberOfHitsPerML+"_labely")
             phimaxML=phimax*2
-            if (iregion=="BA" or iregion=="BC") and ilayer=="Extra": phimaxML=phimax/2
+            if (iregion=="BA" or iregion=="BC") and ilayer=="Extra": phimaxML=phimax//2
             if (iregion=="BA" or iregion=="BC") and ilayer=="Inner": phimaxML=phimax*2+4
             etamax=2 #extra layer
             if (iregion=="BA" or iregion=="BC") and ilayer=="Inner": etamax=8

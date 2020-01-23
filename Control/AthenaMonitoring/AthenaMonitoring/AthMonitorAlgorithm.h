@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -113,7 +113,7 @@ public:
 
     void fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
                const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& variables ) const {
-        fill(groupHandle, std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables}));
+        fill(groupHandle, std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables});
     };
 
     /**
@@ -124,7 +124,7 @@ public:
      */
     template <typename... T>
     void fill( const ToolHandle<GenericMonitoringTool>& groupHandle, T&&... variables ) const {
-        fill(groupHandle,std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...}));
+        fill(groupHandle, std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...});
     }
 
     /**
@@ -146,7 +146,7 @@ public:
      */
     void fill( const std::string& groupName,
                const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& variables ) const {
-        fill( getGroup(groupName), std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables}));
+        fill( getGroup(groupName), std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{variables});
     }
 
     /**
@@ -157,7 +157,7 @@ public:
      */
     template <typename... T>
     void fill( const std::string& groupName, T&&... variables ) const {
-        fill(getGroup(groupName),std::move(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...}));
+        fill(getGroup(groupName), std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{std::forward<T>(variables)...});
     }
     /** @} */ // end of fill group
 
