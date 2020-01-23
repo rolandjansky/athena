@@ -22,12 +22,12 @@ TrigSignatureMoniMT                                 INFO HLT_2mu4_bJpsimumu_L12M
 TrigSignatureMoniMT                                 INFO HLT_2mu4_bJpsimumu_L12MU4 decisions                    4         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_2mu4_bUpsimumu_L12MU4     20        20        1         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_2mu4_bUpsimumu_L12MU4 decisions                    4         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_2mu6Comb_L12MU6           20        20        1         0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_2mu6Comb_L12MU6 decisions                     4         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_2mu6_10invm70_L1MU6       20        20        1         0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_2mu6_10invm70_L1MU6 decisions                    4         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_2mu6_L12MU6               20        20        1         0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_2mu6_L12MU6 decisions                         4         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6Comb_L12MU6           20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6Comb_L12MU6 decisions                     0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6_10invm70_L1MU6       20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6_10invm70_L1MU6 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6_L12MU6               20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu6_L12MU6 decisions                         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_3j200_L1J100              20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_3j200_L1J100 decisions                        0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_3j200_L1J20               20        20        0         0         0         0         0         0         
@@ -143,7 +143,7 @@ TrigSignatureMoniMT                                 INFO HLT_mb_sptrk_L1RD0_FILL
 TrigSignatureMoniMT                                 INFO HLT_mu10_lateMu_L1MU10        20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu10_lateMu_L1MU10 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu20_ivar_L1MU6           20        20        1         1         1         0         0         1         
-TrigSignatureMoniMT                                 INFO HLT_mu20_ivar_L1MU6 decisions                     2         1         1         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu20_ivar_L1MU6 decisions                     1         1         1         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu24_idperf_L1MU20        20        20        1         1         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu24_idperf_L1MU20 decisions                    1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu26_ivarmedium_L1MU20    20        20        1         1         0         0         0         0         
@@ -155,19 +155,19 @@ TrigSignatureMoniMT                                 INFO HLT_mu50_RPCPEBSecondar
 TrigSignatureMoniMT                                 INFO HLT_mu60_0eta105_msonly_L1MU2020        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu60_0eta105_msonly_L1MU20 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6Comb_L1MU6             20        20        1         1         0         0         0         1         
-TrigSignatureMoniMT                                 INFO HLT_mu6Comb_L1MU6 decisions                       2         1         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6Comb_L1MU6 decisions                       1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6_L1MU6                 20        20        1         1         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_mu6_L1MU6 decisions                           2         1         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6_L1MU6 decisions                           1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6_idperf_L1MU6          20        20        1         1         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_mu6_idperf_L1MU6 decisions                    2         2         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6_idperf_L1MU6 decisions                    1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6_ivarmedium_L1MU6      20        20        1         1         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_mu6_ivarmedium_L1MU6 decisions                    2         1         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6_ivarmedium_L1MU6 decisions                    1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6_msonly_L1MU6          20        20        1         0         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_mu6_msonly_L1MU6 decisions                    2         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6_msonly_L1MU6 decisions                    1         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6_mu4_L12MU4            20        20        1         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6_mu4_L12MU4 decisions                      2         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6fast_L1MU6             20        20        1         0         0         0         0         1         
-TrigSignatureMoniMT                                 INFO HLT_mu6fast_L1MU6 decisions                       2         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu6fast_L1MU6 decisions                       1         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6noL1_L1MU6             20        20        1         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu6noL1_L1MU6 decisions                       1         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu80_msonly_3layersEC_L1MU2020        20        1         0         0         0         0         0         
