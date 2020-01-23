@@ -43,7 +43,7 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     acc.merge(MagneticFieldSvcCfg(flags))
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV"))
     if flags.Detector.Overlay and not flags.Input.isMC:
-        acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", className="CondAttrListCollection"))
+        acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", tag="TRTCondDigVers-Collisions-01", db="OFLP200"))
     # default arguments
     kwargs.setdefault("PAI_Tool_Ar", TRT_PAI_Process_ArToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Kr", TRT_PAI_Process_KrToolCfg(flags))
@@ -114,8 +114,8 @@ def TRT_OverlayDigitizationToolCfg(flags, name="TRT_OverlayDigitizationTool", **
     """Return ComponentAccumulator with configured Overlay TRT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TRT_RDOs")
-    kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TRT_SDO_Map")
+    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "TRT_RDOs")
+    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "TRT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("Override_getT0FromData", 0)
     kwargs.setdefault("Override_noiseInSimhits", 0)
@@ -153,7 +153,11 @@ def TRT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(TRT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(TRTDigitization(**kwargs))
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
+
+    acc.addEventAlgo(TRTDigitization(name="TRT_OverlayDigitization", **kwargs))
     return acc
 
 
