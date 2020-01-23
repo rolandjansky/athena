@@ -404,8 +404,8 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<double>& xpos, s
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
         ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
     }
-    if(s!=0){
-        ATH_MSG_DEBUG("Fit failed twice");
+    if(s!=0 && s!=4000){ //4000 means fit succesfull but error optimization by minos failed; fit is still usable.
+        ATH_MSG_DEBUG("Final fit failed with error code "<<s);
         return StatusCode::FAILURE;
     }
     if(ffit->GetParameter(1)<=-11.5 || ffit->GetParameter(1)>=-0.15) return StatusCode::FAILURE;
