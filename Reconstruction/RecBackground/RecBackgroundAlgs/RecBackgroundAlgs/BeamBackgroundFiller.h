@@ -37,7 +37,7 @@ class BeamBackgroundFiller : public AthAlgorithm
 {
 public:
   BeamBackgroundFiller(const std::string& name, ISvcLocator* pSvcLocator);
-  ~BeamBackgroundFiller() {};
+  ~BeamBackgroundFiller()=default;
 
   StatusCode initialize();
   StatusCode execute();

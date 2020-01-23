@@ -37,7 +37,7 @@ public:
     MuidMuonRecovery	(const std::string&	type, 
 			 const std::string&	name,
 			 const IInterface*	parent);
-    ~MuidMuonRecovery(){};
+    ~MuidMuonRecovery()=default;
   
     StatusCode		initialize();
     StatusCode		finalize();

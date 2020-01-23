@@ -62,7 +62,7 @@ namespace Rec {
 	CombinedMuonTrackBuilder (const std::string& type, 
 				  const std::string& name,
 				  const IInterface* parent);
-	~CombinedMuonTrackBuilder(){};
+	~CombinedMuonTrackBuilder()=default;
   
 	StatusCode		initialize();
 	StatusCode		finalize();

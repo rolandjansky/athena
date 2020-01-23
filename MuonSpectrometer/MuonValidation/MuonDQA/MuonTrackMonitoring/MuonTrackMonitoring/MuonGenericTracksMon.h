@@ -64,8 +64,9 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
  public:
 
   MuonGenericTracksMon( const std::string & type, const std::string & name, const IInterface* parent ); 
-  virtual ~MuonGenericTracksMon(){;}
+  virtual ~MuonGenericTracksMon()=default;
   
+  virtual StatusCode initialize();
   virtual StatusCode bookHistograms();   
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();  

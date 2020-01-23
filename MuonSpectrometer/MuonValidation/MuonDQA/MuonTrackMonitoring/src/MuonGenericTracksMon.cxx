@@ -68,6 +68,12 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   declareProperty("MSVertexCollection",				 m_msVertexCollection   = "MSDisplacedVertex");
 }
 
+StatusCode MuonGenericTracksMon::initialize() { 
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
+  ATH_CHECK(setupTools());
+  return StatusCode::SUCCESS;
+}
+
 //======================================================================================//
 StatusCode MuonGenericTracksMon::bookHistograms()
 //======================================================================================//

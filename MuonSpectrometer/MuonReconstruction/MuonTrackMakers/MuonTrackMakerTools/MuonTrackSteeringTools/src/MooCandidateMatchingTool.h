@@ -58,7 +58,7 @@ namespace Muon {
 
       MooTrackSegmentMatchResult();
 
-      virtual ~MooTrackSegmentMatchResult() {};
+      virtual ~MooTrackSegmentMatchResult()=default;
 
       virtual void clear();
      

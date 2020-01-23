@@ -47,7 +47,7 @@ namespace MuonCombined {
 
     /** Default AlgTool functions */
     MuonInsideOutRecoTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonInsideOutRecoTool() {};
+    virtual ~MuonInsideOutRecoTool()=default;
     virtual StatusCode initialize() override;
 
     /** @brief access to tool interface */

@@ -38,7 +38,7 @@ class MuonSpShowerBuilder : public AthAlgorithm {
  public:
 
   MuonSpShowerBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MuonSpShowerBuilder() {};
+  ~MuonSpShowerBuilder()=default;
 
   StatusCode initialize();
   StatusCode execute();

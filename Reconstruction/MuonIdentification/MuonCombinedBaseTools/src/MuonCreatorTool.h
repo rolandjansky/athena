@@ -69,7 +69,7 @@ namespace MuonCombined {
 
   public:
     MuonCreatorTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCreatorTool() {};
+    ~MuonCreatorTool()=default;
   
     StatusCode initialize();
 

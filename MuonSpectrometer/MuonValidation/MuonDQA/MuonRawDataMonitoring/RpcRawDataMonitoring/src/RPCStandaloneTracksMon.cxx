@@ -809,15 +809,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      Amg::Vector3D Vector3D  (irpc_clus_posx  , irpc_clus_posy  ,  irpc_clus_poszII);
 		      Rpc_Point.push_back     (Vector3D 	         )  ;
 		      Rpc_Matched_mu.push_back(foundmatch3DwithMuon 	 )  ;
-		  
-		    
-		      /*
-			std::cout << "Next 3D RPC cluster" << std::endl;
-			std::cout << N_Rpc_Clusters3D << " " << irpc_clus_phi << " " << irpc_clus_station << " " << irpc_clus_eta << std::endl;
-			std::cout << irpc_clus_doublr << " " << irpc_clus_doublphi << " " << irpc_clus_doublz << " " << irpc_clus_gasgap << std::endl;
-			std::cout << irpc_clus_posx   << " " << irpc_clus_posy	<< " " << irpc_clus_poszII << " Ltype "<<layertype<<std::endl;
-			std::cout << planetype << " "<< irpc_clus_time<< " "<<  SectorLogic+ 32*Side<<"-----" << std::endl;
-		      */
+
 		      N_Rpc_Clusters3D++;
 	            
 
@@ -972,7 +964,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	    sc = rpc_triggerefficiency.getHist( m_hMEtracks  ,"hMEtracks" ) ;		  
 	    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get " << " hMEtracks " );
 	    if(m_hMEtracks)m_hMEtracks->Fill( metrack->pt() / 1000.);
-	     //std::cout <<" Track " <<  metrack->eta() << " " <<metrack->phi() << std::endl;
 	    
 	    bool foundmatchlowpt_thr0  = false;
 	    bool foundmatchlowpt_thr1  = false;
@@ -1019,7 +1010,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
              phi_atlas = descriptor_Atl->stripPos(prdcoll_id ).phi();
 	     
 	     
-	     //std::cout << " Trigger Hits " << eta_atlas << " "<< phi_atlas <<std::endl;
              if(m_idHelperSvc->rpcIdHelper().measuresPhi(prdcoll_id))continue;
 	     if( std::sqrt( std::fabs(eta_atlas-metrack->eta())*std::fabs(eta_atlas-metrack->eta()) +  std::fabs(phi_atlas-metrack->phi())*std::fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) { 
 	      //Second coin phi view
@@ -1089,7 +1079,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    int sign = 1 ;
 		    if(metrack->eta()<0)sign=-1;
 	   
-		    //std::cout <<thresholdpad.at(i_etaphiPAD) << " PAD " << etaminpad.at(i_etaphiPAD) << " "<< etamaxpad.at(i_etaphiPAD) <<" phi " << phiminpad.at(i_etaphiPAD) << " "<< phimaxpad.at(i_etaphiPAD) <<std::endl;	
 		    if( ( metrack->eta()-etaminpad.at(i_etaphiPAD))*sign> -m_MuonDeltaRMatching ){
 		    if( (-metrack->eta()+etamaxpad.at(i_etaphiPAD))*sign> -m_MuonDeltaRMatching ){
 		    if(   metrack->phi()-phiminpad.at(i_etaphiPAD)      > -m_MuonDeltaRMatching ){
@@ -1127,8 +1116,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	   //muctpi
 	   for (auto i_muctpi_rdo_roi_list=muctpi_rdo_roi_list.begin();i_muctpi_rdo_roi_list!=muctpi_rdo_roi_list.end();i_muctpi_rdo_roi_list++) { // each collection is a trigger signal
 	            
-		    //std::cout << i_muctpi_rdo_roi_list->thrNumber << " Muctpi " << i_muctpi_rdo_roi_list->eta  << " "<< i_muctpi_rdo_roi_list->phi <<std::endl;	
-
 		    double deta =   metrack->eta()-i_muctpi_rdo_roi_list->eta ;
 	            double dphi =   metrack->phi()-i_muctpi_rdo_roi_list->phi ;
 		    
@@ -1200,15 +1187,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	      Amg::Vector3D  ImpactVector(0,0,0)  	;
 	      Amg::Vector3D  bImpactIP(0,0,0)     	;
       
-	      //std::cout << "multi tracks begin " << std::endl ;  
 	      ///multi tracks begin
 	      //Pattern recognition: link 3D cluster with at least three different layer m_type two of each Pivot and LowPt 
 	      int N_Rpc_Tracks   = 0 ;
-	      /*
-		for (int i_3D=0;i_3D!=N_Rpc_Clusters3D;i_3D++) {
-		std::cout << i_3D <<" " <<LayerType.at(i_3D)<<" "<< (Rpc_Point.at(i_3D)).x() << " " << (Rpc_Point.at(i_3D)).y() << " " <<(Rpc_Point.at(i_3D)).z() <<std::endl ;
-		}	              
-	      */
  	      for (int i_3D0=0; i_3D0!=N_Rpc_Clusters3D; i_3D0++) {
 	        if( !(Rpc_Matched_mu.at(i_3D0)) && m_StandAloneMatchedWithTrack )continue;
  		if(LayerType.at(i_3D0)==ilayertype &&  ilayertype!=6  )continue;
@@ -1250,23 +1231,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    }      
 		    
 		    if(ImpactVector.mag()<MergePointDistance){
-		      /*
-		      std::cout << "Third (or following) cluster matches the segment built with 1st-2nd 3D cluster pair... 1st,2nd,3rd indices = "
-				<<i_3D0<<"/"
-				<<i_3DI<<"/"
-				<<i_3DII
-				<<" for track index "<<N_Rpc_Tracks + 1<<" at ilayertype iter="<<ilayertype<<std::endl ;
-		      */
 		      Rpc_track[ i_3DII ] = N_Rpc_Tracks + 1 ;
 		      PointperTrack++ ;
 		      lookforthirdII = 1 ;
 		      if (LayerType.at(i_3DII)!=LayerType.at(i_3DI) && LayerType.at(i_3DII)!=LayerType.at(i_3D0) ){ 
 			thirdlayertypeII = 1 ;
-			//std::cout << "third cluster found - is not on the same layer as 1st and 2nd  " <<std::endl ;
 		      }
 		      if (LayerType.at(i_3DII)> 3 ){ 
 			thirdlayerHPt = 1 ;
-			//std::cout << "third layer found with HPt" <<std::endl ;
 		      }
 		     	    
 		    }
@@ -1284,13 +1256,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  }//Third
 		  //First and Second do not link with different layer m_type with any Third let free Second
 
-		  /*
-		  std::cout<<"3rd LOOP over clusters is OVER: any good triplet ?? lookforthirdII/thirdlayertypeII/ilayertype/thirdlayerHPt/ = "
-			   <<lookforthirdII<<"/"<<thirdlayertypeII<<"/"<<ilayertype<<"/"<<thirdlayerHPt<<"/"<<m_HPtPointForHPteff<<"/"
-			   <<m_HPtPointForLPteff<<"/"<<m_HPtPointForTracks<<std::endl;
-		  */
-			   
-
 		  if( (lookforthirdII==0||thirdlayertypeII==0)                  ||
 		      (ilayertype==4&&thirdlayerHPt==0&&m_HPtPointForHPteff==1) ||
 		      (ilayertype==5&&thirdlayerHPt==0&&m_HPtPointForHPteff==1) ||
@@ -1298,11 +1263,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      (ilayertype==6&&thirdlayerHPt==0&&m_HPtPointForTracks==1)    ){  
 		    Rpc_track[ i_3DI  ] = 0 ;
 		    for (int i_3Dx=0;i_3Dx!=N_Rpc_Clusters3D;i_3Dx++) { if((i_3Dx!=i_3D0)&&(Rpc_track[ i_3Dx ]==N_Rpc_Tracks + 1 )) Rpc_track[ i_3Dx ] = 0; }
-		    //std::cout << "Clear Second and all merged thirds but firts" <<std::endl ;
 		  }
 		  else{ 
 		    linkedtrack = 1 ; 
-		    //std::cout << "Linked " <<std::endl ;
 		  } 
   	
 		}//Second
@@ -1310,7 +1273,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		if(linkedtrack == 0 ){
 		  Rpc_track[ i_3D0  ] = 0 ;
 		  PointperTrack	  = 0 ;
-		  //std::cout << "Clear First " <<std::endl ;
 		}
 		else{
  		  if( ilayertype==6  ) { m_rpcPointPerTracks -> Fill ( PointperTrack ) ; }
@@ -1318,7 +1280,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		
 		  //rosy decrease to 1000 instead of 10000 since RPC_track is a fixed to 1000 size array
 		  if( N_Rpc_Tracks<1000 ) N_Rpc_Tracks ++ ;
-		  //std::cout << "Add track " <<N_Rpc_Tracks<< " with N points " <<  PointperTrack <<std::endl ;
  
 		  float x0Phi = 0 ;
 		  float xyPhi = 0 ;
@@ -1347,17 +1308,10 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  float minphi = 100;
                   float maxphi =-100;
  
-		  //std::cout <<  " Start track fitting. with PointperTrack " << PointperTrack  <<std::endl ;
  
 		  for (int i_3D=0;i_3D!=N_Rpc_Clusters3D;i_3D++) {
 
 		    if(Rpc_track[ i_3D ] != N_Rpc_Tracks)continue;
-		    /*
-		      std::cout << i_3D <<" " <<LayerType.at(i_3D)<<" "<< (Rpc_Point.at(i_3D)).x() << " " << (Rpc_Point.at(i_3D)).y() << " " <<(Rpc_Point.at(i_3D)).z() <<std::endl ;
-		      std::cout << SmallLarge.at(i_3D)<<std::endl ;
-		      std::cout << Rpc_Station_3D.at(i_3D)<<" "<<Rpc_Eta_3D.at(i_3D)<<" "<< Rpc_Phi_3D.at(i_3D)<< std::endl ;
-		      std::cout << Rpc_DBLr_3D.at(i_3D)<<" "<<Rpc_DBLz_3D.at(i_3D)<<" "<< Rpc_DBLphi_3D.at(i_3D)<< " "<< Rpc_GasGap_3D.at(i_3D)<< std::endl ;
-		    */
  
 		    //gap to span to find intersections
 		    if(minphi>Rpc_Phi_3D.at(i_3D))minphi=Rpc_Phi_3D.at(i_3D);
@@ -1397,7 +1351,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    zyEta = (zyav*PointperTrack-zav*yav)/deltay;
 		  }
 		  else{
-		    //std::cout << "deltay = 0 Not accepted with cosmics!!!"  << std::endl ;
 		    x0Phi = 0 ;
 		    xyPhi = 0 ;
 		    z0Eta = 0 ;
@@ -1527,18 +1480,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      m_f_rpczxSurfaceView->Fill(zsurface,xsurface);
 		    }
 
-		    //NPhiStrip = 0 ;
-		    //NEtaStrip = 0 ;
 		    float phipitch  = 0 ;
 		    float etapitch  = 0 ;
 	 		   
-		    //std::cout << "minphi maxphi mineta maxeta " << minphi << " " << maxphi << " " << mineta << " " << maxeta <<std::endl;
 		  
 		    //start loop on gaps by geomodel
 		    if(ilayertype!=6){
 		      for(int iname=      2; iname!=       10+1 ; iname++){
 			for(int ieta = mineta; ieta != maxeta+1; ieta++ ){ 
-			  //if(ieta>6)continue;if(ieta<-6)continue;//remove bml7
 			  for(int iphi = minphi; iphi != maxphi+1; iphi++ ){
 			    for(int ir   =      1; ir   !=      2+1; ir++	){
 			      for(int iz   =      1; iz   !=      3+1; iz++	){
@@ -1626,42 +1575,22 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 				    Amg::Vector3D Inters3DLphi1	       (0.,0.,0.);
                       
 				    Poseta1		    = rpc->stripPos(ideta1)			       ;				    
-//				    if( Poseta1  	       == 0 ) return StatusCode::SUCCESS;
 				    Poseta1L		    = ((rpc->transform(ideta1)).inverse())*Poseta1     ;
-// 				    if( Poseta1L 	       == NULL ) return StatusCode::SUCCESS;
  				    PosetaN		    = rpc->stripPos(idetaN)			       ;
-// 				    if( PosetaN  	       == NULL ) return StatusCode::SUCCESS;
  				    PosetaNL		    = ((rpc->transform(ideta1)).inverse())*PosetaN     ;
-// 				    if( PosetaNL 	       == NULL ) return StatusCode::SUCCESS;
  				    Inters3DLeta1	    = ((rpc->transform(ideta1)).inverse())*Inters3DG   ;
-// 				    if( Inters3DLeta1	       == NULL ) return StatusCode::SUCCESS;
  				    Posphi1		    = rpc->stripPos(idphi1)			       ;
-// 				    if( Posphi1  	       == NULL ) return StatusCode::SUCCESS;
  				    Posphi1L		    = ((rpc->transform(idphi1)).inverse())*Posphi1     ;
-// 				    if( Posphi1L 	       == NULL ) return StatusCode::SUCCESS;
  				    PosphiN		    = rpc->stripPos(idphiN)			       ;
-// 				    if( PosphiN  	       == NULL ) return StatusCode::SUCCESS;
  				    PosphiNL		    = ((rpc->transform(idphi1)).inverse())*PosphiN     ;
-// 				    if( PosphiNL 	       == NULL ) return StatusCode::SUCCESS;
  				    Inters3DLphi1	    = ((rpc->transform(idphi1)).inverse())*Inters3DG   ;
-// 				    if( Inters3DLphi1	       == NULL ) return StatusCode::SUCCESS;
- 				    
-				    
-				
+
 		                
 				    float hitstripphi = (( Inters3DLphi1.x()-Posphi1L.x() + phipitch  ))/phipitch;
 				    if( Posphi1L.x() > PosphiNL.x() )hitstripphi=-hitstripphi;
-				    //hitstripphi++;
 				    float hitstripeta = (( Inters3DLeta1.x()-Poseta1L.x() + etapitch  ))/etapitch;
-				    //if(ieta<0)hitstripeta=-hitstripeta;
-				    //hitstripeta++;
 				    if( Poseta1L.x() > PosetaNL.x() )hitstripeta=-hitstripeta;
-       
-				    /*
-				      std::cout << "Look for Crossing "<< iname << " iname  " << ieta << "  ieta " <<  iphi
-				      << "  iphi " << ir <<  " ir  " << iz << " iz " << idp << "  idp " <<
-				      ig << "  ig " << hitstripphi  << " hitstripphi " << hitstripeta  << " hitstripeta " <<std::endl;
-				    */
+
        
 				    //look for gap intersection
 				    if( !(hitstripphi >  float(nstripfiducial)) ) continue ;
@@ -1670,7 +1599,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 				    if( !(hitstripeta <  float(rpc->NetaStrips()-nstripfiducial)) ) continue ;
        
         
-				    //std::cout << "Intersection at "<< Inters3DG.x() << " " << Inters3DG.y() << " "  << Inters3DG.z() << std::endl;
        
 				    int foundonehiteta =    0 ;
 				    int foundonehitphi =    0 ;  
@@ -2118,7 +2046,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					       m_rpcSectorLayerResponse->Fill(stripetaatlas, stripphisector  );
 					       float a1 =  m_rpcSectorLayerResponse->GetBinContent(stripetaatlas, stripphisector  );
 					       float a2 =  m_rpcSectorLayerTrackProj->GetBinContent(stripetaatlas, stripphisector  );
-					       if(a2<a1)std::cout << " WARNING DIAMOND AND" <<std::endl;
+					       if(a2<a1)ATH_MSG_WARNING(" WARNING DIAMOND AND");
 					      }
 					      else {  ATH_MSG_DEBUG ( "rpcSectorLayerResponse not in hist list!" );}
 					      foundEtaPhi=1;
@@ -2129,7 +2057,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					       m_rpcSectorLayerResponseOR->Fill(stripetaatlas, stripphisector  );
 					       float a1 =  m_rpcSectorLayerResponseOR->GetBinContent(stripetaatlas, stripphisector  );
 					       float a2 =  m_rpcSectorLayerTrackProj->GetBinContent(stripetaatlas, stripphisector  );
-					       if(a2<a1)std::cout << " WARNING DIAMOND OR" <<std::endl;
+					       if(a2<a1)ATH_MSG_WARNING(" WARNING DIAMOND OR");
 					      }
 					      else {  ATH_MSG_DEBUG ( "rpcSectorLayerResponseEtaOrPhi not in hist list!" );}
 					      foundEtaOrPhi=1;
@@ -2161,9 +2089,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					sc = rpc_radiography.getHist(m_rpcSectorLayerResponse,  sector_name+"_"+layeronly_name+"_Response" ); 
 					if (m_rpcSectorLayerResponse) {
 					  m_rpcSectorLayerResponse->Fill(stripetaatlas, stripphisector  );
-					  //float a1 =  m_rpcSectorLayerResponse->GetBinContent(stripetaatlas, stripphisector  );
-					  //float a2 =  m_rpcSectorLayerTrackProj->GetBinContent(stripetaatlas, stripphisector  );
-					  //if(a2<a1)std::cout << " WARNING DIAMOND AND" <<std::endl;
 					}
 					else {  ATH_MSG_DEBUG ( "rpcSectorLayerResponse not in hist list!" );}
 					      
@@ -2172,9 +2097,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					sc = rpc_radiography.getHist(m_rpcSectorLayerResponseOR, sector_name+"_"+layeronly_name+"_ResponseEtaOrPhi" ); 
 					if ( m_rpcSectorLayerResponseOR ) { 
 					  m_rpcSectorLayerResponseOR->Fill(stripetaatlas, stripphisector  );
-					  //float a1 =  m_rpcSectorLayerResponseOR->GetBinContent(stripetaatlas, stripphisector  );
-					  //float a2 =  m_rpcSectorLayerTrackProj->GetBinContent(stripetaatlas, stripphisector  );
-					  //if(a2<a1)std::cout << " WARNING DIAMOND OR" <<std::endl;
 					}
 					else {  ATH_MSG_DEBUG ( "rpcSectorLayerResponseEtaOrPhi not in hist list!" );}
 					      
@@ -3381,9 +3303,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	  	  
 	    int panelBin   = 0   ;
 	    int indexplane = 0   ;
-	    // Identifier gapId ;
 	    Identifier panelId ;
-	    //std::cout<<" before the loop: sector: "<< i_sec <<std::endl;
 	    
 	    for (int iname=2; iname!=53+1; iname++ ){
 	      if(iname>10&&iname<53)continue;
@@ -3434,7 +3354,6 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	          
 			    if ( (ieta-8) <0 ) panelBin = - panelBin; 
 			    SummaryPanelID->Fill(panelBin, panelId.get_identifier32().get_compact() );
-			    //std::cout <<" panelBin "<< panelBin  << " " <<panelId.get_identifier32().get_compact() <<" Entries " << SummaryPanelID->GetEntries()<< std::endl; 
 			    
 			  }
 			}
@@ -3444,7 +3363,6 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 		}
 	      }
 	    }
-	    //std::cout<<" after the loop"<<std::endl;
 	  
 	    // 1) panel efficiency distribution per sector
 	    std::string generic_path_SummaryEffDistriPerSector = generic_path_rpcmonitoring+"/Summary";
@@ -3719,7 +3637,6 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	    if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register  SummaryTimeDistriPerSector hist to MonGroup" ); 
 	    
 	    //TOTPanelsSummary += SummaryPanelID->GetEntries(); 
-	    //std::cout  << " TOTPanelsSummary " << TOTPanelsSummary << std::endl;  
 	 	  
 	  }
 	  m_SummaryHist_Size =  m_SummaryHist.size() ;

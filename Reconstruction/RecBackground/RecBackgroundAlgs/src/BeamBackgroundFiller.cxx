@@ -12,6 +12,10 @@
 
 #include <cmath>
 
+namespace {
+    static constexpr float const& myConst = 1e-3/3e8/1e-9;
+}
+
 //------------------------------------------------------------------------------
 BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
                                  ISvcLocator* pSvcLocator) :
@@ -331,8 +335,8 @@ void BeamBackgroundFiller::SegmentMethod()
 
     // muon segment: in-time (1), early (2), ambiguous (0)
     int timeStatus = 0;
-    double inTime = -(-std::fabs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
-    double early  = -( std::fabs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
+    double inTime = -(-std::fabs(zSeg) + globalPos.mag())*myConst;
+    double early  = -( std::fabs(zSeg) + globalPos.mag())*myConst;
     if( std::fabs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
     if( std::fabs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
 
@@ -368,8 +372,8 @@ void BeamBackgroundFiller::SegmentMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatusC = 0;
-      double inTime = -(-std::fabs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
-      double early  = -( std::fabs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
+      double inTime = -(-std::fabs(zSegC) + globalPos.mag())*myConst;
+      double early  = -( std::fabs(zSegC) + globalPos.mag())*myConst;
       if( std::fabs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
       if( std::fabs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
 
@@ -432,8 +436,8 @@ void BeamBackgroundFiller::OneSidedMethod()
     double tClus = clus->time();
 
     // calculate expected cluster time
-    double expectedClusterTimeAC = -( zClus + std::sqrt(rClus*rClus + zClus*zClus))*(1e-3/3e8/1e-9);
-    double expectedClusterTimeCA = -(-zClus + std::sqrt(rClus*rClus + zClus*zClus))*(1e-3/3e8/1e-9);
+    double expectedClusterTimeAC = -( zClus + std::sqrt(rClus*rClus + zClus*zClus))*myConst;
+    double expectedClusterTimeCA = -(-zClus + std::sqrt(rClus*rClus + zClus*zClus))*myConst;
 
     for(unsigned int segIndex=0; segIndex<m_indexSeg.size(); segIndex++) {
 
@@ -449,8 +453,8 @@ void BeamBackgroundFiller::OneSidedMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatus = 0;
-      double inTime = -(-std::fabs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
-      double early  = -( std::fabs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
+      double inTime = -(-std::fabs(zSeg) + globalPos.mag())*myConst;
+      double early  = -( std::fabs(zSeg) + globalPos.mag())*myConst;
       if( std::fabs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
       if( std::fabs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
 
@@ -545,8 +549,8 @@ void BeamBackgroundFiller::TwoSidedMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatusA = 0;
-      double inTime = -(-std::fabs(zSegA) + globalPos.mag())*(1e-3/3e8/1e-9);
-      double early  = -( std::fabs(zSegA) + globalPos.mag())*(1e-3/3e8/1e-9);
+      double inTime = -(-std::fabs(zSegA) + globalPos.mag())*myConst;
+      double early  = -( std::fabs(zSegA) + globalPos.mag())*myConst;
       if( std::fabs(tSegA - inTime) < m_cutMuonTime ) timeStatusA = 1;
       if( std::fabs(tSegA - early ) < m_cutMuonTime ) timeStatusA = 2;
 
@@ -568,8 +572,8 @@ void BeamBackgroundFiller::TwoSidedMethod()
 
         // muon segment: in-time (1), early (2), ambiguous (0)
         int timeStatusC = 0;
-        double inTime = -(-std::fabs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
-        double early  = -( std::fabs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
+        double inTime = -(-std::fabs(zSegC) + globalPos.mag())*myConst;
+        double early  = -( std::fabs(zSegC) + globalPos.mag())*myConst;
         if( std::fabs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
         if( std::fabs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
 
