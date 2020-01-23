@@ -196,30 +196,53 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         PixelConfigCondAlg.FEI4EndcapHitDiscConfig=[2,2,2]
 
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-        # ITk:
-        if geoFlags.isSLHC():
-            IdMappingDat = "ITk_Atlas_IdMapping.dat"
-            if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-                IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-            elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-                IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-            elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-            elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif (geoFlags.isIBL() == False):
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
-        else:
-            # Planar IBL
-            if (geoFlags.IBLLayout() == "planar"):
-                if (geoFlags.isDBM() == True):
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
+        rodIDForSingleLink40=0
+        from AthenaCommon.GlobalFlags import globalflags
+        if globalflags.DataSource() == 'geant4':
+            # ITk:
+            if geoFlags.isSLHC():
+                IdMappingDat = "ITk_Atlas_IdMapping.dat"
+                if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
+                elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
+                elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
+                elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
+                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
+            elif (geoFlags.isIBL() == False):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
+            else:
+                # Planar IBL
+                if (geoFlags.IBLLayout() == "planar"):
+                    if (geoFlags.isDBM() == True):
+                        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
+                    else:
+                        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
+                # Hybrid IBL plus DBM
+                elif (geoFlags.IBLLayout() == "3D"):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+        elif globalflags.DataSource == 'data':  # for data overlay
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            runNum = GetRunNumber()
+            if (runNum<222222):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+                rodIDForSingleLink40=1300000
+            else:
+                PixelConfigCondAlg.UseCablingConditions = True
+                rodIDForSingleLink40=1300000
+                # Even though we are reading from COOL, set the correct fallback map.
+                if (runNum >= 344494):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+                elif (runNum >= 314940 and runNum < 344494):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_314940.dat"
+                elif (runNum >= 289350 and runNum < 314940): # 2016
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
+                elif (runNum >= 222222 and runNum < 289350): # 2015
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
                 else:
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
-            # Hybrid IBL plus DBM
-            elif (geoFlags.IBLLayout() == "3D"):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
-        
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+
         PixelConfigCondAlg.CablingMapFileName=IdMappingDat
 
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
@@ -274,11 +297,15 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
         condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
 
+    if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):  # for data overlay
+        if not conddb.folderRequested("/PIXEL/CablingMap"):
+            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
+
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
         condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
                                        MappingFile=IdMappingDat,
-                                       RodIDForSingleLink40=0)
+                                       RodIDForSingleLink40=rodIDForSingleLink40)
 
     if not conddb.folderRequested("/PIXEL/PixReco"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
