@@ -445,8 +445,8 @@ namespace top {
         if (m_config->useTrackJets()) {
           for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
             // skip uncalibrated though available WPs
-            if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(),
-                          tagWP) == m_config->bTagWP_calibrated().end()) continue;
+            if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(),
+                          tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
             m_weight_trackjet_bTagSF[tagWP] = 0.;
             systematicTree->makeOutputVariable(m_weight_trackjet_bTagSF[tagWP],
                                                "weight_trackjet_bTagSF_" + shortBtagWP(tagWP));
@@ -710,8 +710,8 @@ namespace top {
           if (m_config->useTrackJets()) {
             for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
               // skip uncalibrated though available WPs
-              if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(),
-                            tagWP) == m_config->bTagWP_calibrated().end()) continue;
+              if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(),
+                            tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
               // up
               systematicTree->makeOutputVariable(m_weight_trackjet_bTagSF_eigen_B_up[tagWP], "weight_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_B_up");
@@ -1809,7 +1809,7 @@ namespace top {
       }
       if (m_config->useTrackJets()) {
         for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
-          if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
+          if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(), tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
           m_weight_trackjet_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP, true);
         }
       }
@@ -1978,7 +1978,7 @@ namespace top {
         if (m_config->useTrackJets()) {
           for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
             // skip uncalibrated though available WPs
-            if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
+            if (std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(), tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
             m_sfRetriever->btagSF_eigen_vars(event, top::topSFSyst::BTAG_SF_EIGEN_B,
                                              m_weight_trackjet_bTagSF_eigen_B_up[tagWP],
                                              m_weight_trackjet_bTagSF_eigen_B_down[tagWP], tagWP, true);
