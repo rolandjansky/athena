@@ -864,6 +864,8 @@ size_t LArCompactSubsetVector::getChanSize() const
 inline
 size_t LArCompactSubsetVector::getSize (unsigned int chan) const
 {
+  if (m_chanSize == 0)
+    return 0;
   int slot = m_slots[chan * m_chanSize];
   if (slot >= 0)
     return m_chanSize;
