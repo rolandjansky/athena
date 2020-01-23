@@ -13,9 +13,6 @@
 // Local include(s):
 #include "xAODTrigger/versions/TrigDecision_v1.h"
 
-// string2hash
-#include "TrigConfHLTData/HLTUtils.h"
-
 namespace xAOD {
 
    TrigDecision_v1::TrigDecision_v1()

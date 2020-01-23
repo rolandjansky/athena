@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -11,7 +11,7 @@
 #include "SGTools/TestStore.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "CxxUtils/checker_macros.h"
 

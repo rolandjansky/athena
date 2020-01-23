@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigCompositeUtils/HLTUtils.h"
 
 int main (int argc, char *argv []) {
   if (argc > 1) {

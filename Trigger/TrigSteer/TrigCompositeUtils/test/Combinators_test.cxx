@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "TestTools/expect.h"
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/Combinators.h"
 
 using namespace HLT;
 void smallCombination () {

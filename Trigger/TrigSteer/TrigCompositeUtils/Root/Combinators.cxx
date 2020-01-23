@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include <iostream>
 #include <iterator>
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/Combinators.h"
 
 
 using namespace HLT;

@@ -229,17 +229,17 @@ StatusCode TrigSteer::initialize()
    // find out which TE types should be produced at which level
 
    if (m_hltLevel == "HLT"){
-      m_producedTEsHLT =  TrigConf::HLTUtils::allTEsProducedInLevel("HLT", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
+      m_producedTEsHLT =  TrigConf::HLTTEUtils::allTEsProducedInLevel("HLT", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
       for ( unsigned t = 0; t < m_producedTEsHLT.size(); t++ ) {
          ATH_MSG_DEBUG("Will produce at HLT TE of id: " << m_producedTEsHLT[t]);
       }
    } else {
-      m_producedTEsL2 =  TrigConf::HLTUtils::allTEsProducedInLevel("L2", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
+      m_producedTEsL2 =  TrigConf::HLTTEUtils::allTEsProducedInLevel("L2", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
       for ( unsigned t = 0; t < m_producedTEsL2.size(); t++ ) {
          ATH_MSG_VERBOSE("Will produce at L2 TE of id: " << m_producedTEsL2[t]);
       }
     
-      m_producedTEsEF =  TrigConf::HLTUtils::allTEsProducedInLevel("EF", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
+      m_producedTEsEF =  TrigConf::HLTTEUtils::allTEsProducedInLevel("EF", *(m_configSvc->chainList()), *(m_configSvc->sequenceList()));
       for ( unsigned t = 0; t < m_producedTEsEF.size(); t++ ) {
          ATH_MSG_VERBOSE("Will produce at EF TE of id: " << m_producedTEsEF[t]);
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
@@ -8,7 +8,7 @@
 #include "GaudiKernel/GaudiException.h"
 
 #include "StoreGate/WriteHandle.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 #include <unordered_map>
 #include <regex>
