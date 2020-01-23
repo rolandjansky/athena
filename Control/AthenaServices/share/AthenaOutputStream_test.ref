@@ -134,7 +134,6 @@ IoComponentMgr      DEBUG --> io_hasitem()
 AthenaOutputStream   INFO I/O reinitialization...
 IncidentSvc         DEBUG Adding [MetaDataStop] listener 'AthenaOutputStream' with priority 50
 AthenaOutputStr...  DEBUG Property update for OutputLevel : new value = 1
-AthenaOutputStream   INFO Both high and low float compression lists are empty. Float compression will NOT be applied.
 AthenaOutputStream  DEBUG End initialize
 AthenaOutputStreamVERBOSE ServiceLocatorHelper::service: found service AlgExecStateSvc
 AlgExecStateSvc     DEBUG preInit: will add Alg AthenaOutputStream later

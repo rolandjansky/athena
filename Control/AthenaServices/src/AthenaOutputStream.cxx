@@ -353,7 +353,7 @@ StatusCode AthenaOutputStream::initialize() {
      m_compressionBitsLow = m_compressionBitsHigh;
    }
    if(m_compressionListHigh.value().empty() && m_compressionListLow.value().empty()) {
-     ATH_MSG_INFO("Both high and low float compression lists are empty. Float compression will NOT be applied.");
+     ATH_MSG_VERBOSE("Both high and low float compression lists are empty. Float compression will NOT be applied.");
    } else {
      ATH_MSG_INFO("Either high or low (or both) float compression lists are defined. Float compression will be applied.");
      ATH_MSG_INFO("High compression will use " << m_compressionBitsHigh << " mantissa bits, and " <<
