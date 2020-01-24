@@ -106,11 +106,6 @@ namespace MuonCombined {
   MuonStauRecoTool::~MuonStauRecoTool() { }
 
   StatusCode MuonStauRecoTool::finalize() {
-    if( m_doTruth ){
-      //for( auto summary : m_truthMatchingCounters ){
-      //  ATH_MSG_INFO(" Reco efficiency for pdgID " << summary.first << " " << summary.second.summary() );
-      //}
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -138,8 +133,6 @@ namespace MuonCombined {
       // add pdgs from jobO to set
       for( auto pdg : m_pdgsToBeConsidered.value() ) {
         m_selectedPdgs.insert(pdg);
-        // add truth matching counters for the selected PDGs
-        //m_truthMatchingCounters[std::abs(pdg)];
       }
     }
     return StatusCode::SUCCESS;
@@ -147,8 +140,8 @@ namespace MuonCombined {
 
   void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
 					 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
-    //Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
-    //For now it's just a placeholder though
+    // Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
+    // For now it's just a placeholder though
     if(!prdData.mdtPrds) ATH_MSG_DEBUG("empty PRDs passed");
     extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
   }
@@ -203,10 +196,6 @@ namespace MuonCombined {
       return;
     }      
 
-    // setup truth matching counters
-    //TruthMatchingCounters* truthMatchingCounter = getTruthMatchingCounters(truthInfo.get());
-    //if( truthMatchingCounter ) truthMatchingCounter->fillTruth();
-
     // get intersections which precision layers in the muon system 
     const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
 
@@ -221,13 +210,11 @@ namespace MuonCombined {
 
     // exit if no MuonSystemExtension was found
     if( !muonSystemExtension ) {
-      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost due to missing extension " << endmsg;
       return;
     }
     
     // fill validation content
     if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTrackParticle( indetTrackParticle, *muonSystemExtension );
-    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(0);
 
 
     /** STAGE 1
@@ -236,10 +223,8 @@ namespace MuonCombined {
 
     AssociatedData associatedData;
     if( !extractTimeMeasurements(*muonSystemExtension,associatedData) ) {
-      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after extractTimeMeasurements " << endmsg;
       return;
     }
-    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(1);
 
     
     /** STAGE 2 
@@ -248,11 +233,9 @@ namespace MuonCombined {
 
     CandidateVec candidates;
     if( !createCandidates(associatedData,candidates) ) {
-      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after createCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,0);
-    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(2);
 
 
     /** STAGE 3
@@ -260,11 +243,9 @@ namespace MuonCombined {
     */
 
     if( !refineCandidates(candidates) ) {
-      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after refineCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,1);
-    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(3);
 
 
     /** STAGE 4 
@@ -272,11 +253,9 @@ namespace MuonCombined {
     */
 
     if( !combineCandidates(indetTrackParticle,candidates) ){
-      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after combination " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,2);
-    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(4);
 
 
     /** STAGE 5
@@ -284,11 +263,9 @@ namespace MuonCombined {
     */
 
     if( !resolveAmbiguities(candidates) ){
-      //if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after ambiguity solving " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,3);
-    //if( truthMatchingCounter ) truthMatchingCounter->fillStage(5);
 
 
     /** STAGE 6
@@ -765,7 +742,7 @@ namespace MuonCombined {
         float tres = rres/drdt;
         float TlocR = rtRelation->tr()->tFromR(fabs(locR), out_of_bound_flag);
         float trackTimeRes = errR/drdt;
-        float tofShiftFromBeta = 0.;//muonBetaCalculationUtils.calculateTof(betaSeed,distance)-tof;
+        float tofShiftFromBeta = 0.;  // muonBetaCalculationUtils.calculateTof(betaSeed,distance)-tof;
         er = sqrt(tres*tres+trackTimeRes*trackTimeRes);
         mdtTimeCalibration(id,driftTime,er);
         time = driftTime - TlocR + tofShiftFromBeta;
@@ -1016,7 +993,7 @@ namespace MuonCombined {
                       << " beta " << newCandidate->betaFitResult.beta << " chi2/ndof " << newCandidate->betaFitResult.chi2PerDOF() );
         // if the fit was successfull add the candidate to the candidate vector
         if( newCandidate->betaFitResult.status != 0 ){
-	  newCandidate->combinedTrack=nullptr; //no track exists at this stage
+	  newCandidate->combinedTrack=nullptr; // no track exists at this stage
 	  candidates.push_back(newCandidate);
 	}
       }
@@ -1379,7 +1356,7 @@ namespace MuonCombined {
     for( ;chit!=chit_end;++chit ){
       // cluster hits
       Muon::RpcHitClusteringObj clustering(m_idHelper.get());
-      //clustering.debug = true;
+      // clustering.debug = true;
       if( !clustering.cluster( chit->second ) ){
         ATH_MSG_WARNING("Clustering failed");
         return;
