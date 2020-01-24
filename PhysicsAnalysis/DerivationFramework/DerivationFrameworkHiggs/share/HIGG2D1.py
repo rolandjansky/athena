@@ -95,7 +95,7 @@ thinningTools.append(HIGG2D1TauTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 HIGG2D1MuonCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D1MuonCCThinningTool",
-                                                                     ThinningService       = HIGG2D1ThinningHelper.ThinningSvc(),
+                                                                     StreamName            = streamName,
                                                                      SGKey                 = "Muons",
                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                      SelectionString       = "Muons.pt>0.*GeV",
