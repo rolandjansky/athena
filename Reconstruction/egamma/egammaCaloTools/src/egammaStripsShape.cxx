@@ -1,17 +1,15 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
  */
 
 #include "egammaStripsShape.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
 #include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "SGTools/DataProxy.h" 
-
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "egammaUtils/egammaqweta1c.h"
 #include <cmath>
 #include <cfloat>
 
@@ -60,14 +58,6 @@ StatusCode egammaStripsShape::initialize(){
 
     // retrieve all helpers from det store
     m_calo_dd = CaloDetDescrManager::instance();
-
-    // Create egammaqweta1c Tool
-    if(m_egammaqweta1c.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaqweta1c);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaqweta1c << " retrieved"); 
-
 
     return StatusCode::SUCCESS;
 }
@@ -483,8 +473,8 @@ void egammaStripsShape::setWs3(Info& info,
         info.etas3   = eta1 / energy;
         // corrected width for position inside the cell
         // estimated from the first sampling
-        info.ws3c = m_egammaqweta1c->Correct(cluster.etaSample(sam),cluster.etamax(sam),info.ws3); 
-        info.poscs1 =  m_egammaqweta1c->RelPosition(cluster.etaSample(sam),cluster.etamax(sam));    
+        info.ws3c = egammaqweta1c::Correct(cluster.etaSample(sam),cluster.etamax(sam),info.ws3); 
+        info.poscs1 =  egammaqweta1c::RelPosition(cluster.etaSample(sam),cluster.etamax(sam));    
     }
     return;
 }
@@ -630,7 +620,6 @@ int egammaStripsShape::setEmax2(Info& info, double* enecell,
     return ncetasec1;
 }
 
-// =====================================================================
 void egammaStripsShape::setEmin(int ncsec1,Info& info, double* enecell, 
         double* gracell, int* ncell ) const {
     //
@@ -662,7 +651,6 @@ void egammaStripsShape::setEmin(int ncsec1,Info& info, double* enecell,
     return;
 }
 
-// =====================================================================
 void egammaStripsShape::setValley(Info& info, double* enecell) const {
     //
     // Variable defined originally by Michal Seman

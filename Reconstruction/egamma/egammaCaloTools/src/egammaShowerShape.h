@@ -31,8 +31,6 @@ class CaloDetDescrManager;
 #include "egammaInterfaces/IegammaStripsShape.h"
 #include "egammaInterfaces/IegammaMiddleShape.h"
 #include "egammaInterfaces/IegammaBackShape.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
-#include "egammaInterfaces/Iegammaqweta2c.h"
 
 class egammaShowerShape : public AthAlgTool, virtual public IegammaShowerShape {
 
