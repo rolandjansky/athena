@@ -32,16 +32,16 @@
 #include "LArElecCalib/ILArCellHVCorrTool.h"
 #include <mutex>
 #include <atomic>
-
 #define sqrt2 1.4142135623730950
 #define invsqrt2 0.707106781186547524
 
-
+#include "CxxUtils/checker_macros.h"
 class CaloCondBlobFlt;
 
 
-class CaloNoiseToolDB: public AthAlgTool,
-	             virtual public ICaloNoiseTool
+class ATLAS_NOT_THREAD_SAFE /*Registers callbacks*/ CaloNoiseToolDB : 
+             public AthAlgTool,
+	           virtual public ICaloNoiseTool
 {
 public:    
 
