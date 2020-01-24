@@ -34,7 +34,6 @@ class TauSubstructureVariables : public TauRecToolBase
         /** Maximal pile up correction in GeV for a tau candidate.
          *  Used for the caloIso corrected variable.
          */
-	    std::string m_configPath;
         double m_maxPileUpCorrection; 
         double m_pileUpAlpha;         //!< slope of the pileup correction
         

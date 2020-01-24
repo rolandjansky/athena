@@ -31,15 +31,7 @@ CREATED:  Nov 27 2007
 //-------------------------------------------------------------------------
 
 JetSeedBuilder::JetSeedBuilder(const std::string& name) :
-  TauRecToolBase(name),
-  m_jetCollectionName("AntiKt4LCTopoJets"),
-  m_maxJetdist(0.1),
-  m_minJetPt(10000.0),
-  m_switch_jets_em_scale(false) {
-  declareProperty("JetCollection", m_jetCollectionName);
-  declareProperty("maxDist", m_maxJetdist);
-  declareProperty("minPt", m_minJetPt);
-  declareProperty("SwitchJetsEmScale", m_switch_jets_em_scale);
+  TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------
@@ -75,12 +67,11 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 
 	const xAOD::Jet* pJetSeed = nullptr;
 	if (pTau.jetLink().isValid()) pJetSeed = * pTau.jetLink();
-	if (!pJetSeed) {
+    else { 
 		ATH_MSG_DEBUG("seed is not a jet -> tau will not be reconstructed");
 		return StatusCode::FAILURE;
 	}
 
-	ATH_MSG_DEBUG("Seed extracted");
 	ATH_MSG_DEBUG("seed is Jet with"
 			<< " pt=" << pJetSeed->pt()
 			<< " eta=" << pJetSeed->eta()
@@ -107,12 +98,6 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 		pTau.setP4(pJetSeed->pt(),pTau.eta(),pTau.phi(),0.0);
 
 	} else {
-		if (m_switch_jets_em_scale) {
-			ATH_MSG_INFO("trying to set seed jet signal state to EMSCALE, but this code has not been migrated to xAOD::Jet yet");
-			//XXX still need to look up how signal states are handled for the xAOD jets
-			// SignalStateHelper sigstateH(P4SignalState::JETEMSCALE);
-			// sigstateH.controlObject(pJetSeed);
-		}
 
 		if ( pJetSeed->pt() > 1e-7)
 			pTau.setP4(static_cast<float>( pJetSeed->pt() ) ,static_cast<float>( pJetSeed->eta() ) ,static_cast<float>( pJetSeed->phi() ) ,0.0 );

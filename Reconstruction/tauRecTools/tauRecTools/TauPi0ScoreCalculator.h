@@ -32,8 +32,6 @@ public:
     virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
 
 private:
-
-    std::string m_readerOption;
     MVAUtils::BDT* m_mvaBDT;
 
     std::string m_weightfile;

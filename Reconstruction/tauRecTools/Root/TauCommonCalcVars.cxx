@@ -14,11 +14,6 @@
 // 16/05/2011: (FF) fix if primaryVertexContainer==NULL (coverity 21734)
 //   Dez 2011: (FF) switch to full LC calibrated tau 4-vector for some variables
 //-----------------------------------------------------------------------------
-//TODO: rename
-
-//#include <GaudiKernel/IToolSvc.h>
-//#include <GaudiKernel/ListItem.h>
-
 #include "tauRecTools/TauEventData.h"
 
 #include "tauRecTools/TauCommonCalcVars.h"
@@ -30,7 +25,6 @@
 
 TauCommonCalcVars::TauCommonCalcVars(const std::string &name) :
 TauRecToolBase(name) {
-    declareProperty("ConfigPath", m_configPath);
     //if TauTrackClassifier is not run, wide&passTrkSelector==classifiedIsolation==modifiedIsolationTrack
     declareProperty("isolationTrackType", m_isolationTrackType=xAOD::TauJetParameters::modifiedIsolationTrack);
 }

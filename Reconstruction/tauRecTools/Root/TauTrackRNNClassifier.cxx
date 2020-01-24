@@ -28,7 +28,6 @@ TauTrackRNNClassifier::TauTrackRNNClassifier(const std::string& sName)
 {
   declareProperty("Classifiers", m_vClassifier );
   declareProperty("ClassifierNames", m_vClassifierNames );
-  declareProperty("TauTrackContainerName", m_tauTrackConName="TauTracks");
 }
 
 //______________________________________________________________________________
