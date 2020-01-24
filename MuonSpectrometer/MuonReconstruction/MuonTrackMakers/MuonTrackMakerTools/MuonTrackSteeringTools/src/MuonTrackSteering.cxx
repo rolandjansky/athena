@@ -19,8 +19,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "TrkTrackSummary/MuonTrackSummary.h"
-
 #include <sstream>
 #include <iomanip>
 #include <cmath>
@@ -651,11 +649,7 @@ namespace Muon {
 
             // generate a track summary for this track 
             if (m_trackSummaryTool.isEnabled()) {
-              const Trk::TrackSummary* summary = segmentTrack->trackSummary();
-              if( !summary ) {
-                Trk::TrackSummary tmpSummary;
-                m_trackSummaryTool->addDetailedTrackSummary(*segmentTrack,tmpSummary);
-              }
+              m_trackSummaryTool->computeAndReplaceTrackSummary(*segmentTrack, nullptr, false);
             }
 
             MuPatTrack* can = m_candidateTool->createCandidate( **sit, segmentTrack );
