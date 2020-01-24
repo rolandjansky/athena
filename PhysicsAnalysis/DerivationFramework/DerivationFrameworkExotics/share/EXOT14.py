@@ -13,6 +13,19 @@ from DerivationFrameworkCore.WeightMetadata import *
 exot14Seq = CfgMgr.AthSequencer("EXOT14Sequence")
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT14Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT14Stream )
+EXOT14Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT14Stream.AcceptAlgs(["EXOT14Kernel"])
+# Thinning
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="EXOT14ThinningSvc", outStreams=[evtStream] )
+
+#====================================================================
 # THINNING TOOLS
 #====================================================================
 
@@ -50,7 +63,7 @@ ToolSvc += EXOT14PhotonTPThinningTool
 # Calo Clusters associated with Photons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT14PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "EXOT14PhotonCCThinningTool",
-                                                                                     ThinningService         = "EXOT14ThinningSvc",
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Photons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -61,7 +74,7 @@ ToolSvc += EXOT14PhotonCCThinningTool
 
 # Calo Clusters associated with Electrons
 EXOT14ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "EXOT14ElectronCCThinningTool",
-                                                                                     ThinningService         = "EXOT14ThinningSvc",
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Electrons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -157,19 +170,6 @@ DerivationFrameworkJob += exot14Seq
 exot14Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT14Kernel_skim", SkimmingTools = [EXOT14SkimmingTool])
 exot14Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT14Kernel",
                                                           ThinningTools = EXOT14ThinningTools)
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT14Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT14Stream )
-EXOT14Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT14Stream.AcceptAlgs(["EXOT14Kernel"])
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT14ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
