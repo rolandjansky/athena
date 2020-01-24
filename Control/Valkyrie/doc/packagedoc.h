@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,7 +9,7 @@
 This package contains several classes that facilitate the use of valgrind tools
 within the Atlas software. The following sections describe different use cases.
 General information about using valgrind in Atlas can be found on the
-<a href="https://twiki.cern.ch/twiki/bin/view/Atlas/UsingValgrind">UsingValgrind</a> TWiki.
+<a href="https://twiki.cern.ch/twiki/bin/view/AtlasComputing/UsingValgrind">UsingValgrind</a> TWiki.
 
 @section Valkyrie_ValkyrieAlgProf Algorithm profiling using callgrind
 
@@ -36,7 +36,7 @@ The algorithm names in <tt>ProfiledAlgs</tt> can contain regular expressions (Pe
 several instances of one algorithm. For example,
 
 <pre>
-   ProfiledAlgs = ["TrigIDSCAN_.*"]
+   ProfiledAlgs = ["MyAlg_.*"]
 </pre>
 will profile all algorithms matching this regular expression. If <tt>ProfiledAlgs</tt> is empty (the
 default) the entire event loop, i.e. everything between BeginEvent/EndEvent, will be profiled.
@@ -60,7 +60,7 @@ Short for <tt>["MyAlg.initialize:MyAlg.initialize"]</tt>, i.e. profile initializ
 Any number of (non-overlapping) intervals can be specified
 
 As above, the algorithm name can contain a regular expression:
-\li <tt>ProfiledIntervals = ["TrigIDSCAN_.*.initialize"]</tt><br>
+\li <tt>ProfiledIntervals = ["MyAlg_.*.initialize"]</tt><br>
 Profile initialize of all algorithms that match the expression. Be careful with nested initialize
 calls since the profiling will stop once the first instance is done with initialize.
 
@@ -85,12 +85,7 @@ Additonal profiles can be dumped on any "Incident" by setting:
 </pre>
 
 
-
 @author
-    Sebastien Binet http://consult.cern.ch/xwho/people/607900 <br>
-    Frank Winklmeier http://consult.cern.ch/xwho/people/660298
-
-    
-@section Valkyrie_ValkyrieExtraPages Extra pages
-
+    Sebastien Binet<br>
+    Frank Winklmeier
 */
