@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -206,7 +206,7 @@ StatusCode LArHECNoise::execute() {
          }
   }
 
-  const EventInfo* eventInfo = 0;
+  const xAOD::EventInfo* eventInfo = 0;
   ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
   m_nt_evtCount = 0;
