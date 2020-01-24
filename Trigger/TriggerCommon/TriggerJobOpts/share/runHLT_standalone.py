@@ -40,6 +40,7 @@ class opt:
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
     failIfNoProxy     = False         # Sets the SGInputLoader.FailIfNoProxy property
+    forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
     decodeLegacyL1 = True             # Decode L1 RoIs from legacy L1 systems through RoIBResult for HLT seeding
     decodePhaseIL1 = False            # Decode L1 RoIs from Run-3 L1 systems through L1TriggerResult for HLT seeding
 #Individual slice flags
@@ -191,7 +192,6 @@ setModifiers = ['noLArCalibFolders',
                 #'enableCoherentPS',
                 'useOracle',
                 'enableHotIDMasking',
-                'openThresholdRPCCabling',
 ]
 
 if globalflags.DataSource.is_geant4():  # MC modifiers
@@ -374,6 +374,7 @@ if globalflags.InputFormat.is_pool():
     if TriggerFlags.doTransientByteStream():
         log.info("setting up transient BS")
         include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
+        
      
 # ----------------------------------------------------------------
 # ByteStream input
@@ -427,10 +428,15 @@ if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
         from L1Decoder.L1DecoderConfig import L1Decoder
         l1decoder = L1Decoder("L1Decoder")
+        l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
         if not opt.decodeLegacyL1:
             l1decoder.RoIBResult = ""
         if not opt.decodePhaseIL1:
             l1decoder.L1TriggerResult = ""
+        if TriggerFlags.doTransientByteStream():
+            transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
+            l1decoder.ExtraInputs += [transTypeKey]
+
         topSequence += l1decoder
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
