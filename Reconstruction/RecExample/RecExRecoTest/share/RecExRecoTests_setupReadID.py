@@ -5,7 +5,7 @@
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 
-if (nThreads > 1):
+if (nThreads >= 1):
   
   from AthenaConfiguration.ComponentFactory import CompFactory
   AthReadAlg=CompFactory.AthReadAlg
