@@ -7,6 +7,7 @@ from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 import json
+import six
 
 log = logging.getLogger(__name__)
 
@@ -196,15 +197,12 @@ def defineHistogram(varname, type='TH1F', path=None,
         settings['convention'] = convention
 
     # Bin counts and ranges
-    # Next two lines account for integer type differences between python2 and python3
-    import sys
-    integerTypes = (int, long) if sys.version_info < (3,) else (int,)
     # Possible types allowed for bin counts
-    binTypes = integerTypes + (list, tuple)
+    binTypes = six.integer_types + (list, tuple)
 
     # X axis count and range
     assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
-    if isinstance(xbins, integerTypes): # equal x bin widths
+    if isinstance(xbins, six.integer_types): # equal x bin widths
         settings['xbins'], settings['xarray'] = xbins, []
     else: # x bin edges are set explicitly
         settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
@@ -214,7 +212,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     # Y axis count and range
     if ybins is not None:
         assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
-        if isinstance(ybins, integerTypes): # equal y bin widths
+        if isinstance(ybins, six.integer_types): # equal y bin widths
             settings['ybins'], settings['yarray'] = ybins, []
         else: # y bin edges are set explicitly
             settings['ybins'], settings['yarray'] = len(ybins)-1, ybins
