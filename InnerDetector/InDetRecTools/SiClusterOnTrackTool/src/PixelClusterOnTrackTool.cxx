@@ -71,7 +71,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
   m_calibSvc("PixelOfflineCalibSvc",n),
   m_detStore(nullptr),
-  m_clusterITkErrorKey("PixelITkOfflineCalibData","PixelITkOfflineCalibData"),
   m_scalePixelCov{},
   m_disableDistortions(false),
   m_rel13like(false),

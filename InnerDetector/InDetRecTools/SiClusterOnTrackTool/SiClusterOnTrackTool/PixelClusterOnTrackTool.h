@@ -152,7 +152,7 @@ public:
   ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
-  SG::ReadCondHandleKey<PixelCalib::PixelITkOfflineCalibData> m_clusterITkErrorKey;
+  SG::ReadCondHandleKey<PixelCalib::PixelITkOfflineCalibData> m_clusterITkErrorKey{this, "PixelITkOfflineCalibData", "PixelITkOfflineCalibData", "Output key of ITk pixel cluster"};
 
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
