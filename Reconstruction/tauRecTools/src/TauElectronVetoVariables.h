@@ -34,7 +34,7 @@ public:
     virtual StatusCode finalize() override;
 
 private:
-    bool m_doCellCorrection; //!< enable cell origin correction
+    bool m_doVertexCorrection; //!< enable cell origin correction
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
 

@@ -17,12 +17,10 @@
 TauAxisSetter::TauAxisSetter(const std::string& name) :
 TauRecToolBase(name),
 m_clusterCone(0.2),
-m_doCellCorrection(false),
-m_doAxisCorrection(true)
+m_doVertexCorrection(true)
 {
     declareProperty("ClusterCone", m_clusterCone);
-    declareProperty("CellCorrection", m_doCellCorrection);
-    declareProperty("AxisCorrection", m_doAxisCorrection = true);
+    declareProperty("VertexCorrection", m_doVertexCorrection = true);
 }
 
 /********************************************************************/
@@ -100,7 +98,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
     ///////////////////////////////////////////////////////////////////////////
     // calculate tau intermediate axis (corrected for tau vertex)
     // not needed at trigger level
-    if(m_doAxisCorrection)
+    if(m_doVertexCorrection)
       {
 	TLorentzVector tauInterAxis;
 	

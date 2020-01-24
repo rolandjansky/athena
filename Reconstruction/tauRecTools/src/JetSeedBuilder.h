@@ -31,11 +31,6 @@ public:
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
     virtual StatusCode finalize() override;
 
-private:
-    std::string m_jetCollectionName;
-    float m_maxJetdist;
-    float m_minJetPt;
-    bool m_switch_jets_em_scale;
 };
 
 #endif	/* JETSEEDBUILDER_H */

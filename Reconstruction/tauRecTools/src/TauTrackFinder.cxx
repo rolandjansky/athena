@@ -116,7 +116,6 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
   getTauTracksFromPV(pTau, *trackParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
 
-  this->resetDeltaZ0Cache();
   // remove core and wide tracks outside a maximal delta z0 wrt lead core track                                                                                
   if (m_applyZ0cut) {
     this->removeOffsideTracksWrtLeadTrk(tauTracks, wideTracks, otherTracks, pVertex, m_z0maxDelta);
@@ -425,7 +424,6 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
                            double maxDeltaZ0)
 {
     float MAX=1e5;
-    this->resetDeltaZ0Cache();
 
     // need at least one core track to have a leading trk to compare with
     if (tauTracks.size()<1) return;
@@ -453,9 +451,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
     while (itr!=tauTracks.end()) {
         float z0 = getZ0(*itr, tauOrigin);
         float deltaZ0=z0 - z0_leadTrk;
-
         ATH_MSG_VERBOSE("core Trks: deltaZ0= " << deltaZ0);
-        m_vDeltaZ0coreTrks.push_back(deltaZ0);
 
         if ( fabs(deltaZ0) < maxDeltaZ0 ) {++itr;}
         else {
@@ -469,9 +465,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
     while (itr!=wideTracks.end()) {
         float z0 = getZ0(*itr, tauOrigin);
         float deltaZ0=z0 - z0_leadTrk;
-
         ATH_MSG_VERBOSE("wide Trks: deltaZ0= " << deltaZ0);
-        m_vDeltaZ0wideTrks.push_back(deltaZ0);
 
         if ( fabs(deltaZ0) < maxDeltaZ0 ) { ++itr; }
         else {
@@ -509,22 +503,5 @@ float TauTrackFinder::getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex
     delete perigee; //cleanup necessary to prevent mem leak
 
     return z0;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void TauTrackFinder::getDeltaZ0Values(std::vector<float>& vDeltaZ0coreTrks, std::vector<float>& vDeltaZ0wideTrks)
-{
-  vDeltaZ0coreTrks.clear();
-  vDeltaZ0coreTrks = m_vDeltaZ0coreTrks;
-
-  vDeltaZ0wideTrks.clear();
-  vDeltaZ0wideTrks = m_vDeltaZ0wideTrks;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void TauTrackFinder::resetDeltaZ0Cache()
-{
-    m_vDeltaZ0coreTrks.clear();
-    m_vDeltaZ0wideTrks.clear();
 }
 #endif
