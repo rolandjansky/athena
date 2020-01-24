@@ -1,11 +1,11 @@
-#print '\n************************************************************************************************\n'
-#print "   ******** Welcome to the Offline BS MuonRawDataMonitoring/RpcRawDataMonitoring package. ******** "  
-#print "   ******** Documentation may be found at:******** "  
-#print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/RPCOfflineMonitoringPlots ***** "  
-#print '\n************************************************************************************************\n'
+#printfunc ('\n************************************************************************************************\n')
+#printfunc ("   ******** Welcome to the Offline BS MuonRawDataMonitoring/RpcRawDataMonitoring package. ******** "  )
+#printfunc ("   ******** Documentation may be found at:******** "  )
+#printfunc ("   **** https://twiki.cern.ch/twiki/bin/view/Atlas/RPCOfflineMonitoringPlots ***** "  )
+#printfunc ('\n************************************************************************************************\n')
 
 if not 'MuonDQAFlags' in dir():
-    print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
+    printfunc ("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
 ############# RPCLV1RawDataValAlg #############
@@ -27,7 +27,7 @@ rpcLV1RawDataValAlg = RpcLv1RawDataValAlg(name='rpcLV1RawDataValAlg'            
 #ToolSvc += rpcLV1RawDataValAlg
 rpcLv1RawMonMan.AthenaMonTools += [ rpcLV1RawDataValAlg ]
 topSequence += rpcLv1RawMonMan
-print rpcLv1RawMonMan
+printfunc (rpcLv1RawMonMan)
 
 
 ############# RpcLv1RawDataSectorLogic #############
@@ -42,4 +42,4 @@ if globalflags.DataSource() != 'data':
 #ToolSvc += rpcLV1RawDataSectorLogic
 rpcLv1SLRawMonMan.AthenaMonTools += [ rpcLV1RawDataSectorLogic ]
 topSequence += rpcLv1SLRawMonMan
-print rpcLv1SLRawMonMan
+printfunc (rpcLv1SLRawMonMan)
