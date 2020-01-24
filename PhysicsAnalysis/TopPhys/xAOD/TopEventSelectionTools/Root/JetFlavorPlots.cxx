@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/JetFlavorPlots.h"
@@ -156,55 +156,26 @@ namespace top {
 
     if (!event.m_isLoose && !m_config->doTightEvents()) return true;
 
+    double nominalWeight = event.m_info->auxdata<float>("AnalysisTop_eventWeight");
+
     if (m_doNominal) {
-      double eventWeight = 1.0;
-      //FIXME PMG: comment from here
-      if (m_PMGTruthWeights->hasWeight(" nominal ")) eventWeight = m_PMGTruthWeights->getWeight(" nominal ");
-      else {
-        std::vector< std::string > w_names = m_PMGTruthWeights->getWeightNames();
-        if (m_throwwarningPMG.load()) {
-          std::cout <<
-          "WARNING:JetFlavorPlots::apply(): \" nominal \" weight not found! It seems like you are not using a PowegPythia8 sample. ISFR shifted QuarkGluonFraction histograms will be disabled! If you need them to be enables, please report this message to hn-atlas-top-reconstruction@cern.ch and the sample you are running on!\n";
-          std::cout << "JetFlavorPlots::apply(): Assuming that the nominal weight is \"" << w_names.at(0) << "\"\n";
-          m_throwwarningPMG = false;
-        }
-        top::check(m_PMGTruthWeights->hasWeight(w_names.at(
-          0)),
-        "JetFlavorPlots::apply(): There was a problem with the PMGTruthWeights Tool. Weight at position 0 is invalid. Please report this message.");
-        eventWeight = m_PMGTruthWeights->getWeight(w_names.at(0));
-      }
-      //FIXME PMG: comment till here
-      //FIXME PMG: add this line: eventWeight = event.m_truthEvent->at(0)->weights()[0];
+      double eventWeight = nominalWeight;
+
       if (event.m_isLoose) FillHistograms(m_hists_Loose, eventWeight, event);
       else FillHistograms(m_hists, eventWeight, event);
     }
-    //FIXME PMG: comment from here
-    //FIXME The actual implementation olny allows IFSR variation for PowhegPythia8 samples
-    if (!m_PMGTruthWeights->hasWeight(" nominal ")) {
-      return true;
-    }
-    //FIXME PMG: comment till here
-
     if (m_doRadHigh) {
-      //FIXME PMG: comment from here
-      top::check(m_PMGTruthWeights->hasWeight(
-        " nominal "), "JetFlavorPlots::apply(): Weight \" nominal \" not found. Please report this message!");
-      //2 different names are acceptable
+      // 2 different names are acceptable
       double scaleWeight = 1.;
       if (m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.5, muF = 0.5 ");
       else if (m_PMGTruthWeights->hasWeight(" muR = 0.50, muF = 0.50 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.50, muF = 0.50 ");
       else top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "), "JetFlavorPlots::apply(): Weight \" muR = 0.5, muF = 0.5 \" not found. Please report this message!");
       top::check(m_PMGTruthWeights->hasWeight("Var3cUp"), "JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
-      double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cUp") / m_PMGTruthWeights->getWeight(" nominal ");
-      //FIXME PMG: comment till here
-      //FIXME PMG: WARNING! Check if the numbers are ok! Add this line: double eventWeight =
-      // event.m_truthEvent->at(0)->weights()[5]*event.m_truthEvent->at(0)->weights()[193]/event.m_truthEvent->at(0)->weights()[0];
+      double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cUp") / nominalWeight;
       if (event.m_isLoose) FillHistograms(m_hists_RadHigh_Loose, eventWeight, event);
       else FillHistograms(m_hists_RadHigh, eventWeight, event);
     }
     if (m_doRadLow) {
-      //FIXME PMG: comment from here
-      top::check(m_PMGTruthWeights->hasWeight(" nominal "), "JetFlavorPlots::apply(): Weight \" nominal \" not found. Please report this message!");
       //2 different names are acceptable
       double scaleWeight = 1.;
       if (m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 2.0, muF = 2.0 ");
@@ -212,10 +183,7 @@ namespace top {
       else top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "), "JetFlavorPlots::apply(): Weight \" muR = 2.0, muF = 2.0 \" not found. Please report this message!");
       top::check(m_PMGTruthWeights->hasWeight("Var3cUp"), "JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
       top::check(m_PMGTruthWeights->hasWeight("Var3cDown"), "JetFlavorPlots::apply(): Weight \"Var3cDown\" not found. Please report this message!");
-      double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cDown") / m_PMGTruthWeights->getWeight(" nominal ");
-      //FIXME PMG: comment till here
-      //FIXME PMG: WARNING! Check if the numbers are ok! Add this line: double eventWeight =
-      // event.m_truthEvent->at(0)->weights()[6]*event.m_truthEvent->at(0)->weights()[194]/event.m_truthEvent->at(0)->weights()[0];
+      double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cDown") / nominalWeight;
       if (event.m_isLoose) FillHistograms(m_hists_RadLow_Loose, eventWeight, event);
       else FillHistograms(m_hists_RadLow, eventWeight, event);
     }
