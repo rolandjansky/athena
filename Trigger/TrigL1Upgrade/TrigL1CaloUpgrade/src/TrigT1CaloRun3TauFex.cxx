@@ -82,8 +82,8 @@ StatusCode TrigT1CaloRun3TauFex::finalize(){
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "finalizing TrigT1CaloRun3TauFex" << endreq;
 	if ( m_enableMon ) {
-		m_histFile->Write();
-		m_histFile->Close();
+        m_histFile->Write();
+        m_histFile->Close();
 	}
 	delete acc_clusterET;
 	delete acc_clusterIso;
@@ -91,7 +91,6 @@ StatusCode TrigT1CaloRun3TauFex::finalize(){
 }
 
 StatusCode TrigT1CaloRun3TauFex::execute(){
-	
         MsgStream msg(msgSvc(), name());
 #ifndef NDEBUG
 	msg << MSG::DEBUG << "execute TrigT1CaloRun3TauFex" << endreq;
@@ -132,24 +131,43 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 
 	int currentSampling = 0;
 
-	// fill energy in all TH2 histograms for supercell map
+    // std::cout << "Before allSuperCells loop" << std::endl;
+    std::cout << "Number of supercells: " << allSuperCells.size() << std::endl;
+
+    // TESTING
+    int scell_counter = 0;
+	
+    // fill energy in all TH2 histograms for supercell map
 	for(auto scell : allSuperCells) {
 	  currentSampling = scell->caloDDE()->getSampling();
 
+      // TESTING
+      if (scell_counter < 5) {
+        std::cout << "SCell sampling:" << std::endl;
+        std::cout << currentSampling << std::endl;
+        std::cout << "SCell eta value:" << std::endl;
+        std::cout << scell->eta() << std::endl;
+        std::cout << "Original Et Method:" << std::endl;
+        std::cout << scell->energy()/TMath::CosH(scell->eta()) << std::endl;
+        std::cout << "CaloCellET Value:" << std::endl;
+        std::cout << TrigT1CaloBaseFex::CaloCellET(scell, 1, 0) << std::endl;
+        scell_counter++;
+      }
+
 	  // Store maps per layer
 	  if (currentSampling==0 || currentSampling==4)
-	    m_SupercellMapEM0->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	    m_SupercellMapEM0->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),TrigT1CaloBaseFex::CaloCellET(scell, 0, 0));
 	  else if (currentSampling==1 || currentSampling==5)
-	    m_SupercellMapEM1->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	    m_SupercellMapEM1->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),TrigT1CaloBaseFex::CaloCellET(scell, 0, 0));
 	  else if (currentSampling==2 || currentSampling==6)
-	    m_SupercellMapEM2->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	    m_SupercellMapEM2->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),TrigT1CaloBaseFex::CaloCellET(scell, 0, 0));
 	  else if (currentSampling==3 || currentSampling==7)
-	    m_SupercellMapEM3->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
-	  else m_SupercellMapHAD->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	    m_SupercellMapEM3->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),TrigT1CaloBaseFex::CaloCellET(scell, 0, 0));
+      else m_SupercellMapHAD->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),TrigT1CaloBaseFex::CaloCellET(scell, 0, 0));
 	  
 	  // Store a map sum of all layers
 	  
-	  m_SupercellMapTWR->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),scell->energy()/TMath::CosH(scell->eta()));
+	    m_SupercellMapTWR->Fill(scell->eta(),TVector2::Phi_0_2pi(scell->phi()),TrigT1CaloBaseFex::CaloCellET(scell, 0, 0));
 	}
 
 	// Need to also loop over Run-I towers to get central region hadronic energy
@@ -284,6 +302,150 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  ET += m_SupercellMapTWR->GetBinContent(i+1, belowInPhi);
 	  allET.push_back(ET);
 
+	  // Pick largest resulting sum
+	  double eFEXOldCluster = 0;
+	  for(unsigned int k=0; k<allET.size(); k++)
+	    {
+	      if(allET.at(k) > eFEXOldCluster)
+		eFEXOldCluster = allET.at(k);
+	    }
+
+      // Calculate Oregon algorithm reconstructed ET 
+      // Determine if the Oregon shapes, which are asymmetric in phi, should be oriented up or down
+      bool sumAboveInPhi = true;
+
+      // Sum the cells above in phi for EM1 and EM2
+      double abovePhiCellET = 0;
+      abovePhiCellET += m_SupercellMapEM1->GetBinContent(i, aboveInPhi);
+      abovePhiCellET += m_SupercellMapEM2->GetBinContent(i, aboveInPhi);
+      // Sum the cells below in phi for EM1 and EM2
+      double belowPhiCellET = 0;
+      belowPhiCellET += m_SupercellMapEM1->GetBinContent(i, belowInPhi);
+      belowPhiCellET += m_SupercellMapEM2->GetBinContent(i, belowInPhi);
+
+      // If more energy deposited above in phi, then orient shapes upward
+      if(belowPhiCellET < abovePhiCellET)
+        sumAboveInPhi = false;
+
+      // Hold the coordinate of the non-central phi row
+      int offPhiCoordinate = 0;
+      if(sumAboveInPhi)
+        offPhiCoordinate = aboveInPhi;
+      else
+        offPhiCoordinate = belowInPhi;
+
+      // Construct 1x2 EM0 Oregon layer energy
+      double em0OregonET = 0;
+      em0OregonET += m_SupercellMapEM0->GetBinContent(i, j);
+      em0OregonET += m_SupercellMapEM0->GetBinContent(i - 1, j);
+      em0OregonET += m_SupercellMapEM0->GetBinContent(i + 1, j);
+      em0OregonET += m_SupercellMapEM0->GetBinContent(i, offPhiCoordinate);
+      em0OregonET += m_SupercellMapEM0->GetBinContent(i - 1, offPhiCoordinate);
+      em0OregonET += m_SupercellMapEM0->GetBinContent(i + 1, offPhiCoordinate);
+
+      // Construct 5x2 EM1 Oregon layer energy
+      double em1OregonET = 0;
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i, j);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i - 1, j);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i - 2, j);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i + 1, j);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i + 2, j);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i, offPhiCoordinate);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i - 1, offPhiCoordinate);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i - 2, offPhiCoordinate);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i + 1, offPhiCoordinate);
+      em1OregonET += m_SupercellMapEM1->GetBinContent(i + 2, offPhiCoordinate);
+
+      // Construct 5x2 EM2 Oregon layer energy
+      double em2OregonET = 0;
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i, j);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i - 1, j);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i - 2, j);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i + 1, j);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i + 2, j);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i, offPhiCoordinate);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i - 1, offPhiCoordinate);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i - 2, offPhiCoordinate);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i + 1, offPhiCoordinate);
+      em2OregonET += m_SupercellMapEM2->GetBinContent(i + 2, offPhiCoordinate);
+      
+      // Construct 3x2 EM3 Oregon layer energy
+      double em3OregonET = 0;
+      em3OregonET += m_SupercellMapEM3->GetBinContent(i, j);
+      em3OregonET += m_SupercellMapEM3->GetBinContent(i - 1, j);
+      em3OregonET += m_SupercellMapEM3->GetBinContent(i + 1, j);
+      em3OregonET += m_SupercellMapEM3->GetBinContent(i, offPhiCoordinate);
+      em3OregonET += m_SupercellMapEM3->GetBinContent(i - 1, offPhiCoordinate);
+      em3OregonET += m_SupercellMapEM3->GetBinContent(i + 1, offPhiCoordinate);
+
+      // Construct 3x2 HAD Oregon layer energy
+      double hadOregonET = 0;
+      hadOregonET += m_SupercellMapHAD->GetBinContent(i, j);
+      hadOregonET += m_SupercellMapHAD->GetBinContent(i - 1, j);
+      hadOregonET += m_SupercellMapHAD->GetBinContent(i + 1, j);
+      hadOregonET += m_SupercellMapHAD->GetBinContent(i, offPhiCoordinate);
+      hadOregonET += m_SupercellMapHAD->GetBinContent(i - 1, offPhiCoordinate);
+      hadOregonET += m_SupercellMapHAD->GetBinContent(i + 1, offPhiCoordinate);
+
+      // Add individual layer energies to get the full Oregon reconstructed energy
+      double fullOregonET = em0OregonET + em1OregonET + em2OregonET + em3OregonET + hadOregonET; 
+
+      // Calculate Oregon algorithm isolation value
+      // Construct inner 3x2 energy
+      double isoInnerET = 0;
+      isoInnerET += m_SupercellMapEM2->GetBinContent(i, j);
+      isoInnerET += m_SupercellMapEM2->GetBinContent(i - 1, j);
+      isoInnerET += m_SupercellMapEM2->GetBinContent(i + 1, j);
+      isoInnerET += m_SupercellMapEM2->GetBinContent(i, offPhiCoordinate);
+      isoInnerET += m_SupercellMapEM2->GetBinContent(i - 1, offPhiCoordinate);
+      isoInnerET += m_SupercellMapEM2->GetBinContent(i + 1, offPhiCoordinate);
+
+      // Construct outer 9x2 energy
+      double isoOuterET = 0;
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 1, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 2, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 3, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 4, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 1, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 2, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 3, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 4, j);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 1, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 2, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 3, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i - 4, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 1, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 2, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 3, offPhiCoordinate);
+      isoOuterET += m_SupercellMapEM2->GetBinContent(i + 4, offPhiCoordinate);
+     
+      double oregonIso = isoInnerET / isoOuterET;
+
+      //std::cout << "eFEXOldCluster:" << std::endl;
+      //std::cout << eFEXOldCluster << std::endl;
+      //std::cout << "sumAboveInPhi:" << std::endl;
+      //std::cout << sumAboveInPhi << std::endl;
+      //std::cout << "Layer 0 Et:" << std::endl;
+      //std::cout << em0OregonET << std::endl;
+      //std::cout << "Layer 1 Et:" << std::endl;
+      //std::cout << em1OregonET << std::endl;
+      //std::cout << "Layer 2 Et:" << std::endl;
+      //std::cout << em2OregonET << std::endl;
+      //std::cout << "Layer 3 Et:" << std::endl;
+      //std::cout << em3OregonET << std::endl;
+      //std::cout << "Layer Had Et:" << std::endl;
+      //std::cout << hadOregonET << std::endl;
+      //std::cout << "Oregon reconstructed energy:" << std::endl;
+      //std::cout << fullOregonET << std::endl;
+      //std::cout << "Isolation Inner Et:" << std::endl;
+      //std::cout << isoInnerET << std::endl;
+      //std::cout << "Isolation Outer Et:" << std::endl;
+      //std::cout << isoOuterET << std::endl;
+      //std::cout << "Oregon isolation value:" << std::endl;
+      //std::cout << oregonIso << std::endl;
+
 	  // Code Oregon cluster later
 	  // Will need to write a library of shape summation functions
 	  // EM0: 1x2, 4 possibilities
@@ -292,13 +454,6 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  // EM3: 3x2
 	  // HAD: 3x2
 
-	  // Pick largest resulting sum
-	  double eFEXOldCluster = 0;
-	  for(unsigned int k=0; k<allET.size(); k++)
-	    {
-	      if(allET.at(k) > eFEXOldCluster)
-		eFEXOldCluster = allET.at(k);
-	    }
 
 	  // Calculate an EM2-based isolation
 	  // Center in EM2, offset to the right in eta:
@@ -324,7 +479,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  // Note that we don't need to worry about phi wrap-around
 	  float nextET = m_SupercellMapEM2->GetBinContent(maximumCell+1, em2j);
 	  nextET = ((m_SupercellMapEM2->GetBinContent(maximumCell-1, em2j) > nextET) ? m_SupercellMapEM2->GetBinContent(maximumCell-1, em2j) : nextET);
-	  nextET = ((m_SupercellMapEM2->GetBinContent(maximumCell, em2j+1) > nextET) ? m_SupercellMapEM2->GetBinContent(maximumCell, em2j+1) : nextET);
+      nextET = ((m_SupercellMapEM2->GetBinContent(maximumCell, em2j+1) > nextET) ? m_SupercellMapEM2->GetBinContent(maximumCell, em2j+1) : nextET);
 	  nextET = ((m_SupercellMapEM2->GetBinContent(maximumCell, em2j-1) > nextET) ? m_SupercellMapEM2->GetBinContent(maximumCell, em2j-1) : nextET);
 	  
 	  float numerator = maximumET + nextET;
