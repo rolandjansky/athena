@@ -1,15 +1,16 @@
 """Define methods to construct configured Pixel Digitization tools and algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 PileUpXingFolder=CompFactory.PileUpXingFolder
 from PixelCabling.PixelCablingConfigNew import PixelCablingSvcCfg
 from PixelDigitization.PixelDigitizationConf import (
-    PixelDigitizationTool, PixelDigitization, ChargeCollProbSvc,
+    PixelDigitizationTool, PixelDigitization,
     EnergyDepositionTool, SensorSimPlanarTool, SensorSim3DTool,
     RD53SimTool, FEI4SimTool, FEI3SimTool,
+    RadDamageUtil, EfieldInterpolator
 )
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
@@ -49,9 +50,21 @@ def Pixel_LastXing(flags):
         return 100
 
 
-def ChargeCollProbSvcCfg(name="ChargeCollProbSvc", **kwargs):
-    """Return a Charge Collection Prob service"""
-    return ChargeCollProbSvc(name, **kwargs)
+def RadDamageUtilCfg(flags, name="RadDamageUtil", **kwargs):
+    """Return a configured RadDamageUtil"""
+    kwargs.setdefault("defaultRamo", 1)
+    kwargs.setdefault("betaElectrons", 4.5e-16)
+    kwargs.setdefault("betaHoles", 6.0e-16)
+    kwargs.setdefault("saveDebugMaps", False)
+    return RadDamageUtil(name, **kwargs)
+
+
+def EfieldInterpolatorCfg(flags, name="EfieldInterpolator", **kwargs):
+    """Return a configured EfieldInterpolator"""
+    kwargs.setdefault("initialized", False)
+    kwargs.setdefault("useSpline", True)
+    kwargs.setdefault("sensorDepth", 200)
+    return EfieldInterpolator(name, **kwargs)
 
 
 def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelDigitization includes
@@ -21,25 +21,15 @@
 #include <TGraph2D.h>
 #include <algorithm>
 
-using namespace RadDam;
-
 static const InterfaceID IID_IEfieldInterpolator("EfieldInterpolator", 1, 0);
 const InterfaceID& EfieldInterpolator::interfaceID( ){ return IID_IEfieldInterpolator; }
 
 // Constructor with parameters:                                                                                                                                     
 EfieldInterpolator::EfieldInterpolator(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_initialized   (false  ),  
-  m_saveDocu      (true   ),     
-  m_useSpline     (true   ),     
-  m_sensorDepth   (200    ),          //um - default is IBL layer
   m_efieldOrigin(interspline)
 {
   declareInterface< EfieldInterpolator >( this );
-  declareProperty( "initialized", m_initialized, "Flag whether already initalized" );
-  declareProperty( "saveDocu", m_saveDocu, "Flag whether to save individual Histograms for documentation" ); 
-  declareProperty( "useSpline", m_useSpline, "Flag whether to use cubic splines for interpolation" ); 
-  declareProperty( "sensorDepth", m_sensorDepth, "Depth of E fields in sensors in um" ); 
 }
 
 EfieldInterpolator::~EfieldInterpolator() 

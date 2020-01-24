@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDigitization.h"
@@ -13,9 +13,8 @@ PixelDigitization::PixelDigitization(const std::string &name,
 
 // Initialize method:
 StatusCode PixelDigitization::initialize() {
-
   ATH_MSG_DEBUG("initialize()");
-  CHECK(m_pixelDigitizationTool.retrieve());
+  ATH_CHECK(m_pixelDigitizationTool.retrieve());
   ATH_MSG_DEBUG ( "Successfully retreived IPixelDigitizaitonTool." );
   return StatusCode::SUCCESS;
 }
