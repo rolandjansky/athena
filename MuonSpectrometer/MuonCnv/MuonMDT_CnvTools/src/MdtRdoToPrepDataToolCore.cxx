@@ -54,7 +54,6 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t,
   //  template for property decalration
   declareProperty("CalibratePrepData",   m_calibratePrepData = true );
   declareProperty("DecodeData",          m_decodeData = true ); 
-  declareProperty("SortPrepData",        m_sortPrepData = false );
   
   // + TWIN TUBE
   declareProperty("UseTwin",                 m_useTwin = true);
@@ -234,18 +233,6 @@ void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifier
 
 }
 
-void Muon::MdtRdoToPrepDataToolCore::sortMdtPrdCollection( const Muon::MdtPrepDataCollection* col ){
-  // this method is using nasty const_casts - we should get rid of them if possible
-  if(!col) return;
-  const_cast<Muon::MdtPrepDataCollection*>(col)->sort([]( const Muon::MdtPrepData* prd1, const Muon::MdtPrepData* prd2 ) {
-    return prd1->identify() < prd2->identify();
-  });
-  // need to modify indices saved within the sorted PrepData objects
-  for (unsigned short index=0; index < col->size(); ++index) {
-    const_cast<IdentContIndex*>( &(col->at(index)->getHashAndIndex()) )->setObjIndex(index);
-  }
-}
-
 bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect ) {
   
   // Check PRD container for the hash, if it exists, we already decoded fully
@@ -324,14 +311,7 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       }
     } else ATH_MSG_DEBUG("handlePRDHash: hash id " << (unsigned int)(hash) << " not found in RDO container");
   }
-  
-  // sort hits in the collection
-  if (m_sortPrepData) {
-    auto it = m_mdtPrepDataContainer->indexFind(hash);
-    if( it != m_mdtPrepDataContainer->end() ) {
-      sortMdtPrdCollection(*it);
-    }
-  }
+
   return true;
 }
 
