@@ -1643,7 +1643,7 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
   dir->mkdir("histos_1d");
   dir->cd("histos_1d");
   
-  std::vector<float*> h1_val_addrs; 
+  std::vector<std::unique_ptr<float>> h1_val_addrs; 
   std::map<TH1*, std::vector<LhoodMMEvent>>::iterator map1_iter;
   int i1dhist = 0;
   for (map1_iter=m_mmevts_1dhisto_map.begin(); map1_iter != m_mmevts_1dhisto_map.end(); map1_iter++) {
@@ -1653,14 +1653,13 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
     histogram->Write();
 
     auto val_map_iter = m_values_1dhisto_map.find(map1_iter->first);
-    float* f = new float;
-    h1_val_addrs.push_back(f);
+    h1_val_addrs.emplace_back(new float);
     if (val_map_iter != m_values_1dhisto_map.end() ) {
       string histvarname = "h1d_val";
       histvarname += std::to_string(i1dhist);
       i1dhist++;
       string histvartype = histvarname+"/F";
-      t->Branch(histvarname.c_str(), f, histvartype.c_str());      
+      t->Branch(histvarname.c_str(), h1_val_addrs.back().get(), histvartype.c_str());      
     } else {
       ATH_MSG_ERROR("Could not find entry for histogram " << map1_iter->first);
       return StatusCode::FAILURE;
@@ -1672,7 +1671,7 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
   dir->mkdir("histos_2d");
   dir->cd("histos_2d");
 
-  std::vector<float*> h2_valx_addrs, h2_valy_addrs; 
+  std::vector<std::unique_ptr<float>> h2_valx_addrs, h2_valy_addrs; 
   int i2dhist = 0;
   std::map<TH2*, std::vector<LhoodMMEvent>>::iterator map2_iter;
   for (map2_iter=m_mmevts_2dhisto_map.begin(); map2_iter != m_mmevts_2dhisto_map.end(); map2_iter++) {
@@ -1682,19 +1681,17 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
     histogram->Write();
 
     auto val_map_iter = m_values_2dhisto_map.find(map2_iter->first);
-    float* fx = new float;
-    h2_valx_addrs.push_back(fx);
-    float* fy = new float;
-    h2_valy_addrs.push_back(fy);
+    h2_valx_addrs.emplace_back(new float);
+    h2_valy_addrs.emplace_back(new float);
     if (val_map_iter != m_values_2dhisto_map.end() ) {
       string histvarname = "h2d_valx";
       histvarname += std::to_string(i2dhist);
       string histvartype = histvarname+"/F";
-      t->Branch(histvarname.c_str(), fx, histvartype.c_str());      
+      t->Branch(histvarname.c_str(), h2_valx_addrs.back().get(), histvartype.c_str());      
       histvarname = "h2d_valy";
       histvarname += std::to_string(i2dhist);
       i2dhist++;
-      t->Branch(histvarname.c_str(), fy, histvartype.c_str());   
+      t->Branch(histvarname.c_str(), h2_valy_addrs.back().get(), histvartype.c_str());   
     } else {
       ATH_MSG_ERROR("Could not find entry for histogram " << map1_iter->first);
       return StatusCode::FAILURE;
@@ -1711,7 +1708,7 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
     r_systDown.clear();
     f_systDown.clear();
 
-    LhoodMMEvent m = m_mmevts_total[ievt];
+    const LhoodMMEvent& m = m_mmevts_total[ievt];
     nlep = m.nlep();
     weight = m.weight();
 
@@ -1720,38 +1717,32 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
       fnominal[i] = m.fakeEff(i);
       tight[i] = m.isTight(i);
       charge[i] = m.charge(i);
-      boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty> r =  m.realEffObj(i).uncertainties;
-      std::vector<UShort_t> r_systUIDvec = std::vector<UShort_t>(); 
-      std::vector<float> r_systUpvec = std::vector<float>(); 
-      std::vector<float> r_systDownvec = std::vector<float>(); 
-      for (const auto syst : r ) {
-	r_systUIDvec.push_back(syst.first);
-	r_systUpvec.push_back(syst.second.up);
-	r_systDownvec.push_back(syst.second.down);
-      } 
-      r_systUID.push_back(r_systUIDvec);
-      r_systUp.push_back(r_systUpvec);
-      r_systDown.push_back(r_systDownvec);
+      const boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>& r =  m.realEffObj(i).uncertainties;
+      r_systUID.emplace_back(); 
+      r_systUp.emplace_back(); 
+      r_systDown.emplace_back(); 
+      for (const auto& syst : r ) {
+        r_systUID.back().push_back(syst.first);
+        r_systUp.back().push_back(syst.second.up);
+        r_systDown.back().push_back(syst.second.down);
+      }
 
-      boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty> f =  m.fakeEffObj(i).uncertainties;
-      std::vector<UShort_t> f_systUIDvec = std::vector<UShort_t>(); 
-      std::vector<float> f_systUpvec = std::vector<float>(); 
-      std::vector<float> f_systDownvec = std::vector<float>(); 
+      const boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty>& f =  m.fakeEffObj(i).uncertainties;
+      f_systUID.emplace_back(); 
+      f_systUp.emplace_back(); 
+      f_systDown.emplace_back(); 
       for (const auto& syst : f) {
-	f_systUIDvec.push_back(syst.first);
-	f_systUpvec.push_back(syst.second.up);
-	f_systDownvec.push_back(syst.second.down);
-      } 
-      f_systUID.push_back(f_systUIDvec);
-      f_systUp.push_back(f_systUpvec);
-      f_systDown.push_back(f_systDownvec);
+        f_systUID.back().push_back(syst.first);
+        f_systUp.back().push_back(syst.second.up);
+        f_systDown.back().push_back(syst.second.down);
+      }
     }
 
     int ih1var = 0;
     auto map1_iter = m_mmevts_1dhisto_map.begin();
     for (; map1_iter != m_mmevts_1dhisto_map.end(); map1_iter++) {
-      float *h1_var_addr = h1_val_addrs[ih1var];
-      auto mmevts_vec = map1_iter->second;
+      float *h1_var_addr = h1_val_addrs[ih1var].get();
+      auto& mmevts_vec = map1_iter->second;
       *h1_var_addr = mmevts_vec[ievt].aux();
       ih1var++;
     }
@@ -1759,9 +1750,9 @@ StatusCode LhoodMM_tools::saveProgress(TDirectory* dir) {
     int ih2var = 0;
     auto map2_iter = m_mmevts_2dhisto_map.begin();
     for (; map2_iter != m_mmevts_2dhisto_map.end(); map2_iter++) {
-      float *h2_varx_addr = h2_valx_addrs[ih2var];
-      float *h2_vary_addr = h2_valy_addrs[ih2var];
-      auto mmevts_vec = map2_iter->second;
+      float *h2_varx_addr = h2_valx_addrs[ih2var].get();
+      float *h2_vary_addr = h2_valy_addrs[ih2var].get();
+      auto& mmevts_vec = map2_iter->second;
       *h2_varx_addr = mmevts_vec[ievt].aux();
       *h2_vary_addr = mmevts_vec[ievt].aux2();
       ih2var++;
@@ -1793,7 +1784,9 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
     }
   }
 
-  fin->cd("histos_1d");
+  std::string prefix = (m_progressFileDirectory.length()? "/" + m_progressFileDirectory + "/" : "");
+  
+  fin->cd((prefix + "histos_1d").c_str());
   TIter nextkey(gDirectory->GetListOfKeys());
   vector<float*> h1_val_addrs, h2_valx_addrs, h2_valy_addrs;
   while (TKey* key = (TKey*)nextkey()) {
@@ -1804,8 +1797,7 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
     register1DHistogram(h, x);
   }
 
-  fin->cd();
-  fin->cd("histos_2d");
+  fin->cd((prefix + "histos_2d").c_str());
   nextkey = gDirectory->GetListOfKeys();
   while (TKey* key = (TKey*)nextkey()) {
     TH2F* h = (TH2F*)key->ReadObj()->Clone();
@@ -1817,8 +1809,7 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
     register2DHistogram(h, x, y);
   }
 
-
-  TTree *t = (TTree*)fin->Get("LhoodMM_progress");
+  TTree *t = (TTree*)fin->Get((prefix + "LhoodMM_progress").c_str());
   if (t == nullptr) {
     ATH_MSG_ERROR("Unable to find LhoodMM_progress tree in " << filename);
     return StatusCode::FAILURE;
@@ -1923,10 +1914,11 @@ StatusCode LhoodMM_tools::mergeSubJobs() {
       chargevec.push_back(charge[ilep]);
     }
 
-    addEventCustom(isTightvec, rvec, fvec, chargevec, weight);
+    auto sc = addEventCustom(isTightvec, rvec, fvec, chargevec, weight);
+    if(sc != StatusCode::SUCCESS) return sc;
 
   }
-  
+
   delete r_systUID;
   delete f_systUID;
   delete r_systUp;
