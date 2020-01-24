@@ -19,6 +19,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "THashList.h"
+#include "TInterpreter.h"
 
 const TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
   TH1* h( nullptr );
@@ -362,7 +363,9 @@ bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
   }
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t3" )->GetEntries() ) EXPECTED( 1 );
   double t3_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t3" )->GetMean();
-  assert( 8 < t3_value && t3_value < 12 );
+  // This is not robust --- user code could be blocked for arbitrarily long.
+  //assert( 8 < t3_value && t3_value < 12 );
+  assert( 8 < t3_value );
 
   return true;
 }
@@ -444,7 +447,7 @@ bool string2DFillingWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
 
 
 int main() {
-  //CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   ISvcLocator* pSvcLoc;
   if ( !Athena_test::initGaudi( "GenericMon.txt",  pSvcLoc ) ) {
     std::cerr << "ERROR This test can not be run" << std::endl;
