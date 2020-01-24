@@ -103,7 +103,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("DisableDistortions",       m_disableDistortions, "Disable simulation of module distortions");
   declareProperty("Release13like",            m_rel13like, "Activate release-13 like settigs");
   declareProperty("PixelOfflineCalibSvc",     m_calibSvc, "Offline calibration svc");
-  declareProperty("PixelITkOfflineCalibData",     m_clusterITkErrorKey, "Output key of pixel cluster for ITk");
 
   declareProperty("applyNNcorrection",        m_applyNNcorrection);
   declareProperty("applydRcorrection",        m_applydRcorrection);
@@ -146,7 +145,7 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
    
    //get the offline calibration service
    ATH_CHECK( m_calibSvc.retrieve());
-   ATH_CHECK(m_clusterITkErrorKey.initialize());
+   if(m_itkAnalogueClustering) ATH_CHECK(m_clusterITkErrorKey.initialize());
    
    // get the error scaling tool
   if ( m_errorScalingTool.retrieve().isFailure() ) {
@@ -429,8 +428,6 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     //    ATH_MSG_VERBOSE ( << "Position strategy = " 
     //    << m_positionStrategy << "omegaphi = " << omegaphi )
 
-    SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibData(m_clusterITkErrorKey);
-
     // TOT interpolation for collision data    
     // Force IBL to use digital clustering and broad errors.
     if(totInterpolation){
@@ -438,6 +435,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
       localeta = centroid.xEta();
 
       if(m_itkAnalogueClustering){
+	SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibData(m_clusterITkErrorKey);
 	std::pair<double,double> delta = offlineITkCalibData->getPixelITkClusterErrorData()->getDelta(&element_id);
 	double delta_phi = nrows != 1 ? delta.first : 0.;
 	double delta_eta = nrows != 1 ? delta.second : 0.;
@@ -560,6 +558,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     else if( m_errorStrategy == 2 ){
      
       if(m_itkAnalogueClustering){
+	SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibData(m_clusterITkErrorKey);
 	std::pair<double,double> delta_err = offlineITkCalibData->getPixelITkClusterErrorData()->getDeltaError(&element_id);
 	errphi = nrows != 1 ? delta_err.first : (width.phiR()/nrows)*TOPHAT_SIGMA;
 	erreta = nrows != 1 ? delta_err.second : (width.z()/ncol)*TOPHAT_SIGMA;
