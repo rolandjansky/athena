@@ -9,6 +9,8 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
     acc = LArADC2MeVCondAlgCfg(configFlags)
 
+    kwargs.setdefault("name", "LArRawChannelBuilder")
+    kwargs.setdefault("firstSample", configFlags.LAr.ROD.FirstSample)
     if configFlags.Input.isMC:
         # need OFC configuration, which includes appropriate ElecCalibDb
         acc.merge(LArOFCCondAlgCfg(configFlags))
