@@ -12,7 +12,7 @@
 
 #undef NDEBUG
 
-//This is a test so need to be thread safe
+//This is a test so no need to be thread safe
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
