@@ -977,8 +977,8 @@ void Trk::TrackingVolume::interlinkLayers() {
       { 
 	if (*layerIter) {
 	  // register the layers
-	  (**layerIter).m_binUtility    = m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : 0; 
-	  (**layerIter).m_previousLayer = lastLayer;
+	  (**layerIter).setBinUtility(m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : nullptr); 
+	  (**layerIter).setPreviousLayer(lastLayer);
 	  // register the volume
 	  (**layerIter).encloseTrackingVolume(*this); 
 	}
@@ -991,9 +991,9 @@ void Trk::TrackingVolume::interlinkLayers() {
     for ( ; ; --layerIter)
       { 
 	if (*layerIter)
-	  (**layerIter).m_nextLayer = lastLayer;
-	lastLayer = (*layerIter);
-	if (layerIter == layers.begin()) break;
+	  (**layerIter).setNextLayer(lastLayer);
+  lastLayer = (*layerIter);
+  if (layerIter == layers.begin()) break;
       }
   }
 }
