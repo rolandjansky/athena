@@ -26,7 +26,9 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
+
 
 // Tracking EDM
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -49,6 +51,7 @@ class MsgStream;
 namespace Trk {
   class Track;
   class PrepRawData;
+  class IExtendedTrackSummaryTool;
 }
 
 namespace Muon {
@@ -277,7 +280,7 @@ namespace Muon {
     ToolHandle<IMuonTrackExtrapolationTool>           m_trackExtrapolationTool  {this, "Extrapolator", "Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"}; //<! track extrapolation tool
 
     ToolHandle<IMuonErrorOptimisationTool>            m_errorOptimisationTool {this, "ErrorOptimisationTool", ""};
-    ToolHandle<Trk::ITrackSummaryHelperTool>          m_trackSummaryTool    {this, "TrackSummaryTool", "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"};
+    ToolHandle<Trk::IExtendedTrackSummaryTool>        m_trackSummaryTool    {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
     ServiceHandle<MagField::IMagFieldSvc>             m_magFieldSvc         {this, "MagFieldSvc", "AtlasFieldSvc"};
     Trk::MagneticFieldProperties                      m_magFieldProperties  {Trk::FullField}; //!< magnetic field properties
 

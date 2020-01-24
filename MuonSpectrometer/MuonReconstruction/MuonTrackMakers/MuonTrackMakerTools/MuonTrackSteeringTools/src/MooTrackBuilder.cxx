@@ -21,8 +21,6 @@
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 #include "MuonTrackMakerUtils/MuonGetClosestParameters.h"
 
-#include "TrkTrackSummary/MuonTrackSummary.h"
-
 #include <set>
 
 #include "CxxUtils/checker_macros.h"
@@ -96,11 +94,7 @@ namespace Muon {
 
     // generate a track summary for this track
     if (m_trackSummaryTool.isEnabled()) {
-      const Trk::TrackSummary* summary = finalTrack->trackSummary();
-      if( !summary ) {
-        Trk::TrackSummary tmpSummary;
-        m_trackSummaryTool->addDetailedTrackSummary(*finalTrack,tmpSummary);
-      }
+      m_trackSummaryTool->computeAndReplaceTrackSummary(*finalTrack, nullptr, false);
     }
 
     bool recalibrateMDTHits = m_recalibrateMDTHits;
