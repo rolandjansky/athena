@@ -306,7 +306,7 @@ def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
 
     from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
+    condSeq = AthSequencer("AthAlgSeq") #should be changed to AthCondSeq in master
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOfflineCalibCondAlg
