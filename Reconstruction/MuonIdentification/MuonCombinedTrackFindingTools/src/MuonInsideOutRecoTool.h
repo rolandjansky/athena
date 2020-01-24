@@ -24,7 +24,8 @@
 #include "MuonCombinedToolInterfaces/IMuonCandidateTrackBuilderTool.h"
 #include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -36,6 +37,7 @@ namespace Muon {
 
 namespace Trk {
   class Track;
+  class IExtendedTrackSummaryTool;
 }
 
 static const InterfaceID IID_MuonInsideOutRecoTool("MuonCombined::MuonInsideOutRecoTool",1,0);
@@ -93,8 +95,8 @@ namespace MuonCombined {
     ToolHandle<Rec::ICombinedMuonTrackBuilder>       m_trackFitter;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbiguityResolver;
     ToolHandle<Muon::MuonLayerHashProviderTool>      m_layerHashProvider;
-    ToolHandle<Trk::ITrackSummaryHelperTool>         m_trackSummaryTool; 
-
+    ToolHandle<Trk::IExtendedTrackSummaryTool>       m_trackSummaryTool;    
+    
     /** id pt cut */
     double m_idTrackMinPt;
     bool m_ignoreSiAssocated;
