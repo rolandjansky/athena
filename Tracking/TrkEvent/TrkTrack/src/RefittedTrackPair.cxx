@@ -15,7 +15,7 @@ decription           : Implementation code for the RefittedTrackPair class
 
 Trk::RefittedTrackPair::RefittedTrackPair(){}
 
-Trk::RefittedTrackPair::RefittedTrackPair( ElementLink< DataVector< Trk::Track > > originalTrack, Trk::Track* refittedTrack )
+Trk::RefittedTrackPair::RefittedTrackPair( const ElementLink< DataVector< Trk::Track > >& originalTrack, Trk::Track* refittedTrack )
   :
   std::pair< ElementLink< DataVector< Trk::Track > >, Trk::Track* >( originalTrack, refittedTrack )
 {}
