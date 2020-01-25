@@ -19,6 +19,7 @@ class MsgStream;
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
     
   class TrackingVolume;
@@ -87,14 +88,15 @@ namespace Trk {
         GeometryType geometryType() const;
 
         /** set the simplified calculable components */
-        void saveConstituents(std::vector<std::pair<const Trk::Volume*,float> >* ) const;
-
+        void saveConstituents(std::vector<std::pair<const Trk::Volume*,float> >* );
+        void saveConstituents ATLAS_NOT_CONST_THREAD_SAFE (std::vector<std::pair<const Trk::Volume*,float> >* ) const;
         /** get the simplified calculable components */
         std::vector<std::pair<const Trk::Volume*,float> >* constituents() const;
 
 	    /** alignment methods: set base transform / default argument to current transform */
-	    void setBaseTransform( Amg::Transform3D* transf=0 ) const;
 	
+	    void setBaseTransform( Amg::Transform3D* transf=0 );
+	    void setBaseTransform ATLAS_NOT_CONST_THREAD_SAFE ( Amg::Transform3D* transf=0 ) const;
 	    /** alignment methods: realign  / default argument to base transform */
 	    void realign( Amg::Transform3D* transf=0 ) const;
 
@@ -106,8 +108,8 @@ namespace Trk {
         const std::string                                            m_name;
         const Layer*                                                 m_layerRepresentation;
         const std::vector<const Layer*>*                             m_multilayerRepresentation;
-	      mutable Amg::Transform3D*                                    m_baseTransform;         // optional use (for alignment purpose) 
-        mutable std::vector<std::pair<const Trk::Volume*,float> >*   m_constituents;  
+	      Amg::Transform3D*                                            m_baseTransform;         // optional use (for alignment purpose) 
+        std::vector<std::pair<const Trk::Volume*,float> >*           m_constituents;  
         
                 
   };
@@ -119,11 +121,22 @@ inline const std::string DetachedTrackingVolume::name() const { return (m_name);
 inline const Layer* DetachedTrackingVolume::layerRepresentation() const { return (m_layerRepresentation); }
 
 inline const std::vector<const Layer*>* DetachedTrackingVolume::multilayerRepresentation() const { return (m_multilayerRepresentation); }
- 
-inline void DetachedTrackingVolume::saveConstituents(std::vector<std::pair<const Trk::Volume*,float> >* constituents ) const { m_constituents = constituents; } 
 
-inline std::vector<std::pair<const Trk::Volume*,float> >* DetachedTrackingVolume::constituents() const
-   { return m_constituents;}
+inline void DetachedTrackingVolume::saveConstituents(std::vector<std::pair<const Trk::Volume *, float>> *constituents) {
+  m_constituents = constituents;
+}
+inline void DetachedTrackingVolume::saveConstituents
+ATLAS_NOT_CONST_THREAD_SAFE(std::vector<std::pair<const Trk::Volume *, float>> *constituents) const {
+  const_cast<DetachedTrackingVolume *>(this)->saveConstituents(constituents);
+}
+
+inline std::vector<std::pair<const Trk::Volume *, float>> *DetachedTrackingVolume::constituents() const {
+  return m_constituents;
+}
+
+inline void DetachedTrackingVolume::setBaseTransform ATLAS_NOT_CONST_THREAD_SAFE(Amg::Transform3D *transf) const {
+  const_cast<DetachedTrackingVolume *>(this)->setBaseTransform(transf);
+}
 
 } // end of namespace
 
