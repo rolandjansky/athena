@@ -203,7 +203,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
   }
   // Negative tracks bend to the positive direction.
   // flip sign for positive ones
-  const bool flipSign = trkPB.charge() > 0 ? true : false;
+  const bool flipSign = trkPB.charge() > 0;
 
   for (const auto& p : intersections) {
     int i(0);

@@ -458,7 +458,7 @@ bool egammaOQFlagsBuilder::isbadtilecell ( CaloCellList& ccl, const float cluste
   CaloCellList::list_iterator cclIterEnd  = ccl.end();
   for( ;cclIter!=cclIterEnd;cclIter++) {
     const CaloCell* cell = (*cclIter);
-    if(cell->badcell() == true){//check of bad tile cell
+    if(cell->badcell()){//check of bad tile cell
       isbadtilecell = true;
       break;
       }
