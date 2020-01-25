@@ -21,8 +21,8 @@ decription           : Implementation code for GsfMeasurementUpdator class
 
 #include "TrkGaussianSumFilter/PosteriorWeightsCalculator.h"
 
-Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string type,
-                                                  const std::string name,
+Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string& type,
+                                                  const std::string& name,
                                                   const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {

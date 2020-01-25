@@ -170,7 +170,7 @@ private:
                                                        const MultiComponentState&,
                                                        const Surface&,
                                                        PropDirection direction = anyDirection,
-                                                       BoundaryCheck boundaryCheck = true,
+                                                       const BoundaryCheck& boundaryCheck = true,
                                                        ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   std::unique_ptr<MultiComponentState> extrapolateImpl(Cache& cache,
@@ -201,7 +201,7 @@ private:
                                                                const Layer*,
                                                                const TrackingVolume&,
                                                                PropDirection direction = anyDirection,
-                                                               BoundaryCheck boundaryCheck = true,
+                                                               const BoundaryCheck& boundaryCheck = true,
                                                                ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Additional private extrapolation methods */
@@ -234,7 +234,7 @@ private:
                                                                           const Layer&,
                                                                           const Layer*,
                                                                           PropDirection direction = anyDirection,
-                                                                          BoundaryCheck boundaryCheck = true,
+                                                                          const BoundaryCheck& boundaryCheck = true,
                                                                           ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Extrapolation to consider material effects assuming all material on active sensor elements - CTB method */
@@ -251,7 +251,7 @@ private:
                                            const MultiComponentState&,
                                            const Surface&,
                                            PropDirection direction = anyDirection,
-                                           BoundaryCheck boundaryCheck = true,
+                                           const BoundaryCheck& boundaryCheck = true,
                                            ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method to choose propagator type */
