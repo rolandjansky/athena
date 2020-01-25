@@ -30,7 +30,7 @@ Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(const std::str
   declareInterface<IMaterialMixtureConvolution>(this);
 }
 
-Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() {}
+Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()

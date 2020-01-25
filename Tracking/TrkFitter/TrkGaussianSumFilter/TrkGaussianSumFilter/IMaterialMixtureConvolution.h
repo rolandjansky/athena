@@ -31,7 +31,7 @@ public:
   static const InterfaceID interfaceID() { return IID_IMaterialMixtureConvolution; };
 
   //!< Virtual destructor
-  virtual ~IMaterialMixtureConvolution(){};
+  virtual ~IMaterialMixtureConvolution()= default;
 
   //!< Convolution with full material properties
   virtual std::unique_ptr<MultiComponentState> 

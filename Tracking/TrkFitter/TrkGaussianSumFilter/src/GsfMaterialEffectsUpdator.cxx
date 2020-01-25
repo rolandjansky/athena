@@ -33,7 +33,7 @@ Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(const std::string& typ
   declareProperty("MinimalMomentum", m_momentumCut);
 }
 
-Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() {}
+Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() = default;
 
 StatusCode
 Trk::GsfMaterialEffectsUpdator::initialize()

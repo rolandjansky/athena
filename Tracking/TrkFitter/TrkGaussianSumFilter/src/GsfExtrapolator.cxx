@@ -56,7 +56,7 @@ Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type, const std::string
   declareProperty("MagneticFieldProperties", m_fastField);
 }
 
-Trk::GsfExtrapolator::~GsfExtrapolator() {}
+Trk::GsfExtrapolator::~GsfExtrapolator() = default;
 
 /*
  * Initialisation and finalisation

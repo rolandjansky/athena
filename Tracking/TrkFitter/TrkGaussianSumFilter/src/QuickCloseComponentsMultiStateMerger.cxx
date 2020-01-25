@@ -33,7 +33,7 @@ Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(
   declareInterface<IMultiComponentStateMerger>(this);
 }
 
-Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger() {}
+Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger() = default;
 
 StatusCode
 Trk::QuickCloseComponentsMultiStateMerger::initialize()

@@ -47,7 +47,7 @@ public:
   GsfMeasurementUpdator(const std::string, const std::string, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfMeasurementUpdator(){};
+  virtual ~GsfMeasurementUpdator()= default;
 
   /** AlgTool initialise method */
   StatusCode initialize() override;

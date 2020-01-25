@@ -19,7 +19,7 @@ namespace {
 class SortByLargerSimpleComponentWeight
 {
 public:
-  SortByLargerSimpleComponentWeight(){};
+  SortByLargerSimpleComponentWeight()= default;
   bool operator()(const Trk::ComponentParameters& firstComponent,
                   const Trk::ComponentParameters& secondComponent) const
 
