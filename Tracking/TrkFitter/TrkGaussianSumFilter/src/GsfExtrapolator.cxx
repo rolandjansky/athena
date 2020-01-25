@@ -961,14 +961,14 @@ std::unique_ptr<Trk::MultiComponentState> Trk::GsfExtrapolator::extrapolateToInt
   // the layer has been intersected ------------------------------------------------------------------------
   // check for radial direction change ---------------------------------------------------------------------
   int rDirection = radialDirection(multiComponentState, direction);
-  int newrDirection = radialDirection(*destinationState.get(), direction);
+  int newrDirection = radialDirection(*destinationState, direction);
   if (newrDirection != rDirection && doPerpCheck) {
     // it is unfortunate that the cancelling could invalidate the material collection
     ATH_MSG_DEBUG("  [!] Perpendicular direction of track has changed -- checking");
     // reset the nextParameters if the radial change is not allowed
     //  resetting is ok - since the parameters are in the garbage bin already
     if (!radialDirectionCheck(
-          propagator, multiComponentState, *destinationState.get(), trackingVolume, direction, particleHypothesis)) {
+          propagator, multiComponentState, *destinationState, trackingVolume, direction, particleHypothesis)) {
       ATH_MSG_DEBUG("  [+] Perpendicular direction check cancelled this layer intersection.");
       return nullptr;
     }
@@ -979,7 +979,7 @@ std::unique_ptr<Trk::MultiComponentState> Trk::GsfExtrapolator::extrapolateToInt
      ------------------------------------- */
 
   std::unique_ptr<Trk::MultiComponentState> updatedState =
-    m_materialUpdator->update(*destinationState.get(), layer, direction, particleHypothesis);
+    m_materialUpdator->update(*destinationState, layer, direction, particleHypothesis);
   
   if( !updatedState )
     return destinationState;
@@ -1041,7 +1041,7 @@ Trk::GsfExtrapolator::extrapolateToDestinationLayer(Cache& cache,
      ---------------------------------------- */
 
   std::unique_ptr<Trk::MultiComponentState> updatedState =
-    (startLayer != &layer) ? m_materialUpdator->preUpdate(*destinationState.get(), layer, direction, particleHypothesis)
+    (startLayer != &layer) ? m_materialUpdator->preUpdate(*destinationState, layer, direction, particleHypothesis)
                            : nullptr;
 
   if(!updatedState)  
@@ -1091,7 +1091,7 @@ Trk::GsfExtrapolator::extrapolateSurfaceBasedMaterialEffects(const IPropagator& 
      ---------------------------------------- */
 
   std::unique_ptr<Trk::MultiComponentState> finalState =
-    m_materialUpdator->simplifiedMaterialUpdate(*lastState.get(), direction, particleHypothesis);
+    m_materialUpdator->simplifiedMaterialUpdate(*lastState, direction, particleHypothesis);
   if(!finalState){
     ATH_MSG_DEBUG("Simple material effects updator failed" );
     return lastState;
