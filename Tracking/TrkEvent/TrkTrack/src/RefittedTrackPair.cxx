@@ -13,13 +13,13 @@ decription           : Implementation code for the RefittedTrackPair class
 
 #include "TrkTrack/RefittedTrackPair.h"
 
-Trk::RefittedTrackPair::RefittedTrackPair(){}
+Trk::RefittedTrackPair::RefittedTrackPair()= default;
 
 Trk::RefittedTrackPair::RefittedTrackPair( const ElementLink< DataVector< Trk::Track > >& originalTrack, Trk::Track* refittedTrack )
   :
   std::pair< ElementLink< DataVector< Trk::Track > >, Trk::Track* >( originalTrack, refittedTrack )
 {}
 
-Trk::RefittedTrackPair::~RefittedTrackPair(){}
+Trk::RefittedTrackPair::~RefittedTrackPair()= default;
 
 
