@@ -174,8 +174,8 @@ namespace Trk
                 const MeasurementBase          *meas,
                 const TrackParameters          *trackParameter,
                 const FitQualityOnSurface      *fitQoS,
-                const MaterialEffectsBase      *materialEffects = 0,
-                const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = 0
+                const MaterialEffectsBase      *materialEffects = nullptr,
+                const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = nullptr
                 );
 
             /**
@@ -209,7 +209,7 @@ namespace Trk
                 const FitQualityOnSurface       *fitQoS,
                 const MaterialEffectsBase       *materialEffectsOnTrack,
                 const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern,
-                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=0 /// @todo remove =0 at some point
+                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=nullptr /// @todo remove =0 at some point
                 );
 
             /**

@@ -123,7 +123,7 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
     m_perigeeParameters.reset();
     
     //Create the TrackStateVector and the perigeeParamters
-    if( rhs.m_trackStateVector!=0 )
+    if( rhs.m_trackStateVector!=nullptr )
     {
       m_trackStateVector = new DataVector<const TrackStateOnSurface>;
       m_trackStateVector->reserve(rhs.m_trackStateVector->size());
@@ -168,7 +168,7 @@ const DataVector<const Trk::TrackParameters>* Trk::Track::trackParameters() cons
     {
       const TrackParameters* trackParameters = (*itTSoS)->trackParameters();
       // check to make sure that the TrackParameters exists first
-      if (trackParameters!=0) {
+      if (trackParameters!=nullptr) {
         tmp_ParameterVector.push_back( trackParameters );
       }
     }
@@ -233,7 +233,7 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() 
       {
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();
         // does it have a measurement ?
-        if (rot!=0) tmpMeasurementVector.push_back( rot );
+        if (rot!=nullptr) tmpMeasurementVector.push_back( rot );
       }
     }
     m_cachedMeasurementVector.set(std::move(tmpMeasurementVector));
@@ -285,10 +285,10 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Track& track)
 { 
   std::string name("Track ");
   sl <<name<<"Author = "<<track.info().dumpInfo()<<endmsg;
-  if (track.fitQuality()!=0) sl << *(track.fitQuality() )<<endmsg;
-  if (track.trackSummary()!=0) sl << *(track.trackSummary())<<endmsg;
+  if (track.fitQuality()!=nullptr) sl << *(track.fitQuality() )<<endmsg;
+  if (track.trackSummary()!=nullptr) sl << *(track.trackSummary())<<endmsg;
   else sl << "No TrackSummary available in this track."<<endmsg;
-  if (track.trackStateOnSurfaces() !=0)
+  if (track.trackStateOnSurfaces() !=nullptr)
   { 
     sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << endmsg;
 
@@ -314,11 +314,11 @@ std::ostream& Trk::operator << ( std::ostream& sl, const Trk::Track& track)
 {
   std::string name("Track ");
   sl <<name<<"Author = "<<track.info().dumpInfo()<<std::endl;
-  if (track.fitQuality()!=0) sl << *(track.fitQuality() )<<std::endl;
-  if (track.trackSummary()!=0) sl << *(track.trackSummary())<<std::endl;
+  if (track.fitQuality()!=nullptr) sl << *(track.fitQuality() )<<std::endl;
+  if (track.trackSummary()!=nullptr) sl << *(track.trackSummary())<<std::endl;
   else sl << "No TrackSummary available in this track."<<std::endl;
 
-  if (track.trackStateOnSurfaces() !=0)
+  if (track.trackStateOnSurfaces() !=nullptr)
   { 
     sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << std::endl;
     DataVector<const TrackStateOnSurface>::const_iterator it=track.trackStateOnSurfaces()->begin();
