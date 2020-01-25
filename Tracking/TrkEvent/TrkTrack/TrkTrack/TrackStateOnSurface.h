@@ -359,8 +359,7 @@ inline const Trk::AlignmentEffectsOnTrack *Trk::TrackStateOnSurface::alignmentEf
 inline bool Trk::TrackStateOnSurface::type( const TrackStateOnSurfaceType& type ) const
 {
     if (type==NumberOfTrackStateOnSurfaceTypes || type==Unknown) return false;
-    if (m_typeFlags.test(type)) return true;
-    return false;
+    return m_typeFlags.test(type);
 }
 
 inline void Trk::TrackStateOnSurface::setFlags()
