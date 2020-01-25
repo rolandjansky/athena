@@ -212,8 +212,7 @@ void Trk::Track::findPerigeeImpl() const
   if (tmpPerigeeParameters) {
     m_perigeeParameters.set(tmpPerigeeParameters);
   }
-  return;
-}
+  }
 
 const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() const
 {
