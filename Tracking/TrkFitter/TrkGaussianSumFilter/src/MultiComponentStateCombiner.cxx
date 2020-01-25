@@ -105,7 +105,7 @@ Trk::MultiComponentStateCombiner::combineWithWeight(Trk::ComponentParameters& me
     mergeTo.first->updateParameters(mean, covariance);
     mergeTo.second = totalWeight;
   } else {
-    mergeTo.first->updateParameters(mean, 0);
+    mergeTo.first->updateParameters(mean, nullptr);
     mergeTo.second = totalWeight;
   }
 }

@@ -58,7 +58,7 @@ public:
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(const ForwardTrajectory&,
                                   const ParticleHypothesis particleHypothesis = nonInteracting,
-                                  const CaloCluster_OnTrack* ccot = 0) const;
+                                  const CaloCluster_OnTrack* ccot = nullptr) const;
 
 private:
   /** Method for combining the forwards fitted state and the smoothed state */

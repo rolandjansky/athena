@@ -93,22 +93,22 @@ Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
   // Check that the updator is instansiated
   if (!m_updator) {
     ATH_MSG_ERROR ("The measurement updator is not configured... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   if (!m_extrapolator) {
      ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   if (!m_rioOnTrackCreator) {
     ATH_MSG_ERROR("The RIO_OnTrackCreator is not configured for use with the PrepRawData set... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   if (inputPrepRawDataSet.empty()) {
     ATH_MSG_ERROR("Input PrepRawDataSet is empty... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   // Configure for forwards filtering material effects overide
@@ -143,7 +143,7 @@ Trk::ForwardGsfFitter::fitPRD(const Trk::PrepRawDataSet& inputPrepRawDataSet,
   
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface().createTrackParameters(
-      par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], 0 /*no errors*/),1.);
+      par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], nullptr /*no errors*/),1.);
 
   auto multiComponentStateNearOrigin =std::make_unique<Trk::MultiComponentState>();
   multiComponentStateNearOrigin->push_back(std::move(componentParametersNearOrigin));
@@ -211,7 +211,7 @@ Trk::ForwardGsfFitter::fitMeasurements(const Trk::MeasurementSet& inputMeasureme
   // Prepare the multi-component state. For starting guess this has single component, weight 1
   const AmgVector(5)& par = estimatedTrackParametersNearOrigin.parameters();
 
-  AmgSymMatrix(5)* covariance = 0;
+  AmgSymMatrix(5)* covariance = nullptr;
 
   Trk::ComponentParameters componentParametersNearOrigin(
     estimatedTrackParametersNearOrigin.associatedSurface().createTrackParameters(

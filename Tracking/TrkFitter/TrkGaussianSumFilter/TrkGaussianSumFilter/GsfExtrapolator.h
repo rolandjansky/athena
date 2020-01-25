@@ -212,7 +212,7 @@ private:
                                                          const MultiComponentState&,
                                                          const TrackingVolume&,
                                                          const Layer* startLayer,
-                                                         const Layer* destinationLayer = 0,
+                                                         const Layer* destinationLayer = nullptr,
                                                          PropDirection direction = anyDirection,
                                                          ParticleHypothesis particleHypothesis = nonInteracting) const;
 
@@ -358,9 +358,9 @@ inline void
 Trk::GsfExtrapolator::resetRecallInformation(Cache& cache) const
 {
   cache.m_recall = false;
-  cache.m_recallSurface = 0;
-  cache.m_recallLayer = 0;
-  cache.m_recallTrackingVolume = 0;
+  cache.m_recallSurface = nullptr;
+  cache.m_recallLayer = nullptr;
+  cache.m_recallTrackingVolume = nullptr;
 }
 
 inline void
