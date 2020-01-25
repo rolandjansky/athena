@@ -82,10 +82,10 @@ public:
   void setVertices(const std::vector<ElementLink<xAOD::VertexContainer>>& links);
 
   /// @brief Push back another vertex
-  void pushBackVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink);
+  void pushBackVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink);
 
   /// @brief Push front another vertex
-  void pushFrontVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink);
+  void pushFrontVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink);
 
   /// @name matching variables for the best match track
   /// @{

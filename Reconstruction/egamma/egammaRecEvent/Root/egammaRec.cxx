@@ -73,13 +73,13 @@ egammaRec::vertexElementLink(size_t index) const{
 }
 
 void
-egammaRec::pushBackVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink)
+egammaRec::pushBackVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink)
 {
   m_vertices.push_back(vertexElementLink);
 }
 
 void
-egammaRec::pushFrontVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink)
+egammaRec::pushFrontVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink)
 {
   m_vertices.insert(m_vertices.begin(), vertexElementLink);
 }
