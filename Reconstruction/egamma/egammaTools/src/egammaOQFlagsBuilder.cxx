@@ -28,7 +28,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    m_emHelper(0)
+    m_emHelper(nullptr)
 {
   //
   // constructor
@@ -37,7 +37,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   // declare interface
   declareInterface<IegammaBaseTool>(this);
 
-  m_calocellId = 0;
+  m_calocellId = nullptr;
 }
 
 // ===============================================================
@@ -154,7 +154,7 @@ std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(const Identifie
 StatusCode egammaOQFlagsBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
 { 
   // Protection against bad pointers
-  if (eg==0) return StatusCode::SUCCESS;
+  if (eg==nullptr) return StatusCode::SUCCESS;
   const xAOD::CaloCluster* cluster = eg->caloCluster(); 
   if (!cluster) return StatusCode::SUCCESS; 
   if (cluster->size()==0) return StatusCode::SUCCESS; 

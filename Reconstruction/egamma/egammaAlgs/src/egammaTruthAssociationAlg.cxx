@@ -224,7 +224,7 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
       return egammaTruth;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //// The templated functions

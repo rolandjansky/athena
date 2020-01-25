@@ -59,7 +59,7 @@ StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx,
                                            EgammaRecContainer* egammas) const
 {
   // protection against bad pointers
-  if (egammas==0 ) {
+  if (egammas==nullptr ) {
     return StatusCode::SUCCESS;
   }
   // retrieve the trackparticle container

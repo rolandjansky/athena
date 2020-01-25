@@ -65,7 +65,7 @@ StatusCode EMFourMomBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) 
         return StatusCode::SUCCESS;
     }
     xAOD::Electron *electron = dynamic_cast< xAOD::Electron* >(eg);
-    xAOD::Photon   *photon   = electron ? 0 : dynamic_cast< xAOD::Photon* >(eg);
+    xAOD::Photon   *photon   = electron ? nullptr : dynamic_cast< xAOD::Photon* >(eg);
 
     bool hasTrack(false);
     if (electron) {
