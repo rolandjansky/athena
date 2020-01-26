@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id$
 #
 # File: egammaD3PDMaker/python/CorrectionClusterGetter.py
 # Created: Oct 2012, sss
@@ -45,7 +43,7 @@ class CorrectionClusterGetterBase (CaloClusterGetterBase):
     # Create the correction tool list for SW clustering.
     def makeCorrectionTools (self):
         corrargs = self._corrargs.copy()
-        if not self._corrargs.has_key ('cells_name'):
+        if 'cells_name' not in self._corrargs:
             cells = resolveSGKey ('CaloCellContainer',
                                   'AODCellContainer,AllCalo')
             corrargs['cells_name'] = cells
