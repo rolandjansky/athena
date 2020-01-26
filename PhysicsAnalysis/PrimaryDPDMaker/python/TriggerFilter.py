@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        Trigger Skimmer
@@ -11,6 +11,8 @@
 ## Description: This is a short algorithm to select events that pass a certain
 ##              set of triggers.
 ##=============================================================================
+
+from __future__ import print_function
 
 __doc__ = """This is a short algorithm to select events that pass at least
 one out of a certain set of triggers.
@@ -121,7 +123,7 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
         effiErrPassTrigger = 0.0
 
         try :
-            print 'self.processed = ', self.nProcessed
+            print ('self.processed = ', self.nProcessed)
             
             # Efficiencies
             effiPassTrigger    = 100.*self.nEventPassTrigger / float(self.nProcessed)
