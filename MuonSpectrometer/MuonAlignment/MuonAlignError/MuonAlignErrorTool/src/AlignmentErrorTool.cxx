@@ -157,6 +157,10 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       if (!rot) continue;
 
       Identifier channelId = rot->identify();
+      if (!m_idHelper->isMuon(channelId)) {
+        ATH_MSG_WARNING("Given Identifier "<<channelId.get_compact()<<" is no muon identifier, continuing...");
+        continue;
+      }
       if (m_idHelper->isMM(channelId)||m_idHelper->issTgc(channelId)) continue; // needs to be still implemented for the NSW
 
       MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(channelId);
