@@ -39,7 +39,7 @@ public:
   static const InterfaceID& interfaceID() { return InterfaceID_ForwardGsfFitter; };
 
   /** Virtual destructor */
-  virtual ~IForwardGsfFitter(){};
+  virtual ~IForwardGsfFitter()= default;
 
   /** Configure the forward GSF fitter
       - Configure the extrapolator

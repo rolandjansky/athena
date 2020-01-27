@@ -40,7 +40,7 @@ public:
   ForwardGsfFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~ForwardGsfFitter(){};
+  virtual ~ForwardGsfFitter()= default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
