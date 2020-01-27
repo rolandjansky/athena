@@ -455,13 +455,9 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
 
   if (m_doHitSorting) {
 
-    Trk::MeasurementBaseComparisonFunction* measurementBaseComparisonFunction =
-      new Trk::MeasurementBaseComparisonFunction(estimatedParametersNearOrigin.position(),
-                                                 estimatedParametersNearOrigin.momentum());
-
-    sort(sortedMeasurementSet.begin(), sortedMeasurementSet.end(), *measurementBaseComparisonFunction);
-
-    delete measurementBaseComparisonFunction;
+    Trk::MeasurementBaseComparisonFunction measurementBaseComparisonFunction(estimatedParametersNearOrigin.position(),
+                                                                             estimatedParametersNearOrigin.momentum());
+    sort(sortedMeasurementSet.begin(), sortedMeasurementSet.end(),measurementBaseComparisonFunction);
   }
   // Perform GSF forwards fit - new memory allocated in forwards fitter
   ForwardTrajectory* forwardTrajectory =

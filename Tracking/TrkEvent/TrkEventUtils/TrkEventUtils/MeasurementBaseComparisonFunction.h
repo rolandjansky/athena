@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 //STL
-#include <ext/algorithm>
+#include <algorithm>
 #include <stdexcept>
 
 // Amg
@@ -35,105 +35,63 @@
 
 namespace Trk {
 
-  /** Class inheriting from std::binary_function to provide a
-   *     comparison function, or relational definition, for
-   *     sorting MeasurementBase objects
-   */
-  class MeasurementBaseComparisonFunction {
+  /** Class implementing a comparison function 
+   * for sorting MeasurementBase objects*/
+ 
+class MeasurementBaseComparisonFunction {
   public:
 
-    /** Default Constructor, default will be sorting towards radius of 0 */
-    MeasurementBaseComparisonFunction()                
-      : m_point(0),
-          m_direction(0),
-          m_radius(0.)
-          {}
-
-    /** Default Constructor, using a given radius */
-    MeasurementBaseComparisonFunction(double cradius)
-      : m_point(0),
-          m_direction(0),
-          m_radius(fabs(cradius))
-          {}
-    
-    /** Simple relation definition using a 3d distance to the reference point */
-    MeasurementBaseComparisonFunction(const  Amg::Vector3D& sp)
-      : m_point(new  Amg::Vector3D(sp)),
-          m_direction(0),
-          m_radius(0.)
-          {}
-
+    /*
+     * Default ctor does not make much sense
+     */
+    MeasurementBaseComparisonFunction()=delete;
+      /** Destructor */
+    ~MeasurementBaseComparisonFunction()=default;
+ 
     /** Full relation definition using a straight line propagation */
-    MeasurementBaseComparisonFunction(const Amg::Vector3D& sp,
-                                      const Amg::Vector3D& dir)
-      : m_point(new  Amg::Vector3D(sp)),
-          m_direction(new   Amg::Vector3D(dir.unit())),
-          m_radius(0.)
-      {}
-
+    MeasurementBaseComparisonFunction(const Amg::Vector3D &sp, const Amg::Vector3D &dir)
+        : m_point(sp), m_direction(dir.unit()) {}
     /** Copy Ctor */
-    MeasurementBaseComparisonFunction(const MeasurementBaseComparisonFunction& MCF)
-      :  m_point(MCF.m_point ? new  Amg::Vector3D(*MCF.m_point) : 0),
-          m_direction(MCF.m_direction  ? new  Amg::Vector3D(*MCF.m_direction) : 0),
-          m_radius(MCF.m_radius)
-      {}
-
-    /** Destructor */
-    virtual ~MeasurementBaseComparisonFunction(){
-      delete m_point;
-      delete m_direction;
-    }
-               
+    MeasurementBaseComparisonFunction(const MeasurementBaseComparisonFunction &MCF)
+        : m_point(MCF.m_point), m_direction(MCF.m_direction) {}
+              
     MeasurementBaseComparisonFunction &operator=(MeasurementBaseComparisonFunction &MCF) {
       if (this != &MCF) {
-        delete m_point;
-        m_point = (MCF.m_point ? new  Amg::Vector3D(*MCF.m_point) : 0);
-        delete m_direction;
-        m_direction = (MCF.m_direction  ? new  Amg::Vector3D(*MCF.m_direction) : 0);
-        m_radius=(MCF.m_radius);
+        m_point = MCF.m_point;
+        m_direction = MCF.m_direction;
       }
       return *this;
     }
+   
     /** The comparison function defining in what case a PRD is 'smaller' than
         a second one */
     bool operator() (const Trk::MeasurementBase* one,
 		     const Trk::MeasurementBase* two) const {
 
-      // --- very simple case, check radial distances
-      if (!m_direction && !m_point) {
-        return ( fabs(one->globalPosition().perp() - m_radius)
-                 < fabs(two->globalPosition().perp() - m_radius) );
-      }
-      // --- simple case, just use global position distances
-      else if (!m_direction) {
-        return ( (one->globalPosition() - *m_point).mag()
-                 < (two->globalPosition() - *m_point).mag());
-      }
-      // --- flexible sorting along a predicted direction
-      else {
+     // --- flexible sorting along a predicted direction
         double path1 = 0;
-        const Trk::Surface* sf1 = &(one->associatedSurface());
-        const Trk::Surface::SurfaceType surfType1  = ( (sf1!=nullptr)  ? sf1->type() : Trk::Surface::Other); 
+        const Trk::Surface& sf1 = one->associatedSurface();
+        const Trk::Surface::SurfaceType surfType1  = sf1.type();
         
         if (surfType1==Trk::Surface::Plane) {
-          const Trk::PlaneSurface*  opsf = static_cast <const Trk::PlaneSurface*>(sf1);
-          path1 = this->pathIntersectWithPlane(*opsf);
+          const Trk::PlaneSurface&  opsf = static_cast <const Trk::PlaneSurface&>(sf1);
+          path1 = this->pathIntersectWithPlane(opsf);
         } 
         else if (surfType1==Trk::Surface::Line) {
-          const Trk::StraightLineSurface* ossf =  static_cast <const Trk::StraightLineSurface*>(sf1);
-          path1 = this->pathIntersectWithLine (*ossf);
+          const Trk::StraightLineSurface& ossf =  static_cast <const Trk::StraightLineSurface&>(sf1);
+          path1 = this->pathIntersectWithLine (ossf);
         } 
         else if (surfType1==Trk::Surface::Disc) {
-          const Trk::DiscSurface*   odsf = static_cast <const Trk::DiscSurface*> (sf1); 
-          path1 = this->pathIntersectWithDisc (*odsf);
+          const Trk::DiscSurface&   odsf = static_cast <const Trk::DiscSurface&> (sf1); 
+          path1 = this->pathIntersectWithDisc (odsf);
         } 
         else if (surfType1==Trk::Surface::Cylinder) {
-          const Trk::CylinderSurface*  ocsf = static_cast <const Trk::CylinderSurface*> (sf1);
-          path1 = this->pathIntersectWithCylinder(*ocsf, one->globalPosition());
+          const Trk::CylinderSurface&  ocsf = static_cast <const Trk::CylinderSurface&> (sf1);
+          path1 = this->pathIntersectWithCylinder(ocsf, one->globalPosition());
         } 
         else if (surfType1==Trk::Surface::Perigee) {
-          const Trk::PerigeeSurface*  ogsf = static_cast< const Trk::PerigeeSurface* >(sf1);
-          path1 = this->pathIntersectWithLine (*ogsf);
+          const Trk::PerigeeSurface&  ogsf = static_cast< const Trk::PerigeeSurface&>(sf1);
+          path1 = this->pathIntersectWithLine (ogsf);
         }
         else {
           throw std::runtime_error( "MeasurementBaseComparisonFunction: surface type error for Sf1!");
@@ -141,47 +99,44 @@ namespace Trk {
 
         // --- identify the 2nd surface type and get intersection path for surface 1
         double path2 = 0;
-        const Trk::Surface* sf2 = &(two->associatedSurface());
-        const Trk::Surface::SurfaceType surfType2  = ( (sf2!=nullptr)  ? sf2->type() : Trk::Surface::Other); 
+        const Trk::Surface& sf2 = two->associatedSurface();
+        const Trk::Surface::SurfaceType surfType2  = sf2.type();
         
         if (surfType2==Trk::Surface::Plane) {
-          const Trk::PlaneSurface*  tpsf = static_cast <const Trk::PlaneSurface*>(sf2);
-          path2 = this->pathIntersectWithPlane(*tpsf);
+          const Trk::PlaneSurface&  tpsf = static_cast <const Trk::PlaneSurface&>(sf2);
+          path2 = this->pathIntersectWithPlane(tpsf);
         } 
         else if (surfType2==Trk::Surface::Line) {
-          const Trk::StraightLineSurface* tssf =  static_cast <const Trk::StraightLineSurface*>(sf2);
-          path2 = this->pathIntersectWithLine (*tssf);
+          const Trk::StraightLineSurface& tssf =  static_cast <const Trk::StraightLineSurface&>(sf2);
+          path2 = this->pathIntersectWithLine (tssf);
         } 
         else if (surfType2==Trk::Surface::Disc) {
-          const Trk::DiscSurface*   tdsf = static_cast <const Trk::DiscSurface*> (sf2); 
-          path2 = this->pathIntersectWithDisc (*tdsf);
+          const Trk::DiscSurface&   tdsf = static_cast <const Trk::DiscSurface&> (sf2); 
+          path2 = this->pathIntersectWithDisc (tdsf);
         } 
         else if (surfType2==Trk::Surface::Cylinder) {
-          const Trk::CylinderSurface*  tcsf = static_cast <const Trk::CylinderSurface*> (sf2);
-          path2 = this->pathIntersectWithCylinder(*tcsf, two->globalPosition());
+          const Trk::CylinderSurface&  tcsf = static_cast <const Trk::CylinderSurface&> (sf2);
+          path2 = this->pathIntersectWithCylinder(tcsf, two->globalPosition());
         } 
         else if (surfType2==Trk::Surface::Perigee) {
-          const Trk::PerigeeSurface*  tgsf = static_cast< const Trk::PerigeeSurface* >(sf2);
-          path2 = this->pathIntersectWithLine (*tgsf);
+          const Trk::PerigeeSurface&  tgsf = static_cast< const Trk::PerigeeSurface&>(sf2);
+          path2 = this->pathIntersectWithLine (tgsf);
         }
         else {
           throw std::runtime_error("MeasurementBaseComparisonFunction: surface type error for Sf2!");
         }
         
         return path1 < path2;
-
-      }
     }
   private:
-    Amg::Vector3D* m_point;
-    Amg::Vector3D* m_direction;
-    double          m_radius;
+    Amg::Vector3D m_point;
+    Amg::Vector3D m_direction;
 
     double pathIntersectWithPlane(const Trk::PlaneSurface& psf) const
     {
-      double denom = m_direction->dot(psf.normal()); // c++ can be unreadable
+      double denom = m_direction.dot(psf.normal()); // c++ can be unreadable
       return (denom) ?
-        psf.normal().dot(psf.center() - *m_point)/(denom) :
+        psf.normal().dot(psf.center() - m_point)/(denom) :
         denom                                            ;
     }
 
@@ -189,31 +144,31 @@ namespace Trk {
     {
       Amg::Vector3D dirWire(lsf.transform().rotation().col(2));
       dirWire.normalize();
-      Amg::Vector3D trackToWire(lsf.center() - *m_point);
-      double     parallelity = m_direction->dot(dirWire);
+      Amg::Vector3D trackToWire(lsf.center() - m_point);
+      double     parallelity = m_direction.dot(dirWire);
       double     denom       = 1 - parallelity*parallelity;
       return (fabs(denom)>10e-7)                       ?
-        (trackToWire.dot(*m_direction) 
+        (trackToWire.dot(m_direction) 
          - trackToWire.dot(dirWire)*parallelity)/denom :
         0.                                             ;
     }
 
     double pathIntersectWithLine(const Trk::PerigeeSurface& pgsf) const
     {
-      Amg::Vector3D trackToWire(pgsf.center() - *m_point);
-      double     parallelity = m_direction->dot(Trk::s_zAxis);
+      Amg::Vector3D trackToWire(pgsf.center() - m_point);
+      double     parallelity = m_direction.dot(Trk::s_zAxis);
       double     denom       = 1 - parallelity*parallelity;
       return (fabs(denom)>10e-7)                            ?
-        (trackToWire.dot(*m_direction) 
+        (trackToWire.dot(m_direction) 
          - trackToWire.dot(Trk::s_zAxis)*parallelity)/denom :
         0.                                                  ;
     }
 
     double pathIntersectWithDisc(const Trk::DiscSurface& dsf) const
     {
-      double denom = m_direction->dot(dsf.normal());
+      double denom = m_direction.dot(dsf.normal());
       return (denom)                                     ?
-        dsf.normal().dot(dsf.center() - *m_point)/(denom) :
+        dsf.normal().dot(dsf.center() - m_point)/(denom) :
         denom                                            ;
     }
 
@@ -224,9 +179,9 @@ namespace Trk {
       // get the rotation by reference
       const Amg::Transform3D& locTrans = csf.transform();
       // take two points of line and calculate them to the 3D frame of the cylinder
-      Amg::Vector3D point1(locTrans.inverse() * * m_point);
-      Amg::Vector3D point2raw = * m_point + * m_direction;
-      Amg::Vector3D point2(locTrans.inverse() * point2raw); // do it in two steps - CLHEP stability
+      Amg::Vector3D point1(locTrans.inverse() * m_point);
+      Amg::Vector3D point2raw = m_point + m_direction;
+      Amg::Vector3D point2(locTrans.inverse() * point2raw); // do it in two steps
 
       // new direction in 3D frame of cylinder
       Amg::Vector3D direc((point2 - point1).unit());
@@ -268,7 +223,6 @@ namespace Trk {
       }
     }
   };
-
 } // end of namespace
 
 #endif //TRKNIRVANA_MEASUREMENTBASECOMPARISONFUNCTION_H
