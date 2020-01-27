@@ -38,19 +38,6 @@ class Hw7Config(object):
 ## Global Pre-Commands from Herwig7Config.py
 ## =========================================
 
-## fix for global default settings until released with Herwig7 itself
-set /Herwig/Shower/GtoQQbarSplitFn:AngularOrdered Yes
-set /Herwig/Shower/GammatoQQbarSplitFn:AngularOrdered Yes
-
-## fix for GeV-mass photon radiation until released with Herwig7 itself
-set /Herwig/Shower/GammatoQQbarSudakov:Alpha /Herwig/Shower/AlphaQED
-
-## fix for initial-state (backward evolution) splitting (AGENE-1384)
-set /Herwig/Shower/QtoGammaQSudakov:Alpha /Herwig/Shower/AlphaQED
-
-## fix for QED lepton radiation scale (ATLMCPROD-5138)
-set /Herwig/Shower/LtoLGammaSudakov:pTmin 0.000001
-
 ## ensure JetFinder uses AntiKt with R=0.4
 set /Herwig/Cuts/JetFinder:Variant AntiKt
 set /Herwig/Cuts/JetFinder:ConeRadius 0.4
@@ -168,10 +155,6 @@ set /Herwig/Particles/pomeron:PDF /Herwig/Partons/NoPDF
 
 ## Set long-lived particles stable
 set /Herwig/Decays/DecayHandler:MaxLifeTime 10*mm
-
-# Turn off intermediate photons inserted explicitly into the event record with an incorrect life length in the pi0 -> e+e-e+e- decay mode 
-# This is the default from H++ 2.6.1
-set /Herwig/Decays/PScalar4f:GenerateIntermediates 0
 """)
 
 
