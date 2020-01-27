@@ -36,6 +36,8 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class MsgStream;
 class IToolSvc;
 
@@ -150,7 +152,7 @@ public:
 
 
   /// Standard initialize method.
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE /*Can Register callbacks but no need to be thread safe*/ () override;
 
 
   /// Standard finalize method.
@@ -264,7 +266,7 @@ private:
    * @brief Create all tools that we can during initialization.
    *        Set up to create remaining tools during a callback.
    */
-  StatusCode createTools();
+  StatusCode createTools ATLAS_NOT_THREAD_SAFE /*Binds to CallBack*/ ();
 
 
   /**
@@ -273,7 +275,7 @@ private:
    * Note that we cannot return @c FAILURE after the first callback
    * has been registered (see comment in @c createTools).
    */
-  void registerCallbacks();
+  void registerCallbacks ATLAS_NOT_THREAD_SAFE /*Registers callback*/ ();
 
 
   /**
@@ -291,9 +293,8 @@ private:
    * This is called when tool constants read from the DB have changed
    * (or after the DB is accessed for the first time).
    */
-  StatusCode updateTools (IOVSVC_CALLBACK_ARGS);   
+  StatusCode updateTools ATLAS_NOT_THREAD_SAFE /*callbacks*/ (IOVSVC_CALLBACK_ARGS);   
 
-  //StatusCode updateToolsInline (IOVSVC_CALLBACK_ARGS);   
 
 
   /**

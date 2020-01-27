@@ -46,7 +46,7 @@ CaloClusterTimeTool::CaloClusterTimeTool (const std::string& type,const std::str
 
 CaloClusterTimeTool::~CaloClusterTimeTool() {}
 
-StatusCode CaloClusterTimeTool::initialize(){
+StatusCode CaloClusterTimeTool::initialize ATLAS_NOT_THREAD_SAFE /*Can Register callbacks but no need to be thread safe*/(){
 
   ATH_MSG_INFO( "initialize CaloClusterTimeTool " );
 
