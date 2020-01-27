@@ -31,7 +31,7 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 
         return conf
 
-    def defineHistogram(self, *args, **kwargs):
+    def _coreDefine(self, deffunc, *args, **kwargs):
         if 'convention' in kwargs:
             # only if someone really knows what they're doing
             pass
@@ -41,7 +41,13 @@ class GenericMonitoringTool(_GenericMonitoringTool):
                 del kwargs['duration']
             elif hasattr(self, 'defaultDuration'):
                 kwargs['convention'] = self.convention + ':' + self.defaultDuration
-        self.Histograms.append(defineHistogram(*args, **kwargs))
+        self.Histograms.append(deffunc(*args, **kwargs))
+
+    def defineHistogram(self, *args, **kwargs):
+        self._coreDefine(defineHistogram, *args, **kwargs)
+
+    def defineTree(self, *args, **kwargs):
+        self._coreDefine(defineTree, *args, **kwargs)
 
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
@@ -118,13 +124,13 @@ def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
-                    zmin=None, zmax=None, zlabels=None,
-                    opt='', labels=None, convention=None,
+                    zmin=None, zmax=None, zlabels=None, 
+                    opt='', treedef=None, labels=None, convention=None,
                     cutmask=None):
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'cutMask', 'opt', 'convention', 'alias'] 
+    'cutMask', 'opt', 'convention', 'alias', 'treeDef'] 
     # All of these fileds default to 0
     numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
     'zmin', 'zmax']
@@ -158,19 +164,20 @@ def defineHistogram(varname, type='TH1F', path=None,
     nVars = len(varList)
 
     # Type
-    if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
-        log.warning('Histogram %s of type %s is not supported for online running and '+\
+    if athenaCommonFlags.isOnline() and type in ['TEfficiency', 'TTree']:
+        log.warning('Object %s of type %s is not supported for online running and '+\
         'will not be added.', varname, type)
         return ''
     # Check that the histogram's dimension matches the number of monitored variables
-    hist2D = ['TH2','TProfile','TEfficiency']
-    hist3D = ['TProfile2D','TEfficiency']
+    # Add TTree to the lists, it can have any number of vars
+    hist2D = ['TH2','TProfile','TEfficiency', 'TTree']
+    hist3D = ['TProfile2D','TEfficiency', 'TTree']
     if nVars==2:
-        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two \
-        monitored variables with a non-2D histogram.'
+        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two ' \
+        'monitored variables with a non-2D histogram.'
     elif nVars==3:
-        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three \
-        monitored variables with a non-3D histogram.'
+        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three ' \
+        'monitored variables with a non-3D histogram.'
     settings['type'] = type
 
     # Path
@@ -256,6 +263,11 @@ def defineHistogram(varname, type='TH1F', path=None,
         assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
         settings['zlabels'] = zlabels
 
+    # Tree branches
+    if treedef is not None:
+        assert type=='TTree','cannot define tree branches for a non-TTree object'
+        settings['treeDef'] = treedef
+
     # Filling options
     if len(opt)>0:
         ######################################################
@@ -267,3 +279,27 @@ def defineHistogram(varname, type='TH1F', path=None,
         settings['opt'] = opt
 
     return json.dumps(settings)
+
+## Generate tree definition string for the `GenericMonitoringTool.Histograms` property. Convenience tool for 
+#
+#  For full details see the GenericMonitoringTool documentation.
+#  @param varname  at least one variable name (more than one should be separated by comma);
+#                  optionally give the name of the tree by appending ";" plus the tree name
+#  @param treedef  TTree branch definition string. Looks like the standard TTree definition
+#                  (see https://root.cern.ch/doc/master/classTTree.html#addcolumnoffundamentaltypes).
+#                  In fact if only scalars are given, it is exactly the same as you would use to
+#                  define the TTree directly: "varA/F:varB/I:...".  Vectors can be defined by giving
+#                  "vector<int>", etc., instead of "I".
+#  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
+#  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
+#  @param opt      TTree options (none currently)
+#  @param convention Expert option for how the objects are placed in ROOT
+
+def defineTree(varname, treedef, path=None,
+                    title=None, alias=None,
+                    opt='', convention=None,
+                    cutmask=None):
+    return defineHistogram(varname, type='TTree', path=path, title=title, alias=alias,
+                            treedef=treedef, opt=opt, convention=convention,
+                            cutmask=cutmask)     

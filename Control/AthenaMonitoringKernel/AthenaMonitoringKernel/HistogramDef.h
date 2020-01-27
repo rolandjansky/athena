@@ -44,6 +44,8 @@ namespace Monitored {
     float zmax; //!< z axis maximum
     std::vector<std::string> zlabels; //!< labels for z axis
 
+    std::string treeDef;
+
     bool ok{false}; //!< good declaration
 
     /**
