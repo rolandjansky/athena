@@ -91,6 +91,7 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( JetContainer );
   INIT_XAOD( VertexContainer );
   INIT_XAOD( TrigBphysContainer );  
+  INIT_XAOD( BTaggingContainer );
 
   INIT_XAOD( CaloClusterContainer );
 
@@ -326,6 +327,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( JetContainer, JetAuxContainer );
   CREATE_XAOD( VertexContainer,VertexAuxContainer );
   CREATE_XAOD( TrigBphysContainer, TrigBphysAuxContainer );
+  CREATE_XAOD( BTaggingContainer,BTaggingAuxContainer );
 
   ATH_CHECK( fixLinks() );
   
