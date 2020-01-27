@@ -60,13 +60,11 @@ float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float et
 #ifdef XAOD_STANDALONE
     if (fEffs[ix] == 0) {
 
-      //DUMMY FOR NOW
       // get MC efficiency from CDI files!
       std::string calibFile = PathResolverFindCalibFile(m_flavourTaggingCalibrationFilename);
       auto ff = std::unique_ptr<TFile> {TFile::Open(calibFile.c_str())};
 
       TString hfName = Form("MV2c10/AntiKt4EMTopoJets/FixedCutBEff_%d/%s/", operating_point, sflavour.c_str());
-      // std::cout << "FTAG HISTO NAME: " << hfName << std::endl;
 
       ff->cd(hfName);
       Analysis::CalibrationDataHistogramContainer* cHCont = (Analysis::CalibrationDataHistogramContainer*) ff->Get(hfName + "default_Eff");
@@ -87,12 +85,10 @@ float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float et
     if (invert_axes) {
         if (eta_bin > fEffs[ix]->GetNbinsX()) eta_bin = fEffs[ix]->GetNbinsX();
         if (pt_bin  > fEffs[ix]->GetNbinsY()) pt_bin  = fEffs[ix]->GetNbinsY();
-        // std::cout << sflavour << " : pt " << ptMeV*0.001 << " : eta " << eta << " : eff " << fEffs[ix]->GetBinContent(eta_bin,pt_bin) << " : pt_bin " << pt_bin << " : eta_bin " << eta_bin << " old CDI file" << std::endl; //debugging
     }
     else {
         if (eta_bin > fEffs[ix]->GetNbinsY()) eta_bin = fEffs[ix]->GetNbinsY();
         if (pt_bin  > fEffs[ix]->GetNbinsX()) pt_bin  = fEffs[ix]->GetNbinsX();
-        // std::cout << sflavour << " : pt " << ptMeV*0.001 << " : eta " << eta << " : eff " << fEffs[ix]->GetBinContent(pt_bin,eta_bin) << " : pt_bin " << pt_bin << " : eta_bin " << eta_bin << std::endl; //debugging
     }
 
     return invert_axes ? fEffs[ix]->GetBinContent(eta_bin, pt_bin) : fEffs[ix]->GetBinContent(pt_bin, eta_bin);
