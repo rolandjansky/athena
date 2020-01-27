@@ -18,6 +18,7 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
+#include "TTree.h"
 #include "THashList.h"
 #include "TInterpreter.h"
 
@@ -28,9 +29,20 @@ const TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
   return h;
 }
 
+TTree* getTree( ITHistSvc* histSvc, const std::string& treeName ) {
+  TTree* t( nullptr );
+  histSvc->getTree( treeName, t );
+  VALUE( t ) NOT_EXPECTED( ( TTree* )nullptr );
+  return t;
+}
+
 void resetHist( ITHistSvc* histSvc, const std::string& histName ) {
   TH1* h ATLAS_THREAD_SAFE = const_cast<TH1*>(getHist( histSvc, histName ));
   h->Reset();
+}
+
+void resetTree( ITHistSvc* histSvc, const std::string& histName ) {
+  getTree( histSvc, histName )->Reset();
 }
 
 void resetHists( ITHistSvc* histSvc ) {
@@ -38,6 +50,7 @@ void resetHists( ITHistSvc* histSvc ) {
   resetHist( histSvc, "/EXPERT/TestGroup/Eta" );
   resetHist( histSvc, "/EXPERT/TestGroup/Phi" );
   resetHist( histSvc, "/EXPERT/TestGroup/Eta_CutMask");
+  resetTree( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta_Tree");
 }
 
 double contentInBin1DHist( ITHistSvc* histSvc, const std::string& histName, int bin ) {
@@ -81,6 +94,16 @@ bool fillFromScalarWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc
 
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 1 ) ) EXPECTED( 1 );
   VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/Eta", 2 ) ) EXPECTED( 0 );
+
+  auto tree = getTree( histSvc, "/EXPERT/TestGroup/Phi_vs_Eta_Tree" );
+  VALUE( tree->GetEntries() ) EXPECTED( 1 );
+  std::vector<float> tmpvec;
+  Float_t tmp;
+  tree->GetBranch("Phi")->SetObject(&tmpvec);
+  tree->GetBranch("Eta")->SetAddress(&tmp);
+  tree->GetEntry(0);
+  VALUE( tmp ) EXPECTED ( -0.2 );
+  VALUE( (const float&) tmpvec.at(0) ) EXPECTED( 0.1 );
 
   return true;
 }

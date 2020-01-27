@@ -43,6 +43,13 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pT = Monitored::Scalar<float>("pT",0.0);
     auto pT_passed = Monitored::Scalar<bool>("pT_passed",false);
 
+    // a string vector variable
+    std::vector<std::string> strvec{"alpha", "beta"};
+    auto mon_strvec = Monitored::Collection("strvec", strvec);
+    // a plain string
+    std::string mystring = "gamma";
+    auto mon_str = Monitored::Scalar<std::string>("str", mystring);
+
     // Set the values of the monitored variables for the event
     lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
     lb = GetEventInfo(ctx)->lumiBlock();
@@ -59,8 +66,15 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     pT = r.Landau(15);
     pT_passed = pT>r.Poisson(15);
 
+    // Example of passing a collection
+    std::vector<double> pT_vec{pT};
+    while (pT_vec.back() > 5) {
+        pT_vec.push_back(pT_vec.back() - 5);
+    }
+    auto mon_pT_vec = Monitored::Collection("pT_vec", pT_vec);
+
     // Fill. First argument is the tool name, all others are the variables to be saved.
-    fill("ExampleMonitor",lumiPerBCID,lb,random,pT,pT_passed,testweight);
+    fill("ExampleMonitor",lumiPerBCID,lb,random,pT,pT_passed,mon_pT_vec,testweight,mon_str,mon_strvec);
 
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     auto tool = getGroup("ExampleMonitor");
