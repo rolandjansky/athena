@@ -22,6 +22,19 @@ if globalflags.DataSource()=='geant4':
   isMC = True
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT3Stream )
+EXOT3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT3Stream.AcceptAlgs(["EXOT3Kernel"])
+# Thinning
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="EXOT3ThinningSvc", outStreams=[evtStream] )
+
+#====================================================================
 # THINNING TOOL 
 #====================================================================
 
@@ -108,7 +121,7 @@ thinningTools.append(EXOT3AKt10JetTPThinningTool)
 # Calo-cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3Ak10CCThinningTool",
-                                                                      ThinningService       = "EXOT3ThinningSvc",
+                                                                      StreamName            = streamName,
                                                                       SGKey                 = "AntiKt10LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
@@ -117,7 +130,7 @@ ToolSvc += EXOT3AKt10CCThinningTool
 thinningTools.append(EXOT3AKt10CCThinningTool)
 
 EXOT3CA12CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3CA12CCThinningTool",
-                                                                      ThinningService       = "EXOT3ThinningSvc",
+                                                                      StreamName            = streamName,
                                                                       SGKey                 = "CamKt12LCTopoJets",
                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                       SelectionString       = "CamKt12LCTopoJets.pt > 150*GeV && abs(CamKt12LCTopoJets.eta) < 2.8",
@@ -284,19 +297,6 @@ exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",
 #									ThinningTools = [EXOT3TPThinningTool,EXOT3MuonTPThinningTool,EXOT3ElectronTPThinningTool, EXOT3PhotonTPThinningTool]
 									ThinningTools = thinningTools
                                                                       )
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT3Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT3Stream )
-EXOT3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT3Stream.AcceptAlgs(["EXOT3Kernel"])
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT3ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
