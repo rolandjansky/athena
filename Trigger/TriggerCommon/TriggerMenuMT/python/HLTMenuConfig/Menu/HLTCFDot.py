@@ -129,11 +129,7 @@ def all_DataFlow_to_dot(name, step_list):
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
 
-                for menuseq in cfseq.step.sequences:
-                    if  cfseq.step.isCombo:
-                        menuseq.reuse=True # do not draw combo reco sequence
-                    else:
-                        menuseq.reuse=False
+                alreadydrawn = set()
 
                 if len(cfseq.step.sequences)==0:
                     last_step_hypoNodes.append(cfseq.filter)
@@ -141,10 +137,10 @@ def all_DataFlow_to_dot(name, step_list):
                 for menuseq in cfseq.step.sequences:
                     cfseq_algs.append(menuseq.maker)
                     cfseq_algs.append(menuseq.sequence )
-                    if menuseq.reuse is False:
+                    if menuseq not in alreadydrawn:
+                        alreadydrawn.add(menuseq)
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                        menuseq.reuse=True
                     if type(menuseq.hypo) is list:
                        for hp in menuseq.hypo:
                           cfseq_algs.append(hp)
@@ -205,19 +201,15 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)
 
-            ## for menuseq in cfseq.step.sequences:
-                ## if  cfseq.step.isCombo:
-                ##     menuseq.reuse=True # do not draw combo reco sequence
-                ## else:
-                ##     menuseq.reuse=False
+            alreadydrawn = set()
                     
             for menuseq in cfseq.step.sequences:
                 cfseq_algs.append(menuseq.maker)
                 cfseq_algs.append(menuseq.sequence )
-                if menuseq.reuse is False:
+                if menuseq not in alreadydrawn:
+                    alreadydrawn.add(menuseq)
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                    menuseq.reuse=True
                 if type(menuseq.hypo) is list:
                    for hp in menuseq.hypo:
                       cfseq_algs.append(hp)
