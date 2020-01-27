@@ -58,7 +58,7 @@ enum Type{
     
     public:
        /** Default constructor - needed for POOL/SEAL */
-       MeasurementBase(){}
+       MeasurementBase()= default;
        
        /** constructor  */
        MeasurementBase( const LocalParameters& pars, const Amg::MatrixX& cov ) : 
@@ -67,7 +67,7 @@ enum Type{
       {}
        
        /** Virtual destructor */
-       virtual ~MeasurementBase(){}
+       virtual ~MeasurementBase()= default;
     
        /**Pseudo-Constructor */
        virtual MeasurementBase* clone() const = 0;
