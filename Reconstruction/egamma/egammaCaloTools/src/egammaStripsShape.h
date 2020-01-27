@@ -110,11 +110,6 @@ private:
     /** @brief boolean to calculate all variables*/
     Gaudi::Property<bool> m_ExecAllVariables {this, 
         "ExecAllVariables", true, "flag used by trigger"};
-
-    /** @brief boolean to calculate less important variables*/
-    Gaudi::Property<bool> m_ExecOtherVariables {this,
-        "ExecOtherVariables", true, "Calculate some less important variables"};
-
 };
 
 #endif

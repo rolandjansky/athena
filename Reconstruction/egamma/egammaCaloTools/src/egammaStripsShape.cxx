@@ -171,8 +171,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster, Info& in
     if (m_ExecAllVariables) {
         setEnergy(info,enecell);
         setF1core(info,cluster);
-    }
-    if (m_ExecAllVariables && m_ExecOtherVariables){
+        
         setAsymmetry(info,enecell);
         // Using strips centered on the hottest cell
         // position in eta from +/- 1 strips 
