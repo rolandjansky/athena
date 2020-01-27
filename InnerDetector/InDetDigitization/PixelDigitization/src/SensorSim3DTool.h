@@ -21,13 +21,13 @@ class SensorSim3DTool : public SensorSimTool {
 
   public:
     SensorSim3DTool( const std::string& type, const std::string& name,const IInterface* parent);
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     virtual ~SensorSim3DTool();
 
     virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, 
         const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, 
-        std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);  
+        std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) override;
 
 
     // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
@@ -35,13 +35,13 @@ class SensorSim3DTool : public SensorSimTool {
     StatusCode printProbMap(std::string);
     double getProbMapEntry(std::string, int, int);
 
-    virtual double getElectricField(double x, double y);
-    virtual double getMobility(double electricField, bool isHoleBit);
-    virtual double getDriftTime(bool isHoleBit);
-    virtual double getTimeToElectrode(double x, double y, bool isHoleBit);
-    virtual double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);    
-    virtual double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit); 
-    virtual double getRamoPotential(double x, double y);
+    double getElectricField(double x, double y);
+    double getMobility(double electricField, bool isHoleBit);
+    double getDriftTime(bool isHoleBit);
+    double getTimeToElectrode(double x, double y, bool isHoleBit);
+    double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);
+    double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit);
+    double getRamoPotential(double x, double y);
 
   private:
     SensorSim3DTool();

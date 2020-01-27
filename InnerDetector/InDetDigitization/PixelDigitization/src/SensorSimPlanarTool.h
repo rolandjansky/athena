@@ -20,13 +20,13 @@ class SensorSimPlanarTool : public SensorSimTool {
 
   public:
     SensorSimPlanarTool( const std::string& type, const std::string& name,const IInterface* parent);
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     virtual ~SensorSimPlanarTool();
 
     virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, 
         const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, 
-        std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine);  
+        std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, CLHEP::HepRandomEngine *rndmEngine) override;
 
     //Apply slim edge inefficiencies for IBL sensors
     StatusCode applyIBLSlimEdges( double &energyPerStep, double &eta_drifted);

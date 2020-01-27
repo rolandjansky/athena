@@ -31,29 +31,27 @@ enum interpolationMethod{
 class EfieldInterpolator: public AthAlgTool { 
   public: 
 
-    EfieldInterpolator( const std::string& type, const std::string& name,const IInterface* parent);
+    EfieldInterpolator(const std::string& type, const std::string& name,const IInterface* parent);
     virtual ~EfieldInterpolator(); 
     void setLayer(int layer);
     //Recommended constructor
-    StatusCode loadTCADlist(std::string TCADfileListToLoad );  
+    StatusCode loadTCADlist(const std::string TCADfileListToLoad );  
     //defFct
 
-    virtual StatusCode  initialize();
-    virtual StatusCode  finalize();  
-
-    static const InterfaceID& interfaceID() ;
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
 
     // Member Functions
-    std::string loadTCADfiles(std::string targetList = "");
-    std::string createInterpolationFromTCADtree(std::string fTCAD);//TTree* tTCAD); 
-    bool initializeFromFile(std::string finpath);
+    const std::string loadTCADfiles(const std::string targetList = "");
+    const std::string createInterpolationFromTCADtree(const std::string fTCAD);//TTree* tTCAD); 
+    bool initializeFromFile(const std::string finpath);
     bool initializeFromDirectory(const std::string fpath);
-    double estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend="", bool debug =false);
+    double estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, const std::string prepend="", bool debug =false);
     double estimateEfieldInvDistance(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, double measure = 1.);
 
     TH1D* createEfieldProfile(double aimFluence, double aimVoltage);
     TH1D* getEfield(double aimFluence, double aimVoltage);
-    TH1D* loadEfieldFromDat(std::string fname, bool fillEdges =  true);
+    TH1D* loadEfieldFromDat(const std::string fname, bool fillEdges =  true);
     void scaleIntegralTo(TH1* hin, double aimInt, int first = 1, int last = -1);
     void reliabilityCheck(double aimFluence, std::vector<double> fluences, double aimVoltage, std::vector<double> voltages);
 
@@ -82,7 +80,7 @@ class EfieldInterpolator: public AthAlgTool {
     double relativeDistance(double x1, double x2);                            //difference between x1 x2 scaled to x1
     double relativeDistance(double x1, double y1, double x2, double y2);
     double estimateEfieldLinear(double aimVoltage);
-    void saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend, bool skipNegative = true);
+    void saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, const std::string prepend, bool skipNegative = true);
 }; 
 
 #endif //> !PIXELDIGITIZATION_EFIELDINTERPOLATOR_H

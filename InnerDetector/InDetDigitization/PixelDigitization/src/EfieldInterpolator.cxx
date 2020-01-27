@@ -21,20 +21,12 @@
 #include <TGraph2D.h>
 #include <algorithm>
 
-static const InterfaceID IID_IEfieldInterpolator("EfieldInterpolator", 1, 0);
-const InterfaceID& EfieldInterpolator::interfaceID( ){ return IID_IEfieldInterpolator; }
-
 // Constructor with parameters:                                                                                                                                     
 EfieldInterpolator::EfieldInterpolator(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
-  m_efieldOrigin(interspline)
-{
-  declareInterface< EfieldInterpolator >( this );
-}
+  m_efieldOrigin(interspline) {}
 
-EfieldInterpolator::~EfieldInterpolator() 
-{
-}
+EfieldInterpolator::~EfieldInterpolator() {}
 
 StatusCode EfieldInterpolator::initialize() {
   ATH_MSG_DEBUG("Initializing " << name() << "...");
@@ -82,7 +74,7 @@ void EfieldInterpolator::setLayer(int layer)
         ATH_MSG_INFO("EfieldInterpolator: Default ctor");
 }
 
-StatusCode EfieldInterpolator::loadTCADlist(std::string TCADfileListToLoad )
+StatusCode EfieldInterpolator::loadTCADlist(const std::string TCADfileListToLoad )
 {
         m_efieldOrigin    = interspline;
 	ATH_MSG_INFO("Load from list " << TCADfileListToLoad);
@@ -165,7 +157,7 @@ bool EfieldInterpolator::initializeFromDirectory(const std::string fpath){
     return success;
 }
 // Load maps into TTree for faster processing 
-bool EfieldInterpolator::initializeFromFile(std::string finpath){
+bool EfieldInterpolator::initializeFromFile(const std::string finpath){
     TString fpath = finpath ;
     m_initialized = false;
     TString fTCAD = "";
@@ -248,7 +240,7 @@ double EfieldInterpolator::extrapolateLinear(double x1, double y1, double x2, do
 
 // Return E field which is directly read from TCAD simulation
 // and fill edges values
-TH1D* EfieldInterpolator::loadEfieldFromDat(std::string fname, bool fillEdges ){
+TH1D* EfieldInterpolator::loadEfieldFromDat(const std::string fname, bool fillEdges ){
     TH1D* hefieldz = new TH1D( "hefieldz", "hefieldz",m_sensorDepth +1,-0.5, m_sensorDepth + 0.5);
     std::ifstream in;
     in.open(fname);
@@ -268,7 +260,7 @@ TH1D* EfieldInterpolator::loadEfieldFromDat(std::string fname, bool fillEdges ){
 }
 
 // original TCAD simulations given as txt (.dat) files (zVal efieldVal)
-std::string EfieldInterpolator::loadTCADfiles(std::string targetList)
+const std::string EfieldInterpolator::loadTCADfiles(const std::string targetList)
 {
         bool isIBL = true;
 	TString tl = targetList;
@@ -365,7 +357,7 @@ std::vector<std::vector<TString>> EfieldInterpolator::list_files(TString fileLis
 
 // Return path to file containing tree
 // Final tree is restructured providing e field value as function of fluence, voltage and pixeldepth
-std::string EfieldInterpolator::createInterpolationFromTCADtree(std::string fTCAD){ 
+const std::string EfieldInterpolator::createInterpolationFromTCADtree(const std::string fTCAD){ 
         TString tmpfinter = fTCAD;
         tmpfinter.ReplaceAll("toTTree","toInterpolationTTree");
 	TFile* faim = new TFile(tmpfinter, "Recreate");
@@ -547,7 +539,7 @@ double EfieldInterpolator::estimateEfieldInvDistance(std::vector<double> vvol, s
 // Interpolate using cubic splines
 // E efield values given as function of fluence and bias voltage (vvol, vflu)
 // interpolate to value for aimFluence and aimVoltage
-double EfieldInterpolator::estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend, bool debug){
+double EfieldInterpolator::estimateEfield(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, const std::string prepend, bool debug){
 	ATH_MSG_DEBUG("Estimating efield");	
 	std::vector<double> evol;          // e field values for fixed voltages inter- or extrapolated to fluence of interest     
 	std::vector<double> vvolWoEp;      // fixed voltages values for which no extrapolation is used to obatin E field in between fluences
@@ -641,7 +633,7 @@ double EfieldInterpolator::estimateEfield(std::vector<double> vvol, std::vector<
 }
 
 //Save all E field values as function of fluence and bias voltage for debugging
-void EfieldInterpolator::saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, std::string prepend, bool skipNegative){
+void EfieldInterpolator::saveTGraph(std::vector<double> vvol, std::vector<double> vflu, std::vector<std::vector<double>> vfluvvol, double aimFlu, double aimVol, const std::string prepend, bool skipNegative){
     TString name = "VoltageEfield";
     name += "-aimFlu";
     name += TString::Format("%.1f",aimFlu);

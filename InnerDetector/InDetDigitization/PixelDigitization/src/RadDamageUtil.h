@@ -34,9 +34,8 @@ class RadDamageUtil : public AthAlgTool {
   public:
     RadDamageUtil( const std::string& type, const std::string& name,const IInterface* parent);
 
-    static const InterfaceID& interfaceID();
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     virtual ~RadDamageUtil();
     StatusCode initTools();
