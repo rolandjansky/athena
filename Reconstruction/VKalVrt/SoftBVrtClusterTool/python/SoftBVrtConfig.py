@@ -23,8 +23,10 @@ def addSoftBVrt(sequencer=None,WP='Loose',postfix=''):
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
     if DerivationFrameworkIsMonteCarlo:
         from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
-        addHFAndDownstreamParticles(kernel=sequencer, addB=True, addC=False, generations=0, prefix='SoftVtxBHad')
-        addHFAndDownstreamParticles(kernel=sequencer, addB=False, addC=True, generations=0, prefix='SoftVtxCHad')
+        if not 'SoftVtxBHadMCTruthCommonHFAndDecaysKernel' in sequencer:
+            addHFAndDownstreamParticles(kernel=sequencer, addB=True, addC=False, generations=0, prefix='SoftVtxBHad')
+        if not 'SoftVtxCHadMCTruthCommonHFAndDecaysKernel' in sequencer:
+            addHFAndDownstreamParticles(kernel=sequencer, addB=False, addC=True, generations=0, prefix='SoftVtxCHad')
 
     # configure the tool to match the truth 
     from AthenaCommon.AppMgr import ToolSvc
