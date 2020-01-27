@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -59,8 +59,8 @@ namespace Muon {
 
 //root includes
 class TH2;
-class MDTOverviewHistogramStruct;
-class MDTSummaryHistogramStruct;
+struct MDTOverviewHistogramStruct;
+struct MDTSummaryHistogramStruct;
 
 namespace monAlg{
   enum {L1_UNKNOWN, L1_BARREL, L1_ENDCAP};
