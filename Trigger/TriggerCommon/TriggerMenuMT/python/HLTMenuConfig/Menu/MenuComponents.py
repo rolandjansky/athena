@@ -131,6 +131,8 @@ def algColor(alg):
         return "cyan3"
     if isFilterAlg(alg):
         return "chartreuse3"
+    if isEmptyAlg(alg):
+        return "peachpuff3"
     return "cadetblue1"
 
 
@@ -287,11 +289,54 @@ def isInputMakerBase(alg):
 def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
 
+def isEmptyAlg(alg):
+    return if alg is None
+
 
 
 ##########################################################
 # NOW sequences and chains
 ##########################################################
+
+
+class EmptyMenuSequence(object):
+    """ Class to emulate reco sequences with no Hypo"""
+    """ By construction it has no Hypo;"""
+    
+    def __init__(self, inputDecision=[]):
+        self.reuse = False # flag to draw dot diagrmas
+        self._inputDecision = inputDecision
+
+    def getOutputList(self):
+        return self._inputDecision
+
+    def connectToFilter(self, outfilter):
+        """ Connect filter to the inputs"""
+        self._inputDecision = outfilter
+
+    def configureHypoTool(self, chainDict):
+        log.debug("This sequence is empty. No Hypo to conficure")
+
+    def addToSequencer(self, stepReco, seqAndView, already_connected):
+        # menu sequence empty do not add to athena sequencer
+        log.debug("This sequence is empty. Not added to athena sequencer")
+        return stepReco, seqAndView, already_connected        
+
+    def buildCFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
+        if self.reuse is False:
+            file.write("    %s[fillcolor=%s]\n"%("none", algColor(None)))
+            self.reuse=True
+
+        return cfseq_algs, all_hypos, last_step_hypo_nodes
+
+    def getTools(self):
+        # No tools for empty sequences - needs to return empty list?
+        log.debug("No tools for empty menu sequences")
+
+    def __repr__(self):
+        return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
+            %("Empty", "Empty", "Empty", "Empty", None)
+
 
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
@@ -306,7 +351,6 @@ class MenuSequence(object):
         self.ca = CA
         self.connect(Hypo, HypoToolGen)
         
-
     @property
     def __maker(self):
         if self.ca is not None:
@@ -465,6 +509,7 @@ class MenuSequence(object):
            hypotool = self.hypoToolConf.name
            return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
            %(self.name, hyponame, self.__maker.Alg.name(), self.sequence.Alg.name(), hypotool)
+
 
 
 
