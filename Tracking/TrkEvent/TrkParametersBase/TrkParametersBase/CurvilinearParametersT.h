@@ -69,7 +69,7 @@ namespace Trk
     CurvilinearParametersT(const Amg::Vector3D& pos, 
 			   const Amg::Vector3D& mom,
 			   double charge,
-			   AmgSymMatrix(DIM)* covariance = 0,
+			   AmgSymMatrix(DIM)* covariance = nullptr,
 			   unsigned int cIdenfier = 0);
         
     /** Copy Constructor */
@@ -99,7 +99,7 @@ namespace Trk
     {return Trk::Curvilinear;}
     
     /** Return the measurementFrame of the parameters */
-    virtual const Amg::RotationMatrix3D measurementFrame() const override final;
+    virtual Amg::RotationMatrix3D measurementFrame() const override final;
 
     /**Dumps relevant information about the track parameters into the ostream.*/
     virtual MsgStream& dump(MsgStream& out) const override;
@@ -118,7 +118,7 @@ namespace Trk
 
   private:
     /** return the curvilinear frame */
-    const CurvilinearUVT curvilinearFrame() const;
+    CurvilinearUVT curvilinearFrame() const;
     
     /** the curvilinear parameters identifier */
     unsigned int m_cIdentifier=0;
