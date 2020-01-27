@@ -211,11 +211,13 @@ FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'],
 #====================================================================
 
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles,addBSMAndDownstreamParticles,addTruthCollectionNavigationDecorations
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  from DerivationFrameworkMCTruth.MCTruthCommon import addTopQuarkAndDownstreamParticles
+  from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
+  from DerivationFrameworkMCTruth.MCTruthCommon import addTruthCollectionNavigationDecorations
   addStandardTruthContents()
   addTopQuarkAndDownstreamParticles()
   addHFAndDownstreamParticles(addB=True, addC=False, generations=0)
-  addBSMAndDownstreamParticles()
   addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles"],prefix='Top')
 
 
@@ -276,8 +278,32 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
 
 JETM8SlimmingHelper.AppendToDictionary["CSSKUFO"] = "xAOD::TrackCaloClusterContainer"
 JETM8SlimmingHelper.AppendToDictionary["CSSKUFOAux"] = "xAOD::TrackCaloClusterAuxContainer"
-JETM8SlimmingHelper.ExtraVariables += [ "CSSKUFO.pt.eta.phi.taste" ]
-JETM8SlimmingHelper.ExtraVariables += ['AntiKt10LCTopoJets.SizeParameter','AntiKt10TruthJets.SizeParameter','AntiKt10TrackCaloClusterJets.SizeParameter','AntiKt10UFOCSSKJets.SizeParameter','AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.SizeParameter','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.SizeParameter','AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.SizeParameter','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.SizeParameter','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter','AntiKt10TruthTrimmedPtFrac5SmallR20Jets.SizeParameter','AntiKt10TruthSoftDropBeta100Zcut10Jets.SizeParameter','AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets.SizeParameter','AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter']
+
+JETM8SlimmingHelper.ExtraVariables += ["CSSKUFO.pt.eta.phi.taste"]
+JETM8SlimmingHelper.ExtraVariables += ['AntiKt10LCTopoJets.SizeParameter',
+                                       'AntiKt10TruthJets.SizeParameter',
+                                       'AntiKt10TrackCaloClusterJets.SizeParameter',
+                                       'AntiKt10UFOCSSKJets.SizeParameter',
+                                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter',
+                                       'AntiKt10TruthTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10TruthSoftDropBeta100Zcut10Jets.SizeParameter',
+                                       'AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets.SizeParameter',
+                                       'AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter',
+                                       'AntiKt10LCTopoJets.GhostTrack',
+                                       'AntiKt10TrackCaloClusterJets.GhostTrack',
+                                       'AntiKt10UFOCSSKJets.GhostTrack',
+                                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.GhostTrack',
+                                       'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.GhostTrack',
+                                       ]
 
 # Add origin corrected clusters to keep LCTopo constituents
 addOriginCorrectedClusters(JETM8SlimmingHelper, writeLC=True, writeEM=False)
@@ -301,7 +327,6 @@ for truthc in [
   "TruthTopQuark",
   "TruthBosons",
   "TruthHF",
-  "TruthBSM",
   ]:
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"WithDecayParticlesAux.")
@@ -313,6 +338,7 @@ for truthc in [
   "TruthElectrons",
   "TruthPhotons",
   "TruthBottom",
+  "TruthBSM",
   ]:
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
