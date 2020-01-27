@@ -292,8 +292,8 @@ int CscCalibTool::stripStatusBit ( uint32_t stripHashId ) const {
       ATH_MSG_WARNING ( " failed to access CSC conditions database - status - "
                         << "strip hash id = " << stripHashId );
     else
-      ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
-                        << "strip hash id = " << stripHashId );
+      ATH_MSG_VERBOSE("The status word is " << std::hex << status << 
+                      " for strip hash = " << std::dec << stripHashId);
   }
   return status;
 }
