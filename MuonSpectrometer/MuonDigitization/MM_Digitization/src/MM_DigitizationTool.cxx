@@ -867,8 +867,10 @@ StatusCode MM_DigitizationTool::doDigitization() {
       Amg::Vector3D localDirectionTime(0., 0., 0.);
       
       // drift direction in backwards-chamber should be opposite to the incident direction.
-      if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1)
+      if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1) {
 	localDirectionTime  = localDirection;
+      inAngle_XZ = (-inAngle_XZ);
+      }
       else
 	localDirectionTime  = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(),
 										hit.globalDirection().y(),
