@@ -105,8 +105,7 @@ StatusCode egammaOQFlagsBuilder::finalize()
 
 // ===============================================================
 bool egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster,
-        Identifier& cellCentrId) const
-{
+                                           Identifier cellCentrId) const {
 
   bool thereIsACentrCell = false;
 
@@ -133,9 +132,8 @@ bool egammaOQFlagsBuilder::findCentralCell(const xAOD::CaloCluster* cluster,
   return thereIsACentrCell;
 }
 
-
 // ===============================================================
-bool egammaOQFlagsBuilder::isCore(const Identifier& Id, const std::vector<IdentifierHash>& neighbourList) const {
+bool egammaOQFlagsBuilder::isCore(const Identifier Id, const std::vector<IdentifierHash>& neighbourList) const {
   const IdentifierHash hashId = m_calocellId->calo_cell_hash(Id);
   std::vector<IdentifierHash>::const_iterator it=std::find(neighbourList.begin(),neighbourList.end(),hashId);
   return (it!=neighbourList.end());
@@ -143,7 +141,7 @@ bool egammaOQFlagsBuilder::isCore(const Identifier& Id, const std::vector<Identi
 
 
 // ===============================================================
-std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(const Identifier& cellCentrId) const{
+std::vector<IdentifierHash> egammaOQFlagsBuilder::findNeighbours(const Identifier cellCentrId) const{
   std::vector<IdentifierHash> neighbourList;
   const IdentifierHash hashId = m_calocellId->calo_cell_hash(cellCentrId);
   m_emHelper->get_neighbours(hashId, LArNeighbours::all2D, neighbourList); 
