@@ -123,7 +123,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
     Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
     std::unique_ptr<Trk::CaloExtension> extension =
       m_perigeeParticleCaloExtensionTool->caloExtension(trkPar, direction, Trk::muon);
-    didExtension = extension.get() != nullptr;
+    didExtension = extension != nullptr;
     if (didExtension) {
       intersections = getIntersections(*extension, cluster);
     }
@@ -340,7 +340,7 @@ EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, unsigned i
   Amg::Vector3D momentum(0., 0., 0.);
   if (vertex.nTrackParticles() <= index) {
     ATH_MSG_WARNING("Invalid track index");
-  } else if (vertex.vxTrackAtVertexAvailable() && vertex.vxTrackAtVertex().size()) {
+  } else if (vertex.vxTrackAtVertexAvailable() && !vertex.vxTrackAtVertex().empty()) {
     // Use the parameters at the vertex
     // (the tracks should be parallel but we will do the sum anyway)
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from vxTrackAtVertex");

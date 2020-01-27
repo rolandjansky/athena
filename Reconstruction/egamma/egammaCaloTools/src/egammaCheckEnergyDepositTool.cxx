@@ -54,7 +54,7 @@ bool egammaCheckEnergyDepositTool::checkFractioninSamplingCluster(const xAOD::Ca
 {
 
   // retrieve associated cluster
-  if (cluster==0) return false;
+  if (cluster==nullptr) return false;
 
   // Retrieve energy in all samplings
   double e0 = cluster->energyBE(0);

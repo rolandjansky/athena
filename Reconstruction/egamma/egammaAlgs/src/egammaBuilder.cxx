@@ -185,7 +185,7 @@ StatusCode egammaBuilder::execute(){
     ATH_MSG_DEBUG("Executing egammaBuilder");
 
     // This we can drop once the Alg becomes re-entrant
-    const EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // Chrono name for each Tool
     std::string chronoName;
@@ -456,7 +456,8 @@ bool egammaBuilder::getPhoton(const egammaRec* egRec,
     photon->setVertexLinks( vertexLinks );
 
     // Transfer deltaEta/Phi info
-    float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+    float deltaEta = egRec->deltaEtaVtx();
+    float deltaPhi = egRec->deltaPhiVtx();
     if (!photon->setVertexCaloMatchValue( deltaEta,
                 xAOD::EgammaParameters::convMatchDeltaEta1) )
     {

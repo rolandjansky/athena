@@ -116,7 +116,7 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
     }
   }
 
-  if(trkMatches.size()>0){
+  if(!trkMatches.empty()){
     //sort the track matches
     std::sort(trkMatches.begin(), trkMatches.end(), m_sorter);
     //set the matching values

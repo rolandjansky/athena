@@ -45,7 +45,8 @@ namespace {
   **/
   bool ConvVxSorter (const xAOD::Vertex& vx1, const xAOD::Vertex& vx2)
   {
-    xAOD::EgammaParameters::ConversionType convType1, convType2;
+    xAOD::EgammaParameters::ConversionType convType1;
+    xAOD::EgammaParameters::ConversionType convType2;
     convType1 = xAOD::EgammaHelpers::conversionType(&vx1);
     convType2 = xAOD::EgammaHelpers::conversionType(&vx2);
 
@@ -141,7 +142,8 @@ StatusCode EMConversionBuilder::vertexExecute(egammaRec* egRec, const xAOD::Vert
   static const SG::AuxElement::Accessor<float> accetaAtCalo("etaAtCalo");
   static const SG::AuxElement::Accessor<float> accphiAtCalo("phiAtCalo");
 
-  float etaAtCalo(0), phiAtCalo(0);
+  float etaAtCalo(0);
+  float phiAtCalo(0);
   for (unsigned int iVtx = 0; iVtx < conversions->size(); ++iVtx){
     
     const xAOD::Vertex *vertex = conversions->at(iVtx);    
@@ -218,7 +220,8 @@ bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD
 
 float EMConversionBuilder::getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) const{
   auto getTRTTubeHitFraction = [](const xAOD::TrackParticle *trk){
-    uint8_t nTRT, nTRTTube;
+    uint8_t nTRT;
+    uint8_t nTRTTube;
     if (!trk || !trk->summaryValue(nTRT, xAOD::numberOfTRTHits) || !nTRT ) return 0.;
     return trk->summaryValue(nTRTTube, xAOD::numberOfTRTTubeHits) ? 1.*nTRTTube/nTRT : 0.;
   };

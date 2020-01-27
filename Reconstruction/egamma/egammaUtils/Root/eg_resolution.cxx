@@ -145,7 +145,7 @@ double eg_resolution::getResolution(const xAOD::Egamma& particle, int resolution
   else if (const xAOD::Photon* ph = dynamic_cast<const xAOD::Photon*>(&particle)) {
     const xAOD::Vertex* phVertex = ph->vertex();
     if (phVertex) {
-      const Amg::Vector3D pos = phVertex->position();
+      const Amg::Vector3D& pos = phVertex->position();
       const double Rconv = static_cast<float>(hypot(pos.x(), pos.y()));
       if (Rconv > 0 and Rconv < 800) { particle_type = 2; }
       else { particle_type = 1; }

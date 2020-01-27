@@ -126,7 +126,8 @@ StatusCode EMVertexBuilder::execute()
   
   // Decorate the vertices with the momentum at the conversion point and 
   // etaAtCalo, phiAtCalo (extrapolate each vertex)
-  float etaAtCalo = -9999., phiAtCalo = -9999.;
+  float etaAtCalo = -9999.;
+  float phiAtCalo = -9999.;
   for (itVtx = vertices->begin(); itVtx != vertices->end(); ++itVtx ){
     xAOD::Vertex *vertex = *itVtx;
     

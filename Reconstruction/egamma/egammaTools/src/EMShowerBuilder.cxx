@@ -60,7 +60,7 @@ StatusCode EMShowerBuilder::initialize()
     ATH_MSG_DEBUG(" Initializing EMShowerBuilder, m_cellKey = " << m_cellsKey.key());
 
     ATH_CHECK(m_cellsKey.initialize((m_UseShowerShapeTool || m_UseCaloIsoTool) && 
-                m_cellsKey.key() != ""));
+                !m_cellsKey.key().empty()));
 
     
     if (m_UseShowerShapeTool) { 

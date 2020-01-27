@@ -370,7 +370,8 @@ bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
   photon->setVertexLinks( vertexLinks );
 
   // Transfer deltaEta/Phi info
-  float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+  float deltaEta = egRec->deltaEtaVtx();
+  float deltaPhi = egRec->deltaPhiVtx();
   if (!photon->setVertexCaloMatchValue( deltaEta,
                                         xAOD::EgammaParameters::convMatchDeltaEta1) ){
     ATH_MSG_WARNING("Could not transfer deltaEta to photon");
