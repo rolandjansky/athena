@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCondTPCnv/LArSingleFloatSubsetCnv_p1.h"
@@ -38,7 +38,7 @@ LArSingleFloatSubsetCnv_p1::persToTrans(const SingleFloatPersType* persObj,
     }
   }    
    
-  transObj->m_correctionVec.reserve(ncorrs);
+  transObj->m_correctionVec.resize(ncorrs);
   
   // Loop over corrections
   for (unsigned int i = 0; i < ncorrs; ++i){

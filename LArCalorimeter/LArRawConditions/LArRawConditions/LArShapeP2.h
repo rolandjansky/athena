@@ -65,6 +65,7 @@ public:
   typedef LArCompactSubsetChannelPointer      Pointer;
   typedef LArCompactSubsetChannelPointer      ConstPointer;
   typedef LArCompactSubsetChannelVector       ChannelVector; 
+  typedef LArCompactSubsetConstChannelVector  ConstChannelVector; 
   typedef LArCompactSubsetChannelVectorPointer  ChannelVectorPointer;
   typedef LArCompactSubsetFebPair             FebPair;
   typedef FebPair                             FebPairReference;

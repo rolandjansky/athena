@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define private public
@@ -264,9 +264,9 @@ LArCaliWaveSubsetCnv_p1::transToPers(const LArCWTransType* transObj,  LArCWPersT
 			
 			if (saveAmplitudes) {// save amplitudes, errors and triggers
 				const LArCaliWaveVec& CWV = transObj->m_subset[i].second[j];
-				std::vector<double> w=CWV[0].getWave();
-				std::vector<double> e=CWV[0].getErrors();
-				std::vector<int> 	t=CWV[0].getTriggers();
+				const std::vector<double>& w=CWV[0].getWave();
+				const std::vector<double>& e=CWV[0].getErrors();
+				const std::vector<int>&	t=CWV[0].getTriggers();
 				persObj->m_dt.push_back(CWV[0].getDt());
 				persObj->m_flag.push_back(CWV[0].getFlag());
 				persObj->m_DAC.push_back(CWV[0].getDAC() | (CWV[0].getIsPulsedInt()<<16));
@@ -285,12 +285,13 @@ LArCaliWaveSubsetCnv_p1::transToPers(const LArCWTransType* transObj,  LArCWPersT
     for (unsigned int i = 0; i < ncorrs; ++i){
       	//  	log<<MSG::DEBUG<<"WRITING CORRECTION : "<<i<<endmsg;
       	// Save channel id in febid vector
+      	const LArCaliWaveVec& CWV = transObj->m_correctionVec[i].second;
+        if (CWV.empty()) continue;
       	persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
       	// Waves
-      	const LArCaliWaveVec& CWV = transObj->m_correctionVec[i].second;
-      	std::vector<double> w=CWV[0].getWave();
-      	std::vector<double> e=CWV[0].getErrors();
-      	std::vector<int>  t=CWV[0].getTriggers();
+      	const std::vector<double>& w=CWV[0].getWave();
+      	const std::vector<double>& e=CWV[0].getErrors();
+      	const std::vector<int>&  t=CWV[0].getTriggers();
       	persObj->m_dt.push_back(CWV[0].getDt());
       	persObj->m_flag.push_back(CWV[0].getFlag());
       	persObj->m_DAC.push_back(CWV[0].getDAC() | (CWV[0].getIsPulsedInt()<<16));

@@ -71,6 +71,7 @@ public:
   typedef T*                                           Pointer;
   typedef const T*                                     ConstPointer;
   typedef typename std::vector<T>                      ChannelVector; 
+  typedef const typename std::vector<T>                ConstChannelVector; 
   typedef ChannelVector*                               ChannelVectorPointer;
   typedef typename std::pair<FebId, ChannelVector>     FebPair;
   typedef FebPair&                                     FebPairReference;
@@ -125,6 +126,7 @@ public:
     typedef          LArConditionsSubsetTraits<T>        Traits;
     typedef typename Traits::FebId                       FebId;
     typedef typename Traits::ChannelVector               ChannelVector;
+    typedef typename Traits::ConstChannelVector          ConstChannelVector;
     typedef typename Traits::FebPair                     FebPair;
     typedef typename Traits::FebPairReference            FebPairReference;
     typedef typename Traits::SubsetVector                SubsetVector;
@@ -136,6 +138,7 @@ public:
     typedef typename Traits::ConstPointer                ConstPointer;
 
     ///  Public typedefs for channel id and T vector - CorrectionSet
+    typedef T             Payload;
     typedef unsigned int  ChannelId; 
     typedef typename std::pair<ChannelId, T>             CorrectionPair;
     typedef typename std::vector<CorrectionPair>         CorrectionVec;
