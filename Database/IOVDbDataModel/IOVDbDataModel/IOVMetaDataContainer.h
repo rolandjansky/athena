@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVDBDATAMODEL_IOVMETADATACONTAINER_H
@@ -18,98 +18,95 @@
  * $Id: IOVMetaDataContainer.h,v 1.4 2007-07-23 12:40:37 schaffer Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
-//#include "IOVDbDataModel/IOVPayloadContainer.h"
 #include "GaudiKernel/ClassID.h"
 #include "IOVDbDataModel/IOVPayloadContainer.h"
 
 #include <string>
 #include <vector>
-
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
+#include <sstream>
 
 class  CondAttrListCollection;
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-/** @class IOVMetaDataContainer
+/**
+ * @class IOVMetaDataContainer
  *
  * @brief This class is a container for conditions data. It is
- * intended to be used to store conditions data from COOL as file meta
- * data.
- *
+ * intended to be used to store conditions data from COOL as file metadata.
  */
 
 class IOVMetaDataContainer {
-public:
+ public:
 
-    /// \name structors
-    //@{
-    IOVMetaDataContainer();
-    IOVMetaDataContainer(const std::string& folderName,
-			 const std::string& folderDescription);
-    IOVMetaDataContainer(const IOVMetaDataContainer& cont);
-    IOVMetaDataContainer& operator=(const IOVMetaDataContainer& cont);
-    ~IOVMetaDataContainer();
-    //@}
+  /// \name structors
+  //@{
+  IOVMetaDataContainer();
+  IOVMetaDataContainer(const std::string& folderName
+		       , const std::string& folderDescription);
+  IOVMetaDataContainer(const IOVMetaDataContainer& cont);
+  IOVMetaDataContainer& operator=(const IOVMetaDataContainer& cont);
+  ~IOVMetaDataContainer();
+  //@}
 
-    /// \name Metadata information accessors
-    //@{
+  /// \name Metadata information accessors
+  //@{
 
-    /// Folder name
-    const std::string&          folderName        () const;
- 
-    /// Folder description
-    const std::string&          folderDescription () const;
+  /// Folder name
+  const std::string&          folderName        () const;
 
-    /// Access to payload container
-    const IOVPayloadContainer*  payloadContainer  () const;
+  /// Folder description
+  const std::string&          folderDescription () const;
 
-    /// \name Metadata information setting
-    //@{
-    /// Set folder name
-    void setFolderName                            (const std::string& folderName);
-    
-    /// Set description
-    void setFolderDescription                     (const std::string& description);
+  /// Access to payload container
+  const IOVPayloadContainer*  payloadContainer  () const;
 
-    /// Add in new payload. Note that duplicates are NOT added. 
-    /// @return value is true is payload was merged, false if it is a
-    ///         duplicate 
-    bool merge                                    (CondAttrListCollection* payload);
+  /// \name Metadata information setting
+  //@{
+  /// Set folder name
+  void setFolderName                            (const std::string& folderName);
 
-    //@}
+  /// Set description
+  void setFolderDescription                     (const std::string& description);
 
-private:
-    friend class IOVMetaDataContainerCnv_p1;
-    friend class IOVMetaDataContainerPTCnv_p1;
-    
+  /// Add in new payload. Note that duplicates are NOT added.
+  /// @return value is true is payload was merged, false if it is a duplicate
+  bool merge                                    (CondAttrListCollection* payload);
 
-    std::string           m_folderName;
-    std::string           m_folderDescription;
-    IOVPayloadContainer*  m_payload;
+  //@}
+
+  /// Dump the content
+  void dump(std::ostringstream& stream) const;
+
+ private:
+  friend class IOVMetaDataContainerCnv_p1;
+  friend class IOVMetaDataContainerPTCnv_p1;
+
+  std::string           m_folderName;
+  std::string           m_folderDescription;
+  IOVPayloadContainer*  m_payload;
 };
 
 
 inline 
 IOVMetaDataContainer::IOVMetaDataContainer()
-        :
-        m_payload(new IOVPayloadContainer())
-{}
+		     : m_payload(new IOVPayloadContainer())
+{
+}
 
 inline 
-IOVMetaDataContainer::IOVMetaDataContainer(const std::string& folderName,
-					   const std::string& folderDescription)
-	:
-	m_folderName(folderName),
-	m_folderDescription(folderDescription),
-        m_payload(new IOVPayloadContainer())
-{}
+IOVMetaDataContainer::IOVMetaDataContainer(const std::string& folderName
+					   , const std::string& folderDescription)
+		     : m_folderName(folderName)
+		     , m_folderDescription(folderDescription)
+		     , m_payload(new IOVPayloadContainer())
+{
+}
 
 inline
 IOVMetaDataContainer::IOVMetaDataContainer(const IOVMetaDataContainer& cont)
+		     : m_folderName(cont.m_folderName)
+ 		     , m_folderDescription(cont.m_folderDescription)
+ 		     , m_payload(new IOVPayloadContainer(*(cont.m_payload)))
 {
-    if (this != &cont) m_payload = new IOVPayloadContainer(*(cont.m_payload));
 }
 
 inline
@@ -119,6 +116,8 @@ IOVMetaDataContainer::operator=(const IOVMetaDataContainer& cont)
   if (this != &cont) {
     delete m_payload;
     m_payload = new IOVPayloadContainer(*(cont.m_payload));
+    m_folderName = cont.m_folderName;
+    m_folderDescription= cont.m_folderDescription;
   }
   return *this;
 }
@@ -127,28 +126,28 @@ inline
 const std::string&
 IOVMetaDataContainer::folderName        () const
 {
-    return (m_folderName);
+  return (m_folderName);
 }
  
 inline 
 const std::string&  
 IOVMetaDataContainer::folderDescription () const
 {
-    return (m_folderDescription);
+  return (m_folderDescription);
 }
 
 inline 
 const IOVPayloadContainer*
 IOVMetaDataContainer::payloadContainer    () const
 {
-    return (m_payload);
+  return (m_payload);
 }
 
 inline 
 void 
 IOVMetaDataContainer::setFolderName       (const std::string& folderName)
 {
-    m_folderName = folderName;
+  m_folderName = folderName;
 }
     
 inline 
@@ -160,6 +159,9 @@ IOVMetaDataContainer::setFolderDescription(const std::string& description)
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( IOVMetaDataContainer , 1316383046 , 1 )
-
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<IOVMetaDataContainer> , 1158158193 , 1 )
+#include "AthenaKernel/BaseInfo.h"
+SG_BASE( MetaCont<IOVMetaDataContainer>, MetaContBase );
 
 #endif  // 
