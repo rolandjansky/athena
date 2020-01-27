@@ -133,7 +133,7 @@ namespace Trk
     virtual const Amg::Vector3D& momentum() const override final {return m_momentum;}
 
     /** Return the measurementFrame of the parameters */
-    const Amg::RotationMatrix3D measurementFrame() const override;
+    Amg::RotationMatrix3D measurementFrame() const override;
   
   protected:
     template<typename pars> friend class ::TrackParametersCovarianceCnv;
