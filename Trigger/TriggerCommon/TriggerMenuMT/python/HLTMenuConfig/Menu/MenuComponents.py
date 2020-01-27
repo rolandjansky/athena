@@ -290,7 +290,10 @@ def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
 
 def isEmptyAlg(alg):
-    return if alg is None
+    if alg is None:
+        return True
+    else:
+        return False
 
 
 
