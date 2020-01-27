@@ -47,7 +47,7 @@ Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds(const RotatedTrapezoidBounds
 {}
 
 // destructor
-Trk::RotatedTrapezoidBounds::~RotatedTrapezoidBounds() {}
+Trk::RotatedTrapezoidBounds::~RotatedTrapezoidBounds() = default;
 
 Trk::RotatedTrapezoidBounds&
 Trk::RotatedTrapezoidBounds::operator=(const RotatedTrapezoidBounds& trabo)

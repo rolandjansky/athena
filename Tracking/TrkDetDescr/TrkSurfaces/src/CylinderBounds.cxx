@@ -54,7 +54,7 @@ Trk::CylinderBounds::CylinderBounds(const Trk::CylinderBounds& cylbo)
   , m_checkPhi(cylbo.m_checkPhi)
 {}
 
-Trk::CylinderBounds::~CylinderBounds() {}
+Trk::CylinderBounds::~CylinderBounds() = default;
 
 Trk::CylinderBounds&
 Trk::CylinderBounds::operator=(const Trk::CylinderBounds& cylbo)
