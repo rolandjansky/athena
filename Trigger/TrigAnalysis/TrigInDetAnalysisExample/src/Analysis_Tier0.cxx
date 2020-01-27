@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    $Id: Analysis_Tier0.cxx   Thu 18 May 2017 15:35:34 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -16,8 +16,8 @@
 #include "TrigInDetAnalysisExample/ChainString.h"
 
 
-Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut) :
-  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false), m_eventid(0) 
+Analysis_Tier0::Analysis_Tier0(const std::string& name, double /*pTCut*/, double /*etaCut*/, double /*d0Cut*/, double /*z0Cut*/) :
+  TrackAnalysis(name), m_debug(false), m_eventid(0) 
 {  }
 
 

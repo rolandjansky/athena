@@ -17,7 +17,7 @@
  **     @author  mark sutton
  **     @date    Tue 16 May 2017 09:28:55 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
@@ -641,8 +641,7 @@ protected:
       const std::string& chainname = m_chainNames[ichain].head();
       const std::string&       key = m_chainNames[ichain].tail();
       const std::string&  vtx_name = m_chainNames[ichain].vtx();
-      const std::string&  roi_name = m_chainNames[ichain].roi();
-      const std::string&   te_name = m_chainNames[ichain].element();
+      //const std::string&  roi_name = m_chainNames[ichain].roi();
 
       m_pTthreshold = 0;  /// why does this need to be a class variable ???
 
