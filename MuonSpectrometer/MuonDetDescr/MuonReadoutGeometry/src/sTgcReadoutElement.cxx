@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -40,6 +40,12 @@ namespace MuonGM {
 					 MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
+    m_rots = 0.;
+    m_rotz = 0.;
+    m_rott = 0.;
+
+    m_hasALines = false;
+    m_delta = NULL;
     m_ml = mL;
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:sTgcReadoutElement");
 
@@ -463,8 +469,6 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
 
-      //std::cerr<<"center of wire plane, layer:"<<layer<<","<< m_surfaceData->m_layerCenters.back().perp()<< std::endl;
-
       // strip plane moved along normal, pad plane in the opposite direction
       // We no longer want the readout elements to be seperated by the gas gas volume
       // We place all 3 readouts at the center of the gas gap in z, with a 10 micron offset to seperate them
@@ -550,6 +554,24 @@ reLog() << MSG::DEBUG<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc
     reLog() << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
     
     return absTransform()*locP;
+  }
+
+  void sTgcReadoutElement::setDelta(double tras, double traz, double trat,
+                                  double rots, double rotz, double rott)
+  {
+    m_rots = rots;
+    m_rotz = rotz;
+    m_rott = rott;
+
+    HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
+     if (fabs(tras)+fabs(traz)+fabs(trat)+(fabs(rots)+fabs(rotz)+fabs(rott))*1000. > 0.01)
+    {
+       // compute the delta transform 
+       delta = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
+                     HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
+                    HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
+       m_hasALines = true;
+    }
   }
 
 
