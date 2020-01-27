@@ -593,7 +593,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
 void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size; ++i) {
     if (!data.r_map[i]) continue;
@@ -695,7 +695,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp(EventData& data) const
   if (m_ptmin!=0.) ipt= 1./fabs(.9*m_ptmin);
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
 
   // Loop thorugh all azimuthal regions
   //
@@ -739,7 +739,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField(EventData& 
   float ipt = 100000000.;
   if (m_ptmin!=0.) ipt= 1./fabs(.9*m_ptmin);
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
 
   // Loop thorugh all azimuthal regions
   //
@@ -778,15 +778,15 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField(EventData& 
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, float K, float ipt) const
 {
   const float COF = 134*.05*9.;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {r0 = data.rMin; data.endlist = true;}
 
   // Loop through all trigger space points
@@ -907,16 +907,16 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT,float ipt) const
 {
   const float COF    = 134*.05*9.;
   const float dFcut  = .96       ;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {r0 = data.rMin; data.endlist = true;}
 
   // Loop through all trigger space points
