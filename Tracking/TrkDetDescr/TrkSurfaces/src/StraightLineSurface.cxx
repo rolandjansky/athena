@@ -69,7 +69,7 @@ Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, co
 {}
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::StraightLineSurface::~StraightLineSurface() {}
+Trk::StraightLineSurface::~StraightLineSurface() = default;
 
 // assignment operator
 Trk::StraightLineSurface&
@@ -172,7 +172,7 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
 }
 
 // return the measurement frame
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::StraightLineSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
 {
   Amg::RotationMatrix3D mFrame;
@@ -219,7 +219,7 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
     Lzm = m_bounds.get()->halflengthZ();
   } else if (Surface::m_associatedDetElement) {
 
-    const Trk::CylinderBounds* cb = 0;
+    const Trk::CylinderBounds* cb = nullptr;
 
     if (Surface::m_associatedDetElementId.is_valid()) {
       cb = dynamic_cast<const Trk::CylinderBounds*>(&m_associatedDetElement->bounds(Surface::m_associatedDetElementId));

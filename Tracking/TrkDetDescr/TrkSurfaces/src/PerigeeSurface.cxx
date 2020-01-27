@@ -41,7 +41,7 @@ Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform)
 
 Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform)
   : Surface(std::move(tTransform))
-  , m_lineDirection(0)
+  , m_lineDirection(nullptr)
 {}
 
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf)
@@ -64,7 +64,7 @@ Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf, const Amg::Trans
     Surface::m_transform = std::make_unique<Amg::Transform3D>(shift * (*pesf.m_transform));
 }
 
-Trk::PerigeeSurface::~PerigeeSurface() {}
+Trk::PerigeeSurface::~PerigeeSurface() = default;
 
 // assignment operator
 Trk::PerigeeSurface&
@@ -156,7 +156,7 @@ Trk::PerigeeSurface::globalToLocal(const Amg::Vector3D& glopos,
 }
 
 // return the measurement frame - this is the frame where the covariance is defined
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::PerigeeSurface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D& glomom) const
 {
   Amg::RotationMatrix3D mFrame;

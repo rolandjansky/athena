@@ -133,7 +133,7 @@ public:
                                                                        double phi,
                                                                        double theta,
                                                                        double qop,
-                                                                       AmgSymMatrix(5) * cov = 0) const override
+                                                                       AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, PlaneSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -142,7 +142,7 @@ public:
   virtual ParametersT<5, Charged, PlaneSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                        const Amg::Vector3D& momentum,
                                                                        double charge,
-                                                                       AmgSymMatrix(5) * cov = 0) const override
+                                                                       AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, PlaneSurface>(position, momentum, charge, *this, cov);
   }
@@ -153,7 +153,7 @@ public:
                                                                          double phi,
                                                                          double theta,
                                                                          double oop,
-                                                                         AmgSymMatrix(5) * cov = 0) const override
+                                                                         AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, PlaneSurface>(l1, l2, phi, theta, oop, *this, cov);
   }
@@ -162,7 +162,7 @@ public:
   virtual ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                          const Amg::Vector3D& momentum,
                                                                          double charge = 0.,
-                                                                         AmgSymMatrix(5) * cov = 0) const override
+                                                                         AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, PlaneSurface>(position, momentum, charge, *this, cov);
   }

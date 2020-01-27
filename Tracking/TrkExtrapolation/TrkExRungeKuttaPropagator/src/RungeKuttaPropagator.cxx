@@ -32,7 +32,7 @@ Trk::RungeKuttaPropagator::RungeKuttaPropagator
   m_helixStep         = 1.     ; 
   m_straightStep      = .01    ;
   m_usegradient       = false  ;
-  m_fieldService      = 0      ;
+  m_fieldService      = nullptr      ;
  
   declareInterface<Trk::IPropagator>(this);   
   declareInterface<Trk::IPatternParametersPropagator>(this);
@@ -74,7 +74,7 @@ StatusCode  Trk::RungeKuttaPropagator::finalize()
 // Destructor
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::RungeKuttaPropagator::~RungeKuttaPropagator(){}
+Trk::RungeKuttaPropagator::~RungeKuttaPropagator()= default;
 
 /////////////////////////////////////////////////////////////////////////////////
 // Main function for NeutralParameters propagation 
@@ -140,7 +140,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
     J[24]=J[20]; J[23]=0.; J[22]=0.; J[21]=0.; J[20]=0.;
     Jac = new Trk::TransportJacobian(J);
   }
-  else Jac = 0;
+  else Jac = nullptr;
   return Tpn;
 }
 
@@ -162,7 +162,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 {
  
   Cache cache{};
-  Sol.erase(Sol.begin(),Sol.end()); Path = 0.; if(DS.empty()) return 0;
+  Sol.erase(Sol.begin(),Sol.end()); Path = 0.; if(DS.empty()) return nullptr;
   cache.m_direction               = D; 
 
   // Test is it measured track parameters
@@ -180,7 +180,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   Trk::RungeKuttaUtils utils;
 
   double Po[45],Pn[45]; 
-  if(!utils.transformLocalToGlobal(useJac,Tp,Po)) return 0;
+  if(!utils.transformLocalToGlobal(useJac,Tp,Po)) return nullptr;
   Po[42]=Po[43]=Po[44]=0.;
 
   // Straight line track propagation for small step
@@ -202,7 +202,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 
   // Test conditions tor start propagation and chocse direction if D == 0
   //
-  if(DN.empty()) return 0;
+  if(DN.empty()) return nullptr;
 
   if(D == 0 && fabs(Scut[0]) < fabs(Scut[1])) Smax = -Smax; 
 
@@ -213,7 +213,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   double                 Sl   = Smax ;
   double                 St   = Smax ;  
   bool                   InS  = false;
-  TrackParameters* To         = 0    ;
+  TrackParameters* To         = nullptr    ;
 
   for(int i=0; i!=45; ++i) Pn[i]=Po[i];
   
@@ -283,7 +283,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
       }
     }
   }
-  return 0;
+  return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -332,7 +332,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
     J[24]=J[20]; J[23]=0.; J[22]=0.; J[21]=0.; J[20]=0.;
     Jac = new Trk::TransportJacobian(J);
   }
-  else Jac = 0;
+  else Jac = nullptr;
   return Tpn;
 }
 
@@ -345,7 +345,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
  const Trk::NeutralParameters & Tp    ,
  const Trk::Surface           & Su    ,
  Trk::PropDirection             D     ,
- Trk::BoundaryCheck             B     ,
+ const Trk::BoundaryCheck&             B     ,
  double                       * Jac   ,
  bool                       returnCurv) const 
 {
@@ -358,7 +358,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 
   Trk::RungeKuttaUtils utils;
 
-  double P[64],Step = 0; if(!utils.transformLocalToGlobal(useJac,Tp,P)) return 0;
+  double P[64],Step = 0; if(!utils.transformLocalToGlobal(useJac,Tp,P)) return nullptr;
 
   const Amg::Transform3D&  T = Su.transform();  
   int ty = Su.type(); 
@@ -369,12 +369,12 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;}
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;}
-    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Line     ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
-    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Disc     ) {
 
@@ -382,7 +382,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;}
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;}
-    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Cylinder ) {
 
@@ -391,28 +391,28 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
     double r0[3] = {P[0],P[1],P[2]};
     double s [9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),cache.m_direction,0.};
 
-    if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return nullptr;
 
     // For cylinder we do test for next cross point
     //
     if(cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl,r0,P)) {
-      s[8] = 0.; if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return 0;
+      s[8] = 0.; if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return nullptr;
     }
   }
   else if (ty == Trk::Surface::Perigee  ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
-    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Cone     ) {
     
     double k     = static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha(); k = k*k+1.;
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,cache.m_direction,0.};
-    if(!propagateWithJacobian(cache,useJac,3,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,3,s,P,Step)) return nullptr;
   }
-  else return 0;
+  else return nullptr;
 
-  if(cache.m_direction!=0. && (cache.m_direction*Step)<0.) return 0;
+  if(cache.m_direction!=0. && (cache.m_direction*Step)<0.) return nullptr;
 
   // Common transformation for all surfaces (angles and momentum)
   //
@@ -426,7 +426,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 
   double p[5]; utils.transformGlobalToLocal(su,uJ,P,p,Jac);
 
-  if(B) {Amg::Vector2D L(p[0],p[1]); if(!Su.insideBounds(L,0.)) return 0;}
+  if(B) {Amg::Vector2D L(p[0],p[1]); if(!Su.insideBounds(L,0.)) return nullptr;}
 
 
   // Transformation to curvilinear presentation
@@ -437,7 +437,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
   if(!useJac || !Tp.covariance()) {
 
     if(!returnCurv) {
-      return Su.createNeutralParameters(p[0],p[1],p[2],p[3],p[4],0); 
+      return Su.createNeutralParameters(p[0],p[1],p[2],p[3],p[4],nullptr); 
     }
     else            {
       Amg::Vector3D gp(P[0],P[1],P[2]);
@@ -449,7 +449,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
   AmgSymMatrix(5)& cv = *e;
   
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
-    delete e; return 0;
+    delete e; return nullptr;
   }
 
   if(!returnCurv) {
@@ -471,7 +471,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
  const Trk::TrackParameters   & Tp    ,
  const Trk::Surface           & Su    ,
  Trk::PropDirection             D     ,
- Trk::BoundaryCheck             B     ,
+ const Trk::BoundaryCheck&             B     ,
  const MagneticFieldProperties& M     ,
  double                       * Jac   ,
  bool                       returnCurv) const 
@@ -488,7 +488,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 
   Trk::RungeKuttaUtils utils;
 
-  double P[64],Step = 0.; if(!utils.transformLocalToGlobal(useJac,Tp,P)) return 0;
+  double P[64],Step = 0.; if(!utils.transformLocalToGlobal(useJac,Tp,P)) return nullptr;
 
   const Amg::Transform3D&  T = Su.transform();  
   int ty = Su.type(); 
@@ -499,20 +499,20 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;}
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;}
-    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return nullptr;
 
   }
   else if (ty == Trk::Surface::Line     ) {
 
     double s[6] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
-    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Disc     ) {
 
     double s[4], d  = T(0,3)*T(0,2)+T(1,3)*T(1,2)+T(2,3)*T(2,2);
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;}
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;}
-    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,1,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Cylinder ) {
 
@@ -520,28 +520,28 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 
     double r0[3] = {P[0],P[1],P[2]};
     double s [9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),cache.m_direction,0.};
-    if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return nullptr;
 
     // For cylinder we do test for next cross point
     //
     if(cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl,r0,P)) {
-      s[8] = 0.; if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return 0;
+      s[8] = 0.; if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return nullptr;
     }
   }
   else if (ty == Trk::Surface::Perigee  ) {
 
     double s[6] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
-    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,0,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Cone     ) {
     
     double k    =  static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha(); k = k*k+1.;
     double s[9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,cache.m_direction,0.};
-    if(!propagateWithJacobian(cache,useJac,3,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,useJac,3,s,P,Step)) return nullptr;
   }
-  else return 0;
+  else return nullptr;
 
-  if(cache.m_direction && (cache.m_direction*Step)<0.) {return 0;} cache.m_step = Step;
+  if(cache.m_direction && (cache.m_direction*Step)<0.) {return nullptr;} cache.m_step = Step;
 
   // Common transformation for all surfaces (angles and momentum)
   //
@@ -554,7 +554,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   bool uJ = useJac; if(returnCurv) uJ = false;
   double p[5]; utils.transformGlobalToLocal(su,uJ,P,p,Jac);
 
-  if(B) {Amg::Vector2D L(p[0],p[1]); if(!Su.insideBounds(L,0.)) return 0;}
+  if(B) {Amg::Vector2D L(p[0],p[1]); if(!Su.insideBounds(L,0.)) return nullptr;}
 
   // Transformation to curvilinear presentation
   //
@@ -563,7 +563,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   if(!useJac || !Tp.covariance()) {
 
     if(!returnCurv) {
-      return Su.createTrackParameters(p[0],p[1],p[2],p[3],p[4],0); 
+      return Su.createTrackParameters(p[0],p[1],p[2],p[3],p[4],nullptr); 
     }
     else            {
       Amg::Vector3D gp(P[0],P[1],P[2]);
@@ -575,7 +575,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   AmgSymMatrix(5)& cv = *e;
   
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
-    delete e; return 0;
+    delete e; return nullptr;
   }
 
   if(!returnCurv) {
@@ -632,7 +632,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
 
   Trk::RungeKuttaUtils utils;
 
-  double P[64]; if(!utils.transformLocalToGlobal(false,Tp,P)) return 0;
+  double P[64]; if(!utils.transformLocalToGlobal(false,Tp,P)) return nullptr;
   double Step = 0.;
 
   const Amg::Transform3D&  T = Su.transform();  
@@ -644,12 +644,12 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;}
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;}
-    if(!propagateWithJacobian(cache,nJ,1,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,nJ,1,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Line     ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
-    if(!propagateWithJacobian(cache,nJ,0,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,nJ,0,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Disc     ) {
 
@@ -657,7 +657,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;}
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;}
-    if(!propagateWithJacobian(cache,nJ,1,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,nJ,1,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Cylinder ) {
 
@@ -666,28 +666,28 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
     double r0[3] = {P[0],P[1],P[2]};
     double s [9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),cache.m_direction,0.};
 
-    if(!propagateWithJacobian(cache,nJ,2,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,nJ,2,s,P,Step)) return nullptr;
 
     // For cylinder we do test for next cross point
     //
     if(cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl,r0,P)) {
-      s[8] = 0.; if(!propagateWithJacobian(cache,nJ,2,s,P,Step)) return 0;
+      s[8] = 0.; if(!propagateWithJacobian(cache,nJ,2,s,P,Step)) return nullptr;
     }
   }
   else if (ty == Trk::Surface::Perigee  ) {
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)};
-    if(!propagateWithJacobian(cache,nJ,0,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,nJ,0,s,P,Step)) return nullptr;
   }
   else if (ty == Trk::Surface::Cone     ) {
     
     double k     = static_cast<const Trk::ConeSurface*>(su)->bounds().tanAlpha(); k = k*k+1.;
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,cache.m_direction,0.};
-    if(!propagateWithJacobian(cache,nJ,3,s,P,Step)) return 0;
+    if(!propagateWithJacobian(cache,nJ,3,s,P,Step)) return nullptr;
   }
-  else return 0;
+  else return nullptr;
 
-  if(cache.m_maxPathLimit) return 0;
+  if(cache.m_maxPathLimit) return nullptr;
 
   Amg::Vector3D Glo(P[0],P[1],P[2]);
   Amg::Vector3D Dir(P[3],P[4],P[5]);
@@ -1785,7 +1785,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
   Amg::Vector3D dir(As[0],As[1],As[2]);
 
   Trk::DistanceSolution ds = SU[N].first->straightLineDistanceEstimate(pos,dir,SU[N].second);  
-  if(ds.currentDistance(false) > .010) return 0;
+  if(ds.currentDistance(false) > .010) return nullptr;
 
   P[0] = Rs[0]; A[0] = As[0];
   P[1] = Rs[1]; A[1] = As[1];
@@ -1804,13 +1804,13 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
   double p[5],Jac[25]; 
   utils.transformGlobalToLocal(SU[N].first,useJac,P,p,Jac);
 
-  if(!useJac) return SU[N].first->createTrackParameters(p[0],p[1],p[2],p[3],p[4],0); 
+  if(!useJac) return SU[N].first->createTrackParameters(p[0],p[1],p[2],p[3],p[4],nullptr); 
 
   AmgSymMatrix(5)* e  = utils.newCovarianceMatrix(Jac,*Tp.covariance());
   AmgSymMatrix(5)& cv = *e;
 
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
-    delete e; return 0;
+    delete e; return nullptr;
   }
   return  SU[N].first->createTrackParameters(p[0],p[1],p[2],p[3],p[4],e);  
 }

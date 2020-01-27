@@ -57,7 +57,7 @@ Trk::ConeBounds::ConeBounds(const Trk::ConeBounds& conebo)
   , m_cosAlpha(conebo.m_cosAlpha)
 {}
 
-Trk::ConeBounds::~ConeBounds() {}
+Trk::ConeBounds::~ConeBounds() = default;
 
 Trk::ConeBounds&
 Trk::ConeBounds::operator=(const Trk::ConeBounds& conebo)

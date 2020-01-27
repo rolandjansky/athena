@@ -47,7 +47,7 @@ Trk::DiamondBounds::DiamondBounds(const DiamondBounds& diabo)
 {}
 
 // destructor
-Trk::DiamondBounds::~DiamondBounds() {}
+Trk::DiamondBounds::~DiamondBounds() = default;
 
 Trk::DiamondBounds&
 Trk::DiamondBounds::operator=(const DiamondBounds& diabo)
