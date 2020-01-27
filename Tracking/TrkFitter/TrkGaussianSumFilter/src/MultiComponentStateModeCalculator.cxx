@@ -144,8 +144,7 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
       mixture[i].push_back(comp);
     }
   }
-  return;
-}
+  }
 
 double
 Trk::MultiComponentStateModeCalculator::findMode(double xStart,
@@ -320,7 +319,8 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
   // Prints a warning if the initial interval does not bracket a single
   // root or if the root is not found after a fixed number of iterations.
 
-  double a(xlo), b(xhi);
+  double a(xlo);
+  double b(xhi);
   double fa = pdf(a, i, mixture) - value;
   double fb = pdf(b, i, mixture) - value;
 
@@ -330,7 +330,9 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
 
   bool ac_equal(false);
   double fc = fb;
-  double c(0), d(0), e(0);
+  double c(0);
+  double d(0);
+  double e(0);
   int MaxIterations = 20;
   double tolerance = 1.e-6;
 
@@ -369,7 +371,9 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
       e = m;
     } else {
       // Attempt inverse cubic interpolation
-      double p, q, r;
+      double p;
+      double q;
+      double r;
       double s = fb / fa;
 
       if (ac_equal) {

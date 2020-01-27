@@ -28,7 +28,7 @@ class IMaterialMixtureConvolution : virtual public IAlgTool
 
 public:
   //!< IAlgTool and AlgTool interface method
-  static const InterfaceID interfaceID() { return IID_IMaterialMixtureConvolution; };
+  static const InterfaceID& interfaceID() { return IID_IMaterialMixtureConvolution; };
 
   //!< Virtual destructor
   virtual ~IMaterialMixtureConvolution()= default;
