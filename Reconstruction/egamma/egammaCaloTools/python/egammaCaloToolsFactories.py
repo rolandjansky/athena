@@ -16,8 +16,7 @@ egammaShowerShape = ToolFactory(egammaCaloToolsConf.egammaShowerShape,
                                 ExecEMFirst        = True,
                                 ExecEMSecond       = True,
                                 ExecEMThird        = True,
-                                ExecEMCombined     = True,
-                                ExecOtherVariables = True )
+                                ExecEMCombined     = True)
 
             
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
