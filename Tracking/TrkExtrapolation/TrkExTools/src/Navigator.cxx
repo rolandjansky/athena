@@ -43,7 +43,7 @@ const Trk::MagneticFieldProperties s_zeroMagneticField(Trk::NoField);
 Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
   m_validationMode(false),
-  m_trackingGeometry(0),
+  m_trackingGeometry(nullptr),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_insideVolumeTolerance(1. * Gaudi::Units::mm),
@@ -129,7 +129,7 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   if (trackingVolume) {
     return(nextBoundarySurface(prop, parms, dir, *trackingVolume));
   }
-  return 0;
+  return nullptr;
 }
 
 const Trk::BoundarySurface<Trk::TrackingVolume> *
@@ -145,7 +145,7 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
   Trk::ObjectAccessor surfAcc =
     vol.boundarySurfaceAccessor(parms.position(), dir * parms.momentum().normalized());
   // initialize the currentBoundary surface
-  const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = 0;
+  const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = nullptr;
   bool outsideVolume = surfAcc.inverseRetrieval();
   // attempt counter
   int tryBoundary = 0;
@@ -169,7 +169,7 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
     currentBoundary = vol.boundarySurface(surface_id);
     const Trk::Surface &currentSurface = currentBoundary->surfaceRepresentation();
 
-    const Trk::TrackParameters *trackPar = 0;
+    const Trk::TrackParameters *trackPar = nullptr;
     // do either RungeKutta (always after first unsuccessful try) or straight line
     trackPar = (!m_useStraightLineApproximation || tryBoundary > 1) ?
                prop.propagateParameters(parms,
@@ -195,10 +195,10 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
     ++m_outsideVolumeCase;
   }
 
-  return 0;
+  return nullptr;
 }
 
-const Trk::NavigationCell
+Trk::NavigationCell
 Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
                                    const Trk::TrackParameters &parms,
                                    Trk::PropDirection dir,
@@ -224,8 +224,8 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
   // the object accessor already solved the outside question
   bool outsideVolume = surfAcc.inverseRetrieval();
   // initialize the boundary pointer / tracking volume pointer
-  const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = 0;
-  const Trk::TrackingVolume *nextVolume = 0;
+  const Trk::BoundarySurface<Trk::TrackingVolume> *currentBoundary = nullptr;
+  const Trk::TrackingVolume *nextVolume = nullptr;
 
   // debug version
   ATH_MSG_VERBOSE("  [N] Starting parameters are : " << parms);
@@ -268,7 +268,7 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
     const Trk::Surface &currentSurface = currentBoundary->surfaceRepresentation();
     // try the propagation
-    const Trk::TrackParameters *trackPar = 0;
+    const Trk::TrackParameters *trackPar = nullptr;
     // do either RungeKutta (always after first unsuccessful try) or straight line
     if (!currentSurface.isOnSurface(parms.position(), true, 0., 0.)) {
       trackPar = (!m_useStraightLineApproximation || tryBoundary > 1) ?
@@ -324,10 +324,10 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
     // ---------------------------------------------------
   }
   // return what you have : no idea
-  return Trk::NavigationCell(0, 0);
+  return Trk::NavigationCell(nullptr, nullptr);
 }
 
-const Trk::NavigationCell
+Trk::NavigationCell
 Trk::Navigator::nextDenseTrackingVolume(
   const Trk::IPropagator &prop,
   const Trk::TrackParameters &parms,
@@ -343,17 +343,17 @@ Trk::Navigator::nextDenseTrackingVolume(
     updateTrackingGeometry();
   }
 
-  Trk::NavigationCell solution(0, 0);
+  Trk::NavigationCell solution(nullptr, nullptr);
   const Trk::TrackParameters *currPar = &parms;
 
   double tol = 0.001;
   path = 0.;
 
   // check position : if volume exit return trivial solution
-  const Trk::TrackingVolume *nextVolume = 0;
+  const Trk::TrackingVolume *nextVolume = nullptr;
   if (atVolumeBoundary(currPar, &vol, dir, nextVolume, tol) && nextVolume != (&vol)) {
     if (!nextVolume) {
-      Amg::Vector3D gp = currPar->position();
+      const Amg::Vector3D& gp = currPar->position();
       const Trk::TrackingVolume *currStatic = m_trackingGeometry->lowestStaticTrackingVolume(gp);
       if (&vol != currStatic) {
         nextVolume = currStatic;
@@ -408,7 +408,7 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters *parms, const Trk::T
                                  Trk::PropDirection dir, const Trk::TrackingVolume * &nextVol, double tol) const {
   bool isAtBoundary = false;
 
-  nextVol = 0;
+  nextVol = nullptr;
   if (!vol) {
     return isAtBoundary;
   }
@@ -458,7 +458,7 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
 
   // -- corresponds to Extrapolator::m_searchLevel = 2/3 - search with Propagation
   if (propptr && !m_searchWithDistance) {
-    const Trk::TrackParameters *closestTrackParameters = 0;
+    const Trk::TrackParameters *closestTrackParameters = nullptr;
     // const Trk::TrackingVolume*         highestVolume = (m_trackingGeometry->highestTrackingVolume());
 
     double distanceToSurface = 10e10;
@@ -476,7 +476,7 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
       // const Trk::IntersectionSolution* interSolutions =  propptr->intersect(**it, sf, *highestVolume);
       const Trk::IntersectionSolution *interSolutions = propptr->intersect(**it, sf, m_fieldProperties);
       if (!interSolutions) {
-        return 0;
+        return nullptr;
       }
       double currentDistance = fabs(((*interSolutions)[2])->pathlength());
       if (currentDistance < distanceToSurface) {
@@ -492,7 +492,7 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
 
   // -- corresponds to Extrapolator::m_searchLevel = 1 - search with dedicated algorithms for cylinder/sl/perigee
   // surface
-  const Trk::TrackParameters *closestTrackParameters = 0;
+  const Trk::TrackParameters *closestTrackParameters = nullptr;
 
 
   // policy change --- only measured parameters are taken
@@ -509,8 +509,8 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
   }
 
   // new policy --- take only measured parameters
-  if (!measuredParameters.size()) {
-    return 0;
+  if (measuredParameters.empty()) {
+    return nullptr;
   }
 
   if (m_searchWithDistance) {
@@ -519,7 +519,7 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
     std::vector<const Trk::TrackParameters *>::const_iterator tpIterEnd = measuredParameters.end();
     // set a maximum distance
     double closestDistance = 10e10;
-    const Trk::TrackParameters *currentClosestParameters = 0;
+    const Trk::TrackParameters *currentClosestParameters = nullptr;
 
     for (; tpIter != tpIterEnd; ++tpIter) {
       // forward-backward solution
@@ -555,7 +555,7 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
   }
 
   const Trk::StraightLineSurface *slsf = dynamic_cast<const Trk::StraightLineSurface *>(&sf);
-  const Trk::PerigeeSurface *persf = 0;
+  const Trk::PerigeeSurface *persf = nullptr;
   if (!slsf) {
     persf = dynamic_cast<const Trk::PerigeeSurface *>(&sf);
   }
@@ -576,7 +576,7 @@ Trk::Navigator::closestParameters(const Trk::Track &trk,
 // finalize
 StatusCode
 Trk::Navigator::finalize() {
-  m_trackingGeometry = 0;
+  m_trackingGeometry = nullptr;
 
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG("[N] " << name() << " Perfomance Statistics : --------------------------------");

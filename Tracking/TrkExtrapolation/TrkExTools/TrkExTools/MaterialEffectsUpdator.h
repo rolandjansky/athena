@@ -174,18 +174,16 @@ class MaterialEffectsUpdator : public AthAlgTool,
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       validationActionImpl(cache);
-      return ;
-    }
+   }
 
     /** Only has an effect if m_landauMode == true.
       Resets mutable variables used for non-local calculation of energy loss if
       parm == 0. Otherwise, modifies parm with the final update of the covariance matrix*/
-    virtual void modelAction(ICache& icache, const TrackParameters* parm = 0) const override {
+    virtual void modelAction(ICache& icache, const TrackParameters* parm = nullptr) const override {
 
       Cache& cache= dynamic_cast<Cache&> (icache);
       modelActionImpl(cache,parm);
-      return;
-    }
+   }
 
   public:
     /* 
@@ -245,14 +243,12 @@ class MaterialEffectsUpdator : public AthAlgTool,
     virtual void validationAction() const override{
       Cache& cache = getTLSCache();
       validationActionImpl(cache);
-      return;
-    }
+   }
 
-    virtual void modelAction(const TrackParameters* parm = 0) const override {
+    virtual void modelAction(const TrackParameters* parm = nullptr) const override {
       Cache& cache = getTLSCache();
       modelActionImpl(cache,parm);  
-      return;
-    }
+   }
 
   private:
     /* The acutal implementation methods using the tool's 
@@ -297,7 +293,7 @@ class MaterialEffectsUpdator : public AthAlgTool,
 
     void validationActionImpl(Cache& cache) const;
 
-    void modelActionImpl(Cache& cache, const TrackParameters* parm = 0) const;
+    void modelActionImpl(Cache& cache, const TrackParameters* parm = nullptr) const;
 
     /** A simple check method for the 'removeNoise' update model */
     bool checkCovariance(AmgSymMatrix(5)& updated) const ;

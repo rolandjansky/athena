@@ -93,7 +93,7 @@ namespace Trk {
                                                        const TrackingVolume& vol  ) const override final;
 
       /** INavigator interface method - getting the next Volume and the parameter for the next Navigation*/
-      virtual const NavigationCell nextTrackingVolume( const IPropagator& prop,
+      virtual NavigationCell nextTrackingVolume( const IPropagator& prop,
                                                const TrackParameters& parms,
                                                PropDirection dir,
                                                const TrackingVolume& vol) const override final;
@@ -101,7 +101,7 @@ namespace Trk {
       /** INavigator interface method - getting the next Volume and the parameter for the next Navigation
         - contains full loop over volume boundaries
       */
-      virtual const NavigationCell nextDenseTrackingVolume( const IPropagator& prop,
+      virtual NavigationCell nextDenseTrackingVolume( const IPropagator& prop,
 						    const TrackParameters& parms,
 						    const Surface* destination,
 						    PropDirection dir, 
@@ -112,7 +112,7 @@ namespace Trk {
       /** INavigator interface method - getting the closest TrackParameters from a Track to a Surface*/
       virtual const TrackParameters*      closestParameters( const Track& trk,
                                                      const Surface& sf,
-                                                     const IPropagator* prop = 0) const override final;
+                                                     const IPropagator* prop = nullptr) const override final;
 
       /** INavigator method to resolve navigation at boundary */
       virtual bool atVolumeBoundary( const Trk::TrackParameters* parms, 

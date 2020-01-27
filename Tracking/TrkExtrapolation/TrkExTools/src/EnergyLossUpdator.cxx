@@ -120,7 +120,7 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties &mat,
                                    bool usePDGformula) const {
   if (particle == Trk::undefined) {
     ATH_MSG_WARNING("undefined ParticleHypothesis, energy loss calculation cancelled");
-    return 0;
+    return nullptr;
   }
 
   if (usePDGformula) {

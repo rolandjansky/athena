@@ -214,7 +214,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
   double energyLoss = 0;
   double energyLossSigma = 0;
 
-  if (meff.energyLoss() != NULL) {
+  if (meff.energyLoss() != nullptr) {
     energyLoss = meff.energyLoss()->deltaE();
     energyLossSigma = meff.energyLoss()->sigmaDeltaE();
   }
@@ -241,10 +241,10 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
   if (p > m_momentumCut && p < m_momentumMax && m_doEloss) {
     double newP2 = (E + energyLoss) * (E + energyLoss) - m * m;
     if (newP2 < m_momentumCut * m_momentumCut) {
-      return 0; // protect FPE
+      return nullptr; // protect FPE
     }
     if (E + energyLoss < -m) {
-      return 0; // protect against flip in correction
+      return nullptr; // protect against flip in correction
     }
     newP = sqrt(newP2);
     sigmaQoverP = energyLossSigma / (beta * p * p);
@@ -257,18 +257,18 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
   // the updatedParameters - first a copy
   const Trk::TrackParameters *mpars = parm;
   AmgVector(5) updatedParameters(mpars->parameters());
-  AmgSymMatrix(5) * updatedCovariance = 0;
+  AmgSymMatrix(5) * updatedCovariance = nullptr;
   // initialize ErrorMatrix pointer
   if (m_validationMode && !m_validationIgnoreUnmeasured) {
     // the new CovarianceMatrix - a copy first
-    updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : 0;
+    updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : nullptr;
     double angularVariation = 0;
     double sigmaDeltaPhiSq = 0;
     double sigmaDeltaThetaSq = 0;
 
     if (m_doMs) {
       // If the meff has scattering angles use those, otherwise use MEffUpdator
-      if (meff.scatteringAngles() == NULL) {
+      if (meff.scatteringAngles() == nullptr) {
         // Trick to keep using existing MultipleScatteringUpdator interface
         // Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
         // and create a dummy materialProperties with the properties we are interested in
@@ -314,7 +314,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
       if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)) {
         // the covariance is invalid
         delete updatedCovariance;
-        return 0;
+        return nullptr;
       }
 
       // create the ErrorMatrix
@@ -351,7 +351,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
         cache.validationPhi += parm->position().phi();
         cache.validationEta += parm->position().eta();
         // reset the validation layer
-        cache.validationLayer = 0;
+        cache.validationLayer = nullptr;
       }
     }
     // ----------------------------------------- validation section ----------------------------------
@@ -382,7 +382,7 @@ Trk::MaterialEffectsUpdator::preUpdateImpl(Cache& cache,const TrackParameters *p
   }
 
   // get the material properties
-  const Trk::MaterialProperties *mprop = 0;
+  const Trk::MaterialProperties *mprop = nullptr;
 
   // set the output if restricted to the validation direction
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
@@ -429,7 +429,7 @@ Trk::MaterialEffectsUpdator::postUpdateImpl(Cache& cache,const TrackParameters &
   }
 
   // get the quantities
-  const Trk::MaterialProperties *mprop = 0;
+  const Trk::MaterialProperties *mprop = nullptr;
   double postFactor = lay.postUpdateMaterialFactor(parm, dir);
 
   // no material properties - pass them back
@@ -499,7 +499,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
     EnergyLoss *energyLoss = (m_doEloss) ?
       m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle,
                                  m_useMostProbableEloss) :
-      0;
+      nullptr;
     // update for mean energy loss
     double deltaE = energyLoss ? energyLoss->deltaE() : 0;
     double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
@@ -520,10 +520,10 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
 
     double newP2 = (E + deltaE) * (E + deltaE) - m * m;
     if (E + deltaE < -m) {
-      return 0; // protect against flip in correction
+      return nullptr; // protect against flip in correction
     }
     if (newP2 < m_momentumCut * m_momentumCut) {
-      return 0; // protect against FPE
+      return nullptr; // protect against FPE
     }
     double deltaP = sqrt(newP2) - p;
     double sigmaQoverP = sigmaDeltaE / std::pow(beta * p, 2);
@@ -536,11 +536,11 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
     AmgVector(5) updatedParameters(mpars->parameters());
     // initialize ErrorMatrix pointer
     // Trk::ErrorMatrix* updatedError      = 0;
-    AmgSymMatrix(5) * updatedCovariance = 0;
+    AmgSymMatrix(5) * updatedCovariance = nullptr;
     if (mpars || (m_validationMode && !m_validationIgnoreUnmeasured)) {
       // the new CovarianceMatrix - a copy first
       if (mpars) {
-        updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : 0;
+        updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : nullptr;
       }
       // only update if msUpdator exists
       double angularVariation =
@@ -578,7 +578,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
         if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)) {
           // the covariance is invalid
           delete updatedCovariance;
-          return 0;
+          return nullptr;
         }
 
         // create the ErrorMatrix
@@ -633,7 +633,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters *parm
           cache.validationPhi += parm->position().phi();
           cache.validationEta += parm->position().eta();
           // reset the cache.tion layer
-          cache.validationLayer = 0;
+          cache.validationLayer = nullptr;
         }
       }
       // ----------------------------------------- validation section ----------------------------------
@@ -679,7 +679,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters &parm
     EnergyLoss *energyLoss = (m_doEloss) ?
       m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle,
                                  m_useMostProbableEloss) :
-      0;
+      nullptr;
     // update for mean energy loss
     double deltaE = energyLoss ? energyLoss->deltaE() : 0;
     double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
@@ -700,10 +700,10 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters &parm
 
     double newP2 = (E + deltaE) * (E + deltaE) - m * m;
     if (E + deltaE < -m) {
-      return 0; // protect against flip in correction
+      return nullptr; // protect against flip in correction
     }
     if (newP2 < m_momentumCut * m_momentumCut) {
-      return 0; // protect against FPE
+      return nullptr; // protect against FPE
     }
     double deltaP = sqrt(newP2) - p;
     double sigmaQoverP = sigmaDeltaE / std::pow(beta * p, 2);
@@ -711,7 +711,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters &parm
     updatedParameters[Trk::qOverP] = parm.charge() / (p + deltaP);
 
     // check if Parameters are measured parameters
-    AmgSymMatrix(5) * updatedCovariance = 0;
+    AmgSymMatrix(5) * updatedCovariance = nullptr;
     if (parm.covariance() || (m_validationMode && !m_validationIgnoreUnmeasured)) {
       // the new CovarianceMatrix - a copy first
       updatedCovariance = new AmgSymMatrix(5)(*parm.covariance());
@@ -747,7 +747,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters &parm
       if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)) {
         // the covariance is invalid
         delete updatedCovariance;
-        return 0;
+        return nullptr;
       }
 
       // create the ErrorMatrix         // -------------------------------------- screen output
@@ -800,7 +800,7 @@ Trk::MaterialEffectsUpdator::updateImpl(Cache& cache,const TrackParameters &parm
           cache.validationPhi += parm.position().phi();
           cache.validationEta += parm.position().eta();
           // reset the validation layer
-          cache.validationLayer = 0;
+          cache.validationLayer = nullptr;
         }
       }
       // ------------------------------------------validation section ----------------------------------
@@ -822,7 +822,6 @@ Trk::MaterialEffectsUpdator::validationActionImpl(Cache& cache) const {
 void
 Trk::MaterialEffectsUpdator::modelActionImpl(Cache& cache, const Trk::TrackParameters * /*parm*/) const {
   cache.accumulatedElossSigma = 0;
-  return;
 }
 
 bool

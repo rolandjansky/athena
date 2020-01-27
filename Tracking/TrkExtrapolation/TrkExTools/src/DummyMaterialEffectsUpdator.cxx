@@ -171,7 +171,7 @@ Trk::DummyMaterialEffectsUpdator::postUpdate(const TrackParameters &parm,
     double postFactor = lay.postUpdateMaterialFactor(parm, dir);
 
     if (postFactor < 0.1) {
-      return 0;
+      return nullptr;
     }
 
     // the correction Factor to the layer

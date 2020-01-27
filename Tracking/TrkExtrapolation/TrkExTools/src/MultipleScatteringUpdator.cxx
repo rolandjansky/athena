@@ -48,7 +48,7 @@ Trk::MultipleScatteringUpdator::MultipleScatteringUpdator(const std::string &t, 
   m_gaussianMixture(false),
   m_optGaussianMixtureG4(true),
   m_rndGenSvc("AtRndmGenSvc", n),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("TrkExRnd") {
   declareInterface<IMultipleScatteringUpdator>(this);
   // multiple scattering parameters
@@ -80,7 +80,7 @@ Trk::MultipleScatteringUpdator::initialize() {
     }
 
     // Get own engine with own seeds:
-    m_randomEngine = m_gaussianMixture ? m_rndGenSvc->GetEngine(m_randomEngineName) : 0;
+    m_randomEngine = m_gaussianMixture ? m_rndGenSvc->GetEngine(m_randomEngineName) : nullptr;
     if (!m_randomEngine) {
       ATH_MSG_WARNING(
         "Could not get random engine '" << m_randomEngineName << "' -> switching Gaussian mixture model off.");
