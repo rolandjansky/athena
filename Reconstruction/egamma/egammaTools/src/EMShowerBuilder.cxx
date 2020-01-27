@@ -136,7 +136,7 @@ StatusCode EMShowerBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) c
     // 
     ATH_MSG_DEBUG("Executing EMShowerBuilder::execute");
     // protection against bad pointers
-    if (eg==0) return StatusCode::SUCCESS;
+    if (eg==nullptr) return StatusCode::SUCCESS;
 
     // retrieve the cell containers
     SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
@@ -172,7 +172,7 @@ StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg,const CaloCellConta
     // 
     ATH_MSG_DEBUG("Executing CalcShowerShape");
     // protection against bad pointers
-    if (eg==0) {return StatusCode::SUCCESS;}
+    if (eg==nullptr) {return StatusCode::SUCCESS;}
     StatusCode sc = StatusCode::SUCCESS;
     // retrieve the cluster 
     const xAOD::CaloCluster* clus = eg->caloCluster(); 

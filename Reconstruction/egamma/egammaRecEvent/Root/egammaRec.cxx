@@ -28,7 +28,7 @@ egammaRec::caloCluster(size_t index) const
   return (*(m_caloClusters[index]));
 }
 
-const ElementLink<xAOD::CaloClusterContainer>
+ElementLink<xAOD::CaloClusterContainer>
 egammaRec::caloClusterElementLink(size_t index) const
 {
   if (index >= m_caloClusters.size() || !m_caloClusters[index].isValid()){
@@ -46,7 +46,7 @@ egammaRec::trackParticle(size_t index) const
   return (*(m_trackParticles[index]));
 }
 
-const ElementLink<xAOD::TrackParticleContainer>
+ElementLink<xAOD::TrackParticleContainer>
 egammaRec::trackParticleElementLink(size_t index) const
 {
   if (index >= m_trackParticles.size() || !m_trackParticles[index].isValid()){
@@ -64,7 +64,7 @@ egammaRec::vertex(size_t index) const
   return (*(m_vertices[index]));
 }
 
-const ElementLink<xAOD::VertexContainer>
+ElementLink<xAOD::VertexContainer>
 egammaRec::vertexElementLink(size_t index) const{
   if (index >= m_vertices.size() || !m_vertices[index].isValid()){
     return ElementLink<xAOD::VertexContainer>();
@@ -73,13 +73,13 @@ egammaRec::vertexElementLink(size_t index) const{
 }
 
 void
-egammaRec::pushBackVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink)
+egammaRec::pushBackVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink)
 {
   m_vertices.push_back(vertexElementLink);
 }
 
 void
-egammaRec::pushFrontVertex(const ElementLink<xAOD::VertexContainer> vertexElementLink)
+egammaRec::pushFrontVertex(const ElementLink<xAOD::VertexContainer>& vertexElementLink)
 {
   m_vertices.insert(m_vertices.begin(), vertexElementLink);
 }

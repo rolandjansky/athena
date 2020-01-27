@@ -61,7 +61,7 @@ and eventually conversions.
 egammaBuilder::egammaBuilder(const std::string& name, 
         ISvcLocator* pSvcLocator): 
     AthAlgorithm(name, pSvcLocator),
-    m_timingProfile(0)
+    m_timingProfile(nullptr)
 {
 }
 
@@ -328,12 +328,12 @@ StatusCode egammaBuilder::execute(){
 
     for (auto& tool : m_electronTools)
     {
-        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), nullptr) );
     }
 
     for (auto& tool : m_photonTools)
     {
-        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, nullptr, photonContainer.ptr()) );
     }
     ATH_MSG_DEBUG("execute completed successfully");
 

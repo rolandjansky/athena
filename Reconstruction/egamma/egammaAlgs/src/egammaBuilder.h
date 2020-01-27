@@ -129,8 +129,8 @@ class egammaBuilder : public AthAlgorithm
   /** @brief Call a tool using contExecute and electrons, photon containers if given **/
   StatusCode CallTool(const EventContext& ctx,
                       ToolHandle<IegammaBaseTool>& tool, 
-                      xAOD::ElectronContainer *electronContainer = 0, 
-                      xAOD::PhotonContainer *photonContainer = 0);
+                      xAOD::ElectronContainer *electronContainer = nullptr, 
+                      xAOD::PhotonContainer *photonContainer = nullptr);
  
   /** @brief retrieve EMTrackMatchBuilder **/
   StatusCode RetrieveEMTrackMatchBuilder();
