@@ -273,7 +273,7 @@ class METConfig:
         if not hasattr(ToolSvc,self.trkseltool.name()):
             ToolSvc += self.trkseltool
         #
-        self.trkvxtool=CfgMgr.CP__LooseTrackVertexAssociationTool("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
+        self.trkvxtool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
         if not hasattr(ToolSvc,self.trkvxtool.name()):
             ToolSvc += self.trkvxtool
         #
