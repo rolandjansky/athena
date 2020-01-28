@@ -216,7 +216,7 @@ def expandPrereqs(reqtype,prereqs):
 def configureContainerName(modifiers, containerName):
     for mod in modifiers:
         if "JetContainer" in mod.properties():
-            mod.JetContainer = output
+            mod.JetContainer = containerName
 
 
 ########################################################################
