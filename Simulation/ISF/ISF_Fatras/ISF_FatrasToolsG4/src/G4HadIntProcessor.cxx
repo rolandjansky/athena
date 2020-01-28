@@ -324,7 +324,6 @@ bool iFatras::G4HadIntProcessor::hadronicInteraction(const Amg::Vector3D& positi
 
 bool iFatras::G4HadIntProcessor::initG4RunManager() const {
 
-  std::cout << "************** VRP ************** initG4RunManager()!" << std::endl;
   // Get the G4RunManagerHelper ( no initialization of G4RunManager done )
   if (m_g4RunManagerHelper.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Could not retrieve " << m_g4RunManagerHelper );
@@ -345,7 +344,6 @@ bool iFatras::G4HadIntProcessor::initG4RunManager() const {
   initProcessPDG(-321);
 
   // set up locally stored Geant4 instances
-  std::cout << "************** VRP ************** init m_g4step!" << std::endl;
   m_g4zeroPos.reset(new G4ThreeVector(0, 0, 0));
   m_g4step.reset(new G4Step());
   m_g4stepPoint.reset(new G4StepPoint());
