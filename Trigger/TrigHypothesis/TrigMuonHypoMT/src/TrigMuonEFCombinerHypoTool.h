@@ -9,6 +9,10 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "xAODMuon/MuonContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+
+// include Muon SelectionTool for quality criteria 
+#include "MuonSelectorTools/IMuonSelectionTool.h" 
+
 class StoreGateSvc;
 class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
   enum { MaxNumberTools = 20 };  
@@ -16,6 +20,9 @@ class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
   TrigMuonEFCombinerHypoTool(const std::string& type, const std::string & name, const IInterface* parent);
   ~TrigMuonEFCombinerHypoTool();
  
+/// Muon selection tool
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelTool; 
+   
   struct MuonEFInfo {
   MuonEFInfo( TrigCompositeUtils::Decision* d, 
               const TrigRoiDescriptor* r, 
@@ -36,12 +43,15 @@ class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
   virtual StatusCode initialize() override;    
   StatusCode decide(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const ;
  private:
+  bool passedQualityCuts(const xAOD::Muon* muon) const;
   bool decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const;
   StatusCode inclusiveSelection(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const;
   StatusCode multiplicitySelection(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const;
 
   HLT::Identifier m_decisionId;
   // Properties:
+  Gaudi::Property< bool > m_muonqualityCut {
+    this, "MuonQualityCut", false, "Ignore selection" };
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
     this, "PtBins", { {0, 2.5} }, "Bins range of each pT threshold" };
   Gaudi::Property< std::vector<std::vector<double>> > m_ptThresholds {

@@ -28,6 +28,11 @@ from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
 # other imports
 from AthenaCommon.SystemOfUnits import GeV
 
+from AthenaCommon.AppMgr import ToolSvc
+
+from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+ToolSvc += CP__MuonSelectionTool("MuonSelectorTool")
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMuonHypoMTConfig')
 
@@ -386,6 +391,7 @@ def TrigmuCombHypoToolFromDict( chainDict ):
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
+
     config = TrigmuCombHypoConfig()
     
     tight = False # can be probably decoded from some of the proprties of the chain, expert work
@@ -430,7 +436,6 @@ class TrigmuCombHypoConfig(object):
                         tool.MaxChi2IDPik         = 3.5
                 except LookupError:
                     raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % thvaluename)
-        
 
         return tool 
 
@@ -547,8 +552,14 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
+
+    if 'muonqual' in chainDict['chainParts'][0]['chainPartName']:
+       muonquality = True
+    else:
+       muonquality = False
+
     config = TrigMuonEFCombinerHypoConfig()
-    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality)
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
 
@@ -569,8 +580,14 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
             if 'noL1' in part:
                 thr =thr.replace('noL1','')
             thresholds.append(thr)
+    if 'muonqual' in chainName:
+       muonquality = True
+    else:
+       muonquality = False
+    
     config = TrigMuonEFCombinerHypoConfig()
-    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
+
+    tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality)
     addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
     
@@ -578,14 +595,21 @@ class TrigMuonEFCombinerHypoConfig(object):
         
     log = logging.getLogger('TrigMuonEFCombinerHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality ):
 
-        tool = TrigMuonEFCombinerHypoTool( thresholdHLT )  
+        tool = TrigMuonEFCombinerHypoTool( thresholdHLT)  
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
+
+ 
+        if(muonquality is True):
+           tool.MuonQualityCut = True
+        #else:
+        #   AthenaCommon.Logging("tool.LooseCut ")
+
 
  
         for th, thvalue in enumerate(thresholds):

@@ -8,6 +8,7 @@
 class ISvcLocator;
 TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),
+  m_muonSelTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_decisionId(HLT::Identifier::fromToolName(name)){
 }
 TrigMuonEFCombinerHypoTool::~TrigMuonEFCombinerHypoTool(){
@@ -85,6 +86,8 @@ bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool
         selEta.push_back(tr->eta());
         selPhi.push_back(tr->phi());
         result = true;
+        // If trigger path name includes "muonqual", check whether the muon passes those criteria   
+        if(m_muonqualityCut == true) result = passedQualityCuts(muon);
       }
       ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
       	      << " with Charge " << tr->charge()
@@ -93,6 +96,28 @@ bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool
     }
   }
   return result;	
+}
+
+bool TrigMuonEFCombinerHypoTool::passedQualityCuts(const xAOD::Muon* muon) const {
+    bool passCut = false;
+    const xAOD::TrackParticle* idtrack = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
+    const xAOD::TrackParticle* metrack = muon->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
+    float mePt = -999999., idPt = -999999.;
+
+    float reducedChi2 = -10, qOverPsignif = -10;
+
+    if(idtrack && metrack) {
+        mePt = metrack->pt();
+        idPt = idtrack->pt();
+        float meP  = 1.0 / ( sin(metrack->theta()) / mePt); 
+        float idP  = 1.0 / ( sin(idtrack->theta()) / idPt); 
+        qOverPsignif  = fabs( (metrack->charge() / meP) - (idtrack->charge() / idP) ) / sqrt( idtrack->definingParametersCovMatrix()(4,4) + metrack->definingParametersCovMatrix()(4,4) ); 
+        reducedChi2 = muon->primaryTrackParticle()->chiSquared()/muon->primaryTrackParticle()->numberDoF(); 
+        // Selection criteria based on the requirements that are part of the muon quality working points (offline)
+        if(fabs(reducedChi2) < 8.0 && !m_muonSelTool->isBadMuon(*muon) && fabs(qOverPsignif)<7.0 && muon->author()==xAOD::Muon::MuidCo) passCut = true;
+   }
+        
+   return passCut;
 }
   
 StatusCode TrigMuonEFCombinerHypoTool::decide(std::vector<MuonEFInfo>& toolInput) const {
