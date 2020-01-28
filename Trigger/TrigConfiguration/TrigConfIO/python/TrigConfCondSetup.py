@@ -18,7 +18,8 @@ def setupMenuProvider():
         xmlFile = TriggerFlags.outputLVL1configFile()
 
     # this is a temporary measure until we have L1 menu json files being written out directly
-    l1JsonFile = transformXML2Json(xmlFile)
+    #l1JsonFile = transformXML2Json(xmlFile)
+    l1JsonFile = xmlFile.replace(".xml",".json")
 
 
     l1InputType = "file"

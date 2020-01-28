@@ -13,6 +13,7 @@ class BoardType(Enum):
     MUCTPI = 2
     TOPO = 3
     MERGER = 4
+    CTPIN = 5
     def __repr__(self):
         return self.name
     def __str__(self):
@@ -33,10 +34,12 @@ class MenuBoardsCollection(object):
             btype = BoardType.MERGER
         elif 'topo' in name.lower():            
             btype = BoardType.TOPO
+        elif 'ctpin' in name.lower():            
+            btype = BoardType.CTPIN
         else:
             btype = BoardType.NONE
 
-        isLegacy = 'legacy' in name.lower()
+        isLegacy = 'legacy' in boardDef
 
         self.boards[name] = Board(name, btype, isLegacy)
 
@@ -46,7 +49,8 @@ class MenuBoardsCollection(object):
         return self.boards[name]
 
     def json(self):
-        boardOrder = ["MuCTPi", "Topo1", "Topo2", "Topo3", "LegacyTopo0", "LegacyTopo1", "LegacyTopoMerger", "AlfaCtpin"]
+        boardOrder = ["MuCTPi", "Topo1", "Topo2", "Topo3", "Ctpin", "Ctpin7", "Ctpin8", "Ctpin9", 
+                      "LegacyTopo0", "LegacyTopo1", "LegacyTopoMerger", "AlfaCtpin"]
         from collections import OrderedDict as odict
         confObj = odict()
         for boardName in boardOrder:
@@ -59,18 +63,20 @@ class Board(object):
     def __init__(self, name, btype, isLegacy = False):
         self.name = name
         self.btype = btype
-        self.isLegacy = False
+        self.isLegacy = isLegacy
         self.outputConnectors = []
         self.inputConnectors = []
 
     def addOutputConnectorNames(self, connName ):
-        self.outputConnectors += [ connName ]
+        self.outputConnectors += connName
 
     def json(self):
         confObj = odict()
         confObj["type"] = str(self.btype)
-        confObj["legacy"] = self.isLegacy
+        if self.isLegacy:
+            confObj["legacy"] = self.isLegacy
         confObj["connectors"] = self.outputConnectors
+        # inputConnectors only exist for merger boards
         if confObj["type"] == BoardType.MERGER:
             confObj["inputConnectors"] = self.inputConnectors
         return confObj
