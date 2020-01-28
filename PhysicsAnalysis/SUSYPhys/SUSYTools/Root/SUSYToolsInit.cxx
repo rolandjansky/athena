@@ -1778,7 +1778,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     // propagate the calo muon setting for EleMuORT
     ATH_CHECK(m_orToolbox.eleMuORT.setProperty("RemoveCaloMuons", m_orRemoveCaloMuons) );
-
+    
+    // Use electron-muon DR matching to remove electrons within DR <  0.01 of Muons.
+    if (m_orDoElMu){
+      ATH_CHECK(m_orToolbox.eleMuORT.setProperty("UseDRMatching", m_orDoElMu) );
+    }
+    
     // propagate the fatjets OR settings
     if(m_orDoFatjets){
       if(m_EleFatJetDR>0) ATH_CHECK(m_orToolbox.eleFatJetORT.setProperty("DR", m_EleFatJetDR));
