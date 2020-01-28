@@ -9,17 +9,7 @@ include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to ge
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetSetup")
 
-# this is copy paste from Trigger/TrigValidation/TrigUpgradeTest/python/InDetConfig.py
-# once the cunction below is moved to the destination pkg, will eliminate this duplication
-class InDetCacheNames(object):
-  Pixel_ClusterKey   = "PixelTrigClustersCache"
-  SCT_ClusterKey     = "SCT_ClustersCache"
-  SpacePointCachePix = "PixelSpacePointCache"
-  SpacePointCacheSCT = "SctSpacePointCache"
-  SCTRDOCacheKey     = "SctRDOCache"
-  SCTBSErrCacheKey   = "SctBSErrCache"
-  PixRDOCacheKey     = "PixRDOCache"
-
+from .InDetSetup import InDetCacheNames
 
 def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
   #If signature specified add suffix to the algorithms
