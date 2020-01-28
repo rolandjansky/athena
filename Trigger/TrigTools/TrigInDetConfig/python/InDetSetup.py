@@ -4,10 +4,20 @@
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
-include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetSetup")
+
+if not 'InDetTrigFlags' in dir():
+   # --- setup flags with default values
+   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+   InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
+   InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
+   InDetTrigFlags.doiPatRec = False
+   InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
+   InDetTrigFlags.doPixelClusterSplitting = False
+   InDetTrigFlags.doPrintConfigurables = False
+
 
 from TrigInDetConfig.InDetConfig import InDetCacheNames
 
