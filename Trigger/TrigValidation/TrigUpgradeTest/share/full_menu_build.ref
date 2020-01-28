@@ -18,6 +18,8 @@ TrigSignatureMoniMT                                 INFO HLT_2mu10_bUpsimumu_L12
 TrigSignatureMoniMT                                 INFO HLT_2mu10_bUpsimumu_L12MU10 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_2mu14_L12MU10             20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_2mu14_L12MU10 decisions                       0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu15_L12MU10             20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_2mu15_L12MU10 decisions                       0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_2mu4_bJpsimumu_L12MU4     20        20        1         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_2mu4_bJpsimumu_L12MU4 decisions                    4         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_2mu4_bUpsimumu_L12MU4     20        20        1         0         0         0         0         0         
@@ -36,6 +38,8 @@ TrigSignatureMoniMT                                 INFO HLT_3mu6_L13MU6        
 TrigSignatureMoniMT                                 INFO HLT_3mu6_L13MU6 decisions                         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_3mu6_msonly_L13MU6        20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_3mu6_msonly_L13MU6 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_3mu8_msonly_L13MU6        20        20        0         0         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_3mu8_msonly_L13MU6 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_4mu4_L14MU4               20        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_4mu4_L14MU4 decisions                         0         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_5j70_0eta240_L14J20       20        20        0         0         0         0         0         0         
@@ -148,6 +152,10 @@ TrigSignatureMoniMT                                 INFO HLT_mu24_idperf_L1MU20 
 TrigSignatureMoniMT                                 INFO HLT_mu24_idperf_L1MU20 decisions                    1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu26_ivarmedium_L1MU20    20        20        1         1         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu26_ivarmedium_L1MU20 decisions                    1         1         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu28_ivarmedium_L1MU20    20        20        1         1         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu28_ivarmedium_L1MU20 decisions                    1         1         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu35_ivarmedium_L1MU20    20        20        1         1         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_mu35_ivarmedium_L1MU20 decisions                    1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu50_L1MU20               20        20        1         1         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu50_L1MU20 decisions                         1         1         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_mu50_RPCPEBSecondaryReadout_L1MU2020        20        1         1         0         0         0         0         
