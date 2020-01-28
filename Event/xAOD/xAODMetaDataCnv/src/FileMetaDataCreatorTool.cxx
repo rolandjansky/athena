@@ -251,7 +251,7 @@ namespace xAODMaker {
          }
 
          if (simInfo->exists("IsEventOverlayInputSim")) {
-           bool isDataOverlay = (*simInfo)[ "IsEventOverlayInputSim" ].data< bool >();
+           bool isDataOverlay = (*simInfo)[ "IsEventOverlayInputSim" ].data< std::string >()=="True";
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::isDataOverlay,
                        isDataOverlay ) );
          }
