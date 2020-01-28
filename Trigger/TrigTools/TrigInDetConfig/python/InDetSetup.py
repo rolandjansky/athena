@@ -9,7 +9,7 @@ include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to ge
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetSetup")
 
-from .InDetSetup import InDetCacheNames
+from TrigInDetConfig.InDetConfig import InDetCacheNames
 
 def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
   #If signature specified add suffix to the algorithms
