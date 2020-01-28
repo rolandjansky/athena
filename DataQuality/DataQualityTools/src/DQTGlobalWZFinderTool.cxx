@@ -86,7 +86,7 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
      m_Z_ee_trigger{"CATEGORY_primary_single_ele_iso", "CATEGORY_primary_single_ele"},
      m_elTrigMatchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool", this),
      m_truthClassifier("MCTruthClassifier/IMCTruthClassifier", this),
-     m_bcTool("Trig::TrigConfBunchCrossingTool/TrigBunchCrossingTool", this)
+     m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool", this)
 
 //----------------------------------------------------------------------------------
 
