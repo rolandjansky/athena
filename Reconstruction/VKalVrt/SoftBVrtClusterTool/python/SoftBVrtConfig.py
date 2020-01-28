@@ -23,9 +23,9 @@ def addSoftBVrt(sequencer=None,WP='Loose',postfix=''):
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
     if DerivationFrameworkIsMonteCarlo:
         from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
-        if not 'SoftVtxBHadMCTruthCommonHFAndDecaysKernel' in sequencer:
+        if not hasattr(sequencer,'SoftVtxBHadMCTruthCommonHFAndDecaysKernel'):
             addHFAndDownstreamParticles(kernel=sequencer, addB=True, addC=False, generations=0, prefix='SoftVtxBHad')
-        if not 'SoftVtxCHadMCTruthCommonHFAndDecaysKernel' in sequencer:
+        if not hasattr(sequencer,'SoftVtxCHadMCTruthCommonHFAndDecaysKernel'):
             addHFAndDownstreamParticles(kernel=sequencer, addB=False, addC=True, generations=0, prefix='SoftVtxCHad')
 
     # configure the tool to match the truth 

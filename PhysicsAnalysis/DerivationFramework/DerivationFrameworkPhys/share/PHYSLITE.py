@@ -239,10 +239,10 @@ reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYSLITE"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
-   reducedJetList.append("AntiKt4TruthWZJets")
-   reducedJetList.append("AntiKt4TruthJets")  
+
 replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
-addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=DerivationFrameworkIsMonteCarlo)
+add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
+addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
 
 # q/g discrimination
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")

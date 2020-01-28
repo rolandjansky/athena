@@ -54,12 +54,12 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
     from JetRec.JetRecStandard import jtm
     from JetRec.JetRecConf import JetAlgorithm
     truth_modifiers = [jtm.truthpartondr, jtm.partontruthlabel, jtm.jetdrlabeler, jtm.trackjetdrlabeler]
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthJets"):
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthJets") and not hasattr(kernel,'jetalgAntiKt4Truth'):
         # Standard truth jets
         # To remove jet constituents add the modifier jtm.removeconstit
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "Truth", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets") and not hasattr(kernel,'jetalgAntiKt4TruthWZ'):
         # WZ Truth Jets - handle non-dressed case
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
@@ -73,7 +73,7 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.2, "TruthCharged", 5000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
 
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets"):
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets") and not hasattr(kernel,'jetalgAntiKt10Truth'):
         # AntiKt2 truth charged jets ghost association
         from JetRec.JetRecConf import PseudoJetGetter
         if not 'gakt2truthchargedget' in jtm.tools:
@@ -101,7 +101,7 @@ def addTruthJetsEVNT(kernel=None, decorationDressing=None):
             from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
             addStandardJets('AntiKt', 1.0, 'Truth', ptmin=50000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
 
-    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthTrimmedPtFrac5SmallR20Jets") and not hasattr(kernel,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20'):
         #Large R jets
         from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
