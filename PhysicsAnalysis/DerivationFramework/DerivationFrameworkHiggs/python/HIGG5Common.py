@@ -123,10 +123,10 @@ def getHIGG5CommonTruthDictionExtionson() :
 
 def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
   common_dict = {
-      "AntiKtVR30Rmax4Rmin02TrackJets"                                    : "xAOD::JetContainer"        ,
-      "AntiKtVR30Rmax4Rmin02TrackJetsAux"                                 : "xAOD::JetAuxContainer"     ,
-      "BTagging_AntiKtVR30Rmax4Rmin02Track"                               : "xAOD::BTaggingContainer"   ,
-      "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"                            : "xAOD::BTaggingAuxContainer",
+      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"                     : "xAOD::JetContainer"        ,
+      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"                  : "xAOD::JetAuxContainer"     ,
+      "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"                        : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"                     : "xAOD::BTaggingAuxContainer",
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 : "xAOD::JetContainer"        ,
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              : "xAOD::JetAuxContainer"     ,
       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            : "xAOD::BTaggingContainer"   ,
