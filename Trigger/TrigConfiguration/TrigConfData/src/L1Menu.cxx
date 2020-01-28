@@ -6,100 +6,116 @@
 using namespace std;
 
 #include <iterator>
-
+#include <utility>
 TrigConf::L1Menu::L1Menu()
 {}
 
 TrigConf::L1Menu::L1Menu(const boost::property_tree::ptree & data) 
    : DataStructure(data)
-{}
+{
+   update();
+}
 
 TrigConf::L1Menu::~L1Menu()
 {}
 
+void
+TrigConf::L1Menu::update()
+{
+   m_name = getAttribute("name");
+
+   // thresholds
+   for( const std::string & path : {"thresholds", "thresholds.legacyCalo" } ) {
+      for( auto & thrByType : data().get_child( path ) ) {
+         const std::string & thrType = thrByType.first;
+         if (thrType == "legacyCalo")
+            continue;
+         auto & v = m_thresholdsByType[thrType] = std::vector<TrigConf::L1Threshold>();
+         if(thrType == "internal") {
+            const auto & thresholds = data().get_child( path + ".internal.names");
+            for( auto & thr : thresholds ) {
+               v.emplace_back( thr.second.data(), thrType, thr.second );
+               m_thresholdsByName[ thr.first ] = & v.back();
+            }
+         } else {
+            const auto & thresholds = data().get_child( path + "." + thrType + ".thresholds");
+            for( auto & thr : thresholds ) {
+               v.emplace_back( thr.first, thrType, thr.second );
+               m_thresholdsByName[ thr.first ] = & v.back();
+            }
+         }
+      }
+   }
+
+   // connectors
+   for( auto & conn : data().get_child( "connectors" ) ) {
+      m_connectors.emplace( std::piecewise_construct,
+                            std::forward_as_tuple(conn.first),
+                            std::forward_as_tuple(conn.first, conn.second) );
+   }
+
+}
+
+
 std::string
 TrigConf::L1Menu::name() const
 {
-   return m_data.get_child("name").data();
+   return m_name;
 }
 
 unsigned int 
 TrigConf::L1Menu::version() const
 {
-   return m_data.get_child("version").get_value<unsigned int>();
+   return getAttribute<unsigned int>("version");
 }
 
 unsigned int 
 TrigConf::L1Menu::ctpVersion() const
 {
-   return m_data.get_child("ctpVersion").get_value<unsigned int>();
+   return getAttribute<unsigned int>("ctpVersion");
 }
 
 std::size_t 
 TrigConf::L1Menu::size() const
 {
-   return m_data.get_child("items").size();
+   return data().get_child("items").size();
+}
+
+TrigConf::L1Item
+TrigConf::L1Menu::item(const std::string & itemName) const
+{
+   return L1Item(data().get_child(ptree::path_type("items/"+itemName,'/'))); // '/' is not used in any item Name 
 }
 
 TrigConf::L1Menu::const_iterator
 TrigConf::L1Menu::begin() const
 {
-   return {m_data.get_child("items"), 0,  [](auto x){return L1Item(x.second);}};
+   return {data().get_child("items"), 0,  [](auto & x){return L1Item(x.second);}};
 }
+
 
 TrigConf::L1Menu::const_iterator
 TrigConf::L1Menu::end() const
 {
-   const auto & items = m_data.get_child("items");
-   return {items, items.size(), [](auto x){return L1Item(x.second);}};
+   const auto & items = data().get_child("items");
+   return {items, items.size(), [](auto & x){return L1Item(x.second);}};
+}
+
+
+const std::vector<TrigConf::L1Threshold> &
+TrigConf::L1Menu::thresholds(const std::string & typeName) const
+{
+   return m_thresholdsByType.at(typeName);
 }
 
 
 std::vector<TrigConf::L1Threshold> 
-TrigConf::L1Menu::thresholds(const std::string & type) const
+TrigConf::L1Menu::thresholds() const
 {
-
    std::vector<TrigConf::L1Threshold> thrlist;
-
-   if(type == "ALL") {
-      auto allTypes = thresholdTypes();
-      for ( const std::string & type : allTypes ) {
-         const auto & thrOfType = thresholds(type);
-         std::move(thrOfType.begin(), thrOfType.end(), std::back_inserter(thrlist));
-      }
-
-   } else if ( type == "internal" ) {
-
-      std::string path = "thresholds.internal.names";
-      
-      const auto & thresholds = m_data.get_child(path);
-      thrlist.reserve(thresholds.size());
-
-      for( auto & thr : thresholds ) {
-         thrlist.emplace_back( thr.second.data(), thr.second );
-      }
-      
-   } else {
-
-      std::string path = "thresholds.";
-
-      if( hasChild(path+type) ) {
-         path += type;
-      } else if ( hasChild(path + "legacyCalo." + type) ){
-         path += std::string("legacyCalo.") + type;
-      } else {
-         cerr << "unknown threshold type " << type << endl;
-         return thrlist;
-      }
-      path += ".thresholds";
-
-      const auto & thresholds = m_data.get_child(path);
-      thrlist.reserve(thresholds.size());
-
-      for( auto & thr : thresholds ) {
-         thrlist.emplace_back( thr.first, thr.second );
-      }
-
+   for ( const std::string & type : thresholdTypes() ) {
+      const auto & thrOfType = thresholds(type);
+      std::copy(thrOfType.begin(), thrOfType.end(), std::back_inserter(thrlist));
    }
    return thrlist;
 }
@@ -108,44 +124,65 @@ TrigConf::L1Menu::thresholds(const std::string & type) const
 std::vector<std::string> 
 TrigConf::L1Menu::thresholdTypes() const
 {
-   std::vector<std::string> thrTypes;
-
-   const auto & thresholds = m_data.get_child("thresholds");
-   const auto & legacyThresholds = m_data.get_child("thresholds.legacyCalo");
-
-   for( auto & thr : thresholds ) {
-      if (thr.first == "legacyCalo")
-         continue;
-      thrTypes.push_back( thr.first );
+   std::vector<std::string> thrTypeNames;
+   thrTypeNames.reserve(m_thresholdsByType.size());
+   for( auto x : m_thresholdsByType ) {
+      thrTypeNames.emplace_back(x.first);
    }
-   for( auto & thr : legacyThresholds ) {
-      thrTypes.push_back( thr.first );
-   }
-   return thrTypes;
+   return thrTypeNames;
 }
 
 
+std::vector<std::string>
+TrigConf::L1Menu::connectorNames() const {
+   std::vector<std::string> connNames;
+   connNames.reserve(m_connectors.size());
+   for( auto & x : m_connectors ) {
+      connNames.emplace_back(x.first);
+   }
+   return connNames;
+}
 
+const TrigConf::L1Connector &
+TrigConf::L1Menu::connector(const std::string & connectorName) const {
+   try {
+      return m_connectors.at(connectorName);
+   }
+   catch(std::exception & ex) {
+      std::cerr << "No connector " << connectorName << " found in the L1 menu" << std::endl;
+      throw;
+   }
+}
 
 
 void
-TrigConf::L1Menu::printStats() const
+TrigConf::L1Menu::printMenu(bool full) const
 {
    cout << "L1 menu '" << name() << "'" << endl;
    cout << "Items: " << size() << endl;
    cout << "Thresholds: " << thresholds().size() << "(of " << thresholdTypes().size() << " different types)" << endl;
+   if(full) {
+      int c(0);
+      for(const std::string & thrType : thresholdTypes() ) {
+         cout << thrType << " :" << endl;
+         for(auto & thr : thresholds(thrType)) {
+            cout << "  " << c++ << ": " << thr.name() << "[" << thr.type() << "]" << endl;
+         }
+      }
+   }
    cout << "Topo algorithms: " << endl;
-   cout << "    new   : " << m_data.get_child("topoAlgorithms.TOPO.decisionAlgorithms").size() << endl;
-   cout << "    muon  : " << m_data.get_child("topoAlgorithms.MUTOPO.decisionAlgorithms").size() << endl;
-   cout << "    mult  : " << m_data.get_child("topoAlgorithms.MULT.multiplicityAlgorithms").size() << endl;
-   cout << "    legacy: " << m_data.get_child("topoAlgorithms.R2TOPO.decisionAlgorithms").size() << endl;
-   cout << "Boards: " << m_data.get_child("boards").size() << endl;
-   cout << "Connectors: " << m_data.get_child("connectors").size() << endl;
-   unsigned int ctpinputs = m_data.get_child("ctp.inputs.optical").size();
-   ctpinputs += m_data.get_child("ctp.inputs.electrical").size();
-   ctpinputs += m_data.get_child("ctp.inputs.ctpin.slot7").size();
-   ctpinputs += m_data.get_child("ctp.inputs.ctpin.slot8").size();
-   ctpinputs += m_data.get_child("ctp.inputs.ctpin.slot9").size();
+   cout << "    new   : " << data().get_child("topoAlgorithms.TOPO.decisionAlgorithms").size() << endl;
+   cout << "    muon  : " << data().get_child("topoAlgorithms.MUTOPO.decisionAlgorithms").size() << endl;
+   cout << "    mult  : " << data().get_child("topoAlgorithms.MULTTOPO.multiplicityAlgorithms").size() << endl;
+   cout << "    legacy: " << data().get_child("topoAlgorithms.R2TOPO.decisionAlgorithms").size() << endl;
+   cout << "Boards: " << data().get_child("boards").size() << endl;
+   cout << "Connectors: " << data().get_child("connectors").size() << endl;
+   unsigned int ctpinputs = data().get_child("ctp.inputs.optical").size();
+   ctpinputs += data().get_child("ctp.inputs.electrical").size();
+   ctpinputs += data().get_child("ctp.inputs.ctpin.slot7").size();
+   ctpinputs += data().get_child("ctp.inputs.ctpin.slot8").size();
+   ctpinputs += data().get_child("ctp.inputs.ctpin.slot9").size();
    cout << "CTP connections: " << ctpinputs << endl;
+   cout << "The L1Menu " << (ownsData() ? "owns" : "does not own") << " the ptree" << endl;
 }
 
