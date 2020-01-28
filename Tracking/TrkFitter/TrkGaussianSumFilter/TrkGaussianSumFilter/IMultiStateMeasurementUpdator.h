@@ -31,7 +31,7 @@ class IMultiStateMeasurementUpdator : virtual public IAlgTool
 
 public:
   /** IAlgTool and AlgTool interface method */
-  static const InterfaceID interfaceID() { return IID_IMultiStateMeasurementUpdator; };
+  static const InterfaceID& interfaceID() { return IID_IMultiStateMeasurementUpdator; };
 
   /** Virtual destructor */
   virtual ~IMultiStateMeasurementUpdator()= default;
