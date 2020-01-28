@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ class IApproachDescriptor;
        virtual void moveLayer ( Amg::Transform3D& shift ) override;
  
        /** move the Layer */
-       virtual void moveLayer ATLAS_NOT_CONST_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
+       virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
            const_cast<CylinderLayer*>(this)->moveLayer(shift);
        }
      
@@ -149,7 +149,7 @@ class IApproachDescriptor;
        virtual void resizeLayer(const VolumeBounds& vBounds, double envelope)  override; 
    
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
-       virtual void resizeLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds& vBounds,
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
                                                             double envelope) const override
        {
          const_cast<CylinderLayer*>(this)->resizeLayer(vBounds,envelope);
@@ -162,7 +162,7 @@ class IApproachDescriptor;
 
        /** Resize the layer to the tracking volume */
        virtual void resizeAndRepositionLayer
-       ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds& vBounds,
+       ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
                                    const Amg::Vector3D& cCenter,
                                    double envelope) const override
        {

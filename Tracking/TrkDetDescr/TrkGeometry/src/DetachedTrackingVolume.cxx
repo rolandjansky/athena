@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -55,17 +55,17 @@ Trk::DetachedTrackingVolume::~DetachedTrackingVolume()
   delete m_baseTransform;
 }
 
-void Trk::DetachedTrackingVolume::move( Amg::Transform3D& shift) const 
+void Trk::DetachedTrackingVolume::move ATLAS_NOT_THREAD_SAFE( Amg::Transform3D& shift) const 
 {
   m_trkVolume->moveTV( shift );
   if (m_layerRepresentation) m_layerRepresentation->moveLayer(shift);
   if (m_multilayerRepresentation) for (unsigned int i=0;i<m_multilayerRepresentation->size();i++) (*m_multilayerRepresentation)[i]->moveLayer(shift);
 }
 
-const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone( std::string name, Amg::Transform3D& shift) const
+const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone ATLAS_NOT_THREAD_SAFE( std::string name, Amg::Transform3D& shift) const
 {
-    const Trk::TrackingVolume* newTV = new TrackingVolume(*(this->trackingVolume()),shift );
-    const Trk::DetachedTrackingVolume* newStat = 0;
+    Trk::TrackingVolume* newTV = new TrackingVolume(*(this->trackingVolume()),shift );
+    Trk::DetachedTrackingVolume* newStat = nullptr;
     // layer representation ?
     const Trk::PlaneLayer* newLay=0;
     if (this->layerRepresentation()) {
@@ -128,7 +128,7 @@ const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone( std::stri
     return newStat;
 }
 
-void Trk::DetachedTrackingVolume::compactify(size_t& cSurfaces, size_t& tSurfaces) const
+void Trk::DetachedTrackingVolume::compactify ATLAS_NOT_THREAD_SAFE(size_t& cSurfaces, size_t& tSurfaces) const
 {
  
     // deal with the Tracking Volume representation
@@ -157,7 +157,7 @@ void Trk::DetachedTrackingVolume::compactify(size_t& cSurfaces, size_t& tSurface
 }
 
 
-void Trk::DetachedTrackingVolume::sign(GeometrySignature signat, GeometryType geotype) const 
+void Trk::DetachedTrackingVolume::sign ATLAS_NOT_THREAD_SAFE (GeometrySignature signat, GeometryType geotype) const 
 { m_trkVolume->sign(signat, geotype); }
 
 Trk::GeometrySignature Trk::DetachedTrackingVolume::geometrySignature() const 
@@ -175,7 +175,7 @@ void Trk::DetachedTrackingVolume::setBaseTransform( Amg::Transform3D* transf )
   }
 }
 
-void Trk::DetachedTrackingVolume::realign( Amg::Transform3D* transf ) const 
+void Trk::DetachedTrackingVolume::realign ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D* transf ) const 
 {
   if ( transf ) {
     Amg::Transform3D shift = (*transf)*this->trackingVolume()->transform().inverse();
