@@ -1,12 +1,12 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
-#
 # @file JetTagD3PDMaker/python/BtaggingD3PD.py
 # @author Georges Aad
 # @date Mars, 2011
 # @brief Construct a btagging d3pd.
 #
+
+from __future__ import print_function
 
 
 from AthenaCommon.AppMgr import ServiceMgr
@@ -46,8 +46,8 @@ def BTaggingD3PD(alg = None,
                  **kw):
 
 
-    print "printing additional d3pd properties from dictionary"
-    print kw
+    print ("printing additional d3pd properties from dictionary")
+    print (kw)
 
 
     if not alg:
@@ -69,7 +69,7 @@ def BTaggingD3PD(alg = None,
             alg += getJetTagJetD3PDObject(**_args(jetcoll, kw, filteredsgkey=filteredcoll, origsgkey=jetcoll))
             selectedJetCollections.append(filteredcoll)
     else:
-        print "Warning: you didn't specify any jet collection for the JetTag D3PD"
+        print ("Warning: you didn't specify any jet collection for the JetTag D3PD")
     
     if len(selectedJetCollections) != 0:
 
@@ -305,7 +305,7 @@ def BTaggingD3PD(alg = None,
             from JetTagD3PDMaker.JetTagPixModCondD3PDObject import getJetTagPixModCondD3PDObject
             alg += getJetTagPixModCondD3PDObject(PixSummarySvc=ServiceMgr.PixelConditionsSummarySvc)
         else:
-            print "Warning: JetTagPixModCondD3PDObject requested but PixelConditionsSummarySvc not configured"
+            print ("Warning: JetTagPixModCondD3PDObject requested but PixelConditionsSummarySvc not configured")
 
 
     #### add fat jets and subjets
