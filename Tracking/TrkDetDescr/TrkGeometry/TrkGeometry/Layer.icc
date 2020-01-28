@@ -151,7 +151,7 @@ inline const OverlapDescriptor *Layer::overlapDescriptor() const {
 inline void Layer::setPreviousLayer(const Layer *in) { m_previousLayer = in; }
 /** set the previous Layer const not const thread safe*/
 inline void Layer::setPreviousLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer * in) const {
+ATLAS_NOT_THREAD_SAFE(const Layer * in) const {
   const_cast<Layer *>(this)->setPreviousLayer(in);
 }
 
@@ -159,7 +159,7 @@ ATLAS_NOT_CONST_THREAD_SAFE(const Layer * in) const {
 inline void Layer::setNextLayer(const Layer *in) { m_nextLayer = in; }
 /** set the next Layer const not const thread safe*/
 inline void Layer::setNextLayer
-ATLAS_NOT_CONST_THREAD_SAFE(const Layer *in) const {
+ATLAS_NOT_THREAD_SAFE(const Layer *in) const {
   const_cast<Layer *>(this)->setNextLayer(in);
 }
 
@@ -169,7 +169,7 @@ inline const BinUtility *Layer::binUtility() const { return m_binUtility; }
 inline void Layer::setBinUtility(const BinUtility *in) { m_binUtility = in; }
 /** set the BinUtility const not const thread safe*/
 inline void Layer::setBinUtility
-ATLAS_NOT_CONST_THREAD_SAFE(const BinUtility *in) const {
+ATLAS_NOT_THREAD_SAFE(const BinUtility *in) const {
   const_cast<Layer *>(this)->setBinUtility(in);
 }
 
@@ -180,7 +180,7 @@ inline void Layer::encloseTrackingVolume(const TrackingVolume &tvol) {
   m_enclosingTrackingVolume = &(tvol);
 }
 inline void Layer::encloseTrackingVolume
-ATLAS_NOT_CONST_THREAD_SAFE(const TrackingVolume &tvol) const {
+ATLAS_NOT_THREAD_SAFE(const TrackingVolume &tvol) const {
   const_cast<Layer *>(this)->encloseTrackingVolume(tvol);
 }
 
@@ -193,7 +193,7 @@ Layer::encloseDetachedTrackingVolume(const DetachedTrackingVolume &tvol) {
   m_enclosingDetachedTrackingVolume = &(tvol);
 }
 inline void Layer::encloseDetachedTrackingVolume
-ATLAS_NOT_CONST_THREAD_SAFE(const DetachedTrackingVolume &tvol) const {
+ATLAS_NOT_THREAD_SAFE(const DetachedTrackingVolume &tvol) const {
   const_cast<Layer *>(this)->encloseDetachedTrackingVolume(tvol);
 }
 
@@ -201,12 +201,12 @@ inline const LayerIndex &Layer::layerIndex() const { return m_index; }
 
 inline int Layer::layerType() const { return m_layerType; }
 inline void Layer::setLayerType(int id) { m_layerType = id; }
-inline void Layer::setLayerType ATLAS_NOT_CONST_THREAD_SAFE(int id) const {
+inline void Layer::setLayerType ATLAS_NOT_THREAD_SAFE(int id) const {
   const_cast<Layer *>(this)->setLayerType(id);
 }
 
 inline void Layer::assignMaterialProperties
-ATLAS_NOT_CONST_THREAD_SAFE(const LayerMaterialProperties &layerMaterialProp,
+ATLAS_NOT_THREAD_SAFE(const LayerMaterialProperties &layerMaterialProp,
                             double scale) const {
   const_cast<Layer *>(this)->assignMaterialProperties(layerMaterialProp, scale);
 }
@@ -218,7 +218,7 @@ inline void Layer::registerRepresentingVolume(const Volume *theVol) {
   m_representingVolume = theVol;
 }
 inline void Layer::registerRepresentingVolume
-ATLAS_NOT_CONST_THREAD_SAFE(const Volume *theVol) const {
+ATLAS_NOT_THREAD_SAFE(const Volume *theVol) const {
   const_cast<Layer *>(this)->registerRepresentingVolume(theVol);
 }
 
@@ -226,13 +226,13 @@ inline void Layer::registerLayerIndex(const LayerIndex &lIdx) {
   m_index = lIdx;
 }
 inline void Layer::registerLayerIndex
-ATLAS_NOT_CONST_THREAD_SAFE(const LayerIndex &lIdx) const {
+ATLAS_NOT_THREAD_SAFE(const LayerIndex &lIdx) const {
   const_cast<Layer *>(this)->registerLayerIndex(lIdx);
 }
 
 inline double Layer::getRef() const { return m_ref; }
 inline void Layer::setRef(double x) { m_ref = x; }
-inline void Layer::setRef ATLAS_NOT_CONST_THREAD_SAFE(double x) const {
+inline void Layer::setRef ATLAS_NOT_THREAD_SAFE(double x) const {
   const_cast<Layer *>(this)->setRef(x);
 }
 

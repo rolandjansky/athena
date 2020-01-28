@@ -19,12 +19,12 @@ Trk::AlignableTrackingVolume::AlignableTrackingVolume() :
   m_binnedMaterial(nullptr)
 {}
 
-Trk::AlignableTrackingVolume::AlignableTrackingVolume(Amg::Transform3D* htrans,
-						      Amg::Transform3D* align,
-						      VolumeBounds*   volbounds,
-						      const Trk::BinnedMaterial* matprop,
-						      int sampleID,
-						      const std::string& volumeName):
+ATLAS_NOT_THREAD_SAFE Trk::AlignableTrackingVolume::AlignableTrackingVolume(Amg::Transform3D* htrans,
+                                                                            Amg::Transform3D* align,
+                                                                            VolumeBounds*   volbounds,
+                                                                            const Trk::BinnedMaterial* matprop,
+                                                                            int sampleID,
+                                                                            const std::string& volumeName):
   Trk::TrackingVolume(htrans, volbounds,*matprop,0,0,volumeName),
   m_alignedTV(0),
   m_sampleID(sampleID),
