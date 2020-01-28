@@ -53,9 +53,9 @@ namespace top {
     }
     // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as
     // its the same as the eff used in the calibration
-    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1)
+    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1);aMC@NLO+Pythia8;Herwig7.1.3;Sherpa228
     // Default changed from 410501 to 410470 in the CDI release of October 2018
-    m_efficiency_maps = "default;410558;410470;410250;default;410464";
+    m_efficiency_maps = "default;410558;410470;410250;default;410464;411233;421152";
 
     // List of algorithms in R21
     m_tagger_algorithms = {

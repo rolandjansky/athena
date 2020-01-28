@@ -156,6 +156,8 @@ int SampleXsection::getShoweringIndex(const int dsid) const {
   else if (shower == showering::sherpa) return 3;
   else if (shower == showering::sherpa21) return 4;
   else if (shower == showering::amcatnlopythia8) return 5;
+  else if (shower == showering::herwigpp713) return 6;
+  else if (shower == showering::sherpa228) return 7;
   else {
     std::cout <<
     "==========================================================================================================================================="
@@ -190,6 +192,8 @@ std::string SampleXsection::showerToString(const SampleXsection::showering showe
   else if (shower == showering::sherpa21) return "sherpa21";
   else if (shower == showering::pythia8) return "pythia8";
   else if (shower == showering::amcatnlopythia8) return "amcatnlopythia8";
+  else if (shower == showering::herwigpp713) return "herwigpp713";
+  else if (shower == showering::sherpa228) return "sherpa228";
 
   return "";
 }
@@ -202,6 +206,8 @@ SampleXsection::showering SampleXsection::stringToShower(const std::string& name
   else if (name == "pythia8") return showering::pythia8;
   else if (name == "herwigpp") return showering::herwigpp;
   else if (name == "amcatnlopythia8") return showering::amcatnlopythia8;
+  else if (name == "herwigpp713") return showering::herwigpp713;
+  else if (name == "sherpa228") return showering::sherpa228;
 
   return showering::unknown;
 }

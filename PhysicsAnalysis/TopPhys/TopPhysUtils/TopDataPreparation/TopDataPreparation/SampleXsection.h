@@ -19,7 +19,16 @@
 class SampleXsection {
 public:
   enum showering {
-    pythia=0, herwig=1, sherpa=2, pythia8=4, herwigpp=5, sherpa21=6, amcatnlopythia8=7, unknown=10
+    pythia=0,
+    herwig=1,
+    sherpa=2,
+    pythia8=4,
+    herwigpp=5,
+    sherpa21=6,
+    amcatnlopythia8=7,
+    herwigpp713=8,
+    sherpa228=9,
+    unknown=10
   };
 
   inline SampleXsection() : m_Xsects() {}
