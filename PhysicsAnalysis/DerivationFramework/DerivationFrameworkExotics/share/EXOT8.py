@@ -274,9 +274,15 @@ thinningTools.append(EXOT8photonThinningTool)
 # truth containers a la TRUTH3
 #########################################
 from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+from DerivationFrameworkMCTruth.MCTruthCommon import addTopQuarkAndDownstreamParticles
+from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
+from DerivationFrameworkMCTruth.MCTruthCommon import addTruthCollectionNavigationDecorations
 
 if globalflags.DataSource()=="geant4":
     addStandardTruthContents()
+    addTopQuarkAndDownstreamParticles()
+    addHFAndDownstreamParticles(addB=True, addC=False, generations=1)
+    addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles"],prefix='Top')
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -510,6 +516,13 @@ applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201903", exot8Seq)
 
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot8Seq)
 
+#====================================================================
+# Apply fJVT
+#====================================================================
+
+# PFlow fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow', sequence=exot8Seq, algname='JetForwardPFlowJvtToolAlg')
 
 #######################
 # Get the jet pull
@@ -589,21 +602,12 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt2LCTopoJets.GhostBQuarksFinal",
                                       "AntiKt2LCTopoJets.GhostTrack",
                                       "AntiKt2LCTopoJets.GhostTrackCount",
-                                      "BTagging_AntiKt4EMTopo_201810.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMPFlow_201810.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMPFlow_201903.JetVertexCharge_discriminant",
                                       "Photons."+NewTrigVars["Photons"]
                                       ]
 
-EXOT8SlimmingHelper.AllVariables   = ["TruthElectrons",
-                                      "TruthMuons",
-                                      "TruthPhotons",
-                                      "TruthTaus",
-                                      "TruthNeutrinos",
-                                      "TruthBSM",
-                                      "TruthTop",
-                                      "TruthBoson",
-                                      "CombinedMuonTrackParticles",
+EXOT8SlimmingHelper.AllVariables   = ["CombinedMuonTrackParticles",
                                       "ExtrapolatedMuonTrackParticles",
                                       "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
                                       ]
@@ -639,12 +643,27 @@ addJetOutputs(EXOT8SlimmingHelper,["AntiKt4EMPFlowJets",
 
 
 if globalflags.DataSource()=="geant4":
-    EXOT8SlimmingHelper.AppendToDictionary["TruthTop"]      = "xAOD::TruthParticleContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthTopAux"]   = "xAOD::TruthParticleAuxContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBSM"]      = "xAOD::TruthParticleContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBSMAux"]   = "xAOD::TruthParticleAuxContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBoson"]    = "xAOD::TruthParticleContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBosonAux"] = "xAOD::TruthParticleAuxContainer"
+    for truthc in [
+      "TruthElectrons",
+      "TruthMuons",
+      "TruthPhotons",
+      "TruthTaus",
+      "TruthNeutrinos",
+      "TruthBottom",
+      "TruthBSM",
+      ]:
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
+    
+    for truthc in [
+      "TruthBosons",
+      "TruthTopQuark",
+      "TruthHF",
+      ]:
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"WithDecayParticlesAux.")
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthVertexContainer#"+truthc+"WithDecayVertices")
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthVertexAuxContainer#"+truthc+"WithDecayVerticesAux.")
 
 EXOT8SlimmingHelper.IncludeJetTriggerContent = True
 EXOT8SlimmingHelper.IncludeBJetTriggerContent = True
