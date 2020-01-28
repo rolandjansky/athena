@@ -1,12 +1,12 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /*********************************************************************************
   GsfExtrapolator.cxx  -  description
   -----------------------------------
 begin                : Tuesday 25th January 2005
-author               : amorley
+author               : amorley,anastopoulos
 email                : amorley@cern.ch
 decription           : Implementation code for GsfExtrapolator class
 *********************************************************************************/
@@ -367,7 +367,7 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
                                       const Trk::MultiComponentState& multiComponentState,
                                       const Trk::Surface& surface,
                                       Trk::PropDirection direction,
-                                      Trk::BoundaryCheck boundaryCheck,
+                                      const Trk::BoundaryCheck& boundaryCheck,
                                       Trk::ParticleHypothesis particleHypothesis) const
 {
   if (multiComponentState.empty()) {
@@ -400,7 +400,7 @@ Trk::GsfExtrapolator::extrapolate(const Trk::IPropagator& propagator,
                                   const Trk::MultiComponentState& multiComponentState,
                                   const Trk::Surface& surface,
                                   Trk::PropDirection direction,
-                                  Trk::BoundaryCheck boundaryCheck,
+                                  const Trk::BoundaryCheck& boundaryCheck,
                                   Trk::ParticleHypothesis particleHypothesis) const
 {
   Cache cache{};
@@ -416,7 +416,7 @@ Trk::GsfExtrapolator::extrapolateDirectly(const Trk::IPropagator& propagator,
                                           const Trk::MultiComponentState& multiComponentState,
                                           const Trk::Surface& surface,
                                           Trk::PropDirection direction,
-                                          Trk::BoundaryCheck boundaryCheck,
+                                          const Trk::BoundaryCheck& boundaryCheck,
                                           Trk::ParticleHypothesis particleHypothesis) const
 {
 
@@ -439,7 +439,7 @@ std::unique_ptr<Trk::MultiComponentState>
 Trk::GsfExtrapolator::extrapolate(const Trk::MultiComponentState& multiComponentState,
                                   const Trk::Surface& surface,
                                   Trk::PropDirection direction,
-                                  Trk::BoundaryCheck boundaryCheck,
+                                  const Trk::BoundaryCheck& boundaryCheck,
                                   Trk::ParticleHypothesis particleHypothesis) const
 {
   Cache cache{};
@@ -453,7 +453,7 @@ std::unique_ptr<Trk::MultiComponentState>
 Trk::GsfExtrapolator::extrapolateDirectly(const Trk::MultiComponentState& multiComponentState,
                                           const Trk::Surface& surface,
                                           Trk::PropDirection direction,
-                                          Trk::BoundaryCheck boundaryCheck,
+                                          const Trk::BoundaryCheck& boundaryCheck,
                                           Trk::ParticleHypothesis particleHypothesis) const
 {
 
@@ -480,7 +480,7 @@ std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>>
 Trk::GsfExtrapolator::extrapolateM(const Trk::MultiComponentState& mcsparameters,
                                    const Surface& sf,
                                    PropDirection dir,
-                                   BoundaryCheck bcheck,
+                                   const BoundaryCheck& bcheck,
                                    ParticleHypothesis particle) const
 {
   // create a new vector for the material to be collected
@@ -1061,7 +1061,7 @@ Trk::GsfExtrapolator::extrapolateSurfaceBasedMaterialEffects(const IPropagator& 
                                                              const MultiComponentState& multiComponentState,
                                                              const Surface& surface,
                                                              PropDirection direction,
-                                                             BoundaryCheck boundaryCheck,
+                                                             const BoundaryCheck& boundaryCheck,
                                                              ParticleHypothesis particleHypothesis) const
 {
 
