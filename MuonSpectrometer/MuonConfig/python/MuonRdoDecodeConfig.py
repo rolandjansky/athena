@@ -12,7 +12,9 @@ class MuonPrdCacheNames(object):
     RpcCache       = "RpcPrdCache"
     TgcCache       = "TgcPrdCache"
     sTgcCache      = "sTgcPrdCache"
-    MmCache        = "MmPrdCache"  
+    MmCache        = "MmPrdCache"
+    RpcCoinCache   = "RpcCoinCache"  
+    TgcCoinCache   = "TgcCoinCache"
 
 ## This configuration function creates the IdentifiableCaches for PRD
 #
@@ -28,7 +30,9 @@ def MuonPrdCacheCfg():
                                        RpcCacheKey       = MuonPrdCacheNames.RpcCache,
                                        TgcCacheKey       = MuonPrdCacheNames.TgcCache,
                                        sTgcCacheKey      = MuonPrdCacheNames.sTgcCache,
-                                       MmCacheKey        = MuonPrdCacheNames.MmCache
+                                       MmCacheKey        = MuonPrdCacheNames.MmCache,
+                                       TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
+                                       RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
                                        )
 
     cacheCreator.OutputLevel = DEBUG

@@ -82,7 +82,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
   CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool",
-                                                            CscStripPrdContainterCacheKey = MuonPrdCacheNames.CscStripCache)
+                                                            CscStripPrdContainerCacheKey = MuonPrdCacheNames.CscStripCache)
   CscRdoToCscPrepDataTool.OutputLevel = DEBUG
   
   ToolSvc += CscRdoToCscPrepDataTool
@@ -129,7 +129,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
   MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name                     = "MdtRdoToPrepDataTool",
-                                                         MdtPrdContainterCacheKey = MuonPrdCacheNames.MdtCache)
+                                                         MdtPrdContainerCacheKey = MuonPrdCacheNames.MdtCache)
   MdtRdoToMdtPrepDataTool.OutputLevel = DEBUG
 
   ToolSvc += MdtRdoToMdtPrepDataTool
@@ -171,7 +171,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   #from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
   #RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                = "RpcRdoToPrepDataTool",
-  #                                                       RpcRdoContainerCacheKey = MuonPrdCacheNames.RpcCache)
+  #                                                       RpcPrdContainerCacheKey = MuonPrdCacheNames.RpcCache,
+  #                                                       RpcCoinContainerCacheKey = MuonPrdCacheNames.RpcCoinCache)
   #RpcRdoToRpcPrepDataTool.OutputLevel = DEBUG
 
   if athenaCommonFlags.isOnline: 

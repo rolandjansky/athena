@@ -14,7 +14,7 @@ Muon::MdtRdoToPrepDataToolMT::MdtRdoToPrepDataToolMT(const std::string& t, const
   AthAlgTool(t,n,p),
   MdtRdoToPrepDataToolCore(t,n,p)
 {
-  declareProperty("MdtPrdContainterCacheKey", m_prdContainerCacheKey, "Optional external cache for the MDT PRD container");
+  declareProperty("MdtPrdContainerCacheKey", m_prdContainerCacheKey, "Optional external cache for the MDT PRD container");
 }
 
 Muon::MdtRdoToPrepDataToolMT::~MdtRdoToPrepDataToolMT()

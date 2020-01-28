@@ -523,8 +523,8 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
   }
   ATH_MSG_VERBOSE("HashId = "<<(int)mdtHashId);
 
-  MdtPrepDataCollection* driftCircleColl = nullptr;
-  MdtPrepDataCollection* secondDriftCircleColl = nullptr;
+  std::unique_ptr<MdtPrepDataCollection> driftCircleColl = nullptr;
+  std::unique_ptr<MdtPrepDataCollection> secondDriftCircleColl = nullptr;
 
   // Check the IDC cache (no write handles here)
   if( m_mdtPrepDataContainer->tryAddFromCache(mdtHashId) ){
@@ -534,7 +534,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
   }
   // Create new collection 
   else{
-    driftCircleColl = new MdtPrepDataCollection( mdtHashId );
+    driftCircleColl.reset( new MdtPrepDataCollection( mdtHashId ) );
     idWithDataVect.push_back(mdtHashId);
     driftCircleColl->setIdentifier(elementId);
     ATH_MSG_DEBUG("Created MdtPrepDataCollection (not found in cache) " << mdtHashId);
@@ -625,7 +625,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
             // Proceed with the nullptr
           }
           else{
-            secondDriftCircleColl = new MdtPrepDataCollection(secondMdtHashId);
+            secondDriftCircleColl.reset( new MdtPrepDataCollection(secondMdtHashId) );
             idWithDataVect.push_back(secondMdtHashId);
             secondDriftCircleColl->setIdentifier(secondElementId);
             ATH_MSG_DEBUG("Created second MdtPrepDataCollection (not found in cache) " << secondMdtHashId);
@@ -680,11 +680,11 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
     IdentifierHash hashId;
 
     if ( (!doubleCsmFound) || (!doubleCsm) ) {
-      collectionToBeUpdated = driftCircleColl;
+      collectionToBeUpdated = driftCircleColl.get();
       hashId = mdtHashId;
     }
     else {
-      collectionToBeUpdated = secondDriftCircleColl;
+      collectionToBeUpdated = secondDriftCircleColl.get();
       hashId = secondMdtHashId;
     }
 
@@ -723,8 +723,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
   if(driftCircleColl){
     MdtPrepDataContainer::IDC_WriteHandle lock = m_mdtPrepDataContainer->getWriteHandle( mdtHashId );
     if( !lock.alreadyPresent() ){
-      std::unique_ptr<MdtPrepDataCollection> uniqueCollection (driftCircleColl);
-      StatusCode status_lock = lock.addOrDelete(std::move( uniqueCollection ));
+      StatusCode status_lock = lock.addOrDelete(std::move( driftCircleColl ));
       if (status_lock.isFailure()) {
         ATH_MSG_ERROR ( "Could not insert MdtCsmPrepdataCollection into MdtCsmPrepdataContainer..." );
         return StatusCode::FAILURE;
@@ -737,8 +736,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::processCsm(const MdtCsm *rdoColl, std
   if(secondDriftCircleColl){
     MdtPrepDataContainer::IDC_WriteHandle lock = m_mdtPrepDataContainer->getWriteHandle( secondMdtHashId );
     if( !lock.alreadyPresent() ){
-      std::unique_ptr<MdtPrepDataCollection> uniqueCollection (secondDriftCircleColl);
-      StatusCode status_lock = lock.addOrDelete(std::move( uniqueCollection ));
+      StatusCode status_lock = lock.addOrDelete(std::move( secondDriftCircleColl ));
       if (status_lock.isFailure()) {
         ATH_MSG_ERROR ( "Could not insert MdtCsmPrepdataCollection into MdtCsmPrepdataContainer..." );
         return StatusCode::FAILURE;

@@ -22,7 +22,9 @@ MuonPRDCacheCreator::MuonPRDCacheCreator(const std::string &name,ISvcLocator *pS
    m_RpcCacheKey(""),
    m_TgcCacheKey(""),
    m_sTgcCacheKey(""),
-   m_MmCacheKey("")
+   m_MmCacheKey(""),
+   m_RpcCoinCacheKey(""),
+   m_TgcCoinCacheKey("")
 {
   declareProperty("CscCacheKey",        m_CscCacheKey);
   declareProperty("CscStripCacheKey",   m_CscStripCacheKey);
@@ -31,6 +33,8 @@ MuonPRDCacheCreator::MuonPRDCacheCreator(const std::string &name,ISvcLocator *pS
   declareProperty("TgcCacheKey",        m_TgcCacheKey);
   declareProperty("sTgcCacheKey",       m_sTgcCacheKey);
   declareProperty("MmCacheKey",         m_MmCacheKey);
+  declareProperty("RpcCoinCacheKey",    m_RpcCoinCacheKey);
+  declareProperty("TgcCoinCacheKey",    m_TgcCoinCacheKey);
   declareProperty("DisableViewWarning", m_disableWarning);
 }
 
@@ -46,6 +50,8 @@ StatusCode MuonPRDCacheCreator::initialize() {
   ATH_CHECK( m_TgcCacheKey.initialize( !m_TgcCacheKey.key().empty() ));
   ATH_CHECK( m_sTgcCacheKey.initialize( !m_sTgcCacheKey.key().empty() ));
   ATH_CHECK( m_MmCacheKey.initialize( !m_MmCacheKey.key().empty() ));
+  ATH_CHECK( m_RpcCoinCacheKey.initialize( !m_RpcCoinCacheKey.key().empty() ));
+  ATH_CHECK( m_TgcCoinCacheKey.initialize( !m_TgcCoinCacheKey.key().empty() ));
 
   // Retrieve ID tools
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
@@ -92,6 +98,7 @@ StatusCode MuonPRDCacheCreator::execute (const EventContext& ctx) const {
   // RPC
   if( m_muonIdHelperTool->hasRpcIdHelper() ){
     ATH_CHECK(createContainer(m_RpcCacheKey, m_muonIdHelperTool->rpcIdHelper().module_hash_max(), ctx));
+    ATH_CHECK(createContainer(m_RpcCoinCacheKey, m_muonIdHelperTool->rpcIdHelper().module_hash_max(), ctx));
   }
   if( !m_muonIdHelperTool->hasRpcIdHelper() && !m_RpcCacheKey.key().empty() ){
     ATH_MSG_WARNING("RPC ID Helper is not available and RPC PRD cache was requested. This will not be created");
@@ -100,6 +107,7 @@ StatusCode MuonPRDCacheCreator::execute (const EventContext& ctx) const {
   // TGC
   if( m_muonIdHelperTool->hasTgcIdHelper() ){
     ATH_CHECK(createContainer(m_TgcCacheKey, m_muonIdHelperTool->tgcIdHelper().module_hash_max(), ctx));
+    ATH_CHECK(createContainer(m_TgcCoinCacheKey, m_muonIdHelperTool->tgcIdHelper().module_hash_max(), ctx));
   }
   if( !m_muonIdHelperTool->hasTgcIdHelper() && !m_TgcCacheKey.key().empty() ){
     ATH_MSG_WARNING("TGC ID Helper is not available and TGC PRD cache was requested. This will not be created");
