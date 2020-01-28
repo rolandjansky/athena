@@ -3,12 +3,11 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
-from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
 Analysis__JetSecVertexingAlg=CompFactory.Analysis__JetSecVertexingAlg
 
-def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", JetSVLink="", **options):
+def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -20,32 +19,25 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVF
     acc = ComponentAccumulator()
 
     jetcol = JetCollection
-    secVtxFinderxAODBaseName = SVFinder
 
     if SVFinder == 'JetFitter':
-        OutputFilesname = "JFVtx"
-    elif SVFinder == 'SV1':
-        OutputFilesname = "SecVtx"
-    elif SVFinder == 'MSV':
-        OutputFilesname = "MSV"
-    else:
-        return acc
-
-    jetFitterVF = acc.popToolsAndMerge(JetFitterVariablesFactoryCfg('JFVarFactory'))
+        JetSVLink = 'JFVtx'
+    if SVFinder == 'SV1':
+        JetSVLink = 'SecVtx'
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
     btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
     options = {}
-    options.setdefault('SecVtxFinderxAODBaseName', secVtxFinderxAODBaseName)
+    options.setdefault('SecVtxFinderxAODBaseName', SVFinder)
     options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
-    options['TrackToJetAssociatorName'] = Associator
-    options['BTagJFVtxCollectionName'] = btagname + OutputFilesname
-    options['BTagSVCollectionName'] = btagname + OutputFilesname
-    options['JetSecVtxLinkName'] = JetSVLink
-    options.setdefault('JetFitterVariableFactory', jetFitterVF)
+    options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo'
+    options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator
+    options['BTagJFVtxCollectionName'] = btagname + JetSVLink
+    options['BTagSVCollectionName'] = btagname + JetSVLink
+    options['JetSecVtxLinkName'] = options['JetCollectionName'] + '.' + JetSVLink
     options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = (jetcol + '_' + SVFinder + '_secvtx').lower()
 

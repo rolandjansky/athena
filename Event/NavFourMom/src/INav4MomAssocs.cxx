@@ -51,7 +51,7 @@ INav4MomAssocs& INav4MomAssocs::operator=(const INav4MomAssocs& rhs)
 ///////////////////////////////////////////////////////////////////
 
 bool 
-INav4MomAssocs::assocs( const INavigable4Momentum* object,
+INav4MomAssocs::assocs ATLAS_NOT_CONST_THREAD_SAFE ( const INavigable4Momentum* object,
 			INavigable4MomentumCollection& associatedElems ) const
 {
   if ( 0 == object ) {

@@ -49,7 +49,7 @@ class  ConfiguredNewTrackingTRTExtension:
 
            topSequence += InDetTRTExtensionPhase
            if (InDetFlags.doPrintConfigurables()):
-            print InDetTRTExtensionPhase
+            printfunc (InDetTRTExtensionPhase)
 
          else:
           cuts_args = {}
@@ -63,7 +63,7 @@ class  ConfiguredNewTrackingTRTExtension:
           #InDetTRTExtension.OutputLevel = VERBOSE
           topSequence += InDetTRTExtension
           if (InDetFlags.doPrintConfigurables()):
-            print InDetTRTExtension
+            printfunc (InDetTRTExtension)
    
       #
       # ------------ Track Extension Processor
@@ -81,7 +81,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                        ToolForCompTRT_DriftCircles = InDetCompetingTRT_DC_Tool )
             ToolSvc += InDetCompetingRotCreator
             if (InDetFlags.doPrintConfigurables()):
-               print InDetCompetingRotCreator
+               printfunc (InDetCompetingRotCreator)
             #
             from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DeterministicAnnealingFilter
             InDetExtensionFitter =  Trk__DeterministicAnnealingFilter( name = 'InDetDAF'+NewTrackingCuts.extension(),
@@ -93,7 +93,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                        OutlierCutValue                = 0.01 )
             ToolSvc += InDetExtensionFitter
             if (InDetFlags.doPrintConfigurables()):
-               print InDetExtensionFitter
+               printfunc (InDetExtensionFitter)
          else:
             from AthenaCommon import CfgGetter
             InDetExtensionFitter = CfgGetter.getPublicTool('InDetTrackFitter' if NewTrackingCuts.mode() != "LowPt" else  'InDetTrackFitterLowPt')
@@ -142,7 +142,7 @@ class  ConfiguredNewTrackingTRTExtension:
          #InDetExtenScoringTool.OutputLevel = VERBOSE 
          ToolSvc += InDetExtenScoringTool
          if (InDetFlags.doPrintConfigurables()):
-            print InDetExtenScoringTool     
+            printfunc (InDetExtenScoringTool     )
          
          #
          # --- output track collection
@@ -175,7 +175,7 @@ class  ConfiguredNewTrackingTRTExtension:
    
           topSequence += InDetExtensionProcessorPhase
           if (InDetFlags.doPrintConfigurables()):
-              print InDetExtensionProcessorPhase
+              printfunc (InDetExtensionProcessorPhase)
 
          else:
 
@@ -202,7 +202,7 @@ class  ConfiguredNewTrackingTRTExtension:
           topSequence += InDetExtensionProcessor
 
           if (InDetFlags.doPrintConfigurables()):
-             print InDetExtensionProcessor
+             printfunc (InDetExtensionProcessor)
          
          # --- Delete Resolved Si tracks and extension map
          from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg         

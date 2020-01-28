@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from future.utils import iteritems
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+import six
 
 ####################################################################
 #
@@ -91,7 +91,7 @@ if not TriggerFlags.doMT():
 
 def preplist(input):
     triglist = []
-    for k,val in input.iteritems():
+    for k,val in six.iteritems (input):
         for j in val:
             triglist.append(k + "#" + j)
     return triglist
@@ -110,77 +110,13 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 
 if TriggerFlags.doMT():
-    
-    log.info("configuring MT Trigger")
-    TriggerFlags.triggerMenuSetup = "LS2_v1"
-
-    from AthenaCommon.AlgScheduler import AlgScheduler
-    AlgScheduler.CheckDependencies( True )
-    AlgScheduler.ShowControlFlow( True )
-    AlgScheduler.ShowDataDependencies( True )
-    AlgScheduler.EnableVerboseViews( True )
-    recoLog.info( "Configuring LVL1 simulation (MT)" )
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    topSequence += Lvl1SimulationSequence(None)
-
-    recoLog.info( "Configuring HLT (MT)" )
-    from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
-    svcMgr += getHLTConfigSvc()
-
-    from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
-    svcMgr += TrigConfigSvc("TrigConfigSvc")
-    svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
-
-    from L1Decoder.L1DecoderConfig import L1Decoder
-    topSequence += L1Decoder(L1TriggerResult="") # L1 simulation sequence doesn't produce L1Trigger result yet
-    
-    TriggerFlags.doTransientByteStream = True
-    include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-    topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
-
-    # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT
-    fakeTypeKey = ("FakeBSOutType","StoreGateSvc+FakeBSOutKey")
-    topSequence.StreamBS.ExtraOutputs += [fakeTypeKey]
-    l1Decoder = findAlgorithm( topSequence, "L1Decoder" )
-    l1Decoder.ExtraInputs += [fakeTypeKey]
-    l1Decoder.ctpUnpacker.ForceEnableAllChains=False # this will make HLT respecting L1 chain decisions
-
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True
-    from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.lock()
-    triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
-    Configurable.configurableRun3Behavior=False
-
-
-    include ("InDetRecExample/InDetRecCabling.py")
-
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
-    menu = GenerateMenuMT()
-    def signaturesToGenerate():
-        TriggerFlags.Slices_all_setOff()
-        TriggerFlags.EgammaSlice.setAll()
-        TriggerFlags.MuonSlice.setAll()
-        TriggerFlags.METSlice.setAll()
-        TriggerFlags.JetSlice.setAll()
-        TriggerFlags.TauSlice.setAll()
-        TriggerFlags.BjetSlice.setAll()
-        TriggerFlags.CombinedSlice.setAll()
-        TriggerFlags.BphysicsSlice.setAll()
-
-    menu.overwriteSignaturesWith(signaturesToGenerate)
-    allChainConfigs = menu.generateMT()
-
-    if not hasattr(svcMgr, 'THistSvc'):
-        from GaudiSvc.GaudiSvcConf import THistSvc
-        svcMgr += THistSvc()
-
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
-    setTHistSvcOutput(svcMgr.THistSvc.Output)
-
-
-    
+  doBeamspotSlice=False
+  doStreamingSlice=False
+  doMonitorSlice=False
+  doMinBiasSlice=False
+  doWriteRDOTrigger = False
+  doWriteBS        = False
+  include("TriggerJobOpts/runHLT_standalone.py")
 
 if rec.doFileMetaData():
    from RecExConfig.ObjKeyStore import objKeyStore
@@ -206,6 +142,7 @@ for i in outSequence.getAllChildren():
         from AthenaCommon.Logging import logging
         log = logging.getLogger( 'WriteTrigDecisionToAOD' )
         log.info('TrigDecision writing enabled')
+
         from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
         alg = xAODMaker__TrigDecisionCnvAlg()
         alg.AODKey = "TrigDecision"
@@ -232,7 +169,6 @@ for i in outSequence.getAllChildren():
         StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
-
         ### Produce the trigger bits:
         from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
         from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
@@ -247,6 +183,10 @@ for i in outSequence.getAllChildren():
         md = TrigConf__xAODMenuWriterMT()
         topSequence += md
         log.info('TriggerMenu Metadata writing enabled')
+
+        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+        svcMgr += TrigConfigSvc("TrigConfigSvc")
+        svcMgr.TrigConfigSvc.PriorityList = ["none", "ds", "xml"]
 
         # Still need to produce Run-2 style L1 xAOD output
         topSequence += RoIBResultToAOD("RoIBResultToxAOD")
@@ -341,5 +281,5 @@ ServiceMgr.MessageSvc.Format = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
 
 import AthenaCommon.Configurable as Configurable
 Configurable.log.setLevel( INFO )
-print topSequence
+printfunc (topSequence)
 

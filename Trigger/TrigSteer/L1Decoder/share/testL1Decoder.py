@@ -1,6 +1,8 @@
 from __future__ import print_function
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 
 from AthenaCommon.AlgSequence import AlgSequence

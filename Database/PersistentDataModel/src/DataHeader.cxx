@@ -270,7 +270,7 @@ void DataHeader::insert(const SG::TransientAddress* sgAddress, IOpaqueAddress* t
 }
 //______________________________________________________________________________
 void DataHeader::insert(const SG::DataProxy* proxy, IOpaqueAddress* tokAddress, const std::string& pTag) {
-  m_dataHeader.emplace_back(proxy, tokAddress, pTag);
+   m_dataHeader.emplace_back(proxy, tokAddress, pTag);
 }
 //______________________________________________________________________________
 void DataHeader::insert(const DataHeaderElement& dhe) {

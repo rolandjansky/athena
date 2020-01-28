@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -12,14 +12,6 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-#include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
-#include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
-#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCreatorTool.h"
@@ -38,7 +30,6 @@
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -48,39 +39,25 @@
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 
-#include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
-
 #include "muonEvent/CaloEnergy.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "TrackToCalo/CaloCellCollector.h"
 
-#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
-
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
-#include "MuidInterfaces/IMuonTrackQuery.h"
 #include "MuidEvent/FieldIntegral.h"
-
-#include "TrackSegmentAssociationTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "StoreGate/ReadCondHandle.h"
 
-//#include "xAODTruth/TruthEventContainer.h"
-
-
 namespace MuonCombined {
  
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
   MuonCreatorTool::MuonCreatorTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
     m_makeMSPreExtrapLink(false),
     m_haveAddedCaloInformation(false),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
     m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
@@ -100,7 +77,6 @@ namespace MuonCombined {
   {
     declareInterface<IMuonCreatorTool>(this);
     declareProperty("MakeTrackAtMSLink",m_makeMSPreExtrapLink=false);
-    declareProperty("MuonIdHelperTool",m_idHelper );
     declareProperty("Printer",m_printer );
     declareProperty("ParticleCaloExtensionTool", m_caloExtTool);      
     declareProperty("MuonPrinter",m_muonPrinter );
@@ -127,21 +103,15 @@ namespace MuonCombined {
     declareProperty("AssociateSegmentsToLowBetaMuons",m_segLowBeta = false);
     declareProperty("UseCaloCells",m_useCaloCells = true);
     declareProperty("MakeSAMuons", m_doSA=false);
-    //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
     declareProperty("TrackQuery", m_trackQuery);
      
   }
-
-  MuonCreatorTool::~MuonCreatorTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCreatorTool::initialize() {
 
     if( m_buildStauContainer ) ATH_MSG_DEBUG(" building Stau container ");
 
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
     ATH_CHECK(m_caloExtTool.retrieve());
@@ -150,7 +120,8 @@ namespace MuonCombined {
     ATH_CHECK(m_ambiguityProcessor.retrieve());
     ATH_CHECK(m_muonDressingTool.retrieve());
     ATH_CHECK(m_muonSegmentConverterTool.retrieve());
-    ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
+    if(!m_trackSegmentAssociationTool.empty()) ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
+    else m_trackSegmentAssociationTool.disable();
     ATH_CHECK(m_trackQuery.retrieve());
     if(!m_momentumBalanceTool.empty()) ATH_CHECK(m_momentumBalanceTool.retrieve());
     else m_momentumBalanceTool.disable();
@@ -177,10 +148,6 @@ namespace MuonCombined {
 
     ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCreatorTool::finalize() {
     return StatusCode::SUCCESS;
   }
 
@@ -662,9 +629,10 @@ namespace MuonCombined {
       // if the combined track particle is part of a container set the link
       if( outputData.combinedTrackParticleContainer ){
 
-        // create element link from the track, const_cast for now until we sort out the constness of the tags
+        // create element link from the track
         ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->combinedTrackLink(),
-                                                                                         *outputData.combinedTrackParticleContainer);
+                                                                                         *outputData.combinedTrackParticleContainer,
+											 outputData.combinedTrackCollection);
 
         if( link.isValid() ) {
           //link.toPersistent();
@@ -758,7 +726,8 @@ namespace MuonCombined {
       if( outputData.combinedTrackParticleContainer ){
         // create element link 
         ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->combinedTrackLink(),
-                                                                                         *outputData.combinedTrackParticleContainer );                    
+                                                                                         *outputData.combinedTrackParticleContainer,
+											 outputData.combinedTrackCollection);                    
         
         if( link.isValid() ) {
           //link.toPersistent();
@@ -793,7 +762,8 @@ namespace MuonCombined {
       for( const auto& seglink : tag->segments() ){ 
 	
         ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(seglink,
-                                                                                    *outputData.xaodSegmentContainer);        
+                                                                                    *outputData.xaodSegmentContainer,
+										    outputData.muonSegmentCollection);
         if( link.isValid() ) {
           //link.toPersistent();
           segments.push_back(link);
@@ -820,7 +790,8 @@ namespace MuonCombined {
         
         // create element link 
         ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->combinedTrackLink(),
-                                                                                         *outputData.combinedTrackParticleContainer );                    
+                                                                                         *outputData.combinedTrackParticleContainer,
+											 outputData.combinedTrackCollection);
         
         if( link.isValid() ) {
           //link.toPersistent();
@@ -833,7 +804,8 @@ namespace MuonCombined {
       if( outputData.extrapolatedTrackParticleContainer &&  tag->updatedExtrapolatedTrack()){
         // create element link 
         ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( tag->updatedExtrapolatedTrackLink(),
-                                                                                         *outputData.extrapolatedTrackParticleContainer );                
+                                                                                         *outputData.extrapolatedTrackParticleContainer,
+											 outputData.extrapolatedTrackCollection);
                 
         if( link.isValid() ) {
           //link.toPersistent();
@@ -851,7 +823,8 @@ namespace MuonCombined {
       for( const auto& segLink : tag->segments() ){ 
 	
         ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(segLink,
-                                                                                    *outputData.xaodSegmentContainer);        
+                                                                                    *outputData.xaodSegmentContainer,
+										    outputData.muonSegmentCollection);
         if( link.isValid() ) {
           //link.toPersistent();
           segments.push_back(link);
@@ -930,11 +903,21 @@ namespace MuonCombined {
   }
   
   ElementLink<xAOD::TrackParticleContainer> MuonCreatorTool::createTrackParticleElementLink( ElementLink<TrackCollection> trackLink,
-                                                                                             xAOD::TrackParticleContainer& trackParticleContainer) const {
+                                                                                             xAOD::TrackParticleContainer& trackParticleContainer,
+											     TrackCollection* trackCollection) const {
+    ATH_MSG_DEBUG("createTrackParticleElementLink");
     const xAOD::TrackParticle* tp = 0;
-    
-    if( trackLink.isValid() ) tp = m_particleCreator->createParticle( trackLink, &trackParticleContainer, 0, xAOD::muon );
-    else ATH_MSG_WARNING("Track Collection link invalid, no TrackParticle created");
+    if( trackCollection ){
+      trackCollection->push_back(new Trk::Track(**trackLink));
+      //want to link the track particle to this track
+      ElementLink<TrackCollection> link( *trackCollection,trackCollection->size()-1);
+      if(link.isValid()) tp = m_particleCreator->createParticle( link, &trackParticleContainer, 0, xAOD::muon );
+      else ATH_MSG_WARNING("new Track Collection link invalid");
+    }
+    if(!tp){
+      // create extrapolated track particle without a link to the track
+      tp = m_particleCreator->createParticle( **trackLink, &trackParticleContainer, 0, xAOD::muon );
+    }
 
     if( tp ){
       ElementLink<xAOD::TrackParticleContainer> link( trackParticleContainer,trackParticleContainer.size()-1);
@@ -944,14 +927,27 @@ namespace MuonCombined {
   }
 
   ElementLink<xAOD::MuonSegmentContainer> MuonCreatorTool::createMuonSegmentElementLink( ElementLink<Trk::SegmentCollection> segLink,
-                                                                                         xAOD::MuonSegmentContainer& xaodSegmentContainer) const {
+                                                                                         xAOD::MuonSegmentContainer& xaodSegmentContainer,
+											 Trk::SegmentCollection* muonSegmentCollection) const {
     const xAOD::MuonSegment* ms = 0;
+    if( muonSegmentCollection ) {
 
-    if( segLink.isValid() ) {
-      segLink.toPersistent();
-      ms = m_muonSegmentConverterTool->convert(segLink, &xaodSegmentContainer);
-    } else ATH_MSG_WARNING("Segment Collection link invalid");
-    
+      // if a muon segment collection is provided, duplicate the segment and create a link to that
+      const Muon::MuonSegment* oldSeg=dynamic_cast<const Muon::MuonSegment*>(*segLink);
+      muonSegmentCollection->push_back(new Muon::MuonSegment(*oldSeg));
+
+      ElementLink<Trk::SegmentCollection> link( *muonSegmentCollection,muonSegmentCollection->size()-1);
+      if( link.isValid() ){
+        link.toPersistent();
+        ms = m_muonSegmentConverterTool->convert(link, &xaodSegmentContainer);
+      }
+      else ATH_MSG_WARNING("new Segment Collection link invalid");
+    }
+    if( !ms ){
+      // create muon segments without a link to the original
+      const Muon::MuonSegment* seg=dynamic_cast<const Muon::MuonSegment*>(*segLink);
+      ms = m_muonSegmentConverterTool->convert( *seg, &xaodSegmentContainer);
+    }
     if( ms ){
       ElementLink<xAOD::MuonSegmentContainer> link( xaodSegmentContainer,xaodSegmentContainer.size()-1);
       link.toPersistent();
@@ -997,7 +993,8 @@ namespace MuonCombined {
 	if(meLink.isValid()){ //add ME track and MS-only extrapolated track
 	  if(outputData.msOnlyExtrapolatedTrackParticleContainer){ //add un-refitted extrapolated track as MS-only extrapolated track
 	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
-											     *outputData.msOnlyExtrapolatedTrackParticleContainer );
+											     *outputData.msOnlyExtrapolatedTrackParticleContainer,
+											     outputData.msOnlyExtrapolatedTrackCollection);
 	    
 	    if( link.isValid() ) {
 	      ATH_MSG_DEBUG("Adding MS-only extrapolated track: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
@@ -1008,15 +1005,14 @@ namespace MuonCombined {
 	  }
 	  //now add refitted track as ME track
 	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( meLink,
-											   *outputData.extrapolatedTrackParticleContainer );
+											   *outputData.extrapolatedTrackParticleContainer,
+											   outputData.extrapolatedTrackCollection);
 	  if( link.isValid() ) {
 	    ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
-	    //link.toPersistent();
 	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
 	    float fieldInt=m_trackQuery->fieldIntegral(**meLink).betweenSpectrometerMeasurements();
 	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
-	    //TrackSummary* tsum=updatedExtrapolatedTrack->trackSummary();
-	    int nunspoiled=(*meLink)->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
+	    int nunspoiled=(*link)->track()->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
 	    muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
 	  }
 	}
@@ -1025,7 +1021,8 @@ namespace MuonCombined {
 	    //MuGirl case: ME track is already set, but now we have the extrapolated track from the STACO tag
 	    //add this as the MS-only extrapolated track instead
 	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
-											     *outputData.msOnlyExtrapolatedTrackParticleContainer );
+											     *outputData.msOnlyExtrapolatedTrackParticleContainer,
+											     outputData.msOnlyExtrapolatedTrackCollection);
 
 	    if( link.isValid() ) {
 	      ATH_MSG_DEBUG("Adding MS-only extrapolated track to MuGirl muon: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
@@ -1037,7 +1034,8 @@ namespace MuonCombined {
 	  }
 	  else{
 	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
-											     *outputData.extrapolatedTrackParticleContainer );
+											     *outputData.extrapolatedTrackParticleContainer,
+											     outputData.extrapolatedTrackCollection);
 	    
 	    if( link.isValid() ) {
 	      ATH_MSG_DEBUG("Adding standalone fit (un-refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
@@ -1052,7 +1050,8 @@ namespace MuonCombined {
       else{ //SA tracks only get un-refitted track as ME track
 	// create element link from the track
 	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( candidate.extrapolatedTrackLink(),
-											 *outputData.extrapolatedTrackParticleContainer );
+											 *outputData.extrapolatedTrackParticleContainer,
+											 outputData.extrapolatedTrackCollection);
 	
 	if( link.isValid() ) {
 	  ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
@@ -1428,7 +1427,7 @@ namespace MuonCombined {
       
       // only consider RPC hits
       Identifier mid = m_edmHelperSvc->getIdentifier(*meas);
-      if( !m_idHelper->isMuon(mid) || !m_idHelper->isRpc(mid) ) continue;
+      if( !m_idHelperSvc->isMuon(mid) || !m_idHelperSvc->isRpc(mid) ) continue;
       
       // lambda to add a hit
       auto addHit = [&]( const Trk::MeasurementBase& meas) { 
@@ -1714,8 +1713,8 @@ namespace MuonCombined {
 	    nAEOT++;
 	    std::set<unsigned int> chIdSet;
 	    for(auto id : aeot->vectorOfAffectedTSOS()) {
-	      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
-	      chIdSet.insert( m_idHelper->chamberIndex(id) );
+	      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
+	      chIdSet.insert( m_idHelperSvc->chamberIndex(id) );
 	    }
 	    std::vector<unsigned int> chIdVec;
 	    std::copy(chIdSet.begin(), chIdSet.end(), std::back_inserter(chIdVec));

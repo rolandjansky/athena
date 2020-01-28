@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPI0SELECTOR_H
@@ -21,13 +21,9 @@ public:
     TauPi0Selector(const std::string& name);
     ASG_TOOL_CLASS2(TauPi0Selector, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0Selector();
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer);
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
 
 private:
 

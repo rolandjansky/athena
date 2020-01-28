@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##-----------------------------------------------------------------------------
 ## Name: PrimaryDPDHelpers.py
@@ -109,8 +109,10 @@ def checkEgammaAuthor(egammaCand, authorName="either"):
             return False
         
 
-    except TypeError, e:
+    except TypeError as e:
         msg.error("Type error when calling checkEgammaAuthor %s",e)
+        import traceback
+        msg.error(traceback.format_exc())
         return e
 
 
@@ -166,13 +168,17 @@ def checkElectronIsEM(electronCand, isemName="None"):
                     msg.debug("Electron object of type=%s failed isemName=%s" % (type(electronCand), isemName) )
                     return False
                 pass
-            except AttributeError, err :
+            except AttributeError as err :
                 msg.error("AttributeError when calling checkElectronIsEM with isemName=%s of electron object of type=%s. The error is %s" % (isemName, type(electronCand), err) )
+                import traceback
+                msg.error(traceback.format_exc())
                 return False
 
 
-    except TypeError, e:
+    except TypeError as e:
         msg.error("Type error when calling checkElectronIsEM %s",e)
+        import traceback
+        msg.error(traceback.format_exc())
         return e
 
     msg.error("Problem checking the IsEM of the electron object with provided IsEM=%s and type of passed object=%s" % (isemName, type(electronCand)) )
@@ -212,12 +218,16 @@ def checkPhotonIsEM(photonCand, isemName="None"):
                     msg.debug("Photon object of type=%s failed isemName=%s" % (type(photonCand), isemName) )
                     return False
                 pass
-            except AttributeError, err :
+            except AttributeError as err :
                 msg.error("AttributeError when calling checkElectronIsEM with isemName=%s of electron object of type=%s. The error is %s" % (isemName, type(photonCand), err) )
+                import traceback
+                msg.error(traceback.format_exc())
                 return False
             
-    except TypeError, e:
+    except TypeError as e:
         msg.error("Type error when calling checkPhotonIsEM %s",e)
+        import traceback
+        msg.error(traceback.format_exc())
         return e
 
     msg.error("Problem checking the IsEM of the photon object with provided IsEM=%s and type of passed object=%s" % (isemName, type(photonCand)) )
@@ -230,8 +240,10 @@ def checkMuonAuthor(muonCandidate, authorName="all"):
     try:
         if authorName is "all" :
             return True
-    except TypeError, e:
+    except TypeError as e:
         msg.error("Type error when calling checkMuonAuthor %s",e)
+        import traceback
+        msg.error(traceback.format_exc())
         return e
 
     muCandAuthor = ''
@@ -251,7 +263,9 @@ def checkMuonAuthor(muonCandidate, authorName="all"):
         
         else :
             return False
-    except TypeError, e:
+    except TypeError as e:
         msg.error("Type error when calling checkMuonAuthor %s",e)
+        import traceback
+        msg.error(traceback.format_exc())
         return e
     

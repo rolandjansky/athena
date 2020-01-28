@@ -144,14 +144,14 @@ namespace Trk {
 
 
        /** build approach surfaces */
-       void buildApproachDescriptor() const;
+       void buildApproachDescriptor();
     
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
                                       const Amg::Vector3D& dir,
                                       const BoundaryCheck& bcheck) const;    
      protected:
-       mutable IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
+       IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
     
   };
 

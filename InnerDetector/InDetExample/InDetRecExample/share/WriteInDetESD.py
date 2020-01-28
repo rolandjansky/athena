@@ -23,7 +23,7 @@ if InDetFlags.doTRTPhaseCalculation():
 # ---------
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource == 'data' and InDetFlags.doHeavyIon():
-   print "---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data"
+   printfunc ("---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data")
 elif InDetFlags.writePRDs():
    InDetESDList+=["InDet::SCT_ClusterContainer#"+InDetKeys.SCT_Clusters()]
    InDetESDList+=["InDet::PixelClusterContainer#"+InDetKeys.PixelClusters()]

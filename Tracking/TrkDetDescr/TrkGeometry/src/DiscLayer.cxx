@@ -232,7 +232,7 @@ const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
 }
 
 /** build approach surfaces */
-void Trk::DiscLayer::buildApproachDescriptor() const {
+void Trk::DiscLayer::buildApproachDescriptor(){
     // delete the current approach descriptor
     delete m_approachDescriptor;
     // create the surface container   
@@ -245,7 +245,7 @@ void Trk::DiscLayer::buildApproachDescriptor() const {
     const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(m_bounds.get());
     if (db){ 
         // create new surfaces
-        Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));   
+        Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition)); 
         Amg::Transform3D* aspTransform = new Amg::Transform3D(Amg::Translation3D(aspPosition));   
         aSurfaces->push_back( new Trk::DiscSurface(aspTransform, db->clone()) );
         aSurfaces->push_back( new Trk::DiscSurface(asnTransform, db->clone()) );
@@ -259,13 +259,7 @@ void Trk::DiscLayer::buildApproachDescriptor() const {
 }
 
 void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope)  {
-  /*
-        * AthenaMT note . This method
-        * should not be probably const
-        * const_cast / mutable kind of issue
-        * Looks like a const "setter" 
-        */
-     // resize first of all
+    // resize first of all
     resizeLayer(vBounds,envelope);
     // now reposition to the potentially center if necessary, do not change layers with no transform
     const Trk::CylinderVolumeBounds* cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&vBounds);
@@ -283,5 +277,5 @@ void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const
     }
     // rebuild the approaching layer 
     if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
-        buildApproachDescriptor();        
+        buildApproachDescriptor();    
 }

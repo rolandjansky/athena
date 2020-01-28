@@ -21,8 +21,8 @@ decription           : Implementation code for GsfMeasurementUpdator class
 
 #include "TrkGaussianSumFilter/PosteriorWeightsCalculator.h"
 
-Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string type,
-                                                  const std::string name,
+Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string& type,
+                                                  const std::string& name,
                                                   const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {
@@ -138,7 +138,7 @@ Trk::GsfMeasurementUpdator::fitQuality(const MultiComponentState& updatedState,
 
   if (std::isnan(chi2) || chi2 <= 0.) {
 
-    return 0;
+    return nullptr;
   }
 
   const Trk::FitQualityOnSurface* fitQualityOnSurface = new FitQualityOnSurface(chi2, degreesOfFreedom);
@@ -174,7 +174,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(Trk::MultiComponentState&& state
 
   for (; component != stateWithNewWeights->end(); ++component) {
     
-    Trk::FitQualityOnSurface* fitQuality = 0;
+    Trk::FitQualityOnSurface* fitQuality = nullptr;
 
     // Track updates using a pointer to the member function
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters(((&(*m_updator))->*updator)(
@@ -292,7 +292,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(Trk::MultiComponentState&& state
       ATH_MSG_DEBUG("About to update component with p<30MeV...skipping component! (2)");
       continue;
     }
-    Trk::FitQualityOnSurface* componentFitQuality = 0;
+    Trk::FitQualityOnSurface* componentFitQuality = nullptr;
     // Track update alternates between update and getUnbiasedTrackParams
     std::unique_ptr<Trk::TrackParameters> updatedTrackParameters(m_updator->addToState(
       *(*component).first, measurement.localParameters(), measurement.localCovariance(), componentFitQuality));

@@ -42,20 +42,8 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include <vector>
 #include <sstream>
 
-//#include "GaudiKernel/Property.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-//#include "AtlasDetDescr/AtlasDetectorID.h"
-//#include "CaloUtils/CaloCellList.h"
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloCell.h"
-//#include "CaloEvent/CaloSamplingHelper.h"
 #include "CaloUtils/CaloVertexedCell.h"
-//#include "CaloIdentifier/CaloID.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
-//#include "Particle/TrackParticle.h"
-//#include "FourMom/P4EEtaPhiM.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
@@ -68,20 +56,13 @@ TauCellVariables::TauCellVariables(const std::string& name) :
   TauRecToolBase(name),
 m_cellEthr(0.2 * GeV),
 m_stripEthr(0.2 * GeV),
-m_EMSumThr(0.5 * GeV),
-m_EMSumR(0.2),
 m_cellCone(0.2),
-m_emid(0),
-m_tileid(0),
-m_doCellCorrection(false) //FF: don't do cell correction by default
+m_doVertexCorrection(false) //FF: don't do cell correction by default
 {
-
     declareProperty("CellEthreshold", m_cellEthr);
     declareProperty("StripEthreshold", m_stripEthr);
-    declareProperty("EMSumThreshold", m_EMSumThr);
-    declareProperty("EMSumRadius", m_EMSumR);
     declareProperty("CellCone", m_cellCone);
-    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("VertexCorrection", m_doVertexCorrection);
 }
 
 TauCellVariables::~TauCellVariables() {
@@ -92,38 +73,12 @@ StatusCode TauCellVariables::finalize() {
 }
 
 StatusCode TauCellVariables::initialize() {
-    
-    ATH_MSG_VERBOSE("TauCellVariables::initialize"); // DEBUG
-    
-    StatusCode sc;
-
-    // retrieve all helpers from det store
-    sc = detStore()->retrieve(m_emid);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve LArEM_ID helper from DetectorStore");
-        return sc;
-    }
-    ATH_MSG_VERBOSE("Storegate retrieved"); // DEBUG
-
-    sc = detStore()->retrieve(m_tileid);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve TileID helper from DetectorStore");
-        return sc;
-    }
-    ATH_MSG_VERBOSE("TileID from DetectorStore"); // DEBUG
-
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauCellVariables::eventInitialize() {
     return StatusCode::SUCCESS;
 }
 
 StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
-    ATH_MSG_VERBOSE("execute"); // DEBUG
-
-    AtlasDetectorID AtlasID;
+    ATH_MSG_DEBUG("execute"); 
 
     int numStripCell = 0;
     int numEMCell = 0;
@@ -160,9 +115,9 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     ATH_MSG_VERBOSE("position is eta=" << pTau.eta() << " phi=" << pTau.phi() );
 
     //use tau vertex to correct cell position
-    bool applyCellCorrection = false;
-    if (m_doCellCorrection && pTau.vertexLink()) {
-       applyCellCorrection = true;
+    bool applyVertexCorrection = false;
+    if (m_doVertexCorrection && pTau.vertexLink()) {
+       applyVertexCorrection = true;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -212,7 +167,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 	// ATH_MSG_VERBOSE( "in loop over clusters and cells : phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
 
         // correct cell for tau vertex
-        if (applyCellCorrection) {
+        if (applyVertexCorrection) {
           //ATH_MSG_INFO( "before cell correction: phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
           CaloVertexedCell vxCell (*cell, (*pTau.vertexLink())->position());
           cellPhi = vxCell.phi();

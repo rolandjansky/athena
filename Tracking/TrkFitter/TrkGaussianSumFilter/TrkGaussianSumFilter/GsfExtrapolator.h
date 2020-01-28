@@ -48,7 +48,6 @@ class TrackStateOnSurface;
 class MaterialProperties;
 class IMultiComponentStateMerger;
 class IMaterialMixtureConvolution;
-class IMultiComponentStateCombiner;
 class IMultipleScatteringUpdator;
 /** @struct StateAtBoundarySurface
   - Structure to contain information about a state at the interface between tracking volumes
@@ -171,7 +170,7 @@ private:
                                                        const MultiComponentState&,
                                                        const Surface&,
                                                        PropDirection direction = anyDirection,
-                                                       BoundaryCheck boundaryCheck = true,
+                                                       const BoundaryCheck& boundaryCheck = true,
                                                        ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   std::unique_ptr<MultiComponentState> extrapolateImpl(Cache& cache,
@@ -202,7 +201,7 @@ private:
                                                                const Layer*,
                                                                const TrackingVolume&,
                                                                PropDirection direction = anyDirection,
-                                                               BoundaryCheck boundaryCheck = true,
+                                                               const BoundaryCheck& boundaryCheck = true,
                                                                ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Additional private extrapolation methods */
@@ -213,7 +212,7 @@ private:
                                                          const MultiComponentState&,
                                                          const TrackingVolume&,
                                                          const Layer* startLayer,
-                                                         const Layer* destinationLayer = 0,
+                                                         const Layer* destinationLayer = nullptr,
                                                          PropDirection direction = anyDirection,
                                                          ParticleHypothesis particleHypothesis = nonInteracting) const;
 
@@ -235,7 +234,7 @@ private:
                                                                           const Layer&,
                                                                           const Layer*,
                                                                           PropDirection direction = anyDirection,
-                                                                          BoundaryCheck boundaryCheck = true,
+                                                                          const BoundaryCheck& boundaryCheck = true,
                                                                           ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Extrapolation to consider material effects assuming all material on active sensor elements - CTB method */
@@ -252,7 +251,7 @@ private:
                                            const MultiComponentState&,
                                            const Surface&,
                                            PropDirection direction = anyDirection,
-                                           BoundaryCheck boundaryCheck = true,
+                                           const BoundaryCheck& boundaryCheck = true,
                                            ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method to choose propagator type */
@@ -311,10 +310,6 @@ private:
     "Trk::GsfMaterialMixtureConvolution/GsfMaterialMixtureConvolution",
     ""
   };
-  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{ this,
-                                                            "MultiComponentStateCombiner",
-                                                            "Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",
-                                                            "" };
   ToolHandle<IMultipleScatteringUpdator> m_msupdators{ this,
                                                        "MultipleScatteringUpdator",
                                                        "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",
@@ -363,9 +358,9 @@ inline void
 Trk::GsfExtrapolator::resetRecallInformation(Cache& cache) const
 {
   cache.m_recall = false;
-  cache.m_recallSurface = 0;
-  cache.m_recallLayer = 0;
-  cache.m_recallTrackingVolume = 0;
+  cache.m_recallSurface = nullptr;
+  cache.m_recallLayer = nullptr;
+  cache.m_recallTrackingVolume = nullptr;
 }
 
 inline void

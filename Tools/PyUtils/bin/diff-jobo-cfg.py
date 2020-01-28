@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    diff-jobo-cfg.py
 # @purpose: check that 2 jobosvc.ascii files (produced with find_cfg_dups.py)
@@ -14,6 +14,8 @@
 # diff-jobo-cfg ref.josvc.ascii chk.josvc.ascii
 #
 
+from __future__ import print_function
+
 __version__ = "$Revision: 298860 $"
 __author__  = "Sebastien Binet, Adrien Renaud"
 
@@ -24,7 +26,7 @@ from optparse import OptionParser
 
 def dump_seq(seq):
     for i in seq:
-        print i
+        print (i)
     pass
 
 def cxx_sort(dpp):
@@ -32,14 +34,14 @@ def cxx_sort(dpp):
     cxx_dpp = defaultdict(list)          
 
     for k,v in dpp.iteritems():
-        #print v['cxx_type']
+        #print (v['cxx_type'])
         cxx_dpp[v['cxx_type']].append({k:v})
 
     for k,v in cxx_dpp.iteritems():
-        print '---',k
+        print ('---',k)
         for vv in v: 
-            print '------',vv.keys()
-            print '---------',vv.values()#['comp_type']
+            print ('------',vv.keys())
+            print ('---------',vv.values())#['comp_type']
     return cxx_dpp
 
 def load_cfg_file(fname):
@@ -50,7 +52,8 @@ def load_cfg_file(fname):
         import shelve
         comps_db = shelve.open(fname, 'r')
         return comps_db['all-cfgs']
-    except Exception, err:
+    except Exception as err:
+        from past.builtins import execfile
         execfile(fname, comps_db)
         return comps_db['d']
 
@@ -90,15 +93,15 @@ def cmp_component_db(ref, chk, verbose=True):
     ref_only_keys = ref_keys - chk_keys
     chk_only_keys = chk_keys - ref_keys
 
-    print "::: components in both files: [%5s]" % (len(common_keys),)
-    print "::: components in ref only:   [%5s]" % (len(ref_only_keys),)
+    print ("::: components in both files: [%5s]" % (len(common_keys),))
+    print ("::: components in ref only:   [%5s]" % (len(ref_only_keys),))
     if len(ref_only_keys)>0:
         dump_seq(ref_only_keys)
-        print "="*80
-    print "::: components in chk only:   [%5s]" % (len(chk_only_keys),)
+        print ("="*80)
+    print ("::: components in chk only:   [%5s]" % (len(chk_only_keys),))
     if len(chk_only_keys)>0:
         dump_seq(chk_only_keys)
-        print "="*80
+        print ("="*80)
 
     diff = []
     for comp_name in common_keys:
@@ -118,9 +121,9 @@ def cmp_component_db(ref, chk, verbose=True):
                                    chk=comp_chk['props'])))
         pass
 
-    print "::: components with different properties: [%5s]" % (len(diff),)
+    print ("::: components with different properties: [%5s]" % (len(diff),))
     for name, ref_props, chk_props, diff_props in diff:
-        print ":::  - component: [%s]" % (name,)
+        print (":::  - component: [%s]" % (name,))
         for prop_name, prop_value in diff_props.iteritems():
             ref_value = prop_value[0]
             chk_value = prop_value[1]
@@ -134,8 +137,8 @@ def cmp_component_db(ref, chk, verbose=True):
                 dchk_value = set(chk_value) - set(ref_value)
                 ref_value = sorted(list(dref_value))
                 chk_value = sorted(list(dchk_value))
-            print "-%s: %r" %(prop_name, ref_value,)
-            print "+%s: %r" %(prop_name, chk_value,)
+            print ("-%s: %r" %(prop_name, ref_value,))
+            print ("+%s: %r" %(prop_name, chk_value,))
     
         
     if (len(ref_only_keys) > 0 or
@@ -192,21 +195,21 @@ if __name__ == "__main__":
     chk_fname = os.path.expandvars(os.path.expanduser(options.chk_fname))
     ref_fname = os.path.expandvars(os.path.expanduser(options.ref_fname))
 
-    print ":"*80
-    print "::: comparing configurations"
-    print ":::  ref: %s" % ref_fname
+    print (":"*80)
+    print ("::: comparing configurations")
+    print (":::  ref: %s" % ref_fname)
     ref_db = load_cfg_file(ref_fname)
-    print ":::    -> [%d] components" % (len(ref_db.keys()),)
-    print ":::  chk: %s" % chk_fname
+    print (":::    -> [%d] components" % (len(ref_db.keys()),))
+    print (":::  chk: %s" % chk_fname)
     chk_db = load_cfg_file(chk_fname)
-    print ":::    -> [%d] components" % (len(chk_db.keys()),)
+    print (":::    -> [%d] components" % (len(chk_db.keys()),))
 
     sc = cmp_component_db(ref_db, chk_db, options.verbose)
     
     if sc==0:
-        print "::: all good"
+        print ("::: all good")
     else:
-        print "::: configurations differ !"
-    print "::: bye."
-    print ":"*80
+        print ("::: configurations differ !")
+    print ("::: bye.")
+    print (":"*80)
     sys.exit(sc)

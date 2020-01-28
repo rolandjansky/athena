@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.h 
@@ -51,22 +51,10 @@ class FPEAuditor : public AthCommonMsg<Auditor>
   
   virtual StatusCode finalize() override;
   
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  virtual void beforeInitialize(INamedInterface* alg) override;
-  virtual void afterInitialize(INamedInterface* alg) override;
-  virtual void beforeReinitialize(INamedInterface* alg) override;
-  virtual void afterReinitialize(INamedInterface* alg) override;
-  virtual void beforeExecute(INamedInterface* alg) override;
-  virtual void afterExecute(INamedInterface* alg, const StatusCode&) override;
-  virtual void beforeFinalize(INamedInterface* alg) override;
-  virtual void afterFinalize(INamedInterface* alg) override;
+  // standard event auditing...
+  virtual void before(StandardEventType evt, INamedInterface* comp) override;
+  virtual void after(StandardEventType evt, INamedInterface* comp, const StatusCode& sc) override;
 
   // custom event auditing...
 

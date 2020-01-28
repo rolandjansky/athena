@@ -40,7 +40,7 @@ class IMultiStateExtrapolator : virtual public IAlgTool
 {
 public:
   /** Virtual destructor */
-  virtual ~IMultiStateExtrapolator(){};
+  virtual ~IMultiStateExtrapolator()= default;
 
   /** AlgTool interface method */
   static const InterfaceID& interfaceID() { return IID_IMultiStateExtrapolator; };

@@ -21,6 +21,9 @@ StatusCode AthMonitorAlgorithm::initialize() {
     // Retrieve the generic monitoring tools (a ToolHandleArray)
     if ( !m_tools.empty() ) {
         ATH_CHECK( m_tools.retrieve() );
+        for (size_t idx = 0; idx < m_tools.size(); ++idx) {
+            m_toolLookupMap[m_tools[idx].name()] = idx;
+        }
     }
 
     // Retrieve the trigger decision tool if requested
@@ -86,14 +89,14 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
 
 
 void AthMonitorAlgorithm::fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
-                                MonVarVec_t variables ) const {
-    Monitored::Group(groupHandle,variables).fill();
+                                MonVarVec_t&& variables ) const {
+    Monitored::Group(groupHandle,std::move(variables)).fill();
 }
 
 
 void AthMonitorAlgorithm::fill( const std::string& groupName,
-                                MonVarVec_t variables ) const {
-    fill(getGroup(groupName),variables);
+                                MonVarVec_t&& variables ) const {
+   this->fill(getGroup(groupName),std::move(variables));
 }
 
 
@@ -156,8 +159,12 @@ AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const
 
 ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::string& name ) const {
     // get the pointer to the tool, and check that it exists
-    const ToolHandle<GenericMonitoringTool>* toolPtr = m_tools[name];
-    if ( !toolPtr ) {
+    const ToolHandle<GenericMonitoringTool>* toolPtr{nullptr};
+    auto idx = m_toolLookupMap.find(name);
+    if (ATH_LIKELY(idx != m_toolLookupMap.end())) {
+        toolPtr = &m_tools[idx->second];
+    }
+    if ( ATH_UNLIKELY(!toolPtr) ) {
         std::string available = std::accumulate( m_tools.begin(), m_tools.end(),
             m_tools.begin()->name(), [](std::string s,auto h){return s + "," + h->name();} );
         ATH_MSG_FATAL( "The tool " << name << " could not be found in the tool array of the " <<
@@ -166,7 +173,7 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
             available << "}." << endmsg );
     }
     const ToolHandle<GenericMonitoringTool> toolHandle = *toolPtr;
-    if ( toolHandle.empty() ) {
+    if ( ATH_UNLIKELY(toolHandle.empty()) ) {
         ATH_MSG_FATAL("The tool "<<name<<" could not be found because of an empty tool handle."<<endmsg);
     }
     // return the tool handle

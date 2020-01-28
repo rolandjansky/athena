@@ -67,7 +67,7 @@ Trk::STEP_Propagator::STEP_Propagator
   m_layXmax(1.),              // maximal layer thickness for multiple scattering calculations
   m_simulation(false),        //flag for simulation mode 
   m_rndGenSvc("AtDSFMTGenSvc", n),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("FatrasRnd"),
   m_fieldServiceHandle("AtlasFieldSvc",n),
   m_fieldService(nullptr)
@@ -100,7 +100,7 @@ Trk::STEP_Propagator::STEP_Propagator
 // Destructor
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::STEP_Propagator::~STEP_Propagator(){}
+Trk::STEP_Propagator::~STEP_Propagator()= default;
 
 // Athena standard methods
 // initialize
@@ -132,7 +132,7 @@ StatusCode Trk::STEP_Propagator::initialize()
     // get the random generator serice
     if (m_rndGenSvc.retrieve().isFailure()){
       ATH_MSG_WARNING( "Could not retrieve " << m_rndGenSvc <<", no smearing done." );
-      m_randomEngine = 0;
+      m_randomEngine = nullptr;
     } else {
       ATH_MSG_VERBOSE( "Successfully retrieved " << m_rndGenSvc );
 
@@ -164,7 +164,7 @@ Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
 {
   ATH_MSG_WARNING( "[STEP_Propagator] STEP_Propagator does not handle neutral track parameters." 
                    <<"Use the StraightLinePropagator instead." );
-  return 0;
+  return nullptr;
 }
 
 
@@ -197,10 +197,10 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
   cache.m_matdump_lastpath = 0.;
 
   // no identified intersections needed/ no material dump / no path cache
-  cache.m_identifiedParameters = 0;
-  cache.m_matstates = 0;
-  cache.m_extrapolationCache = 0;
-  cache.m_hitVector = 0;
+  cache.m_identifiedParameters = nullptr;
+  cache.m_matstates = nullptr;
+  cache.m_extrapolationCache = nullptr;
+  cache.m_hitVector = nullptr;
 
   return propagateRungeKutta( cache,true, trackParameters, targetSurface, propagationDirection,
                               magneticFieldProperties, particle, boundaryCheck, Jacobian, returnCurv);
@@ -233,10 +233,10 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
   cache.m_matPropOK = tVol? true : false;
 
   // no identified intersections needed/ no material dump
-  cache.m_identifiedParameters = 0;
-  cache.m_matstates = 0;
-  cache.m_extrapolationCache = 0;
-  cache.m_hitVector = 0;
+  cache.m_identifiedParameters = nullptr;
+  cache.m_matstates = nullptr;
+  cache.m_extrapolationCache = nullptr;
+  cache.m_hitVector = nullptr;
 
   cache.m_matupd_lastmom = trackParameters.momentum().mag();
   cache.m_matupd_lastpath = 0.;
@@ -294,9 +294,9 @@ Trk::STEP_Propagator::propagateT (const Trk::TrackParameters&         trackParam
   cache.m_matPropOK = tVol? true : false;
 
   // no identified intersections needed/ no material dump
-  cache.m_identifiedParameters = 0;
-  cache.m_matstates = 0;
-  cache.m_extrapolationCache = 0;
+  cache.m_identifiedParameters = nullptr;
+  cache.m_matstates = nullptr;
+  cache.m_extrapolationCache = nullptr;
   cache.m_hitVector = hitVector;
 
   cache.m_matupd_lastmom = trackParameters.momentum().mag();
@@ -329,7 +329,7 @@ Trk::STEP_Propagator::propagateT (const Trk::TrackParameters&         trackParam
     path = 0.; 
   } 
 
-  Trk::TrackParameters* nextPar = 0;
+  Trk::TrackParameters* nextPar = nullptr;
 
   if ( particle==Trk::neutron || particle==Trk::photon || particle==Trk::pi0 || particle==Trk::k0 ){
     nextPar = propagateNeutral(trackParameters,targetSurfaces,propagationDirection,
@@ -438,8 +438,8 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
   cache.m_matPropOK = tVol? true : false;
 
   // no identified intersections needed/ no material dump
-  cache.m_identifiedParameters = 0;
-  cache.m_matstates = 0;
+  cache.m_identifiedParameters = nullptr;
+  cache.m_matstates = nullptr;
   cache.m_extrapolationCache = nullptr;
   cache.m_hitVector = nullptr;
 
@@ -488,9 +488,9 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
   cache.m_matPropOK = tVol? true : false;
 
   // no identified intersections needed/ no material dump
-  cache.m_identifiedParameters = 0;
-  cache.m_matstates = 0;
-  cache.m_hitVector = 0;
+  cache.m_identifiedParameters = nullptr;
+  cache.m_matstates = nullptr;
+  cache.m_hitVector = nullptr;
 
   return propagateRungeKutta( cache,false, trackParameters, 
                               targetSurface, propagationDirection,
@@ -526,9 +526,9 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
   cache.m_matPropOK = tVol? true : false;
 
   // no identified intersections needed/ no material dump
-  cache.m_identifiedParameters = 0;
-  cache.m_matstates = 0;
-  cache.m_extrapolationCache = 0;
+  cache.m_identifiedParameters = nullptr;
+  cache.m_matstates = nullptr;
+  cache.m_extrapolationCache = nullptr;
   cache.m_hitVector = nullptr;
 
   Trk::TrackParameters* parameters = propagateRungeKutta( cache,true, trackParameters, targetSurface, 
@@ -571,8 +571,8 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
   cache.m_matPropOK = tVol? true : false;
 
   // no identified intersections needed/ no material dump
-  cache.m_identifiedParameters = 0;
-  cache.m_matstates = 0;
+  cache.m_identifiedParameters = nullptr;
+  cache.m_matstates = nullptr;
   cache.m_extrapolationCache = nullptr;
   cache.m_hitVector = nullptr;
 
@@ -580,10 +580,10 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
   mft.magneticFieldMode()==2 ? cache.m_solenoid = true : cache.m_solenoid = false;  
 
   //Check inputvalues
-  if (m_tolerance <= 0.) return 0;
-  if (m_momentumCutOff < 0. ) return 0;
+  if (m_tolerance <= 0.) return nullptr;
+  if (m_momentumCutOff < 0. ) return nullptr;
   if (fabs( 1./trackParameters.parameters()[Trk::qOverP]) <= m_momentumCutOff) {
-    return 0;
+    return nullptr;
   }
 
   //Check for empty volumes. If x != x then x is not a number.
@@ -595,7 +595,7 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
 
   Trk::RungeKuttaUtils rungeKuttaUtils;
   //double P[45];
-  if (!rungeKuttaUtils.transformLocalToGlobal( false, trackParameters, cache.m_P)) return 0;
+  if (!rungeKuttaUtils.transformLocalToGlobal( false, trackParameters, cache.m_P)) return nullptr;
   double path = 0.;
 
   const Amg::Transform3D&  T = targetSurface.transform();   
@@ -607,33 +607,33 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;} 
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
-    if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return 0;
+    if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return nullptr;
   }
 
   else if (ty == Trk::Surface::Line     ) { 
 
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)}; 
-    if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return 0;
+    if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return nullptr;
   }
 
   else if (ty == Trk::Surface::Cylinder ) { 
 
     const Trk::CylinderSurface* cyl = static_cast<const Trk::CylinderSurface*>(&targetSurface); 
     double s [9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),Trk::alongMomentum,0.}; 
-    if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return 0;
+    if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return nullptr;
   }
 
   else if (ty == Trk::Surface::Cone     ) { 
 
     double k     = static_cast<const Trk::ConeSurface*>(&targetSurface)->bounds().tanAlpha(); k = k*k+1.; 
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,Trk::alongMomentum,0.}; 
-    if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return 0;
+    if (!propagateWithJacobian(cache, false, ty, s, cache.m_P, path)) return nullptr;
   }
 
   else if (ty == Trk::Surface::Perigee  ) { 
 
     double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.}; 
-    if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return 0;
+    if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return nullptr;
   }
 
   else {      // presumably curvilinear
@@ -643,7 +643,7 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
 
     if(d>=0.) {s[0]= T(0,2); s[1]= T(1,2); s[2]= T(2,2); s[3]= d;} 
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
-    if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return 0;
+    if (!propagateWithJacobian( cache,false, ty, s, cache.m_P, path)) return nullptr;
 
   }
 
@@ -668,16 +668,16 @@ const Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(cons
   PerigeeSurface* perigeeSurface  = new PerigeeSurface(origin);
   const Trk::TrackParameters* trackParameters = perigeeSurface->createTrackParameters(0.,0.,
                                                                                       direction.phi(),
-                                                                                      direction.theta(),qOverP,0);
+                                                                                      direction.theta(),qOverP,nullptr);
 
   const Trk::IntersectionSolution* solution = qOverP==0? intersect(*trackParameters,surface,
                                                                    Trk::MagneticFieldProperties(Trk::NoField),
                                                                    particle):intersect(*trackParameters,surface,
-                                                                                       mft,particle,0);
+                                                                                       mft,particle,nullptr);
 
   delete perigeeSurface;
   delete trackParameters;
-  if(!solution) return 0;
+  if(!solution) return nullptr;
 
   Trk::IntersectionSolutionIter output_iter = solution->begin();
   if(*output_iter) {
@@ -686,7 +686,7 @@ const Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(cons
     return result; 
   } 
   delete solution;   
-  return 0;
+  return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -817,7 +817,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
                                            Trk::PropDirection                  propagationDirection,
                                            const Trk::MagneticFieldProperties& mft,
                                            ParticleHypothesis                  particle,
-                                           Trk::BoundaryCheck                  boundaryCheck,
+                                           const Trk::BoundaryCheck&                  boundaryCheck,
                                            double*                             Jacobian,
                                            bool                                returnCurv) const
 {
@@ -825,20 +825,20 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
   cache.m_particle = particle;
   cache.m_charge   = inputTrackParameters.charge();
 
-  const Trk::TrackParameters* trackParameters = 0;
+  const Trk::TrackParameters* trackParameters = nullptr;
 
   // Bfield mode
   mft.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
 
   //Check inputvalues
-  if (m_tolerance <= 0.) return 0;
-  if (m_momentumCutOff < 0.) return 0;
+  if (m_tolerance <= 0.) return nullptr;
+  if (m_momentumCutOff < 0.) return nullptr;
 
   //Set momentum to 1e10 (straight line) and charge to + if q/p is zero
   if (inputTrackParameters.parameters()[Trk::qOverP] == 0) {
     trackParameters = createStraightLine( &inputTrackParameters);
     if (!trackParameters) {
-      return 0;
+      return nullptr;
     }
   }
   else {
@@ -847,7 +847,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
 
   if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    return 0;
+    return nullptr;
   }
 
   //Check for empty volumes. If x != x then x is not a number.
@@ -868,7 +868,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
   Trk::RungeKuttaUtils rungeKuttaUtils;
   if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters,cache.m_P)) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    return 0;
+    return nullptr;
   }
   double path = 0.;
 
@@ -883,7 +883,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
     if (!propagateWithJacobian(cache,errorPropagation, ty, s, cache.m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -892,7 +892,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     double s[6] ={T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2)}; 
     if (!propagateWithJacobian( cache,errorPropagation, ty, s, cache.m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -902,7 +902,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     double s[9] = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),cyl->bounds().r(),(double)propagationDirection,0.}; 
     if (!propagateWithJacobian( cache,errorPropagation, ty, s, cache.m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     } 
   }
 
@@ -912,7 +912,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     double s[9]  = {T(0,3),T(1,3),T(2,3),T(0,2),T(1,2),T(2,2),k,(double)propagationDirection,0.}; 
     if (!propagateWithJacobian(cache, errorPropagation, ty, s, cache.m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     } 
   }
 
@@ -921,7 +921,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     double s[6] ={T(0,3),T(1,3),T(2,3),0.,0.,1.}; 
     if (!propagateWithJacobian(cache, errorPropagation, ty, s, cache.m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     } 
   }
 
@@ -934,13 +934,13 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     else      {s[0]=-T(0,2); s[1]=-T(1,2); s[2]=-T(2,2); s[3]=-d;} 
     if (!propagateWithJacobian(cache, errorPropagation, ty, s, cache.m_P, path)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     } 
   }
 
   if (propagationDirection * path < 0.) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    return 0;
+    return nullptr;
   }
 
   double localp[5];
@@ -952,7 +952,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
 
     if ( boundaryCheck && !targetSurface.isOnSurface(gp) ) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;    
+      return nullptr;    
     }
 
     if ( !errorPropagation || !trackParameters->covariance() ) {
@@ -979,12 +979,12 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     Amg::Vector2D localPosition( localp[0], localp[1]);
     if (!targetSurface.insideBounds( localPosition, 0.)) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     }
   }
 
   Trk::TrackParameters* onTargetSurf = targetSurface.createTrackParameters(localp[0],localp[1],localp[2],
-                                                                                 localp[3],localp[4],0); 
+                                                                                 localp[3],localp[4],nullptr); 
 
   if ( !errorPropagation || !trackParameters->covariance() ) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
@@ -1026,20 +1026,20 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
   cache.m_charge   = inputTrackParameters.charge();
   cache.m_inputThetaVariance = 0.;
 
-  const Trk::TrackParameters* trackParameters = 0;
+  const Trk::TrackParameters* trackParameters = nullptr;
 
   // Bfield mode
   mft.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
 
   //Check inputvalues
-  if (m_tolerance <= 0.) return 0;
-  if (m_momentumCutOff < 0.) return 0;
+  if (m_tolerance <= 0.) return nullptr;
+  if (m_momentumCutOff < 0.) return nullptr;
 
   //Set momentum to 1e10 (straight line) and charge to + if q/p is zero
   if (inputTrackParameters.parameters()[Trk::qOverP] == 0) {
     trackParameters = createStraightLine( &inputTrackParameters);
     if (!trackParameters) {
-      return 0;
+      return nullptr;
     }
   }
   else {
@@ -1048,7 +1048,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
 
   if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    return 0;
+    return nullptr;
   }
 
   //Check for empty volumes. If x != x then x is not a number.
@@ -1076,7 +1076,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
   //double P[45]; // Track parameters and jacobian
   if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters, cache.m_P)) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    return 0;
+    return nullptr;
   }
 
   double path = 0.;
@@ -1096,17 +1096,17 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
                                        propagationDirection, solutions, path, totalPath);
     if (!validStep) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     }
     if (propagationDirection * path <= 0.) {
       if (trackParameters != &inputTrackParameters) delete trackParameters;
-      return 0;
+      return nullptr;
     }
     totalPath += path;  cache.m_timeOfFlight += cache.m_timeStep;
     if (cache.m_propagateWithPathLimit>1 || cache.m_binMat ) {    
       // make sure that for sliding surfaces the result does not get distorted
       // return curvilinear parameters
-      Trk::CurvilinearParameters* cPar = 0;
+      Trk::CurvilinearParameters* cPar = nullptr;
       rungeKuttaUtils.transformGlobalToLocal(cache.m_P, localp);
       if (!errorPropagation) { 
         cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(cache.m_P[0],cache.m_P[1],cache.m_P[2]),
@@ -1162,7 +1162,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
 
   if (!solutions.size()) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    return 0;
+    return nullptr;
   }
 
   // simulation mode : smear momentum
@@ -1172,7 +1172,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
   }
 
   Trk::TrackParameters* onTargetSurf = (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone) ? 
-    0 : targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0);
+    nullptr : targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],nullptr);
 
   if (!errorPropagation) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
@@ -1358,7 +1358,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   Amg::Vector3D direction0(P[3],P[4],P[5]); 
 
   // binned material ?
-  cache.m_binMat = 0;
+  cache.m_binMat = nullptr;
   if (cache.m_trackingVolume) {
     const Trk::AlignableTrackingVolume* aliTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (cache.m_trackingVolume);
     if (aliTV) cache.m_binMat = aliTV->binnedMaterial();
@@ -1426,7 +1426,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
   double absPath=0.;
   distanceToTarget > 100. ? h = 100. : distanceToTarget < -100. ? h = -100. : h = distanceToTarget;
 
-  const Trk::IdentifiedMaterial* binIDMat = 0;
+  const Trk::IdentifiedMaterial* binIDMat = nullptr;
   //Adapt step size to the material binning : change of bin layer triggers dump of material effects
   if (cache.m_binMat) {
     const Trk::BinUtility* lbu =  cache.m_binMat->layerBinUtility(position);
@@ -2398,7 +2398,7 @@ void Trk::STEP_Propagator::dumpMaterialEffects( Cache& cache,
     Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(cache.m_combinedThickness,sa,eloss,
                                                                          cvlTP->associatedSurface());   
 
-    cache.m_matstates->push_back(new TrackStateOnSurface(0,cvlTP,0,mefot));
+    cache.m_matstates->push_back(new TrackStateOnSurface(nullptr,cvlTP,nullptr,mefot));
   }
 
   cache.m_matdump_lastpath = path; 
@@ -2537,11 +2537,11 @@ Trk::TrackParameters* Trk::STEP_Propagator::createStraightLine( const Trk::Track
   if (inputTrackParameters->type()==Trk::Curvilinear) {
     return new Trk::CurvilinearParameters(inputTrackParameters->position(), lp[2], lp[3], lp[4], 
                                           (inputTrackParameters->covariance() ? 
-                                           new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
+                                           new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : nullptr ) );
   }  
   return inputTrackParameters->associatedSurface().createTrackParameters(lp[0], lp[1], lp[2], lp[3], lp[4],
                                                                          (inputTrackParameters->covariance() ? 
-                                                                          new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
+                                                                          new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : nullptr ) );
 
 }
 
@@ -2677,12 +2677,12 @@ Trk::STEP_Propagator::propagateNeutral(const Trk::TrackParameters&   parm,
       const Trk::Surface* sf = targetSurfaces[(*oIter).first].first;
 
       if( returnCurv || sf->type()==Trk::Surface::Cone) return new Trk::CurvilinearParameters(xsct,parm.momentum(),parm.charge());  
-      return sf->createTrackParameters(xsct,parm.momentum(),parm.charge(),0);
+      return sf->createTrackParameters(xsct,parm.momentum(),parm.charge(),nullptr);
 
     }   
   }
 
-  return 0;
+  return nullptr;
 }
 
 void Trk::STEP_Propagator::clearCache(Cache& cache) const

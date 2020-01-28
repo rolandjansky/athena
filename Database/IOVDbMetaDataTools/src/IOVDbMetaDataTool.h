@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#ifndef IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H
+#define IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H
 
 /**
  * @file   IOVDbMetaDataTool.h
@@ -12,13 +15,7 @@
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  * @date   April 2007
  *
- * $Header: /build/atlas/cvs/atlas/offline/Database/IOVDbMetaDataTools/src/IOVDbMetaDataTool.h,v 1.5 2009-04-29 07:44:13 schaffer Exp $
  */
-
-#ifndef IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H
-# define IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -28,28 +25,17 @@
 
 #include <string>  
 
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-
 class StoreGateSvc;
 class IOVMetaDataContainer;
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-/** 
- ** Class IOVDbMetaDataTool
- ** 
- **   @brief This is an interface to a tool used to manage the IOV Meta Data
- **   for a given object in the Meta Data Store.
- **  
- **    Properties:
- **
- **    - BeginRun:<pre>        Begin run number</pre>
- **    - EndRun:<pre>          End run number</pre>
- **    - BeginEvent:<pre>      Begin event number</pre>
- **    - EndEvent:<pre>        End event number</pre>
- **    - BeginTime:<pre>       Begin time</pre>
- **    - EndTime:<pre>         End time</pre>
+/**
+ * @class IOVDbMetaDataTool
+ *
+ * @brief This is an interface to a tool used to manage the IOV Meta Data
+ * for a given object in the Meta Data Store.
+ *
  **/
+
 class IOVDbMetaDataTool : virtual public AthAlgTool,
                           virtual public IMetaDataTool,
                           virtual public IIncidentListener,
@@ -64,44 +50,35 @@ public:
     virtual ~IOVDbMetaDataTool();
 
     /// Initialize AlgTool
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /// Finalize AlgTool
-    virtual StatusCode finalize();
-
+    virtual StatusCode finalize() override;
 
     /// Function called when a new input file is opened
-    StatusCode beginInputFile() {return StatusCode::SUCCESS;}
+    virtual StatusCode beginInputFile(const SG::SourceID&) override;
 
-    /// Function called when the currently open input file got completely
-    /// processed
-    StatusCode endInputFile() {return StatusCode::SUCCESS;}
+    /// Function called when the currently open input file got completely processed
+    virtual StatusCode endInputFile(const SG::SourceID&) override;
 
     /// Function called when the tool should write out its metadata
-    StatusCode metaDataStop() {return StatusCode::SUCCESS;}
-
-    /// Function called when a new input file is opened
-    StatusCode beginInputFile(const SG::SourceID&) {return this->beginInputFile();}
-
-    /// Function called when the currently open input file got completely
-    /// processed
-    StatusCode endInputFile(const SG::SourceID&) {return this->endInputFile();}
+    virtual StatusCode metaDataStop() override;
 
     /// Incident service handle listening for BeginInputFile and EndInputFile.
-    void handle(const Incident& incident);
+    virtual void handle(const Incident& incident) override;
 
     /// Register folder in the IOV Db MetaData - done once at initialize
     virtual StatusCode  registerFolder(const std::string& folderName, 
-                                       const std::string& folderDescription) const;
+                                       const std::string& folderDescription) const override;
     
     /// Register folder in the IOV Db MetaData without folder description -
     ///   uses default folder description for CondAttrListCollection
-    virtual StatusCode  registerFolder(const std::string& folderName) const;
+    virtual StatusCode registerFolder(const std::string& folderName) const override;
 
     /// Add an IOV and Payload for a particular folder - replaces
     /// payloads if there is an IOV overlap
-    StatusCode  addPayload    (const std::string& folderName, 
-                               CondAttrListCollection* payload) const;
+    virtual StatusCode addPayload(const std::string& folderName,
+				   CondAttrListCollection* payload) const override;
 
     /// Explicit call to process IOV meta data from the input meta
     /// data store, transferring it to the main meta data
@@ -109,7 +86,7 @@ public:
     /// BeginInputFile incident. However, this explicit call allows the
     /// transfer to occur during the initialization phase, which
     /// occurs before BegininputFile incident.
-    StatusCode  processInputFileMetaData(const std::string& fileName);
+    virtual StatusCode processInputFileMetaData(const std::string& fileName) override;
 
 private:
 
@@ -123,22 +100,26 @@ private:
     /// override IOV with new run number
     void        overrideIOV(CondAttrListCollection*& coll) const;
 
-    /// print out of CondAttrListCollection
-    void        printOut(const CondAttrListCollection* coll) const;
-
     /// Modify a Payload for a particular folder - replaces one of the
     /// internal attributes
     StatusCode  modifyPayload (const std::string& folderName, 
                                CondAttrListCollection*& payload) const;
+
+    /// Add input objects to MetaCont
+    StatusCode fillMetaCont(const std::string& sid
+			    , const IOVMetaDataContainer* iovCont);
+
+    /// Dump the contents of MetaCont<IOVMetaDataContainer> objects in MetaDataStore
+    StatusCode dumpMetaConts();
 
     /// Handles to the meta data stores
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
     StoreGateSvc_t   m_metaDataStore;
     StoreGateSvc_t   m_inputStore;
 
-    // Has the FirstInputFileIncidence fired? Used to skip the first
+    // Has the FirstInputFileIncident fired? Used to skip the first
     // BeginInputFile incident
-    bool             m_processedFirstInputFileIncidence;
+    bool             m_processedFirstInputFileIncident;
 
     // Flag to check whether we need to override run number for MC
     // events in incoming file meta data. This is needed for example
@@ -165,10 +146,5 @@ private:
     bool                 m_modifyFolders;
 
 };
-
-    
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H

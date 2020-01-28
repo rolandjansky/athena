@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FloatCompressor.h 789425 2016-12-13 10:50:12Z krasznaa $
@@ -51,10 +51,10 @@ namespace xAOD {
       /// @name Magic numbers
       /// @{
 
-      // Half of the LSB-value after cutting the lower 16 bits
-      const uint32_t m_rounding=0x00008000;
+      // Half of the LSB-value after cutting the lower 32 - Ntotal bits
+      uint32_t m_rounding;
       /// Largest possible positive 32bit float minus the rounding
-      const uint32_t m_vmax=0x7f7f7fff;
+      uint32_t m_vmax;
 
       /// @}
 

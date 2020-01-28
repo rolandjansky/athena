@@ -54,7 +54,7 @@ namespace TrigConf {
        *@endcode
        */
       ConstIter( const V & buf, size_t offset = 0, 
-                 std::function<T(const typename V::value_type &)> f = [](auto x)->T{return {x};}) :
+                 std::function<T(const typename V::value_type &)> f = [](auto & x)->T{return {x};}) :
          m_buf(buf),
          m_offset(offset),
          m_data(),

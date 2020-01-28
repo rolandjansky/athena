@@ -63,11 +63,11 @@ else:
 
 jetTagMonTool.UseTrigDecisionTool = True # added by SARA
 if DQMonFlags.useTrigger() and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
-    print "jetTagMonTool will use TrigDecisionTool instance: %s" % DQMonFlags.nameTrigDecTool()
+    printfunc ("jetTagMonTool will use TrigDecisionTool instance: %s" % DQMonFlags.nameTrigDecTool())
 #    jetTagMonTool.TrigDecisionTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
     jetTagMonTool.UseTrigDecisionTool = True
 else:
-    print "WARNING!!! jetTagMonTool will NOT use TrigDecisionTool."
+    printfunc ("WARNING!!! jetTagMonTool will NOT use TrigDecisionTool.")
     jetTagMonTool.UseTrigDecisionTool = False
 
 if (rec.triggerStream()=='express'): # added by SARA # don't require trigger if running on express stream

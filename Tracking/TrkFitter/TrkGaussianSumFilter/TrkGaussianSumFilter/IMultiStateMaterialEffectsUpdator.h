@@ -37,7 +37,7 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMultiStateMaterialEffectsUpdator; };
 
   /** Virtual destructor */
-  virtual ~IMultiStateMaterialEffectsUpdator(){};
+  virtual ~IMultiStateMaterialEffectsUpdator()= default;
 
   /** Method for updating the state with material effects provided by the layer object */
   virtual std::unique_ptr<Trk::MultiComponentState> updateState(const ComponentParameters&,

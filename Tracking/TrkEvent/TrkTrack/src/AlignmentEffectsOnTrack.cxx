@@ -50,7 +50,7 @@ Trk::AlignmentEffectsOnTrack& Trk::AlignmentEffectsOnTrack::operator=(const Trk:
 
 Trk::AlignmentEffectsOnTrack::~AlignmentEffectsOnTrack(){
   if ( m_surface && m_surface->isFree() ) { 
-    delete m_surface; m_surface = 0;
+    delete m_surface; m_surface = nullptr;
   }
 }
 

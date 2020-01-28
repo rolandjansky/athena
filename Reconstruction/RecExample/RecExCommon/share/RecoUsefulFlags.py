@@ -17,102 +17,102 @@ excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 try:
     from AthenaMonitoring.DQMonFlags import DQMonFlags
 except Exception:
-    print "WARNING could not load DQMonFlags"
+    printfunc ("WARNING could not load DQMonFlags")
     
 try:
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 except Exception:
-    print "WARNING could not load TriggerFlags"
+    printfunc ("WARNING could not load TriggerFlags")
 
 #      from InDetRecExample.InDetJobProperties import InDetFlags
 try:
     from LArConditionsCommon.LArCondFlags import larCondFlags
 except Exception:
-    print "WARNING could not load LArCondFlags"
+    printfunc ("WARNING could not load LArCondFlags")
 
 try:
     from LArROD.LArRODFlags import larRODFlags
 except Exception:
-    print "WARNING could not load LArRODFlags"
+    printfunc ("WARNING could not load LArRODFlags")
 
 try:
     from CaloRec.CaloRecFlags import jobproperties
 except Exception:
-    print "WARNING could not load CaloRecFlags"
+    printfunc ("WARNING could not load CaloRecFlags")
 
 try:
     from CaloRec.CaloCellFlags import jobproperties
 except Exception:
-    print "WARNING could not load CaloCellFlags"
+    printfunc ("WARNING could not load CaloCellFlags")
 
 try:
     from CaloRec.CaloTopoClusterFlags import jobproperties
 except Exception:
-    print "WARNING could not load CaloTopoClusterFlags"
+    printfunc ("WARNING could not load CaloTopoClusterFlags")
 
 
 try:
     from TileRecUtils.TileRecFlags import jobproperties
 except Exception:
-    print "WARNING could not load TileRecFlags"
+    printfunc ("WARNING could not load TileRecFlags")
 
 
 try:
     from MuonRecExample.MuonRecFlags import muonRecFlags
 except Exception:
-    print "WARNING could not load muonRecFlags"
+    printfunc ("WARNING could not load muonRecFlags")
 
 try:
     from MuonCnvExample.MuonCnvFlags import muonCnvFlags
 except Exception:
-    print "WARNING could not load muonCnvFlags"
+    printfunc ("WARNING could not load muonCnvFlags")
 
 try:
     from MuonCnvExample.MuonCalibFlags import muonCalibFlags
 except Exception:
-    print "WARNING could not load muonCalibFlags"
+    printfunc ("WARNING could not load muonCalibFlags")
 
 try:
     from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 except Exception:
-    print "WARNING could not load muonCombinedRecFlags"
+    printfunc ("WARNING could not load muonCombinedRecFlags")
 
 
 
 try:
     from tauRec.tauRecFlags import jobproperties
 except Exception:
-    print "WARNING could not load tauRecFlags"
+    printfunc ("WARNING could not load tauRecFlags")
 
 try:
     from egammaRec.egammaRecFlags import jobproperties
 except Exception:
-    print "WARNING could not load egammaRecFlags"
+    printfunc ("WARNING could not load egammaRecFlags")
 
 
 try:
     from JetRec.JetRecFlags import jetFlags
 except Exception:
-    print "WARNING could not load jetFlags"
+    printfunc ("WARNING could not load jetFlags")
 
 
 try:
     from BTagging.BTaggingFlags import BTaggingFlags
 except Exception:
-    print "WARNING could not load BTaggingFlags"
+    printfunc ("WARNING could not load BTaggingFlags")
     
 
 try:
     from ParticleBuilderOptions.AODFlags import AODFlags
 except Exception:
-    print "WARNING could not load AODFlags"
+    printfunc ("WARNING could not load AODFlags")
 
 try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 except Exception:
-    print "WARNING could not load primDPD"
+    printfunc ("WARNING could not load primDPD")
 
 try:
     from D2PDMaker.D2PDFlags import D2PDFlags
 except Exception:
-    print "WARNING could not load D2PDFlags"
+    printfunc ("WARNING could not load D2PDFlags")

@@ -15,8 +15,8 @@ if not ('conddb' in dir()):
 # --- Setup BeamSpot data
 #
 try:
-   from RecExConfig.RecFlags import rec
    # If express processing, point beam spot to online folder results
+   from RecExConfig.RecFlags import rec
    if (rec.doExpressProcessing()):
         conddb.addFolder('INDET_ONL', '/Indet/Onl/Beampos <key>/Indet/Beampos</key>', className="AthenaAttributeList")
    else:
@@ -33,11 +33,10 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
    condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
-
 #
 # --- Load PixelConditionsTools
 #
-if DetFlags.haveRIO.pixel_on():
+if DetFlags.pixel_on():
     # Load pixel conditions summary service
     from AthenaCommon.AppMgr import ToolSvc
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
@@ -160,9 +159,9 @@ if DetFlags.haveRIO.pixel_on():
     if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
         conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
-    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-        condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+        if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+            condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
 
     if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
         if not (globalflags.DataSource() == 'geant4'):
@@ -174,7 +173,7 @@ if DetFlags.haveRIO.pixel_on():
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
         condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
 
-    if (globalflags.DataSource=='data'):
+    if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):
         if not conddb.folderRequested("/PIXEL/CablingMap"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
 

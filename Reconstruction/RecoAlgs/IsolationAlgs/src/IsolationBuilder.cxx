@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IsolationBuilder.cxx 
@@ -508,7 +508,7 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
 	// let's do the core corrections
 
 	// iterate over the values we want to store
-	for (const auto& coreCorDecoPr : handles.coreCorDeco) {
+	for (auto& coreCorDecoPr : handles.coreCorDeco) {
 	  // find the matching result
 	  auto corIter = CaloIsoResult.coreCorrections.find(coreCorDecoPr.first);
 	  if (corIter == CaloIsoResult.coreCorrections.end()) {
@@ -542,7 +542,7 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
 	// }
 
 	// let's do the noncore corrections
-	for (const auto& noncoreCorDecoPr : handles.noncoreCorDeco) {
+	for (auto& noncoreCorDecoPr : handles.noncoreCorDeco) {
 	  // find the matching result
 	  auto corIter = CaloIsoResult.noncoreCorrections.find(noncoreCorDecoPr.first);
 	  if (corIter == CaloIsoResult.noncoreCorrections.end()) {
@@ -640,7 +640,7 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
 	// let's do the core corrections
 
 	// iterate over the values we want to store
-	for (const auto& coreCorDecoPr : handles.coreCorDeco) {
+	for (auto& coreCorDecoPr : handles.coreCorDeco) {
 	  // find the matching result
 	  auto corIter = TrackIsoResult.coreCorrections.find(coreCorDecoPr.first);
 	  if (corIter == TrackIsoResult.coreCorrections.end()) {

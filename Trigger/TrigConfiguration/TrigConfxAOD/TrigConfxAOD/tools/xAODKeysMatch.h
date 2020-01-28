@@ -18,6 +18,10 @@ namespace TrigConf {
    bool xAODKeysMatch( const xAOD::TrigConfKeys* keys,
                        const xAOD::TriggerMenu* menu );
 
+   /// Helper function checking if the DB keys match on two objects
+   bool xAODKeysMatch( const xAOD::TriggerMenu* menuA,
+                       const xAOD::TriggerMenu* menuB );
+
 } // namespace TrigConf
 
 #endif // TRIGCONFXAOD_TOOLS_XAODKEYSMATCH_H

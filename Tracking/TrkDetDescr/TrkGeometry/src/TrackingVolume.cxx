@@ -384,7 +384,7 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
   const Trk::TrackingVolume* in  = 0;
   const Trk::TrackingVolume* out = 0;
   for (unsigned int ib = 0; ib < trVol.boundarySurfaces().size() ; ib++) {
-    in = trVol.boundarySurfaces()[ib].get()->m_insideVolume == &trVol ? this : 0;
+    in = trVol.boundarySurfaces()[ib].get()->insideVolume() == &trVol ? this : 0;
     out = in == 0 ? this : 0;
     const Trk::CylinderSurface* cyl = dynamic_cast<const Trk::CylinderSurface*> (trVol.boundarySurfaces()[ib].get());
     const Trk::DiscSurface*     dis = dynamic_cast<const Trk::DiscSurface*> (trVol.boundarySurfaces()[ib].get());
@@ -767,7 +767,7 @@ void Trk::TrackingVolume::indexContainedMaterialLayers(GeometrySignature geoSig,
 }
 
 
-void Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact) const
+void Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact) 
 {
   // assume the scaling factor refers to the volume scaling
   float flin = pow(fact,0.33); 
@@ -796,7 +796,7 @@ void Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact) co
   dEdX += flin*mprop.dEdX; 
 }
 
-void Trk::TrackingVolume::propagateMaterialProperties(const Trk::Material& mprop) const {
+void Trk::TrackingVolume::propagateMaterialProperties(const Trk::Material& mprop) {
   
   X0            = mprop.X0;
   L0            = mprop.L0;
@@ -977,8 +977,8 @@ void Trk::TrackingVolume::interlinkLayers() {
       { 
 	if (*layerIter) {
 	  // register the layers
-	  (**layerIter).m_binUtility    = m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : 0; 
-	  (**layerIter).m_previousLayer = lastLayer;
+	  (**layerIter).setBinUtility(m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : nullptr); 
+	  (**layerIter).setPreviousLayer(lastLayer);
 	  // register the volume
 	  (**layerIter).encloseTrackingVolume(*this); 
 	}
@@ -991,9 +991,9 @@ void Trk::TrackingVolume::interlinkLayers() {
     for ( ; ; --layerIter)
       { 
 	if (*layerIter)
-	  (**layerIter).m_nextLayer = lastLayer;
-	lastLayer = (*layerIter);
-	if (layerIter == layers.begin()) break;
+	  (**layerIter).setNextLayer(lastLayer);
+  lastLayer = (*layerIter);
+  if (layerIter == layers.begin()) break;
       }
   }
 }

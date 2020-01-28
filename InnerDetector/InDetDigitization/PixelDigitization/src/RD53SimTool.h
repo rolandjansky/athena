@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelDigitization/RD53SimTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date January, 2020
+ * @brief RD53 simulation
+ */
 
 #ifndef PIXELDIGITIZATION_RD53SimTool_H
 #define PIXELDIGITIZATION_RD53SimTool_H

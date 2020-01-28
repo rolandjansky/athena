@@ -15,6 +15,23 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkTau.TauCommon import *
 
 # ==========================================================================================================================
+# Set up stream
+# ==========================================================================================================================
+streamName                                       = derivationFlags.WriteDAOD_TAUP3Stream.StreamName
+fileName                                         = buildFileName( derivationFlags.WriteDAOD_TAUP3Stream )
+TAUP3Stream                                      = MSMgr.NewPoolRootStream( streamName, fileName )
+TAUP3Stream.AcceptAlgs(["TAUP3Kernel"])
+
+# SPECIAL LINES FOR THINNING
+# Thinning service name must match the one passed to the thinning tools
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream                                        = MSMgr.GetStream( streamName )
+evtStream                                        = augStream.GetEventStream()
+svcMgr                                          += createThinningSvc(
+                                                     svcName                   = "TAUP3ThinningSvc",
+                                                     outStreams                = [evtStream])
+
+# ==========================================================================================================================
 # Thinning tool
 # ==========================================================================================================================
 # MET/Jet tracks
@@ -40,7 +57,7 @@ ToolSvc                                         += TAUP3JetTPThinningTool
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP3CaloClusterThinning                         = DerivationFramework__CaloClusterThinning(
                                                      name                      = "TAUP3ClusterThinning",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName                = streamName,       
                                                      SGKey                     = "TauJets",
                                                      TopoClCollectionSGKey     = "CaloCalTopoClusters")
 ToolSvc                                         += TAUP3CaloClusterThinning
@@ -107,23 +124,6 @@ DerivationFrameworkJob                          += CfgMgr.DerivationFramework__D
                                                                                   TAUP3MuonTPThinningTool,
                                                                                   TAUP3TauTPThinningTool],
                                                      AugmentationTools         = augmentationTools)
-
-# ==========================================================================================================================
-# Set up stream
-# ==========================================================================================================================
-streamName                                       = derivationFlags.WriteDAOD_TAUP3Stream.StreamName
-fileName                                         = buildFileName( derivationFlags.WriteDAOD_TAUP3Stream )
-TAUP3Stream                                      = MSMgr.NewPoolRootStream( streamName, fileName )
-TAUP3Stream.AcceptAlgs(["TAUP3Kernel"])
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream                                        = MSMgr.GetStream( streamName )
-evtStream                                        = augStream.GetEventStream()
-svcMgr                                          += createThinningSvc(
-                                                     svcName                   = "TAUP3ThinningSvc",
-                                                     outStreams                = [evtStream])
 
 # ==========================================================================================================================
 # Add the containers to the output stream (slimming done here)

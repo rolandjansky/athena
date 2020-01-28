@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAURUNNERALG_H
@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "tauRecTools/ITauToolExecBase.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "tauRecTools/TauEventData.h"
@@ -44,9 +43,9 @@ class TauRunnerAlg: public AthAlgorithm
         //-----------------------------------------------------------------
         // Gaudi algorithm hooks
         //-----------------------------------------------------------------
-        virtual StatusCode initialize();
-        virtual StatusCode execute();
-        virtual StatusCode finalize();
+        virtual StatusCode initialize() override;
+        virtual StatusCode execute() override;
+        virtual StatusCode finalize() override;
 
 	// template for deep copy function
 	template<class T, class U, class V> StatusCode deepCopy(T*& containerOut, U*& containerStoreOut, const V* dummyContainerType,

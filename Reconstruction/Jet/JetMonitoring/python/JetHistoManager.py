@@ -1,5 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
+import six
 
 class JetHistoManager(object):
 
@@ -8,7 +11,7 @@ class JetHistoManager(object):
         tname = tool.getName()
         name =  tname if alias == "" else alias
         if name in self.knownTools:
-            print "ERROR won't add tool ", name," : already existing"
+            print ("ERROR won't add tool ", name," : already existing")
             return
 
         self.knownTools[name] = tool
@@ -28,7 +31,7 @@ class JetHistoManager(object):
         return t
         
     def printTools(self):
-        for n, t in self.knownTools.iteritems():
-            print '%20s    %40s'%(n, type(t))
+        for n, t in six.iteritems(self.knownTools):
+            print ('%20s    %40s'%(n, type(t)))
 
 jetHistoManager = JetHistoManager()

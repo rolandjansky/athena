@@ -9,7 +9,7 @@ export EVENTS=20
 export THREADS=1
 export SLOTS=1
 export INPUT="ttbar"
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export EXTRA="doL1Sim=True;doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison

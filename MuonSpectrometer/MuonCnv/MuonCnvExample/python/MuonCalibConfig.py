@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
 # JobOption fragments for Condition Database access
@@ -107,8 +107,7 @@ def setupCscCondDB():
 
 
 def CscCalibTool(name,**kwargs):
-    # setup condDB folders
-    setupCscCondDB()
+    import MuonCondAlg.CscCondDbAlgConfig # MT-safe conditions access
     # make tool
     return CfgMgr.CscCalibTool(
         Slope=0.19,

@@ -15,7 +15,7 @@ namespace TrigConf {
     * Provides access to the name and counter of the HLT chain, to 
     * the seeding L1 item and to the connected output streams and chain groups.
     */
-   class Chain final : virtual public DataStructure {
+   class Chain final : public DataStructure {
    public:
 
       /** Constructor */

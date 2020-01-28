@@ -166,7 +166,7 @@ Trk::GeometrySignature Trk::DetachedTrackingVolume::geometrySignature() const
 Trk::GeometryType Trk::DetachedTrackingVolume::geometryType() const 
 { return m_trkVolume->geometryType(); }
 
-void Trk::DetachedTrackingVolume::setBaseTransform( Amg::Transform3D* transf ) const 
+void Trk::DetachedTrackingVolume::setBaseTransform( Amg::Transform3D* transf ) 
 {
   if ( transf ) m_baseTransform = transf ;
   else {

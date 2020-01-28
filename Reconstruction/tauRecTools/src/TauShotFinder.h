@@ -1,20 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUSHOTFINDER_H
 #define	TAUREC_TAUSHOTFINDER_H
 
-//#include <string>
-//#include <vector>
-//#include <map>
-
 #include "GaudiKernel/ToolHandle.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
-
-//#include "CaloIdentifier/CaloCell_ID.h"
 
 class CaloDetDescrManager;
 class CaloCell_ID;
@@ -41,13 +35,8 @@ public:
     virtual ~TauShotFinder();
 
     virtual StatusCode initialize();
-    virtual StatusCode eventInitialize();
     virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotCaloClusContainer, xAOD::PFOContainer& tauShotPFOContainer);
-    virtual StatusCode eventFinalize();
     virtual StatusCode finalize();
-
-    virtual void print() const { }
-
 
 private:
 
@@ -147,7 +136,6 @@ private:
     float G_STDETA_5;
     float G_DELTAPT_MIN;
     */
-
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
     SG::WriteHandleKey<xAOD::PFOContainer> m_tauPFOOutputContainer{this,"Key_tauPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
     

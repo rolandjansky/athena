@@ -46,7 +46,7 @@ def getTransform():
     #BSRDOtoRAW is new option for trigger transform
     #runs primarily using athenaHLT
     #literalRunargs used for when running with athena
-    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TrigUpgradeTest/full_menu.py',
+    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TriggerJobOpts/runHLT_standalone.py',
                                      exe = 'athenaHLT.py',
                                      substep = 'b2r', tryDropAndReload = False,
                                      inData = ['BS_RDO', 'RDO'], outData = ['BS', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'], 
