@@ -1707,6 +1707,8 @@ namespace top {
     inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names;}
     
     inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
+
+    inline const std::unordered_map<std::string, std::string>& GetMCMCTranslator() const {return m_showerMCMCtranslator;}
     
   private:
     // Prevent any more configuration
@@ -2404,6 +2406,8 @@ namespace top {
     bool m_useEventLevelJetCleaningTool;
     
     std::shared_ptr<TreeFilter> m_treeFilter;
+
+    std::unordered_map<std::string, std::string> m_showerMCMCtranslator;
 
     //ReadFloatOption
     float readFloatOption(top::ConfigurationSettings* const& settings, std::string in) const;
