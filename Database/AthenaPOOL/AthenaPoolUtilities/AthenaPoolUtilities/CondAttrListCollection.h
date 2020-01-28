@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -592,7 +592,7 @@ CondAttrListCollection::dump(std::ostringstream& stream) const
   // Attribute list
   const_iterator itAtt = begin();
   const_iterator lastAtt = end();
-  for(; itAtt != lastAtt; ++lastAtt) {
+  for(; itAtt != lastAtt; ++itAtt) {
     stream << "chan, attr: " << (*itAtt).first << std::endl;
     (*itAtt).second.toOutputStream(stream) << std::endl;
   }
