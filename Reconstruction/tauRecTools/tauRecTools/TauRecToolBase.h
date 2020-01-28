@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLBASE_H
@@ -44,7 +44,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   //-----------------------------------------------------------------
   virtual StatusCode execute(xAOD::TauJet& pTau) override;
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) override;
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer ) override;
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) override;
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 					      xAOD::PFOContainer& hadronicPFOContainer, 
 					      xAOD::CaloClusterContainer& caloClusterContainer, 

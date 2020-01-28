@@ -15,6 +15,7 @@
 // STD
 #include <iomanip>
 #include <iostream>
+#include <utility>
 
 const double Trk::Surface::s_onSurfaceTolerance = 10e-5; // 0.1 * micron
 
@@ -153,7 +154,7 @@ Trk::Surface::operator=(const Trk::Surface& sf)
     m_center.release();
     m_normal.release();
     m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
-    m_associatedDetElement = 0;
+    m_associatedDetElement = nullptr;
     m_associatedDetElementId = Identifier();
     m_associatedLayer = sf.m_associatedLayer;
     m_materialLayer = sf.m_materialLayer;
@@ -164,7 +165,7 @@ Trk::Surface::operator=(const Trk::Surface& sf)
 
 // returns the LocalPosition on a surface of a GlobalPosition
 const Amg::Vector2D*
-Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
+Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, const BoundaryCheck& bchk, double tol1, double tol2) const
 {
   const Amg::Vector2D* posOnSurface = globalToLocal(glopo, tol1);
   if (!bchk){
@@ -181,7 +182,7 @@ Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, 
 bool
 Trk::Surface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
 {
-  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, bchk, tol1, tol2);
+  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, std::move(bchk), tol1, tol2);
   if (posOnSurface) {
     delete posOnSurface;
     return true;
@@ -190,7 +191,7 @@ Trk::Surface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double
 }
 
 // return the measurement frame
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::Surface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D&) const
 {
   return transform().rotation();

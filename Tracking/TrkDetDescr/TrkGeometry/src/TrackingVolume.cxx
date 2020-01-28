@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -63,11 +63,11 @@ Trk::TrackingVolume::TrackingVolume() :
 }
 
 // constructor: 1 a)
-Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
-                                    VolumeBounds* volbounds,
-                                    const LayerArray* subLayers,
-                                    const TrackingVolumeArray* subVolumes,
-                                    const std::string& volumeName) :
+ATLAS_NOT_THREAD_SAFE Trk::TrackingVolume::TrackingVolume (Amg::Transform3D* htrans,
+                                                           VolumeBounds* volbounds,
+                                                           const LayerArray* subLayers,
+                                                           const TrackingVolumeArray* subVolumes,
+                                                           const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(),
   m_motherVolume(0),
@@ -92,11 +92,11 @@ Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
 }   
 
 // constructor: 2 a)
-Trk::TrackingVolume::TrackingVolume(const Volume& volume,
-                                    const Material& matprop,
-                                    const LayerArray* subLayers,
-                                    const TrackingVolumeArray* subVolumes,
-                                    const std::string& volumeName) :
+ATLAS_NOT_THREAD_SAFE Trk::TrackingVolume::TrackingVolume (const Volume& volume,
+                                                           const Material& matprop,
+                                                           const LayerArray* subLayers,
+                                                           const TrackingVolumeArray* subVolumes,
+                                                           const std::string& volumeName) :
   Volume(volume),
   Material(matprop),
   m_motherVolume(0),
@@ -122,12 +122,12 @@ Trk::TrackingVolume::TrackingVolume(const Volume& volume,
 
 
 // constructor: 3 a)
-Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
-                                    VolumeBounds* volbounds,
-                                    const Material& matprop,
-                                    const LayerArray* subLayers,
-                                    const TrackingVolumeArray* subVolumes,
-                                    const std::string& volumeName) :
+ATLAS_NOT_THREAD_SAFE Trk::TrackingVolume::TrackingVolume (Amg::Transform3D* htrans,
+                                                           VolumeBounds* volbounds,
+                                                           const Material& matprop,
+                                                           const LayerArray* subLayers,
+                                                           const TrackingVolumeArray* subVolumes,
+                                                           const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(matprop),
   m_motherVolume(0),
@@ -574,7 +574,6 @@ const Trk::LayerIntersection<Amg::Vector3D>
   }
   // ---------------- CONFINED LAYER SECTION --------------
   if (m_confinedLayers){
-        ATH_MSG_VERBOSE( "closestMaterialLayer() ... trying m_confinedLayers" );
        // the associated layer
        const Trk::Layer* assocLayer       = associatedLayer(gp);
        const Trk::Layer* previousMatLayer = 0;
@@ -582,7 +581,6 @@ const Trk::LayerIntersection<Amg::Vector3D>
        // if the associated layer is a navigation layer - get the previous and next from this one
        const Trk::NavigationLayer* navLayer = dynamic_cast<const Trk::NavigationLayer*>(assocLayer);     
        if (navLayer) {
-           ATH_MSG_VERBOSE( "closestMaterialLayer() ... trying m_confinedLayers ... seeking navLayer neighbors" );
            // get previous / next
            previousMatLayer   = navLayer->previousLayer();
            nextMatLayer       = navLayer->nextLayer();
@@ -599,7 +597,6 @@ const Trk::LayerIntersection<Amg::Vector3D>
     // layer candidates found - continue
     if (layerCandidates.size()){
         const Layer*        cLayer     = 0;
-        ATH_MSG_VERBOSE( "closestMaterialLayer() ... having " <<  layerCandidates.size() << " layers to try.");
         // iterate through and chose
         for ( auto& lcIter : layerCandidates ){
             // only the forceFwd solution is possible here
@@ -689,7 +686,7 @@ std::vector<const Trk::DetachedTrackingVolume*>* Trk::TrackingVolume::assocDetac
 }
 
 
-void Trk::TrackingVolume::indexContainedStaticLayers(GeometrySignature geoSig, int& offset) const
+void Trk::TrackingVolume::indexContainedStaticLayers ATLAS_NOT_THREAD_SAFE(GeometrySignature geoSig, int& offset) const
 {
 
   // the offset gets increased internally
@@ -728,7 +725,7 @@ void Trk::TrackingVolume::indexContainedStaticLayers(GeometrySignature geoSig, i
   }
 }
 
-void Trk::TrackingVolume::indexContainedMaterialLayers(GeometrySignature geoSig, int& offset) const {
+void Trk::TrackingVolume::indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE (GeometrySignature geoSig, int& offset) const {
   
   // the offset gets increased internally
   // the static layers first and check if they have surfaces with material layers that need index
@@ -796,7 +793,12 @@ void Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact)
   dEdX += flin*mprop.dEdX; 
 }
 
-void Trk::TrackingVolume::propagateMaterialProperties(const Trk::Material& mprop) {
+void Trk::TrackingVolume::addMaterial ATLAS_NOT_THREAD_SAFE(const Material &mat,
+                                                                  float fact) const{
+  const_cast<Trk::TrackingVolume*>(this)->addMaterial(mat,fact);
+}
+ 
+void Trk::TrackingVolume::propagateMaterialProperties ATLAS_NOT_THREAD_SAFE(const Trk::Material& mprop){
   
   X0            = mprop.X0;
   L0            = mprop.L0;
@@ -817,12 +819,12 @@ void Trk::TrackingVolume::propagateMaterialProperties(const Trk::Material& mprop
 
 }
 
-void Trk::TrackingVolume::sign(Trk::GeometrySignature geosign, Trk::GeometryType geotype) const
+void Trk::TrackingVolume::sign ATLAS_NOT_THREAD_SAFE (Trk::GeometrySignature geosign, Trk::GeometryType geotype) const
 {
 
   // never overwrite what is already signed, that's a crime
-  if (m_geometrySignature == Trk::Unsigned) m_geometrySignature = geosign;
-  m_geometryType = geotype;
+  if (m_geometrySignature == Trk::Unsigned) const_cast<Trk::GeometrySignature&> (m_geometrySignature) = geosign;
+  const_cast<Trk::GeometryType&> (m_geometryType) = geotype;
 
   // confined volumes
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
@@ -967,7 +969,7 @@ void Trk::TrackingVolume::createLayerAttemptsCalculator()
    }
 }
 
-void Trk::TrackingVolume::interlinkLayers() {
+void Trk::TrackingVolume::interlinkLayers ATLAS_NOT_THREAD_SAFE() {
   if (m_confinedLayers){
     const std::vector<const Trk::Layer*>& layers = m_confinedLayers->arrayObjects();
     // forward loop
@@ -977,8 +979,8 @@ void Trk::TrackingVolume::interlinkLayers() {
       { 
 	if (*layerIter) {
 	  // register the layers
-	  (**layerIter).m_binUtility    = m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : 0; 
-	  (**layerIter).m_previousLayer = lastLayer;
+	  (**layerIter).setBinUtility(m_confinedLayers->binUtility() ? m_confinedLayers->binUtility() : nullptr); 
+	  (**layerIter).setPreviousLayer(lastLayer);
 	  // register the volume
 	  (**layerIter).encloseTrackingVolume(*this); 
 	}
@@ -991,9 +993,9 @@ void Trk::TrackingVolume::interlinkLayers() {
     for ( ; ; --layerIter)
       { 
 	if (*layerIter)
-	  (**layerIter).m_nextLayer = lastLayer;
-	lastLayer = (*layerIter);
-	if (layerIter == layers.begin()) break;
+	  (**layerIter).setNextLayer(lastLayer);
+  lastLayer = (*layerIter);
+  if (layerIter == layers.begin()) break;
       }
   }
 }
@@ -1001,36 +1003,43 @@ void Trk::TrackingVolume::interlinkLayers() {
 const Trk::LayerArray* Trk::TrackingVolume::checkoutConfinedLayers() const
 { 
     const Trk::LayerArray* checkoutLayers = m_confinedLayers;
-    m_confinedLayers=0;
     return checkoutLayers;
 }
 
-void Trk::TrackingVolume::registerOutsideGlueVolumes(Trk::GlueVolumesDescriptor* gvd) const 
+void Trk::TrackingVolume::registerOutsideGlueVolumes(Trk::GlueVolumesDescriptor* gvd)
 { 
   delete m_outsideGlueVolumes;
   m_outsideGlueVolumes = gvd;
 }
 
-const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor() const 
-{
-    if (!m_outsideGlueVolumes)
-        m_outsideGlueVolumes = new Trk::GlueVolumesDescriptor;
-    return (*m_outsideGlueVolumes);
+void Trk::TrackingVolume::registerOutsideGlueVolumes ATLAS_NOT_CONST_THREAD_SAFE(Trk::GlueVolumesDescriptor* gvd) const {
+  const_cast<const Trk::TrackingVolume&>(*this).registerOutsideGlueVolumes(gvd);
 }
 
-void Trk::TrackingVolume::moveVolume( Amg::Transform3D& shift ) const
+const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor() {
+  if (!m_outsideGlueVolumes)
+    m_outsideGlueVolumes = new Trk::GlueVolumesDescriptor;
+  return (*m_outsideGlueVolumes);
+}
+
+const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor ATLAS_NOT_CONST_THREAD_SAFE () const{
+    return (const_cast<Trk::TrackingVolume&>(*this)).glueVolumesDescriptor();
+}
+
+
+void Trk::TrackingVolume::moveVolume ATLAS_NOT_CONST_THREAD_SAFE (Amg::Transform3D& shift) const
 {
   if (m_transform) {
     Amg::Transform3D transf = shift * (*m_transform);
-    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(transf);
+    const_cast<Trk::TrackingVolume&>(*this).m_transform = std::make_unique<Amg::Transform3D>(transf);
   } else {
-    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(shift);
+    const_cast<Trk::TrackingVolume&>(*this).m_transform = std::make_unique<Amg::Transform3D>(shift);
   }
-  const_cast<Trk::TrackingVolume*>(this)->m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation())); 
+  const_cast<Trk::TrackingVolume&>(*this).m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation())); 
 }
 
 
-const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV(Amg::Transform3D& transform) const
+const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& transform) const
 {
   // clone the mother volume
   const Trk::Volume* vol = Trk::Volume::clone();
@@ -1173,13 +1182,12 @@ const Trk::Layer* Trk::TrackingVolume::closest(const Amg::Vector3D& pos,
         = first.surfaceRepresentation().straightLineDistanceEstimate(pos, dir);
    Trk::DistanceSolution distSolToNext
         = second.surfaceRepresentation().straightLineDistanceEstimate(pos, dir);
-   ATH_MSG_VERBOSE( "closest() ... distance to previous / next layer = " << distSolToPrevious.absClosest() << " / " << distSolToNext.absClosest() );
    // find out which one
    return (distSolToPrevious.absClosest() < distSolToNext.absClosest() ? &first : &second); 
 }                                               
 
                                 
-void  Trk::TrackingVolume::moveTV(Amg::Transform3D& transform) const {
+void  Trk::TrackingVolume::moveTV ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& transform) const {
 
   moveVolume( transform ); 
 
@@ -1214,11 +1222,8 @@ void  Trk::TrackingVolume::moveTV(Amg::Transform3D& transform) const {
 void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelope) const {
 
   // case a : Layers exist
-  msgstream << MSG::VERBOSE << "  -> synchronizing Layer dimensions of TrackingVolume '" << volumeName() << "'." << endmsg;     
-    
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
   if (confLayers){
-    msgstream << MSG::VERBOSE << "  ---> working on " << confLayers->arrayObjects().size() << " (material+navigation) layers." << endmsg;
     for (auto& clayIter : confLayers->arrayObjects())
         if (clayIter){
             if (clayIter->surfaceRepresentation().type() == Trk::Surface::Cylinder && !(center().isApprox(clayIter->surfaceRepresentation().center())) )
@@ -1231,13 +1236,12 @@ void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelop
   // case b : container volume -> step down
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
   if (confVolumes){
-    msgstream << MSG::VERBOSE << "  ---> no confined layers, working on " << confVolumes->arrayObjects().size() << " confined volumes." << endmsg;
     for (auto& cVolumesIter : confVolumes->arrayObjects())
         cVolumesIter->synchronizeLayers(msgstream, envelope);
   } 
 }
 
-void Trk::TrackingVolume::compactify(size_t& cSurfaces, size_t& tSurfaces) const {
+void Trk::TrackingVolume::compactify ATLAS_NOT_THREAD_SAFE (size_t& cSurfaces, size_t& tSurfaces) const {
         
   // confined 'ordered' layers
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
@@ -1269,6 +1273,5 @@ void  Trk::TrackingVolume::screenDump(MsgStream& msg) const
   msg << "[[ Trk::TrackingVolume ]] called: " << volumeName() << std::endl;
   msg << '\t' << '\t' << "# position (x,y,z) : " << center().x() << ", " << center().y() << ", " << center().z() << std::endl;
   msg << '\t' << '\t' << "# bounds           : " << volumeBounds()     << endmsg;
-
 }
 

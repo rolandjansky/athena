@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,6 +14,8 @@
  */
 #ifndef LARCONDTPCNV_LARPEDESTALMC_P1
 #define LARCONDTPCNV_LARPEDESTALMC_P1
+
+#include <vector>
 
 /**
  * @class LArPedestalMC_p1

@@ -10,11 +10,12 @@ import sys,os
 # import subprocess. Required to get user
 import subprocess
 from xml.dom import minidom
-from OracleInterface import OracleInterface
+from .OracleInterface import OracleInterface
 # import hash library for generating smck config hashes
 import hashlib
 # import json for converting configuration dictionaries into strings for hashing
 import json
+import six
 
 # This is the 'Athenaless' part of MenuAwareMonitoring
 # ie. this and OracleInterface.py can be used without Athena
@@ -239,7 +240,7 @@ class MenuAwareMonitoringStandalone:
         "Get the current user."
 
         # get the current user
-        self.current_user = subprocess.check_output("echo $USER", shell=True).replace("\n","")
+        self.current_user = six.ensure_str(subprocess.check_output("echo $USER", shell=True)).strip()
 
 
     def __update_local_pointer__(self):

@@ -36,11 +36,7 @@ public:
     
     virtual StatusCode initialize() override;
     virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer) override; 
-    virtual StatusCode eventInitialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode eventFinalize() override;
-
-    
     //-------------------------------------------------------------
     //! determines the transverse flight path significance from
     //! the primary vertex and the secondary vertex of tau candidate

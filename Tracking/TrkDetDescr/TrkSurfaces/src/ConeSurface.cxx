@@ -75,7 +75,7 @@ Trk::ConeSurface::ConeSurface(std::unique_ptr<Amg::Transform3D> htrans)
 {}
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::ConeSurface::~ConeSurface() {}
+Trk::ConeSurface::~ConeSurface() = default;
 
 Trk::ConeSurface&
 Trk::ConeSurface::operator=(const ConeSurface& csf)
@@ -130,7 +130,7 @@ Trk::ConeSurface::rotSymmetryAxis() const
 }
 
 // return the measurement frame: it's the tangential plane
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::ConeSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D&) const
 {
   Amg::RotationMatrix3D mFrame;
@@ -172,7 +172,7 @@ Trk::ConeSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D
   // double inttol = r*0.0001;
   // inttol = (inttol<0.01) ? 0.01 : 0.01; // ?
   double inttol = 0.01;
-  return (((loc3Dframe.perp() - r) > inttol) ? false : true);
+  return ((loc3Dframe.perp() - r) <= inttol);
 }
 
 Trk::Intersection
@@ -285,7 +285,7 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
 
   double d2bound = 0.;
   if (bound && solns.solutions != Trk::none) {
-    const Amg::Vector2D* p = 0;
+    const Amg::Vector2D* p = nullptr;
     if (fabs(solns.first) < fabs(solns.second))
       p = Surface::globalToLocal(locFramePos + solns.first * locFrameDir);
     else

@@ -17,6 +17,11 @@
 
 #include "TTree.h"
 
+// this mutex is used to protect access to the metadata trees
+namespace {
+  static std::mutex s_metadataMutex;
+}
+
 namespace Monitored {
   /**
    * @brief Implementation of IHistogramProvider for offline histograms
@@ -109,6 +114,7 @@ namespace Monitored {
      *
      */ 
     void storeMetadata() const {
+      std::scoped_lock<std::mutex> metadataLock(s_metadataMutex);
       for (const auto &path : m_storedPaths) {
         //std::cout << "Path " << path << std::endl;
         size_t pos = path.find_last_of('/');

@@ -2591,7 +2591,7 @@ void Muon::MuonTrackingGeometryBuilder::blendMaterial(LocalVariablesContainer& a
   //std::map<const Trk::DetachedTrackingVolume*,std::vector<const Trk::TrackingVolume*>* >::iterator mIter = m_blendMap.begin();
   std::vector<const Trk::DetachedTrackingVolume*>::iterator viter = aLVC.m_blendVols.begin();
 
-  std::vector<std::pair<const Trk::Volume*,float> >* cs = 0;
+  const std::vector<std::pair<const Trk::Volume*,float> >* cs = 0;
   
   //  for ( ; mIter!= m_blendMap.end(); mIter++) {
   //  cs = (*mIter).first->constituents();     

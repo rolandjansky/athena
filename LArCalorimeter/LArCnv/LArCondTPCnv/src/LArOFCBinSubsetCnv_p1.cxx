@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCondTPCnv/LArOFCBinSubsetCnv_p1.h"
@@ -29,7 +29,7 @@ LArOFCBinSubsetCnv_p1::persToTrans(const OFCBinPersType* persObj,
     }
   }    
    
-  transObj->m_correctionVec.reserve(ncorrs);
+  transObj->m_correctionVec.resize(ncorrs);
   
   // Loop over corrections
   for (unsigned int i = 0; i < ncorrs; ++i){
@@ -87,7 +87,7 @@ LArOFCBinSubsetCnv_p1::transToPers(const OFCBinTransType* transObj,
 
   // Copy corrections
   for (unsigned int i = 0; i < ncorrs; ++i){
-    persObj->m_values.push_back(transObj->m_correctionVec[i].first);
+    persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
     persObj->m_values.push_back(transObj->m_correctionVec[i].second.m_bin);
   }
 

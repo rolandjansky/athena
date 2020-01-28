@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # bwd compat
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 # stdlib imports
 import os
@@ -134,7 +134,7 @@ def apply_filters(branches, patterns):
                 matched_patterns.append(p)
     for p in patterns:
         if not (p in matched_patterns):
-            print '::: warning: pattern [%s] could not be matched against any branch' % p
+            print ('::: warning: pattern [%s] could not be matched against any branch' % p)
             pass
         pass
     filtered = dict(filtered)
@@ -174,16 +174,16 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
         orig_tree.SetBranchStatus("*", 0)
         # apply_filters returns the list of branches to keep
         br_names = apply_filters(all_br_names, patterns)
-        print "::: keeping only the following branches: (from file-list %s)" %\
-              vars_fname
+        print ("::: keeping only the following branches: (from file-list %s)" %
+               vars_fname)
         for b in br_names:
-            print ":::   [%s]" % (b,)
+            print (":::   [%s]" % (b,))
             orig_tree.SetBranchStatus(b,1)                            
     else:
         br_names = [br.GetName() for br in orig_tree.GetListOfBranches()]
 
     nleaves = len(br_names)
-    print "::: nleaves=[%04i] tree=[%s]" % (nleaves, orig_tree.GetName())
+    print ("::: nleaves=[%04i] tree=[%s]" % (nleaves, orig_tree.GetName()))
 
     tot_sz = [0]*nleaves    # zipped sizes collected from all files
     basket_sz = [0]*nleaves # size to be optimized (starts with `tot_sz`)
@@ -195,8 +195,8 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
         for ibr,br_name in enumerate(br_names):
             branch = tree.GetBranch(br_name)
             if not branch:
-                print "***warning*** - tree [%s] has no branch [%s]" % (tree.GetName(),
-                                                                        br_name)
+                print ("***warning*** - tree [%s] has no branch [%s]" % (tree.GetName(),
+                                                                         br_name))
                 continue
             branch.SetAddress(0)
 
@@ -218,7 +218,7 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
 
             max_spare = -1
             max_spare_idx = None
-            for i in xrange(nleaves):
+            for i in range(nleaves):
                 spare = tot_sz[i]/baskets[i] - tot_sz[i]/(baskets[i]+1)
                 if max_spare < spare:
                     max_spare = spare
@@ -250,7 +250,7 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
     # a list of other tree names to filter-and-merge
     other_trees = []
     if keep_all_trees:
-        print "::: capturing other trees to filter and merge..."
+        print ("::: capturing other trees to filter and merge...")
         # also handle all other payload-trees
         # to decide if a tree is a payload-tree (and not a metadata tree
         # which we don't know -by default- what is the correct way to merge)
@@ -263,13 +263,13 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
                                    and n.GetName() != tree_name))
         for n in _all_tree_names:
             _old_tree = orig_file.Get(n)
-            print ":::  ->",n,
+            print (":::  ->",n, end='')
             if _old_tree.GetEntries() != orig_tree.GetEntries():
                 # probably not a payload-tree but a metadata one...
                 del _old_tree
-                print "[reject]"
+                print ("[reject]")
                 continue
-            print "[keep]"
+            print ("[keep]")
             _new_tree = _old_tree.CloneTree(0) # no copy of events
             _new_tree.ResetBit(ROOT.kCanDelete)
             _new_tree.SetDirectory(fout)
@@ -277,7 +277,7 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
             _new_tree.ResetBranchAddresses()
             other_trees.append(_new_tree)
             del _old_tree
-        print "::: capturing other trees to filter and merge... [done]"
+        print ("::: capturing other trees to filter and merge... [done]")
 
     if apply_recursive_opt:
         # setting optimized basket sizes
@@ -286,7 +286,7 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
         max_bkt = 0
         min_bkt = 1024**3
 
-        for ibr in xrange(nleaves):
+        for ibr in range(nleaves):
             br = new_tree.GetBranch(br_names[ibr])
             if basket_sz[ibr] == 0:
                 basket_sz[ibr] = 16
@@ -304,10 +304,10 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
 
             pass # loop over leaves
 
-        print "::: optimize baskets: "
-        print ":::   total memory buffer: %8.3f kb" % (tot_mem/1024,)
-        print ":::   total baskets:       %8.3f (min= %8.3f) (max= %8.3f) kb" % (
-            tot_bkt, min_bkt, max_bkt)
+        print ("::: optimize baskets: ")
+        print (":::   total memory buffer: %8.3f kb" % (tot_mem/1024,))
+        print (":::   total baskets:       %8.3f (min= %8.3f) (max= %8.3f) kb" % (
+            tot_bkt, min_bkt, max_bkt))
 
         del tot_sz, basket_sz, baskets
         pass # apply_recursive_opt
@@ -320,7 +320,7 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
     if do_grl_selection:
         good_lbs = interpret_grl(fname=grl_fname)
 
-    print "::: processing [%i] trees..." % (len(fnames,))
+    print ("::: processing [%i] trees..." % (len(fnames,)))
     for idx, fname in enumerate(fnames):
         f = root_open(fname, "READ")
 
@@ -331,12 +331,12 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
         tree = getattr(f, tree_name)
         new_tree.CopyAddresses(tree)
         nentries = tree.GetEntries()
-        print ":::   entries:", nentries
-        for i in xrange(nentries):
+        print (":::   entries:", nentries)
+        for i in range(nentries):
 
             nb = tree.GetEntry(i)
             if nb <= 0:
-                print "*** error loading entry [%i]. got (%i) bytes" % (i,nb)
+                print ("*** error loading entry [%i]. got (%i) bytes" % (i,nb))
                 raise RuntimeError
             n_tot += 1
 
@@ -350,10 +350,10 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
                 try:
                     if not filter_fct(tree):
                         accept_entry = False
-                except Exception, err:
-                    print "*** problem running user filter fct:"
-                    print err
-                    print "*** (filter fct is now disabled)"
+                except Exception as err:
+                    print ("*** problem running user filter fct:")
+                    print (err)
+                    print ("*** (filter fct is now disabled)")
                     filter_fct = None
 
             if accept_entry:
@@ -366,7 +366,7 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
                     avg_entry_sz = out_fsize / float(_nentries_cur or 1.)
                     do_change_file = out_fsize + avg_entry_sz > 0.9 * tree_maxsz
                     if do_change_file:
-                        #print "--- manually triggering TTree::ChangeFile..."
+                        #print ("--- manually triggering TTree::ChangeFile...")
                         # manually trigger the file split...
                         # this is to ensure the split doesn't happen in between
                         # the new_tree.Fill() and the other_tree.Fill() which
@@ -377,8 +377,8 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
                     _tree = f.Get(other_tree.GetName())
                     nb = _tree.GetEntry(i)
                     if nb <= 0:
-                        print "*** error loading entry [%i] for tree [%s]. got (%i) bytes" % (
-                            i, other_tree.GetName(), nb)
+                        print ("*** error loading entry [%i] for tree [%s]. got (%i) bytes" % (
+                            i, other_tree.GetName(), nb))
                         continue
                     other_tree.Fill()
                     del _tree
@@ -389,12 +389,12 @@ def merge_all_trees(fnames, tree_name, memory, sfo,
         f.Close()
         del f
         pass # loop over input trees
-    print "::: processing [%i] trees... [done]" % (len(fnames,))
+    print ("::: processing [%i] trees... [done]" % (len(fnames,)))
 
     eff = 0.
     if n_tot != 0:
         eff = float(n_pass)/float(n_tot)
-    print "::: filter efficiency: %d/%d -> %s" % (n_pass, n_tot, eff)
+    print ("::: filter efficiency: %d/%d -> %s" % (n_pass, n_tot, eff))
 
     fout = new_tree.GetCurrentFile()
     fout.Write()
@@ -409,12 +409,12 @@ def order(m, chain_name, fnames, workdir):
     # set it to 2Tb
     ROOT.TTree.SetMaxTreeSize(2 * 1024 * 1024 * 1024 * 1024)
 
-    print "::: nbr of files:", len(fnames)
+    print ("::: nbr of files:", len(fnames))
     for i,fn in enumerate(fnames):
 
         timer = ROOT.TStopwatch()
         timer.Start()
-        print "::: optimizing   [%s]..." % (fn,)
+        print ("::: optimizing   [%s]..." % (fn,))
         #warm_up(fn)
 
         timer.Start()
@@ -443,20 +443,20 @@ def order(m, chain_name, fnames, workdir):
 
         timer.Stop()
 
-        print ":::   wallclock time:", timer.RealTime()
-        print ":::   CPU time:      ", timer.CpuTime()
+        print (":::   wallclock time:", timer.RealTime())
+        print (":::   CPU time:      ", timer.CpuTime())
 
         try:
             # fout may have been invalidated if the file-size limit was hit
             # and _1.root, _2.root,... files were created...
             if fout:
                 fout.Close()
-        except Exception,err:
-            print "**error**:",err
+        except Exception as err:
+            print ("**error**:",err)
         fin.Close()
 
         dst = os.path.join(workdir, os.path.basename(fn))
-        print "::: optimized as [%s]... [done]" % (dst,)
+        print ("::: optimized as [%s]... [done]" % (dst,))
         
         # rename the temporary into the original
         import shutil
@@ -485,7 +485,7 @@ def _load_filter_fct(selection):
         return filter_fct
     
     if not isinstance(selection, basestring):
-        print "** invalid filter-fct type (%r)" % (type(selection),)
+        print ("** invalid filter-fct type (%r)" % (type(selection),))
         return filter_fct
     
     if selection == "":
@@ -505,7 +505,7 @@ def _load_filter_fct(selection):
     else:
         fct_code = "filter_fct = lambda t: %s" % selection
         my_locals = dict(locals())
-        exec fct_code in {}, my_locals
+        exec (fct_code, {}, my_locals)
         filter_fct = my_locals['filter_fct']
     return filter_fct
 
@@ -575,8 +575,8 @@ Accepted command line options:
     try:
         optlist, args = getopt.getopt(_opts, _useropts, _userlongopts)
     except getopt.error:
-        print sys.exc_value
-        print _error_msg
+        print (sys.exc_value)
+        print (_error_msg)
         sys.exit(1)
 
     for opt,arg in optlist:
@@ -611,12 +611,12 @@ Accepted command line options:
             opts.apply_recursive_opt = False
             
         elif opt in ("-h", "--help"):
-            print _error_msg
+            print (_error_msg)
             sys.exit(0)
 
-    print ":"*80
-    print "::: filter'n'merge d3pds"
-    print ":::"
+    print (":"*80)
+    print ("::: filter'n'merge d3pds")
+    print (":::")
     # for AttributeListLayout which uses CINT for its dict...
     #ROOT.gSystem.Load('liblcg_RootCollection')
     
@@ -626,7 +626,7 @@ Accepted command line options:
     if not os.path.exists(workdir):
         os.makedirs(workdir)
 
-    if isinstance(opts.grl_fname, basestring):
+    if isinstance(opts.grl_fname, str):
         opts.grl_fname = opts.grl_fname.split(',')
         from glob import glob
         grl_fnames = []
@@ -634,30 +634,30 @@ Accepted command line options:
             grl_fnames.extend(glob(grl_fname))
         opts.grl_fname = grl_fnames
         
-    print "::: input files:   ",opts.input_files
-    print "::: output file:   ",opts.output_file
-    print "::: vars fname:    ",opts.vars_fname
-    print "::: tree name:     ",opts.tree_name
-    print "::: GRL file:      ",opts.grl_fname
-    print "::: max tree sz:   ",opts.maxsize, "Mb"
+    print ("::: input files:   ",opts.input_files)
+    print ("::: output file:   ",opts.output_file)
+    print ("::: vars fname:    ",opts.vars_fname)
+    print ("::: tree name:     ",opts.tree_name)
+    print ("::: GRL file:      ",opts.grl_fname)
+    print ("::: max tree sz:   ",opts.maxsize, "Mb")
     if opts.fake_output:
-        print "::: creation of fake-output (if needed) [ON]"
-    print "::: user filter:   ",opts.selection
-    print "::: keep all trees:", opts.keep_all_trees
-    print "::: recursive opt: ", opts.apply_recursive_opt
+        print ("::: creation of fake-output (if needed) [ON]")
+    print ("::: user filter:   ",opts.selection)
+    print ("::: keep all trees:", opts.keep_all_trees)
+    print ("::: recursive opt: ", opts.apply_recursive_opt)
     
     # slightly increase the max size (so that the manual ChangeFile at 0.9 of
     # the current MaxTreeSize will fall within the user-provided one...)
-    ROOT.TTree.SetMaxTreeSize(long(opts.maxsize * 1024 * 1024 / 0.9))
+    ROOT.TTree.SetMaxTreeSize(int(opts.maxsize * 1024 * 1024 / 0.9))
     
     ## try to compile the user filtering function
     filter_fct = None
     try:
         filter_fct = _load_filter_fct(opts.selection)
-    except Exception,err:
-        print "*** problem loading filter-fct:"
-        print err
-        print "*** filter-fct is now disabled"
+    except Exception as err:
+        print ("*** problem loading filter-fct:")
+        print (err)
+        print ("*** filter-fct is now disabled")
         filter_fct = None
         
     iflist = [l.strip() for l in open(opts.input_files, "r") if l.strip()]
@@ -671,24 +671,24 @@ Accepted command line options:
 
         tree = f.Get(opts.tree_name)
         if not tree:
-            print "***warning*** no such tree [%s] in file [%s] (IGNORING!)" % (
-                opts.tree_name, fname,
-                )
+            print ("***warning*** no such tree [%s] in file [%s] (IGNORING!)" % (
+            opts.tree_name, fname,
+                ))
             continue
         if tree.GetEntries()==0:
-            print "**warning** no entries in tree [%s] in file [%s] (IGNORING!)" % (
-                opts.tree_name, fname,
-                )
+            print ("**warning** no entries in tree [%s] in file [%s] (IGNORING!)" % (
+            opts.tree_name, fname,
+            ))
             continue
         if tree.GetListOfBranches().GetEntriesFast() == 0:
-            print "**warning** tree [%s] in file [%s] has no branches (IGNORING!)" % (
+            print ("**warning** tree [%s] in file [%s] has no branches (IGNORING!)" % (
                 opts.tree_name, fname,
-                )
+                ))
             continue
                 
         #f.ResetBit(ROOT.kCanDelete)
         _root_files.append(fname)
-        print " - loaded [%s]" % (fname,)
+        print (" - loaded [%s]" % (fname,))
 
         #tree.ResetBit(ROOT.kCanDelete)
         _root_trees.append(opts.tree_name) # whatever...
@@ -697,9 +697,9 @@ Accepted command line options:
         del f
 
     if len(_root_trees) == 0:
-        print "::: no valid tree left"
+        print ("::: no valid tree left")
         if opts.fake_output:
-            print "::: crafting an empty output file"
+            print ("::: crafting an empty output file")
             _make_fake_output(opts.output_file, opts.tree_name)
             return 0
         return 0 # FIXME: should this become an error of some sort ?
@@ -709,7 +709,7 @@ Accepted command line options:
     
     nfiles = len(_root_files)
     if nfiles <= 0:
-        print "::: no input files found"
+        print ("::: no input files found")
         return 2
 
     timer = ROOT.TStopwatch()
@@ -726,13 +726,13 @@ Accepted command line options:
 
     timer.Stop()
 
-    print "::: merging done in:"
-    print ":::   wallclock:",timer.RealTime()
-    print ":::   CPU time: ",timer.CpuTime()
+    print ("::: merging done in:")
+    print (":::   wallclock:",timer.RealTime())
+    print (":::   CPU time: ",timer.CpuTime())
 
     # del _root_chains[:]
     
-    print "::: performing re-ordering..."
+    print ("::: performing re-ordering...")
     import glob
     import os.path as osp
     fname_pattern = osp.splitext(opts.output_file)[0]
@@ -742,10 +742,10 @@ Accepted command line options:
           chain_name=opts.tree_name,
           fnames=fnames,
           workdir=workdir)
-    print "::: performing re-ordering... [done]"
+    print ("::: performing re-ordering... [done]")
 
-    print "::: bye."
-    print ":"*80
+    print ("::: bye.")
+    print (":"*80)
     return 0
 
 ###################### xmldict #########################
@@ -901,8 +901,8 @@ try:
     #####################################################################
 
 except ImportError:
-    print "**WARNING: could not import 'xml.etree' (check your python version)"
-    print "           you won't be able to correctly read GRL XML files !"
+    print ("**WARNING: could not import 'xml.etree' (check your python version)")
+    print ("           you won't be able to correctly read GRL XML files !")
     
 def extract_data_from_xml(fname="GRL.xml"):
     """simple helper function to convert a GRL xml file into a list
@@ -947,7 +947,7 @@ def extract_data_from_xml(fname="GRL.xml"):
             #    ...
             if isinstance(runnumber, XmlDictObject):
                 runnumber = runnumber['_text']
-            #print runnumber,"  ", lbn_min,"  ", lbn_max
+            #print (runnumber,"  ", lbn_min,"  ", lbn_max)
             data.append((runnumber, lbn_min, lbn_max))
             pass
     return data

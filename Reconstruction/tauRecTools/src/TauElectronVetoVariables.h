@@ -32,11 +32,9 @@ public:
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode eventInitialize() override;
-    virtual StatusCode eventFinalize() override{ return StatusCode::SUCCESS; }
 
-
-    bool m_doCellCorrection; //!< enable cell origin correction
+private:
+    bool m_doVertexCorrection; //!< enable cell origin correction
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
 

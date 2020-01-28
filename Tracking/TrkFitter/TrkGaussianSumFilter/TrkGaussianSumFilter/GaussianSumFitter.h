@@ -48,7 +48,7 @@ public:
   GaussianSumFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GaussianSumFitter(){};
+  virtual ~GaussianSumFitter()= default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;

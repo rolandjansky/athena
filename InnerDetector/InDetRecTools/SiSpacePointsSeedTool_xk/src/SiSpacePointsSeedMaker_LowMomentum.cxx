@@ -720,7 +720,7 @@ void  InDet::SiSpacePointsSeedMaker_LowMomentum::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size;  ++i) {
 
@@ -813,7 +813,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
   }
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -857,17 +857,17 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed, float K) const
 {
 
   const float COF  = 134*.07*9.;
   const float COFP = 134*.2*9.;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;

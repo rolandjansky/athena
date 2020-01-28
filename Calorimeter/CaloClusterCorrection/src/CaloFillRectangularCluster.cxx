@@ -296,7 +296,7 @@ public:
 
 
   /// Return the cluster we're updating.
-  CaloCluster* cluster() const;
+  CaloCluster* cluster();
 
   /// Return the @f$\eta@f$ position from the last calculation.
   double etam() const;
@@ -461,7 +461,7 @@ SamplingHelper::calculate_cluster
 
 /// Return the cluster we're updating.
 inline
-CaloCluster* SamplingHelper::cluster() const
+CaloCluster* SamplingHelper::cluster()
 {
   return m_cluster;
 }

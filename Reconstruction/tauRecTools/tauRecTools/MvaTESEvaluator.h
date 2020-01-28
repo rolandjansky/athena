@@ -22,12 +22,10 @@ class MvaTESEvaluator
   virtual ~MvaTESEvaluator();
     
   StatusCode initialize() override;
-  StatusCode eventInitialize() override;
   StatusCode execute(xAOD::TauJet& xTau) override;
   StatusCode finalize() override { return StatusCode::SUCCESS; }
   
  private:
-   
   // Configurable properties
   std::string m_sWeightFileName;
 

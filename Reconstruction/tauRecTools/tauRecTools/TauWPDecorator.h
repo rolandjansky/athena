@@ -35,15 +35,10 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
-    virtual StatusCode eventInitialize() override;
-    virtual StatusCode eventFinalize() override{ return StatusCode::SUCCESS; }
-    
-    virtual void cleanup(xAOD::TauJet* ) { }
 
     virtual StatusCode retrieveHistos(int nProng);
     virtual StatusCode storeLimits(int nProng);
     virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);
-
 
 private:
     std::string m_file0P;

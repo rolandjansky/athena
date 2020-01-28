@@ -43,7 +43,7 @@ public:
   virtual StatusCode initialize() override;
 
   /// Return the final jets. Can return a void pointer if an error occurs.
-  virtual xAOD::JetContainer* build() const override;
+  virtual xAOD::JetContainer* getJets() const override;
 
 
 protected:
@@ -58,7 +58,7 @@ protected:
   SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets {this, "InputPseudoJets", "inputpseudojet", "input constituents"};
 
   /// used to build the key under which the final PJ will be stored in evtStore() 
-  std::string m_finalPSeudoJets;
+  std::string m_finalPseudoJets;
   
   // Job options.
   Gaudi::Property<std::string>  m_jetalg {this, "JetAlgorithm", "AntiKt", "alg type : AntiKt, Kt, CA..."};

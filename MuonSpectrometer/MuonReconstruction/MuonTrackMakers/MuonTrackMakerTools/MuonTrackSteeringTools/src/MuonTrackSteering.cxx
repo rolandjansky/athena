@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "MuonTrackSteering.h"
 #include "MuonTrackSteeringStrategy.h"
-
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
@@ -20,8 +18,6 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
-
-#include "TrkTrackSummary/MuonTrackSummary.h"
 
 #include <sstream>
 #include <iomanip>
@@ -653,11 +649,7 @@ namespace Muon {
 
             // generate a track summary for this track 
             if (m_trackSummaryTool.isEnabled()) {
-              const Trk::TrackSummary* summary = segmentTrack->trackSummary();
-              if( !summary ) {
-                Trk::TrackSummary tmpSummary;
-                m_trackSummaryTool->addDetailedTrackSummary(*segmentTrack,tmpSummary);
-              }
+              m_trackSummaryTool->computeAndReplaceTrackSummary(*segmentTrack, nullptr, false);
             }
 
             MuPatTrack* can = m_candidateTool->createCandidate( **sit, segmentTrack );

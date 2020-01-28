@@ -41,6 +41,7 @@ json defaultJson() {
   j["zmax"] = 0.0;
   j["zmin"] = 0.0;
   j["zvar"] = "";
+  j["treeDef"] = "";
   return j;
 }
 

@@ -53,25 +53,12 @@ StatusCode TauVertexVariables::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauVertexVariables::eventInitialize() {
-
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode TauVertexVariables::eventFinalize() {
-  
-  return StatusCode::SUCCESS;
-}
-
-
 //-----------------------------------------------------------------------------
 // Finalizer
 //-----------------------------------------------------------------------------
 StatusCode TauVertexVariables::finalize() {
   return StatusCode::SUCCESS;
 }
-
 
 //-----------------------------------------------------------------------------
 // Execution

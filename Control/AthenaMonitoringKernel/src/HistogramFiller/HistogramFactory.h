@@ -120,6 +120,15 @@ namespace Monitored {
      * @return Efficiency graph handler
      */
     TEfficiency* createEfficiency(const HistogramDef& def);
+    /**
+     * @brief Create and register tree
+     * 
+     * If tree already exists under that name, re-use it
+     * 
+     * @param def Histogram definition 
+     * @return Pointer to tree
+     */
+    TTree* createTree(const HistogramDef& def);
 
     /**
      * @brief Setup various histogram options

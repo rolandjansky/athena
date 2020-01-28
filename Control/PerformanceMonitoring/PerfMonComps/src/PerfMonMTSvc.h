@@ -90,43 +90,46 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void stopCompAud_serial ( const std::string& stepName,
                               const std::string& compName );
 
+    void startCompAud_MT(const std::string& stepName,
+                                       const std::string& compName);
+    void stopCompAud_MT(const std::string& stepName,
+                                      const std::string& compName);
+
 
     // Report the results
     void report();
 
+    // Report to stdout    
     void report2Log();
-  
     void report2Log_Description() const;
-
-    void report2Log_Time_Serial();
-    void report2Log_Time_Parallel();
-
-    void report2Log_Mem_Serial();
-    void report2Log_Mem_Parallel();
-
-    void report2Log_Parallel();
+    void report2Log_Time_Mem_Serial();
+    void report2Log_EventLevel_instant() const;
+    void report2Log_EventLevel();
+    void report2Log_CompLevel_Time_Parallel();
     void report2Log_Summary();  // make it const
     void report2Log_CpuInfo() const;
 
+    // Report to the JSON File
     void report2JsonFile();
-
     void report2JsonFile_Summary(nlohmann::json& j) const;
-
     void report2JsonFile_Time_Serial(nlohmann::json& j) const;
-    void report2JsonFile_Time_Parallel(nlohmann::json& j) const;
-
+    void report2JsonFile_EventLevel_Time_Parallel(nlohmann::json& j) const;
+    void report2JsonFile_CompLevel_Time_Parallel(nlohmann::json& j) const;
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
-    void report2JsonFile_Mem_Parallel(nlohmann::json& j);
+    void report2JsonFile_EventLevel_Mem_Parallel(nlohmann::json& j);
 
     EventIDBase::event_number_t getEventID() const;
     
     bool isPower(int input, int base); // check if input is power of base or not
     bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
 
-    void divideData2Steps_serial();     
+    void divideData2Steps_serial();
+    void divideData2Steps_parallel();     
 
-    std::string scaleTime(double timeMeas);
-    std::string scaleMem(long memMeas);
+    void parallelDataAggregator();
+
+    std::string scaleTime(double timeMeas) const;
+    std::string scaleMem(long memMeas) const;
 
     bool isCheckPoint();
  
@@ -136,7 +139,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     PMonMT::StepComp generate_serial_state( const std::string& stepName,
                                             const std::string& compName) const;
 
+    PMonMT::StepCompEvent generate_parallel_state( const std::string& stepName,
+                                                                 const std::string& compName,
+                                                                 const uint64_t& eventNumber) const;
 
+    double get_wall_time();
     
   private:
 
@@ -150,7 +157,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
 
     /// Print detailed tables
     BooleanProperty m_printDetailedTables;
-
 
     Gaudi::Property<int> m_nThreads {this, "nThreads", 0, "Number of threads which is given as argument"};
 
@@ -182,13 +188,27 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // m_compLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_serial.
     // There should be a more clever way!
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_ini;
-    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_start;
-    std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_stop;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_fin;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_cbk; // callback
     
-    std::vector<std::map < PMonMT::StepComp , PMonMT::MeasurementData* > > m_stdoutVec_serial;    
+    std::vector<std::map < PMonMT::StepComp , PMonMT::MeasurementData* > > m_stdoutVec_serial;  
+
+    //
+    // Comp level measurements inside event loop
+    PMonMT::MeasurementData m_parallelCompLevelData;
+
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap;
+    
+    // m_aggParallelCompLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_parallel.
+    // There should be a more clever way!
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_evt;
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_plp;
+    std::map< PMonMT::StepComp, PMonMT::Measurement > m_aggParallelCompLevelDataMap_cbk;
+
+    std::vector<std::map < PMonMT::StepComp , PMonMT::Measurement> > m_stdoutVec_parallel;
+
+
 
 }; // class PerfMonMTSvc
 

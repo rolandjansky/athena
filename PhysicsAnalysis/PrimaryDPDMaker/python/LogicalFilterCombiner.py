@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##==============================================================================
 ## Name:        LogicalFilterCombiner.py
@@ -115,8 +115,10 @@ class LogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
 
             #execute command once to validate
             response = bool(eval(self.cmd))
-        except Exception, e:
+        except Exception as e:
             self.msg.fatal("Not a valid Python string. Exception: %s" % e)
+            import traceback
+            self.msg.fatal(traceback.format_exc())
             return False
 
         self.msg.info("Filter string validated")

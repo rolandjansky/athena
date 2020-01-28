@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EGAMMACALOTOOLS_EGAMMASHOWERSHAPE_H
@@ -31,8 +31,6 @@ class CaloDetDescrManager;
 #include "egammaInterfaces/IegammaStripsShape.h"
 #include "egammaInterfaces/IegammaMiddleShape.h"
 #include "egammaInterfaces/IegammaBackShape.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
-#include "egammaInterfaces/Iegammaqweta2c.h"
 
 class egammaShowerShape : public AthAlgTool, virtual public IegammaShowerShape {
 
@@ -95,11 +93,6 @@ private:
     Gaudi::Property<bool> m_ExecEMCombined {this,
         "ExecEMCombined", true, 
         "Calculate EM variables combining all samplings"};
-
-    /** @brief boolean to calculate less important variables*/
-    Gaudi::Property<bool> m_ExecOtherVariables {this,
-        "ExecOtherVariables", true,
-        "Calculate some less important variables"};
 };
 
 #endif

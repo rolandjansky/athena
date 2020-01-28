@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   DigitizationFlags.py
@@ -634,7 +634,7 @@ class BeamIntensityPattern(JobProperty):
         else:
             # general case
             pattern = [0.0,1.0]
-            nBunches = (constBunchSpacing/25)-2
+            nBunches = (constBunchSpacing//25)-2
             if nBunches > 0 :
                 for bunch in range(nBunches):
                     pattern += [0.0]

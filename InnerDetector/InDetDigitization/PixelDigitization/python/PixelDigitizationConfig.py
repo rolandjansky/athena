@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -27,10 +27,20 @@ def Pixel_LastXing():
             LastXing = 25
     return LastXing
 
-def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
-    return CfgMgr.ChargeCollProbSvc(name, **kwargs)
-
 ###############################################################################
+
+def RadDamageUtil(name="RadDamageUtil", **kwargs):
+    kwargs.setdefault("defaultRamo", 1)
+    kwargs.setdefault("betaElectrons", 4.5e-16)
+    kwargs.setdefault("betaHoles", 6.0e-16)
+    kwargs.setdefault("saveDebugMaps", False)
+    return CfgMgr.RadDamageUtil(name, **kwargs)
+
+def EfieldInterpolator(name="EfieldInterpolator", **kwargs):
+    kwargs.setdefault("initialized", False)
+    kwargs.setdefault("useSpline", True)
+    kwargs.setdefault("sensorDepth", 200)
+    return CfgMgr.EfieldInterpolator(name, **kwargs)
 
 def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
@@ -333,7 +343,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
     chargeTools = []
     feSimTools = []
-    if InDetGeometryFlags.isSLHC():
+    if geoFlags.isSLHC():
       chargeTools += ['SensorSimPlanarTool']
       feSimTools += ['BarrelRD53SimTool']
       feSimTools += ['EndcapRD53SimTool']

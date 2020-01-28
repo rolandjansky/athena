@@ -1,15 +1,17 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 def dumpConfigurables(obj) :
-    print '==== %s ====' % obj.name()
+    print ('==== %s ====' % obj.name())
     for cfg in obj._properties :
         try:
            if ( len(cfg)<2 or cfg[0:2] != '__' ) :
                val = getattr(obj,cfg)
                # if not isinstance(val, collections.Callable):
-               print ' %s / %s = %s | %s' % (cfg,type(val), val, obj._properties[cfg])
+               print (' %s / %s = %s | %s' % (cfg,type(val), val, obj._properties[cfg]))
         except :
-            print ' %s not an attribute' % (cfg)
+            print (' %s not an attribute' % (cfg))
 
 def extractCollectionPrefix(track_collection_name) :
     return track_collection_name[:-6] if track_collection_name[-6:] == 'Tracks'  else track_collection_name
@@ -21,7 +23,7 @@ def toolFactory( tool_class ):
     if hasattr(ToolSvc,tool_class.__name__) :
         tool = getattr(ToolSvc,tool_class.__name__)
     else :
-        # print 'DEBUG toolFactory create %s' % (tool_class.__name__)
+        # print ('DEBUG toolFactory create %s' % (tool_class.__name__))
         tool = tool_class()
         ToolSvc += tool 
     return tool
@@ -31,7 +33,7 @@ def serviceFactory( svc_class ):
     if hasattr(ServiceMgr,svc_class.__name__) :
         svc = getattr(ServiceMgr,svc_class.__name__)
     else :
-        # print 'DEBUG svcFactory create %s' % (svc_class.__name__)
+        # print ('DEBUG svcFactory create %s' % (svc_class.__name__))
         svc = svc_class()
         ServiceMgr += svc 
     return svc

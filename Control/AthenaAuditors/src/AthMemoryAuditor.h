@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthMemoryAuditor.h 
@@ -22,11 +22,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 // FrameWork includes
 #include "GaudiKernel/Auditor.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMessaging.h"
-
-// #include <time.h>
 
 // Forward declaration
 class INamedInterface;
@@ -37,45 +33,27 @@ class AthMemoryAuditor : virtual public Auditor, public AthMessaging
   using Auditor::after;
   using AthMessaging::msg;
   
-public: 
-  
+public:
+
   /// Constructor
   AthMemoryAuditor(const std::string& name, ISvcLocator* pSvcLocator);
   
-  /// Destructor
-  virtual ~AthMemoryAuditor();
-  
-  virtual StatusCode initialize();
-
-  virtual StatusCode finalize();
-  
-  virtual void beforeInitialize(INamedInterface* alg);
-  virtual void beforeReinitialize(INamedInterface* alg);
-  virtual void beforeExecute(INamedInterface* alg);
-  virtual void beforeFinalize(INamedInterface* alg);
-
-  // add after* hooks to reset name of algorithm to "framework"
-  virtual void afterInitialize(INamedInterface* alg);
-  virtual void afterReinitialize(INamedInterface* alg);
-  virtual void afterExecute(INamedInterface* alg, const StatusCode& sc);
-  virtual void afterFinalize(INamedInterface* alg);
-
-  bool m_reported;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual void before(StandardEventType evt, INamedInterface* comp) override;
+  virtual void after(StandardEventType evt, INamedInterface* comp, const StatusCode& sc) override;
   
   static bool m_usetcmalloc;
   
-private: 
+private:
 
+  bool m_reported;
   int m_stmax;
-  
   int m_defaultStacktraceDepth;
-  
   std::vector<std::string> m_depthPerAlg;
   
   void report ();
-  
   std::string stageToString(long);
-  
   uint64_t sum(uint32_t a, uint32_t b) { return ((((uint64_t)a)<<32) + b); };  
 }; 
 #endif //> ATHENASERVICES_ATHMEMORYAUDITOR_H

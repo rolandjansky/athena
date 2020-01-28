@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #define INDETRECSTATISTICS_TrackStatistics_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTrack/TrackCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
@@ -24,6 +24,7 @@
 #include "TrkToolInterfaces/IUpdator.h"
 
 #include <vector>
+#include <atomic>
 
 // forward declarations
 
@@ -43,7 +44,7 @@ namespace Trk {
 
 namespace InDet {
 
-    class InDetRecStatisticsAlg:public AthAlgorithm {
+    class InDetRecStatisticsAlg:public AthReentrantAlgorithm {
 
 
  /**
@@ -58,7 +59,7 @@ namespace InDet {
       /** Initialization of services, track collections, creates TrackStatHelper for each Track Collection*/
       StatusCode    initialize();
       /**Calculation of statistics*/
-      StatusCode    execute();
+      StatusCode    execute(const EventContext &ctx) const;
       /**Statistics table printed, collection cleared*/
       StatusCode    finalize();
       /**Get various services such as StoreGate, dictionaries, detector managers etc.*/
@@ -67,21 +68,32 @@ namespace InDet {
       StatusCode    resetStatistics();
       /** Print tracking statistics calculated with TrackStatHelper */
       void          printStatistics();
-      /** Select charged,stable particles which pass pt and eta cuts for analysis*/
-      void          selectGenSignal     (const McEventCollection*,  
-					 std::vector <std::pair<HepMC::GenParticle *,int> > &,
-					 unsigned int,  unsigned int);
-      /** Classify truth tracks as primary, secondary or truncated */
-    /**Select for analysis reconstructed tracks passing Pt and eta cuts*/
-      void          selectRecSignal     (const TrackCollection*,  
-					 std::vector <const Trk::Track *> & , 
-					 std::vector <const Trk::Track *> &);
       /** Print track statistics for all and low proability tracks */
-      void          printTrackSummary   (enum eta_region ); 
+      void          printTrackSummary   (MsgStream &out, enum eta_region );
       
 
 
      private:
+
+      template <typename T_Int=int>
+      struct Counter;
+      using CounterLocal = Counter<int>;
+
+      /** Select charged,stable particles which pass pt and eta cuts for analysis*/
+      /** Classify truth tracks as primary, secondary or truncated */
+      void          selectGenSignal     (const McEventCollection*,
+					 std::vector <std::pair<HepMC::GenParticle *,int> > &,
+					 unsigned int,
+                                         unsigned int,
+                                         CounterLocal &counter) const;
+
+      /**Select for analysis reconstructed tracks passing Pt and eta cuts*/
+      void          selectRecSignal     (const TrackCollection*,
+					 std::vector <const Trk::Track *> & ,
+					 std::vector <const Trk::Track *> &,
+                                         CounterLocal &counter) const;
+
+
 
       std::vector <class TrackStatHelper *> m_SignalCounters;//!< Vector of TrackStatHelper objects, one for each track collection
       const HepPDT::ParticleDataTable*      m_particleDataTable; //!< Atlas particle ID table
@@ -131,17 +143,36 @@ namespace InDet {
       SG::ReadHandleKeyArray<TrackCollection>        m_RecTrackCollection_keys;
       SG::ReadHandleKeyArray<TrackTruthCollection>   m_TrackTruthCollection_keys;
 
-      mutable bool      m_pullWarning;    //!< warn only once, if pull cannot be calculated
-      mutable bool      m_UpdatorWarning; //!< warn only once, if unbiased track states can not be calculated
-      mutable int         m_isUnbiased;  //!< if can get unbiased residuals
+      mutable std::atomic<bool>      m_pullWarning    ATLAS_THREAD_SAFE; //!< warn only once, if pull cannot be calculated
+      mutable std::atomic<bool>      m_UpdatorWarning ATLAS_THREAD_SAFE; //!< warn only once, if unbiased track states can not be calculated
+      mutable std::atomic<int>       m_isUnbiased     ATLAS_THREAD_SAFE;  //!< if can get unbiased residuals
 
-      // statistics counters
-      long          m_rec_tracks_without_perigee; //!< number of tracks w/o perigee
-      long          m_unknown_hits;//!< number of hits without track
-      long          m_events_processed;//!< number of events processed
-      long          m_rec_tracks_processed;//!< number of reconstructed tracks processed
-      long          m_gen_tracks_processed;//!< number of generated tracks processed 
-      long          m_spacepoints_processed;//!< number of space points processed
+      mutable std::atomic<long> m_events_processed    ATLAS_THREAD_SAFE;//!< number of events processed
+         // statistics counters
+      enum ECounter {
+         kN_rec_tracks_without_perigee, //!< number of tracks w/o perigee
+         kN_unknown_hits,               //!< number of hits without track
+         kN_rec_tracks_processed,       //!< number of reconstructed tracks processed
+         kN_gen_tracks_processed,       //!< number of generated tracks processed
+         kN_spacepoints_processed,      //!< number of space points processed
+         kNCounter
+      };
+
+      template <typename T_Int>
+      struct Counter {
+         Counter() { reset(); }
+         void reset() {
+            for (unsigned int i=0; i<kNCounter; ++i) { m_counter[i]=0; }
+         }
+         template <typename T_IntB>
+         Counter &operator+=(const Counter<T_IntB> &b) {
+            for (unsigned int i=0; i<kNCounter; ++i) { m_counter[i] += b.m_counter[i]; }
+            return *this;
+         }
+         T_Int m_counter[kNCounter];
+      };
+
+      mutable Counter<std::atomic<long> > m_counter ATLAS_THREAD_SAFE;
       /** Calculate pull from residual, track and hit error.*/
       float calculatePull(const float, const float, const float);   //vv
       /** Get Unbiased Track Parameters */

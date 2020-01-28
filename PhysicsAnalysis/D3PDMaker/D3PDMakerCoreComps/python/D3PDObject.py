@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: D3PDObject.py 528970 2012-12-05 11:23:27Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/D3PDObject.py
 # @author scott snyder <snyder@bnl.gov>
@@ -45,7 +44,8 @@ def _testLOD (lod, reqlev, args, hookargs):
             doblock = lod (reqlev, args, hookargs)
         except TypeError as exc:
             if (len(exc.args) > 0 and
-                exc.args[0].find ('takes exactly 2 arguments') >= 0):
+                (exc.args[0].find ('takes exactly 2 arguments') >= 0 or
+                 exc.args[0].find ('takes 2 positional') >= 0)):
                 doblock = lod (reqlev, args)
             else:
                 raise
@@ -372,7 +372,7 @@ class D3PDObject:
         kw = kw.copy()
 
         # Move any block filler args from kw to blockargs.
-        for k in kw.keys():
+        for k in list (kw.keys()):
             # It is possible for block names themselves to contain
             # underscores.  So in the case we have more than one underscore
             # in the name, try all prefixes we can make, stopping at

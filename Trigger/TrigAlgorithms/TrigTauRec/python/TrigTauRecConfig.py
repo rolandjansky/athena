@@ -153,7 +153,6 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
 
 
             for tool in tools:
@@ -216,7 +215,6 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
 
 
             for tool in tools:
@@ -370,7 +368,6 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
             tools.append(taualgs.getTauIDVarCalculator())
             tools.append(taualgs.getTauJetBDTEvaluator(suffix="JetBDTEvaluator_1p", 
                                                        weightsFile="vars2016_pt_gamma_1p_isofix.root", 
@@ -461,7 +458,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            #tools.append(taualgs.getPileUpCorrection())
             
             # tracktwoEF
             if not doMVATES:

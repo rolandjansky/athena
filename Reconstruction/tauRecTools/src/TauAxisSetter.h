@@ -23,19 +23,14 @@
 
 class TauAxisSetter : public TauRecToolBase {
 public:
-
     TauAxisSetter(const std::string& name);
     ASG_TOOL_CLASS2(TauAxisSetter, TauRecToolBase, ITauToolBase);
+
     ~TauAxisSetter();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode eventInitialize() override;
-    virtual StatusCode finalize() override;
-    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
-
-
-
+    virtual StatusCode finalize() override;
 
 private:
     double m_clusterCone;
@@ -43,8 +38,7 @@ private:
      * enable cell origin correction 
      * eta and phi of the cells are corrected wrt to the origin of the tau vertex
      */
-    bool m_doCellCorrection;
-    bool m_doAxisCorrection;
+    bool m_doVertexCorrection;
 };
 
 #endif

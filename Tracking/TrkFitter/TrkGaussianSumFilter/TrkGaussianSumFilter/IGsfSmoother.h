@@ -37,7 +37,7 @@ public:
   static const InterfaceID& interfaceID() { return InterfaceID_GsfSmoother; };
 
   /** Virtual destructor */
-  virtual ~IGsfSmoother(){};
+  virtual ~IGsfSmoother()= default;
 
   /** Configure the GSF smoother
       - Configure the extrapolator
@@ -48,7 +48,7 @@ public:
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(const ForwardTrajectory&,
                                   const ParticleHypothesis particleHypothesis = nonInteracting,
-                                  const CaloCluster_OnTrack* ccot = 0) const = 0;
+                                  const CaloCluster_OnTrack* ccot = nullptr) const = 0;
 };
 
 } // end Trk namespace

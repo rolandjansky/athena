@@ -96,7 +96,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
   CaloRec::Array<1> tr00      = m_correction[0];
   CaloRec::Array<1> tr08      = m_correction[1];
   
-  static CaloSampling::CaloSample samps[2][4] = {
+  static const CaloSampling::CaloSample samps[2][4] = {
      { CaloSampling::PreSamplerB,
        CaloSampling::EMB1,
        CaloSampling::EMB2,

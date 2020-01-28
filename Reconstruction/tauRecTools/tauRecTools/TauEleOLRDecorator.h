@@ -29,7 +29,6 @@ class TauEleOLRDecorator: virtual public TauRecToolBase
   
   virtual ~TauEleOLRDecorator();
 
-  virtual StatusCode eventInitialize() override;
   virtual StatusCode initialize() override;
   virtual StatusCode execute(xAOD::TauJet&) override;
   virtual StatusCode finalize() override;

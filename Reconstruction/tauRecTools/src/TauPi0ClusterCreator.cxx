@@ -26,7 +26,6 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
-
     TauRecToolBase(name)
     , m_clusterEtCut(500.)
 {
@@ -49,12 +48,6 @@ StatusCode TauPi0ClusterCreator::initialize()
 
 StatusCode TauPi0ClusterCreator::finalize() 
 {
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0ClusterCreator::eventInitialize() 
-{
-
     return StatusCode::SUCCESS;
 }
 
@@ -230,12 +223,6 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         return StatusCode::FAILURE;
     }
 
-    return StatusCode::SUCCESS;
-}
-
-
-StatusCode TauPi0ClusterCreator::eventFinalize() 
-{
     return StatusCode::SUCCESS;
 }
 

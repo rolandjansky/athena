@@ -29,11 +29,8 @@ public:
     virtual ~TauPi0ClusterScaler();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode eventInitialize() override;
     virtual StatusCode finalize() override;
     virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer) override; 
-    virtual StatusCode eventFinalize() override;
-
 
 private:
 

@@ -195,6 +195,8 @@ def BTagCfg(inputFlags,**kwargs):
 
         if splitAlg:
             #Track Association
+            TrackToJetAssociators = ['BTagTrackToJetAssociator', 'BTagTrackToJetAssociatorBB']
+
             kwargs['Release'] = '22'
             result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", 'BTagTrackToJetAssociator', **kwargs))
             kwargs['Release'] = '21'
@@ -203,16 +205,19 @@ def BTagCfg(inputFlags,**kwargs):
             del kwargs['Release']
 
             #Sec vertex finding
-            result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', 'BTagTrackToJetAssociator'))
-            result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', 'BTagTrackToJetAssociator'))
+            SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
+            for k, v in SecVertexingAndAssociators.items():
+                if v not in TrackToJetAssociators:
+                    raise RuntimeError( v + ' is not configured')
+                result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
 
-            #Sec vertexing
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', 'BTagTrackToJetAssociator', 'JFVtx'))
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', 'BTagTrackToJetAssociator', 'SecVtx'))
-            #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', 'BTagTrackToJetAssociatorBB', 'MSV))
+                #Sec vertexing
+                result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
+
+            #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', 'BTagTrackToJetAssociatorBB'))
 
             #BTagging
-            result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, Associator = 'BTagTrackToJetAssociator', **kwargs))
+            result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SVandAssoc = SecVertexingAndAssociators, **kwargs))
         else:
             result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
 

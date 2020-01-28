@@ -33,7 +33,7 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   bool matchSameTrack(const xAOD::TrackParticle& seedTrack,
                       const egammaRec& sec) const;
 
-  const std::vector<std::size_t> searchForSecondaryClusters(const size_t i,
+  std::vector<std::size_t> searchForSecondaryClusters(const size_t i,
                                                             const EgammaRecContainer*,
                                                             std::vector<bool>& isUsed);
   

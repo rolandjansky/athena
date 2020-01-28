@@ -26,7 +26,9 @@ def _algoTauCaloOnly(inputRoIs, clusters):
     algo.Key_vertexInputContainer      = ""
     algo.Key_trackPartInputContainer   = ""
     algo.Key_trigTauJetInputContainer  = ""
+    algo.Key_trigTauTrackInputContainer  = ""
     algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnly")
+    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_dummy")
     return algo
 
 def _algoTauCaloOnlyMVA(inputRoIs, clusters):
@@ -39,7 +41,9 @@ def _algoTauCaloOnlyMVA(inputRoIs, clusters):
     algo.Key_vertexInputContainer      = ""
     algo.Key_trackPartInputContainer   = ""
     algo.Key_trigTauJetInputContainer  = ""
+    algo.Key_trigTauTrackInputContainer  = ""
     algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnlyMVA")
+    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_dummy")
     return algo
 
 def _algoTauTrackRoiUpdater(inputRoIs, tracks):
@@ -59,6 +63,7 @@ def _algoTauPreselection(inputRoIs, tracks):
     algo.Key_vertexInputContainer        = ""
     algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnlyMVA"
     algo.Key_trackPartInputContainer     = tracks
+    algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Presel")
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Presel")
     return algo
@@ -72,6 +77,10 @@ def _algoTauPrecision(inputRoIs, tracks, step):
     algo.Key_vertexInputContainer        = ""
     algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnlyMVA"
     algo.Key_trackPartInputContainer     = tracks
+    if "Id" in step:
+       algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
+    elif "Track" in step:
+       algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_Presel"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Precision")   
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Precision")
     return algo
@@ -85,6 +94,7 @@ def _algoTauPrecisionMVA(inputRoIs, tracks):
     algo.Key_vertexInputContainer        = ""
     algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnlyMVA"
     algo.Key_trackPartInputContainer     = tracks
+    algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_MVA")
     return algo
@@ -163,7 +173,7 @@ def tauIdTrackSequence( RoIs , name):
       tauViewDataVerifierName = "tauViewDataVerifierIsoFTF"
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier(tauViewDataVerifierName)
-    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA')]
+    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA'),('xAOD::TauTrackContainer','StoreGateSvc+HLT_tautrack_dummy')]
     viewAlgs.append(ViewVerify)
 
     for viewAlg in viewAlgs:
