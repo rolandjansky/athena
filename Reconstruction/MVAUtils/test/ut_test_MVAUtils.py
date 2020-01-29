@@ -10,8 +10,6 @@ import ROOT
 from array import array
 from math import exp
 
-from MVAUtils.convertLGBMToRootTree import convertLGBMToRootTree
-from MVAUtils.convertXGBoostToRootTree import convertXGBoostToRootTree
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
@@ -282,6 +280,7 @@ class TestMVAUtilsLGBMConversion(unittest.TestCase):
             cls.model_regression = cls.create_model_regression()
             cls.model_regression.save_model('regression.txt')
 
+
     @classmethod
     def create_model_binary(cls):
         import numpy as np
@@ -407,6 +406,8 @@ class TestMVAUtilsLGBMConversion(unittest.TestCase):
     def _test_multi_response(self, model, root_name):
         if not self.lgb_enabled:
             self.skipTest("lgbm is not installed")
+    
+        from MVAUtils.convertLGBMToRootTree import convertLGBMToRootTree
 
         convertLGBMToRootTree(model, root_name, 'lgbm')
         f = ROOT.TFile.Open(root_name)
@@ -456,6 +457,8 @@ class TestMVAUtilsLGBMConversion(unittest.TestCase):
         if not self.lgb_enabled:
             self.skipTest("lgbm is not installed")
 
+        from MVAUtils.convertLGBMToRootTree import convertLGBMToRootTree
+
         convertLGBMToRootTree(self.model_binary, 'test_lgbm_binary.root', 'lgbm')
         f = ROOT.TFile.Open('test_lgbm_binary.root')
         tree = f.Get('lgbm')
@@ -473,6 +476,9 @@ class TestMVAUtilsLGBMConversion(unittest.TestCase):
     def test_regression(self):
         if not self.lgb_enabled:
             self.skipTest("lgbm is not installed")
+
+        from MVAUtils.convertLGBMToRootTree import convertLGBMToRootTree
+
         convertLGBMToRootTree(self.model_regression, 'test_lgbm_regression.root', 'lgbm')
         f = ROOT.TFile.Open('test_lgbm_regression.root')
         tree = f.Get('lgbm')
@@ -500,7 +506,7 @@ class TestMVAUtilsXGBoostConversion(unittest.TestCase):
         # import xgboost, if not present try to install from pip
         cls.xgb_enabled = False
         try:
-            import xgboost
+            import xgboost as xgb
             cls.xgb_enabled = True
         except ImportError:
             pass
@@ -513,7 +519,7 @@ class TestMVAUtilsXGBoostConversion(unittest.TestCase):
             os.system('pip install numpy scipy scikit-learn')
             os.system('pip install xgboost==0.82')
             try:
-                import xgboost
+                import xgboost as xgb
                 cls.xgb_enabled = True
             except ImportError:
                 pass
@@ -594,8 +600,8 @@ class TestMVAUtilsXGBoostConversion(unittest.TestCase):
     def test_binary(self):
         if not self.xgb_enabled:
             self.skipTest("xgboost is not installed")
-
         import xgboost as xgb
+        from MVAUtils.convertXGBoostToRootTree import convertXGBoostToRootTree
 
         convertXGBoostToRootTree('test_xgb_binary.model', 'test_xgb_binary.root', 'xgboost')
         f = ROOT.TFile.Open('test_xgb_binary.root')
@@ -604,7 +610,7 @@ class TestMVAUtilsXGBoostConversion(unittest.TestCase):
         mvautils = ROOT.MVAUtils.BDT(tree)
         self.assertEqual(self.model_binary.best_ntree_limit, tree.GetEntries())
 
-        input_values = xgb.DMatrix(self.inputs_binary)    
+        input_values = xgb.DMatrix(self.inputs_binary)
         output_predicts = self.model_binary.predict(input_values)
         for idx, input_value in enumerate(self.inputs_binary):
             o1 = output_predicts[idx]    
@@ -618,6 +624,7 @@ class TestMVAUtilsXGBoostConversion(unittest.TestCase):
             self.skipTest("xgboost is not installed")
 
         import xgboost as xgb
+        from MVAUtils.convertXGBoostToRootTree import convertXGBoostToRootTree
 
         convertXGBoostToRootTree('test_xgb_regression.model', 'test_xgb_regression.root', 'xgboost')
         f = ROOT.TFile.Open('test_xgb_regression.root')
