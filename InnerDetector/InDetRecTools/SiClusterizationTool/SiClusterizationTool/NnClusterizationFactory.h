@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
- #ifndef BTAGTOOL_NnClusterizationFactory_C
- #define BTAGTOOL_NnClusterizationFactory_C
+ #ifndef SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
+ #define SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
  
  /******************************************************
      @class NnClusterizationFactory
      @author Giacinto Piacquadio (PH-ADE-ID)
-     Package : JetTagTools 
+     Package : SiClusterizationTool 
      Created : January 2011
      DESCRIPTION: Load neural networks used for clustering 
                   and deal with:
@@ -40,6 +40,11 @@
  class TH1;
  class ICoolHistSvc;
  class IPixelCalibSvc;
+
+namespace lwt {
+  class NanReplacer;    
+  class LightweightGraph;
+}
 
 namespace Trk {
   class NeuralNetworkToHistoTool;
@@ -120,6 +125,32 @@ namespace InDet {
    private:
     void clearCache(std::vector<TTrainedNetwork*>& ttnn);
  
+    // NN implementations
+    std::unique_ptr<lwt::LightweightGraph> m_lwnn_number;  
+    std::map<int, std::unique_ptr<lwt::LightweightGraph> > m_lwnn_position;  
+    std::map<int, std::unique_ptr<lwt::LightweightGraph> > m_lwnn_position_errors;
+
+    // NN weights and configurations
+    std::string m_weightsFile_number;
+    std::string m_weightsFile_position_1;
+    std::string m_weightsFile_position_2;
+    std::string m_weightsFile_position_3;
+
+    // Flags for determining which NNs to use
+    bool m_uselwtnn_number;
+    bool m_uselwtnn_position;
+
+    // Handling inputs and outputs
+    typedef std::map<std::string, std::map<std::string, double> > InputMap;
+    typedef std::unique_ptr<lwt::NanReplacer> Cleaner;
+    std::vector<std::pair<std::string, Cleaner > > m_var_cleaners;     
+
+    // lwtnn version
+    std::vector<Amg::Vector2D> estimatePositions(NnClusterizationFactory::InputMap & input, 
+                                                NNinput* raw_input,
+                                                const InDet::PixelCluster& pCluster,
+                                                int numberSubClusters,
+                                                std::vector<Amg::MatrixX> & errors);
  
     /* estimate position for both with and w/o tracks */
     std::vector<Amg::Vector2D> estimatePositions(std::vector<double> inputData,
@@ -205,7 +236,11 @@ namespace InDet {
 
     ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool;
     ServiceHandle<IPixelCalibSvc> m_calibSvc;
-    
+
+    // Function for configuring the NN
+    StatusCode setUpNN_lwtnn(std::unique_ptr<lwt::LightweightGraph> & this_nn, std::string weights_file);
+
+    InputMap flattenInput(NNinput & input);    
 
     bool m_useToT;
     bool m_addIBL;

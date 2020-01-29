@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,16 +37,31 @@
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
+// NN includes
+#include "lwtnn/LightweightGraph.hh"
+#include "lwtnn/parse_json.hh"
+#include "lwtnn/Exceptions.hh"
+#include "lwtnn/lightweight_nn_streamers.hh"
+#include "lwtnn/NanReplacer.hh"
+
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 
+// utilities
+#include "PathResolver/PathResolver.h"
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-//get std::isnan()
-#include <cmath>
+// JSON parsers
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include "boost/property_tree/exceptions.hpp"
 
+#include <cmath>
+#include <experimental/filesystem>
+#include <fstream>
 
 
 namespace InDet {
@@ -54,6 +69,14 @@ namespace InDet {
   NnClusterizationFactory::NnClusterizationFactory(const std::string& name,
                                                    const std::string& n, const IInterface* p):
           AthAlgTool(name, n,p),
+          m_lwnn_position(),
+          m_lwnn_position_errors(),
+          m_weightsFile_number(""),
+          m_weightsFile_position_1(""),
+          m_weightsFile_position_2(""),
+          m_weightsFile_position_3(""),
+          m_uselwtnn_number(false),
+          m_uselwtnn_position(false),
           m_loadNoTrackNetworks(true),
           m_loadWithTrackNetworks(false),
           m_NetworkEstimateNumberParticles(0),
@@ -64,7 +87,7 @@ namespace InDet {
           m_weightIndicator("_weights"),
           m_thresholdIndicator("_thresholds"),
           m_networkToHistoTool("Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool"),
-          m_calibSvc("PixelCalibSvc", name),
+          m_calibSvc("PixelCalibSvc", name),        
           m_useToT(true),
           m_addIBL(false),
           m_doRunI(false),
@@ -92,7 +115,13 @@ namespace InDet {
     declareProperty("correctLorShiftBarrelWithoutTracks",m_correctLorShiftBarrelWithoutTracks);
     declareProperty("correctLorShiftBarrelWithTracks",m_correctLorShiftBarrelWithTracks);
         
-    declareInterface<NnClusterizationFactory>(this);
+    // Things for NN
+    declareProperty( "weightsFileNumber",   m_weightsFile_number);
+    declareProperty( "weightsFilePosition_1",   m_weightsFile_position_1);
+    declareProperty( "weightsFilePosition_2",   m_weightsFile_position_2);
+    declareProperty( "weightsFilePosition_3",   m_weightsFile_position_3);
+
+    declareInterface<NnClusterizationFactory>(this);   
   } 
   
 /////////////////////////////////////////////////////////////////////////////////////
@@ -170,9 +199,99 @@ namespace InDet {
         return StatusCode::FAILURE;
     }
     
+    if (!m_weightsFile_number.empty())
+      m_uselwtnn_number = true;
+
+    if ((!m_weightsFile_position_1.empty()) && 
+         (!m_weightsFile_position_2.empty()) &&
+         (!m_weightsFile_position_3.empty())) {
+      m_uselwtnn_position = true;
+    }
+
+    // We may need to set up several networks: one number network and some number of position networks.
+    // All configurations and inputs should be fully defined at this point, 
+    // so we can set them all up here.
+    if (m_uselwtnn_number) {
+      if ((setUpNN_lwtnn(m_lwnn_number, m_weightsFile_number)).isFailure())
+        return StatusCode::FAILURE;
+    }
+    if (m_uselwtnn_position) {
+      for (int i=1; i<4; i++) {
+        std::string weights_file;
+        switch(i) {
+          case 1 : weights_file = m_weightsFile_position_1;
+          case 2 : weights_file = m_weightsFile_position_2;
+          case 3 : weights_file = m_weightsFile_position_3;
+        }
+        if ((setUpNN_lwtnn(m_lwnn_position[i], weights_file)).isFailure())
+          return StatusCode::FAILURE;
+      }
+    }
+
     return StatusCode::SUCCESS;
   }
   
+StatusCode NnClusterizationFactory::setUpNN_lwtnn(std::unique_ptr<lwt::LightweightGraph> & this_nn, 
+                                      std::string weights_file) {
+
+  // Read DNN weights from input json file
+  // Can be on cvmfs (where we would want to put published ones)
+  // or overridden with a local path for testing purposes.
+  ATH_MSG_INFO("Using NN weights file: "+ weights_file);
+  std::string nn_path = "";
+
+  // First, try the raw filename (local)
+  // This allows users to test trained NNs easily using a full path.
+  if (std::experimental::filesystem::exists(weights_file)) nn_path = weights_file;
+
+  // Next, try PathResolver to check the CalibArea    
+  else nn_path = PathResolverFindCalibFile(weights_file);
+  ATH_MSG_INFO("NN file resolved to: " + nn_path);
+
+  // Now convert the file to a lwtnn config.
+  lwt::GraphConfig config;
+  try {
+    std::ifstream input_cfg( nn_path );
+    config = lwt::parse_json_graph(input_cfg);
+  } catch (boost::property_tree::ptree_error& err) {
+    ATH_MSG_ERROR("NN file unreadable!");
+    return StatusCode::FAILURE;
+  }
+
+  // Set up input cleaners
+/*  ATH_MSG_DEBUG("Hbb inputs:");
+  for (auto& input_node: config.inputs) {
+    ATH_MSG_DEBUG(" input node: " << input_node.name);
+    for (auto& input: input_node.variables) {
+      ATH_MSG_DEBUG("  " << input);
+    }
+  }
+  for (const auto& node: config.inputs) {
+    m_var_cleaners.emplace_back(
+      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
+  } */
+
+  // Set up outputs
+/*  if (config.outputs.size() != 1) {
+    ATH_MSG_ERROR("Graph needs one output node!");
+    ATH_MSG_ERROR("This one has size " << config.outputs.size());
+    return StatusCode::FAILURE;
+  }
+  auto output_node_name = config.outputs.begin()->first;
+  auto out_names = config.outputs.at(output_node_name).labels;
+  m_output_value_names = out_names; */
+
+  // Build the network
+  try {
+    this_nn.reset(new lwt::LightweightGraph(config, "merge_1"));
+  } catch (lwt::NNConfigurationException& exc) {
+    ATH_MSG_ERROR("NN configuration problem: " << exc.what());
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;   
+
+}
   
 std::vector<double> NnClusterizationFactory::assembleInput(NNinput& input,
                                                              int sizeX,
@@ -280,6 +399,42 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return inputData;
   }
 
+  NnClusterizationFactory::InputMap NnClusterizationFactory::flattenInput(NNinput & input) {
+
+    // Format for use with lwtnn
+    std::map<std::string, std::map<std::string, double> > flattened;
+
+    // Fill it!
+    // Variable names here need to match the ones in the configuration.    
+
+    std::map<std::string, double> simple_inputs;
+    for (unsigned int x = 0; x < input.matrixOfToT.size(); x++) {
+      for (unsigned int y = 0; y < input.matrixOfToT.at(0).size(); y++) {
+        unsigned int index = x*input.matrixOfToT.at(0).size()+y;
+        std::string varname = "NN_matrix"+std::to_string(index);
+        simple_inputs[varname] = input.matrixOfToT.at(x).at(y);
+      }
+    }
+
+    for (unsigned int p = 0; p < input.vectorOfPitchesY.size(); p++) {
+      std::string varname = "NN_pitches" + std::to_string(p);
+      simple_inputs[varname] = input.vectorOfPitchesY.at(p);
+    }
+
+    simple_inputs["NN_layer"] = input.ClusterPixLayer;
+    simple_inputs["NN_barrelEC"] = input.ClusterPixBarrelEC;
+    simple_inputs["NN_phi"] = input.phi;
+    simple_inputs["NN_theta"] = input.theta;
+
+    if (input.useTrackInfo) simple_inputs["NN_etaModule"] = input.etaModule;
+
+    // We have only one node for now, so we just store things there.
+    flattened["NNinputs"] = simple_inputs;
+
+    return flattened;
+
+
+  }
 
   std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
                                                                          Amg::Vector3D & beamSpotPosition,
@@ -438,6 +593,47 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return estimatePositions(inputData,input,pCluster,sizeX,sizeY,true,numberSubClusters,errors);
   }
   
+  std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(
+                                                                NnClusterizationFactory::InputMap & input, 
+                                                                NNinput* raw_input,
+                                                                const InDet::PixelCluster& pCluster,
+                                                                int numberSubClusters,
+                                                                std::vector<Amg::MatrixX> & errors) {
+    
+    // Need to evaluate the correct network once per cluster we're interested in.
+    // Save the output
+    std::vector<double> position_values;
+    std::vector<Amg::MatrixX> error_matrices;
+    for (int cluster = 1; cluster < numberSubClusters+1; cluster++) {
+
+      std::string out_node_name = "merge_"+std::to_string(cluster);
+      std::map<std::string, double> position = m_lwnn_position.at(numberSubClusters)->compute(input, {},out_node_name);
+      ATH_MSG_DEBUG("Testing for numberSubClusters " << numberSubClusters << " and cluster " << cluster);
+      for (auto item : position) {
+        ATH_MSG_DEBUG(item.first << ": " << item.second);
+      }
+      position_values.push_back(position["mean_x"]);
+      position_values.push_back(position["mean_y"]);
+
+      // Fill errors.
+      // Values returned by NN are inverse of variance, and we want variances in matrix.
+      ATH_MSG_INFO(" Kate's estimated RMS errors (1) x: " << sqrt(1.0/position["prec_x"]) << ", y: " << sqrt(1.0/position["prec_y"]));      
+      Amg::MatrixX erm(2,2);
+      erm.setZero();
+      erm(0,0)=1.0/position["prec_x"];
+      erm(1,1)=1.0/position["prec_y"];
+      error_matrices.push_back(erm);       
+    }
+
+    std::vector<Amg::Vector2D> myPositions = getPositionsFromOutput(position_values,*raw_input,pCluster);
+    ATH_MSG_INFO(" Kate's Estimated myPositions (1) x: " << myPositions[0][Trk::locX] << " y: " << myPositions[0][Trk::locY]);
+    
+    for (unsigned int index = 0; index < error_matrices.size(); index++) errors.push_back(error_matrices.at(index));
+
+    return myPositions;
+
+  }
+
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(std::vector<double> inputData,
                                                                              NNinput* input,
                                                                              const InDet::PixelCluster& pCluster,
@@ -449,8 +645,14 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   {
 
 
+    // If we're using new networks via lwtnn, call those now
+//    if (m_uselwtnn_position) {
+      NnClusterizationFactory::InputMap nn_inputData = flattenInput(*input);
+      auto test_position = estimatePositions(nn_inputData,input,pCluster,numberSubClusters,errors);
+//      return test_position;
+//    }
 
-
+    // Otherwise continue to older function
 
     bool applyRecentering=false;
     if (m_useRecenteringNNWithouTracks && !useTrackInfo)
@@ -486,11 +688,11 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       }
 
 
-      ATH_MSG_VERBOSE(" RAW Estimated positions (1) x: " << back_posX(position1P[0],applyRecentering) << " y: " << back_posY(position1P[1]));
+      ATH_MSG_DEBUG(" Original RAW Estimated positions (1) x: " << back_posX(position1P[0],applyRecentering) << " y: " << back_posY(position1P[1]));
 
       std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,*input,pCluster,sizeX,sizeY);
 
-      ATH_MSG_VERBOSE(" Estimated myPositions (1) x: " << myPosition1[0][Trk::locX] << " y: " << myPosition1[0][Trk::locY]);
+      ATH_MSG_INFO(" Original Estimated myPositions (1) x: " << myPosition1[0][Trk::locX] << " y: " << myPosition1[0][Trk::locY]);
 
       std::vector<double> inputDataNew=inputData;
       inputDataNew.push_back(position1P[0]);
@@ -520,7 +722,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 	  }
 	}
      
-
+  ATH_MSG_INFO(" Original errors1PX: " << errors1PX << ", errors1PY: " << errors1PY);
  
       std::vector<Amg::MatrixX> errorMatrices1;
       getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,1);
