@@ -238,6 +238,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orDoPhoton(false),
     m_orDoEleJet(true),
     m_orDoElEl(false),
+    m_orDoElMu(false),
     m_orDoMuonJet(true),
     m_orDoBjet(false),
     m_orDoElBjet(true),
@@ -401,6 +402,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoPhotonOR",    m_orDoPhoton );
   declareProperty( "DoEleJetOR",    m_orDoEleJet );
   declareProperty( "DoElElOR",    m_orDoElEl );
+  declareProperty( "DoElMuOR",    m_orDoElMu );
   declareProperty( "DoMuonJetOR",   m_orDoMuonJet );
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
@@ -1184,6 +1186,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoPhoton"] = "DoPhotonOR";
   m_conf_to_prop["OR.DoEleJet"] = "DoEleJetOR";
   m_conf_to_prop["OR.DoElEl"] = "DoElElOR";
+  m_conf_to_prop["OR.DoElMu"] = "DoElMuOR";
   m_conf_to_prop["OR.DoMuonJet"] = "DoMuonJetOR";
   m_conf_to_prop["OR.Bjet"] = "DoBjetOR";
   m_conf_to_prop["OR.ElBjet"] = "DoElBjetOR";
@@ -1369,6 +1372,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
   configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
   configFromFile(m_orDoElEl, "OR.ElEl", rEnv, false);
+  configFromFile(m_orDoElMu, "OR.ElMu", rEnv, false);
   configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, false);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, false);

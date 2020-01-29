@@ -651,6 +651,7 @@ namespace ST {
     bool   m_orDoPhoton;
     bool   m_orDoEleJet;
     bool   m_orDoElEl;
+    bool   m_orDoElMu;
     bool   m_orDoMuonJet;
     bool   m_orDoBjet;
     bool   m_orDoElBjet;
