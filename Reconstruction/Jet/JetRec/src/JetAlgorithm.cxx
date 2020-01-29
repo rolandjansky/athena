@@ -8,18 +8,6 @@
 #include "JetAlgorithm.h"
 #include "JetInterface/IJetExecuteTool.h"
 
-using std::string;
-
-//**********************************************************************
-
-JetAlgorithm::JetAlgorithm(const std::string& name, 
-                           ISvcLocator* pSvcLocator )
-  : ::AthAlgorithm( name, pSvcLocator ),m_exetools(this) { 
-  declareProperty( "Tools", m_exetools);
-}
-
-//**********************************************************************
-
 JetAlgorithm::~JetAlgorithm() { }
 
 //**********************************************************************
@@ -51,20 +39,18 @@ StatusCode JetAlgorithm::finalize() {
 
 //**********************************************************************
 
-StatusCode JetAlgorithm::execute() {  
+StatusCode JetAlgorithm::execute(const EventContext&) const {  
   ATH_MSG_VERBOSE("Executing " << name() << "...");
   // Loop over tools.
   unsigned int ntools = m_exetools.size();
   ATH_MSG_DEBUG("Looping over " << ntools << " jet execute tools.");
-  string line = "---------------------------------------------------";
+  const std::string line = "---------------------------------------------------";
   if ( ntools ) ATH_MSG_DEBUG(line);
   for ( ToolHandleArray<IJetExecuteTool>::const_iterator itoo=m_exetools.begin();
         itoo!=m_exetools.end(); ++itoo ) {
     ToolHandle<IJetExecuteTool> htool = *itoo;
     ATH_MSG_DEBUG("Executing tool " << htool->name());
-    ATH_MSG_VERBOSE("Retrieving tool with IJetExecuteTool interface.");
     int jstat = htool->execute();
-    ATH_MSG_VERBOSE("Tool retrieved.");
     if ( jstat != 0 ) ATH_MSG_INFO("Tool returned error " << jstat);
     else ATH_MSG_DEBUG("Tool execution succeeded");
     ATH_MSG_DEBUG(line);
