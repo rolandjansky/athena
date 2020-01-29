@@ -43,7 +43,6 @@ Updated:
 #include "HepMC/GenParticle.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 //
 #endif
 
@@ -62,27 +61,20 @@ using std::abs;
 // -----------------------------------------------------------------------
 MCTruthClassifier::MCTruthClassifier(const std::string& type)
   :  asg::AsgTool(type)
-#ifndef XAOD_ANALYSIS //Add Athena Specific parts in the init list of the constructor
-  ,
-     m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-     m_truthInConeTool ("xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool", this)
-#endif
 {
 
 #ifndef XAOD_ANALYSIS // Add properties used/available only in Athena
-  declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
-  declareProperty("TruthInConeTool",               m_truthInConeTool );
   declareProperty("FwdElectronTruthExtrEtaCut" , m_FwdElectronTruthExtrEtaCut = 2.4, 
                   "Cut on the eta of the truth Particles to be extrapolated for Fwd electrons");
   declareProperty("FwdElectronTruthExtrEtaWindowCut" , m_FwdElectronTruthExtrEtaWindowCut = 0.15, 
                   "Cut on the delta eta of the truth Particles to be extrapolated for Fwd electrons and the current FwdElectron");
   declareProperty("partExtrConePhi"   , m_partExtrConePhi  = 0.4);
   declareProperty("partExtrConeEta"   , m_partExtrConeEta  = 0.2);
-  declareProperty("phtClasConePhi"  , m_phtClasConePhi  = 0.05);
-  declareProperty("phtClasConeEta"  , m_phtClasConeEta  = 0.025);
-  declareProperty( "useCaching", m_useCaching=true);
-  declareProperty("phtdRtoTrCut"     , m_phtdRtoTrCut     = 0.1);
-  declareProperty("fwrdEledRtoTrCut" , m_fwrdEledRtoTrCut  = 0.15);
+  declareProperty("phtClasConePhi"    , m_phtClasConePhi  = 0.05);
+  declareProperty("phtClasConeEta"    , m_phtClasConeEta  = 0.025);
+  declareProperty("useCaching"        , m_useCaching=true);
+  declareProperty("phtdRtoTrCut"      , m_phtdRtoTrCut     = 0.1);
+  declareProperty("fwrdEledRtoTrCut"  , m_fwrdEledRtoTrCut  = 0.15);
   declareProperty("ROICone"           , m_ROICone  = false);
 #endif
   //

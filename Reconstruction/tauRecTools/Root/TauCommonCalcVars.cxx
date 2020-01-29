@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
 
         for (const xAOD::TauTrack* tauTrk : tauTracks){
 
-          double deltaR = Tau1P3PKineUtils::deltaR( (inTrigger() ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
+          double deltaR = Tau1P3PKineUtils::deltaR( ( m_in_trigger ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
 	
 	  ptSum += tauTrk->pt();
 	  sumWeightedDR += deltaR * (tauTrk->pt());

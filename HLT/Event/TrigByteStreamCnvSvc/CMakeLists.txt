@@ -10,7 +10,7 @@ atlas_depends_on_subdirs(
   PRIVATE
     GaudiKernel
     Control/AthenaBaseComps
-    Control/AthenaMonitoring
+    Control/AthenaMonitoringKernel
     Event/ByteStreamCnvSvcBase
     Event/ByteStreamCnvSvc
     Event/ByteStreamData
@@ -29,7 +29,7 @@ atlas_add_component(
     ${TDAQ-COMMON_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES
     ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData
-    AthenaMonitoringLib ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib
+    AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib
     GaudiKernel xAODEventInfo TrigKernel )
 
 # Install files from the package

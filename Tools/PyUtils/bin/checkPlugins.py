@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @author: Sebastien Binet
 ## @file : checkPlugins.py
 ## @brief: A script to check the definitions of plugins across multiple
 ##           so-called 'rootmap' files
+
+from __future__ import print_function
 
 __version__ = "$Revision: 1.3 $"
 __author__  = "Sebastien Binet"
@@ -37,14 +39,14 @@ def _currentProject():
 def printDb( db, detailedDump = False ):
     if detailedDump : fct = lambda x: x
     else:             fct = os.path.basename
-    keys = db.keys()
+    keys = list(db.keys())
     keys.sort()
     for k in keys:
-        print "%s:" % k
+        print ("%s:" % k)
         libs = db[k]
         libs.sort()
         for lib in libs:
-            print "  ",fct(lib)
+            print ("  ",fct(lib))
     return
 
 if __name__ == "__main__":
@@ -129,8 +131,8 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
 
-    print ":"*80
-    print "::: checkPlugins :::"
+    print (":"*80)
+    print ("::: checkPlugins :::")
     sc = 0
     dsoDb = Dso.DsoDb()
 
@@ -142,49 +144,49 @@ if __name__ == "__main__":
         libName = options.capabilities
         try:
             capabilities = dsoDb.capabilities(libName)
-            print "::: capabilities of [%s]" % libName
-            print os.linesep.join( [ "  "+str(c) for c in capabilities ] )
-        except ValueError, err:
+            print ("::: capabilities of [%s]" % libName)
+            print (os.linesep.join( [ "  "+str(c) for c in capabilities ] ))
+        except ValueError as err:
             sc = 1
             pass
 
     if options.checkDups:
         libName = options.checkDups
         try:
-            print "::: checking duplicates for [%s]..." % libName
+            print ("::: checking duplicates for [%s]..." % libName)
             dups = dsoDb.duplicates(libName, pedantic = options.isPedantic)
             for k in dups:
-                print " -",k
-                print os.linesep.join( [ "  "+str(v) for v in dups[k] ] )
+                print (" -",k)
+                print (os.linesep.join( [ "  "+str(v) for v in dups[k] ] ))
             if len(dups.keys())>0: sc = 1
-        except ValueError, err:
+        except ValueError as err:
             sc = 1
             pass
         
     if options.dumpContent:
-        print "::: dumping content of all known plugins..."
+        print ("::: dumping content of all known plugins...")
         entries = dsoDb.content( pedantic = options.isPedantic )
         printDb(entries, options.detailedDump)
-        print "::: known entries:",len(entries.keys())
+        print ("::: known entries:",len(entries.keys()))
         
     if options.dumpLibs:
-        print "::: dumping all known libraries..."
+        print ("::: dumping all known libraries...")
         libs = dsoDb.libs(options.detailedDump)
         for lib in libs:
-            print " -",lib
-        print "::: known libs:",len(libs)
+            print (" -",lib)
+        print ("::: known libs:",len(libs))
         
     if options.dumpDso:
-        print "::: dumping all known dsomap/rootmap files..."
+        print ("::: dumping all known dsomap/rootmap files...")
         dsoFiles = [ dso for dso in dsoDb.dsoFiles]
         dsoFiles.sort()
         for dsoFile in dsoFiles:
             if not options.detailedDump: dsoFile = os.path.basename(dsoFile)
-            print " -",dsoFile
-        print "::: known dsos:",len(dsoFiles)
+            print (" -",dsoFile)
+        print ("::: known dsos:",len(dsoFiles))
         
     if options.checkDictDuplicates or options.checkAllDuplicates:
-        print ":: checking dict. duplicates..."
+        print (":: checking dict. duplicates...")
         dups = dsoDb.dictDuplicates( pedantic = options.isPedantic )
         # restrict to just this project
         #currProj = _currentProject()
@@ -207,7 +209,7 @@ if __name__ == "__main__":
                 if all(suppressed):
                     msg = "---> ignoring [%s]" % k
                     suppression_log.append(k[:])
-                    #print msg
+                    #print (msg)
                     pass
                 else:
                     # that's a new one !
@@ -215,25 +217,25 @@ if __name__ == "__main__":
             else:
                 # that's a new one !
                 sc = 1
-                #print "---> NOT ignoring [%s]" % k
+                #print ("---> NOT ignoring [%s]" % k)
         printDb(dups, options.detailedDump)
         if len(suppression_log):
-            print "-"*40
-            print "## ignoring the following dups':"
+            print ("-"*40)
+            print ("## ignoring the following dups':")
             for k in suppression_log:
-                print " -",k
-            print "-"*40
-        print "## all dups:",len(dups.keys())
-        print "##     dups:",len(dups.keys())-len(suppression_log)
+                print (" -",k)
+            print ("-"*40)
+        print ("## all dups:",len(dups.keys()))
+        print ("##     dups:",len(dups.keys())-len(suppression_log))
     if options.checkPfDuplicates or options.checkAllDuplicates:
-        print ":: checking (plugin factories) components duplicates..."
+        print (":: checking (plugin factories) components duplicates...")
         dups = dsoDb.pfDuplicates( pedantic = options.isPedantic )
         if len(dups.keys()) > 0: sc = 1
         printDb(dups, options.detailedDump)
-        print "## dups:",len(dups.keys())
+        print ("## dups:",len(dups.keys()))
 
-    if sc != 0: print ":: ERROR !!"
-    else:       print ":: All good."
+    if sc != 0: print (":: ERROR !!")
+    else:       print (":: All good.")
 
-    print ":"*80
+    print (":"*80)
     sys.exit(sc)

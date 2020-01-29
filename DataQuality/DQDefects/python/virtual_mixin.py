@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from logging import getLogger; log = getLogger("DQDefects.virtual_defect_mixin")
 from DQUtils import fetch_iovs
@@ -6,6 +6,11 @@ from DQUtils import fetch_iovs
 from .exceptions import DefectUnknownError, DefectExistsError
 from .ids import choose_new_defect_id
 from .virtual_logic import DefectLogic
+import six
+if six.PY2:
+    def _encode (s, enc): return s.encode(enc)
+else:
+    def _encode (s, enc): return s
 
 NONHEAD_MODIFICATION_MSG = ("Operations which modify virtual defects can only "
     "be done on the HEAD tag.")
@@ -54,8 +59,8 @@ class DefectsDBVirtualDefectsMixin(object):
         # change other tags in a known manner with _update_virtual_defect
         assert self.logics_tag == "HEAD", NONHEAD_MODIFICATION_MSG
         assert not self._read_only, "Insertion on read-only database"
-        clauses = clauses.encode('ascii')
-        comment = comment.encode('utf-8') if comment is not None else comment
+        clauses = _encode(clauses,'ascii')
+        comment = _encode(comment,'utf-8') if comment is not None else comment
         self._update_virtual_defect(defect_name, clauses, comment)
     
     def _update_virtual_defect(self, defect_name, clauses, comment=None, tag=None):
@@ -82,8 +87,8 @@ class DefectsDBVirtualDefectsMixin(object):
         Will fix up all virtual defect dependencies in all tags.
         """
         assert not self._read_only, "Channel rename on read-only database"
-        defect_name = defect_name.encode('ascii')
-        new_defect_name = new_defect_name.encode('ascii')
+        defect_name = _encode(defect_name,'ascii')
+        new_defect_name = _encode(new_defect_name,'ascii')
         
         try:
             oldname = self.normalize_defect_names(new_defect_name)
@@ -148,9 +153,9 @@ class DefectsDBVirtualDefectsMixin(object):
         assert self.logics_tag == "HEAD", NONHEAD_MODIFICATION_MSG
         assert not self._read_only, "Insertion on read-only database"
         from DQUtils.channel_mapping import get_channel_ids_names
-        clauses = clauses.encode('ascii')
-        defect_name = defect_name.encode('ascii')
-        comment = comment.encode('utf-8') if comment is not None else comment
+        clauses = _encode(clauses,'ascii')
+        defect_name = _encode(defect_name,'ascii')
+        comment = _encode(comment,'utf-8') if comment is not None else comment
         
         # Force load of defects_folder to populate _defect_payload
         store = self.defect_logic_folder.storeObject
@@ -240,7 +245,7 @@ class DefectsDBVirtualDefectsMixin(object):
                             
         logics = dict((l.channel, DefectLogic(l)) for l in logics)
         
-        for defect_name, defect_logic in logics.iteritems():
+        for defect_name, defect_logic in six.iteritems (logics):
             defect_logic._populate(logics)
             
         return logics
@@ -273,7 +278,7 @@ class DefectsDBVirtualDefectsMixin(object):
         used_defects = set()
         
         used_by = {}
-        for defect, logic in self.virtual_defect_logics.iteritems():
+        for defect, logic in six.iteritems (self.virtual_defect_logics):
             used_defects.update(logic.realclauses)
             for clause in logic.realclauses:
                 used_by.setdefault(clause, []).append(defect)

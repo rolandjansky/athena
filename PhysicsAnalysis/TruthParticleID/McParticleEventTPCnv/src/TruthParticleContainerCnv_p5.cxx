@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleContainerCnv_p5.cxx 
@@ -22,35 +22,18 @@
 #include "McParticleKernel/ITruthParticleCnvTool.h"
 
 // McParticleEvent includes
-#define private public
-#define protected public
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthParticleContainer.h"
-#undef private
-#undef protected
 #include "McParticleEvent/TruthEtIsolationsContainer.h"
 
 // McParticleEventTPCnv includes
 #include "McParticleEventTPCnv/TruthParticleContainerCnv_p5.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 void 
 TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers, 
 					   TruthParticleContainer* trans, 
-					   MsgStream& msg ) 
+					   MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Loading TruthParticleContainer from persistent state..."
@@ -66,11 +49,13 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
   }
 
   // convert the ElementLink<McEventCollection>
+  ElementLink<McEventCollection> genEventEL;
   m_genEvtCnv.persToTrans( &pers->m_genEvent, 
-			   &trans->m_genEvent, 
+			   &genEventEL,
 			   msg );
+  trans->setGenEvent (genEventEL);
 
-  const McEventCollection* evt = trans->m_genEvent.getStorableObjectPointer();
+  const McEventCollection* evt = trans->genEventLink().getStorableObjectPointer();
   if ( 0 == evt ) {
     const std::string error("NULL pointer to McEventCollection !!");
     msg << MSG::ERROR << error
@@ -90,7 +75,7 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
     throw std::runtime_error("No TruthParticleContainer created !!");
   }
 
-  if ( !trans->m_genEvent.isValid() ) {
+  if ( !trans->genEventLink().isValid() ) {
     const std::string err = "ElementLink to McEventCollection is not valid !";
     msg << MSG::ERROR << err << endmsg;
     throw std::runtime_error(err);
@@ -98,9 +83,11 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
 
   // convert the ElementLink<TruthEtIsolationsContainer>
   // this needs to be done *AFTER* the GenEvent->TPContainer conversion !!
+  ElementLink<TruthEtIsolationsContainer> etIsolEL;
   m_etIsolCnv.persToTrans( &pers->m_etIsolations, 
-			   &trans->m_etIsolations, 
+			   &etIsolEL,
 			   msg );
+  trans->setEtIsolations (etIsolEL);
 
   msg << MSG::DEBUG 
       << "Loaded TruthParticleContainer from persistent state [OK]"
@@ -111,7 +98,7 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
 void 
 TruthParticleContainerCnv_p5::transToPers( const TruthParticleContainer*,
 					   TruthParticleContainer_p5*, 
-					   MsgStream& msg ) 
+					   MsgStream& msg ) const
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthParticleContainer..."
@@ -123,26 +110,11 @@ TruthParticleContainerCnv_p5::transToPers( const TruthParticleContainer*,
       << "You are not supposed to end-up here ! Go away !"
       << endmsg;
 
-  throw std::runtime_error( "Retired TruthParticleContainerCnv_p4::transToPers() !!" );
+  throw std::runtime_error( "Retired TruthParticleContainerCnv_p5::transToPers() !!" );
 
   return;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 
 

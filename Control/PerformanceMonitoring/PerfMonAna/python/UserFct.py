@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: UserFct.py
 # @purpose: classes to allow users to specialize (and load) filtering functions
@@ -58,7 +58,8 @@ def loadFilterFct( uri ):
         filterFct.setFilter( inspect.getmembers(mod, pluginFilter)[0][1] )
 
     else:
-        exec "userFct = lambda m : %s" % uri in {}, locals() 
+        def userFct (m):
+            return eval (uri)
         filterFct.setFilter( userFct )
         
     return filterFct

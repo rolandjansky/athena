@@ -12,9 +12,9 @@ decription           : Implementation code for Gaussian Sum Fitter class
 ********************************************************************************** */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 
@@ -91,9 +91,6 @@ Trk::GaussianSumFitter::initialize()
 
   // Request the GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
-
-  // Request the state combiner
-  ATH_CHECK(m_stateCombiner.retrieve());
 
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used in fit
@@ -474,14 +471,14 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
   if (!forwardTrajectory) {
     ATH_MSG_DEBUG("Forward GSF fit failed... Exiting!");
     ++m_ForwardFailure;
-    return 0;
+    return nullptr;
   }
 
   if (forwardTrajectory->empty()) {
     ATH_MSG_DEBUG("No states in forward trajectory... Exiting!");
     delete forwardTrajectory;
     ++m_ForwardFailure;
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_VERBOSE("*** Forward GSF fit passed! ***");
@@ -494,7 +491,7 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
     ATH_MSG_DEBUG("Smoother GSF fit failed... Exiting!");
     ++m_SmootherFailure;
     delete forwardTrajectory;
-    return 0;
+    return nullptr;
   }
   ATH_MSG_VERBOSE("*** GSF smoother fit passed! ***");
 
@@ -506,7 +503,7 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
     ++m_fitQualityFailure;
     delete forwardTrajectory;
     delete smoothedTrajectory;
-    return 0;
+    return nullptr;
   }
 
   if (outlierRemoval) {
@@ -691,23 +688,19 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
                                     const Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_VERBOSE("Trk::GaussianSumFilter::makePerigee... starting");
-
   // Propagate track to perigee
   const Trk::PerigeeSurface perigeeSurface;
-
   const Trk::TrackStateOnSurface* stateOnSurfaceNearestOrigin = smoothedTrajectory->back();
-
   const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurfaceNearestOrigin =
     dynamic_cast<const Trk::MultiComponentStateOnSurface*>(stateOnSurfaceNearestOrigin);
-
-  const Trk::MultiComponentState* multiComponentState = 0;
-
+ 
+  const Trk::MultiComponentState* multiComponentState = nullptr;
   if (!multiComponentStateOnSurfaceNearestOrigin) {
-
-    ATH_MSG_VERBOSE("State nearest perigee is not a multi-component state... Converting");
-    Trk::ComponentParameters componentParameters(stateOnSurfaceNearestOrigin->trackParameters(), 1.);
-    multiComponentState = new Trk::MultiComponentState(componentParameters);
+    //we need to make a dummy multicomponent surface
+    Trk::ComponentParameters dummyComponent(stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
+    auto tmp_multiComponentState = std::make_unique<Trk::MultiComponentState>();
+    tmp_multiComponentState->push_back(std::move(dummyComponent));
+    multiComponentState=tmp_multiComponentState.release();
   } else {
     multiComponentState = multiComponentStateOnSurfaceNearestOrigin->components();
   }
@@ -737,7 +730,8 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
                     << "and is NO Longer Stored as a seperate Parameter");
   }
   // Determine the combined state as well to be passed to the MultiComponentStateOnSurface object
-  std::unique_ptr<Trk::TrackParameters> combinedPerigee = m_stateCombiner->combine(*stateExtrapolatedToPerigee, true);
+  std::unique_ptr<Trk::TrackParameters> combinedPerigee =
+    MultiComponentStateCombiner::combine(*stateExtrapolatedToPerigee, true);
 
   // Perigee is given as an additional MultiComponentStateOnSurface
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);

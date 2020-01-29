@@ -170,10 +170,19 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             ATH_MSG_DEBUG("idx_goodStrips[0]: "<<idx<<"MMPRDs size: "<< MMprdsOfLayer.at(idx) << " size: " <<MMprdsOfLayer.size());
             Amg::Vector2D localClusterPositionV(localClusterPosition,MMprdsOfLayer.at(idx).localPosition().y()); // y position is the same for all strips
             ATH_MSG_DEBUG("Did set local position");
-            MMPrepData* prdN=new MMPrepData(MMprdsOfLayer.at(idx).identify(),MMprdsOfLayer.at(idx).collectionHash(),
-                                 localClusterPositionV,stripsOfCluster,covN,MMprdsOfLayer.at(idx).detectorElement(),
-                                 (short int)0,std::accumulate(stripsOfClusterCharges.begin(),stripsOfClusterCharges.end(),0),
-                                 stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
+
+	    float driftDist = 0.0;
+
+            MMPrepData* prdN=new MMPrepData(MMprdsOfLayer.at(idx).identify(),
+					    MMprdsOfLayer.at(idx).collectionHash(),
+					    localClusterPositionV,stripsOfCluster,
+					    covN,MMprdsOfLayer.at(idx).detectorElement(),
+					    (short int)0,
+					    std::accumulate(stripsOfClusterCharges.begin(),
+							    stripsOfClusterCharges.end(),0),
+					    driftDist,
+					    stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
+	    
             ATH_MSG_DEBUG("Did create new prd");
             
             ATH_MSG_DEBUG("Setting prd angle: "<< finalFitAngle <<" chi2 Prob: "<<finalFitChiSqProb);

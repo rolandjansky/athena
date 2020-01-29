@@ -14,7 +14,7 @@ class TFCSTruthState;
 class TFCSExtrapolationState;
 
 // Define Athena like message macro's such that they work stand alone and inside athena
-#if defined(__FastCaloSimStandAlone__) || defined(__FastCaloSimStandAloneDict__)
+#if defined(__FastCaloSimStandAlone__)
   #include <iostream>
   #include <iomanip>
   typedef std::ostream MsgStream;
@@ -150,7 +150,7 @@ protected:
 
   static std::vector< TFCSParametrizationBase* > s_cleanup_list;
 
-#if defined(__FastCaloSimStandAlone__) || defined(__FastCaloSimStandAloneDict__)
+#if defined(__FastCaloSimStandAlone__)
 public:
   /// Update outputlevel
   virtual void setLevel(int level,bool recursive=false) {
@@ -198,9 +198,5 @@ private:
 
   ClassDef(TFCSParametrizationBase,2)  //TFCSParametrizationBase
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationBase+;
-#endif
 
 #endif

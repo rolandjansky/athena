@@ -1,6 +1,5 @@
 #include "../egammaIso.h"
 #include "../egammaShowerShape.h"
-#include "../egammaEnergyPositionAllSamples.h"
 #include "../egammaPreSamplerShape.h"
 #include "../egammaStripsShape.h"
 #include "../egammaMiddleShape.h"
@@ -12,7 +11,6 @@
 
 
 DECLARE_COMPONENT( egammaShowerShape )
-DECLARE_COMPONENT( egammaEnergyPositionAllSamples )
 DECLARE_COMPONENT( egammaPreSamplerShape )
 DECLARE_COMPONENT( egammaStripsShape )
 DECLARE_COMPONENT( egammaMiddleShape )

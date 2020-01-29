@@ -11,9 +11,7 @@
 #include <sstream>
 
 PixelChargeCalibCondAlg::PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
-  m_pixelID(nullptr),
-  m_condSvc("CondSvc", name)
+  ::AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -212,11 +210,6 @@ StatusCode PixelChargeCalibCondAlg::execute() {
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode PixelChargeCalibCondAlg::finalize() {
-  ATH_MSG_DEBUG("PixelChargeCalibCondAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

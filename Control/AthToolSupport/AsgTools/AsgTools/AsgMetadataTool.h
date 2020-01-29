@@ -109,7 +109,7 @@ namespace asg {
       /// @}
 
    private:
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       /// Object accessing the input metadata store
       mutable MetaStore_t m_inputMetaStore;
       /// Object accessing the output metadata store

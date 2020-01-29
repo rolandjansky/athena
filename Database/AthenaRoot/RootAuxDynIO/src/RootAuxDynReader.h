@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ROOTAUXDYNREADER_H
@@ -42,7 +42,7 @@ public :
   RootAuxDynReader(TBranch *, int store_holder_offset);
 
   
-  virtual void addReaderToObject(void* object, size_t ttree_row, std::mutex* iomtx = nullptr );
+  virtual void addReaderToObject(void* object, size_t ttree_row, std::recursive_mutex* iomtx = nullptr );
 
   void init(bool standalone);
   const BranchInfo& getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInternal& store);

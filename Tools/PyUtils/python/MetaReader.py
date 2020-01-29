@@ -33,8 +33,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
     from RootUtils import PyROOTFixes
 
     # Check if the input is a file or a list of files.
-    from past.builtins import basestring
-    if isinstance(filenames, basestring):
+    if isinstance(filenames, str):
         filenames = [filenames]
 
     # Check if file_type is an allowed value

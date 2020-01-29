@@ -1,36 +1,25 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H
 #define _TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H 1
 
-// general athena stuff 
-#include "GaudiKernel/IToolSvc.h"
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "TrigTimeAlgs/TrigTimer.h"
-
-//Gaudi 
-#include "GaudiKernel/ToolHandle.h" 
-#include "GaudiKernel/ServiceHandle.h"
-
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h" 
 #include "StoreGate/ReadHandleKey.h" 
 #include "StoreGate/WriteHandleKey.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 // Retrieve containers
 #include "Particle/TrackParticleContainer.h" 
 #include "xAODMuon/MuonContainer.h"
-#include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/L2IsoMuonContainer.h"
 
 #include "TrigMuonToolInterfaces/IMuonEFTrackIsolationTool.h" 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 
-//#include "AthenaMonitoring/GenericMonitoringTool.h"
+//#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class TrigMuonEFTrackIsolationAlgMT : public AthAlgorithm
 {
@@ -59,25 +48,15 @@ class TrigMuonEFTrackIsolationAlgMT : public AthAlgorithm
 
     // ID Tracks and EF Muons
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey {
-  	this, "IdTrackParticles", "InDetTrigTrackingxAODCnv_Muon_FTF", "Name of ID (or FTK) Track Particle container" };
+  	this, "IdTrackParticles", "InDetTrigTrackingxAODCnv_Muon_FTF", "Name of ID Track Particle container" };
   
     SG::ReadHandleKey<xAOD::MuonContainer> m_efMuonContainerKey {
   	this, "MuonEFContainer", "Muons", "Name of EF Muons container" };
 
-    // L2 Muons  
-    SG::ReadHandleKey<xAOD::L2CombinedMuonContainer> m_l2MuonContainerKey {
-	this, "MuonL2Container", "MuonL2CBInfo", "Name of L2 Muons container" };
-
     SG::WriteHandleKey<xAOD::MuonContainer> m_muonContainerKey {
 	this, "MuonContName", "MuonEFInfo", "Name of output objects for EF" };
 
-    SG::WriteHandleKey<xAOD::L2IsoMuonContainer> m_l2MuonIsoContainerKey {
-        this, "L2IsoMuonContName", "MuonL2ISInfo", "Name of output objects for L2" };
 
-
-    // Which setups to run
-    Gaudi::Property<int> m_isoType { this, "IsoType", 1, "Which setups to run"};
-  
     // Require that EF muons are combined
     Gaudi::Property<bool> m_requireCombined { this, "requireCombinedMuon", true, "Require that EF Muons are combined"};
   

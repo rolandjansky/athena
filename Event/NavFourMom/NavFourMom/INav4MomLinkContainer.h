@@ -33,7 +33,7 @@ CLASS_DEF( INav4MomLinkContainer , 1194917823 , 1 )
 
 
 // This defines how to convert an INav4MomLinkContainer to an INavigable4MomentumCollection
-class INav4MomLinkContainerToINavigable4MomentumCollectionConverter
+class ATLAS_NOT_THREAD_SAFE INav4MomLinkContainerToINavigable4MomentumCollectionConverter
   : public SG::CopyConversion<INav4MomLinkContainer,
                               INavigable4MomentumCollection>
 {

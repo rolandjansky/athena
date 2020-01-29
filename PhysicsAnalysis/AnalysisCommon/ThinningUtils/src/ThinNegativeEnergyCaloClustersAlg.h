@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,11 +16,13 @@
 // STL includes
 #include <string>
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ThinningHandleKey.h"
 
 class ThinNegativeEnergyCaloClustersAlg
 : public ::AthAlgorithm
@@ -43,14 +45,16 @@ public:
     virtual StatusCode  finalize();
     
 private:
-    /// Pointer to IThinningSvc
-    ServiceHandle<IThinningSvc> m_thinningSvc;
+    StringProperty m_streamName
+    { this, "StreamName", "", "Name of the stream for which thinning is being done." };
     
     /// Should the thinning run?
-    bool m_doThinning;
+    BooleanProperty m_doThinning
+    { this, "ThinNegativeEnergyCaloClusters", true, "Should the thinning of negative energy calo clusters be run?" };
    
     /// Names of the containers to thin
-    std::string m_caloClustersKey;
+    SG::ThinningHandleKey<xAOD::CaloClusterContainer> m_caloClustersKey
+    { this, "CaloClustersKey", "CaloCalTopoClusters", "StoreGate key for the CaloClustersContainer to be thinned" };
  
     /// Counters
     unsigned long m_nEventsProcessed;

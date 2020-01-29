@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ListItem.h"
@@ -179,17 +179,6 @@ StatusCode TauRunnerAlg::execute() {
     ATH_MSG_DEBUG("  write: " << pi0Handle.key() << " = " << "..." );
     ATH_CHECK(pi0Handle.record(std::unique_ptr<xAOD::ParticleContainer>{pi0Container}, std::unique_ptr<xAOD::ParticleAuxContainer>{pi0AuxStore}));
   
-    //-------------------------------------------------------------------------
-    // Initialize tools for this event
-    //-------------------------------------------------------------------------                                                      
-    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-    for (; itT != itTE; ++itT) {
-      sc = (*itT)->eventInitialize();
-      if (sc != StatusCode::SUCCESS)
-	return StatusCode::FAILURE;
-    }
-
     // Declare container
     const xAOD::TauJetContainer * pTauContainer = 0;
 
@@ -261,14 +250,6 @@ StatusCode TauRunnerAlg::execute() {
       }
 
     } // end iterator over shallow copy
-
-    itT = m_tools.begin();
-    itTE = m_tools.end();
-    for (; itT != itTE; ++itT) {
-      sc = (*itT)->eventFinalize();
-      if (sc != StatusCode::SUCCESS)
-	return StatusCode::FAILURE;
-    }
 
 
   if (sc.isSuccess()) {

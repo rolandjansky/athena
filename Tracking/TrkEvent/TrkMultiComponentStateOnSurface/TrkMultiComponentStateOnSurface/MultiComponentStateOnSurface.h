@@ -6,19 +6,22 @@
             MultiComponentStateOnSurface.h  -  description
             -----------------------------------------------
 begin                : Monday 20th December 2004
-author               : atkinson, amorley
+author               : atkinson, amorley,anastopoulos
 email                : Anthony.Morley@cern.ch (adapted from Edward Moyse)
 description          : This class is a multi component adaption of the class
-               TrackStateOnSurface. In that class the track state was
-               represented by a single 5 component track paramter
-               vector (a0, z0, phi0, theta0, q/p) and the associated
-               covariance matrix. In its multi-component form the track
-               state on surface is represented by many track parameters
-               each with a covariance matrix and additionally a
-               weighting is attached to each component which reflects
-               the importance of that particular component in the
-               overall mixture of components which is used to describe
-               the track state at that surface.
+                      TrackStateOnSurface. 
+                      In that class the track state was
+                      represented by a single 5 component track paramter
+                      vector (a0, z0, phi0, theta0, q/p) and the associated
+                      covariance matrix. 
+                      In its multi-component form the track state on surface 
+                      is represented by many track parameters each with a covariance matrix 
+                      and additionally a weighting is attached to each component 
+                      which reflects the importance of that particular component 
+                      in the overall mixture of components which is used to describe
+                      the track state at that surface.
+                      Instances  of this class are EDM objects. So objects passed
+                      to this class as inputs via the ctors are owned by this class instances.
 *******************************************************************************/
 
 #ifndef TrkMultiComponentStateOnSurface_H
@@ -27,19 +30,16 @@ description          : This class is a multi component adaption of the class
 #include "TrkEventPrimitives/FitQualityOnSurface.h" //typedef
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <iostream>
 
 class MsgStream;
-
 namespace Trk {
-
-class MultiComponentState;
 class MaterialEffectsBase;
 class MeasurementBase;
 
 class MultiComponentStateOnSurface final : public TrackStateOnSurface
 {
-
 public:
   /*
    * BE CAREFUL: The objects passed in belong to the this object. Never

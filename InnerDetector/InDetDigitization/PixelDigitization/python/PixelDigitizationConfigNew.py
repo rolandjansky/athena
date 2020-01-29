@@ -11,11 +11,20 @@ from PixelDigitization.PixelDigitizationConf import (
     EnergyDepositionTool, SensorSimPlanarTool, SensorSim3DTool,
     RD53SimTool, FEI4SimTool, FEI3SimTool,
 )
+from PixelConditionsAlgorithms.PixelConditionsConfig import (
+    PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
+    PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
+    PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
+    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg, 
+    PixelTDAQCondAlgCfg
+# NEW FOR RUN3    PixelDeadMapCondAlgCfg
+)
+
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg
+
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
@@ -117,13 +126,39 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
 def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with configured PixelDigitizationTool"""
     acc = PixelGeometryCfg(flags)
-    acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
+
+    # module parameters
+    acc.merge(PixelConfigCondAlgCfg(flags,
+                                    UseCalibConditions=True,
+                                    UseDeadmapConditions=True,
+                                    UseDCSStateConditions=False,
+                                    UseDCSStatusConditions=False,
+                                    UseDCSHVConditions=True,
+                                    UseDCSTemperatureConditions=True,
+                                    UseTDAQConditions=False))
+    # charge calibration
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    # DCS setup
+    acc.merge(PixelDCSCondHVAlgCfg(flags))
+    acc.merge(PixelDCSCondTempAlgCfg(flags))
+    # cabling setup
+    acc.merge(PixelHitDiscCnfgAlgCfg(flags))
+    acc.merge(PixelReadoutSpeedAlgCfg(flags))
+    acc.merge(PixelCablingCondAlgCfg(flags))
+    # deadmap
+    acc.merge(PixelDCSCondStateAlgCfg(flags))
+    acc.merge(PixelDCSCondStatusAlgCfg(flags))
+# NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelTDAQCondAlgCfg(flags))
+    # offline calibration
+    acc.merge(PixelDistortionAlgCfg(flags))
+    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
+
+    acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
     acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
     acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     acc.merge(PixelCablingSvcCfg(flags))
-    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-    acc.merge(PixelDistortionAlgCfg(flags))
+
     # set up tool handle lists
     chargeTools = []
     feSimTools = []

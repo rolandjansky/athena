@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: FastCaloSim/python/AddNoiseCellBuilderTool_test.py
 # Author: scott snyder
@@ -18,6 +18,11 @@ import ROOT
 # address:
 # subcalo, barec_or_posneg, sampling_or_module, region_or_dummy, eta, phi
 
+def i32(x):
+    if x >= (1<<31):
+        x -= (1<<32)
+    return x
+
 LAREM = 0
 LARHEC = 1
 LARFCAL = 2
@@ -25,8 +30,8 @@ TILE = 3
 LARHIGHGAIN = 0
 LARMEDIUMGAIN = 1
 LARLOWGAIN = 2
-TILEHIGHHIGH = (1<<32)-11
-TILEHIGHLOW = (1<<32)-12
+TILEHIGHHIGH = -11
+TILEHIGHLOW = -12
 cell_desc = {
     # larem barrel
     (LAREM, 1, 1, 0, 100, 10) : (1000,   LARHIGHGAIN,     1007.97),
@@ -84,7 +89,7 @@ def compare_cells (detStore, ccc, exp_cells):
     tilehelper = idhelper.tile_idHelper()
 
     for c in ccc:
-        lcell = [c.gain(), c.energy()]
+        lcell = [i32(c.gain()), c.energy()]
 
         cid = c.ID()
         sub_calo = idhelper.sub_calo(cid)
@@ -113,6 +118,8 @@ def compare_cells (detStore, ccc, exp_cells):
         if (lcell[0] != l[0] or
             abs ((lcell[1] - l[1])/l[1]) > 1e-3):
             print ('xxx cell mismatch: ', addr, lcell, l)
+            import sys
+            sys.stdout.flush()
             assert 0
         del exp_cells[addr]
 

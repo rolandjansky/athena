@@ -3,7 +3,7 @@
 #
 
 from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamInputSvc as _TrigByteStreamInputSvc
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigByteStreamInputSvc(_TrigByteStreamInputSvc):
     def __init__(self, name='TrigByteStreamInputSvc'):

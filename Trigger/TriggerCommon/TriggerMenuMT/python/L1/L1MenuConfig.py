@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import re
 from collections import defaultdict as ddict
@@ -238,12 +238,10 @@ class L1MenuConfig(object):
         menuToLoad = self.menuName
         if menuToLoad == "LS2_v1" or "pp_run3_v1" in menuToLoad:
             menuToLoad = "MC_pp_v8"
-        try:
-            __import__('TriggerMenuMT.L1.Menu.Menu_%s' % menuToLoad, globals(), locals(), ['defineMenu'], 0)
-        except ImportError as ie:
-            log.warning("No L1 menu available for %s (%s)", self.menuName, ie )
-            import traceback
-            traceback.print_exc()
+        from PyUtils.moduleExists import moduleExists
+        modname = 'TriggerMenuMT.L1.Menu.Menu_%s' % menuToLoad
+        if not moduleExists (modname):
+            log.warning("No L1 menu available for %s", self.menuName )
             return False
 
         return True

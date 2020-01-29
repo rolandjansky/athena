@@ -18,7 +18,7 @@
 #include <exception>
 #include "TrigDecisionTool/ExpertMethods.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigNavigation/AccessProxy.h"
 #endif
@@ -33,7 +33,7 @@
 
 #include "xAODTrigger/TrigDecision.h"
 
-Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
+Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* cgm) 
   : m_cacheGlobalMemory(cgm),
     m_useExperimentalAndExpertMethods(false)   
 {
@@ -76,7 +76,7 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
 {
   if (!(checkExperimentalAndExpertMethods())) return 0;
@@ -93,18 +93,18 @@ const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
-    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory)->assert_decision() ) {
+    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory->get())->assert_decision() ) {
       ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
     } 
   } 
-  return m_cacheGlobalMemory; 
+  return m_cacheGlobalMemory->get(); 
 }
 
 
 
 
 bool Trig::ExpertMethods::isHLTTruncated() const {
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     const HLT::HLTResult* res(0);
     const xAOD::TrigDecision* trigDec(0);
     auto navigation = getNavigation();

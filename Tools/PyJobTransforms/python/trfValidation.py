@@ -298,16 +298,16 @@ class athenaLogFileReport(logFileReport):
                 if m is None:
                     # We didn't manage to get a recognised standard line from the file
                     # But we can check for certain other interesting things, like core dumps
-                    if 'Core dump from CoreDumpSvc' in line > -1:
+                    if 'Core dump from CoreDumpSvc' in line:
                         msg.warning('Detected CoreDumpSvc report - activating core dump svc grabber')
                         self.coreDumpSvcParser(myGen, line, lineCounter)
                         continue
                     # Add the G4 exceptipon parsers
-                    if 'G4Exception-START' in line > -1:
+                    if 'G4Exception-START' in line:
                         msg.warning('Detected G4 exception report - activating G4 exception grabber')
                         self.g4ExceptionParser(myGen, line, lineCounter, 40)
                         continue
-                    if '*** G4Exception' in line > -1:
+                    if '*** G4Exception' in line:
                         msg.warning('Detected G4 9.4 exception report - activating G4 exception grabber')
                         self.g494ExceptionParser(myGen, line, lineCounter)
                         continue
@@ -538,18 +538,24 @@ class athenaLogFileReport(logFileReport):
     def pythonExceptionParser(self, lineGenerator, firstline, firstLineCount):
         pythonExceptionReport = ""
         lastLine = firstline
+        lastLine2 = firstline
         pythonErrorLine = firstLineCount
         pyLines = 1
         for line, linecounter in lineGenerator:
             if 'Py:Athena' in line and 'INFO leaving with code' in line:
-                pythonExceptionReport = lastLine
-                pythonErrorLine = linecounter-1
+                if len(lastLine)> 0:
+                    pythonExceptionReport = lastLine
+                    pythonErrorLine = linecounter-1
+                else: # Sometimes there is a blank line after the exception
+                    pythonExceptionReport = lastLine2
+                    pythonErrorLine = linecounter-2
                 break
             if pyLines >= 25:
                 msg.warning('Could not identify python exception correctly scanning {0} log lines after line {1}'.format(pyLines, firstLineCount))
                 pythonExceptionReport = "Unable to identify specific exception"
                 pythonErrorLine = firstLineCount
                 break
+            lastLine2 = lastLine
             lastLine = line
             pyLines += 1
 

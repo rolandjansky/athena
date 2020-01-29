@@ -12,7 +12,6 @@
 // #warning "use of this file is deprecated, please include the header from AsgMessaging instead"
 
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/AsgToolsConf.h>
 #include <xAODRootAccess/tools/TReturnCode.h>
 
 #endif

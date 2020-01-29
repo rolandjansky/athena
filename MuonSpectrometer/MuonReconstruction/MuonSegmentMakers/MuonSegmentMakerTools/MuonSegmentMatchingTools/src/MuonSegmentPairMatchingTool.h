@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTPAIRMATCHINGTOOL_H
@@ -11,24 +11,16 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-
 #include "TrkTrack/TrackCollection.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-class MdtIdHelper;
-
-namespace Muon {
-  class MuonSegment;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-}
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon {
   
-
+  class MuonSegment;
+  class MuonEDMPrinterTool;
   /**
      @brief tool to match segments
-
   */
   class MuonSegmentPairMatchingTool : virtual public IMuonSegmentPairMatchingTool, public AthAlgTool {
   public:
@@ -36,21 +28,18 @@ namespace Muon {
     MuonSegmentPairMatchingTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonSegmentPairMatchingTool ();
+    virtual ~MuonSegmentPairMatchingTool () {};
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
-    
+
     /** @brief performance match and return result */
     SegmentMatchResult matchResult( const MuonSegment& seg1, const MuonSegment& seg2 ) const; 
     std::pair<Amg::Vector3D, Amg::Vector3D> getShortestTubePos(const Muon::MuonSegment& seg) const;
 
   private:
     
-    ToolHandle<MuonIdHelperTool>               m_idHelper;         //!< IdHelper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool

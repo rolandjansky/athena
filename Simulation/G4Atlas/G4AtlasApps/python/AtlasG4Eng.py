@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Geant4 simulation Python facilities for the ATLAS experiment.
@@ -9,6 +9,8 @@ accessed from any other module.
 The basic elements and materials are also defined here. If custom materials are
 needed, they can be produced using the template atlas_materials.py.
 """
+
+from __future__ import print_function
 
 __author__ = "A. Dell`Acqua, M. Gallas"
 
@@ -40,11 +42,11 @@ class _app_profiler(object):
             stat = string.split(open('/proc/%d/stat' % pid, 'r').readlines()[0])
             now = time()
             G4AtlasEngine.log.debug('G4AtlasEngine::app_profiler')
-            print "                                                  "
-            print "      G4AtlasEngine::app_profiler at ", action
-            print "      Memory status: Virtual %d kB, RSS %d kB" % (int(stat[22])/1048.576,int(statm[1])*4)
-            print "      Time since beginning: %f s" % (now - self._firstTime)
-            print "                                                  "
+            print ("                                                  ")
+            print ("      G4AtlasEngine::app_profiler at ", action)
+            print ("      Memory status: Virtual %d kB, RSS %d kB" % (int(stat[22])/1048.576,int(statm[1])*4))
+            print ("      Time since beginning: %f s" % (now - self._firstTime))
+            print ("                                                  ")
             filemode = "a"
             if not self._isfirstCall:
                 filemode = "w"
@@ -164,7 +166,7 @@ class G4AtlasEngine:
 
         def _run_init_callbacks(init_level):
             if simFlags.InitFunctions.statusOn and init_level in simFlags.InitFunctions.get_Value():
-                #print simFlags.InitFunctions.get_Value()
+                #print (simFlags.InitFunctions.get_Value())
                 for callback_fn in simFlags.InitFunctions.get_Value()[init_level]:
                     callback_fn.__call__()
                     G4AtlasEngine._callback_counter += 1
@@ -206,8 +208,8 @@ class G4AtlasEngine:
             try:
                 cppyy.loadDict(dict_name)
             except:
-                print "Unexpected error:", sys.exc_info(),'\n'
-                print 'ROOT5 migration problem: ', dict_name
+                print ("Unexpected error:", sys.exc_info(),'\n')
+                print ('ROOT5 migration problem: ', dict_name)
             try:
                 G4AtlasEngine.List_LoadedDict.append(dict_name)
                 G4AtlasEngine.log.debug(' G4AtlasEngine:load_Dict: %s loaded' % dict_name)
@@ -218,8 +220,8 @@ class G4AtlasEngine:
     def print_Summary(self):
         """ Prints the summary
         """
-        print self.Name
-        print self.List_LoadedLib
+        print (self.Name)
+        print (self.List_LoadedLib)
 
 
 

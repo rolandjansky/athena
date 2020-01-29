@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  src/xAODTestRead.cxx
  * @author snyder@bnl.gov
@@ -20,6 +18,8 @@
 #include "DataModelTestDataRead/GVec.h"
 #include "DataModelTestDataRead/G.h"
 #include "DataModelTestDataRead/GAuxContainer.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthenaKernel/errorcheck.h"
 #include <memory>
@@ -30,25 +30,16 @@ namespace DMTest {
 
 
 /**
- * @brief Constructor.
- * @param name The algorithm name.
- * @param svc The service locator.
- */
-xAODTestRead::xAODTestRead (const std::string &name,
-                            ISvcLocator *pSvcLocator)
-  : AthAlgorithm (name, pSvcLocator),
-    m_count(0)
-{
-  declareProperty ("ReadPrefix",  m_readPrefix);
-  declareProperty ("WritePrefix", m_writePrefix);
-}
-  
-
-/**
  * @brief Algorithm initialization; called at the beginning of the job.
  */
 StatusCode xAODTestRead::initialize()
 {
+  ATH_CHECK( m_ctrigReadKey.initialize() );
+  ATH_CHECK( m_gvecReadKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_cvecWDReadKey.initialize() );
+  ATH_CHECK( m_ctrigWriteKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_gvecWriteKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_cvecWDWriteKey.initialize (SG::AllowEmpty) );
   return StatusCode::SUCCESS;
 }
 
@@ -56,10 +47,9 @@ StatusCode xAODTestRead::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestRead::execute()
+StatusCode xAODTestRead::execute (const EventContext& ctx) const
 {
-  ++m_count;
-  ATH_MSG_INFO (m_count);
+  ATH_MSG_INFO (ctx.evt()+1);
 
   static const C::Accessor<int> anInt2 ("anInt2");
   static const C::Accessor<int> anInt10 ("anInt10");
@@ -72,8 +62,7 @@ StatusCode xAODTestRead::execute()
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   std::vector<std::string> names;
 
-  const CVec* ctrig = 0;
-  CHECK( evtStore()->retrieve (ctrig, m_readPrefix + "ctrig") );
+  SG::ReadHandle<CVec> ctrig (m_ctrigReadKey, ctx);
 
   names.clear();
   for (SG::auxid_t auxid : ctrig->getAuxIDs())
@@ -102,9 +91,21 @@ StatusCode xAODTestRead::execute()
     ATH_MSG_INFO (ost.str());
   }
 
-  const GVec* gvec = 0;
-  if (evtStore()->contains<GVec> (m_readPrefix + "gvec")) {
-    CHECK( evtStore()->retrieve (gvec, m_readPrefix + "gvec") );
+  if (!m_ctrigWriteKey.empty()) {
+    auto ctrignew = std::make_unique<CVec>();
+    auto trig_store = std::make_unique<CTrigAuxContainer>();
+    ctrignew->setStore (trig_store.get());
+    for (size_t i = 0; i < ctrig->size(); i++) {
+      ctrignew->push_back (new C);
+      *ctrignew->back() = *(*ctrig)[i];
+    }
+    SG::WriteHandle<CVec> ctrigWrite (m_ctrigWriteKey, ctx);
+    ATH_CHECK( ctrigWrite.record (std::move(ctrignew),
+                                  std::move(trig_store)) );
+  }
+
+  if (!m_gvecReadKey.empty()) {
+    SG::ReadHandle<GVec> gvec (m_gvecReadKey, ctx);
 
     names.clear();
     for (SG::auxid_t auxid : gvec->getAuxIDs())
@@ -120,22 +121,8 @@ StatusCode xAODTestRead::execute()
       ost3 << "\n";
     }
     ATH_MSG_INFO (ost3.str());
-  }
 
-  if (!m_writePrefix.empty()) {
-    // Passing this as the third arg of record will make the object const.
-    bool LOCKED = false;
-    auto ctrignew = std::make_unique<CVec>();
-    auto trig_store = std::make_unique<CTrigAuxContainer>();
-    ctrignew->setStore (trig_store.get());
-    for (size_t i = 0; i < ctrig->size(); i++) {
-      ctrignew->push_back (new C);
-      *ctrignew->back() = *(*ctrig)[i];
-    }
-    CHECK (evtStore()->record (std::move(ctrignew), m_writePrefix + "ctrig", LOCKED));
-    CHECK (evtStore()->record (std::move(trig_store), m_writePrefix + "ctrigAux.", LOCKED));
-
-    if (gvec) {
+    if (!m_gvecWriteKey.empty()) {
       auto gvecnew = std::make_unique<GVec>();
       auto gstore = std::make_unique<GAuxContainer>();
       gvecnew->setStore (gstore.get());
@@ -143,13 +130,14 @@ StatusCode xAODTestRead::execute()
         gvecnew->push_back (new G);
         *gvecnew->back() = *(*gvec)[i];
       }
-      CHECK (evtStore()->record (std::move(gvecnew), m_writePrefix + "gvec", LOCKED));
-      CHECK (evtStore()->record (std::move(gstore), m_writePrefix + "gvecAux.", LOCKED));
+      SG::WriteHandle<GVec> gvecWrite (m_gvecWriteKey, ctx);
+      ATH_CHECK( gvecWrite.record (std::move(gvecnew),
+                                   std::move(gstore)) );
     }
   }
 
-  CHECK( read_cvec_with_data() );
-  //CHECK( read_cview() );
+  ATH_CHECK( read_cvec_with_data (ctx) );
+  //ATH_CHECK( read_cview() );
 
   return StatusCode::SUCCESS;
 }
@@ -158,14 +146,13 @@ StatusCode xAODTestRead::execute()
 /**
  * @brief Test reading container with additional data.
  */
-StatusCode xAODTestRead::read_cvec_with_data() const
+StatusCode xAODTestRead::read_cvec_with_data (const EventContext& ctx) const
 {
-  const CVecWithData* vec = 0;
-  CHECK( evtStore()->retrieve (vec, m_readPrefix + "cvecWD") );
+  SG::ReadHandle<CVecWithData> vec (m_cvecWDReadKey, ctx);
 
   static const C::Accessor<int> anInt10 ("anInt10");
   std::ostringstream ost;
-  ost << m_readPrefix << "cvecWD " << vec->meta1 << ":";
+  ost << m_cvecWDReadKey.key() << " " << vec->meta1 << ":";
   for (const C* c : *vec) {
     ost << " " << c->anInt();
     if (anInt10.isAvailable(*c))
@@ -173,10 +160,7 @@ StatusCode xAODTestRead::read_cvec_with_data() const
   }
   ATH_MSG_INFO (ost.str());
 
-  if (!m_writePrefix.empty()) {
-    // Passing this as the third arg of record will make the object const.
-    bool LOCKED = false;
-
+  if (!m_cvecWDWriteKey.empty()) {
     auto vecnew = std::make_unique<CVecWithData>();
     auto store = std::make_unique<CAuxContainer>();
     vecnew->setStore (store.get());
@@ -184,8 +168,9 @@ StatusCode xAODTestRead::read_cvec_with_data() const
       vecnew->push_back (new C);
       *vecnew->back() = *(*vec)[i];
     }
-    CHECK (evtStore()->record (std::move(vecnew), m_writePrefix + "cvecWD", LOCKED));
-    CHECK (evtStore()->record (std::move(store), m_writePrefix + "cvecWDAux.", LOCKED));
+    SG::WriteHandle<CVecWithData> cvecWDWrite (m_cvecWDWriteKey, ctx);
+    ATH_CHECK( cvecWDWrite.record (std::move(vecnew),
+                                   std::move(store)) );
   }
 
   return StatusCode::SUCCESS;

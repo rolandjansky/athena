@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryAMI.py
@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------
 #
 
+from __future__ import print_function
 import re
 
 class ARQ_COMA:
@@ -42,7 +43,7 @@ class ARQ_COMA:
                                                 ', '.join(cls.getUsedTables(output, condition)))
         if condition:
             query += ' where ' + ' and '.join(condition)
-        if verbose: print "="*80,"\n",query
+        if verbose: print ("="*80,"\n",query)
         c = cls.cursor()
         c.execute(str(query),bindvars)
         return c.fetchall()
@@ -76,7 +77,7 @@ class ARQ_COMA:
         except: return []
         if not run in cls.__store:
 
-            print "FRESH Access for run" ,run
+            print ("FRESH Access for run" ,run)
 
             output = ['PR.P_LEVEL', 'PR.P_PERIOD', 'PR.P_PROJECT' ]
             condition = [ "PR.RUN_INDEX = :run" ]
@@ -116,7 +117,7 @@ class ARQ_COMA:
                 year = int(projectName[4:6])
                 m = p.match(period)
                 if not m:
-                    print "Period '%s'does not match pattern  [A-Za-z]+\d+" % period
+                    print ("Period '%s'does not match pattern  [A-Za-z]+\d+" % period)
                     continue
 
                 period_letter = m.group('periodletter')
@@ -129,8 +130,9 @@ class ARQ_COMA:
                 cls.all_periods += [ ((year, period, pc, projectName), projectName+".period" + period) ]
 
             cls.all_periods.sort()
-        except Exception, e:
-            print e
+        except Exception:
+            import traceback
+            traceback.print_exc()
             pass
         return cls.all_periods
     
@@ -167,27 +169,27 @@ if __name__ == "__main__":
 
     choice = 1
     while choice != 0:
-        print "\n1 - periods for run"
-        print "2 - runs for period (and year)"
-        print "3 - periods (by year and/or level)"
-        print "4 - all periods (different format)"
-        print "\n0 - exit\n"
+        print ("\n1 - periods for run")
+        print ("2 - runs for period (and year)")
+        print ("3 - periods (by year and/or level)")
+        print ("4 - all periods (different format)")
+        print ("\n0 - exit\n")
 
         choice = raw_input("  enter your choice: ")
         choice = int(choice) if choice.isdigit() else 0
         if choice==1:
             run = int(raw_input("  run number: "))
-            print ARQ_COMA.get_periods_for_run( run )
+            print (ARQ_COMA.get_periods_for_run( run ))
         elif choice==2:
             period = raw_input("  period           : ")
             year   = raw_input("  year <RET> = all : ")
             year   = int(year) if year.isdigit() else 0
-            print ', '.join([str(x) for x in ARQ_COMA.get_runs(period, year)])
+            print (', '.join([str(x) for x in ARQ_COMA.get_runs(period, year)]))
         elif choice==3:
             year   = raw_input("  year <RET> = all           : ")
             year   = int(year) if year.isdigit() else 0
             level  = raw_input("  level [1|2|3] <RET> = all : ")
             level  = int(level) if level.isdigit() else 0
-            print ARQ_COMA.get_periods(year, level)
+            print (ARQ_COMA.get_periods(year, level))
         elif choice==4:
-            print ARQ_COMA.get_all_periods()
+            print (ARQ_COMA.get_all_periods())

@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/InDetCondTools
                           InnerDetector/InDetConditions/PixelConditionsTools
+                          InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/SiPropertiesTool
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -44,6 +45,4 @@ atlas_add_component( PixelRadDamDigitization
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/PixelDigitization_jobOptions.py share/PixelDigiTool_jobOptions.py )
-atlas_install_runtime( share/3DFEI3-3E-problist-1um_v1.txt share/3DFEI4-2E-problist-1um_v0.txt share/Bichsel_*.dat share/maps*.root )
 

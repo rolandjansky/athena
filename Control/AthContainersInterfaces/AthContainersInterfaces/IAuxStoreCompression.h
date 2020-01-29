@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 #include "AthContainersInterfaces/AuxTypes.h"
 #include <typeinfo>
 #include <set>
-
+#include <vector>
 
 namespace SG {
 
@@ -23,15 +23,23 @@ public:
 
   /// Set the list of variables to be compressed
   virtual void
-  setCompressedAuxIDs ( const std::set<std::string>& /*attr*/ ) = 0;
+  setCompressedAuxIDs ( const std::vector< std::set< std::string > >& /*attr*/ ) = 0;
 
   /// Get the list of variables to be compressed
   virtual SG::auxid_set_t
-  getCompressedAuxIDs() const = 0;
+  getCompressedAuxIDs( const bool& /*highComp*/ ) const = 0;
 
   /// Get compressed value given a float
   virtual float
-  getCompressedValue( float /*val*/ ) const = 0;
+  getCompressedValue( const float& /*val*/, const bool& /*highComp*/ ) const = 0;
+
+  /// Set the number of bits for the float compression
+  virtual void
+  setCompressionBits ( const std::vector< unsigned int >& /*nbits*/ ) = 0;
+
+  /// Get the number of bits for the float compression
+  virtual unsigned int
+  getCompressionBits ( const bool& /*highComp*/ ) const = 0;
 
 }; // class IAuxStoreCompression
 

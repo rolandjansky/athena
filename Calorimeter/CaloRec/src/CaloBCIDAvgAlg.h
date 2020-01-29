@@ -18,7 +18,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LumiBlockData/LuminosityCondData.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class CaloBCIDAvgAlg : public AthReentrantAlgorithm {
 public:

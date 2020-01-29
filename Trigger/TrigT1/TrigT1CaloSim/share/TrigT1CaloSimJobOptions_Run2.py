@@ -56,7 +56,7 @@ else:
         if 'intraTrainBunchSpacing' not in metadata or not metadata['intraTrainBunchSpacing']:
             raise RuntimeError('No key "intraTrainBunchSpacing" in /Digitization/Parameters.')
         _bunchSpacing = int(metadata['intraTrainBunchSpacing'])
-    except RuntimeError, re:
+    except RuntimeError as re:
         log.warning('Could not determine bunch-spacing from input file: %s' % re)
         log.warning('Configuring for 25ns w/o pedestal correction - a wrong configuration might yield non sensible results!')
         _bunchSpacing = 25

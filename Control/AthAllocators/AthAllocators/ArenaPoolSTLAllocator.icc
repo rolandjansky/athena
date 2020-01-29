@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaPoolSTLAllocator.icc,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
 /**
  * @file  AthAllocators/ArenaPoolSTLAllocator.icc
  * @author scott snyder
@@ -64,6 +62,8 @@ ArenaAllocatorBase::Params ArenaPoolSTLAllocator_initParams<T>::params() const
  *               allocator name.
  */
 template <class T, class VETO>
+// False positive --- cppcheck doesn't grok template specialization
+// cppcheck-suppress uninitMemberVar
 ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
  (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
    : m_pool (ArenaPoolSTLAllocator_initParams<T> (nblock, name))
@@ -91,6 +91,8 @@ ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
  */
 template <class T, class VETO>
 template <class U, class V>
+// False positive --- cppcheck doesn't grok template specialization
+// cppcheck-suppress uninitMemberVar
 ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
   (const ArenaPoolSTLAllocator<U, V>& a)
     : m_pool (ArenaPoolSTLAllocator_initParams<T> (a.nblock(), a.name()))
@@ -392,9 +394,16 @@ const ArenaAllocatorBase* ArenaPoolSTLAllocator<T, VETO>::poolptr() const
 
 /**
  * @brief Default constructor.
+ * @param nblock Value to set in the parameters structure for the
+ *               number of elements to allocate per block.
+ * @param name   Value to set in the parameters structure for the
+ *               allocator name.
  */
 template <class T, class VETO>
-ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator()
+ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator
+ (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
+   : m_nblock (nblock),
+     m_name (name)
 {
 }
 
@@ -412,10 +421,33 @@ ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator
 }
 
 
+/**
+ * @brief Return the hinted number of objects allocated per block.
+ */
+template <class T, class VETO>
+inline
+size_t ArenaPoolSTLAllocator<T*, VETO>::nblock() const
+{
+  return m_nblock;
+}
+
+
+/**
+ * @brief Return the name of this allocator.
+ */
+template <class T, class VETO>
+inline
+const std::string& ArenaPoolSTLAllocator<T*, VETO>::name() const
+{
+  return m_name;
+}
+
+
 //****************************************************************************
 // Vetoed specialization.
 //
 
+#define ATHVETO typename std::enable_if<!std::is_pointer_v<T>, T>::type
 
 /**
  * @brief Default constructor.
@@ -426,7 +458,7 @@ ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator
  */
 template <class T>
 // cppcheck-suppress uninitMemberVar ; false positive
-ArenaPoolSTLAllocator<T, T>::ArenaPoolSTLAllocator
+ArenaPoolSTLAllocator<T, ATHVETO>::ArenaPoolSTLAllocator
  (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
     : m_nblock (nblock),
       m_name (name),
@@ -442,7 +474,7 @@ ArenaPoolSTLAllocator<T, T>::ArenaPoolSTLAllocator
  */
 template <class T>
 template <class U, class V>
-ArenaPoolSTLAllocator<T, T>::ArenaPoolSTLAllocator
+ArenaPoolSTLAllocator<T, ATHVETO>::ArenaPoolSTLAllocator
   (const ArenaPoolSTLAllocator<U, V>& a)
     : m_nblock (a.nblock()),
       m_name (a.name()),
@@ -456,7 +488,7 @@ ArenaPoolSTLAllocator<T, T>::ArenaPoolSTLAllocator
  */
 template <class T>
 inline
-size_t ArenaPoolSTLAllocator<T, T>::nblock() const
+size_t ArenaPoolSTLAllocator<T, ATHVETO>::nblock() const
 {
   return m_nblock;
 }
@@ -467,7 +499,7 @@ size_t ArenaPoolSTLAllocator<T, T>::nblock() const
  */
 template <class T>
 inline
-const std::string& ArenaPoolSTLAllocator<T, T>::name() const
+const std::string& ArenaPoolSTLAllocator<T, ATHVETO>::name() const
 {
   return m_name;
 }
@@ -478,7 +510,7 @@ const std::string& ArenaPoolSTLAllocator<T, T>::name() const
  */
 template <class T>
 ArenaAllocatorBase::Stats
-ArenaPoolSTLAllocator<T, T>::stats() const
+ArenaPoolSTLAllocator<T, ATHVETO>::stats() const
 {
   if (m_poolptr) {
     return m_poolptr->stats();
@@ -491,7 +523,7 @@ ArenaPoolSTLAllocator<T, T>::stats() const
  * @brief Return a pointer to the underlying allocator (may be 0).
  */
 template <class T>
-const ArenaAllocatorBase* ArenaPoolSTLAllocator<T, T>::poolptr() const
+const ArenaAllocatorBase* ArenaPoolSTLAllocator<T, ATHVETO>::poolptr() const
 {
   return m_poolptr;
 }
@@ -583,7 +615,7 @@ void ArenaNonConstPoolSTLAllocator<T>::reserve (size_t size)
 template <class T>
 template <class CONT>
 ArenaNonConstPoolSTLAllocator<T>
-ArenaPoolSTLAllocator<T, T>::get_allocator ATLAS_NOT_CONST_THREAD_SAFE (CONT& c)
+ArenaPoolSTLAllocator<T, ATHVETO>::get_allocator ATLAS_NOT_CONST_THREAD_SAFE (CONT& c)
 {
   // Must be called with a non-const object.
   typename std::remove_const<CONT>::type& cc = c;
@@ -591,6 +623,9 @@ ArenaPoolSTLAllocator<T, T>::get_allocator ATLAS_NOT_CONST_THREAD_SAFE (CONT& c)
   return ArenaNonConstPoolSTLAllocator<T> (a,
                                            const_cast<ArenaAllocatorBase*>(a.poolptr()));
 }
+
+
+#undef ATHVETO
 
 
 } // namespace SG

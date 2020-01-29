@@ -6,8 +6,6 @@
 #define ASGTOOLS_TOOLHANDLEARRAY_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
-
 #ifndef XAOD_STANDALONE
 #   include "GaudiKernel/ToolHandle.h"
 #else // not XAOD_STANDALONE

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERHASHPROVIDERTOOL_H
@@ -8,21 +8,13 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 static const InterfaceID IID_MuonLayerHashProviderTool("Muon::MuonLayerHashProviderTool",1,0);
 
-class MuonIdHelper;
-
 namespace Muon {
-
-  class MuonIdHelperTool;
 
   class MuonLayerHashProviderTool :  public AthAlgTool {
   public:
@@ -85,8 +77,7 @@ namespace Muon {
     /** cachaed hash data structure */
     RegionHashesPerSectorVec m_regionHashesPerSector;
 
-    /** tool handles */
-    ToolHandle<MuonIdHelperTool> m_idHelper; 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
   };
 
@@ -97,10 +88,10 @@ namespace Muon {
   }
 
   inline const std::vector<IdentifierHash>& MuonLayerHashProviderTool::getHashes( const Identifier& id ) const {
-    MuonStationIndex::DetectorRegionIndex regionIndex = m_idHelper->regionIndex(id);
-    MuonStationIndex::LayerIndex layerIndex = m_idHelper->layerIndex(id);
+    MuonStationIndex::DetectorRegionIndex regionIndex = m_idHelperSvc->regionIndex(id);
+    MuonStationIndex::LayerIndex layerIndex = m_idHelperSvc->layerIndex(id);
     unsigned int sectorLayerHash = MuonStationIndex::sectorLayerHash(regionIndex,layerIndex);
-    return getHashes(m_idHelper->sector(id),m_idHelper->technologyIndex(id),sectorLayerHash);
+    return getHashes(m_idHelperSvc->sector(id),m_idHelperSvc->technologyIndex(id),sectorLayerHash);
   }
 
 

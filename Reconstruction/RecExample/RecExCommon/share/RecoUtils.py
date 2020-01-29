@@ -6,9 +6,9 @@
 import resource
 softas, hardas = resource.getrlimit( resource.RLIMIT_AS )
 logRecoUtils = logging.getLogger( 'RecoUtils' )
-logRecoUtils.info( 'Memory address space VSize soft limit : %s hard limit: %s ',softas == -1L and 'unlimited' or str(softas),  hardas == -1L and 'unlimited' or str(hardas))
+logRecoUtils.info( 'Memory address space VSize soft limit : %s hard limit: %s ',softas == -1 and 'unlimited' or str(softas),  hardas == -1 and 'unlimited' or str(hardas))
 softas, hardas = resource.getrlimit( resource.RLIMIT_RSS )
-logRecoUtils.info( 'Memory resident state RSS soft limit : %s hard limit: %s ',softas == -1L and 'unlimited' or str(softas),  hardas == -1L and 'unlimited' or str(hardas))
+logRecoUtils.info( 'Memory resident state RSS soft limit : %s hard limit: %s ',softas == -1 and 'unlimited' or str(softas),  hardas == -1 and 'unlimited' or str(hardas))
 
 # make IOV calls in reproducible order
 Service("AthenaSealSvc").OutputLevel=WARNING
@@ -61,14 +61,14 @@ if rec.doMemoryAuditor():
                                           DefaultStacktraceDepth=50,
                                           StacktraceDepthPerAlg=["StreamESD 100"])
     except:
-        print "WARNING: MemoryAuditor not available in this release" 
+        printfunc ("WARNING: MemoryAuditor not available in this release" )
 else:
     if rec.doFastMemoryAuditor():  
         try:
             from AthenaAuditors.AthenaAuditorsConf import AthMemoryAuditor
             theAuditorSvc += AthMemoryAuditor(DefaultStacktraceDepth=0)
         except:
-            print "WARNING: fast MemoryAuditor not available in this release" 
+            printfunc ("WARNING: fast MemoryAuditor not available in this release" )
 
 from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
 theAuditorSvc += FPEAuditor()
@@ -131,7 +131,7 @@ if rec.doPerfMon() :
 #################
 # Time limit
 if rec.doTimeLimit():
-    print "WARNING doTimeLimit functionality disabled because LSFTimeKeeperSvc was not maintained. Volunteer ?"
+    printfunc ("WARNING doTimeLimit functionality disabled because LSFTimeKeeperSvc was not maintained. Volunteer ?")
 ##     try:
 ##         include ("LSFTimeKeeper/LSFTimeKeeperOptions.py")
 ##         LSFTimeKeeperSvc= Service("LSFTimeKeeperSvc")

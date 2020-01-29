@@ -71,6 +71,60 @@ using namespace std;
 //enum {enumBarrel, enumEndCap};
 enum {enumInner, enumMiddle, enumOuter, enumExtra};
 
+struct MDTOverviewHistogramStruct {
+  std::vector<float> mdt_tube_x_barrel;
+  std::vector<float> mdt_tube_y_barrel;
+  std::vector<float> mdt_tube_z_barrel;
+  std::vector<float> mdt_tube_perp_barrel;
+
+  std::vector<float> mdt_tube_x_ovl;
+  std::vector<float> mdt_tube_y_ovl;
+  std::vector<float> mdt_tube_z_ovl;
+  std::vector<float> mdt_tube_perp_ovl;
+
+  std::vector<float> mdt_tube_x_endcap;
+  std::vector<float> mdt_tube_y_endcap;
+  std::vector<float> mdt_tube_z_endcap;
+  std::vector<float> mdt_tube_perp_endcap;
+  
+  std::vector<float> adc_mon_nosel;
+  std::vector<float> tdc_mon_nosel;
+  std::vector<float> tdc_mon;
+  std::vector<float> adc_mon;
+  std::vector<int> noiseBurst;
+  
+  std::vector<float> tdc_mon_noiseBurst;
+  std::vector<float> adc_mon_noiseBurst;
+  std::vector<float> adc_mon_noiseBurst_notNoisy;
+  std::vector<float> tdc_mon_noiseBurst_adcCut;
+
+  std::vector<float> tdc_mon_adcCut;
+};
+
+struct MDTSummaryHistogramStruct {
+  std::vector<int> sector;
+  std::vector<int> stationEta;
+  std::vector<float> adc_mon;
+  std::vector<float> tdc_mon;
+  std::vector<float> tdc_mon_nb2;
+  std::vector<float> adc_mon_nb2;
+  std::vector<float> tdc_mon_nb1;
+  std::vector<float> adc_mon_nb1;
+  std::vector<float> adc_mon_adccut;
+  std::vector<float> tdc_mon_adccut;
+  std::vector<int> x_mon;
+  std::vector<int> y_mon;
+  std::vector<int> x_mon_noise;
+  std::vector<int> y_mon_noise;
+  std::vector<float> tdc_mon_nb3;
+  std::vector<int> x_bin_perML;
+  std::vector<int> y_bin_perML;
+  std::vector<int> bin_byLayer_x;
+  std::vector<int> bin_byLayer_y;
+  std::vector<float> tdc_mon_rpc;
+  std::vector<float> tdc_mon_tgc;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // *********************************************************************
 // Public Methods
@@ -82,8 +136,6 @@ MdtRawDataMonAlg::MdtRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLo
  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
-  // m_trig_BARREL(false),
-  // m_trig_ENDCAP(false),
  m_hist_hash_list(0),
  m_BMGpresent(false),
  m_BMGid(-1)
@@ -303,7 +355,7 @@ StatusCode MdtRawDataMonAlg::initialize()
    
     chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (m_mdthitsperchamber_InnerMiddleOuterLumi[chamber->GetBarrelEndcapEnum()]));
     chamber->SetMDTHitsPerML_byLayer_Bins(dynamic_cast<TH2F*> (m_mdthitspermultilayerLumi[chamber->GetRegionEnum()][chamber->GetLayerEnum()])
-					  ,dynamic_cast<TH2F*> (m_mdthitsperML_byLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ]));
+    					  ,dynamic_cast<TH2F*> (m_mdthitsperML_byLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ]));
     /*DEV this was in bookHistogramsRecurrent, need to be reimplemented in someway    
     // chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (m_mdthitsperchamber_InnerMiddleOuter_HighOcc[chamber->GetBarrelEndcapEnum()]));
     
@@ -369,22 +421,10 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
     //DEV still needed ? does not compile
     if(muonRoIs.isPresent() && muonRoIs.isValid()){
       ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key() ); 
-      xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
-      xAOD::MuonRoIContainer::const_iterator mu_it_end= muonRoIs->end();
-      
-      for( ; mu_it != mu_it_end; mu_it++){
-	//ATH_MSG_ERROR( "(*mu_it)->getSource(): " << (*mu_it)->getSource() << ", is Muon_ROI::Endcap: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Endcap)) << ", is Muon_ROI::Barrel: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Barrel)) );
-	if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel) {
-	  trig_BARREL =true;
-	  break;
-	}
-      }
-      for( ; mu_it != mu_it_end; mu_it++){
-	if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ) {
-	  trig_ENDCAP = true;
-	  break;
-	}
-      }
+      trig_BARREL = std::any_of(muonRoIs->begin(), muonRoIs->end(), 
+                                [](const auto& i){return i->getSource() == xAOD::MuonRoI::RoISource::Barrel;});
+      trig_ENDCAP = std::any_of(muonRoIs->begin(), muonRoIs->end(), 
+                                [](const auto& i){return i->getSource() == xAOD::MuonRoI::RoISource::Endcap;});
     }
   }     catch (SG::ExcNoAuxStore & excpt){
     ATH_MSG_INFO("SG::ExcNoAuxStore caught, "<<m_l1RoiKey.key()<<" not available.");
@@ -489,6 +529,8 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 	}
       }
 
+      MDTOverviewHistogramStruct overviewPlots;
+      MDTSummaryHistogramStruct summaryPlots[4][4][36]; // [region][layer][phi]
       //loop in MdtPrepDataContainer
       for (Muon::MdtPrepDataContainer::const_iterator containerIt = mdt_container->begin(); containerIt != mdt_container->end(); ++containerIt) {
         if (containerIt == mdt_container->end() || (*containerIt)->size()==0) continue;  //check if there are counts  
@@ -508,19 +550,12 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
             isHit_above_ADCCut = true;
           }
 
-          sc = fillMDTOverviewHistograms(*mdtCollection, isNoiseBurstCandidate);
-          if(sc.isSuccess()) { 
-            ATH_MSG_DEBUG("Filled MDTOverviewHistograms" );
-          }
-          else {
-            ATH_MSG_ERROR("Failed to fill MDTOverviewHistograms" );
-            return sc;
-          }
+          fillMDTOverviewVects(*mdtCollection, isNoiseBurstCandidate, overviewPlots);
 	  //=======================================================================
 	  //=======================================================================
 	  //=======================================================================
 
-	  sc = fillMDTSummaryHistograms(*mdtCollection, /* chambers_from_tracks,*/ isNoiseBurstCandidate, lumiblock, trig_BARREL, trig_ENDCAP);
+	  sc = fillMDTSummaryVects(*mdtCollection, /* chambers_from_tracks,*/ isNoiseBurstCandidate, trig_BARREL, trig_ENDCAP, summaryPlots);
           if(sc.isSuccess()){
             ATH_MSG_DEBUG("Filled MDTSummaryHistograms " );
           }   else {
@@ -565,6 +600,10 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
         if( isHit_above_ADCCut ) 
           nColl_ADCCut++;
       } //loop in MdtPrepDataContainer
+      fillMDTOverviewHistograms(overviewPlots);
+      fillMDTSummaryHistograms(summaryPlots, lumiblock);
+      
+      
       int nHighOccChambers = 0;
       map<string,float>::iterator iterstat;
       std::map<std::string,float> tubesperchamber_map;
@@ -633,8 +672,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 } 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode MdtRawDataMonAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData* mdtCollection, bool &isNoiseBurstCandidate ) const {
-  StatusCode sc = StatusCode::SUCCESS;
+void MdtRawDataMonAlg::fillMDTOverviewVects( const Muon::MdtPrepData* mdtCollection, bool &isNoiseBurstCandidate, MDTOverviewHistogramStruct& vects ) const {
   Identifier digcoll_id = (mdtCollection)->identify();
 
   std::string hardware_name = getChamberName( mdtCollection );
@@ -645,7 +683,8 @@ StatusCode MdtRawDataMonAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
   const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
   if(MuonDetMgr==nullptr){
     ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-    return StatusCode::FAILURE; 
+    return;
+    //return StatusCode::FAILURE; 
   } 
 
   const MuonGM::MdtReadoutElement* pReadoutElementMDT = MuonDetMgr->getMdtReadoutElement(digcoll_id);
@@ -663,63 +702,94 @@ StatusCode MdtRawDataMonAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
   if( adc>m_ADCCut ) {
     //barrel
     if(fabs(mdt_tube_eta)>0. && fabs(mdt_tube_eta)<0.9) {
-      auto mdt_tube_x_barrel = Monitored::Scalar<float>("mdt_tube_x_barrel", mdtgPos.x());
-      auto mdt_tube_y_barrel = Monitored::Scalar<float>("mdt_tube_y_barrel", mdtgPos.y());
-      auto mdt_tube_z_barrel = Monitored::Scalar<float>("mdt_tube_z_barrel", mdtgPos.z());
-      auto mdt_tube_perp_barrel = Monitored::Scalar<float>("mdt_tube_perp_barrel", mdtgPos.perp());
-      fill("MdtMonitor",mdt_tube_z_barrel,mdt_tube_perp_barrel, mdt_tube_x_barrel,mdt_tube_y_barrel);
+      vects.mdt_tube_x_barrel.push_back(mdtgPos.x());
+      vects.mdt_tube_y_barrel.push_back(mdtgPos.y());
+      vects.mdt_tube_z_barrel.push_back(mdtgPos.z());
+      vects.mdt_tube_perp_barrel.push_back(mdtgPos.perp());
     }   
     //OverLap -->Fill MDT Global RZ and YX
     if(fabs(mdt_tube_eta)>0.9 && fabs(mdt_tube_eta)<1.2) {
-      auto mdt_tube_x_ovl = Monitored::Scalar<float>("mdt_tube_x_ovl", mdtgPos.x());
-      auto mdt_tube_y_ovl = Monitored::Scalar<float>("mdt_tube_y_ovl", mdtgPos.y());
-      auto mdt_tube_z_ovl = Monitored::Scalar<float>("mdt_tube_z_ovl", mdtgPos.z());
-      auto mdt_tube_perp_ovl = Monitored::Scalar<float>("mdt_tube_perp_ovl", mdtgPos.perp());
-      fill("MdtMonitor",mdt_tube_z_ovl,mdt_tube_perp_ovl, mdt_tube_x_ovl,mdt_tube_y_ovl);
+      vects.mdt_tube_x_ovl.push_back(mdtgPos.x());
+      vects.mdt_tube_y_ovl.push_back(mdtgPos.y());
+      vects.mdt_tube_z_ovl.push_back(mdtgPos.z());
+      vects.mdt_tube_perp_ovl.push_back(mdtgPos.perp());
     }
     //EndCap -->Fill MDT Global RZ and YX
     if(fabs(mdt_tube_eta)>1.2 && fabs(mdt_tube_eta)<2.7){
-      auto mdt_tube_x_endcap = Monitored::Scalar<float>("mdt_tube_x_endcap", mdtgPos.x());
-      auto mdt_tube_y_endcap = Monitored::Scalar<float>("mdt_tube_y_endcap", mdtgPos.y());
-      auto mdt_tube_z_endcap = Monitored::Scalar<float>("mdt_tube_z_endcap", mdtgPos.z());
-      auto mdt_tube_perp_endcap = Monitored::Scalar<float>("mdt_tube_perp_endcap", mdtgPos.perp());
-      fill("MdtMonitor",mdt_tube_z_endcap,mdt_tube_perp_endcap, mdt_tube_x_endcap,mdt_tube_y_endcap);
-
+      vects.mdt_tube_x_endcap.push_back(mdtgPos.x());
+      vects.mdt_tube_y_endcap.push_back(mdtgPos.y());
+      vects.mdt_tube_z_endcap.push_back(mdtgPos.z());
+      vects.mdt_tube_perp_endcap.push_back(mdtgPos.perp());
     }      
   }
 
-  auto adc_mon_nosel = Monitored::Scalar<float>("adc_mon_nosel", adc);
-  fill("MdtMonitor", adc_mon_nosel);
+  vects.adc_mon_nosel.push_back(adc);
+  vects.tdc_mon_nosel.push_back(tdc);
   if(!isNoisy && adc > 0){
-    auto tdc_mon = Monitored::Scalar<float>("tdc_mon", tdc);
-    auto adc_mon = Monitored::Scalar<float>("adc_mon", adc);
-    fill("MdtMonitor", tdc_mon, adc_mon);
+    vects.tdc_mon.push_back(tdc);
+    vects.adc_mon.push_back(adc);
   }
 
+  vects.noiseBurst.push_back((int) isNoiseBurstCandidate);
   if(isNoiseBurstCandidate){
-    auto tdc_mon_noiseBurst = Monitored::Scalar<float>("tdc_mon_noiseBurst", tdc);
-    auto adc_mon_noiseBurst = Monitored::Scalar<float>("adc_mon_noiseBurst", adc);
-    fill("MdtMonitor", tdc_mon_noiseBurst, adc_mon_noiseBurst);
+    vects.tdc_mon_noiseBurst.push_back(tdc);
+    vects.adc_mon_noiseBurst.push_back(adc);
     if(!isNoisy) {
-      auto adc_mon_noiseBurst_notNoisy = Monitored::Scalar<float>("adc_mon_noiseBurst_notNoisy", adc);
-      fill("MdtMonitor",adc_mon_noiseBurst_notNoisy);
+      vects.adc_mon_noiseBurst_notNoisy.push_back(adc);
     }
     if( adc > m_ADCCut) {
-      auto tdc_mon_noiseBurst_adcCut = Monitored::Scalar<float>("tdc_mon_noiseBurst_adcCut", tdc);
-      fill("MdtMonitor",tdc_mon_noiseBurst_adcCut);
+      vects.tdc_mon_noiseBurst_adcCut.push_back(tdc);
     }
   }
 
   if(adc > m_ADCCut){
-    auto tdc_mon_adcCut = Monitored::Scalar<float>("tdc_mon_adcCut", tdc);
-    fill("MdtMonitor",tdc_mon_adcCut);
+    vects.tdc_mon_adcCut.push_back(tdc);
   }
-
-  return sc;
-
 }
 
-StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, /*std::set<std::string>  chambers_from_tracks,*/ bool &isNoiseBurstCandidate, int lb, bool trig_barrel, bool trig_endcap ) const{
+void MdtRawDataMonAlg::fillMDTOverviewHistograms( const MDTOverviewHistogramStruct& vects ) const {
+  auto mdt_tube_x_barrel = Monitored::Collection("mdt_tube_x_barrel", vects.mdt_tube_x_barrel);
+  auto mdt_tube_y_barrel = Monitored::Collection("mdt_tube_y_barrel", vects.mdt_tube_y_barrel);
+  auto mdt_tube_z_barrel = Monitored::Collection("mdt_tube_z_barrel", vects.mdt_tube_z_barrel);
+  auto mdt_tube_perp_barrel = Monitored::Collection("mdt_tube_perp_barrel", vects.mdt_tube_perp_barrel);
+  fill("MdtMonitor",mdt_tube_z_barrel,mdt_tube_perp_barrel, mdt_tube_x_barrel,mdt_tube_y_barrel);
+
+  auto mdt_tube_x_ovl = Monitored::Collection("mdt_tube_x_ovl", vects.mdt_tube_x_ovl);
+  auto mdt_tube_y_ovl = Monitored::Collection("mdt_tube_y_ovl", vects.mdt_tube_y_ovl);
+  auto mdt_tube_z_ovl = Monitored::Collection("mdt_tube_z_ovl", vects.mdt_tube_z_ovl);
+  auto mdt_tube_perp_ovl = Monitored::Collection("mdt_tube_perp_ovl", vects.mdt_tube_perp_ovl);
+  fill("MdtMonitor",mdt_tube_z_ovl,mdt_tube_perp_ovl, mdt_tube_x_ovl,mdt_tube_y_ovl);
+
+  auto mdt_tube_x_endcap = Monitored::Collection("mdt_tube_x_endcap", vects.mdt_tube_x_endcap);
+  auto mdt_tube_y_endcap = Monitored::Collection("mdt_tube_y_endcap", vects.mdt_tube_y_endcap);
+  auto mdt_tube_z_endcap = Monitored::Collection("mdt_tube_z_endcap", vects.mdt_tube_z_endcap);
+  auto mdt_tube_perp_endcap = Monitored::Collection("mdt_tube_perp_endcap", vects.mdt_tube_perp_endcap);
+  fill("MdtMonitor",mdt_tube_z_endcap,mdt_tube_perp_endcap, mdt_tube_x_endcap,mdt_tube_y_endcap);
+
+  auto adc_mon_nosel = Monitored::Collection("adc_mon_nosel", vects.adc_mon_nosel);
+  auto tdc_mon_nosel = Monitored::Collection("tdc_mon_nosel", vects.tdc_mon_nosel);
+  auto noiseBurst = Monitored::Collection("noiseBurst", vects.noiseBurst);
+  fill("MdtMonitor", adc_mon_nosel, tdc_mon_nosel, noiseBurst);
+
+  auto tdc_mon = Monitored::Collection("tdc_mon", vects.tdc_mon);
+  auto adc_mon = Monitored::Collection("adc_mon", vects.adc_mon);
+  fill("MdtMonitor", tdc_mon, adc_mon);
+
+  //auto tdc_mon_noiseBurst = Monitored::Collection("tdc_mon_noiseBurst", vects.tdc_mon_noiseBurst);
+  //auto adc_mon_noiseBurst = Monitored::Collection("adc_mon_noiseBurst", vects.adc_mon_noiseBurst);
+  //fill("MdtMonitor", tdc_mon_noiseBurst, adc_mon_noiseBurst, noiseBurst);
+
+  auto adc_mon_noiseBurst_notNoisy = Monitored::Collection("adc_mon_noiseBurst_notNoisy", vects.adc_mon_noiseBurst_notNoisy);
+  fill("MdtMonitor",adc_mon_noiseBurst_notNoisy);
+  
+  auto tdc_mon_noiseBurst_adcCut = Monitored::Collection("tdc_mon_noiseBurst_adcCut", vects.tdc_mon_noiseBurst_adcCut);
+  fill("MdtMonitor",tdc_mon_noiseBurst_adcCut);
+
+  auto tdc_mon_adcCut = Monitored::Collection("tdc_mon_adcCut", vects.tdc_mon_adcCut);
+  fill("MdtMonitor",tdc_mon_adcCut);
+}
+
+StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCollection, /*std::set<std::string>  chambers_from_tracks,*/ bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct vects[4][4][36] ) const{
 
   StatusCode sc = StatusCode::SUCCESS;
   Identifier digcoll_id = (mdtCollection)->identify();
@@ -743,6 +813,8 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   //  int icrate = chamber->GetCrate();
   //
   int stationPhi = chamber->GetStationPhi();
+  auto& thisVects = vects[iregion][ilayer][stationPhi];
+  
   std::string chambername = chamber->getName();
   //  bool is_on_track = false;
   //  for(auto ch : chambers_from_tracks) {
@@ -755,11 +827,8 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   float adc = mdtCollection->adc();
   if(chambername.substr(0,3) == "BMG") adc /= 4.;
   
-  auto lb_mon = Monitored::Scalar<int>("lb_mon", lb);
-  auto sector = Monitored::Scalar<int>("sector",stationPhi+iregion*16);
-  auto stationEta = Monitored::Scalar<int>("stEta_"+region[iregion]+"_"+layer[ilayer]+"_phi"+std::to_string(stationPhi+1), chamber->GetStationEta()); 
+  thisVects.sector.push_back(stationPhi+iregion*16);
 
-  fill("MdtMonitor",lb_mon, sector);
   //  mdtoccvslb_summaryPerSector->Fill(lumiblock,  stationPhi+iregion*16  );
   //MDTBA/Overview/Hits
   // iregion = BA/BC/EA/EC --> 4
@@ -767,44 +836,37 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   // stationPhi --> 16  ====> 256
   //std::string mon="MDTHits_ADCCut_"+region[iregion]+"_Mon_"+layer[ilayer]+"_Phi_"+std::to_string(stationPhi+1);;
 
-  std::string MDT_regionGroup="MDT_regionGroup"+region[iregion] ;//MDTXX/Overview, 4 gruppi
-
   //  int mlayer_n = m_mdtIdHelper->multilayer(digcoll_id);
   int mlayer_n = m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id);
 
   if(!isNoisy && adc > 0){
-    auto adc_mon =  Monitored::Scalar<float>("adc_mon", adc); 
-    auto tdc_mon =  Monitored::Scalar<float>("tdc_mon", tdc); 
-    fill(MDT_regionGroup, adc_mon, tdc_mon);
+    thisVects.adc_mon.push_back(adc); 
+    thisVects.tdc_mon.push_back(tdc); 
       if(isNoiseBurstCandidate) {
-	auto tdc_mon_nb2 =  Monitored::Scalar<float>("tdc_mon_nb2", tdc); 
-	auto adc_mon_nb2 =  Monitored::Scalar<float>("adc_mon_nb2", adc); 
-	fill(MDT_regionGroup, tdc_mon_nb2, adc_mon_nb2);
+	thisVects.tdc_mon_nb2.push_back(tdc); 
+	thisVects.adc_mon_nb2.push_back(adc); 
       }
   }
 
   if(!isNoisy){
     //    fill(MDT_regionGroup, adc_mon);
     if(isNoiseBurstCandidate){
-      auto tdc_mon_nb1 =  Monitored::Scalar<float>("tdc_mon_nb1", tdc); 
-      auto adc_mon_nb1 =  Monitored::Scalar<float>("adc_mon_nb1", adc); 
-      fill(MDT_regionGroup, tdc_mon_nb1, adc_mon_nb1);
+      thisVects.tdc_mon_nb1.push_back(tdc); 
+      thisVects.adc_mon_nb1.push_back(adc); 
     }
   }
   
   if( adc >m_ADCCut && !isNoisy) {
 
-    auto adc_mon_adccut =  Monitored::Scalar<float>("adc_mon_adccut", adc);
-    auto tdc_mon_adccut =  Monitored::Scalar<float>("tdc_mon_adccut", tdc); 
-    fill(MDT_regionGroup, stationEta, tdc_mon_adccut, adc_mon_adccut);
-
+    thisVects.adc_mon_adccut.push_back(adc);
+    thisVects.tdc_mon_adccut.push_back(tdc); 
+    thisVects.stationEta.push_back(chamber->GetStationEta()); 
     
     int binx=chamber->GetMDTHitsPerChamber_IMO_BinX();
     if(iregion<2) binx=binx-9;
     else binx=binx-7;
     int biny=chamber->GetMDTHitsPerChamber_IMO_BinY();
 
-    string group = "MdtMonitor";
     string varx = " ";
     string vary = " ";
     string varx_noise = " ";
@@ -821,47 +883,33 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
       vary_noise="y_mon_endcap_noise";
     }
 
-    auto x_mon =  Monitored::Scalar<int>(varx, binx);
-    auto y_mon =  Monitored::Scalar<int>(vary, biny-1);
-    fill(group,x_mon,y_mon);
+    thisVects.x_mon.push_back(binx);
+    thisVects.y_mon.push_back(biny-1);
     if(isNoiseBurstCandidate){
-      auto x_mon_noise =  Monitored::Scalar<int>(varx_noise, binx);
-      auto y_mon_noise =  Monitored::Scalar<int>(vary_noise, biny-1);
-      fill(group,x_mon_noise,y_mon_noise);
-      auto tdc_mon_nb3 =  Monitored::Scalar<float>("tdc_mon_nb3", tdc); 
-      fill(MDT_regionGroup, tdc_mon_nb3);
+      thisVects.x_mon_noise.push_back(binx);
+      thisVects.y_mon_noise.push_back(biny-1);
+      thisVects.tdc_mon_nb3.push_back(tdc); 
     }
-    
 
-    varx = "x_mon_"+region[iregion]+"_"+layer[ilayer];
-    vary = "y_mon_"+region[iregion]+"_"+layer[ilayer];
-
-    auto x_bin_perML =   Monitored::Scalar<int>(varx, chamber->GetMDTHitsPerML_Binx()-1);//get the right bin!!!! 
+    thisVects.x_bin_perML.push_back(chamber->GetMDTHitsPerML_Binx()-1);//get the right bin!!!! 
     int biny_ml=0;
     if(mlayer_n==1) biny_ml=chamber->GetMDTHitsPerML_m1_Biny();
     else if(mlayer_n==2) biny_ml=chamber->GetMDTHitsPerML_m2_Biny();
-    auto y_bin_perML =   Monitored::Scalar<int>(vary, biny_ml-1);
-    //    fill(group,x_bin_perML,y_bin_perML);
-    fill(MDT_regionGroup,x_bin_perML,y_bin_perML);
+    thisVects.y_bin_perML.push_back(biny_ml-1);
 
     if(layer[ilayer]!="Extra"){
-      varx="x_mon_"+layer[ilayer];
-      vary="y_mon_"+layer[ilayer];
-      auto bin_byLayer_x = Monitored::Scalar<int>(varx,chamber->GetMDTHitsPerML_byLayer_BinX()-1); 
-      auto bin_byLayer_y = Monitored::Scalar<int>(vary,chamber->GetMDTHitsPerML_byLayer_BinY(mlayer_n)-1); 
+      thisVects.bin_byLayer_x.push_back(chamber->GetMDTHitsPerML_byLayer_BinX()-1); 
+      thisVects.bin_byLayer_y.push_back(chamber->GetMDTHitsPerML_byLayer_BinY(mlayer_n)-1); 
       
-      fill("MdtMonitor",bin_byLayer_x,bin_byLayer_y);
       }
     //    if( HasTrigBARREL() ) m_overalltdccutPRLumi_RPCtrig[iregion]->Fill(tdc);
     //    if( HasTrigENDCAP() ) m_overalltdccutPRLumi_TGCtrig[iregion]->Fill(tdc);
 
     if( trig_barrel ) {
-      auto tdc_mon_rpc =  Monitored::Scalar<float>("tdc_mon_rpc", tdc);
-      fill(MDT_regionGroup,tdc_mon_rpc);
+      thisVects.tdc_mon_rpc.push_back(tdc);
     }
     if( trig_endcap ) {
-      auto tdc_mon_tgc =  Monitored::Scalar<float>("tdc_mon_tdc", tdc);
-      fill(MDT_regionGroup,tdc_mon_tgc);
+      thisVects.tdc_mon_tgc.push_back(tdc);
     }
 
     //DEV to DO
@@ -886,6 +934,111 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     //    }
 
   }  
+
+  return sc;
+}
+
+StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogramStruct vects[4][4][36], int lb ) const{
+
+  StatusCode sc = StatusCode::SUCCESS;
+
+  std::string region[4]={"BA","BC","EA","EC"};
+  std::string layer[4]={"Inner","Middle","Outer","Extra"};
+  //  std::string slayer[4]={"inner","middle","outer","extra"};
+
+  auto lb_mon = Monitored::Scalar<int>("lb_mon", lb);
+
+  for (int iregion = 0; iregion < 4; ++iregion) {
+    std::string MDT_regionGroup="MDT_regionGroup"+region[iregion] ;//MDTXX/Overview, 4 gruppi
+    for (int ilayer = 0; ilayer < 4; ++ilayer) {
+      for (int stationPhi = 0; stationPhi < 36; ++stationPhi) {
+	auto& thisVects = vects[iregion][ilayer][stationPhi];
+	auto sector = Monitored::Collection("sector",thisVects.sector);
+	auto stationEta = Monitored::Collection("stEta_"+region[iregion]+"_"+layer[ilayer]+"_phi"+std::to_string(stationPhi+1), thisVects.stationEta); 
+
+  const auto& tvec = std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{lb_mon, sector};
+	fill("MdtMonitor", lb_mon, sector);
+
+	auto adc_mon =  Monitored::Collection("adc_mon", thisVects.adc_mon); 
+	auto tdc_mon =  Monitored::Collection("tdc_mon", thisVects.tdc_mon); 
+	fill(MDT_regionGroup, adc_mon, tdc_mon);
+
+	auto tdc_mon_nb2 =  Monitored::Collection("tdc_mon_nb2", thisVects.tdc_mon_nb2); 
+	auto adc_mon_nb2 =  Monitored::Collection("adc_mon_nb2", thisVects.adc_mon_nb2); 
+	fill(MDT_regionGroup, tdc_mon_nb2, adc_mon_nb2);
+
+	auto tdc_mon_nb1 =  Monitored::Collection("tdc_mon_nb1", thisVects.tdc_mon_nb1); 
+	auto adc_mon_nb1 =  Monitored::Collection("adc_mon_nb1", thisVects.adc_mon_nb1); 
+	fill(MDT_regionGroup, tdc_mon_nb1, adc_mon_nb1);
+
+	auto adc_mon_adccut =  Monitored::Collection("adc_mon_adccut", thisVects.adc_mon_adccut);
+	auto tdc_mon_adccut =  Monitored::Collection("tdc_mon_adccut", thisVects.tdc_mon_adccut);
+	fill(MDT_regionGroup, stationEta, tdc_mon_adccut, adc_mon_adccut);
+    
+	string varx = iregion < 2 ? "x_mon_barrel" : "x_mon_endcap";
+	string vary = iregion < 2 ? "y_mon_barrel" : "y_mon_endcap";
+	string varx_noise = iregion < 2 ? "x_mon_barrel_noise" : "x_mon_endcap_noise";
+	string vary_noise = iregion < 2 ? "y_mon_barrel_noise" : "y_mon_endcap_noise";
+	
+	auto x_mon =  Monitored::Collection(varx, thisVects.x_mon);
+	auto y_mon =  Monitored::Collection(vary, thisVects.y_mon);
+	fill("MdtMonitor",x_mon,y_mon);
+	auto x_mon_noise =  Monitored::Collection(varx_noise, thisVects.x_mon_noise);
+	auto y_mon_noise =  Monitored::Collection(vary_noise, thisVects.y_mon_noise);
+	fill("MdtMonitor",x_mon_noise,y_mon_noise);
+	auto tdc_mon_nb3 =  Monitored::Collection("tdc_mon_nb3", thisVects.tdc_mon_nb3); 
+	fill(MDT_regionGroup, tdc_mon_nb3);
+
+	varx = "x_mon_"+region[iregion]+"_"+layer[ilayer];
+	vary = "y_mon_"+region[iregion]+"_"+layer[ilayer];
+	
+	auto x_bin_perML =   Monitored::Collection(varx, thisVects.x_bin_perML);//get the right bin!!!! 
+	auto y_bin_perML =   Monitored::Collection(vary, thisVects.y_bin_perML);
+	fill(MDT_regionGroup,x_bin_perML,y_bin_perML);
+
+	if(layer[ilayer]!="Extra"){
+	  varx="x_mon_"+layer[ilayer];
+	  vary="y_mon_"+layer[ilayer];
+	  auto bin_byLayer_x = Monitored::Collection(varx, thisVects.bin_byLayer_x); 
+	  auto bin_byLayer_y = Monitored::Collection(vary, thisVects.bin_byLayer_y); 
+	  
+	  fill("MdtMonitor",bin_byLayer_x,bin_byLayer_y);
+	}
+
+  if (thisVects.tdc_mon_rpc.size() > 0) {
+	  auto tdc_mon_rpc =  Monitored::Collection("tdc_mon_rpc", thisVects.tdc_mon_rpc);
+	  fill(MDT_regionGroup,tdc_mon_rpc);
+  }
+
+  if (thisVects.tdc_mon_tgc.size() > 0) {
+	  auto tdc_mon_tgc =  Monitored::Collection("tdc_mon_tgc", thisVects.tdc_mon_tgc);
+	  fill(MDT_regionGroup,tdc_mon_tgc);
+  }
+
+    //DEV to DO
+    // Fill occupancy vs. Lumiblock
+    //    if(ilayer != 3) m_mdtoccvslb[iregion][ilayer]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM));
+    //    else m_mdtoccvslb[iregion][2]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM)); // Put extras in with outer
+
+    //correct readout crate info for BEE,BIS7/8
+    /*
+    int crate_region = iregion;
+    if(chambername.substr(0,3)=="BEE" || (chambername.substr(0,3) == "BIS" && (stationEta == 7 || stationEta == 8) )){
+      if(iregion==0) crate_region=2;
+      if(iregion==1) crate_region=3;
+    }
+    */
+    //DEV to do
+    //use stationPhi+1 because that's the actual phi, not phi indexed from zero.
+    //    m_mdtoccvslb_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
+
+    //    if (is_on_track)    {
+      //      m_mdtoccvslb_ontrack_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
+    //    }
+
+      }
+    }
+  }
 
   return sc;
 }
@@ -939,40 +1092,19 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   if(iregion==1) monPerCh+="BC";
   if(iregion==2) monPerCh+="EA";
   if(iregion==3) monPerCh+="EC";
-  
-  auto tdc_perch = Monitored::Scalar<float>("tdc_perch_"+hardware_name,tdc);
-  auto adc_perch = Monitored::Scalar<float>("adc_perch_"+hardware_name, adc);
-  fill(monPerCh, tdc_perch, adc_perch );
-  //  fill(monPerCh, tdc_perch);
-  
+
   int mdtMultLayer = m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id);
 
-  if (  adc >m_ADCCut && !isNoisy ) {
-    if (mdtMultLayer==1) {
-      auto tdc_perch_ml1 = Monitored::Scalar<float>("tdc_perch_ml1_adccut_"+hardware_name,tdc);
-      fill(monPerCh, tdc_perch_ml1);
-    }
-    if (mdtMultLayer==2) {
-      auto tdc_perch_ml2 = Monitored::Scalar<float>("tdc_perch_ml2_adccut_"+hardware_name,tdc);
-      fill(monPerCh, tdc_perch_ml2);
-    }
-    auto layer_perch = Monitored::Scalar<int>("layer_perch_"+hardware_name, mdtlayer);
-    fill(monPerCh, layer_perch );
-  }
-  
+  auto tdc_perch = Monitored::Scalar<float>("tdc_perch_"+hardware_name,tdc);
+  auto adc_perch = Monitored::Scalar<float>("adc_perch_"+hardware_name, adc);
+  auto layer_perch = Monitored::Scalar<int>("layer_perch_"+hardware_name, mdtlayer);
+  auto tube_perch = Monitored::Scalar<int>("tube_perch_"+hardware_name, mdttube);
+  auto ml1_adccut = Monitored::Scalar<int>("ml1_adccut", (int) (adc >m_ADCCut && !isNoisy && mdtMultLayer==1));
+  auto ml2_adccut = Monitored::Scalar<int>("ml2_adccut", (int) (adc >m_ADCCut && !isNoisy && mdtMultLayer==2));
+  auto adccut_nonoise = Monitored::Scalar<int>("adccut_nonoise", (int) (adc >m_ADCCut && !isNoisy));
+  auto adccut = Monitored::Scalar<int>("adccut", (int) (adc >m_ADCCut));
 
-  if(adc>0) {
-    //    fill(monPerCh,  Monitored::Scalar<float>("tdc_perch2d", tdc), Monitored::Scalar<float>("adc_perch2d", adc) );
-  }
-
-  //  int mezz = mezzmdt(digcoll_id);
-  if (  adc >m_ADCCut  )     {
-    auto tube_perch = Monitored::Scalar<int>("tube_perch_"+hardware_name, mdttube);
-    fill(monPerCh, tube_perch );
-    //    fill(monPerCh, Monitored::Scalar<int>("mezz_perch",mezz) );
-  }
-
-  //  if (chamber->mdtmezz) { if( adc > m_ADCCut) chamber->mdtmezz->Fill( mezzmdt( digcoll_id ) ); }
+  fill(monPerCh, tdc_perch, adc_perch, layer_perch, tube_perch, ml1_adccut, ml2_adccut, adccut_nonoise, adccut);
 
   return sc;
 }
@@ -985,11 +1117,7 @@ StatusCode MdtRawDataMonAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 
    StatusCode MdtRawDataMonAlg::procHistograms(bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun ) {
 
-<<<<<<< HEAD
   if(endOfRunFlag()) {
-=======
-  int mlayer_n = m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id);
->>>>>>> upstream/master
 
     ATH_MSG_DEBUG("********Reached Last Event in MdtRawDataValAlg !!!" );   
     ATH_MSG_DEBUG("MdtRawDataValAlg finalize()" );
@@ -1121,13 +1249,8 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]->SetEntries(m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[ibarrel_endcap]->GetEntries()+1);
             }
           }
-<<<<<<< HEAD
           int mdtMultLayer = m_mdtIdHelper->multilayer(tmpid);
           
-=======
-          int mdtMultLayer = m_muonIdHelperTool->mdtIdHelper().multilayer(tmpid);
-          //chamber->mdtadc_onSegm->Fill(mrot->prepRawData()->adc());
->>>>>>> upstream/master
   	  if(chamber->mdtadc_onSegm_ML1 && mdtMultLayer == 1){
         	  chamber->mdtadc_onSegm_ML1->Fill(adc); 
 	  }

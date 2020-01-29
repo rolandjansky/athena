@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONIDHELPERTOOL_H
@@ -11,17 +11,8 @@
 
 static const InterfaceID IID_MuonIdHelperTool("Muon::MuonIdHelperTool",1,0);
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
-
-#include "Identifier/Identifier.h"
 class MsgStream;
 
 namespace Muon {

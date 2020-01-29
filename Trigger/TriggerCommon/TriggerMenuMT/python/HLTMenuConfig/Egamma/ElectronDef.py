@@ -56,7 +56,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'etcut1step': etcut1step,
                 'etcut'     : etcut_sequence,
                 'lhloose'   : electron_sequence,
-                'lhvloose'   : electron_sequence,
+                'lhvloose'  : electron_sequence,
                 'lhmedium'  : electron_sequence,
                 'lhtight'   : electron_sequence,
                 }

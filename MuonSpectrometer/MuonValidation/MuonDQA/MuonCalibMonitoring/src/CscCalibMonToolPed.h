@@ -1,15 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ********************************************************************
-//
-// NAME:      CscCalibMonTool.h
-// PACKAGE:   MuonCalibMonTool.h
-//
-// AUTHORS:   Caleb Parnell-Lampen <lampen@physics.arizona.edu>
-//
-// ********************************************************************
 
 #ifndef MUONCALIBMONITORING_CSCCALIBMONTOOLPED_H
 #define MUONCALIBMONITORING_CSCCALIBMONTOOLPED_H
@@ -18,8 +9,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
-
-#include "MuonIdHelpers/CscIdHelper.h"
 
 #include "TH1.h"
 #include "TProfile.h"
@@ -51,7 +40,7 @@ class CscCalibMonToolPed: public CscCalibMonToolBase
                 const IInterface* parent);
 
         /**Destructor*/
-        ~CscCalibMonToolPed();
+        ~CscCalibMonToolPed() {};
        
         /**initialize function. Calls base class's initialize function.*/
         StatusCode initialize(); 

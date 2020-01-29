@@ -116,10 +116,10 @@
 
 #ifdef XAOD_STANDALONE
 #define ASG_TOOLS_MSG_STREAM(NAME,TITLE)	\
-  static MsgStream& NAME {::asg::packageMsgStream (TITLE)};
+  static MsgStream& NAME {::asg::MsgHelpers::pkgMsgStream (TITLE)};
 #else
 #define ASG_TOOLS_MSG_STREAM(NAME,TITLE)			\
-  static thread_local MsgStream NAME {::asg::packageMsgStream (TITLE)};
+  static thread_local MsgStream NAME {::asg::MsgHelpers::pkgMsgStream (TITLE)};
 #endif
 
 /// \brief the source code part of \ref ANA_MSG_SOURCE
@@ -155,7 +155,7 @@
 						\
     void setMsgLevel (MSG::Level level)		\
     {						\
-      setPackageMsgLevel (NAME, level);         \
+      ::asg::MsgHelpers::setPkgMsgLevel (TITLE, level); \
     }						\
   }
 

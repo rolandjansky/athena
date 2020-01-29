@@ -124,11 +124,6 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
     ToolHandle<LVL1::IL1EtTools> m_etTool;
     /** Debug flag */
     bool m_debug;
-    /** Find restructed eta range.
-     *  This will use the min/max values for the first valid threshold in the range 9-16 to define the ranges
-     */
-    uint32_t m_maskXE;
-    uint32_t m_maskTE;
 };
 
 } // end of namespace

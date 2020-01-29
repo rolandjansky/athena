@@ -4,7 +4,7 @@
 
 /**
  * @file SCT_CablingTool.cxx
- * Implementation file for SCT cabling service
+ * Implementation file for SCT cabling tool
  * @author Shaun Roe
  * @author Susumu Oda
  * @date 19 August, 2018

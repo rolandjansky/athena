@@ -39,7 +39,7 @@
 #include "xAODTracking/TrackParticle.h" 
 #include "xAODTracking/NeutralParticle.h"
 
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 #include "tbb/concurrent_unordered_map.h"
 
 class MsgStream;

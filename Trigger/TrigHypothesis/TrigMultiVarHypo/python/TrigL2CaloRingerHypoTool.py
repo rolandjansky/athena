@@ -55,7 +55,7 @@ def _HypoTool(name, cand, threshold, sel):
   from TriggerJobOpts.TriggerFlags import TriggerFlags
   if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
   
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
     monTool = GenericMonitoringTool('MonTool'+name)
     monTool.Histograms = [
       defineHistogram( "TIME_total", path='EXPERT',title="Total Time;time[ms]",xbins=50, xmin=0,xmax=5,type='TH1F'),

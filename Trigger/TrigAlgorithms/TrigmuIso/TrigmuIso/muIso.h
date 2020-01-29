@@ -31,7 +31,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"    
 #include "StoreGate/WriteHandleKey.h"  
-#include "AthenaMonitoring/GenericMonitoringTool.h"  
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"  
 
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code

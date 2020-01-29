@@ -22,9 +22,9 @@ Trk::AlignablePlaneSurface::AlignablePlaneSurface(const Trk::PlaneSurface& psf, 
   , m_nominalSurface(&psf)
 {
   if (htrans)
-    Surface::m_transform.store(std::unique_ptr<Amg::Transform3D>(htrans));
+    Surface::m_transform=std::unique_ptr<Amg::Transform3D>(htrans);
   else
-    Surface::m_transform.store(std::make_unique<Amg::Transform3D>(m_nominalSurface->transform()));
+    Surface::m_transform=std::make_unique<Amg::Transform3D>(m_nominalSurface->transform());
 }
 
 Trk::AlignablePlaneSurface::AlignablePlaneSurface(const Trk::AlignablePlaneSurface& apsf)

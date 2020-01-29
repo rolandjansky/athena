@@ -145,7 +145,7 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
 
    
 //______________________________________________________________________________
-StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& tname)
+StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj)
 {
    DataHeader* obj = nullptr;
    bool success = SG::fromStorable(pObj, obj);
@@ -155,12 +155,12 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
       return(StatusCode::FAILURE);
    }
    // DH placement first:
-   setPlacementWithType("DataHeader", tname);
+   setPlacementWithType("DataHeader", pObj->name(), *pAddr->par());
    Placement dh_placement;
    dh_placement.fromString( m_placement->toString() + "[KEY=" + obj->getProcessTag() + "]" );
 
    // Form placement:
-   setPlacementWithType("DataHeaderForm", tname);
+   setPlacementWithType("DataHeaderForm", pObj->name(), *pAddr->par());
    std::string form_placement_str = m_placement->toString();
    // Find or create Form
    std::unique_ptr<DataHeaderForm_p6>& dhForm = m_persFormMap[form_placement_str];
@@ -214,25 +214,23 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    const coral::AttributeList* list = obj->getAttributeList();
    if (list != nullptr) {
       obj->setEvtRefTokenStr(dh_token->toString());
-      this->setPlacementWithType("AttributeList", "Token");
+      this->setPlacementWithType("AttributeList", "Token", *pAddr->par());
       const Token* ref_token = m_athenaPoolCnvSvc->registerForWrite(m_placement,
 	      obj->getEvtRefTokenStr().c_str(),
 	      RootType("Token"));
       delete ref_token; ref_token = nullptr;
       for (coral::AttributeList::const_iterator iter = list->begin(), last = list->end(); iter != last; ++iter) {
-         this->setPlacementWithType("AttributeList", (*iter).specification().name());
+         this->setPlacementWithType("AttributeList", (*iter).specification().name(), *pAddr->par());
          const Token* attr_token = m_athenaPoolCnvSvc->registerForWrite(m_placement,
 	         (*iter).addressOfData(),
                  RootType((*iter).specification().type()) );
          delete attr_token; attr_token = nullptr;
       }
    }
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pObj->registry()->address());
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr != nullptr) {
-      tokAddr->setToken(dh_token); dh_token = nullptr; // Token will be inserted into DataHeader, which takes ownership
-   } else { // No address (e.g. satellite DataHeader), delete Token
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to get DataHeader Token" << endmsg;
+      tokAddr->setToken(dh_token); dh_token = nullptr;
+   } else {
       delete dh_token; dh_token = nullptr;
       return(StatusCode::FAILURE);
    }

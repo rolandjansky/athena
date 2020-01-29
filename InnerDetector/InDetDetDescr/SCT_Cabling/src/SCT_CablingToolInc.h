@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_CablingToolInc_h
@@ -25,7 +25,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 
 //STL includes
-#include <cstdint> //uint32 in std: namespace
+#include <cstdint> //uint32 in std namespace
 #include <string>
 #include <vector>
 
@@ -45,7 +45,7 @@ class SCT_CablingToolInc: public extends<AthAlgTool, ISCT_CablingTool, IIncident
   ///Incident listener method
   virtual void handle(const Incident& beginRunIncident) override;
     
-  //@name Service methods, reimplemented
+  //@name AthAlgTool methods, reimplemented
   //@{
   SCT_CablingToolInc(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_CablingToolInc() = default;
@@ -83,7 +83,7 @@ class SCT_CablingToolInc: public extends<AthAlgTool, ISCT_CablingTool, IIncident
   virtual std::uint32_t getRobIdFromOfflineId(const Identifier& offlineId, const EventContext& ctx) const override;
   virtual std::uint32_t getRobIdFromOfflineId(const Identifier& offlineId) const override;
 
-  /// get hash from a module serial number, needed in the conditions service because configurations are stored by module s/n
+  /// get hash from a module serial number, needed in the conditions tool because configurations are stored by module s/n
   virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn, const EventContext& ctx) const override;
   virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn) const override;
 

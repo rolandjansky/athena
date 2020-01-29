@@ -25,9 +25,9 @@ void Trk::TrackingVolumeManipulator::glueVolumes(const Trk::TrackingVolume& firs
    ((*secondVol.m_boundarySurfaces))[secondFace] = (*(firstVol.m_boundarySurfaces))[firstFace];
    // the face of the first volume has been an inner tube
    if (cylBounds && firstFace==Trk::tubeInnerCover && secondFace==Trk::tubeOuterCover)
-      ((*secondVol.m_boundarySurfaces))[secondFace]->m_insideVolume = (&secondVol);
+      ((*secondVol.m_boundarySurfaces))[secondFace]->setInsideVolume(&secondVol);
    else 
-      ((*secondVol.m_boundarySurfaces))[secondFace]->m_outsideVolume = (&secondVol);
+      ((*secondVol.m_boundarySurfaces))[secondFace]->setOutsideVolume(&secondVol);
 }
 
 void Trk::TrackingVolumeManipulator::setBoundarySurface(const Trk::TrackingVolume& tvol,
@@ -40,33 +40,33 @@ void Trk::TrackingVolumeManipulator::setBoundarySurface(const Trk::TrackingVolum
 void Trk::TrackingVolumeManipulator::setInsideVolume(const Trk::TrackingVolume& tvol,
                                                      Trk::BoundarySurfaceFace face,
                                                      const Trk::TrackingVolume* insidevol) const
-{ ((*tvol.m_boundarySurfaces)[face])->m_insideVolume = insidevol; }
+{ ((*tvol.m_boundarySurfaces)[face])->setInsideVolume(insidevol); }
 
 void Trk::TrackingVolumeManipulator::setInsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                           Trk::BoundarySurfaceFace face,
                                                           Trk::BinnedArray<Trk::TrackingVolume>* insidevolarray) const
-{   ((*tvol.m_boundarySurfaces)[face])->m_insideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(insidevolarray); }
+{   ((*tvol.m_boundarySurfaces)[face])->setInsideVolumeArray(Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(insidevolarray)); }
       
 void Trk::TrackingVolumeManipulator::setInsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                           Trk::BoundarySurfaceFace face,
                                                           Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >insidevolarray) const
-{   ((*tvol.m_boundarySurfaces)[face])->m_insideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(insidevolarray);
+{   ((*tvol.m_boundarySurfaces)[face])->setInsideVolumeArray(Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(insidevolarray));
 }
       
 void Trk::TrackingVolumeManipulator::setOutsideVolume(const Trk::TrackingVolume& tvol,
                                                       Trk::BoundarySurfaceFace face,
                                                       const Trk::TrackingVolume* outsidevol) const
-{ ((*tvol.m_boundarySurfaces)[face])->m_outsideVolume = outsidevol; }
+{ ((*tvol.m_boundarySurfaces)[face])->setOutsideVolume(outsidevol); }
 
 void Trk::TrackingVolumeManipulator::setOutsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                            Trk::BoundarySurfaceFace face,
                                                            Trk::BinnedArray<Trk::TrackingVolume>* outsidevolarray) const         
-{  ((*tvol.m_boundarySurfaces)[face])->m_outsideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(outsidevolarray); } 
+{  ((*tvol.m_boundarySurfaces)[face])->setOutsideVolumeArray(Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(outsidevolarray)); } 
 
 void Trk::TrackingVolumeManipulator::setOutsideVolumeArray(const Trk::TrackingVolume& tvol,
                                                            Trk::BoundarySurfaceFace face,
                                                            Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >outsidevolarray) const         
-{  ((*tvol.m_boundarySurfaces)[face])->m_outsideVolumeArray = Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(outsidevolarray); } 
+{  ((*tvol.m_boundarySurfaces)[face])->setOutsideVolumeArray(Trk::SharedObject<Trk::BinnedArray<Trk::TrackingVolume> >(outsidevolarray)); } 
 
 
 void Trk::TrackingVolumeManipulator::confineVolume(const TrackingVolume& tvol,
@@ -74,7 +74,7 @@ void Trk::TrackingVolumeManipulator::confineVolume(const TrackingVolume& tvol,
 {
   const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = tvol.boundarySurfaces();
   for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-    if ( bounds[ib].get()->m_outsideVolume == 0 )  bounds[ib].get()->m_outsideVolume = outsideVol; 
-    if ( bounds[ib].get()->m_insideVolume == 0 )  bounds[ib].get()->m_insideVolume = outsideVol; 
+    if ( bounds[ib].get()->outsideVolume() == 0 )  bounds[ib].get()->setOutsideVolume(outsideVol); 
+    if ( bounds[ib].get()->insideVolume() == 0 )   bounds[ib].get()->setInsideVolume(outsideVol); 
   }
 }

@@ -4,7 +4,7 @@
 
 // DecisionHandling includes
 #include "RoRSeqFilter.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/Property.h"
 
 using TrigCompositeUtils::DecisionContainer;
@@ -75,7 +75,9 @@ StatusCode RoRSeqFilter::execute() {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
   auto inputStat = Monitored::Scalar("counts", 0 ); // n-inputs + 1 for execution counter
-  auto mon = Monitored::Group( m_monTool, inputStat );
+  auto inputName = Monitored::Scalar<std::string>("inputName", "");
+  auto inputPresent = Monitored::Scalar("inputPresent", 0);
+  auto mon = Monitored::Group( m_monTool, inputStat, inputPresent, inputName );
   mon.fill();
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
@@ -83,9 +85,12 @@ StatusCode RoRSeqFilter::execute() {
   int counter = 1; // entries from 2 (note ++ below) used for inputs
   for ( auto inputHandle: inputHandles ) {
     counter++;
+    inputName = inputHandle.name();
+    inputPresent = 0;
     if( inputHandle.isValid() ) {// this is because input is implicit
       validInputs = true;
       inputStat = counter;
+      inputPresent = 1;
       mon.fill();
     }
   }

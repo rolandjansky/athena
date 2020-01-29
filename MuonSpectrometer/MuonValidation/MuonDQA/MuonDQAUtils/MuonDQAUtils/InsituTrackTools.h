@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// InsituTrackTools.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef Muon_InsituTrackTools_H
 #define Muon_InsituTrackTools_H
@@ -12,18 +8,11 @@
 /// General Classes
 #include <stdint.h>
 #include <algorithm>
-#include <math.h>
 #include <functional>
 #include <string>
 /// Gaudi Tools
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
-/// Storegate
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 /// ROOT Classes
 #include "TH1.h"
 #include "TH2.h" 
@@ -72,12 +61,7 @@ namespace Muon
       InsituTrackTools(const std::string&,const std::string&,const IInterface*);
 	
       /** default destructor */
-      virtual ~InsituTrackTools ();
-	
-      /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
-      /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+      virtual ~InsituTrackTools () {};
 		
       bool	isZBosonCandidate(const INavigable4Momentum *track1, const INavigable4Momentum *track2);
       bool	isTriggeredMuon(INavigable4Momentum *track1);
@@ -95,13 +79,6 @@ namespace Muon
       float	getJetIsolation(const INavigable4Momentum *trackParticle);
        	
     private:
-	
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream	m_log;
-      /// a handle on Store Gate 
-      StoreGateSvc* m_storeGate;
-      /// a handle on the Hist/TTree registration service
-      ITHistSvc * m_thistSvc;
 		
       /** member variables for algorithm properties: */
       std::string	m_InnerTrackContainerName;

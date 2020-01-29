@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -38,7 +38,6 @@ TauTrackFinder::TauTrackFinder(const std::string& name ) :
     declareProperty("removeDuplicateCoreTracks", m_removeDuplicateCoreTracks = true);
     declareProperty("BypassSelector", m_bypassSelector = false);
     declareProperty("BypassExtrapolator", m_bypassExtrapolator = false);
-    // declareProperty("tauParticleCache", m_ParticleCacheKey);
 
     // initialize samplings
     m_EMSamplings = {CaloSampling::EME1, CaloSampling::EMB1};
@@ -76,16 +75,6 @@ StatusCode TauTrackFinder::initialize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauTrackFinder::finalize() {
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::eventInitialize() {
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::eventFinalize() {
     return StatusCode::SUCCESS;
 }
 
