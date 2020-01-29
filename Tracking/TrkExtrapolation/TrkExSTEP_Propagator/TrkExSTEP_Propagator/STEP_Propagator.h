@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -267,7 +267,7 @@ namespace Trk {
 
 
     /** Propagate parameters and return path (Similar to propagateParameters */
-    virtual const IntersectionSolution*
+    virtual IntersectionSolution*
       intersect (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  const Trk::MagneticFieldProperties& magneticFieldProperties,
@@ -277,11 +277,11 @@ namespace Trk {
     /** Intersection and propagation:
      */
 
-    virtual const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
-                                                             const TrackSurfaceIntersection*    trackIntersection,
-                                                             const double               qOverP,
-                                                             const MagneticFieldProperties& mft,
-                                                             ParticleHypothesis       particle) const override final; 
+    virtual TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
+                                                       const TrackSurfaceIntersection*    trackIntersection,
+                                                       const double               qOverP,
+                                                       const MagneticFieldProperties& mft,
+                                                       ParticleHypothesis       particle) const override final; 
 
     /** Return a list of positions along the track */
     virtual void
