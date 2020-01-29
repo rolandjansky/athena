@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSELECTORTOOLS_MUONSELECTORTOOLSDICT_H
@@ -10,7 +10,6 @@
 #endif // __GCCXML__
 
 // Includes for the dictionary generation:
-#include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonSelectorTools/MuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 #endif // MUONSELECTORTOOLS_MUONSELECTORTOOLSDICT_H
