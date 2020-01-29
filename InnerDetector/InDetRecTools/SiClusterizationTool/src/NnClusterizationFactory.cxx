@@ -258,29 +258,6 @@ StatusCode NnClusterizationFactory::setUpNN_lwtnn(std::unique_ptr<lwt::Lightweig
     return StatusCode::FAILURE;
   }
 
-  // Set up input cleaners
-/*  ATH_MSG_DEBUG("Hbb inputs:");
-  for (auto& input_node: config.inputs) {
-    ATH_MSG_DEBUG(" input node: " << input_node.name);
-    for (auto& input: input_node.variables) {
-      ATH_MSG_DEBUG("  " << input);
-    }
-  }
-  for (const auto& node: config.inputs) {
-    m_var_cleaners.emplace_back(
-      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
-  } */
-
-  // Set up outputs
-/*  if (config.outputs.size() != 1) {
-    ATH_MSG_ERROR("Graph needs one output node!");
-    ATH_MSG_ERROR("This one has size " << config.outputs.size());
-    return StatusCode::FAILURE;
-  }
-  auto output_node_name = config.outputs.begin()->first;
-  auto out_names = config.outputs.at(output_node_name).labels;
-  m_output_value_names = out_names; */
-
   // Build the network
   try {
     this_nn.reset(new lwt::LightweightGraph(config, "merge_1"));
@@ -721,7 +698,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 	    errors1PY=m_NetworkEstimateImpactPointErrorsY[0]->calculateNormalized(inputDataNew);
 	  }
 	}
-   
+
       std::vector<Amg::MatrixX> errorMatrices1;
       getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,1);
 

@@ -142,8 +142,6 @@ namespace InDet {
 
     // Handling inputs and outputs
     typedef std::map<std::string, std::map<std::string, double> > InputMap;
-    typedef std::unique_ptr<lwt::NanReplacer> Cleaner;
-    std::vector<std::pair<std::string, Cleaner > > m_var_cleaners;     
 
     // lwtnn version
     std::vector<Amg::Vector2D> estimatePositions(NnClusterizationFactory::InputMap & input, 
