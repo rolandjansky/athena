@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from RecExConfig.RecFlags                               import rec
@@ -65,8 +65,6 @@ def _args (level, name, kwin, **kw):
 
 
 def addJetsInfo ( alg=None, file = 'physics.root', tuplename = 'physics', tmpFlag=True, **kw):
-
-    print "adding Jets info..."
 
     if not alg:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
