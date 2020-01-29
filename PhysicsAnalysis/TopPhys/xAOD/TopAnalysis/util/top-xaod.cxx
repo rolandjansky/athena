@@ -159,6 +159,7 @@ int main(int argc, char** argv) {
     std::cout << "OK." << std::endl;
   }
 
+  
   //picking the first file was a bad idea because in the derivations it often
   //has no events (no CollectionTree).  Be sure to pick a file with events in
   //it...
@@ -209,6 +210,7 @@ int main(int argc, char** argv) {
     std::cout << "Derivation stream is -> " << derivationStream << std::endl;
     topConfig->setDerivationStream(derivationStream);
 
+    // first we need to read some metadata before we read the config
     if (isMC) {
       ///-- Are we using a truth derivation (no reco information)? --///
       ///-- Let's find out in the first event, this could be done better --///
@@ -226,30 +228,35 @@ int main(int argc, char** argv) {
             exit(1);
           }
         }
-
-        // now need to get and set the parton shower generator from TopDataPrep
-        SampleXsection tdp;
-        // Package/filename - XS file we want to use (can now be configured via cutfile)
-        const std::string tdp_filename = settings->value("TDPPath");
-        // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
-        std::string fullpath = PathResolverFindCalibFile(tdp_filename);
-        if (!tdp.readFromFile(fullpath.c_str())) {
-          std::cout << "ERROR::TopDataPreparation - could not read file \n";
-          std::cout << tdp_filename << "\n";
-          exit(1);
-        }
-        std::cout << "SampleXsection::Found " << fullpath << std::endl;
-
-
-        int ShowerIndex = tdp.getShoweringIndex(DSID);
-        std::cout << "DSID: " << DSID << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;
-        topConfig->setMapIndex(ShowerIndex);
       }
+    }
+
+
+    // Pass the settings file to the TopConfig
+    topConfig->setConfigSettings(settings);
+
+    if (isMC && !topConfig->isTruthDxAOD()) {
+      // now need to get and set the parton shower generator from TopDataPrep
+      SampleXsection tdp;
+      // Package/filename - XS file we want to use (can now be configured via cutfile)
+      const std::string tdp_filename = settings->value("TDPPath");
+      // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
+      const std::string fullpath = PathResolverFindCalibFile(tdp_filename);
+      if (!tdp.readFromFile(fullpath.c_str())) {
+        std::cout << "ERROR::TopDataPreparation - could not read file \n";
+        std::cout << tdp_filename << "\n";
+        exit(1);
+      }
+      std::cout << "SampleXsection::Found " << fullpath << std::endl;
+
+      tdp.setTranslator(topConfig->GetMCMCTranslator());
+
+      int ShowerIndex = tdp.getShoweringIndex(topConfig->getDSID());
+      std::cout << "DSID: " << topConfig->getDSID() << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;
+      topConfig->setMapIndex(ShowerIndex);
     }
   } //close and delete the ptr to testFile
 
-  // Pass the settings file to the TopConfig
-  topConfig->setConfigSettings(settings);
 
   //In rel 19 we had a function to guess Class or Branch Access.
   //In rel20 just use branch (quicker)
