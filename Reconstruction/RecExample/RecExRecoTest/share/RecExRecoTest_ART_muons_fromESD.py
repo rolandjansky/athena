@@ -56,6 +56,7 @@ muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
+muonRecFlags.doTGCs                = False
 
 muonStandaloneFlags.printSummary         = True
 muonCombinedRecFlags.doTrackPerformance  = True
