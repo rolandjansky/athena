@@ -520,8 +520,10 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
     // check the status of truth information for this SiHit
     // some Truth information is cut for pile up events
     HepMcParticleLink trklink(phit.particleLink());
-    if (m_needsMcEventCollHelper)
-       trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(puType) );
+    if (m_needsMcEventCollHelper) {
+      MsgStream* amsg = &(msg());
+      trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(puType, amsg) );
+    }
     SiCharge::Process hitproc = SiCharge::track;
     if (phit.trackNumber() != 0) {
       if (!trklink.isValid()) {
