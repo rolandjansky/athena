@@ -187,7 +187,7 @@ namespace top {
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
-    m_useEgammaLeakageCorrection(false),
+    m_useEgammaLeakageCorrection(true),
 
     // Fwd electron configuration
     m_fwdElectronPtcut(25000.),
