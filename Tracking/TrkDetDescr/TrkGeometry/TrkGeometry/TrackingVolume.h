@@ -296,7 +296,7 @@ namespace Trk {
            - positiveFaceXY
       */
 
-      void registerOutsideGlueVolumes(GlueVolumesDescriptor* gvd);            
+      void registerOutsideGlueVolumes (GlueVolumesDescriptor* gvd);            
       void registerOutsideGlueVolumes ATLAS_NOT_THREAD_SAFE (GlueVolumesDescriptor* gvd) const;            
       
       const GlueVolumesDescriptor& glueVolumesDescriptor();

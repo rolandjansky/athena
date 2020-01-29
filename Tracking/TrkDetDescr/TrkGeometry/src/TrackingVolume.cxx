@@ -1006,14 +1006,14 @@ const Trk::LayerArray* Trk::TrackingVolume::checkoutConfinedLayers() const
     return checkoutLayers;
 }
 
-void Trk::TrackingVolume::registerOutsideGlueVolumes(Trk::GlueVolumesDescriptor* gvd)
+void Trk::TrackingVolume::registerOutsideGlueVolumes (Trk::GlueVolumesDescriptor* gvd)
 { 
   delete m_outsideGlueVolumes;
   m_outsideGlueVolumes = gvd;
 }
 
-void Trk::TrackingVolume::registerOutsideGlueVolumes ATLAS_NOT_CONST_THREAD_SAFE(Trk::GlueVolumesDescriptor* gvd) const {
-  const_cast<const Trk::TrackingVolume&>(*this).registerOutsideGlueVolumes(gvd);
+void Trk::TrackingVolume::registerOutsideGlueVolumes ATLAS_NOT_THREAD_SAFE (Trk::GlueVolumesDescriptor* gvd) const {
+  const_cast<Trk::TrackingVolume*>(this)->registerOutsideGlueVolumes(gvd);
 }
 
 const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor() {
@@ -1022,20 +1022,20 @@ const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor() {
   return (*m_outsideGlueVolumes);
 }
 
-const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor ATLAS_NOT_CONST_THREAD_SAFE () const{
-    return (const_cast<Trk::TrackingVolume&>(*this)).glueVolumesDescriptor();
+const Trk::GlueVolumesDescriptor& Trk::TrackingVolume::glueVolumesDescriptor ATLAS_NOT_THREAD_SAFE () const{
+    return (const_cast<Trk::TrackingVolume*>(this))->glueVolumesDescriptor();
 }
 
 
-void Trk::TrackingVolume::moveVolume ATLAS_NOT_CONST_THREAD_SAFE (Amg::Transform3D& shift) const
+void Trk::TrackingVolume::moveVolume ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& shift) const
 {
   if (m_transform) {
     Amg::Transform3D transf = shift * (*m_transform);
-    const_cast<Trk::TrackingVolume&>(*this).m_transform = std::make_unique<Amg::Transform3D>(transf);
+    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(transf);
   } else {
-    const_cast<Trk::TrackingVolume&>(*this).m_transform = std::make_unique<Amg::Transform3D>(shift);
+    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(shift);
   }
-  const_cast<Trk::TrackingVolume&>(*this).m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation())); 
+  const_cast<Trk::TrackingVolume*>(this)->m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation())); 
 }
 
 
