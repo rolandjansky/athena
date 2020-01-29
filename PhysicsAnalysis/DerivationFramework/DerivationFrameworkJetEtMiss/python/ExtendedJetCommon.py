@@ -267,6 +267,8 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb', suffix = 
 
     if '_BTagging' in jetalg:
         jetalg_basename = jetalg[:jetalg.find('_BTagging')]
+    elif 'PFlowCustomVtx' in jetalg:
+        jetalg_basename = 'AntiKt4EMPFlow'
     else:
         jetalg_basename = jetalg
             
@@ -355,6 +357,8 @@ def updateJVT(jetalg,algname,sequence, suffix = '',customVxColl = 'PrimaryVertic
 
     if '_BTagging' in jetalg:
         jetalg_basename = jetalg[:jetalg.find('_BTagging')]
+    elif 'PFlowCustomVtx' in jetalg:
+        jetalg_basename = 'AntiKt4EMPFlow'        
     else:
         jetalg_basename = jetalg
 
@@ -437,7 +441,7 @@ def applyMVfJvtAugmentation(jetalg,sequence,algname):
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",overlapLabel=""):
-    supportedJets = ['AntiKt4EMPFlow']
+    supportedJets = ['AntiKt4EMPFlow','AntiKt4PFlowCustomVtxHgg']
     if not jetalg in supportedJets:
         extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
@@ -457,6 +461,8 @@ def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",ove
 
         if hasattr(ToolSvc,pffjvttoolname):
             jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
+            jetaugtool.JetForwardPFlowJvtTool.verticesName=primaryVertexCont
+            jetaugtool.JetForwardPFlowJvtTool.orLabel=overlapLabel
         else:
             pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname,verticesName=primaryVertexCont,orLabel=overlapLabel)
             ToolSvc += pffjvttool
