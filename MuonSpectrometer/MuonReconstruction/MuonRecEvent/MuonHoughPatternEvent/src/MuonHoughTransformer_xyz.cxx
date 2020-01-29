@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_xyz.h"
@@ -310,7 +310,7 @@ int MuonHoughTransformer_xyz::sector(MuonHoughHit* hit)const
   // Peter Kluit correction 
   double theta = std::atan2(radius,hitz); // radius>0 : theta: [0,Pi]
 
-  int sectorhit = static_cast<int> (theta * m_number_of_sectors / MuonHough::Pi);
+  int sectorhit = static_cast<int> (theta * m_number_of_sectors / M_PI);
   if (sectorhit == m_number_of_sectors) sectorhit += -1; // could happen in rare cases
   return sectorhit; // only valid for xy!! yz to be done (or to be abondoned) 
 }

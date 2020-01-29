@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 #include "GaudiKernel/ToolHandle.h" 
 
 //Helper Includes
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 #include "MdtRawDataMonitoring/MDTMonGroupStruct.h"
 #include "MdtRawDataMonitoring/MDTNoisyTubes.h"
@@ -33,6 +33,7 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 //standard library includes
@@ -119,7 +120,11 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-  const MuonGM::MuonDetectorManager*  p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   virtual StatusCode  bookMDTHistograms( MDTChamber* chamber, Identifier digcoll_id );//book chamber by chamber histos
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* );//fill chamber by chamber histos

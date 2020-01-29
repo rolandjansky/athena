@@ -104,7 +104,6 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             stripsTime.push_back(MMprd.time()-tof+m_timeOffset); // use time minus tof minus vmm integration time as actual time
             stripsChannel.push_back(m_muonIdHelperTool->mmIdHelper().channel(id_prd));
             stripsCharge.push_back(MMprd.charge());
-            stripsTime.push_back(MMprd.time()-tof+m_timeOffset);
             
             ATH_MSG_DEBUG("Hit channel: "<< m_muonIdHelperTool->mmIdHelper().channel(id_prd) <<" time "<< MMprd.time()-tof+m_timeOffset << " localPosX "<< MMprd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_muonIdHelperTool->mmIdHelper().gasGap(id_prd) << " multiplet " << m_muonIdHelperTool->mmIdHelper().multilayer(id_prd) << " stationname " <<m_muonIdHelperTool->mmIdHelper().stationName(id_prd)  << " stationPhi " <<m_muonIdHelperTool->mmIdHelper().stationPhi(id_prd) << " stationEta "<<m_muonIdHelperTool->mmIdHelper().stationEta(id_prd));
         }
@@ -171,10 +170,19 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             ATH_MSG_DEBUG("idx_goodStrips[0]: "<<idx<<"MMPRDs size: "<< MMprdsOfLayer.at(idx) << " size: " <<MMprdsOfLayer.size());
             Amg::Vector2D localClusterPositionV(localClusterPosition,MMprdsOfLayer.at(idx).localPosition().y()); // y position is the same for all strips
             ATH_MSG_DEBUG("Did set local position");
-            MMPrepData* prdN=new MMPrepData(MMprdsOfLayer.at(idx).identify(),MMprdsOfLayer.at(idx).collectionHash(),
-                                 localClusterPositionV,stripsOfCluster,covN,MMprdsOfLayer.at(idx).detectorElement(),
-                                 (short int)0,std::accumulate(stripsOfClusterCharges.begin(),stripsOfClusterCharges.end(),0),
-                                 stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
+
+	    float driftDist = 0.0;
+
+            MMPrepData* prdN=new MMPrepData(MMprdsOfLayer.at(idx).identify(),
+					    MMprdsOfLayer.at(idx).collectionHash(),
+					    localClusterPositionV,stripsOfCluster,
+					    covN,MMprdsOfLayer.at(idx).detectorElement(),
+					    (short int)0,
+					    std::accumulate(stripsOfClusterCharges.begin(),
+							    stripsOfClusterCharges.end(),0),
+					    driftDist,
+					    stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
+	    
             ATH_MSG_DEBUG("Did create new prd");
             
             ATH_MSG_DEBUG("Setting prd angle: "<< finalFitAngle <<" chi2 Prob: "<<finalFitChiSqProb);
@@ -299,7 +307,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(std::vector<std::tuple<do
             }
         }
         if(true){
-            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/3.1415*180.);
+            ATH_MSG_DEBUG("Angle estimate         ="<< std::get<0>(track)<<" "<<std::get<0>(track)/M_PI*180.);
             ATH_MSG_DEBUG("restimate              ="<< std::get<1>(track));
             ATH_MSG_DEBUG("slope estimate         ="<< slope);
             ATH_MSG_DEBUG("intercept estimate     ="<< intercept);
@@ -392,12 +400,12 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<double>& xpos, s
         ATH_MSG_DEBUG("Fit intercept:" << ffit->GetParameter(0));
         ATH_MSG_DEBUG("Fit status: "<<s);
         ATH_MSG_DEBUG("Cluster position "<< x0 << " +- " << sigmaX0);
-        ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./3.1415);
+        ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./M_PI);
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
         ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
     }
-    if(s!=0){
-        ATH_MSG_DEBUG("Fit failed twice");
+    if(s!=0 && s!=4000){ //4000 means fit succesfull but error optimization by minos failed; fit is still usable.
+        ATH_MSG_DEBUG("Final fit failed with error code "<<s);
         return StatusCode::FAILURE;
     }
     if(ffit->GetParameter(1)<=-11.5 || ffit->GetParameter(1)>=-0.15) return StatusCode::FAILURE;

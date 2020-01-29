@@ -13,17 +13,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuonMatchQuality.h"
+#include "MuonCombinedToolInterfaces/IMuonTrackTagTool.h"
+#include "MuidInterfaces/IMuonTrackQuery.h"
 
-
-namespace MuonCombined
-{
-    class IMuonTrackTagTool;
-}
 
 namespace Rec
 {
-    class IMuonTrackQuery;
-    
     class MuonMatchQuality : public AthAlgTool,
 			     virtual public IMuonMatchQuality
     {
@@ -74,8 +69,8 @@ namespace Rec
 	void		setCache (const Trk::Track& track1, const Trk::Track& track2) const;
 
 	// helpers, managers, tools
-	ToolHandle<MuonCombined::IMuonTrackTagTool>	m_tagTool;
-	ToolHandle<IMuonTrackQuery>			m_trackQuery;
+	ToolHandle<MuonCombined::IMuonTrackTagTool>	m_tagTool {this, "TagTool", "", "Track tag tool"};
+	ToolHandle<IMuonTrackQuery>	m_trackQuery {this, "TrackQuery", "Rec::MuonTrackQuery/MuonTrackQuery", "Track query tool"};
 
 	// estimate of ID/MS alignment uncertainties
 	AmgSymMatrix(5)*				m_alignmentUncertainty;

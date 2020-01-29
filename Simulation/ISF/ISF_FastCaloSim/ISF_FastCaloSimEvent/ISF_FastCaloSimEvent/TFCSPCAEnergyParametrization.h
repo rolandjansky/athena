@@ -37,6 +37,9 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   void clean();
   
   void Print(Option_t *option = "") const override;
+  
+  float get_total_energy_normalization() const {return m_total_energy_normalization;};
+  void  set_total_energy_normalization(float norm) {m_total_energy_normalization=norm;};
 
   int                       do_rescale;
   
@@ -53,12 +56,10 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   
   int m_numberpcabins;
   
-  ClassDefOverride(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
+  float m_total_energy_normalization{1};
+  
+  ClassDefOverride(TFCSPCAEnergyParametrization,2)  //TFCSPCAEnergyParametrization
  
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSPCAEnergyParametrization+;
-#endif
 
 #endif

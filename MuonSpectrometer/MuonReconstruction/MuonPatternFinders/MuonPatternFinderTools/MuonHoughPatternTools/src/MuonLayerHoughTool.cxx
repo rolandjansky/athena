@@ -14,7 +14,6 @@
 #include <iostream>
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "HepMC/GenEvent.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "CxxUtils/sincos.h"
 #include "xAODTruth/TruthParticle.h"
@@ -30,8 +29,7 @@ namespace Muon {
     m_truthNames{},
     m_MuonTruthParticlesKey("MuonTruthParticles"),
     m_MuonTruthSegmentsKey("MuonTruthSegments"),
-    m_ntechnologies(4),
-    m_incidentSvc("IncidentSvc",name)
+    m_ntechnologies(4)
   {
     declareInterface<MuonLayerHoughTool>(this);
     declareInterface<IMuonHoughPatternFinderTool>(this);
@@ -150,11 +148,6 @@ namespace Muon {
     m_selectorsLoose[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
     m_selectorsLoose[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9; optimized: 2.9
 
-
-    // call handle in case of EndEvent
-    ATH_CHECK( m_incidentSvc.retrieve() );
-    m_incidentSvc->addListener( this, IncidentType::EndEvent );
-
     // /// test layerhash 
     // for( int reg = 0;reg<MuonStationIndex::DetectorRegionIndexMax;++reg ){   
     //   MuonStationIndex::DetectorRegionIndex region = static_cast<MuonStationIndex::DetectorRegionIndex>(reg);
@@ -183,7 +176,6 @@ namespace Muon {
       delete m_ntuple;
       gDirectory = cdir;
     }
-    m_incidentSvc->removeListener( this, IncidentType::EndEvent );
     return StatusCode::SUCCESS;
   }
 
@@ -642,7 +634,7 @@ namespace Muon {
 
       if( wasExtended ) {
         // refind maximum
-        MuonHough::MuonPhiLayerHough localHough(60, -TMath::Pi(), TMath::Pi(), ( (*pit)->hough ? (*pit)->hough->m_region : MuonStationIndex::DetectorRegionUnknown ) );
+        MuonHough::MuonPhiLayerHough localHough(60, -M_PI, M_PI, ( (*pit)->hough ? (*pit)->hough->m_region : MuonStationIndex::DetectorRegionUnknown ) );
         std::vector<MuonHough::PhiHit*> hits = phiMaximum.hits;
         /* too ambiguous producing irreproducibilities because of sorting by pointer value
         std::stable_sort(hits.begin(),hits.end(),[]( const MuonHough::PhiHit* h1,
@@ -1518,7 +1510,7 @@ namespace Muon {
       // go to global
       double sign = 1.;
       if(isBarrel) {
-        theta += 0.5*TMath::Pi();
+        theta += M_PI_2;
         sign = -1.;
       }
 
@@ -2399,14 +2391,6 @@ namespace Muon {
         ATH_MSG_DEBUG("  " << m_muonIdHelperTool->toString(*it) );
       }
     }
-  }
-
-  void MuonLayerHoughTool::handle(const Incident& inc) {
-    // Only clear cache for EndEvent incident
-    if (inc.type()  == IncidentType::EndEvent){
-      ATH_MSG_DEBUG(" clearing cache at end of event " );
-      reset();
-    }  
   }
 
   void MuonLayerHoughTool::fillNtuple( MuonLayerHoughTool::HoughDataPerSectorVec& houghDataPerSectorVec ) const {

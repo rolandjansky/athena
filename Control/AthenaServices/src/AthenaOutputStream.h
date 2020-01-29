@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAOUTPUTSTREAM_H
@@ -81,6 +81,14 @@ protected:
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names
    StringArrayProperty      m_excludeList;
+   /// Vector of item names
+   StringArrayProperty      m_compressionListHigh;
+   /// Vector of item names
+   StringArrayProperty      m_compressionListLow;
+   /// Number of mantissa bits in the float compression
+   unsigned int             m_compressionBitsHigh;
+   /// Number of mantissa bits in the float compression
+   unsigned int             m_compressionBitsLow;
    /// List of items that are known to be present in the transient store
    /// (and hence we can make input dependencies on them).
    StringArrayProperty      m_transientItems;
@@ -88,6 +96,10 @@ protected:
    ToolHandle<SG::IFolder>  m_p2BWritten;
    /// the top-level folder with items to be written
    ToolHandle<SG::IFolder>  m_decoder;
+   /// the top-level folder with items to be compressed high
+   ToolHandle<SG::IFolder>  m_compressionDecoderHigh;
+   /// the top-level folder with items to be compressed low
+   ToolHandle<SG::IFolder>  m_compressionDecoderLow;
    /// Decoded list of transient ids.
    ToolHandle<SG::IFolder>  m_transient;
    /// map of (clid,key) pairs to be excluded (comes from m_excludeList)
@@ -141,6 +153,10 @@ protected:
    void itemListHandler(Property& /* theProp */);
    /// Handler for ItemNames Property
    void excludeListHandler(Property& /* theProp */);
+   /// Handler for ItemNames Property
+   void compressionListHandlerHigh(Property& /* theProp */);
+   /// Handler for ItemNames Property
+   void compressionListHandlerLow(Property& /* theProp */);
 
 public:
    typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;

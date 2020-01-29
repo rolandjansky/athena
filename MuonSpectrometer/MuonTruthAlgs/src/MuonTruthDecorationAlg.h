@@ -1,27 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonTruthDecorationAlg.h
-//   Header file for class MuonTruthDecorationAlg
-///////////////////////////////////////////////////////////////////
 
 #ifndef TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
 #define TRUTHPARTICLEALGS_MUONTRUTHDECORATIONALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <map>
 #include <vector>
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "Identifier/Identifier.h"
 
 #include "TrackRecord/TrackRecordCollection.h"
 #include "xAODTruth/TruthParticle.h"
@@ -56,7 +50,6 @@ public:
   // Basic algorithm methods:
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
 
 private:
   void addTrackRecords( xAOD::TruthParticle& truthParticle, const xAOD::TruthVertex* vertex ) const;
@@ -72,11 +65,11 @@ private:
   SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_PRD_TruthNames;
   SG::ReadHandleKeyArray<MuonSimDataCollection> m_SDO_TruthNames;
   SG::ReadHandleKey<CscSimDataCollection> m_CSC_SDO_TruthNames;
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;
   ToolHandle<Trk::IExtrapolator>        m_extrapolator;
-  const MuonGM::MuonDetectorManager * m_muonMgr;
+  const MuonGM::MuonDetectorManager* m_muonMgr;
   bool m_createTruthSegment;
   int m_barcodeOffset;
 };

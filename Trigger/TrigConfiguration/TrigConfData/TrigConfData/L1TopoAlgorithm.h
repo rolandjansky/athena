@@ -16,7 +16,7 @@ namespace TrigConf {
     * Provides access to the L1Topo algorithm name and type and the selection parameters,
     * input and output collections. Can hold sorting and decision algorithms
     */
-   class L1TopoAlgorithm final : virtual public DataStructure {
+   class L1TopoAlgorithm final : public DataStructure {
    public:
 
       /** Constructor */

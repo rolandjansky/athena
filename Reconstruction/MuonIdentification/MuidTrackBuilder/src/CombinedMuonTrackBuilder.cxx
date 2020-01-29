@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -12,32 +12,16 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <cmath>
 #include <iomanip>
-#include "MuidInterfaces/IMuidCaloEnergy.h"
-#include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
-#include "MuidInterfaces/IMuonTrackQuery.h"
 #include "MuidTrackBuilder/CombinedMuonTrackBuilder.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
-#include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IIntersector.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -50,15 +34,11 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/Track.h"
-#include "TrkiPatFitterUtils/IMaterialAllocator.h"
 #include "TrkiPatFitterUtils/MessageHelper.h"
 #include "VxVertex/RecVertex.h"
 #include "muonEvent/CaloEnergy.h"
-#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AthenaKernel/Units.h"
@@ -69,36 +49,33 @@ namespace Units = Athena::Units;
 
 namespace Rec
 {
-    
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 						    const std::string&name, 
 						    const IInterface*parent)
     :	AthAlgTool			(type, name, parent),
-	m_caloEnergyParam		("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam"),
-	m_caloTSOS			("Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface"),
-	m_cleaner			("Muon::MuonTrackCleaner/MuidTrackCleaner"),
-	m_cscRotCreator			(""),
-	m_extrapolator			("Trk::Extrapolator/AtlasExtrapolator"),
-	m_fitter			("Trk::iPatFitter/iPatFitter"),
-	m_fitterSL			("Trk::iPatFitter/iPatSLFitter"),
-        m_idHelperTool                  ("Muon::MuonIdHelperTool"),
-	m_intersector			("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
+	m_caloEnergyParam		("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam", this),
+	m_caloTSOS			("Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface", this),
+	m_cleaner			("Muon::MuonTrackCleaner/MuidTrackCleaner"), // Note: making this private crashes
+	m_cscRotCreator			("", this),
+	m_extrapolator			("Trk::Extrapolator/AtlasExtrapolator", this),
+	m_fitter			("Trk::iPatFitter/iPatFitter", this),
+	m_fitterSL			("Trk::iPatFitter/iPatSLFitter", this),
+	m_intersector			("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
 	m_magFieldProperties		(Trk::FullField),
 	m_magFieldSvc			("AtlasFieldSvc",name),
-	m_materialAllocator		(""),
-	m_mdtRotCreator			(""),
-  	m_muonErrorOptimizer    	("Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool"),
-	m_muonHoleRecovery		("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
-	m_propagator            	("Trk::IntersectorWrapper/IntersectorWrapper"),
-	m_propagatorSL			("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
-	m_printer			("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
+	m_materialAllocator		("", this),
+	m_mdtRotCreator			("", this),
+  	m_muonErrorOptimizer    	("Muon::MuonErrorOptimisationTool/MuidErrorOptimisationTool", this),
+	m_muonHoleRecovery		("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool", this),
+	m_propagator            	("Trk::IntersectorWrapper/IntersectorWrapper", this),
+	m_propagatorSL			("Trk::StraightLinePropagator/MuonStraightLinePropagator", this),
+	m_printer			("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", this),
 	m_trackingGeometrySvc		("TrackingGeometrySvc/AtlasTrackingGeometrySvc",name),
 	m_trackingVolumesSvc		("TrackingVolumesSvc/TrackingVolumesSvc",name),
-	m_trackQuery			("Rec::MuonTrackQuery/MuonTrackQuery"),
-	m_trackSummary			("Trk::TrackSummaryTool/MuidTrackSummaryTool"),
-	m_materialUpdator               ("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
+	m_trackQuery			("Rec::MuonTrackQuery/MuonTrackQuery"), // Note: making this private crashes
+	m_trackSummary			("Trk::TrackSummaryTool/MuidTrackSummaryTool", this),
+	m_materialUpdator               ("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", this),
 	m_allowCleanerVeto		(true),
 	m_cleanCombined			(true),
 	m_cleanStandalone		(true),
@@ -148,8 +125,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_refineELossStandAloneTrackFit (true),
         m_addElossID                    (true),
         m_addIDMSerrors                 (true),
-        m_useRefitTrackError            (true),
-        m_DetID                         (0)
+        m_useRefitTrackError            (true)
 {
     m_messageHelper	= new MessageHelper(*this);
     declareInterface<ICombinedMuonTrackBuilder>(this);
@@ -212,30 +188,22 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 
 }
 
-CombinedMuonTrackBuilder::~CombinedMuonTrackBuilder (void) 
-{}
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-
 StatusCode
-CombinedMuonTrackBuilder::initialize()
-{
+CombinedMuonTrackBuilder::initialize() {
 
-  if( !AthAlgTool::initialize() ) return StatusCode::FAILURE;
+    ATH_CHECK(AthAlgTool::initialize());
 
-    ATH_MSG_DEBUG( "Initializing CombinedMuonTrackBuilder"
-		   << " - package version " << PACKAGE_VERSION );
-    msg(MSG::DEBUG) << " with options: ";
-    if (m_allowCleanerVeto)		msg(MSG::DEBUG) << " AllowCleanerVeto";
-    if (m_cleanCombined)		msg(MSG::DEBUG) << " CleanCombined";
-    if (m_cleanStandalone)		msg(MSG::DEBUG) << " CleanStandalone";
-    if (m_perigeeAtSpectrometerEntrance)msg(MSG::DEBUG) << " PerigeeAtSpectrometerEntrance";
-    if (m_reallocateMaterial)		msg(MSG::DEBUG) << " ReallocateMaterial";
-    if (! m_cscRotCreator.empty())	msg(MSG::DEBUG) << " RedoCscRots";
-    if (! m_mdtRotCreator.empty())	msg(MSG::DEBUG) << " RedoMdtRots";
-    if (! m_muonErrorOptimizer.empty())	msg(MSG::DEBUG) << " ErrorOptimisation";
-    if (! m_muonHoleRecovery.empty())	msg(MSG::DEBUG) << " HoleRecovery";
-    msg(MSG::DEBUG) << endmsg;
+    ATH_MSG_DEBUG("Initializing CombinedMuonTrackBuilder" << " - package version " << PACKAGE_VERSION);
+    ATH_MSG_DEBUG(" with options: ");
+    if (m_allowCleanerVeto) ATH_MSG_DEBUG(" AllowCleanerVeto");
+    if (m_cleanCombined) ATH_MSG_DEBUG(" CleanCombined");
+    if (m_cleanStandalone) ATH_MSG_DEBUG(" CleanStandalone");
+    if (m_perigeeAtSpectrometerEntrance) ATH_MSG_DEBUG(" PerigeeAtSpectrometerEntrance");
+    if (m_reallocateMaterial) ATH_MSG_DEBUG(" ReallocateMaterial");
+    if (!m_cscRotCreator.empty()) ATH_MSG_DEBUG(" RedoCscRots");
+    if (!m_mdtRotCreator.empty()) ATH_MSG_DEBUG(" RedoMdtRots");
+    if (!m_muonErrorOptimizer.empty()) ATH_MSG_DEBUG(" ErrorOptimisation");
+    if (!m_muonHoleRecovery.empty()) ATH_MSG_DEBUG(" HoleRecovery");
 
     // fill WARNING messages 
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings); 
@@ -343,225 +311,71 @@ CombinedMuonTrackBuilder::initialize()
 
     ATH_CHECK(m_printer.retrieve());
     
-    // get the Tools
-    if (m_caloEnergyParam.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_caloEnergyParam );
-        return StatusCode::FAILURE;
+    ATH_CHECK(m_caloEnergyParam.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_caloEnergyParam );
+    ATH_CHECK(m_caloTSOS.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_caloTSOS );
+    ATH_CHECK(m_cleaner.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_cleaner );
+    if (!m_cscRotCreator.empty()) {
+        m_redoRots	= true;
+        ATH_CHECK(m_cscRotCreator.retrieve());
+        ATH_MSG_DEBUG( "Retrieved tool " << m_cscRotCreator );
     }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_caloEnergyParam );
+    ATH_CHECK(m_extrapolator.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
+    ATH_CHECK(m_fitter.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_fitter );
+    ATH_CHECK(m_fitterSL.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_fitterSL );
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_idHelperSvc );
+    ATH_CHECK(m_intersector.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_intersector );
+    ATH_CHECK(m_magFieldSvc.retrieve());
+    ATH_MSG_DEBUG( "Retrieved service " << m_magFieldSvc );
+    if (!m_materialAllocator.empty()) {
+        ATH_CHECK(m_materialAllocator.retrieve());
+        ATH_MSG_DEBUG( "Retrieved tool " << m_materialAllocator );
     }
-    if (m_caloTSOS.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_caloTSOS );
-        return StatusCode::FAILURE;
+    if (!m_mdtRotCreator.empty()) {
+        m_redoRots	= true;
+        ATH_CHECK(m_mdtRotCreator.retrieve());
+        ATH_MSG_DEBUG( "Retrieved tool " << m_mdtRotCreator );
     }
-    else
-    {
-        ATH_MSG_DEBUG( "Retrieved tool " << m_caloTSOS );
+    if (!m_muonErrorOptimizer.empty()) {
+        ATH_CHECK(m_muonErrorOptimizer.retrieve());
+        ATH_MSG_DEBUG( "Retrieved tool " << m_muonErrorOptimizer );
     }
-    if (m_cleaner.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_cleaner );
-        return StatusCode::FAILURE;
+    if (!m_muonHoleRecovery.empty()) {
+        ATH_CHECK(m_muonHoleRecovery.retrieve());
+        ATH_MSG_DEBUG( "Retrieved tool " << m_muonHoleRecovery );
     }
-    else
-    {
-        ATH_MSG_DEBUG( "Retrieved tool " << m_cleaner );
-    }
-    if (! m_cscRotCreator.empty())
-    {
-	m_redoRots	= true;
-	if (m_cscRotCreator.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_cscRotCreator );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_DEBUG( "Retrieved tool " << m_cscRotCreator );
-	}
-    }
-    if (m_extrapolator.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
-    }
-    if (m_fitter.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_fitter );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-        ATH_MSG_DEBUG( "Retrieved tool " << m_fitter );
-    }
-    if (m_fitterSL.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_fitterSL );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-        ATH_MSG_DEBUG( "Retrieved tool " << m_fitterSL );
-    }
-    if (m_idHelperTool.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_idHelperTool );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-        ATH_MSG_DEBUG( "Retrieved tool " << m_idHelperTool );
-    }
-    if (m_intersector.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_intersector );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-        ATH_MSG_DEBUG( "Retrieved tool " << m_intersector );
-    }
-    if (m_magFieldSvc.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve service " << m_magFieldSvc );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved service " << m_magFieldSvc );
-    }
-    if (! m_materialAllocator.empty())
-    {
-	if (m_materialAllocator.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_materialAllocator );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_DEBUG( "Retrieved tool " << m_materialAllocator );
-	}
-    }
-    if (! m_mdtRotCreator.empty())
-    {
-	m_redoRots	= true;
-	if (m_mdtRotCreator.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_mdtRotCreator );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_DEBUG( "Retrieved tool " << m_mdtRotCreator );
-	}
-    }
-    if (! m_muonErrorOptimizer.empty())
-    {
-	if (m_muonErrorOptimizer.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonErrorOptimizer );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_DEBUG( "Retrieved tool " << m_muonErrorOptimizer );
-	}
-    }
-    if (! m_muonHoleRecovery.empty())
-    {
-	if (m_muonHoleRecovery.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve tool " << m_muonHoleRecovery );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_DEBUG( "Retrieved tool " << m_muonHoleRecovery );
-	}
-    }
-    if (m_propagator.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_propagator );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_propagator );
-    }
-    if (m_propagatorSL.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_propagatorSL );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_propagatorSL );
-    }
-    if (m_trackQuery.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackQuery );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_trackQuery );
-    }
-    if (m_trackSummary.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackSummary );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_trackSummary );
-    }
-    if (m_materialUpdator.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_materialUpdator );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved tool " << m_materialUpdator );
-    }
-    
+    ATH_CHECK(m_propagator.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_propagator );
+    ATH_CHECK(m_propagatorSL.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_propagatorSL );
+    ATH_CHECK(m_trackQuery.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_trackQuery );
+    ATH_CHECK(m_trackSummary.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_trackSummary );
+    ATH_CHECK(m_materialUpdator.retrieve());
+    ATH_MSG_DEBUG( "Retrieved tool " << m_materialUpdator );    
         
-    // retrieve services
-    if (m_trackingGeometrySvc.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingGeometrySvc );
-	return StatusCode::FAILURE;
-    } 
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved Svc " << m_trackingGeometrySvc );
-    }
-	
+    ATH_CHECK(m_trackingGeometrySvc.retrieve());
+    ATH_MSG_DEBUG( "Retrieved Svc " << m_trackingGeometrySvc );
+    
     // need to know which TrackingVolume we are in: indet/calo/spectrometer
-    if (m_trackingVolumesSvc.retrieve().isFailure())
-    {
-	ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingVolumesSvc );
-	return StatusCode::FAILURE;
-    } 
-    else
-    {
-	ATH_MSG_DEBUG( "Retrieved Svc " << m_trackingVolumesSvc );
+    ATH_CHECK(m_trackingVolumesSvc.retrieve());
+    ATH_MSG_DEBUG( "Retrieved Svc " << m_trackingVolumesSvc );
+
 	m_calorimeterVolume	= new Trk::Volume(
 	    m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
 	m_indetVolume		= new Trk::Volume(
 	    m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
-    }
-
+    
     // sigma of phi sector for pseudo-measurement constraint
-    m_sigmaPhiSector 		= tan(0.125*M_PI/sqrt(12.));
+    m_sigmaPhiSector 		= std::tan(0.125*M_PI/std::sqrt(12.));
     
     // create beamAxis and vertexRegion for constrained (projective) track fits
     Amg::Vector3D		origin(0.,0.,0.);
@@ -580,17 +394,10 @@ CombinedMuonTrackBuilder::initialize()
     (vertexRegionCovariance)(2,2)		= m_vertex3DSigmaZ*m_vertex3DSigmaZ;
     m_vertex					= new Trk::RecVertex(origin,vertexRegionCovariance);
     
-    if (msgLvl(MSG::DEBUG))
-    {
-	msg(MSG::DEBUG) << " vertex region: ";
+#ifndef NDEBUG
+	ATH_MSG_DEBUG(" vertex region: ");
 	m_vertex->dump(msg(MSG::DEBUG));
-	msg(MSG::DEBUG) << endmsg;
-    }    
-    if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
-      ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
-      return StatusCode::FAILURE;
-    }   
-
+#endif
  
     return StatusCode::SUCCESS;
 }
@@ -1662,13 +1469,13 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 						  ((**t).measurementOnTrack());
 	    if (! rot)				continue;
 	    Identifier id			= rot->identify();
-	    if (! m_idHelperTool->isMuon(id))	continue;
+	    if (! m_idHelperSvc->isMuon(id))	continue;
 	    const Trk::RIO_OnTrack* updatedRot	= 0;
-	    if (! m_cscRotCreator.empty() && m_idHelperTool->isCsc(id))
+	    if (! m_cscRotCreator.empty() && m_idHelperSvc->isCsc(id))
 	    {
 		updatedRot = m_cscRotCreator->correct(*rot->prepRawData(),*(**t).trackParameters());
 	    }
-	    else if (! m_mdtRotCreator.empty() && m_idHelperTool->isMdt(id))
+	    else if (! m_mdtRotCreator.empty() && m_idHelperSvc->isMdt(id))
 	    {
 		updatedRot = m_mdtRotCreator->correct(*rot->prepRawData(),*(**t).trackParameters());
 	    }
@@ -3076,14 +2883,14 @@ bool CombinedMuonTrackBuilder::optimizeErrors(Trk::Track* track) const
      int nLarge = 0;
      for( ;chit!=chit_end;++chit ){
        const Identifier& id = chit->chamberId();
-       bool isMdt = m_idHelperTool->isMdt(id);
+       bool isMdt = m_idHelperSvc->isMdt(id);
        if(!isMdt) continue; 
-       Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(id);
+       Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
        
        if( stIndex == Muon::MuonStationIndex::BE ) { 
          optimize = 1; 
        }
-       if( stIndex == Muon::MuonStationIndex::BI && m_idHelperTool->chamberIndex(id) == Muon::MuonStationIndex::BIS && abs(m_idHelperTool->stationEta(id)) > 6 ){
+       if( stIndex == Muon::MuonStationIndex::BI && m_idHelperSvc->chamberIndex(id) == Muon::MuonStationIndex::BIS && abs(m_idHelperSvc->stationEta(id)) > 6 ){
         optimize = 2; 
        }
        if( stIndex == Muon::MuonStationIndex::BI || stIndex == Muon::MuonStationIndex::BM || stIndex == Muon::MuonStationIndex::BO || stIndex == Muon::MuonStationIndex::BE) {     
@@ -3092,7 +2899,7 @@ bool CombinedMuonTrackBuilder::optimizeErrors(Trk::Track* track) const
        if( stIndex == Muon::MuonStationIndex::EI || stIndex == Muon::MuonStationIndex::EM || stIndex == Muon::MuonStationIndex::EO || stIndex == Muon::MuonStationIndex::EE) {     
          nEndcap++;
        }
-       if( m_idHelperTool->isSmallChamber(id)) {     
+       if( m_idHelperSvc->isSmallChamber(id)) {     
          nSmall++;
        } else { 
          nLarge++; 
@@ -3277,7 +3084,7 @@ CombinedMuonTrackBuilder::appendSelectedTSOS(
 		&& std::find(measurementSurfaces.begin(),
 			     measurementSurfaces.end(),
 			     surface) != measurementSurfaces.end()
-		&& !m_idHelperTool->isMM(surface->associatedDetectorElementIdentifier()))	
+		&& !m_idHelperSvc->isMM(surface->associatedDetectorElementIdentifier()))	
 	    {
 		std::string type	 = "";
 		if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>((**s).measurementOnTrack()))
@@ -4115,7 +3922,7 @@ CombinedMuonTrackBuilder::createSpectrometerTSOS(const Trk::Track& spectrometerT
 		    && std::find(measurementSurfaces.begin(),
 				 measurementSurfaces.end(),
 				 surface) != measurementSurfaces.end()
-		    && !m_idHelperTool->isMM(surface->associatedDetectorElementIdentifier()))
+		    && !m_idHelperSvc->isMM(surface->associatedDetectorElementIdentifier()))
 		{
 		    std::string type	 = "";
 		    if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>((**s).measurementOnTrack()))
@@ -5011,7 +4818,7 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
         Identifier id = Trk::IdentifierExtractor::extract(mot);
         if(id.is_valid()) {
 // skip after first Muon hit
-          if(m_DetID->is_muon(id)) break;
+          if(m_idHelperSvc->isMuon(id)) break;
         } 
       }
       if(pstart==0&&m->trackParameters()) {

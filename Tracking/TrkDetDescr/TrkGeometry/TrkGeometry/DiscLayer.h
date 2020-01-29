@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -123,13 +123,17 @@ namespace Trk {
      private:   
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
        virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
-              /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, double envelope) const override{
+              /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
+                                                            double envelope) const override
+       {
          const_cast<DiscLayer*> (this)->resizeLayer(vBounds,envelope);
-       }        
-     
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelop) override;
+       }
+
+       /** Resize the layer to the tracking volume - not implemented */
+       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
+                                             const Amg::Vector3D& cCenter,
+                                             double envelop) override;
 
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
@@ -140,14 +144,14 @@ namespace Trk {
 
 
        /** build approach surfaces */
-       void buildApproachDescriptor() const;
+       void buildApproachDescriptor();
     
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
                                       const Amg::Vector3D& dir,
                                       const BoundaryCheck& bcheck) const;    
      protected:
-       mutable IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
+       IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
     
   };
 

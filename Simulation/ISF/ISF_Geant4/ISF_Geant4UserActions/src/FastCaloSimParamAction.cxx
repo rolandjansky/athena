@@ -46,7 +46,6 @@ namespace G4UA{
     , m_detStore("StoreGateSvc/DetectorStore","FastCaloSimParamAction")
     , m_current_calculator(nullptr)
     , m_current_calculator_Tile(nullptr)
-    , m_current_solid(nullptr)
     , m_current_transform(nullptr)
     , m_lar_helper(nullptr)
     , m_lar_emID(nullptr)

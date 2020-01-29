@@ -31,7 +31,7 @@
 #include "CaloEvent/CaloConstCellContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TileConditions/TileEMScale.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 
 class ITrigCaloDataAccessSvc;

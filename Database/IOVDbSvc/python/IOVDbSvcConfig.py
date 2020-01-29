@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
-from IOVSvc.IOVSvcConf import CondInputLoader
+from AthenaConfiguration.ComponentFactory import CompFactory
+CondInputLoader=CompFactory.CondInputLoader
 import os
 
 def IOVDbSvcCfg(configFlags):
@@ -11,9 +12,9 @@ def IOVDbSvcCfg(configFlags):
     #Add the conditions loader, must be the first in the sequence
     result.addCondAlgo(CondInputLoader())
 
-    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
-    from IOVSvc.IOVSvcConf import CondSvc
-    from SGComps.SGCompsConf import ProxyProviderSvc
+    IOVDbSvc=CompFactory.IOVDbSvc
+    CondSvc=CompFactory.CondSvc
+    ProxyProviderSvc=CompFactory.ProxyProviderSvc
 
     #Properties of IOVDbSvc to be set here:
     #online-mode, DBInstance (slite)
@@ -51,7 +52,7 @@ def IOVDbSvcCfg(configFlags):
 
     # Set up POOLSvc with appropriate catalogs
     
-    from PoolSvc.PoolSvcConf import PoolSvc
+    PoolSvc=CompFactory.PoolSvc
     poolSvc=PoolSvc()
     poolSvc.MaxFilesOpen=0
     poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
@@ -67,7 +68,7 @@ def IOVDbSvcCfg(configFlags):
     result.addService(CondSvc())
     result.addService(ProxyProviderSvc(ProviderNames=["IOVDbSvc",]))
 
-    from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
+    DBReplicaSvc=CompFactory.DBReplicaSvc
     if not isMC:
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
@@ -75,18 +76,22 @@ def IOVDbSvcCfg(configFlags):
     from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg 
     result.merge(TagInfoMgrCfg(configFlags)[0])
     
+    # Set up MetaDataSvc                                                                                             
+    from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+    result.merge(MetaDataSvcCfg(configFlags, ["IOVDbMetaDataTool"]))
+
     return result
 
 
 #Convenience method to add folders:
-def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False,tag=None):
+def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False,tag=None,db=None):
     tagstr = ''
     if tag is not None:
         tagstr = '<tag>%s</tag>' % tag
 
     #Convenience hack: Allow a single string as parameter:
     if isinstance(folderstrings,str):
-        return addFolderList(configFlags,((folderstrings+tagstr,detDb,className),),extensible)
+        return addFolderList(configFlags,((folderstrings+tagstr,detDb,className),),extensible,db)
 
     else: #Got a list of folders
         folderdefs=[]
@@ -94,13 +99,13 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=Fa
         for fs in folderstrings:
             folderdefs.append((fs+tagstr,detDb,className))
         
-    return addFolderList(configFlags,folderdefs,extensible)
+    return addFolderList(configFlags,folderdefs,extensible,db)
     
 
 
 
 
-def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
+def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
     """Add access to the given set of folders, in the identified subdetector schema.
     FolerInfoTuple consists of (foldername,detDB,classname)
 
@@ -123,7 +128,10 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
 
     
         if detDb is not None and fs.find("<db>")==-1:
-            dbname=configFlags.IOVDb.DatabaseInstance
+            if db:  # override database name if provided
+                dbname=db
+            else:
+                dbname=configFlags.IOVDb.DatabaseInstance
             if detDb not in _dblist.keys():
                 raise ConfigurationError("Error, db shorthand %s not known" % detDb)
             #Append database string to folder-name
@@ -138,15 +146,15 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
 
     if len(loadFolders)>0:
         result.getCondAlgo("CondInputLoader").Load+=loadFolders
-        from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+        AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
         apcs=AthenaPoolCnvSvc()
         result.addService(apcs)
-        from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+        EvtPersistencySvc=CompFactory.EvtPersistencySvc
         result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
 
     return result
     
-def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL", splitMC=False):
+def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, className=None, addMCString="_OFL", splitMC=False, tag=None, forceDb=None):
     "Add access to given folder, using either online_folder  or offline_folder. For MC, add addMCString as a postfix (default is _OFL)"
     
     if configFlags.Common.isOnline and not configFlags.Input.isMC:
@@ -157,7 +165,7 @@ def addFoldersSplitOnline(configFlags, detDb, online_folders, offline_folders, c
         # MC, so add addMCString
         detDb = detDb+addMCString
         folders = offline_folders
-    result = addFolders(configFlags, folders, className=className, detDb=detDb) 
+    result = addFolders(configFlags, folders, className=className, detDb=detDb, tag=tag, db=forceDb) 
     return result
 
 _dblist={

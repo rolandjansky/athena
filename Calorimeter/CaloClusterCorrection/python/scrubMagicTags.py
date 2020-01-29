@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id$
 #
 # File: CaloClusterCorrection/python/scrubMagicTags.py
 # Created: Aug 2010, sss
@@ -10,6 +8,8 @@
 # Temporary(?) measure since the number of tags needed to do magic
 # is getting out of control.
 #
+
+from __future__ import print_function
 
 
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
@@ -21,10 +21,10 @@ def scrubFolder (db, folder):
     tags = f.listTags()
     for t in tags:
         if t.find('-ATLAS-') >= 0 or t.find('TagInfo/') >= 0:
-            print 'nuke', t
+            print ('nuke', t)
             f.deleteTag(t)
         else:
-            print 'keep', t
+            print ('keep', t)
     return
 
 
@@ -36,7 +36,7 @@ def scrub (dbfile, folder):
 
     db = AtlCoolLib.indirectOpen(connstring,False,False,True)
     if not db.existsFolderSet (folder):
-        print "Can't find folder", folder
+        print ("Can't find folder", folder)
         sys.exit(1)
     fs = db.getFolderSet (folder)
     for f in fs.listFolders():

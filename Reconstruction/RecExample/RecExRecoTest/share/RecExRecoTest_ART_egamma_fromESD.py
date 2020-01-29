@@ -128,6 +128,7 @@ ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
 
 include ("LArRecUtils/LArAffectedRegion.py")
 include("InDetBeamSpotService/BeamCondSvc.py")
+include("InDetRecExample/InDetRecConditionsAccess.py")
 # Detector Description
 #---------------------------------------------------------------------------------#
 
@@ -156,6 +157,9 @@ except Exception:
    treatExeption("could not get handle to egammaTopoClusterCopier")
 
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
+
+from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
+CaloExtensionBuilder("NoCut", 500.) 
 
 from egammaRec.egammaRecFlags import jobproperties
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHMATHUTILS_H
@@ -15,9 +15,9 @@
 
 namespace MuonHough
 {
-  const double two_Pi = 2*MuonHough::Pi;
-  const double degree_rad_conversion_factor = MuonHough::Pi/180.;
-  const double rad_degree_conversion_factor = 180./MuonHough::Pi;
+  const double two_Pi = 2*M_PI;
+  const double degree_rad_conversion_factor = M_PI/180.;
+  const double rad_degree_conversion_factor = 180./M_PI;
 
   // Geometry for curved Hough extrapolation 
   /** relation for transition between endcap and barrel 11.43 m (r) / 14m (z) */ 

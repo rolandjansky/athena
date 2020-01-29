@@ -58,7 +58,7 @@ def SetupMuonStandaloneCA(args,ConfigFlags):
         from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
         cfg = MainServicesThreadedCfg(ConfigFlags)
         msgService = cfg.getService('MessageSvc')
-        msgService.Format = "S:%s E:%e % F%58W%S%7W%R%T  %0W%M"
+        msgService.Format = "S:%s E:%e % F%78W%S%7W%R%T  %0W%M"
     else:
         cfg=ComponentAccumulator()
 
@@ -72,7 +72,6 @@ def SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord):
 
     cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
     outstream = cfg.getEventAlgo("OutputStreamESD")
-    # outstream.OutputLevel=DEBUG
     outstream.ForceRead = True
 
     # Fix for ATLASRECTS-5151

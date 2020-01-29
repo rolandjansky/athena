@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import CVSutil
 CVSkeywords = CVSutil.CVSkeywords( ["$Id: runargs.py,v 1.16 2009-03-16 09:01:06 ctan Exp $" ,
@@ -179,7 +181,7 @@ class CommandLineOption( Descriptor ):
 #        return Descriptor._checkValue(self,variableName,value)
     
     def _setValue(self,variableName,value):
-        print "Setting %s to %r" % (variableName,value)
+        print ("Setting %s to %r" % (variableName,value))
         if value is not None and (self.__takesArgument or value):
             self.processOption(value)
     

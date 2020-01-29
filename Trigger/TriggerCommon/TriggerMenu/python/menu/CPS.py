@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """CPS addition  """
 
@@ -9,10 +9,12 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+import six
+
 
 def genericCPSAdder(groups, signatures, chains, level, signatureOverwritten):
 
-    for cpsGroup, chainNames in groups.iteritems():
+    for cpsGroup, chainNames in six.iteritems (groups):
         if "RATE" not in cpsGroup:
             log.error('Following group do not start for RATE [%s]' %cpsGroup)
         for chainName in chainNames:
@@ -35,7 +37,7 @@ def genericCPSAdder(groups, signatures, chains, level, signatureOverwritten):
                     for g in c.groups:
                         if g.find('CPS') == 5:
                             cpsFound = g
-                    if cpsFound == None:
+                    if cpsFound is None:
                         log.info('CPS group %s added to %s', cpsGroup, chain_name)
                         c.addGroup(cpsGroup)
                     elif cpsFound == cpsGroup:
@@ -91,7 +93,7 @@ def defineCPSGroups():
 				       
         }
 
-    if not "primaries"  in TriggerFlags.triggerMenuSetup():
+    if "primaries"  not in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
         "RATE:CPS:HLT_e5_vloose"  :  ['e5_lhvloose',               
                                       'e5_lhvloose_nod0',],
@@ -517,7 +519,7 @@ def defineCPSGroups():
 
         })
 
-    if "v7" in TriggerFlags.triggerMenuSetup() and not "primaries" in TriggerFlags.triggerMenuSetup():
+    if "v7" in TriggerFlags.triggerMenuSetup() and "primaries" not in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
             'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
                 'mu6_j260_bperf_split_dr05_dz02',
@@ -678,7 +680,7 @@ def defineCPSGroups():
         })
 
  
-    if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup() and not "primaries" in TriggerFlags.triggerMenuSetup():
+    if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup() and "primaries" not in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
         "RATE:CPS:HLT_e70_vloose"        : ['e70_lhvloose',
                                             'e70_lhvloose_nod0'],
@@ -881,7 +883,7 @@ def defineCPSGroups():
 
 
 
-    if "v7" in TriggerFlags.triggerMenuSetup() and not "primaries" in TriggerFlags.triggerMenuSetup():
+    if "v7" in TriggerFlags.triggerMenuSetup() and "primaries" not in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
         'RATE:CPS:HLT_j400_lcw_a10' : ['j400_a10_lcw_subjes_L1J100',
                                    #'j400_a10_lcw_sub_L1J100',

@@ -4,17 +4,18 @@
 
 """Define methods to configure beam effects with the ComponentAccumulator"""
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 # Compiled beam effects methods
 # for documentation of method X, see Simulation__X._propertyDocDct
-from BeamEffects.BeamEffectsConf import Simulation__GenEventValidityChecker
-from BeamEffects.BeamEffectsConf import Simulation__GenEventRotator
-from BeamEffects.BeamEffectsConf import Simulation__GenEventVertexPositioner
-from BeamEffects.BeamEffectsConf import Simulation__VertexBeamCondPositioner
-from BeamEffects.BeamEffectsConf import Simulation__VertexPositionFromFile
-from BeamEffects.BeamEffectsConf import Simulation__CrabKissingVertexPositioner
-from BeamEffects.BeamEffectsConf import Simulation__LongBeamspotVertexPositioner
+Simulation__GenEventValidityChecker=CompFactory.Simulation__GenEventValidityChecker
+Simulation__GenEventRotator=CompFactory.Simulation__GenEventRotator
+Simulation__GenEventVertexPositioner=CompFactory.Simulation__GenEventVertexPositioner
+Simulation__VertexBeamCondPositioner=CompFactory.Simulation__VertexBeamCondPositioner
+Simulation__VertexPositionFromFile=CompFactory.Simulation__VertexPositionFromFile
+Simulation__CrabKissingVertexPositioner=CompFactory.Simulation__CrabKissingVertexPositioner
+Simulation__LongBeamspotVertexPositioner=CompFactory.Simulation__LongBeamspotVertexPositioner
 # For the Algorithm
-from BeamEffects.BeamEffectsConf import Simulation__BeamEffectsAlg
+Simulation__BeamEffectsAlg=CompFactory.Simulation__BeamEffectsAlg
 
 
 # possible components from BeamEffectsConf
@@ -39,18 +40,17 @@ def makeGenEventBeamEffectBooster(name="GenEventBeamEffectBooster", **kwargs):
 def makeGenEventVertexPositioner(ConfigFlags,name="GenEventVertexPositioner", **kwargs):
     """Return a vertex positioner tool"""
     # todo needs input file(s?)
-    #from BeamEffectsConfigFlagsTest import ConfigFlags #or have this as an argument?
 
     result=ComponentAccumulator()
 
-    readVtxPosFromFile = ConfigFlags.Vertex.Source == "VertexOverrideFile.txt" or ConfigFlags.Vertex.Source == "VertexOverrideEventFile.txt"
+    readVtxPosFromFile = ConfigFlags.Sim.Vertex.Source == "VertexOverrideFile.txt" or ConfigFlags.Sim.Vertex.Source == "VertexOverrideEventFile.txt"
     if readVtxPosFromFile:
         kwargs.setdefault("VertexShifters"          , [ Simulation__VertexPositionFromFile("VertexPositionFromFile") ])
-    elif ConfigFlags.Vertex.Source == "CondDB" :
+    elif ConfigFlags.Sim.Vertex.Source == "CondDB" :
         acc, tool = makeVertexBeamCondPositioner(ConfigFlags) 
         result.merge(acc)
         kwargs.setdefault("VertexShifters"          , [ Simulation__VertexBeamCondPositioner('VertexBeamCondPositioner') ])
-    elif ConfigFlags.Vertex.Source == "LongBeamspotVertexPositioner":
+    elif ConfigFlags.Sim.Vertex.Source == "LongBeamspotVertexPositioner":
         kwargs.setdefault("VertexShifters"          , [ Simulation__LongBeamspotVertexPositioner('LongBeamspotVertexPositioner') ])
 
     
@@ -61,9 +61,8 @@ def makeGenEventVertexPositioner(ConfigFlags,name="GenEventVertexPositioner", **
 def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **kwargs):
     """Return a conditional (? todo) vertex positioner tool"""
     # todo needs RandomSvc
-    #from BeamEffectsConfigFlagsTest import ConfigFlags
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
+    BeamSpotCondAlg=CompFactory.BeamSpotCondAlg
     from RngComps.RandomServices import AthEngines
 
     result = ComponentAccumulator()
@@ -158,9 +157,9 @@ if __name__ == "__main__":
     ConfigFlags.Output.HITSFileName = "myHITS.pool.root"
 
     #set the source of vertex positioning
-    #ConfigFlags.Vertex.Source = "VertexOverrideFile.txt"# Vertex.OverrideFile/Vertex.OverrideEventFile
-    ConfigFlags.Vertex.Source = "CondDB" # Vertex.FromCondD
-    #ConfigFlags.Vertex.Source = "LongBeamspotVertexPositioner"
+    #ConfigFlags.Sim.Vertex.Source = "VertexOverrideFile.txt"# Vertex.OverrideFile/Vertex.OverrideEventFile
+    ConfigFlags.Sim.Vertex.Source = "CondDB" # Vertex.FromCondD
+    #ConfigFlags.Sim.Vertex.Source = "LongBeamspotVertexPositioner"
 
     #included to stop segmentation error - TODO see why it's failing
     ConfigFlags.Input.isMC = True
@@ -185,7 +184,7 @@ if __name__ == "__main__":
     # Add configuration to write HITS pool file
     cfg.merge( OutputStreamCfg(ConfigFlags,
      "HITS", 
-     ItemList=["McEventCollection#" + alg.OutputMcEventCollection])) #which collection in storegate gets written to output file !!!!!!!!
+     ItemList=["McEventCollection#" + alg.OutputMcEventCollection])) #which collection in storegate gets written to output file
 
 
     cfg.getService("StoreGateSvc").Dump=True

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file : ChapPy.py
 # @author: Sebastien Binet <binet@cern.ch> 
@@ -22,7 +22,6 @@ import sys
 import os
 import subprocess
 import time
-import types
 import six
 from past.builtins import basestring
 
@@ -33,9 +32,10 @@ def dump( buf, stdout = sys.stdout ):
     fname = None
     if isinstance(buf, str):
         fname = buf
+    from builtins import file
     if six.PY3:
         import io
-        file = io.IOBase
+        file = io.IOBase # noqa: F811
     if isinstance(buf, file):
         fname = buf.name
     with open(fname, 'r') as fd:
@@ -70,16 +70,16 @@ class JobOptionsCmd( JobOptions ):
     def __init__( self, cmds = [] ):
 
         # massaging of input variables
-        if isinstance(cmds, types.StringType):
+        if isinstance(cmds, str):
             cmds = [ cmds ]
             pass
-        if not isinstance(cmds, types.ListType):
+        if not isinstance(cmds, list):
             cmds = [ cmds ]
             pass
 
         JobOptions.__init__( self, fileName = None )
         self.cmds    = cmds
-        self.tmpFile = NamedTemporaryFile( suffix = ".py" )
+        self.tmpFile = NamedTemporaryFile( suffix = ".py", mode = 'w+' )
         return
 
     def name( self ):

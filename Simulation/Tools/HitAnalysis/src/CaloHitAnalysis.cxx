@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -249,7 +249,6 @@ StatusCode CaloHitAnalysis::execute() {
   for (unsigned int i=0; i<4; i++) {
     const DataHandle<LArHitContainer> iter;
     if (evtStore()->retrieve(iter,lArKey[i]) == StatusCode::SUCCESS) {
-      LArHitContainer::const_iterator hi;
       for (auto hi : *iter ) {
         GeoLArHit ghit(*hi);
         if (!ghit) continue;
@@ -331,7 +330,6 @@ StatusCode CaloHitAnalysis::execute() {
   for (unsigned int j=0; j<3; j++) {
     if (m_calib != "on") continue;
     const DataHandle<CaloCalibrationHitContainer> iterator;
-    CaloCalibrationHitContainer::const_iterator hit_i;
     if(evtStore()->retrieve(iterator, LArCalibKey[j]) == StatusCode::SUCCESS) {
       //Not tested
       for (auto hit_i : *iterator) {

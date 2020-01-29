@@ -3,6 +3,7 @@
 """Define method to construct configured Tile MF raw channel builder tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileRawChannelBuilderMFCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile MF raw channel builder tool
@@ -46,7 +47,7 @@ def TileRawChannelBuilderMFCfg(flags, **kwargs):
         timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
         kwargs['TileCondToolTiming'] = timingTool
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderMF
+    TileRawChannelBuilderMF=CompFactory.TileRawChannelBuilderMF
     from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
     rawChanBuilder = acc.popToolsAndMerge( TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilderMF, **kwargs) )
     acc.setPrivateTools(rawChanBuilder)

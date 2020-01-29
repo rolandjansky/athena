@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import TriggerMenu.menu.Physics_HI_v3 as physics_menu
 
@@ -16,7 +16,6 @@ log = logging.getLogger( 'MC_HI_v3.py' )
 def setupMenu():
 
     physics_menu.setupMenu()
-    PhysicsStream="Main"
 
 
     # ---------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -13,21 +13,12 @@
 
 #include <boost/scoped_ptr.hpp>
 
-//#include "GaudiKernel/IToolSvc.h"
-
-//#include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloIdentifier/LArNeighbours.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
-//#include "CaloUtils/CaloCellESort.h"
-//#include "CaloInterface/IHadronicCalibrationTool.h"
-//#include "FourMomUtils/P4Helpers.h"
 #include "TauShotFinder.h"
 #include "TauShotVariableHelpers.h"
-//#include "TMVA/Reader.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODPFlow/PFO.h"
@@ -111,16 +102,11 @@ StatusCode TauShotFinder::initialize() {
 
 StatusCode TauShotFinder::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
   /*
   delete m_tmvaReader_barrel;
   delete m_tmvaReader_endcap1;
   delete m_tmvaReader_endcap2;
   */
-  return sc;
-}
-
-StatusCode TauShotFinder::eventInitialize() {
   return StatusCode::SUCCESS;
 }
 
@@ -397,10 +383,6 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
     
     
     return StatusCode::SUCCESS;
-}
-
-StatusCode TauShotFinder::eventFinalize() {
-  return StatusCode::SUCCESS;
 }
 
 std::vector<const CaloCell*> TauShotFinder::getNeighbours(const CaloCellContainer* pCellContainer, 

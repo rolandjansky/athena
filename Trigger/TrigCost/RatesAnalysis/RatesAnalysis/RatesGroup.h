@@ -39,7 +39,11 @@ class RatesGroup : public RatesHistoBase {
    */
   RatesGroup(const std::string& name, const MsgStream& log, const bool doHistograms = true, const bool doExtrapolation = true);
 
-  ~RatesGroup();
+  virtual ~RatesGroup();
+
+  RatesGroup(const RatesGroup&) = delete;
+
+  RatesGroup& operator=(const RatesGroup&) = delete;
 
   /**
    * @brief Add a trigger to this group. It will be stored in a set mapped to its L1 seed. 
@@ -114,7 +118,7 @@ class RatesGroup : public RatesHistoBase {
   bool m_doCachedWeights; //!< Used in the global rates group. Cache extra information for the benefit of the unique rate groups
   std::unordered_map<size_t, double> m_cachedWeights; //!< Cached weight of the OR of all triggers *except* for the L1 seed-hash of the key here.
   bool m_useCachedWeights; //!< Efficiency. Required m_masterGroup to have been set.
-  const bool m_doLumiExtrapolation; //!< If we are using lumi extrapolation or not 
+  const ExtrapStrat_t m_extrapolationStrategy; //!< How this group is to scale with luminosity. Currently supported are linear and none.
   const RatesGroup* m_masterGroup; //!< If not nullptr, then use the cached weights info in this master group object
   RatesTrigger* m_uniqueTrigger; //!< If not nullptr, then a trigger this group is calculating the unique rate for. Needs non-const as fills a histo
 

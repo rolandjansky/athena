@@ -24,11 +24,10 @@ namespace TrigConf {
          double   prescale { 1 };     // prescale value
       };
 
-      /** Constructor */
+      /** Constructors */
       HLTPrescalesSet();
-
-      /** Copy constructor */
-      HLTPrescalesSet(const HLTPrescalesSet &);
+      HLTPrescalesSet(const HLTPrescalesSet &) = default;
+      HLTPrescalesSet(HLTPrescalesSet&&) = default;
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the HLT prescales 
@@ -50,6 +49,8 @@ namespace TrigConf {
       /** HLT prescales by chain hashes */
       const HLTPrescale & prescale(uint32_t chainHash) const;
 
+      void printPrescaleSet(bool full) const;
+
    private:
 
       /** Update the internal prescale map after modification of the data object */
@@ -62,14 +63,17 @@ namespace TrigConf {
       std::unordered_map<uint32_t, HLTPrescale> m_prescalesByHash {1024};
 
       std::string m_name;
-
    };
 }
+
+#ifndef TRIGCONF_STANDALONE
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::HLTPrescalesSet , 134177107 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::HLTPrescalesSet , 130966407 );
+
+#endif
 
 #endif

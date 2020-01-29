@@ -83,7 +83,7 @@ def getEBPartFromParts( chainName, chainParts ):
     Checks if there is only one identifier
     """
     # ---- event building identifier ----
-    from EventBuildingInfo import getAllEventBuildingIdentifiers
+    from .EventBuildingInfo import getAllEventBuildingIdentifiers
     eventBuildTypes = set( getAllEventBuildingIdentifiers() ).intersection( chainParts )
     assert len(eventBuildTypes) <= 1, 'Chain {} has more than one Event Building identifier: {}, that is not supported'.format( chainName, eventBuildTypes)
     if eventBuildTypes:
@@ -96,7 +96,7 @@ def getChainThresholdFromName(chainParts, signature):
     Decode threshold value from the chain name
     """
 
-    from SignatureDicts import getBasePattern
+    from .SignatureDicts import getBasePattern
     pattern = getBasePattern()
     trigType = []
     thresholdToPass = 0
@@ -134,7 +134,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     """
 
     # ---- dictionary with all chain properties ----
-    from SignatureDicts import ChainDictTemplate
+    from .SignatureDicts import ChainDictTemplate
     from copy import deepcopy
     genchainDict = deepcopy(ChainDictTemplate)
     genchainDict['chainName'] = chainName
@@ -156,7 +156,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     hltChainNameShort = '_'.join(cparts)
 
     # ---- identify the topo algorithm and add to genchainDict -----
-    from SignatureDicts import AllowedTopos
+    from .SignatureDicts import AllowedTopos
     topo = ''
     topos=[]
     toposIndexed={}
@@ -184,14 +184,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
     # ---- expected format: <Multiplicity(int)><TriggerType(str)>
     #      <Threshold(int)><isolation,...(str|str+int)> ----
     # EXCEPT FOR CHAINS ...
-    from SignatureDicts import getBasePattern
+    from .SignatureDicts import getBasePattern
     pattern = getBasePattern()
     mdicts=[]
     multichainindex=[]
 
 
     # ---- obtain dictionary parts for signature defining patterns ----
-    from SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
+    from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
         AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
 
     def buildDict(signature, sigToken ):
@@ -301,11 +301,8 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
 
         chainpartsNoL1 = chainparts
-
-        log.debug('chainparts %s', chainparts)
-
         parts=chainpartsNoL1.split('_')
-        parts=filter(None,parts)
+        parts=list(filter(None,parts))
 
         chainProperties['trigType']=mdicts[chainindex]['trigType']
         chainProperties['extra']=mdicts[chainindex]['extra']
@@ -334,14 +331,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
 
         #---- Check if topo is a bphsyics topo -> change signature ----
-        from SignatureDicts import AllowedTopos_Bphysics
+        from .SignatureDicts import AllowedTopos_Bphysics
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
 
 
         # ---- import the relevant dictionaries for each part of the chain ----
-        from SignatureDicts import getSignatureInformation
+        from .SignatureDicts import getSignatureInformation
         SignatureDefaultValues, allowedSignaturePropertiesAndValues = getSignatureInformation(chainProperties['signature'])
         log.debug('SignatureDefaultValues: %s', SignatureDefaultValues)
 
@@ -390,8 +387,8 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- remove properties that aren't allowed in the chain properties for a given siganture ----
         forbiddenProperties = set(chainProperties.keys()) - set(allowedSignaturePropertiesAndValues.keys())
-        log.debug('%s', set(chainProperties.keys()))
-        log.debug('%s', set(allowedSignaturePropertiesAndValues.keys()))
+        log.debug('chainPropertie:s %s', set(chainProperties.keys()))
+        log.debug('allowedSignaturePropertiesAndValues: %s', set(allowedSignaturePropertiesAndValues.keys()))
         for fb in forbiddenProperties:
             forbiddenValue = chainProperties.pop(fb)
             assert forbiddenValue == '', "Property {} not allowed for signature '{}', but specified '{}'".format (fb, chainProperties['signature'], forbiddenValue)
@@ -410,8 +407,6 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
     #genchainDict['signature'] = allChainProperties[0]['signature']
 
-    log.debug('genchainDict that is passed as Final dict %s', genchainDict)
-
     return genchainDict
 
 
@@ -427,8 +422,6 @@ def dictFromChainName(chainInfo):
     but for nwo plain chain name is also supported
     
     """
-    log.debug("chainInfo %s", chainInfo)
-
 
     # these if/elif/else statements are due to temporary development
     from TrigConfHLTData.HLTUtils import string2hash
@@ -471,14 +464,15 @@ def dictFromChainName(chainInfo):
     chainDict['topoStartFrom']   = topoStartFrom
     chainDict['chainNameHash']   = string2hash(chainDict['chainName'])
 
-    log.debug('Setting chain multiplicities')
+
     allChainMultiplicities = getChainMultFromDict(chainDict)
     chainDict['chainMultiplicities'] = allChainMultiplicities
-
-    if log.isEnabledFor(logging.DEBUG):
-        import pprint
-        pp = pprint.PrettyPrinter(indent=4, depth=8)
-        log.debug('SUPER FINAL dictionary: %s', pp.pformat(chainDict))
+    log.debug('Setting chain multiplicities: %s ', allChainMultiplicities)
+    
+    ## if log.isEnabledFor(logging.DEBUG):
+    ##     import pprint
+    ##     pp = pprint.PrettyPrinter(indent=4, depth=8)
+    ##     log.debug('SUPER FINAL dictionary: %s', pp.pformat(chainDict))
 
     return chainDict
 

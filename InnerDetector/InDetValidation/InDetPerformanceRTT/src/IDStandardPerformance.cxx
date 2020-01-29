@@ -37,7 +37,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 //#include "TrkParameters/MeasuredPerigee.h"
-#include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"

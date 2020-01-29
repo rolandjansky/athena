@@ -31,21 +31,21 @@ class IMultiStateMeasurementUpdator : virtual public IAlgTool
 
 public:
   /** IAlgTool and AlgTool interface method */
-  static const InterfaceID interfaceID() { return IID_IMultiStateMeasurementUpdator; };
+  static const InterfaceID& interfaceID() { return IID_IMultiStateMeasurementUpdator; };
 
   /** Virtual destructor */
-  virtual ~IMultiStateMeasurementUpdator(){};
+  virtual ~IMultiStateMeasurementUpdator()= default;
 
   /** Method for forward filters to incorporate measurement updates */
-  virtual std::unique_ptr<MultiComponentState> update(const MultiComponentState&, const MeasurementBase&) const = 0;
+  virtual std::unique_ptr<MultiComponentState> update(MultiComponentState&&, const MeasurementBase&) const = 0;
 
   /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at the same time*/
-  virtual std::unique_ptr<MultiComponentState> update(const Trk::MultiComponentState&,
+  virtual std::unique_ptr<MultiComponentState> update(Trk::MultiComponentState&&,
                                                       const Trk::MeasurementBase&,
                                                       std::unique_ptr<FitQualityOnSurface>& fitQoS) const = 0;
 
   /** Method for reverse filters (smoothers) to determine the unbiased track parameters */
-  virtual std::unique_ptr<MultiComponentState> getUnbiasedTrackParameters(const MultiComponentState&,
+  virtual std::unique_ptr<MultiComponentState> getUnbiasedTrackParameters(MultiComponentState&&,
                                                                           const MeasurementBase&) const = 0;
 
   /** Method for determining the chi2 of the track and the number of degrees of freedom */

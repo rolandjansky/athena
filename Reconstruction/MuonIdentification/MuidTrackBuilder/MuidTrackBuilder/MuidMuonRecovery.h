@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -15,30 +15,19 @@
 #ifndef MUIDCOMBINEDTOOLS_MUIDMUONRECOVERY_H
 #define MUIDCOMBINEDTOOLS_MUIDMUONRECOVERY_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidInterfaces/IMuidMuonRecovery.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-namespace Muon
-{
-    class MuonEDMPrinterTool;
-    class MuonIdHelperTool;
-}
-namespace Trk
-{
-    class IExtrapolator;
-    class IResidualPullCalculator;
-}
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 namespace Rec
 {
-    class ICombinedMuonTrackBuilder;    
     
 class MuidMuonRecovery: public AthAlgTool,
   virtual public IMuidMuonRecovery
@@ -48,7 +37,7 @@ public:
     MuidMuonRecovery	(const std::string&	type, 
 			 const std::string&	name,
 			 const IInterface*	parent);
-    ~MuidMuonRecovery(void); // destructor
+    ~MuidMuonRecovery()=default;
   
     StatusCode		initialize();
     StatusCode		finalize();
@@ -60,14 +49,14 @@ public:
 
  private:
     // helpers, managers, tools
-    ToolHandle<Trk::IExtrapolator>                      m_extrapolator; 
-    ServiceHandle<Muon::IMuonEDMHelperSvc>              m_edmHelperSvc {this, "edmHelper", 
+    ToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator", "Extrapolator tool"};
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };   //<! multipurpose helper tool
-    ToolHandle<Muon::MuonIdHelperTool>                  m_idHelper; //<! tool to assist with Identifiers
-    ToolHandle<Muon::MuonEDMPrinterTool>                m_printer;  //<! tool to print EDM objects
-    ToolHandle<Trk::IResidualPullCalculator>            m_residualCalculator;
-    ToolHandle<ICombinedMuonTrackBuilder>		m_trackBuilder;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "Tool to print EDM objects"};  //<! tool to print EDM objects
+    ToolHandle<Trk::IResidualPullCalculator> m_residualCalculator {this, "TrackBuilder", "Trk::ResidualPullCalculator/ResidualPullCalculator", "Residual calculator tool"};
+    ToolHandle<ICombinedMuonTrackBuilder> m_trackBuilder {this, "TrackBuilder", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder", "Track builder tool"};
 
     // configurable cuts and tolerances
     double						m_minP;
@@ -75,9 +64,9 @@ public:
     double                                              m_pullCut;
     
     // counters
-    mutable unsigned int 				m_recoveryAttempts;
-    mutable unsigned int 				m_recoveryFitFailure;
-    mutable unsigned int 				m_recoverySuccess;
+    mutable std::atomic<unsigned int> m_recoveryAttempts;
+    mutable std::atomic<unsigned int> m_recoveryFitFailure;
+    mutable std::atomic<unsigned int> m_recoverySuccess;
 
 
 };

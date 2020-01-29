@@ -25,4 +25,17 @@ namespace TrigConf {
                ( keys->hltpsk() == menu->hltpsk() ) );
    }
 
+   /// @param menuA One trigger menu
+   /// @param menuB Another trigger menu
+   /// @returns <code>true</code> if the two objects match each other,
+   ///          <code>false</code> otherwise
+   ///
+   bool xAODKeysMatch( const xAOD::TriggerMenu* menuA,
+                       const xAOD::TriggerMenu* menuB ) {
+
+      return ( ( menuA->smk() == menuB->smk() ) &&
+               ( menuA->l1psk() == menuB->l1psk() ) &&
+               ( menuA->hltpsk() == menuB->hltpsk() ) );
+   }
+
 } // namespace TrigConf

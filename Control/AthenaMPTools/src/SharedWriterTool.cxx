@@ -227,7 +227,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
     sc = m_cnvSvc->commitOutput("", false);
   }
   AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_cnvSvc);
-  if (cnvSvc == 0 || !cnvSvc->disconnectOutput().isSuccess()) {
+  if (cnvSvc == 0 || !cnvSvc->disconnectOutput("").isSuccess()) {
     ATH_MSG_ERROR("Exec function could not disconnectOutput");
     all_ok=false;
   }

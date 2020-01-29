@@ -97,8 +97,14 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
   const double eta2 = fabs(cluster->etaBE(2));
   if(eta2>10){
     return false;
-  }  
-  const double EMEnergy= cluster->energyBE(0)+cluster->energyBE(1)+cluster->energyBE(2)+cluster->energyBE(3);
+  }
+  if (cluster->energyBE(2)<m_MinEM2Energy){
+      return false;
+  }
+  //use the egamma definition of EMFrac (includes presampler , helps with eff in the crack)
+  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
+  const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;
+  const double EMEnergy= cluster->e()* emFrac;
   const double EMEt = EMEnergy/cosh(eta2);
   const double bin = findETBin(EMEt);
   /* Check for the minimum EM Et required this should be the 0th entry in EMEtRanges*/
@@ -106,11 +112,7 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
     ATH_MSG_DEBUG("Cluster EM Et is lower than the lowest cut in EMEtRanges dont make ROI");
     return false;
   }
-
-  //use the egamma definition of EMFrac (includes presampler , helps with eff in the crack)
-  static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
-  const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;
-  /* EM fraction cut*/
+ /* EM fraction cut*/
   if ( m_EMFCuts.size() != 0 && emFrac < m_EMFCuts[bin] ){
     ATH_MSG_DEBUG("Cluster failed EM Fraction cut: don't make ROI");
     return false;

@@ -14,7 +14,7 @@ fi
 
 if [ -z ${JOBOPTION} ]; then
   if [[ $INPUT == "data" ]]; then
-    export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
+    export JOBOPTION="TriggerJobOpts/runHLT_standalone_run2.py"
   else
     export JOBOPTION="TriggerTest/testCommonSliceAthenaTrigRDO.py"
   fi

@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonHolesOnTrackTool.h, (c) ATLAS Detector Softwareop 
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONTGRECTOOLS_MUONHOLESONTRACKTOOL_H
 #define MUONTGRECTOOLS_MUONHOLESONTRACKTOOL_H
 
 // Base class
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
@@ -25,8 +23,7 @@
 #include "MuonTrackMakerUtils/TrackStateOnSurfaceComparisonFunction.h"
 #include <fstream>
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonTGRecTools/IMuonTGMeasTool.h"
@@ -89,8 +86,7 @@ private:
   std::vector<double>               m_sortingRefPoint;    //!< start point to detect min TP, only if ROTfit
   mutable Muon::TrackStateOnSurfaceComparisonFunction*   m_tSoSOrder;
   
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   mutable const  Trk::TrackingVolume*       m_msEntrance;
   

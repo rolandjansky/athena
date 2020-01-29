@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHistUtils/MuonSegmentPlots.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <cmath>
 
 namespace Muon{
   
@@ -220,7 +221,7 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   float eta = globalDir.eta();
   //if (globalDir.z() != 0 ) eta = atan2(globalDir.perp(), globalDir.z());//fix the global eta direction
   float phi = globalDir.phi();
-  if (phi>myPi) phi-=2*myPi;
+  if (phi>M_PI) phi-=2*M_PI;
   etadir->Fill(eta);
   phidir->Fill(phi);
   etaphidir->Fill(eta,phi);
@@ -233,50 +234,7 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
     xypos_endcap->Fill(x,y, chambernorm);
     etadir_endcap->Fill(eta);
   }
-  
-  //const int StIndex = Muon::MuonStationIndex::toStationIndex(muSeg.chamberIndex());
-  // if (isSectorLarge) {
-  //   rzpos_sectorLarge->Fill(z,r, chambernorm);
-  //   //rzpos_sectorLarge_splitY->Fill(z,r*y/fabs(y));
-  //   sector_etaIndex[2*StIndex]->Fill(muSeg.sector(), muSeg.etaIndex());
-  // } else {
-  //   rzpos_sectorSmall->Fill(z,r, chambernorm);
-  //   //rzpos_sectorSmall_splitY->Fill(z,r*y/fabs(y));
-  //   sector_etaIndex[2*StIndex + 1]->Fill(muSeg.sector(), muSeg.etaIndex());
-  // }
 
-
-  // float theta_pos = globalPos.theta();
-  // float theta_dir = globalDir.theta();
-
-  // chamberIndex_dtheta->Fill((theta_pos - theta_dir)*180/3.1415, chIndex);
 }
-
-
-// bool MuonSegmentPlots::goodSegmentQuality(float chi2, int nhits, int TechIndex, int station)
-// {
-//   // CSC seem to have tight internal constraints anyway(really?!)...0 is MDT
-//   if ( TechIndex > 0 ) {return true;}
-
-//   int mdtNhitsMin   = m_bMdtnhitsmin;
-//   float mdtChi2Max  = m_bMdtchi2max;
-
-//   if (station >= 4 ) {
-//     mdtNhitsMin = m_eMdtnhitsmin;
-//     mdtChi2Max  = m_eMdtchi2max;
-//   }
-//   // BI and EI station has 8 layers instead of 6.
-//   // Adjust accordingly, add one more hit/hole
-//   if ( station == 4 || station == 0) {
-//     mdtNhitsMin += 1;   
-//   }
-//   // Cuts for case where dealing with MDT
-//   // Otherwise, dealing with CSC
-//   if ( chi2   > mdtChi2Max )  return false;
-//   if ( nhits  < mdtNhitsMin ) return false;
-  
-//   return true;
-// }
-
 
 } // closing namespace Muon

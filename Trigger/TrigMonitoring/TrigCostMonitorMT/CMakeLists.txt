@@ -28,3 +28,4 @@ atlas_add_component( TrigCostMonitorMT
 # Install files from the package:
 atlas_install_headers( TrigCostMonitorMT )
 atlas_install_python_modules( python/*.py)
+ atlas_install_joboptions( share/*.py )

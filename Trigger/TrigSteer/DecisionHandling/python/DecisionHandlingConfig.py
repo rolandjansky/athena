@@ -3,7 +3,7 @@
 # 
 
 def setupFilterMonitoring( filterAlg ):    
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     
     inputKeys = filterAlg.Input
@@ -12,7 +12,10 @@ def setupFilterMonitoring( filterAlg ):
     monTool.HistPath="HLTFramework/Filters"
     monTool.defineHistogram( 'counts;'+filterAlg.name(),  path='EXPERT', type='TH1I', title='Count of calls and inputs',
                              xbins=nbins, xmin=0, xmax=nbins,
-                             labels=['n_execs', 'n_valid'] + inputKeys )
+                             xlabels=['n_execs', 'n_valid'] + inputKeys )
+    monTool.defineHistogram( 'inputPresent,inputName;'+filterAlg.name()+"_InputEff",  path='EXPERT', type='TEfficiency', title='Input activity fraction;collection name;presence fraction',
+                             xbins=len(inputKeys), xmin=0, xmax=len(inputKeys), xlabels=inputKeys )
+
     filterAlg.MonTool = monTool
 
 def TriggerSummaryAlg( name ):

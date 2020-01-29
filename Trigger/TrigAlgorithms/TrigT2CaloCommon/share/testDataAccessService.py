@@ -1,9 +1,11 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 doEmptyMenu=True
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -20,7 +22,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 if TriggerFlags.doCalo:
 
   if ( True ) :
-     from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     
      from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc#, TestCaloDataAccess
      import math

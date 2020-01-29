@@ -15,8 +15,6 @@ decription           : Class definition for the forward GSF fitter
 #define TrkForwardGsfFitter_H
 
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
-
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
@@ -42,7 +40,7 @@ public:
   ForwardGsfFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~ForwardGsfFitter(){};
+  virtual ~ForwardGsfFitter()= default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
@@ -59,13 +57,13 @@ public:
                                     const ToolHandle<Trk::IRIO_OnTrackCreator>&) override final;
 
   /** Forward GSF fit using PrepRawData */
-  virtual const ForwardTrajectory* fitPRD(
+  virtual std::unique_ptr<ForwardTrajectory> fitPRD(
     const PrepRawDataSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Forward GSF fit using MeasurementSet */
-  virtual const ForwardTrajectory* fitMeasurements(
+  virtual std::unique_ptr<ForwardTrajectory> fitMeasurements(
     const MeasurementSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
@@ -79,7 +77,7 @@ private:
                       const PrepRawData*,
                       const MeasurementBase*,
                       const Surface&,
-                      const MultiComponentState*&,
+                      std::unique_ptr<MultiComponentState>&,
                       const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
 private:
@@ -87,18 +85,10 @@ private:
   ToolHandle<IMultiStateExtrapolator> m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator;
-  /** MultiComponentStateCombiner tool
-   */
-  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{ this,
-                                                            "MultiComponentStateCombiner",
-                                                            "Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",
-                                                            "" };
   double m_cutChiSquaredPerNumberDOF;
-
-  bool m_overideMaterialEffectsSwitch;
   int m_overideMaterialEffects;
-
   ParticleHypothesis m_overideParticleHypothesis;
+  bool m_overideMaterialEffectsSwitch;
 };
 
 } // end Trk namespace

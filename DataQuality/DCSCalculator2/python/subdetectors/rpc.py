@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from ..lib import DCSC_DefectTranslate_Subdetector, DCSC_Variable
 
@@ -9,8 +9,8 @@ class RPC(DCSC_DefectTranslate_Subdetector):
     folder_base = "/RPC/DCS"
     
     mapping = {
-        RPCBA: range(203, 405),
-        RPCBC: range(  1, 203),
+        RPCBA: list(range(203, 405)),
+        RPCBC: list(range(  1, 203)),
     }
 
     variables = [

@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-from LArROD.LArRODConf import LArRawChannelBuilderAlg
+from AthenaConfiguration.ComponentFactory import CompFactory
+LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg
@@ -8,6 +9,8 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
     acc = LArADC2MeVCondAlgCfg(configFlags)
 
+    kwargs.setdefault("name", "LArRawChannelBuilder")
+    kwargs.setdefault("firstSample", configFlags.LAr.ROD.FirstSample)
     if configFlags.Input.isMC:
         # need OFC configuration, which includes appropriate ElecCalibDb
         acc.merge(LArOFCCondAlgCfg(configFlags))
@@ -47,7 +50,7 @@ if __name__=="__main__":
     acc.merge(LArRawDataReadingCfg(ConfigFlags))
     acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
-    from LArEventTest.LArEventTestConf import DumpLArRawChannels
+    DumpLArRawChannels=CompFactory.DumpLArRawChannels
     acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_FromDigits",),sequenceName="AthAlgSeq")
 
     acc.run(3)

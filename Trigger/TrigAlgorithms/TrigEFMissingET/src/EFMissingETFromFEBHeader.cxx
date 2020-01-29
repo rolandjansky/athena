@@ -18,9 +18,11 @@ PURPOSE:  Data preparation from FEB Header
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "TrigTimeAlgs/TrigTimer.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include <iostream>
 
@@ -102,6 +104,9 @@ StatusCode EFMissingETFromFEBHeader::initialize()
     ATH_MSG_FATAL( "Could not get CaloCell_ID helper!" );
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_febRodKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -262,7 +267,10 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
     double phimin, double phimax,
     TrigEFMissingEtHelper* metHelper,
     DETID detectorID, int sampling,
-    bool prepare){
+    bool prepare)
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   ATH_MSG_DEBUG( "addLArFebEnergyToHelper(DETID=" << detectorID << ", sampling=" << sampling << ")" );
 
   int iDet=0;
@@ -306,6 +314,9 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
   bool BSerrors = false;
   if (m_data->report_error()) BSerrors = true;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
+  SG::ReadCondHandle<LArFebRodMapping> febRod (m_febRodKey, ctx);
+
   for(m_Febit=m_iFebBegin ;m_Febit!=m_iFebEnd; ++m_Febit){ // Main Loop
     // possibly do some noise thresholding
 
@@ -329,7 +340,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
       int ichannel=0;
       do {
         HWIdentifier onlChId = m_LArOnlineID->channel_Id(febid2,ichannel);
-        offChId = m_cablingSvc->cnvToIdentifier(onlChId);
+        offChId = cabling->cnvToIdentifier(onlChId);
         ichannel++;
         if (ichannel>127) {
           ATH_MSG_ERROR( "not connected channel found for this FEB: " << febid );
@@ -338,7 +349,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
       } while(!offChId.is_valid());
 
       int caloSamp = m_CaloCell_ID->sampling(offChId);
-      HWIdentifier modId = m_cablingSvc->getReadoutModuleID(febid2); //ReadOutModuleId
+      HWIdentifier modId = febRod->getReadoutModuleID(febid2); //ReadOutModuleId
       int subdet =  m_larROModSvc.em_hec_fcal(modId);  // em=0, hec=1, fcal=2
       int caloId =  m_larROModSvc.barrel_ec(modId);    // barrel:0 or EndCAp:1
       //       int posneg =  m_larROModSvc.pos_neg(modId);      // A(pos:1) or C(neg:0)
@@ -418,7 +429,10 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
 //////--
 
 StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEtHelper* metHelper,
-    DETID detectorID, bool prepare){
+    DETID detectorID, bool prepare)
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   ATH_MSG_DEBUG( "addFullLArFebEnergyToHelper(DETID=" << detectorID << ")" );
 
   int iDet=0;
@@ -457,6 +471,9 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
   bool BSerrors = false;
   if (m_data->report_error()) BSerrors = true;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling (m_cablingKey, ctx);
+  SG::ReadCondHandle<LArFebRodMapping> febRod (m_febRodKey, ctx);
+
   for(m_Febit=m_iFebBegin ;m_Febit!=m_iFebEnd; ++m_Febit){ // Main Loop
     // possibly do some noise thresholding
 
@@ -480,7 +497,7 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
       int ichannel=0;
       do {
         HWIdentifier onlChId = m_LArOnlineID->channel_Id(febid2,ichannel);
-        offChId = m_cablingSvc->cnvToIdentifier(onlChId);
+        offChId = cabling->cnvToIdentifier(onlChId);
         ichannel++;
         if (ichannel>127) {
           ATH_MSG_ERROR( "not connected channel found for this FEB: " << febid );
@@ -489,7 +506,7 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
       } while(!offChId.is_valid());
 
       int caloSamp = m_CaloCell_ID->sampling(offChId);
-      HWIdentifier modId = m_cablingSvc->getReadoutModuleID(febid2); //ReadOutModuleId
+      HWIdentifier modId = febRod->getReadoutModuleID(febid2); //ReadOutModuleId
       int subdet = m_larROModSvc.em_hec_fcal(modId);  // em=0, hec=1, fcal=2
       int caloId = m_larROModSvc.barrel_ec(modId);    // barrel:0 or EndCAp:1
       //       int posneg =  m_larROModSvc.pos_neg(modId);      // A(pos:1) or C(neg:0)

@@ -29,6 +29,8 @@ namespace TrigConf {
 
       /** Constructor */
       L1PrescalesSet();
+      L1PrescalesSet(const L1PrescalesSet &) = default;
+      L1PrescalesSet(L1PrescalesSet&&) = default;
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the L1 prescales 
@@ -57,10 +59,14 @@ namespace TrigConf {
    };
 }
 
+#ifndef TRIGCONF_STANDALONE
+
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::L1PrescalesSet , 146597935 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::L1PrescalesSet , 124562173 );
+
+#endif
 
 #endif

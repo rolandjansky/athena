@@ -917,6 +917,19 @@ void TrigTrackSelector::selectTracks( const xAOD::TrackParticleContainer* tracks
 
 
 
+void TrigTrackSelector::selectTracks( xAOD::TrackParticleContainer::const_iterator trackitr, 
+				      xAOD::TrackParticleContainer::const_iterator trackend, void* ) {
+    /// will need this printout during debugging, so leave commented 
+    /// until all the feature access has been properly debugged
+    //    std::cout << "\t\t\tSUTT \tTrackContainer->size() = " << trigtracks->size() << std::endl;
+    while ( trackitr!=trackend ) { 
+      selectTrack( *trackitr );
+      trackitr++;
+    } // loop over tracks     
+}
+
+
+
 
 #endif
 

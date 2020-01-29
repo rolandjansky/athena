@@ -23,7 +23,7 @@ if InDetFlags.doTRTPhaseCalculation():
 # ---------
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource == 'data' and InDetFlags.doHeavyIon():
-   print "---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data"
+   printfunc ("---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data")
 elif InDetFlags.writePRDs():
    InDetESDList+=["InDet::SCT_ClusterContainer#"+InDetKeys.SCT_Clusters()]
    InDetESDList+=["InDet::PixelClusterContainer#"+InDetKeys.PixelClusters()]
@@ -143,6 +143,13 @@ if InDetFlags.doxAOD():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+
+  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  for col in InDetPhysValFlags.validateExtraTrackCollections() :
+    prefix=extractCollectionPrefix(col)
+    InDetESDList+=['xAOD::TrackParticleContainer#'+prefix+'TrackParticles']
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+prefix+'TrackParticlesAux.' + excludedAuxData]
 
   if InDetFlags.doStoreTrackSeeds():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"]

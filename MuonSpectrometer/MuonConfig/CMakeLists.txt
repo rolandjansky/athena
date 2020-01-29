@@ -15,12 +15,12 @@ if( NOT SIMULATIONBASE )
    atlas_add_test( MdtRdoToPrepDataTool_test
      SCRIPT python -m MuonConfig.MdtRdoToPrepDataTool_test
      PROPERTIES TIMEOUT 600
-     EXTRA_PATTERNS "-s dead tube" )
+     LOG_SELECT_PATTERN "dead tube" )
 
    atlas_add_test( MdtIntersectGeometry_test
      SCRIPT python -m MuonConfig.MdtIntersectGeometry_test
      PROPERTIES TIMEOUT 600
-     EXTRA_PATTERNS "-s dead tube" )
+     LOG_SELECT_PATTERN "dead tube" )
 
    # Configure unit tests
    # Cache alignment will change depending on whether FRONTIER_SERVER is defined.
@@ -28,7 +28,7 @@ if( NOT SIMULATIONBASE )
    atlas_add_test( MuonDataDecodeTest
                    PROPERTIES TIMEOUT 1000
                    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest
-                   EXTRA_PATTERNS "-s ^MdtRawDataProvi.*|^RpcRawDataProvi.*|^TgcRawDataProvi.*|^CscRawDataProvi.*|^MdtRdoTo.*|^RpcRdoTo.*|^TgcRdoTo.*|^CscRdoTo.*|^MdtROD_Decod.*|^RpcROD_Decod.*|^TgcROD_Decod.*|^CscROD_Decod.*|^MuonCache.*"
+                   LOG_SELECT_PATTERN "^MdtRawDataProvi.*|^RpcRawDataProvi.*|^TgcRawDataProvi.*|^CscRawDataProvi.*|^MdtRdoTo.*|^RpcRdoTo.*|^TgcRdoTo.*|^CscRdoTo.*|^MdtROD_Decod.*|^RpcROD_Decod.*|^TgcROD_Decod.*|^CscROD_Decod.*|^MuonCache.*"
                    SCRIPT test/testMuonDataDecode.sh )
 
    # Adding an identical test for the ByteStream identifiable caches (and future RDO caches)
@@ -36,7 +36,7 @@ if( NOT SIMULATIONBASE )
    atlas_add_test( MuonDataDecodeTest_Cache
                    PROPERTIES TIMEOUT 1000
                    PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_MuonDataDecodeTest_Cache
-                   EXTRA_PATTERNS "-s ^MdtRawDataProvi.*|^RpcRawDataProvi.*|^TgcRawDataProvi.*|^CscRawDataProvi.*|^MdtRdoTo.*|^RpcRdoTo.*|^TgcRdoTo.*|^CscRdoTo.*|^MdtROD_Decod.*|^RpcROD_Decod.*|^TgcROD_Decod.*|^CscROD_Decod.*|^MuonCache.*"
+                   LOG_SELECT_PATTERN "^MdtRawDataProvi.*|^RpcRawDataProvi.*|^TgcRawDataProvi.*|^CscRawDataProvi.*|^MdtRdoTo.*|^RpcRdoTo.*|^TgcRdoTo.*|^CscRdoTo.*|^MdtROD_Decod.*|^RpcROD_Decod.*|^TgcROD_Decod.*|^CscROD_Decod.*|^MuonCache.*"
                    SCRIPT test/testMuonDataDecode_Cache.sh )
 
    atlas_add_test( MuonCablingConfigTest

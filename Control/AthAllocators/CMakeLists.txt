@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 782850 2016-11-07 21:11:58Z ssnyder $
 ################################################################################
 # Package: AthAllocators
 ################################################################################
@@ -59,5 +58,4 @@ _simple_test( LockedAllocator_test )
 atlas_add_test( DataPool_test
    SOURCES test/DataPool_test.cxx
    LINK_LIBRARIES GaudiKernel TestTools AthAllocators
-   EXTRA_PATTERNS "^IncidentSvc +DEBUG Adding|^HistogramPersis.* (INFO|DEBUG)|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

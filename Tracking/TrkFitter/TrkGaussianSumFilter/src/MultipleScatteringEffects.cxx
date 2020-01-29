@@ -31,7 +31,7 @@ Trk::MultipleScatteringEffects::MultipleScatteringEffects(const std::string& typ
   declareProperty("MultipleScatterLogarithmicTermOn", m_multipleScatterLogTermOn);
 }
 
-Trk::MultipleScatteringEffects::~MultipleScatteringEffects() {}
+Trk::MultipleScatteringEffects::~MultipleScatteringEffects() = default;
 
 StatusCode
 Trk::MultipleScatteringEffects::initialize()
@@ -59,7 +59,7 @@ void Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& 
   // Reset the cache
   cache.reset();
   // Request track parameters from component parameters
-  const Trk::TrackParameters* trackParameters = componentParameters.first;
+  const Trk::TrackParameters* trackParameters = componentParameters.first.get();
 
   ATH_MSG_VERBOSE("Updating multiple scatter effects based on material properties and path length");
 
@@ -89,10 +89,6 @@ void Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& 
   // double sign = (direction == Trk::oppositeMomentum) ? 1. : 1.;
   double sinTheta = std::sin(trackParameters->parameters()[Trk::theta]);
 
-  //(*cov_out)(Trk::phi,Trk::phi) += sign * angularVariation / (sinTheta*sinTheta);
-  //(*cov_out)(Trk::theta,Trk::theta) += sign * angularVariation;
-  // std::cout << "MSU   DeltaPhi " << (*updatedCovarianceMatrix)[Trk::phi][Trk::phi] <<'\t' << angularVariation /
-  // (sinTheta * sinTheta) << std::endl;
   (*deltaCov)(Trk::phi, Trk::phi) += angularVariation / (sinTheta * sinTheta);
   (*deltaCov)(Trk::theta, Trk::theta) += angularVariation;
 

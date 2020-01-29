@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## purpose Python module to hold common flags to configure the InDetPhysValMonitoring 
 ##
+
+from __future__ import print_function
 
 """ InDetPhysValJobProperties
     Python module to hold common flags to configure InDetPhysValMonitoring JobOptions.
@@ -67,6 +69,12 @@ class doValidateTracksInJets(InDetPhysValFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class validateExtraTrackCollections(InDetPhysValFlagsJobProperty) :
+    """List of extra track collection names to be validated in addition to Tracks."""
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = []
+
 from InDetRecExample.InDetJobProperties import Enabled
 
 ##-----------------------------------------------------------------------------
@@ -92,16 +100,16 @@ class InDetPhysValJobProperties(JobPropertyContainer):
     #Method to do the final setup of the flags according to user input before.
     #This method MUST ONLY BE CALLED once in InDetRecExample/InDetRec_jobOptions.py!!
     if not self.Enabled:
-      print 'InDetPhysValFlags.init(): ID PhysValFlags are disabled. Locking container and not doing anything else.'
+      print ('InDetPhysValFlags.init(): ID PhysValFlags are disabled. Locking container and not doing anything else.')
     else:
       self.setup()
 
     # do this also if Enabled == False
-    print "Initialization of InDetFlags finished - locking container!"
+    print ("Initialization of InDetFlags finished - locking container!")
     self.lock_JobProperties()
 
   def setup(self) :
-    print 'Initializing InDetJobPhysValProperties with InDetFlags.'
+    print ('Initializing InDetJobPhysValProperties with InDetFlags.')
     # THIS METHOD MUST BE THE FIRST TO BE CALLED. DO NOT MOVE IT OR ADD THINGS IN FRONT
     self.setupDefaults()
 
@@ -109,7 +117,7 @@ class InDetPhysValJobProperties(JobPropertyContainer):
     from  InDetRecExample.InDetJobProperties import InDetFlags
     if  hasattr(InDetFlags,'doDBM') and not InDetFlags.doDBM() :
         self.checkThenSet(self.doValidateDBMTracks,  False)
-    print self
+    print (self)
     
   def printInfo(self) :
       pass
@@ -125,12 +133,13 @@ _list_InDetPhysValJobProperties = [
     doValidateGSFTracks,    
     doValidateLooseTracks,
     doValidateTightPrimaryTracks,
-    doValidateTracksInJets
+    doValidateTracksInJets,
+    validateExtraTrackCollections
 ]
 
 for j in _list_InDetPhysValJobProperties:
     jobproperties.InDetPhysValJobProperties.add_JobProperty(j)
 
 InDetPhysValFlags = jobproperties.InDetPhysValJobProperties
-print 'DEBUG InDetPhysValJobProberties'
-print InDetPhysValFlags
+print ('DEBUG InDetPhysValJobProberties')
+print (InDetPhysValFlags)

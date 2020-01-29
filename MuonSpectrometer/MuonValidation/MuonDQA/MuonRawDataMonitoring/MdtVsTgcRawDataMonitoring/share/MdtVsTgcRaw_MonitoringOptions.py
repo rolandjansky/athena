@@ -1,11 +1,11 @@
-print '\n****************************************************************************************\n'
-print "   ******** Welcome to the Offline ESD MuonRawDataMonitoring package. ******** "  
-print "   ******** Documentation may be found at:******** "  
-print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MuonOfflineDQA ***** "  
-print '\n****************************************************************************************\n'
+printfunc ('\n****************************************************************************************\n')
+printfunc ("   ******** Welcome to the Offline ESD MuonRawDataMonitoring package. ******** "  )
+printfunc ("   ******** Documentation may be found at:******** "  )
+printfunc ("   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MuonOfflineDQA ***** "  )
+printfunc ('\n****************************************************************************************\n')
 
 if not 'MuonDQAFlags' in dir():
-    print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
+    printfunc ("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
 MdtTgcRawMonMan = AthenaMonManager(name="MdtVsTgcRawMonManager",
@@ -25,5 +25,5 @@ MdtVsTgcRawDataValAlg = MdtVsTgcRawDataValAlg (name = "MdtVsTgcRawDataValAlg",
 #ToolSvc += MdtVsTgcRawDataValAlg
 MdtTgcRawMonMan.AthenaMonTools += [ MdtVsTgcRawDataValAlg ]
 topSequence += MdtTgcRawMonMan
-print MdtTgcRawMonMan
+printfunc (MdtTgcRawMonMan)
 ##################################################################

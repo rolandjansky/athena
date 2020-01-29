@@ -12,9 +12,9 @@ decription           : Implementation code for Gaussian Sum Fitter class
 ********************************************************************************** */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 
@@ -47,7 +47,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   , m_refitOnMeasurementBase(true)
   , m_doHitSorting(true)
   , m_directionToPerigee(Trk::oppositeMomentum)
-  , m_trkParametersComparisonFunction(0)
+  , m_trkParametersComparisonFunction(nullptr)
   , m_chronoSvc("ChronoStatSvc", name)
   , m_inputPreparator(nullptr)
   , m_FitPRD{ 0 }
@@ -91,9 +91,6 @@ Trk::GaussianSumFitter::initialize()
 
   // Request the GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
-
-  // Request the state combiner
-  ATH_CHECK(m_stateCombiner.retrieve());
 
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used in fit
@@ -193,13 +190,13 @@ Trk::GaussianSumFitter::fit(const Trk::Track& inputTrack,
   // Check that the input track has well defined parameters
   if (inputTrack.trackParameters()->empty()) {
     msg(MSG::FATAL) << "No estimation of track parameters near origin... Exiting!" << endmsg;
-    return 0;
+    return nullptr;
   }
 
   // Check that the input track has associated MeasurementBase objects
   if (inputTrack.trackStateOnSurfaces()->empty()) {
     msg(MSG::FATAL) << "Attempting to fit track to empty MeasurementBase collection... Exiting!" << endmsg;
-    return 0;
+    return nullptr;
   }
 
   // Retrieve the set of track parameters closest to the reference point
@@ -304,7 +301,7 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
   // Protect against empty PrepRawDataSet object
   if (prepRawDataSet.empty()) {
     ATH_MSG_FATAL("PrepRawData set for fit is empty... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   // A const stl container cannot be sorted. This will re-cast it so that it can.
@@ -319,20 +316,20 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
   }
 
   // Perform GSF forwards fit
-  const ForwardTrajectory* forwardTrajectory =
-    m_forwardGsfFitter->fitPRD(sortedPrepRawDataSet, estimatedParametersNearOrigin, particleHypothesis);
+  ForwardTrajectory* forwardTrajectory =
+    m_forwardGsfFitter->fitPRD(sortedPrepRawDataSet, estimatedParametersNearOrigin, particleHypothesis).release();
 
   if (!forwardTrajectory) {
     ATH_MSG_DEBUG("Forward GSF fit failed... Exiting!");
     ++m_ForwardFailure;
-    return 0;
+    return nullptr;
   }
 
   if (forwardTrajectory->empty()) {
     ATH_MSG_DEBUG("No states in forward trajectory... Exiting!");
     ++m_ForwardFailure;
     delete forwardTrajectory;
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_VERBOSE("*** Forward GSF fit passed! ***");
@@ -345,7 +342,7 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
     ATH_MSG_DEBUG("Smoother GSF fit failed... Exiting!");
     ++m_SmootherFailure;
     delete forwardTrajectory;
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_VERBOSE("*** GSF smoother fit passed! ***");
@@ -358,10 +355,10 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
     ++m_fitQualityFailure;
     delete forwardTrajectory;
     delete smoothedTrajectory;
-    return 0;
+    return nullptr;
   }
 
-  Track* fittedTrack = 0;
+  Track* fittedTrack = nullptr;
 
   if (outlierRemoval) {
     ATH_MSG_DEBUG("Outlier removal not yet implemented for the Gaussian Sum Filter");
@@ -379,7 +376,7 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
       delete smoothedTrajectory;
       delete forwardTrajectory;
       delete fitQuality;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -428,11 +425,11 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
   // Protect against empty PrepRawDataSet object
   if (measurementSet.empty()) {
     ATH_MSG_FATAL("MeasurementSet for fit is empty... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   // Find the CCOT if it exsists
-  const Trk::CaloCluster_OnTrack* ccot(0);
+  const Trk::CaloCluster_OnTrack* ccot(nullptr);
   Trk::MeasurementSet cleanedMeasurementSet;
 
   MeasurementSet::const_iterator itSet = measurementSet.begin();
@@ -458,29 +455,26 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
 
   if (m_doHitSorting) {
 
-    Trk::MeasurementBaseComparisonFunction* measurementBaseComparisonFunction =
-      new Trk::MeasurementBaseComparisonFunction(estimatedParametersNearOrigin.position(),
-                                                 estimatedParametersNearOrigin.momentum());
-
-    sort(sortedMeasurementSet.begin(), sortedMeasurementSet.end(), *measurementBaseComparisonFunction);
-
-    delete measurementBaseComparisonFunction;
+    Trk::MeasurementBaseComparisonFunction measurementBaseComparisonFunction(estimatedParametersNearOrigin.position(),
+                                                                             estimatedParametersNearOrigin.momentum());
+    sort(sortedMeasurementSet.begin(), sortedMeasurementSet.end(),measurementBaseComparisonFunction);
   }
   // Perform GSF forwards fit - new memory allocated in forwards fitter
-  const ForwardTrajectory* forwardTrajectory =
-    m_forwardGsfFitter->fitMeasurements(sortedMeasurementSet, estimatedParametersNearOrigin, particleHypothesis);
+  ForwardTrajectory* forwardTrajectory =
+    m_forwardGsfFitter->fitMeasurements(sortedMeasurementSet, 
+                                        estimatedParametersNearOrigin, particleHypothesis).release();
 
   if (!forwardTrajectory) {
     ATH_MSG_DEBUG("Forward GSF fit failed... Exiting!");
     ++m_ForwardFailure;
-    return 0;
+    return nullptr;
   }
 
   if (forwardTrajectory->empty()) {
     ATH_MSG_DEBUG("No states in forward trajectory... Exiting!");
     delete forwardTrajectory;
     ++m_ForwardFailure;
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_VERBOSE("*** Forward GSF fit passed! ***");
@@ -493,7 +487,7 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
     ATH_MSG_DEBUG("Smoother GSF fit failed... Exiting!");
     ++m_SmootherFailure;
     delete forwardTrajectory;
-    return 0;
+    return nullptr;
   }
   ATH_MSG_VERBOSE("*** GSF smoother fit passed! ***");
 
@@ -505,7 +499,7 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
     ++m_fitQualityFailure;
     delete forwardTrajectory;
     delete smoothedTrajectory;
-    return 0;
+    return nullptr;
   }
 
   if (outlierRemoval) {
@@ -524,7 +518,7 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
       delete fitQuality;
       delete forwardTrajectory;
       delete smoothedTrajectory;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -610,13 +604,13 @@ Trk::GaussianSumFitter::fit(const Track& inputTrack,
   // Check that the input track has well defined parameters
   if (inputTrack.trackParameters()->empty()) {
     ATH_MSG_FATAL("No estimation of track parameters near origin... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   // Check that the input track has associated MeasurementBase objects
   if (inputTrack.trackStateOnSurfaces()->empty()) {
     ATH_MSG_FATAL("Attempting to fit track to empty MeasurementBase collection... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   // Retrieve the set of track parameters closest to the reference point
@@ -639,12 +633,12 @@ Trk::GaussianSumFitter::fit(const Track& intrk1,
   // protection against not having measurements on the input tracks
   if (!intrk1.trackStateOnSurfaces() || !intrk2.trackStateOnSurfaces() || intrk1.trackStateOnSurfaces()->size() < 2) {
     msg(MSG::WARNING) << "called to refit empty track or track with too little information, reject fit" << endmsg;
-    return 0;
+    return nullptr;
   }
 
   if (!intrk1.trackParameters() || intrk1.trackParameters()->empty()) {
     msg(MSG::WARNING) << "input #1 fails to provide track parameters for seeding the GXF, reject fit" << endmsg;
-    return 0;
+    return nullptr;
   }
 
   const TrackParameters* minPar = *intrk1.trackParameters()->begin();
@@ -690,23 +684,19 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
                                     const Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_VERBOSE("Trk::GaussianSumFilter::makePerigee... starting");
-
   // Propagate track to perigee
   const Trk::PerigeeSurface perigeeSurface;
-
   const Trk::TrackStateOnSurface* stateOnSurfaceNearestOrigin = smoothedTrajectory->back();
-
   const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurfaceNearestOrigin =
     dynamic_cast<const Trk::MultiComponentStateOnSurface*>(stateOnSurfaceNearestOrigin);
-
-  const Trk::MultiComponentState* multiComponentState = 0;
-
+ 
+  const Trk::MultiComponentState* multiComponentState = nullptr;
   if (!multiComponentStateOnSurfaceNearestOrigin) {
-
-    ATH_MSG_VERBOSE("State nearest perigee is not a multi-component state... Converting");
-    Trk::ComponentParameters componentParameters(stateOnSurfaceNearestOrigin->trackParameters(), 1.);
-    multiComponentState = new Trk::MultiComponentState(componentParameters);
+    //we need to make a dummy multicomponent surface
+    Trk::ComponentParameters dummyComponent(stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
+    auto tmp_multiComponentState = std::make_unique<Trk::MultiComponentState>();
+    tmp_multiComponentState->push_back(std::move(dummyComponent));
+    multiComponentState=tmp_multiComponentState.release();
   } else {
     multiComponentState = multiComponentStateOnSurfaceNearestOrigin->components();
   }
@@ -719,7 +709,7 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
 
   if (!stateExtrapolatedToPerigee) {
     ATH_MSG_DEBUG("Track could not be extrapolated to perigee... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Clean-up & pointer reset
@@ -736,7 +726,8 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
                     << "and is NO Longer Stored as a seperate Parameter");
   }
   // Determine the combined state as well to be passed to the MultiComponentStateOnSurface object
-  std::unique_ptr<Trk::TrackParameters> combinedPerigee = m_stateCombiner->combine(*stateExtrapolatedToPerigee, true);
+  std::unique_ptr<Trk::TrackParameters> combinedPerigee =
+    MultiComponentStateCombiner::combine(*stateExtrapolatedToPerigee, true);
 
   // Perigee is given as an additional MultiComponentStateOnSurface
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -751,10 +742,10 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
   }
 
   const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-    new MultiComponentStateOnSurface(0, combinedPerigee.release(), 
+    new MultiComponentStateOnSurface(nullptr, combinedPerigee.release(), 
                                      stateExtrapolatedToPerigee, 
-                                     0, 
-                                     0, 
+                                     nullptr, 
+                                     nullptr, 
                                      pattern, modeQoverP);
   ATH_MSG_DEBUG("makePerigee() returning sucessfully!");
   return perigeeMultiStateOnSurface;
@@ -775,7 +766,7 @@ Trk::GaussianSumFitter::buildFitQuality(const Trk::SmoothedTrajectory& smoothedT
 
     if (!(*stateOnSurface)->type(TrackStateOnSurface::Measurement))
       continue;
-    if ((*stateOnSurface)->fitQualityOnSurface() == 0)
+    if ((*stateOnSurface)->fitQualityOnSurface() == nullptr)
       continue;
 
     chiSquared += (*stateOnSurface)->fitQualityOnSurface()->chiSquared();
@@ -783,7 +774,7 @@ Trk::GaussianSumFitter::buildFitQuality(const Trk::SmoothedTrajectory& smoothedT
   }
 
   if (std::isnan(chiSquared) || chiSquared <= 0.)
-    return 0;
+    return nullptr;
 
   const FitQuality* fitQuality = new FitQuality(chiSquared, numberDoF);
 

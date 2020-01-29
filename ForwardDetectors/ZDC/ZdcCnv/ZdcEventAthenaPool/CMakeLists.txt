@@ -32,7 +32,7 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( ZdcEventTPCnv_15.6.7   ESD-15.6.7-data )
+  run_tpcnv_legacy_test( ZdcEventTPCnv_15.6.7   ESD-15.6.7-data )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   

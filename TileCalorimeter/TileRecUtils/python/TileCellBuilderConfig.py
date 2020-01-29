@@ -3,6 +3,7 @@
 """Define method to construct configured Tile Cell builder tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileCellBuilderCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile Cell builder tool
@@ -60,7 +61,7 @@ def TileCellBuilderCfg(flags, **kwargs):
             kwargs['TileDSPRawChannelContainer'] = tileRawChannelContainerDSP
             acc.merge( corrAlgAcc )
 
-    from TileRecUtils.TileRecUtilsConf import TileCellBuilder
+    TileCellBuilder=CompFactory.TileCellBuilder
     acc.setPrivateTools( TileCellBuilder(**kwargs) )
 
     return acc

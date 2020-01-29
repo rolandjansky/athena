@@ -315,10 +315,6 @@ Calo_electronic...   INFO Will compute electronic noise
 PyComponentMgr       INFO Initializing PyComponentMgr...
 TestAlg              INFO Initializing TestAlg...
 ClassIDSvc           INFO  getRegistryEntries: read 1029 CLIDRegistry entries for module ALL
-AtRndmGenSvc         INFO Initializing AtRndmGenSvc - package version RngComps-00-00-00
- INITIALISING RANDOM NUMBER STREAMS. 
-AtRndmGenSvc         INFO will be reseeded for every event
-AtRndmGenSvc      WARNING  INITIALISING FastCaloSimNoiseRnd stream with DEFAULT seeds 3591  2309736
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector

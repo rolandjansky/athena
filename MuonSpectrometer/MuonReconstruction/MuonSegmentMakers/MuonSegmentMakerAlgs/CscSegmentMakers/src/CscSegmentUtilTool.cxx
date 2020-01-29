@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscSegmentUtilTool.h"
@@ -25,10 +25,8 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 
 #include "CscSegmentMakers/ICscSegmentFinder.h"
-#include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
@@ -95,10 +93,8 @@ namespace {
 // Constructor.
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent), m_gm(0), m_phelper(0), 
-    m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name)
+  : AthAlgTool(type,name,parent), 
+    m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator")
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
@@ -126,12 +122,6 @@ CscSegmentUtilTool::CscSegmentUtilTool
 
 }
 
-//******************************************************************************
-
-/** destructor */
-CscSegmentUtilTool::~CscSegmentUtilTool()
-{}
-
 /*********************************/
 StatusCode CscSegmentUtilTool::initialize()
 {
@@ -145,7 +135,6 @@ StatusCode CscSegmentUtilTool::initialize()
   ATH_MSG_DEBUG ( "  ROT tan(theta) tolerance: "
                   << m_fitsegment_tantheta_tolerance );
   ATH_MSG_DEBUG ( " cluster_error_scaler " << m_cluster_error_scaler);
-  //ATH_MSG_DEBUG ( "  Precision cluster fitter is " << m_rotCreator->GetICscClusterFitter().typeAndName() );
   ATH_MSG_DEBUG ( "  ROT creator: " << m_rotCreator.typeAndName() );
 
 
@@ -155,29 +144,13 @@ StatusCode CscSegmentUtilTool::initialize()
   if (m_x5data)
     ATH_MSG_DEBUG (" Things for X5Data analysis is applied such as alignment ");
   
-  if (detStore()->retrieve(m_gm).isFailure() ) {
-    ATH_MSG_WARNING ( " Cannot retrieve MuonReadoutGeometry " );
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK(m_rotCreator.retrieve()); 
 
-  m_phelper = m_gm->cscIdHelper();
+  ATH_CHECK(m_readKey.initialize());
 
-  if ( m_rotCreator.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Could not get " << m_rotCreator ); 
-    return StatusCode::FAILURE;
-  }else{
-    ATH_MSG_DEBUG ( "Got " << m_rotCreator ); 
-  }
+  ATH_CHECK(m_DetectorManagerKey.initialize());
 
-  if ( m_idHelper.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Could not get " << m_idHelper ); 
-    return StatusCode::FAILURE;
-  }
-
-  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   ATH_CHECK(m_eventInfo.initialize());
 
@@ -343,11 +316,11 @@ fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vecto
     const CscPrepData* prd = clu->prepRawData();
     Identifier id = clu->identify();
 
-    measphi = m_phelper->measuresPhi(id);
+    measphi = m_idHelperSvc->cscIdHelper().measuresPhi(id);
     // Cluster position.
     double y = cl.locY();
     if (m_x5data) {
-      y = y - alignConst(measphi, m_phelper->wireLayer(id));
+      y = y - alignConst(measphi, m_idHelperSvc->cscIdHelper().wireLayer(id));
     }
     double x = cl.locX();
 
@@ -413,11 +386,11 @@ fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vecto
     const CscPrepData* prd = clu->prepRawData();
     Identifier id = clu->identify();
 
-    measphi = m_phelper->measuresPhi(id);
+    measphi = m_idHelperSvc->cscIdHelper().measuresPhi(id);
     // Cluster position.
     double y = cl.locY();
     if (m_x5data) {
-      y = y - alignConst(measphi, m_phelper->wireLayer(id));
+      y = y - alignConst(measphi, m_idHelperSvc->cscIdHelper().wireLayer(id));
     }
     double x = cl.locX();
 
@@ -571,7 +544,6 @@ void CscSegmentUtilTool::
 fit_residual(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, unsigned int irclu,
              double& res, double& dres) const {
   ATH_MSG_DEBUG ( "CscSegmentUtilTool::fit_residual called " );
-  //  const CscIdHelper* phelper = m_gm->cscIdHelper();
 
   ICscSegmentFinder::TrkClusters fitclus;
   for ( unsigned int iclu=0; iclu<clus.size(); ++iclu ) {
@@ -588,7 +560,7 @@ fit_residual(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lp
   double y = clus[irclu].locY();
   if (m_x5data) {
     const Identifier& id = cot->identify();
-    y = y - alignConst(m_phelper->measuresPhi(id), m_phelper->wireLayer(id));
+    y = y - alignConst(m_idHelperSvc->cscIdHelper().measuresPhi(id), m_idHelperSvc->cscIdHelper().wireLayer(id));
   }
   double x = clus[irclu].locX();
   // Error in cluster position.
@@ -635,7 +607,6 @@ fit_rio_segment(const Trk::PlaneSurface& ssrf, bool /*dump*/,
                 double& d0, double& d1, double& d01, double& chsq, double& zshift) const {
 
   ATH_MSG_DEBUG ( "CscSegmentUtilTool::fit_rio_segment called: " );
-  //  const CscIdHelper* phelper = m_gm->cscIdHelper();
 
 // measure zshift 
 
@@ -649,7 +620,7 @@ fit_rio_segment(const Trk::PlaneSurface& ssrf, bool /*dump*/,
     const Trk::LocalParameters& msmt = rio.localParameters();
     double y = msmt[iloc];
     if (m_x5data) {
-      y = y - alignConst(m_phelper->measuresPhi(rio.identify()), m_phelper->wireLayer(rio.identify()));
+      y = y - alignConst(m_idHelperSvc->cscIdHelper().measuresPhi(rio.identify()), m_idHelperSvc->cscIdHelper().wireLayer(rio.identify()));
     }
     // Fetch the measurement error.
     const Amg::MatrixX& cov = rio.localCovariance();
@@ -692,7 +663,7 @@ fit_rio_segment(const Trk::PlaneSurface& ssrf, bool /*dump*/,
     const Trk::LocalParameters& msmt = rio.localParameters();
     double y = msmt[iloc];
     if (m_x5data) {
-      y = y - alignConst(m_phelper->measuresPhi(rio.identify()), m_phelper->wireLayer(rio.identify()));
+      y = y - alignConst(m_idHelperSvc->cscIdHelper().measuresPhi(rio.identify()), m_idHelperSvc->cscIdHelper().wireLayer(rio.identify()));
     }
     // Fetch the measurement error.
     // Fetch the measurement error.
@@ -741,7 +712,6 @@ fit_rio_residual(const Trk::PlaneSurface& ssrf, bool dump,
                  ) const {
 
   ATH_MSG_DEBUG ( "CscSegmentUtilTool::fit_rio_segment called " );
-  //  const CscIdHelper* phelper = m_gm->cscIdHelper();
   
   ICscSegmentFinder::RioList fitrios;
   ICscSegmentFinder::RioList fitrios3pt;
@@ -763,7 +733,7 @@ fit_rio_residual(const Trk::PlaneSurface& ssrf, bool dump,
   const Trk::LocalParameters& msmt = rio.localParameters();
   double y = msmt[iloc];
   if (m_x5data) {
-    y = y - alignConst(m_phelper->measuresPhi(rio.identify()), m_phelper->wireLayer(rio.identify()));
+    y = y - alignConst(m_idHelperSvc->cscIdHelper().measuresPhi(rio.identify()), m_idHelperSvc->cscIdHelper().wireLayer(rio.identify()));
   }
   const Amg::MatrixX& cov = rio.localCovariance();
   int dim = cov.rows();
@@ -879,7 +849,6 @@ spoiled_count(const ICscSegmentFinder::RioList& rios, int& nspoil, int& nunspoil
   nspoil = 0;
   nunspoil = 0;
   spoilmap =0;
-  //  const CscIdHelper* phelper = m_gm->cscIdHelper();
   
   for ( ICscSegmentFinder::RioList::const_iterator irio=rios.begin();
         irio!=rios.end(); ++irio ) {
@@ -888,7 +857,7 @@ spoiled_count(const ICscSegmentFinder::RioList& rios, int& nspoil, int& nunspoil
     if (pclu) {
       if ( IsUnspoiled ( pclu->status()) ) ++nunspoil;
       else  {
-        int wlay = m_phelper->wireLayer(pclu->identify());
+        int wlay = m_idHelperSvc->cscIdHelper().wireLayer(pclu->identify());
         ++nspoil;
         spoilmap += int(std::pow(2,wlay-1));
       }
@@ -898,13 +867,6 @@ spoiled_count(const ICscSegmentFinder::RioList& rios, int& nspoil, int& nunspoil
   }
   
 }
-
-//******************************************************************************
-StatusCode CscSegmentUtilTool::finalize() {
-  ATH_MSG_DEBUG ( "Goodbye" );
-  return StatusCode::SUCCESS;
-}
-
 
 //******************************************************************************
 // Build an ATLAS segment.
@@ -922,12 +884,15 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
 
   ATH_MSG_DEBUG ( "Building csc segment." );
 
-  //if(use2Lay) std::cout<<"using 2-layer segments"<<std::endl;
-  //std::cout<<"CscSegmentUtilTool::build_segment in chamber "<<m_idHelper->toString(chid)<<std::endl;
-
   const double pi = acos(-1.0);
   const double pi2 = 0.5*pi;
-  const CscReadoutElement* pro = m_gm->getCscReadoutElement(chid);
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return nullptr; 
+  } 
+  const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(chid);
   Amg::Transform3D gToLocal = pro->GlobalToAmdbLRSTransform();
   Amg::Vector3D lpos000 = gToLocal*Amg::Vector3D(0.0, 0.0, 0.0);
   Amg::Transform3D lToGlobal = gToLocal.inverse();
@@ -1092,8 +1057,6 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
       // Create new calibrated hit to put into fitclus      
       const CscPrepData* prd = pcl->prepRawData();
       Amg::Vector3D lpos = gToLocal*pcl->globalPosition();
-      // std::cout << " " << m_idHelper->toString(pcl->identify()) << " lpos " << lpos << "  locPos " << prd->localPosition() << std::endl;
-
 
       ATH_MSG_DEBUG ( "    ---+++----> build_segment each rios time " << pcl->time() << " " << prd->time() );
 
@@ -1361,15 +1324,15 @@ void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments &segs4, ICsc
     iiseg++;
     const Muon::CscClusterOnTrack* cot = iseg->clus[0].cl;
     Identifier id = cot->identify();
-    if(!m_phelper->measuresPhi(id) && iseg->nunspoil < m_nunspoil) {
+    if(!m_idHelperSvc->cscIdHelper().measuresPhi(id) && iseg->nunspoil < m_nunspoil) {
        ATH_MSG_DEBUG(" seg4 eta segment rejected with nclusters too few unspoiled hits " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil);
        isegs4OK[iiseg] = 0;
     }
     if( isegs4OK[iiseg] == 1 && segs4.size()< m_max_seg_per_chamber ) {
       segs4.push_back(*iseg);
-      ATH_MSG_DEBUG(" seg4 segment accepted with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " measuresPhi " << m_phelper->measuresPhi(id) );
+      ATH_MSG_DEBUG(" seg4 segment accepted with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " measuresPhi " << m_idHelperSvc->cscIdHelper().measuresPhi(id) );
     } else {
-      ATH_MSG_DEBUG(" seg4 segment rejected with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " measuresPhi " << m_phelper->measuresPhi(id) ) ;
+      ATH_MSG_DEBUG(" seg4 segment rejected with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " measuresPhi " << m_idHelperSvc->cscIdHelper().measuresPhi(id) ) ;
     }
   }
   int segs4Size = segs4.size();  
@@ -1425,15 +1388,15 @@ void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments &segs4, ICsc
     iiseg++;
     const Muon::CscClusterOnTrack* cot = iseg->clus[0].cl;
     Identifier id = cot->identify();
-    if(!m_phelper->measuresPhi(id) && iseg->nunspoil < m_nunspoil) {
+    if(!m_idHelperSvc->cscIdHelper().measuresPhi(id) && iseg->nunspoil < m_nunspoil) {
        ATH_MSG_DEBUG(" seg3 eta segment rejected with nclusters too few unspoiled hits " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil);
        isegs3OK[iiseg] = 0;
     }
     if( isegs3OK[iiseg] == 1 && segs4.size()< m_max_seg_per_chamber ) {
       segs4.push_back(*iseg);
-      ATH_MSG_DEBUG(" seg3 segment accepted with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil << " measuresPhi " << m_phelper->measuresPhi(id) );
+      ATH_MSG_DEBUG(" seg3 segment accepted with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil << " measuresPhi " << m_idHelperSvc->cscIdHelper().measuresPhi(id) );
     } else {
-      ATH_MSG_DEBUG(" seg3 segment rejected with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil << " measuresPhi " << m_phelper->measuresPhi(id) ) ;
+      ATH_MSG_DEBUG(" seg3 segment rejected with nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil << " measuresPhi " << m_idHelperSvc->cscIdHelper().measuresPhi(id) ) ;
     }
   }
   ATH_MSG_DEBUG(" Total seg3 segment size " << segs4.size() - segs4Size ); 
@@ -1522,7 +1485,7 @@ void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscS
       if(isegs2OK[iiseg2]==0) continue; //already rejected this segment
       for (int iclus=0; iclus<iseg->nclus; iclus++) {
         const Muon::CscClusterOnTrack* cot = iseg->clus[iclus].cl;
-	int wlay=m_phelper->wireLayer(cot->identify());
+	int wlay=m_idHelperSvc->cscIdHelper().wireLayer(cot->identify());
 	if((layStat%(int)pow(10,wlay+1))/(int)pow(10,wlay)==1){ //this 3-layer segment has a hit in a bad layer: dump it
 	  nhits_common=-1;
 	  break;
@@ -1550,9 +1513,9 @@ void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscS
     Identifier id = cot->identify();
     if( isegs2OK[iiseg] == 1 && segs.size()< m_max_seg_per_chamber ) {
       segs.push_back(*iseg);
-      ATH_MSG_DEBUG(" seg2 accepted, nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " mPhi " << m_phelper->measuresPhi(id) );
+      ATH_MSG_DEBUG(" seg2 accepted, nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " mPhi " << m_idHelperSvc->cscIdHelper().measuresPhi(id) );
     } else {
-      ATH_MSG_DEBUG(" seg2 rejected, nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " mPhi " << m_phelper->measuresPhi(id) ) ;
+      ATH_MSG_DEBUG(" seg2 rejected, nclusters " << iseg->nclus << " chi2 " << iseg->chsq << " unspoiled " << iseg->nunspoil <<  " mPhi " << m_idHelperSvc->cscIdHelper().measuresPhi(id) ) ;
     }
   }
   ATH_MSG_DEBUG(" Total seg2 accepted: " << segs.size() );
@@ -1948,7 +1911,6 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
 
   ATH_MSG_DEBUG("make_4dMuonSegment called");
   // if(use2LaySegs) std::cout<<"make 4d segment"<<std::endl;
-  //  const CscIdHelper* phelper = m_gm->cscIdHelper();
 
   double rpos = rsg.localParameters()[Trk::locX];
   double rdir = rsg.localDirection().angleXZ();
@@ -2059,17 +2021,15 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         // ECC figure out wire layer.
         Identifier id_eta = etapold->identify();
         Identifier id_phi = phipold->identify();
-        int iw_eta = m_phelper->wireLayer(id_eta);
-        int iw_phi = m_phelper->wireLayer(id_phi);
+        int iw_eta = m_idHelperSvc->cscIdHelper().wireLayer(id_eta);
+        int iw_phi = m_idHelperSvc->cscIdHelper().wireLayer(id_phi);
         
         // Check to see if these are the same layers.
-    // if(use2LaySegs) std::cout<<" id_eta: " << m_idHelper->toString(id_eta) << " " <<" id_phi: " << m_idHelper->toString(id_phi)<<std::endl;
         if (iw_eta != iw_phi){
-            // if(use2LaySegs) std::cout<<"hits in different layers, skip"<<std::endl;
             continue;
         }
-        ATH_MSG_DEBUG ( " id_eta: " << m_idHelper->toString(id_eta) << " " <<
-                        " id_phi: " << m_idHelper->toString(id_phi) );
+        ATH_MSG_DEBUG ( " id_eta: " << m_idHelperSvc->toString(id_eta) << " " <<
+                        " id_phi: " << m_idHelperSvc->toString(id_phi) );
 
 	/* commenting out because : 1/ coverity defect 13763+4 "Unchecked dynamic_cast"
 	   2/ segment finding must be fast, dynamic cast is time consuming, here only used for dbg cout ... 
@@ -2250,12 +2210,11 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
     ATH_MSG_WARNING("in get2dSegments: got two invalid identifiers" );
     return;
   }
-  //  const CscIdHelper* phelper = m_gm->cscIdHelper();
   // check whether Id is valid
   Identifier chId = eta_id.is_valid() ? eta_id : phi_id;
-  int col_station = m_phelper->stationName(chId) - 49;
-  int col_eta     = m_phelper->stationEta(chId);
-  int col_phisec  = m_phelper->stationPhi(chId);
+  int col_station = m_idHelperSvc->cscIdHelper().stationName(chId) - 49;
+  int col_eta     = m_idHelperSvc->cscIdHelper().stationEta(chId);
+  int col_phisec  = m_idHelperSvc->cscIdHelper().stationPhi(chId);
 
   ATH_MSG_DEBUG ( "get2dSegments called  " << eta_id << "  " << phi_id << "  "
                   << col_station << "  " << col_eta <<  " " << col_phisec << "  "
@@ -2390,7 +2349,13 @@ double CscSegmentUtilTool::
 getDefaultError (Identifier id, bool measphi, const CscPrepData *prd ) const {
   const std::vector<Identifier>& strip_ids = prd->rdoList();
   unsigned int nstrip = strip_ids.size();
-  const CscReadoutElement* pro = m_gm->getCscReadoutElement(id);
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return 0.; 
+  } 
+  const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(id);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   // Assign position error.
   double wmeas = pitch*nstrip;
@@ -2404,8 +2369,6 @@ getDefaultError (Identifier id, bool measphi, const CscPrepData *prd ) const {
 // Likelihood calculation for xy matching.
 double CscSegmentUtilTool::
 matchLikelihood(const MuonSegment& rsg, const MuonSegment& psg) const {
-
-  //  const CscIdHelper* phelper = m_gm->cscIdHelper();
 
   // Loop over eta and phi segments.
   const ICscSegmentFinder::RioList& etarios = rsg.containedROTs();
@@ -2442,8 +2405,8 @@ matchLikelihood(const MuonSegment& rsg, const MuonSegment& psg) const {
       // Figure out the layer for each view
       Identifier eta_sid = eta_prd->identify();
       Identifier phi_sid = phi_prd->identify();
-      int eta_wlay = m_phelper->wireLayer(eta_sid);
-      int phi_wlay = m_phelper->wireLayer(phi_sid);
+      int eta_wlay = m_idHelperSvc->cscIdHelper().wireLayer(eta_sid);
+      int phi_wlay = m_idHelperSvc->cscIdHelper().wireLayer(phi_sid);
 
       // Calculate the charge ratio for same eta & phi layers
       if (eta_wlay == phi_wlay) {
@@ -2533,23 +2496,14 @@ bool CscSegmentUtilTool::isGood(uint32_t stripHashId) const {
 }
 
 int CscSegmentUtilTool::stripStatusBit ( uint32_t stripHashId ) const {
-  uint32_t status = 0x0;
-  if ( !m_cscCoolStrSvc->getStatus(status,stripHashId) ) {
+
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  const CscCondDbData* readCdo{*readHandle};
+
+  int status = 0;
+  if(!readCdo->readChannelStatus(stripHashId, status).isSuccess())
     ATH_MSG_WARNING ( " failed to access CSC conditions database - status - "
                       << "strip hash id = " << stripHashId );
-
-    uint8_t status2 = 0x0;
-    if ( (m_cscCoolStrSvc->getStatus(status2,stripHashId)).isFailure() ) {
-      ATH_MSG_WARNING ( " failed to access CSC conditions database old way - status - "
-                        << "strip hash id = " << stripHashId );
-    }else{
-      ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
-                     << "strip hash id = " << stripHashId );
-    }
-  } else {
-    ATH_MSG_VERBOSE ( "The status word is " << std::hex << status
-      << " for strip hash = " << std::dec << stripHashId );
-  }
   return status;
 }
 

@@ -22,7 +22,7 @@
 // normal includes
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 namespace InDet
 {

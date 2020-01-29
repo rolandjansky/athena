@@ -7,8 +7,11 @@ from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoC
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 
-def generateChains( flags, chainDict ):
+def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+    return HLTTest__TestHypoAlg( name, Input="" )
 
+def generateChains( flags, chainDict ):
     stepName = getChainStepName('Muon', 1)
     stepReco, stepView = createStepView(stepName)
 
@@ -38,15 +41,43 @@ def generateChains( flags, chainDict ):
     ### Set muon step2 ###
     # Please set up L2muComb step here
 
+    #EF MS only
+    stepEFMSName = getChainStepName('EFMSMuon', 2)
+    stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
+
+    accMS = ComponentAccumulator()
+    accMS.addSequence(stepEFMSView)
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    recoMS = InViewReco("EFMuMSReco")
+
+    from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
+    segCfg = MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder", TgcPrepDataContainer="TGC_Measurements")
+    recoMS.mergeReco(segCfg)
+
+    accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
+
+    # TODO remove once full step is in place
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+    fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForMuon')
+    def makeFakeHypoTool(name, cfg):
+        return HLTTest__TestHypoTool(name)
+    fakeHypoAlg.HypoTools = [ makeFakeHypoTool(chainDict['chainName'], None) ]
+    accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
+
+    efmuMSSequence = MenuSequence( Sequence = recoMS.sequence(),
+                                     Maker = recoMS.inputMaker(),
+                                     Hypo = fakeHypoAlg, 
+                                     HypoToolGen = None,
+                                     CA = accMS )
+
+    efmuMSStep = ChainStep( stepEFMSName, [efmuMSSequence] )
+
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
-
-
     import pprint
     pprint.pprint(chainDict)
-
-    chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep ] )
-
-
+    chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, efmuMSStep ] )
     return chain
+

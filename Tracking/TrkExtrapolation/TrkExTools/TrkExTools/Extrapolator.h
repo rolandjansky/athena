@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@
 #include "xAODTracking/TrackParticle.h" 
 #include "xAODTracking/NeutralParticle.h"
 
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 #include "tbb/concurrent_unordered_map.h"
 
 class MsgStream;
@@ -76,9 +76,9 @@ struct ParametersNextVolume {
   BoundarySurfaceFace      exitFace;
 
   ParametersNextVolume(){
-    nextVolume              = 0;
-    nextParameters          = 0;
-    navParameters           = 0;
+    nextVolume              = nullptr;
+    nextParameters          = nullptr;
+    navParameters           = nullptr;
     exitFace                = undefinedFace;
   }
 
@@ -95,9 +95,9 @@ struct ParametersNextVolume {
   }
   //!< reset the boundary information by invalidating it
   void resetBoundaryInformation(){
-    nextVolume        = 0;
-    nextParameters    = 0;
-    navParameters     = 0;
+    nextVolume        = nullptr;
+    nextParameters    = nullptr;
+    navParameters     = nullptr;
     exitFace          = undefinedFace;
   }
 };
@@ -228,7 +228,7 @@ class Extrapolator : public AthAlgTool,
                                                             PropDirection dir,
                                                             BoundaryCheck bcheck,
                                                             ParticleHypothesis particle=pion,
-                                                            const Volume* boundaryVol=0) const override final;
+                                                            const Volume* boundaryVol=nullptr) const override final;
 
 
     /** S 6) <b>Strategy Pattern extrapolation method</b>:
@@ -295,7 +295,7 @@ class Extrapolator : public AthAlgTool,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
                                                MaterialUpdateMode matupmode=addNoise,
-                                               Trk::ExtrapolationCache* cache = 0) const override final;
+                                               Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     /** C 2) <b>Configured AlgTool extrapolation method</b> of S 2):*/
     virtual const TrackParametersVector*  extrapolateStepwise(const TrackParameters& parm,
@@ -311,7 +311,7 @@ class Extrapolator : public AthAlgTool,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
                                                MaterialUpdateMode matupmode=addNoise,
-                                               Trk::ExtrapolationCache* cache = 0) const override final;
+                                               Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     /** C 4) <b>Configured AlgTool extrapolation method</b> of S 4):*/
     virtual const TrackParameters* extrapolateDirectly(const TrackParameters& parm,
@@ -325,7 +325,7 @@ class Extrapolator : public AthAlgTool,
                                                             PropDirection dir=anyDirection,
                                                             BoundaryCheck bcheck = true,
                                                             ParticleHypothesis particle=pion,
-                                                            const Volume* boundaryVol=0) const override final;
+                                                            const Volume* boundaryVol=nullptr) const override final;
 
 
     /** C 6) <b>Configured AlgTool extrapolation method</b> of S 6):*/                        
@@ -364,7 +364,7 @@ class Extrapolator : public AthAlgTool,
                                                                   PropDirection dir,
                                                                   BoundaryCheck bcheck,
                                                                   ParticleHypothesis particle=pion,
-                                                                  Trk::ExtrapolationCache* cache = 0) const override final;
+                                                                  Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     /** C 11) <b>Configured AlgTool extrapolation method</b>:
       - Extrapolate to a destination surface, while collecting all the material layers and transport jacobians in between.
@@ -376,7 +376,7 @@ class Extrapolator : public AthAlgTool,
                                                               std::vector<MaterialEffectsOnTrack>& material,
                                                               std::vector<Trk::TransportJacobian *>& jacs,
                                                               ParticleHypothesis particle=pion,
-                                                              Trk::ExtrapolationCache* cache = 0) const override final;
+                                                              Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     virtual const Trk::TrackParameters*  extrapolateWithPathLimit(
                                                                   const Trk::TrackParameters& parm,
@@ -385,7 +385,7 @@ class Extrapolator : public AthAlgTool,
                                                                   Trk::ParticleHypothesis particle,
                                                                   std::vector<const Trk::TrackParameters*>*& parmOnSf,
                                                                   std::vector<const Trk::TrackStateOnSurface*>*& material,
-                                                                  const Trk::TrackingVolume* boundaryVol=0,
+                                                                  const Trk::TrackingVolume* boundaryVol=nullptr,
                                                                   MaterialUpdateMode matupmod=Trk::addNoise) const override final;
 
 
@@ -506,7 +506,7 @@ class Extrapolator : public AthAlgTool,
                                                    BoundaryCheck bcheck = true,
                                                    ParticleHypothesis particle=pion,
                                                    MaterialUpdateMode matupmode=addNoise,
-                                                   Trk::ExtrapolationCache* extrapolationCache = 0) const;
+                                                   Trk::ExtrapolationCache* extrapolationCache = nullptr) const;
 
 
     /** Actual heavy lifting implementation for  
@@ -517,7 +517,7 @@ class Extrapolator : public AthAlgTool,
                                                         PropDirection dir=anyDirection,
                                                         BoundaryCheck bcheck = true,
                                                         ParticleHypothesis particle=pion,
-                                                        const Volume* boundaryVol=0) const;
+                                                        const Volume* boundaryVol=nullptr) const;
 
 
 
@@ -634,8 +634,8 @@ class Extrapolator : public AthAlgTool,
                                                        const TrackParameters& parm,
                                                        const TrackingVolume& tvol,
                                                        const Layer* nextLayer,                                                       
-                                                       const Layer* destinationLayer = 0,
-                                                       const TrackParameters* navParameters = 0,
+                                                       const Layer* destinationLayer = nullptr,
+                                                       const TrackParameters* navParameters = nullptr,
                                                        PropDirection dir = anyDirection,
                                                        BoundaryCheck bcheck = true,
                                                        ParticleHypothesis particle=pion,
@@ -861,16 +861,16 @@ class Extrapolator : public AthAlgTool,
 inline const TrackingGeometry* Extrapolator::trackingGeometry() const 
 { 
   if (m_navigator) return m_navigator->trackingGeometry();
-  return 0;
+  return nullptr;
 }
 
 inline const IPropagator* Extrapolator::subPropagator(const Trk::TrackingVolume& tvol) const
 {
   const IPropagator* currentPropagator = (tvol.geometrySignature() < m_subPropagators.size()) ?
-    m_subPropagators[tvol.geometrySignature()] : 0;
+    m_subPropagators[tvol.geometrySignature()] : nullptr;
 
   if (tvol.geometrySignature()==Trk::Calo && m_useDenseVolumeDescription) currentPropagator= (Trk::MS < m_subPropagators.size()) ?
-    m_subPropagators[Trk::MS] : 0; 
+    m_subPropagators[Trk::MS] : nullptr; 
 
   if (!currentPropagator)
     msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endmsg;
@@ -880,7 +880,7 @@ inline const IPropagator* Extrapolator::subPropagator(const Trk::TrackingVolume&
 inline const IMaterialEffectsUpdator* Extrapolator::subMaterialEffectsUpdator(const Trk::TrackingVolume& tvol) const
 {
   return (tvol.geometrySignature() < m_subUpdators.size()) ?
-    m_subUpdators[tvol.geometrySignature()] : 0;
+    m_subUpdators[tvol.geometrySignature()] : nullptr;
 }
 
 
@@ -898,9 +898,9 @@ inline void Extrapolator::setRecallInformation(Cache& cache,
 inline void Extrapolator::resetRecallInformation(Cache& cache) const
 {
   cache.m_recall               = false;
-  cache.m_recallSurface        = 0;
-  cache.m_recallLayer          = 0;
-  cache.m_recallTrackingVolume = 0;
+  cache.m_recallSurface        = nullptr;
+  cache.m_recallLayer          = nullptr;
+  cache.m_recallTrackingVolume = nullptr;
 }
 
 inline void Extrapolator::throwIntoGarbageBin(Cache& cache, 

@@ -17,12 +17,12 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           MuonSpectrometer/MuonGeoModel )
 
-find_package( GeoModel )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( MuonAGDDBase
                    src/*.cxx
                    PUBLIC_HEADERS MuonAGDDBase
                    LINK_LIBRARIES AGDDControl AGDDKernel GaudiKernel MuonAGDDDescription StoreGateLib SGtests MuonGeoModelLib
-                   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AGDDModel )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AGDDModel )
 

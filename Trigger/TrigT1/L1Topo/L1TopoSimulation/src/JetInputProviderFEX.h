@@ -37,7 +37,6 @@ namespace LVL1 {
       ServiceHandle<ITHistSvc> m_histSvc;
 
       StringProperty m_gFEXJetLoc {""};
-      const DataHandle< xAOD::JetRoIContainer > m_gFEXJet;        //!< jets from gFEX (will make it an array later)
 
       TH1I * m_hPt1 {nullptr};
       TH1I * m_hPt2 {nullptr};

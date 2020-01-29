@@ -3,12 +3,13 @@
 # python fragment to configure LAr collision time algo
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def LArCollisionTimeCfg(configFlags):
 
    result=ComponentAccumulator()
 
-   from LArCellRec.LArCellRecConf import LArCollisionTimeAlg
+   LArCollisionTimeAlg=CompFactory.LArCollisionTimeAlg
    result.addEventAlgo(LArCollisionTimeAlg("LArCollisionTimeAlg", isMC=configFlags.Input.isMC))
 
    return result   

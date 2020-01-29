@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "topoEgammaBuilder.h"
@@ -73,21 +73,13 @@ StatusCode topoEgammaBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-// ====================================================================
 StatusCode topoEgammaBuilder::finalize(){
-  // finalize method
   return StatusCode::SUCCESS;
 }
 
-// ======================================================================
 StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
-  // athena execute method
-
-  ATH_MSG_DEBUG("Executing topoEgammaBuilder");
 
   // Chrono name for each Tool
-  std::string chronoName;
-
   const EgammaRecContainer* inputElRecs = nullptr;
   const EgammaRecContainer* inputPhRecs = nullptr;
   xAOD::ElectronContainer* electrons = nullptr;
@@ -120,6 +112,10 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
    */  
   if (m_doElectrons){
     for (const egammaRec* electronRec : *inputElRecs) { 
+      //in case for some reasons we reach here with no trackparticles
+      if(electronRec->getNumberOfTrackParticles()==0){
+        continue;
+      }
       unsigned int author = xAOD::EgammaParameters::AuthorElectron;
       xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
       if(m_doPhotons){
@@ -131,7 +127,6 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
           const xAOD::CaloCluster *const phClus = photonRec->caloCluster();
           //See if they have the same hottest cell
           if (elEta0 == phClus->eta0() && elPhi0 == phClus->phi0()) {
-            ATH_MSG_DEBUG("Running AmbiguityTool for electron");
             author = m_ambiguityTool->ambiguityResolve(elClus,
                                                        photonRec->vertex(),
                                                        electronRec->trackParticle(),
@@ -143,7 +138,6 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
       //Create Electron xAOD objects
       if (author == xAOD::EgammaParameters::AuthorElectron || 
           author == xAOD::EgammaParameters::AuthorAmbiguous){
-        ATH_MSG_DEBUG("getElectron");
         if ( !getElectron(electronRec, electrons, author,type) ){
           return StatusCode::FAILURE;
         }
@@ -164,7 +158,6 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
           const xAOD::CaloCluster *const elClus = electronRec->caloCluster();
           //See if they have the same hottest cell
           if (phEta0 == elClus->eta0() && phPhi0 == elClus->phi0()) {
-            ATH_MSG_DEBUG("Running AmbiguityTool for photon");
             author = m_ambiguityTool->ambiguityResolve(elClus,
                                                        photonRec->vertex(),
                                                        electronRec->trackParticle(),
@@ -176,7 +169,6 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
       //Create Photon xAOD objects
       if (author == xAOD::EgammaParameters::AuthorPhoton || 
           author == xAOD::EgammaParameters::AuthorAmbiguous){
-        ATH_MSG_DEBUG("getPhoton");
         if ( !getPhoton(photonRec, photons, author,type) ){
           return StatusCode::FAILURE;
         }
@@ -184,29 +176,22 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     }
   }
 
-  ATH_MSG_DEBUG("Executing : " << m_clusterTool);  
   if ( m_clusterTool->contExecute(ctx, electrons , photons).isFailure() ){
     ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("Calling egammaTools: " );
   for (auto& tool : m_egammaTools){
-    ATH_MSG_DEBUG("Calling tool " << tool );
     ATH_CHECK( CallTool(ctx, tool, electrons,photons) );
   }
 
   if(m_doElectrons){
-    ATH_MSG_DEBUG("Calling Electron tools: ");
     for (auto& tool : m_electronTools){
-      ATH_MSG_DEBUG("Calling tool " << tool );
       ATH_CHECK( CallTool(ctx, tool, electrons, nullptr) );
     }
   }
   if(m_doPhotons){
-    ATH_MSG_DEBUG("Calling Photon tools: ");
     for (auto& tool : m_photonTools){
-      ATH_MSG_DEBUG("Calling tool " << tool );
       CHECK( CallTool(ctx, tool, nullptr, photons) );
     }
   }
@@ -285,7 +270,6 @@ StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx,
   smallChrono timer(*m_timingProfile,this->name()+"_"+tool->name(), m_doChrono);  
 
   if (electronContainer){    
-    ATH_MSG_DEBUG("Executing tool on electrons: " << tool );
     for (xAOD::Electron* electron : *electronContainer){
       if (tool->execute(ctx, electron).isFailure() ){
         ATH_MSG_ERROR("Problem executing tool on electrons: " << tool);
@@ -294,7 +278,6 @@ StatusCode topoEgammaBuilder::CallTool(const EventContext& ctx,
     }
   }
   if (photonContainer){
-    ATH_MSG_DEBUG("Executing tool on photons: " << tool );
     for (xAOD::Photon* photon : *photonContainer){
       if (tool->execute(ctx, photon).isFailure() ){
         ATH_MSG_ERROR("Problem executing tool on photons: " << tool);
@@ -333,36 +316,29 @@ bool topoEgammaBuilder::getElectron(const egammaRec* egRec,
 
   electron->setCharge(electron->trackParticle()->charge());
   //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
-  float deltaEta = static_cast<float>(egRec->deltaEta(0));
-  float deltaPhi = static_cast<float>(egRec->deltaPhi(0));
-  float deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(0));
-  electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta0 );
-  electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi0 );
-  electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled0 );
+  std::array<double,4> deltaEta = egRec->deltaEta();
+  std::array<double,4> deltaPhi = egRec->deltaPhi();
+  std::array<double,4> deltaPhiRescaled = egRec->deltaPhiRescaled();
 
-  deltaEta = static_cast<float>(egRec->deltaEta(1));
-  deltaPhi = static_cast<float>(egRec->deltaPhi(1));
-  deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(1));
-  electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta1 );
-  electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi1 );
-  electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled1);
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[0]),xAOD::EgammaParameters::deltaEta0);
+  electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[0]),xAOD::EgammaParameters::deltaPhi0 );
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[0]), xAOD::EgammaParameters::deltaPhiRescaled0);
 
-  deltaEta = static_cast<float>(egRec->deltaEta(2));
-  deltaPhi = static_cast<float>(egRec->deltaPhi(2));
-  deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(2));
-  electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta2 );
-  electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi2 );
-  electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled2);
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[1]), xAOD::EgammaParameters::deltaEta1);
+  electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[1]),xAOD::EgammaParameters::deltaPhi1 );
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[1]), xAOD::EgammaParameters::deltaPhiRescaled1);
 
-  deltaEta = static_cast<float>(egRec->deltaEta(3));
-  deltaPhi = static_cast<float>(egRec->deltaPhi(3));
-  deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(3));
-  electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta3 );
-  electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi3 );
-  electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled3);
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[2]), xAOD::EgammaParameters::deltaEta2);
+  electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[2]),xAOD::EgammaParameters::deltaPhi2 );
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[2]), xAOD::EgammaParameters::deltaPhiRescaled2);
+
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[3]), xAOD::EgammaParameters::deltaEta3);
+  electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[3]),xAOD::EgammaParameters::deltaPhi3 );
+  electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[3]), xAOD::EgammaParameters::deltaPhiRescaled3);
 
   float deltaPhiLast = static_cast<float>(egRec->deltaPhiLast ());
   electron->setTrackCaloMatchValue(deltaPhiLast,xAOD::EgammaParameters::deltaPhiFromLastMeasurement );
+
 
   return true;
 }
@@ -394,7 +370,8 @@ bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
   photon->setVertexLinks( vertexLinks );
 
   // Transfer deltaEta/Phi info
-  float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+  float deltaEta = egRec->deltaEtaVtx();
+  float deltaPhi = egRec->deltaPhiVtx();
   if (!photon->setVertexCaloMatchValue( deltaEta,
                                         xAOD::EgammaParameters::convMatchDeltaEta1) ){
     ATH_MSG_WARNING("Could not transfer deltaEta to photon");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -58,7 +58,6 @@ namespace G4UA
 
     bool                            m_recordComposition; //FIXME should be passed in via a Config struct rather than hardcoded.
 
-    double                          m_totalNbOfAtoms;
     size_t                          m_totalSteps;
     size_t                          m_eventID;
 

@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file MuonCombinedRecExample/python/MuonCombinedKeys.py
 ## @brief Python module to hold uniform collection names for muon combined reconstruction
 ##
+
+from __future__ import print_function
 
 """ MuonCombinedContainerKeys
     Python module to hold storegate keys of MuonCombined objects.
@@ -48,34 +50,16 @@ class SpectrometerTracks(JobProperty): # clarify with MS if to be replaced by jo
     StoredValue  = 'MuonSpectrometerTracks'
 
 class ExtrapolatedMSTracks(JobProperty):
-    """StoreGate key for tracks from MS standalone tracking expressed at IP and eventually refined using IP constraint from MuidCo"""
+    """StoreGate key for tracks from MS standalone tracking expressed at IP and eventually refined using IP constraint"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'MuidMETracks'
+    StoredValue  = 'ExtrapolatedMuonTracks'
 
 class CombinedFitTracks(JobProperty):
-    """StoreGate key for tracks from MuidCo combined fit"""
+    """StoreGate key for tracks from combined fit"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'MuidCombinedTracks'
-
-class MuGirlCombinedFitTracks(JobProperty):
-    """StoreGate key for tracks from MuGirl combined fit"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'MuGirlCombinedTracks'
-
-class MuGirlExtrapolatedTracks(JobProperty):
-    """StoreGate key for ME tracks from MuGirl combined fit"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'MuGirlMETracks'
-
-class MuGirlStauCombinedFitTracks(JobProperty):
-    """StoreGate key for tracks from MuGirl combined fit"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'MuGirlStauCombinedTracks'
+    StoredValue  = 'CombinedMuonTracks'
 
 class RefittedExtrapolatedMSTracks(JobProperty):
     """StoreGate key for tracks with refitted extrapolation using the MS part of the combined track"""
@@ -112,7 +96,7 @@ class ExtrapolatedMSOnlyTracks(JobProperty):
     """StoreGate key for trackparticles from MS standalone tracking, expressed at IP"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'MSOnlyExtrapolatedMuonTracks'
+    StoredValue  = 'MSOnlyExtrapolatedTracks'
 
 class CombinedFitParticles(JobProperty):
     """StoreGate key for trackparticles from combined muon track fit """
@@ -131,25 +115,6 @@ class StatCombinedParticles(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'StatCombinedMuonParticles'
-
-class MuGirlSegments(JobProperty):
-    """StoreGate key for segments created by MuGirl"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'MuGirlSegments'
-
-class MuGirlStauSegments(JobProperty):
-    """StoreGate key for segments created by MuGirlStau"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'MuGirlStauSegments'
-
-class MuGirlxAODSegments(JobProperty):
-    """StoreGate key for xAOD::MuonSegments created by MuGirl and MuGirlStau"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'MuGirlMuonSegments'
-
 
 ## classes for internal helper objects
 class MuidInternalMatches(JobProperty):
@@ -297,12 +262,6 @@ jobproperties.MuonCombinedContainerKeys.add_JobProperty(SegmentTagMuons)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(SegmentTagMuonSegments)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(InternalMuTagTracksContainer)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSOnlyTracks)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlCombinedFitTracks)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlExtrapolatedTracks)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlStauCombinedFitTracks)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlSegments)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlStauSegments)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlxAODSegments)
 
 ##-----------------------------------------------------------------------------
 ## 5th step

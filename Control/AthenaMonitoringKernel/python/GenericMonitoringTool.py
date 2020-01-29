@@ -1,11 +1,13 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
+import json
+import six
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +31,7 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 
         return conf
 
-    def defineHistogram(self, *args, **kwargs):
+    def _coreDefine(self, deffunc, *args, **kwargs):
         if 'convention' in kwargs:
             # only if someone really knows what they're doing
             pass
@@ -39,7 +41,13 @@ class GenericMonitoringTool(_GenericMonitoringTool):
                 del kwargs['duration']
             elif hasattr(self, 'defaultDuration'):
                 kwargs['convention'] = self.convention + ':' + self.defaultDuration
-        self.Histograms.append(defineHistogram(*args, **kwargs))
+        self.Histograms.append(deffunc(*args, **kwargs))
+
+    def defineHistogram(self, *args, **kwargs):
+        self._coreDefine(defineHistogram, *args, **kwargs)
+
+    def defineTree(self, *args, **kwargs):
+        self._coreDefine(defineTree, *args, **kwargs)
 
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
@@ -103,56 +111,195 @@ class GenericMonitoringArray:
 #  @param varname  one (1D) or two (2D) variable names separated by comma
 #  @param type     histogram type
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
-#  @param weight   Name of the variable containing the fill weight
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
-#  @param opt      Histrogram options (see GenericMonitoringTool)
-#  @param labels   List of bin labels (for a 2D histogram, sequential list of x- and y-axis labels)
+#  @param weight   Name of the variable containing the fill weight
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
+#  @param opt      Histogram options (see GenericMonitoringTool)
+#  @param labels   Deprecated. Copies value to xlabels.
+#  @param xlabels  List of x bin labels.
+#  @param ylabels  List of y bin labels.
+#  @param zlabels  List of x bin labels.
 
 def defineHistogram(varname, type='TH1F', path=None,
-                    title=None,weight='',
-                    xbins=100, xmin=0, xmax=1,
-                    ybins=None, ymin=None, ymax=None,
-                    zmin=None, zmax=None,
-                    opt='', labels=None, convention=''):
+                    title=None, weight=None, alias=None,
+                    xbins=100, xmin=0, xmax=1, xlabels=None,
+                    ybins=None, ymin=None, ymax=None, ylabels=None,
+                    zmin=None, zmax=None, zlabels=None, 
+                    opt='', treedef=None, labels=None, convention=None,
+                    cutmask=None):
 
-    # Assert argument types
-    if not athenaCommonFlags.isOnline():
-        if path is None:
-            path = ''
-    assert path is not None, "path is required"
-    assert labels is None or isinstance(labels, (list, tuple) ), "labels must be of type list or tuple"
+    # All of these fields default to an empty string
+    stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
+    'cutMask', 'opt', 'convention', 'alias', 'treeDef'] 
+    # All of these fileds default to 0
+    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
+    'zmin', 'zmax']
+    # All of these fields default to an empty array
+    arraySettingsKeys = ['allvars', 'xlabels', 'xarray', 'ylabels', 'yarray', 'zlabels']
+    # Initialize a dictionary with all possible fields
+    settings = dict((key, '') for key in stringSettingsKeys)
+    settings.update(dict((key, 0.0) for key in numberSettingsKeys))
+    settings.update(dict((key, []) for key in arraySettingsKeys))
 
+    # Alias
+    variableAliasSplit = varname.split(';')
+    varList = variableAliasSplit[0].split(',')
+    if len(variableAliasSplit)==1:
+        alias = '_vs_'.join(reversed(varList))
+    elif len(variableAliasSplit)==2:
+        alias = variableAliasSplit[1]
+    else:
+        log.warning('Invalid variable or alias specification in defineHistogram.')
+        return ''
+    settings['alias'] = alias
+
+    # Variable names
+    if len(varList)>0:
+        settings['xvar'] = varList[0]
+    if len(varList)>1:
+        settings['yvar'] = varList[1]
+    if len(varList)>2:
+        settings['zvar'] = varList[2]
+    settings['allvars'] = varList
+    nVars = len(varList)
+
+    # Type
+    if athenaCommonFlags.isOnline() and type in ['TEfficiency', 'TTree']:
+        log.warning('Object %s of type %s is not supported for online running and '+\
+        'will not be added.', varname, type)
+        return ''
+    # Check that the histogram's dimension matches the number of monitored variables
+    # Add TTree to the lists, it can have any number of vars
+    hist2D = ['TH2','TProfile','TEfficiency', 'TTree']
+    hist3D = ['TProfile2D','TEfficiency', 'TTree']
+    if nVars==2:
+        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two ' \
+        'monitored variables with a non-2D histogram.'
+    elif nVars==3:
+        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three ' \
+        'monitored variables with a non-3D histogram.'
+    settings['type'] = type
+
+    # Path
+    if not athenaCommonFlags.isOnline() and path is None:
+        path = ''
+    assert path is not None, 'path argument in defineHistogram() is required.'
+    settings['path'] = path
+
+    # Title
     if title is None:
         title = varname
-    title = title.replace(',','","') # Commas used as delimiters, but "," is ok
+    settings['title'] = title
 
-    if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
-        log.warning('Histogram %s of type %s is not supported for online running and will not be added', varname, type)
-        return ""
+    # Weight
+    if weight is not None:
+        settings['weight'] = weight
 
-    coded = "%s, %s, %s, %s, %s, %s, " % (path, type, weight, convention, varname, title)
+    # Cutmask
+    if cutmask is not None:
+        settings['cutMask'] = cutmask
 
-    if not isinstance(xbins, (list, tuple)):
-        coded += '%d, %f, %f' % (xbins, xmin, xmax)
-    else:
-        # List of :-separated bins, plus two empty spaces for xmin and xmax
-        coded += ':'.join(str(xbin) for xbin in xbins)
+    # Output path naming convention
+    if convention is not None:
+        settings['convention'] = convention
 
+    # Bin counts and ranges
+    # Possible types allowed for bin counts
+    binTypes = six.integer_types + (list, tuple)
+
+    # X axis count and range
+    assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
+    if isinstance(xbins, six.integer_types): # equal x bin widths
+        settings['xbins'], settings['xarray'] = xbins, []
+    else: # x bin edges are set explicitly
+        settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
+    settings['xmin'] = xmin
+    settings['xmax'] = xmax
+
+    # Y axis count and range
     if ybins is not None:
-        if not isinstance(ybins, (list, tuple)):
-            coded += ", %d, %f, %f" % (ybins, ymin, ymax)
-        else:
-            coded += ', ' + ':'.join(str(ybin) for ybin in ybins)
-        if zmin is not None:
-            coded += ", %f, %f" % (zmin, zmax)
+        assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
+        if isinstance(ybins, six.integer_types): # equal y bin widths
+            settings['ybins'], settings['yarray'] = ybins, []
+        else: # y bin edges are set explicitly
+            settings['ybins'], settings['yarray'] = len(ybins)-1, ybins
+    if ymin is not None:
+        settings['ymin'] = ymin
+    if ymax is not None:
+        settings['ymax'] = ymax
 
-    if ybins is None and ymin is not None:
-        coded += ", %f, %f" % (ymin, ymax)
+    # Z axis count and range
+    if zmin is not None:
+        settings['zmin'] = zmin
+    if zmax is not None:
+        settings['zmax'] = zmax
 
-    if labels is not None and len(labels)>0:
-        coded += ', ' + ':'.join(labels) + (':' if len(labels) == 1 else '')    # C++ parser expects at least one ":"
+    # Bin labels
+    # First, handle the depricated labels argument
+    if labels is not None:
+        assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
+        depricated "labels" argument with [xyz]labels arguments.'
+        log.warning('Histogram %s configured with deprecated "labels" argument. Please use "xlabels" and "ylabels" instead.', 
+                    settings['title'])
+        nLabels = len(labels)
+        if nLabels==xbins:
+            xlabels = labels
+        elif nLabels>xbins:
+            if nLabels > xbins+ybins:
+                log.warning('More labels specified for %s (%d) than there are x+y bins (%d+%d)',
+                            settings['title'], nLabels, xbins, ybins)
+            xlabels = labels[:xbins]
+            ylabels = labels[xbins:xbins+ybins]
+    # Then, parse the [xyz]label arguments
+    if xlabels is not None and len(xlabels)>0:
+        assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'
+        settings['xbins'] = len(xlabels)
+        settings['xlabels'] = xlabels
+    if ylabels is not None and len(ylabels)>0:
+        assert isinstance(ylabels, (list, tuple)),'ylabels must be list or tuple'
+        settings['ybins'] = len(ylabels)
+        settings['ylabels'] = ylabels
+    if zlabels is not None and len(zlabels)>0:
+        assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
+        settings['zlabels'] = zlabels
 
+    # Tree branches
+    if treedef is not None:
+        assert type=='TTree','cannot define tree branches for a non-TTree object'
+        settings['treeDef'] = treedef
+
+    # Filling options
     if len(opt)>0:
-        coded += ", %s" % opt
+        ######################################################
+        # currently opt is a string, but should make it a list
+        # optList = opt.replace(' ',',').split(',')
+        # settings['opt'] = optList
+        ######################################################
+        # in the mean time, keep it a string
+        settings['opt'] = opt
 
-    return coded
+    return json.dumps(settings)
+
+## Generate tree definition string for the `GenericMonitoringTool.Histograms` property. Convenience tool for 
+#
+#  For full details see the GenericMonitoringTool documentation.
+#  @param varname  at least one variable name (more than one should be separated by comma);
+#                  optionally give the name of the tree by appending ";" plus the tree name
+#  @param treedef  TTree branch definition string. Looks like the standard TTree definition
+#                  (see https://root.cern.ch/doc/master/classTTree.html#addcolumnoffundamentaltypes).
+#                  In fact if only scalars are given, it is exactly the same as you would use to
+#                  define the TTree directly: "varA/F:varB/I:...".  Vectors can be defined by giving
+#                  "vector<int>", etc., instead of "I".
+#  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
+#  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
+#  @param opt      TTree options (none currently)
+#  @param convention Expert option for how the objects are placed in ROOT
+
+def defineTree(varname, treedef, path=None,
+                    title=None, alias=None,
+                    opt='', convention=None,
+                    cutmask=None):
+    return defineHistogram(varname, type='TTree', path=path, title=title, alias=alias,
+                            treedef=treedef, opt=opt, convention=convention,
+                            cutmask=cutmask)     

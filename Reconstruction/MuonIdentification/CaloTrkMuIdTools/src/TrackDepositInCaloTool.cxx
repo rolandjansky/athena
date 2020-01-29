@@ -33,7 +33,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -178,12 +178,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
     }
     // --- Calculate energy loss ---
     double energyLoss = calcEnergy(parEntrance, muonHypo) - calcEnergy(parExit, muonHypo);
-    // --- Display some debug info ---
-    // ATH_MSG_INFO("Energy loss = " << energyLoss << " for sample " << descr->getSampling());
     double distance = (parEntrance->position()-parExit->position()).mag();
-    // if (distance)
-    //   ATH_MSG_INFO("Distance = " << distance << " => Eloss/CLHEP::mm = " << energyLoss/distance);
-
     // --- Retrieve crossed cells ---  
     std::vector<const CaloCell*>* cells = getCaloCellsForLayer(descr, parEntrance, parExit, caloCellCont);
 
@@ -215,7 +210,6 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
         ATH_MSG_INFO("Energy = " << sumEnergy << " for sample " << descr->getSampling() << " in " << cells->size() << " cells.");
       }
       if (distance) {
-        // ATH_MSG_INFO("Eloss/CLHEP::mm = " << sumEnergy/distance);
         result.push_back(DepositInCalo(descr->getSampling(), sumEnergy, energyLoss, sumEt) );
       }
       delete cells;
@@ -872,8 +866,7 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits(const Trk::TrackPara
 // calcEnergy
 ///////////////////////////////////////////////////////////////////////////////
 double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const Trk::ParticleHypothesis& particleHypo) const {
-  static Trk::ParticleMasses masses;  
-  double mass = masses.mass[particleHypo]; 
+  double mass = m_particlemasses.mass[particleHypo]; 
   if (par == NULL) return 0.;
   double pX = par->momentum().x();
   double pY = par->momentum().y();
@@ -1290,12 +1283,12 @@ StatusCode TrackDepositInCaloTool::bookHistos() {
   m_hDistDepositsTile   = new TH2F("hDistDepositsTile", "hDistDepositsTile", 30, 0.0, 0.3, 30, 0, 4000);
   m_hDistDepositsHEC    = new TH2F("hDistDepositsHEC", "hDistDepositsHEC", 30, 0.0, 0.3, 30, 0, 4000);  
   
-  m_hEMB1vsdPhi    = new TH2F("hEMB1vsdPhi", "hEMB1vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB2vsdPhi    = new TH2F("hEMB2vsdPhi", "hEMB2vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB3vsdPhi    = new TH2F("hEMB3vsdPhi", "hEMB3vsdPhi", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB1vsdEta    = new TH2F("hEMB1vsdEta", "hEMB1vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB2vsdEta    = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
-  m_hEMB3vsdEta    = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -3.14, 3.14, 50, 0, 500);  
+  m_hEMB1vsdPhi    = new TH2F("hEMB1vsdPhi", "hEMB1vsdPhi", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB2vsdPhi    = new TH2F("hEMB2vsdPhi", "hEMB2vsdPhi", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB3vsdPhi    = new TH2F("hEMB3vsdPhi", "hEMB3vsdPhi", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB1vsdEta    = new TH2F("hEMB1vsdEta", "hEMB1vsdEta", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB2vsdEta    = new TH2F("hEMB2vsdEta", "hEMB2vsdEta", 50, -M_PI, M_PI, 50, 0, 500);  
+  m_hEMB3vsdEta    = new TH2F("hEMB3vsdEta", "hEMB3vsdEta", 50, -M_PI, M_PI, 50, 0, 500);  
   
   if (m_histSvc) {
     sc = m_histSvc->regHist("/AANT/CaloTrkMuId/hDepositLayer12", m_hDepositLayer12);
@@ -1338,15 +1331,14 @@ std::vector< IdentifierHash > & 	neighbourList
 bool TrackDepositInCaloTool::isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable) const {
   double halfWidth = domainWidth/2;
   if (phiVariable) {
-    //double pi = 3.14159265358979312;
-    if ( fabs(fabs(domainCenter)-CLHEP::pi) < domainWidth ) {
-      position += CLHEP::pi;
-      domainCenter += CLHEP::pi;
-      if (position > CLHEP::pi) {
-        position -= 2*CLHEP::pi;
+    if ( fabs(fabs(domainCenter)-M_PI) < domainWidth ) {
+      position += M_PI;
+      domainCenter += M_PI;
+      if (position > M_PI) {
+        position -= 2*M_PI;
       }
-      if (domainCenter > CLHEP::pi){
-        domainCenter -= 2*CLHEP::pi;
+      if (domainCenter > M_PI){
+        domainCenter -= 2*M_PI;
       }
     }
   }

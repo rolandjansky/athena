@@ -89,7 +89,7 @@ atlas_add_test( auxbase_threading_test
    LINK_LIBRARIES xAODCore )
 
 # Declare the "include tests":
-foreach( header AddDVProxy AuxContainerBase AuxSelection BaseInfo CLASS_DEF
+foreach( header AddDVProxy AuxContainerBase AuxSelection AuxCompression BaseInfo CLASS_DEF
       ClassID_traits ShallowAuxContainer ShallowAuxInfo ShallowCopy
       tools_AuxPersInfo tools_AuxPersVector tools_IOStats tools_PerfStats
       tools_PrintHelpers tools_ReadStats tools_SafeDeepCopy

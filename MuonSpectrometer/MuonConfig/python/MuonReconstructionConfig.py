@@ -2,6 +2,7 @@
 
 # Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Local
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
@@ -47,6 +48,11 @@ if __name__=="__main__":
     
     cfg.addService(pps)
     cfg.addService(ars)
+
+    # This is a temporary fix! Should be private!
+    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
+    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
+    cfg.addService( muon_edm_helper_svc )
 
     itemsToRecord = ["Trk::SegmentCollection#MuonSegments", "Trk::SegmentCollection#NCB_MuonSegments"]
     itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 

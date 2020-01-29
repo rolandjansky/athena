@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: MemAnalyzer.py
 # @purpose: a set of classes to analyze (Mem) data from a perfmon tuple
@@ -15,9 +15,9 @@ __doc__     = "A set of classes to analyze (Mem) data from a perfmon tuple."
 import logging
 import numpy, pylab
 import matplotlib.pyplot as plt
-from PyRootLib import importRoot
-from Analyzer  import Analyzer, bookAvgHist, mon_project, make_canvas
-from Constants import Units
+from .PyRootLib import importRoot
+from .Analyzer  import Analyzer, bookAvgHist, mon_project, make_canvas
+from .Constants import Units
     
 class MemAnalyzer( Analyzer ):
     """analyzer working on memory related quantities. It reads the perfmon
@@ -44,11 +44,11 @@ class MemAnalyzer( Analyzer ):
     
     def bookHistos(self, monComp):
         ROOT = importRoot()
-        from PyRootLib import setupRootStyle; setupRootStyle();
+        from .PyRootLib import setupRootStyle; setupRootStyle();
         
         #Analyzer.__bookHistos(self)
 
-        from App import DataSetMgr
+        from .App import DataSetMgr
         for dataSetName in monComp.data.keys():
             dataSet  = DataSetMgr.instances[dataSetName]
             nEntries = len(dataSet.bins)
@@ -83,7 +83,7 @@ class MemAnalyzer( Analyzer ):
 
     def fillHistos(self, monComp):
         
-        from App import DataSetMgr
+        from .App import DataSetMgr
         self.msg.debug("filling histograms...")
 
         # short-hands

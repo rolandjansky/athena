@@ -26,6 +26,8 @@ namespace TrigConf {
        * @param data The data containing the HLT menu 
        */
       HLTMenu(const ptree & data);
+      HLTMenu(const HLTMenu&) = default;
+      HLTMenu(HLTMenu&&) = default;
 
       /** Destructor */
       ~HLTMenu();
@@ -50,8 +52,13 @@ namespace TrigConf {
        * Needed for range-based loops
        */
       const_iterator end() const;
+
+      /** print overview of L1 Menu */
+      void printMenu(bool full = false) const;
    };
 }
+
+#ifndef TRIGCONF_STANDALONE
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::HLTMenu , 24176960 , 1 )
@@ -59,5 +66,6 @@ CLASS_DEF( TrigConf::HLTMenu , 24176960 , 1 )
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::HLTMenu , 155284098 );
 
+#endif
 
 #endif

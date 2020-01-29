@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDAnalysis/python/__init__.py
 # @author scott snyder <snyder@bnl.gov>
@@ -10,7 +9,7 @@
 
 # Install any configurables from this package in the D3PD namespace
 # directly in the top-level module, without the namespace prefix.
-import TruthD3PDAnalysisConf
+from . import TruthD3PDAnalysisConf
 for k, v in TruthD3PDAnalysisConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v

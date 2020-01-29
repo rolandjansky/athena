@@ -16,15 +16,12 @@
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
 
 class Identifier;
 class IdentifierHash;
-
-namespace MuonGM {
-    class MuonDetectorManager;
-}
 
 namespace Trk {
     class RIO_OnTrack;
@@ -74,7 +71,9 @@ namespace Muon {
 
     private:
 
-        const MuonGM::MuonDetectorManager* m_muonMgr;                 //!<Muon detector manager
+	SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+	    "MuonDetectorManager", 
+	    "Key of input MuonDetectorManager condition data"};    
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

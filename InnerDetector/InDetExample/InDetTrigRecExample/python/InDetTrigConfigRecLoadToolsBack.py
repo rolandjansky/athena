@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """ Instantiates tools for back tracking and L2
 """
@@ -19,12 +21,10 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
 #
 from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
 InDetTrigTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name   = 'InDetTrigTRTRoadMaker',
-                                                                       #DetectorStoreLocation = 'DetectorStore',
-                                                                       TRTManagerLocation    = 'TRT',
                                                                        MagneticFieldMode     = 'MapSolenoid',
                                                                        RoadWidth             = 20.,
                                                                        PropagatorTool        = InDetTrigPatternPropagator)
 
 ToolSvc += InDetTrigTRTDetElementsRoadMaker
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigTRTDetElementsRoadMaker
+  print (     InDetTrigTRTDetElementsRoadMaker)

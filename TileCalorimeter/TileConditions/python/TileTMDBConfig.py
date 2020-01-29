@@ -3,6 +3,7 @@
 """Define methods to construct configured Tile TMDB conditions tool and algorithm"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileTMDBCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile TMDB conditions algorithms
@@ -109,7 +110,7 @@ def TileCondToolTMDBCfg(flags, **kwargs):
 
     acc.merge( TileTMDBCondAlgCfg(flags, **kwargs) )
 
-    from TileConditions.TileConditionsConf import TileCondToolTMDB
+    TileCondToolTMDB=CompFactory.TileCondToolTMDB
     acc.setPrivateTools( TileCondToolTMDB(TileTMDBThreshold = threshod,
                                           TileTMDBDelay = delay,
                                           TileTMDBTMF = tmf,

@@ -14,7 +14,6 @@ namespace InDet {
   SiElementPropertiesTableCondAlg::SiElementPropertiesTableCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : ::AthReentrantAlgorithm(name, pSvcLocator)
     , m_condSvc{"CondSvc", name}
-    , m_idHelper{nullptr}
 {
 }
 

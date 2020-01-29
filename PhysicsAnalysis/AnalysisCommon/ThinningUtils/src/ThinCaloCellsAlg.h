@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,7 +26,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaKernel/IThinningSvc.h"
 
 
 // forward declarations
@@ -76,8 +75,8 @@ private:
   /// the private tool)
   ServiceHandle<IJobOptionsSvc> m_jos;
 
-  /// Pointer to IThinningSvc
-  ServiceHandle<IThinningSvc> m_thinningSvc;
+  StringProperty m_streamName
+  { this, "StreamName", "", "Name of the stream being thinned" };
 
   /// The ToolHandle to the ThinningTool
   ToolHandle<DerivationFramework::IThinningTool> m_thinTool;

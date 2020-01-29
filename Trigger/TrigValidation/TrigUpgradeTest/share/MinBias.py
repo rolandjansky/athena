@@ -1,8 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 createHLTMenuExternally=True
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from TrigUpgradeTest.TestUtils import makeChain
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
@@ -10,7 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 chainName = "HLT_mb_sptrk_L1RD0_FILLED"
 
 
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+from TrigInDetConfig.InDetSetup import makeInDetAlgs
 from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 
 idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias', rois=mapThresholdToL1RoICollection('FS'))

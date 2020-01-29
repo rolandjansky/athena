@@ -1,11 +1,13 @@
-#include "../EventInfoCnvTool.h"
-#include "../EventInfoSelectorTool.h"
-#include "../EventInfoCnvAlg.h"
-#include "../EventInfoReaderAlg.h"
 #include "../EventDuplicateFinderAlg.h"
+#include "../EventInfoCnvAlg.h"
+#include "../EventInfoCnvTool.h"
+#include "../EventInfoOverlay.h"
+#include "../EventInfoReaderAlg.h"
+#include "../EventInfoSelectorTool.h"
 
-DECLARE_COMPONENT( xAODMaker::EventInfoCnvTool )
-DECLARE_COMPONENT( xAODMaker::EventInfoSelectorTool )
 DECLARE_COMPONENT( xAODMaker::EventInfoCnvAlg )
-DECLARE_COMPONENT( xAODReader::EventInfoReaderAlg )
+DECLARE_COMPONENT( xAODMaker::EventInfoCnvTool )
+DECLARE_COMPONENT( xAODMaker::EventInfoOverlay )
+DECLARE_COMPONENT( xAODMaker::EventInfoSelectorTool )
 DECLARE_COMPONENT( xAODReader::EventDuplicateFinderAlg )
+DECLARE_COMPONENT( xAODReader::EventInfoReaderAlg )

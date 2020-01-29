@@ -913,8 +913,6 @@ class ComponentAccumulator(object):
             self._msg.error("Failed to initialize AppMgr")
             return sc
 
-        app.printAlgsSequences() #could be removed later ....
-
         sc = app.start()
         if not sc.isSuccess():
             self._msg.error("Failed to start AppMgr")

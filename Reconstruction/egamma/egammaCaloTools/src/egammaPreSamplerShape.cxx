@@ -1,11 +1,10 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "egammaPreSamplerShape.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
-
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -26,7 +25,7 @@ egammaPreSamplerShape::egammaPreSamplerShape(const std::string& type,
         const std::string& name,
         const IInterface* parent)
     : AthAlgTool(type, name, parent),
-    m_calo_dd(0){
+    m_calo_dd(nullptr){
 
         // declare Interface
         declareInterface<IegammaPreSamplerShape>(this);
@@ -41,12 +40,6 @@ StatusCode egammaPreSamplerShape::initialize(){
     // retrieve all helpers from det store
     m_calo_dd = CaloDetDescrManager::instance();
 
-    // Create egammaEnergyAllSamples Tool
-    if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 
     return StatusCode::SUCCESS;
 }
@@ -77,7 +70,7 @@ StatusCode egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
     CaloSampling::CaloSample sam=CaloSampling::PreSamplerB;
     CaloSampling::CaloSample sam2=CaloSampling::EMB2;
     // check if cluster is in barrel or end-cap
-    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,0);
+    bool in_barrel = egammaEnergyPositionAllSamples::inBarrel(cluster,0);
     // define accordingly the position of CaloSampling
     if (in_barrel) {
         sam  = CaloSampling::PreSamplerB; 

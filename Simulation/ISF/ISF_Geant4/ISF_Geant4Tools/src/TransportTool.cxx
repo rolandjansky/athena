@@ -305,6 +305,15 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
     return StatusCode::FAILURE;
   }
 
+  // Retrieve secondaries from user actions
+  for ( auto& parent : particles ) {
+    for ( auto* action : m_secondaryActions ) {
+
+      ISF::ISFParticleContainer someSecondaries = action->ReturnSecondaries( parent );
+
+      secondaries.splice( begin(secondaries), std::move(someSecondaries) );
+    }
+  }
 
   // const DataHandle <TrackRecordCollection> tracks;
 
@@ -371,6 +380,26 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
   // make sure SD collections are properly initialized in every Athena event
   G4SDManager::GetSDMpointer()->PrepareNewEvent();
 
+  if ( m_secondaryActions.empty() )
+  {
+    // Get all UAs
+    std::vector< G4UserSteppingAction* > actions;
+    StatusCode sc = m_userActionSvc->getSecondaryActions( actions );
+    if ( !sc.isSuccess() ) {
+      ATH_MSG_ERROR( "Failed to retrieve secondaries from UASvc" );
+      return sc;
+    }
+
+    // Find the UAs that can return secondaries
+    m_secondaryActions.reserve( actions.size() );
+    for ( G4UserSteppingAction* action : actions ) {
+      G4UA::iGeant4::TrackProcessorUserActionBase * castAction = dynamic_cast< G4UA::iGeant4::TrackProcessorUserActionBase* >( action );
+      if ( castAction ) {
+        m_secondaryActions.push_back( castAction );
+      }
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -418,17 +447,6 @@ StatusCode iGeant4::G4TransportTool::releaseEvent()
   ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
 
   return StatusCode::SUCCESS;
-}
-
-//________________________________________________________________________
-// Act as particle broker for G4 secondaries
-void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
-{
-  ATH_MSG_VERBOSE( "Caught secondary particle push() from Geant4" );
-
-  Slot& slot = *m_slots;
-  Slot::lock_t lock (slot.m_mutex);
-  slot.m_secondariesMap[ parent ].push_back( particle );
 }
 
 //________________________________________________________________________

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from .sugar import IOVSet, RunLumi, RunLumiType
 from .utils import worst
@@ -118,17 +118,17 @@ def iov_yielder(*iovs):
     and for its end. (beginning = True and False respectively)
     """
     eventqueue = []
-    for index, iterable in enumerate(iovs):            
-        next = iter(iterable).next
+    for index, iterable in enumerate(iovs):
+        it = iter(iterable)
         try:
-            iov = next()
+            iov = next(it)
         except StopIteration:
             pass
         else:
-            heappush(eventqueue, (iov.since, True, iov, index, next))
+            heappush(eventqueue, (iov.since, True, iov, index, it))
     
     while eventqueue:
-        position, beginning, iov, index, next = eventqueue[0]
+        position, beginning, iov, index, it = eventqueue[0]
         
         yield position, index, beginning, iov
         
@@ -137,14 +137,14 @@ def iov_yielder(*iovs):
             
         else:            
             try:
-                iov = next()
+                iov = next(it)
             except StopIteration:
                 heappop(eventqueue)
                 continue
                 
             next_key = iov.since, True
                 
-        heapreplace(eventqueue, next_key + (iov, index, next))
+        heapreplace(eventqueue, next_key + (iov, index, it))
 
 def quantize_lb(since, until, states):
     log.info("Evaluating: %s %s %s", since, until, states)

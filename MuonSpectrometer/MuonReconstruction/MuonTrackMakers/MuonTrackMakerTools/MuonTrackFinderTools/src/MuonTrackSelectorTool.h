@@ -28,10 +28,6 @@ namespace Muon {
   class MuonEDMPrinterTool;
 }
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 namespace Trk {
   class Track;
   class ITrackSummaryHelperTool;

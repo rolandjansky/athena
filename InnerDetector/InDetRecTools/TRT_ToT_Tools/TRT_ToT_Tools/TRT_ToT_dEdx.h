@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_TOT_DEDX_H
@@ -24,6 +24,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TRT_ConditionsData/TRTDedxcorrection.h"
+#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
 
 
 /*
@@ -40,9 +41,6 @@ class TRT_ID;
 class IChronoStatSvc;
 class ITRT_StrawSummaryTool;
 
-namespace InDetDD {
-  class TRT_DetectorManager;
-}
 //namespace InDet {
 // class TRT_DriftCircleOnTrack ;
 // } 
@@ -63,9 +61,9 @@ public:
 
 private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo"};
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
   Trk::ParticleMasses        m_particlemasses;  
-  const InDetDD::TRT_DetectorManager* m_trtman;                         // ID TRT detector manager 
 
   // Algorithm switchers
   bool m_corrected;                 // If true - make correction using rs-distributions

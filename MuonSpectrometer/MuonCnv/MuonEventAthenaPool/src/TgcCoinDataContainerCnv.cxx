@@ -15,7 +15,6 @@
 // Id includes
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 
 

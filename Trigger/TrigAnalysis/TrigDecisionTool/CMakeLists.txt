@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 786880 2016-11-28 13:00:09Z krasznaa $
 ################################################################################
 # Package: TrigDecisionTool
 ################################################################################
@@ -60,7 +59,7 @@ else()
       Trigger/TrigEvent/TrigNavStructure
       Trigger/TrigEvent/TrigNavigation
       Trigger/TrigEvent/TrigStorageDefinitions
-      Trigger/TrigSteer/DecisionHandling
+      Trigger/TrigSteer/TrigCompositeUtils
       PRIVATE
       Control/AthenaBaseComps
       Control/AthenaKernel
@@ -90,7 +89,7 @@ else()
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
          LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
-         TrigNavStructure StoreGateLib TrigRoiConversionLib
+         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    else()
@@ -103,7 +102,7 @@ else()
          xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
-         TrigRoiConversionLib DecisionHandlingLib
+         TrigRoiConversionLib TrigCompositeUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()
@@ -124,7 +123,7 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
       LINK_LIBRARIES TrigNavigationLib AthenaKernel GaudiKernel AthContainers
       AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent 
       TrigDecisionToolLib
-      EXTRA_PATTERNS ".*" )
+      POST_EXEC_SCRIPT nopost.sh )
 endif()
 
 # Install files from the package:

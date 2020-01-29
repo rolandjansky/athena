@@ -11,6 +11,8 @@ from .ThresholdType import ThrType
 from .Limits import CaloLimits as CL
 from .TopoAlgorithms import AlgCategory
 
+from past.builtins import cmp
+
 
 log = logging.getLogger("Menu.L1.Base.Thresholds")
 
@@ -60,7 +62,7 @@ class MenuThresholdsCollection( object ):
 
     def json(self):
         confObj = odict()
-        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO]):
+        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO, ThrType.MUTOPO, ThrType.MULTTOPO ]):
             confObj[ttype.name] = odict()
             confObj[ttype.name]["type"] = ttype.name
             confObj[ttype.name]["thresholds"] = odict()
@@ -79,7 +81,7 @@ class MenuThresholdsCollection( object ):
 
     def jsonLegacy(self):
         confObj = odict()
-        for ttype in (ThrType.LegacyTypes() + [ThrType.TOPO]):
+        for ttype in (ThrType.LegacyTypes() + [ThrType.R2TOPO]):
             confObj[ttype.name] = odict()
             confObj[ttype.name]["type"] = ttype.name
             confObj[ttype.name]["thresholds"] = odict()
@@ -632,7 +634,7 @@ class TopoThreshold( Threshold ):
         if ','  in name:
             raise RuntimeError("%s is not a valid topo output name, it should not contain a ','" % name)
         self.algCategory = algCategory
-        super(TopoThreshold,self).__init__(name = name, ttype = 'TOPO', run = 2 if algCategory==AlgCategory.LEGACY else 3)
+        super(TopoThreshold,self).__init__(name = name, ttype = algCategory.key, run = 2 if algCategory==AlgCategory.LEGACY else 3)
         if algCategory not in AlgCategory.getAllCategories():
             raise RuntimeError("%r is not a valid topo category" % algCategory)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SAMPLE_HANDLER_TOOLS_DISCOVERY_H
@@ -26,6 +26,7 @@
 
 #include <RootCoreUtils/Deprecated.h>
 #include <string>
+#include <vector>
 
 class TChain;
 
@@ -118,6 +119,22 @@ namespace SH
   /// failures: out of memory II
   /// requires: ds.find ("*") == std::string::npos
   void addGrid (SampleHandler& sh, const std::string& ds);
+
+
+  /// effects: add a combined grid dataset with name dsName for dataset list dsList
+  /// guarantee: strong
+  /// failures: out of memory II
+  /// requires: for each dataset ds: ds.find ("*") == std::string::npos
+  void addGridCombined (SampleHandler& sh, const std::string& dsName,
+                        const std::vector<std::string>& dsList);
+
+
+  /// effects: add a combined grid dataset with name dsName for dataset list file dsFile
+  /// guarantee: strong
+  /// failures: out of memory II
+  /// requires: for each dataset ds: ds.find ("*") == std::string::npos
+  void addGridCombinedFromFile (SampleHandler& sh, const std::string& dsName,
+                                const std::string& dsFile);
 
 
   /// effects: update all grid samples in the sample handler that are

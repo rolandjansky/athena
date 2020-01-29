@@ -33,6 +33,8 @@
 #include "ISF_Interfaces/IInputConverter.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
 
+#include "TrackProcessorUserActionBase.h"
+
 class G4Event;
 
 class G4AtlasRunManager;
@@ -89,8 +91,6 @@ namespace iGeant4
 
     virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Geant4; };
 
-    virtual void push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent ) override;
-
   private:
 
     /// This command prints a message about a G4Command depending on its returnCode
@@ -110,6 +110,9 @@ namespace iGeant4
 
     G4Timer* m_runTimer{nullptr};
     G4Timer* m_eventTimer{nullptr};
+
+    // user actions that can return secondaries
+    std::vector< G4UA::iGeant4::TrackProcessorUserActionBase* > m_secondaryActions;
 
     // store secondary particles that have been pushed back
     struct Slot

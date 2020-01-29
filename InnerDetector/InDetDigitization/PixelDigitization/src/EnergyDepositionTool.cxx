@@ -1,14 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// EnergyDepositionTool.cxx
-//   Implementation file for class EnergyDepositionTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-// Details in head file
-///////////////////////////////////////////////////////////////////
 
 #include "EnergyDepositionTool.h"
 
@@ -39,30 +31,8 @@ using namespace std;
 
 // Constructor with parameters:
 EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::string& name,const IInterface* parent):
-  AthAlgTool(type,name,parent),
-  m_numberOfSteps(50),
-  m_numberOfCharges(10),
-  m_disableDistortions(false),
-  m_doBichsel(false),
-  m_doBichselBetaGammaCut(0.1),        // replace momentum cut
-  m_doDeltaRay(false),                 // need validation
-  m_doPU(true),
-  m_pixelID(nullptr)
-{ 
+  AthAlgTool(type,name,parent) {}
 
-  declareProperty("DeltaRayCut", m_DeltaRayCut = 117.);
-  declareProperty("nCols", m_nCols = 1);
-  declareProperty("LoopLimit", m_LoopLimit = 100000);
-  declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelPlanar");
-  declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for PixelPlanar");
-  declareProperty("DisableDistortions",m_disableDistortions, "Disable simulation of module distortions");
-  declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
-  declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
-  declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
-  declareProperty("doPU", m_doPU, "Whether we apply Bichsel model on PU");
-}
-
-// Destructor:
 EnergyDepositionTool::~EnergyDepositionTool(){}
 
 //=======================================
@@ -90,7 +60,7 @@ StatusCode EnergyDepositionTool::initialize() {
     for(int iParticleType = 1; iParticleType <= n_ParticleType; iParticleType++){
     
       std::ifstream inputFile;
-      TString inputFileName = TString::Format("PixelDigitization/Bichsel_%d%s.dat", iParticleType, m_nCols == 1 ? "" : TString::Format("_%dsteps", m_nCols).Data());
+      TString inputFileName = TString::Format("PixelDigitization/Bichsel_%d%s.dat", iParticleType, m_nCols==1 ? "" : TString::Format("_%dsteps",(int)m_nCols).Data());
 
       std::string FullFileName = PathResolverFindCalibFile(std::string(inputFileName.Data()));
       inputFile.open(FullFileName.data());

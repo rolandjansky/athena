@@ -9,6 +9,11 @@ StreamBS = AthenaOutputStream("StreamBS",
                               EvtConversionSvc = "ByteStreamCnvSvc",
                               ExtraInputs = [('xAOD::EventInfo','StoreGateSvc+EventInfo')])
 
+#Ensure StreamBS runs before L1Decoder
+transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
+StreamBS.ExtraOutputs += [transTypeKey]
+
+
 if not TriggerFlags.fakeLVL1():
    theApp.Dlls += ["TrigT1ResultByteStream"]
    StreamBS.ItemList += ["ROIB::RoIBResult#*"]

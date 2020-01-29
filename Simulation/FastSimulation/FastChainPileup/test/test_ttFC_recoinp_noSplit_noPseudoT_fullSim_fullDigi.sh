@@ -6,11 +6,17 @@
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root
-# art-output: dcube
+# art-output: dcube-id
 
+
+inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_recoinp_noSplit_noPseudoT_fullSim_fullDigi"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
+art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
+dcubeName="ttFC_recoinp_noSplit_noPseudoT_fullSim_fullDigi"
+dcubeXmlID="${inputXmlDir}/dcube_ID_recoinp.xml"
+dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
 
 # RDO input from 21.3/Nov13 nightly test_ttFC_reco_noSplit_noPseudoT_fullSim_fullDigi.sh
-
 FastChain_tf.py --maxEvents 500 \
     --skipEvents 0 \
     --geometryVersion ATLAS-R2-2015-03-01-00 \
@@ -21,15 +27,25 @@ FastChain_tf.py --maxEvents 500 \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
 
-rc=$?
-rc2=-9999
-echo  "art-result: $rc RDOtoAOD"
-if [ $rc -eq 0 ]
+rc3=$?
+rc4=-9999
+rc5=-9999
+if [ ${rc3} -eq 0 ]
 then
+    # Regression test
     ArtPackage=$1
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-    rc2=$?
-fi
+    rc4=$?
 
-echo  "art-result: $rc2 regression"
+    # Histogram comparison with DCube
+    bash ${art_dcube} ${dcubeName} InDetStandardPlots.root ${dcubeXmlID} ${dcubeRefID}
+    rc5=$?
+    if [ -d "dcube" ]
+    then
+       mv "dcube" "dcube-id"
+    fi
+fi
+echo  "art-result: ${rc3} RDOtoAOD"
+echo  "art-result: ${rc4} regression"
+echo  "art-result: ${rc5} dcubeID"

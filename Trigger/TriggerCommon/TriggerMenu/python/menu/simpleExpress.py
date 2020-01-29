@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """Express stream addition  """
 
@@ -44,4 +44,8 @@ def addExpressStream(triggerPythonConfig):
 ExpressNamesPPV4= {
     'mu24_tight'               :   1,
     }
+ExpressNamesPPV5 = ExpressNamesPPV4
+ExpressNamesPPV6 = ExpressNamesPPV4
+ExpressNamesPPV6 = ExpressNamesPPV4
+ExpressNamesPPV7 = ExpressNamesPPV4
 

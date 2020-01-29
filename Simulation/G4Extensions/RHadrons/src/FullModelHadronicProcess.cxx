@@ -13,7 +13,7 @@
 
 
 FullModelHadronicProcess::FullModelHadronicProcess(const G4String& processName) :
-  G4VDiscreteProcess(processName,fUserDefined),m_theParticle(0),m_newParticle(0),m_toyModel(false),m_cache(0)
+  G4VDiscreteProcess(processName,fUserDefined),m_theParticle(0),m_newParticle(0),m_cache(0)
 {
   // Instantiating helper class
   m_theHelper = G4ProcessHelper::Instance();

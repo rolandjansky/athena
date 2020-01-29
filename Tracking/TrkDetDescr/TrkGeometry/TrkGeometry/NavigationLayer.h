@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -84,21 +84,30 @@ namespace Trk {
         /** move the Layer */
         virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D&  ) const override;
     protected:
-      /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeLayer(const VolumeBounds&, double)  override {}      
-        /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const override {}      
-       
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)  override {}
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, const Amg::Vector3D&, double) const override {}
+      /** Resize the layer to the tracking volume - not implemented */
+      virtual void resizeLayer(const VolumeBounds&, double) override {}
+      /** Resize the layer to the tracking volume - not implemented */
+      virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                           double) const override
+      {}
 
-        Surface*  m_surfaceRepresentation;       //!< for the navigation Volume the surface is a private member */
-      
+      /** Resize the layer to the tracking volume - not implemented */
+      virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                            const Amg::Vector3D&,
+                                            double) override
+      {}
+      /** Resize the layer to the tracking volume - not implemented */
+      virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                                        const Amg::Vector3D&,
+                                                                        double) const override
+      {}
+
+      Surface*
+        m_surfaceRepresentation; //!< for the navigation Volume the surface is a private member */
+
     private:
-        /**Default Constructor*/
-        NavigationLayer(){}
+      /**Default Constructor*/
+      NavigationLayer() {}
             
   };
 

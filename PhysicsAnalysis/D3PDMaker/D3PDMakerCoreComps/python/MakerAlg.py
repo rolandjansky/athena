@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: MakerAlg.py 711762 2015-11-30 21:06:11Z ssnyder $
 #
@@ -58,8 +58,8 @@ def _stream_from_file (file, seq, tuplename, streamNameRoot,
     # Find a unique name for the new stream.
     stream = streamNameRoot
     istream = 1
-    while streams.has_key (stream):
-        stream = streamNameRoot + `istream`
+    while stream in streams:
+        stream = streamNameRoot + str(istream)
         istream += 1
 
     # Create the stream, and add it to the sequence.
@@ -249,7 +249,7 @@ class MakerAlg (D3PDMakerCoreCompsConf.D3PD__MakerAlg):
         collection getter registry for this tree.
 """
         
-        if conf.properties().has_key ('CollectionGetterRegistry'):
+        if 'CollectionGetterRegistry' in conf.properties():
             conf.CollectionGetterRegistry = self._registry
         for c in conf.getAllChildren():
             self._setRegistry (c)

@@ -101,9 +101,9 @@ default_options = MTCalibPebHypoOptions()
 def make_l1_seq():
     all_algs = []
 
-    # Configure RoIBResult decoding (input to L1Decoder)
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-    all_algs.append(RoIBResultByteStreamDecoderAlg())
+    # Create inputs for L1Decoder from ByteStream
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+    L1ByteStreamDecodersRecExSetup()
 
     # Set menu for L1ConfigSvc
     from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -111,9 +111,8 @@ def make_l1_seq():
 
     # Ensure LVL1ConfigSvc is initialised before L1Decoder handles BeginRun incident
     # This should be done by the L1Decoder configuration in new-style job options (with component accumulator)
-    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, getL1ConfigSvc
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    l1JsonFile = generateL1Menu()
     svcMgr += getL1ConfigSvc()
 
     # Initialise L1 decoding tools
@@ -331,7 +330,7 @@ def write_dummy_menu_json(chains, chain_to_streams):
         menu_dict['chains'].append(chain_dict)
         counter += 1
 
-    file_name = 'HLTmenu_{:s}.json'.format(menu_name)
+    file_name = 'HLTMenu_{:s}.json'.format(menu_name)
 
     log.info('Writing trigger menu to %s', file_name)
     with open(file_name, 'w') as json_file:

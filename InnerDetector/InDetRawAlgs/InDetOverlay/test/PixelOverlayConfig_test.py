@@ -1,40 +1,36 @@
 #!/usr/bin/env python
 """Run tests on PixelOverlayConfig.py
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 
 from AthenaCommon.Configurable import Configurable
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
-
-# Global test config
-nThreads = 1
+from OverlayConfiguration.OverlayTestHelpers import \
+    CommonTestArgumentParser, postprocessAndLockFlags, printAndRun
+from OverlayCopyAlgs.OverlayCopyAlgsConfig import CopyMcEventCollectionCfg
 
 # Configure
 Configurable.configurableRun3Behavior = True
 
+# Argument parsing
+parser = CommonTestArgumentParser("PixelOverlayConfig_test.py")
+args = parser.parse_args()
+
+# Configure
 ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG
 ConfigFlags.Input.SecondaryFiles = defaultTestFiles.HITS
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Overlay.DataOverlay = False
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
-# Flags relating to multithreaded execution
-ConfigFlags.Concurrency.NumThreads = nThreads
-if nThreads > 0:
-    ConfigFlags.Scheduler.ShowDataDeps = True
-    ConfigFlags.Scheduler.ShowDataFlow = True
-    ConfigFlags.Scheduler.ShowControlFlow = True
-    ConfigFlags.Concurrency.NumConcurrentEvents = nThreads
+ConfigFlags.Output.RDO_SGNLFileName = "myRDO_SGNL.pool.root"
 
-ConfigFlags.lock()
+postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
 acc = MainServicesThreadedCfg(ConfigFlags)
@@ -46,15 +42,5 @@ acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 # Add Pixel overlay
 acc.merge(PixelOverlayCfg(ConfigFlags))
 
-# Dump config
-acc.printConfig(withDetails=True)
-ConfigFlags.dump()
-
-# Execute and finish
-sc = acc.run(maxEvents=3)
-
-# Dump config summary
-acc.printConfig(withDetails=False)
-
-# Success should be 0
-sys.exit(not sc.isSuccess())
+# Print and run
+sys.exit(printAndRun(acc, ConfigFlags, args))

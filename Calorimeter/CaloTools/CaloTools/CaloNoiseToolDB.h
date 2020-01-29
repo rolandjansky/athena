@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -32,16 +32,16 @@
 #include "LArElecCalib/ILArCellHVCorrTool.h"
 #include <mutex>
 #include <atomic>
-
 #define sqrt2 1.4142135623730950
 #define invsqrt2 0.707106781186547524
 
-
+#include "CxxUtils/checker_macros.h"
 class CaloCondBlobFlt;
 
 
-class CaloNoiseToolDB: public AthAlgTool,
-	             virtual public ICaloNoiseTool
+class ATLAS_NOT_THREAD_SAFE /*Registers callbacks*/ CaloNoiseToolDB : 
+             public AthAlgTool,
+	           virtual public ICaloNoiseTool
 {
 public:    
 
@@ -307,8 +307,7 @@ private:
 
    std::string   m_ReturnNoiseName;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloIdManager*     m_caloIdMgr = nullptr;
   const CaloCell_ID*       m_calo_id;
 
   // number of EM systems in SYSTEM enum

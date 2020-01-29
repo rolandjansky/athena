@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // METMuonAssociator.cxx 
@@ -14,14 +14,13 @@
 
 // METReconstruction includes
 #include "METReconstruction/METMuonAssociator.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 // Muon EDM
 #include "xAODMuon/MuonContainer.h"
 
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
-
-#include "CaloClusterMatching/ICaloClusterMatchingTool.h"
 
 namespace met {
 
@@ -52,7 +51,12 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_muContKey.assign(m_input_data_key));
     ATH_CHECK( m_muContKey.initialize());
-
+    if (m_doMuonClusterMatch) {
+      ATH_CHECK(m_elementLinkName.initialize());
+    }
+    else {
+      m_elementLinkName="";
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -114,7 +118,7 @@ namespace met {
 		   << " MeasuredEloss: " << mu->floatParameter(xAOD::Muon::MeasEnergyLoss)
 		   << " FSR E: " << mu->floatParameter(xAOD::Muon::FSR_CandidateEnergy) );
       
-      static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
+      SG::ReadDecorHandle<CaloClusterContainer, std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc(m_elementLinkName); 
       for(const auto& matchel : tcLinkAcc(*muclus)) {
 	if(!matchel.isValid()) {continue;} // In case of thinned cluster collection
 	ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
@@ -190,8 +194,8 @@ namespace met {
       } else {
       	// get neutral PFOs by matching the muon cluster
       	if(muclus && m_doMuonClusterMatch) {
-      
-      	  static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
+
+	  SG::ReadDecorHandle<CaloClusterContainer, std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc(m_elementLinkName); 
       	  for(const auto& matchel : tcLinkAcc(*muclus)) {
 	    if(!matchel.isValid()) {
 	      ATH_MSG_DEBUG("Invalid muon-cluster elementLink");

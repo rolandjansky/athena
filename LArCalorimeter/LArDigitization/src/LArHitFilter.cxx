@@ -143,7 +143,7 @@ StatusCode LArHitFilter::initialize()
 
 
   //retrieve ID helpers
-  const DataHandle<CaloIdManager> caloIdMgr;
+  const CaloIdManager* caloIdMgr = nullptr;
   StatusCode sc = detStore()->retrieve(caloIdMgr);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve CaloIdManager from DetectoreStore");

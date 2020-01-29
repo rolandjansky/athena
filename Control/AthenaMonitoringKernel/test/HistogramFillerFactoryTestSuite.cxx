@@ -48,7 +48,7 @@ class HistogramProviderGetter : public HistogramFiller {
       : HistogramFiller(hf) {}
 
     virtual unsigned fill() { return 0; }
-    virtual HistogramFiller* clone() { return nullptr; }
+    virtual HistogramFiller* clone() const { return nullptr; }
 
     std::shared_ptr<IHistogramProvider> histogramProvider() { return m_histogramProvider; }
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -11,6 +11,12 @@
 
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 #include <vector>
+
+/**
+ * SiDetElementsLayerVectors_xk is a vector of SiDetElementsLayer_xk.
+ * SiDetElementsLayerVectors_xk is prepared by SiDetElementsRoadCondAlg_xk,
+ * stored in condition store and is used by SiDetElementsRoadMaker_xk.
+ */
 
 namespace InDet {
   typedef std::vector<std::vector<InDet::SiDetElementsLayer_xk>> SiDetElementsLayerVectors_xk;

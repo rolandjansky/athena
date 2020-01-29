@@ -80,9 +80,10 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   
+  const xAOD::TrigEMClusterContainer* eFEXCluster = nullptr; // cluster from eFEX
   if(  evtStore()->contains< xAOD::TrigEMClusterContainer >(m_eFEXClusterLoc)  ) {
-    CHECK ( evtStore()->retrieve( m_eFEXCluster, m_eFEXClusterLoc ) );
-    ATH_MSG_DEBUG( "Retrieved eFEX em cluster container '" << m_eFEXClusterLoc << "' with size " << m_eFEXCluster->size());
+    CHECK ( evtStore()->retrieve( eFEXCluster, m_eFEXClusterLoc ) );
+    ATH_MSG_DEBUG( "Retrieved eFEX em cluster container '" << m_eFEXClusterLoc << "' with size " << eFEXCluster->size());
   }
   else {
     ATH_MSG_WARNING("No xAOD::TrigEMClusterContainer with SG key '" << m_eFEXClusterLoc.toString() << "' found in the event. No EM cluster input for the L1Topo simulation.");
@@ -90,7 +91,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
   }
 
   std::vector< CPTopoTOB > tobs;
-  for( const auto & cl : *m_eFEXCluster ) {
+  for( const auto & cl : *eFEXCluster ) {
 
     ATH_MSG_DEBUG( "EMTAU TOB with c" 
 		   //removing the "isolaion for now in printouts

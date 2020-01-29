@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGCONFDATA_DATASTRUCTURE
-#define TRIGCONFDATA_DATASTRUCTURE
+#ifndef TRIGCONFDATA_DATASTRUCTURE_H
+#define TRIGCONFDATA_DATASTRUCTURE_H
 
 /**
  * @file TrigConfData/DataStructure.h
@@ -14,6 +14,8 @@
 
 #include <iostream>
 #include <vector>
+#include <memory>
+#include <type_traits>
 #include "boost/property_tree/ptree.hpp"
 
 namespace TrigConf {
@@ -42,16 +44,24 @@ namespace TrigConf {
       /** Default constructor, leading to an uninitialized configuration object */
       DataStructure();
 
+      DataStructure(const DataStructure&) = default;
+      DataStructure(DataStructure&&) = default;
+
+      DataStructure& operator=(const DataStructure&) = default;
+      DataStructure& operator=(DataStructure&&) = default;
+
       /** Constructor initialized with configuration data 
        * @param data Reference to the data container 
        */
-      DataStructure(const ptree &);
+      DataStructure(const ptree & data);
+      DataStructure(ptree && data);
 
       /** Destructor */
       virtual ~DataStructure();
 
       /** @brief Setting the configuration data */
       void setData(const ptree & data);
+      void setData(ptree && data);
 
       /** Clearing the configuration data
        * 
@@ -60,7 +70,9 @@ namespace TrigConf {
       void clear();
 
       /** Access to the underlying data, if needed */
-      ptree data() const { return m_data; }
+      const ptree & data() const {
+         return ownsData() ? *m_dataSPtr.get() : *m_dataPtr;
+      }
 
       /** Check for attribute
        * @return true if the structure is just a value
@@ -73,7 +85,12 @@ namespace TrigConf {
        * For instance when the json structure contains an array of values (ptree only works with strings) which
        * one retrieved via @c getList, then the values in the vector<@c DataStructure> can be accessed using getValue
        */
-      std::string getValue() const;
+      std::string getValue() const;  // this will be removed in the next MR (TrigSignatureMoniMT still depends on it)
+
+      template<class T>
+      T getValue() const {
+         return data().get_value<T>();
+      }
 
       /** Check for attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
@@ -96,7 +113,16 @@ namespace TrigConf {
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
        * @param ignoreIfMissing Controls the behavior in case of missing configuration child
        */
-      std::string getAttribute(const std::string & key, bool ignoreIfMissing = false, const std::string & def = "") const;
+      template<class T>
+      T getAttribute(const std::string & key, bool ignoreIfMissing = false, const T & def = T()) const {
+         const auto & obj = data().get_child_optional(key);
+         if( !obj && ignoreIfMissing ) {
+            return def;
+         }
+         return obj.get().get_value<T>();
+      }
+
+      const std::string & getAttribute(const std::string & key, bool ignoreIfMissing = false, const std::string & def = "") const;
 
       /** Access to array structure
        * @param pathToChild The path to the configuration child, relative to the current one in form "path.to.child"
@@ -135,7 +161,7 @@ namespace TrigConf {
       bool isValid() const { return m_initialized; }
 
       /** Check if children exist */
-      bool empty() const { return m_data.empty(); }
+      bool empty() const { return data().empty(); }
 
       /* Print this object including children
        * @param os The output stream
@@ -153,6 +179,10 @@ namespace TrigConf {
                                uint level = 0,
                                std::ostream & os = std::cout);
 
+      bool ownsData() const {
+         return (bool)m_dataSPtr;
+      }
+
    protected:
 
       /** Update the internal data after modification of the data object
@@ -163,17 +193,22 @@ namespace TrigConf {
 
       bool m_initialized { false }; //!< if initialized, the underlying ptree is has been assigned to (can be empty)
 
-      ptree m_data; //!< object holding the configuration data
+      std::shared_ptr<ptree> m_dataSPtr { nullptr }; // used when owning the tree
+      const ptree * m_dataPtr { nullptr }; // used when not owning the tree
    
    };
 
 }
 
-#include "AthenaKernel/CLASS_DEF.h"
+#ifndef TRIGCONF_STANDALONE
+
+#include "AthenaKernel/CLASS_DEF.h" 
 CLASS_DEF( TrigConf::DataStructure , 98904516 , 1 )
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::DataStructure , 265887802 );
+
+#endif
 
 
 #endif

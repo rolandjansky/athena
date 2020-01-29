@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "EDM_object.h"
 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 #include <vector>
 
 class MMDigitVariables;
@@ -32,10 +34,6 @@ class TTree;
 class MmIdHelper;
 class sTgcIdHelper;
 class CscIdHelper;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 class NSWPRDValAlg:public AthAlgorithm
 {
@@ -71,11 +69,19 @@ class NSWPRDValAlg:public AthAlgorithm
   ITHistSvc *m_thistSvc;
   TTree *m_tree;
 
-  const MuonGM::MuonDetectorManager* m_detManager;
+  // MuonDetectorManager from the Detector Store (to be used only at initialize)
+  const MuonGM::MuonDetectorManager* m_muonDetMgrDS;
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
+
   const MmIdHelper*   m_MmIdHelper;
   const sTgcIdHelper* m_sTgcIdHelper;
   const CscIdHelper*  m_CscIdHelper;
 
+  BooleanProperty  m_isData;             // if false use MuonDetectorManager from detector store everywhere
   BooleanProperty  m_doTruth;            // switch on the output of the MC truth
   BooleanProperty  m_doMuEntry;          // switch on the output of the Muon Entry Layer
   BooleanProperty  m_doSTGCHit;          // switch on the output of the Small TGC data

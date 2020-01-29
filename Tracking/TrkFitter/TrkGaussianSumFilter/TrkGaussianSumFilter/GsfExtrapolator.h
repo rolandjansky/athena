@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /*********************************************************************************
@@ -16,7 +16,7 @@ AlgTool inheriting from the IMultiStateExtrapolator class
 #ifndef TrkGsfExtrapolator_H
 #define TrkGsfExtrapolator_H
 
-#include "GaudiKernel/Counters.h"
+#include <Gaudi/Accumulators.h>
 
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/INavigator.h"
@@ -48,7 +48,6 @@ class TrackStateOnSurface;
 class MaterialProperties;
 class IMultiComponentStateMerger;
 class IMaterialMixtureConvolution;
-class IMultiComponentStateCombiner;
 class IMultipleScatteringUpdator;
 /** @struct StateAtBoundarySurface
   - Structure to contain information about a state at the interface between tracking volumes
@@ -106,7 +105,7 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
@@ -115,7 +114,7 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation method (1) */
@@ -123,7 +122,7 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
@@ -131,14 +130,14 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM(
     const MultiComponentState&,
     const Surface& sf,
     PropDirection dir,
-    BoundaryCheck bcheck,
+    const BoundaryCheck& bcheck,
     ParticleHypothesis particle) const override final;
 
 private:
@@ -171,14 +170,14 @@ private:
                                                        const MultiComponentState&,
                                                        const Surface&,
                                                        PropDirection direction = anyDirection,
-                                                       BoundaryCheck boundaryCheck = true,
+                                                       const BoundaryCheck& boundaryCheck = true,
                                                        ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   std::unique_ptr<MultiComponentState> extrapolateImpl(Cache& cache,
                                                        const MultiComponentState&,
                                                        const Surface&,
                                                        PropDirection direction = anyDirection,
-                                                       BoundaryCheck boundaryCheck = true,
+                                                       const BoundaryCheck& boundaryCheck = true,
                                                        ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Two primary private extrapolation methods
@@ -202,7 +201,7 @@ private:
                                                                const Layer*,
                                                                const TrackingVolume&,
                                                                PropDirection direction = anyDirection,
-                                                               BoundaryCheck boundaryCheck = true,
+                                                               const BoundaryCheck& boundaryCheck = true,
                                                                ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Additional private extrapolation methods */
@@ -213,7 +212,7 @@ private:
                                                          const MultiComponentState&,
                                                          const TrackingVolume&,
                                                          const Layer* startLayer,
-                                                         const Layer* destinationLayer = 0,
+                                                         const Layer* destinationLayer = nullptr,
                                                          PropDirection direction = anyDirection,
                                                          ParticleHypothesis particleHypothesis = nonInteracting) const;
 
@@ -235,7 +234,7 @@ private:
                                                                           const Layer&,
                                                                           const Layer*,
                                                                           PropDirection direction = anyDirection,
-                                                                          BoundaryCheck boundaryCheck = true,
+                                                                          const BoundaryCheck& boundaryCheck = true,
                                                                           ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Extrapolation to consider material effects assuming all material on active sensor elements - CTB method */
@@ -244,7 +243,7 @@ private:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** GSF Method to propagate a number of components simultaneously */
@@ -252,7 +251,7 @@ private:
                                            const MultiComponentState&,
                                            const Surface&,
                                            PropDirection direction = anyDirection,
-                                           BoundaryCheck boundaryCheck = true,
+                                           const BoundaryCheck& boundaryCheck = true,
                                            ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method to choose propagator type */
@@ -311,10 +310,6 @@ private:
     "Trk::GsfMaterialMixtureConvolution/GsfMaterialMixtureConvolution",
     ""
   };
-  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{ this,
-                                                            "MultiComponentStateCombiner",
-                                                            "Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",
-                                                            "" };
   ToolHandle<IMultipleScatteringUpdator> m_msupdators{ this,
                                                        "MultipleScatteringUpdator",
                                                        "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",
@@ -363,9 +358,9 @@ inline void
 Trk::GsfExtrapolator::resetRecallInformation(Cache& cache) const
 {
   cache.m_recall = false;
-  cache.m_recallSurface = 0;
-  cache.m_recallLayer = 0;
-  cache.m_recallTrackingVolume = 0;
+  cache.m_recallSurface = nullptr;
+  cache.m_recallLayer = nullptr;
+  cache.m_recallTrackingVolume = nullptr;
 }
 
 inline void

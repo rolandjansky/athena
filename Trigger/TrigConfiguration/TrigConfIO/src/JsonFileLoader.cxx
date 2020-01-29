@@ -3,13 +3,14 @@
 */
 
 #include "TrigConfIO/JsonFileLoader.h"
-#include "PathResolver/PathResolver.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include <sys/stat.h>
 #include <filesystem>
+#include <cstdlib>
+#include <cstring>
 
 using ptree = boost::property_tree::ptree;
 
@@ -21,7 +22,51 @@ TrigConf::JsonFileLoader::JsonFileLoader() :
 TrigConf::JsonFileLoader::~JsonFileLoader()
 {}
 
-StatusCode
+/*
+  File will be search first absolute (when starting with "/" or
+  relative to the current path
+
+  If not found it will be searched in XMLPATH
+*/
+std::string
+TrigConf::JsonFileLoader::findFile(const std::string & filename) const {
+
+   // check for the file as specified
+   if( std::filesystem::exists( filename ) ) {
+      return filename;
+   }
+
+   // check if absolute location has been specified
+   if (filename.find("/")==0) {
+      TRG_MSG_WARNING("Can not find file with absolute location " << filename);
+      return "";
+   } 
+
+   // check if environment DATAPATH exists
+   const char * dp = std::getenv("XMLPATH");
+   if( dp == nullptr ) {
+      TRG_MSG_WARNING("Path environment $DATAPATH has not been defined");
+      return "";
+   }
+         
+   // resolve location using XMLPATH
+   std::string fnCopy(filename);
+   char *token = std::strtok( &*fnCopy.begin(), ":");
+   while ( token != nullptr ) {
+      std::cout << token << '\n';
+      std::filesystem::path fullname(token); 
+      fullname /= filename;
+      if( std::filesystem::exists( fullname ) ) {
+         return filename;
+      }
+      // go to the next 
+      token = std::strtok( nullptr, " ");
+   }
+
+   return "";
+}
+
+bool
 TrigConf::JsonFileLoader::loadFile( const std::string & filename,
                                     boost::property_tree::ptree & data,
                                     const std::string & pathToChild ) const 
@@ -33,34 +78,10 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
     2) if not and the path is not an absolute one, use the DATAPATH
    */
 
-   std::string file=""; // resolved file name
-   struct stat buffer;   
-   bool existsAsSpecified = (stat (filename.c_str(), &buffer) == 0); 
-
-
-   if( existsAsSpecified ) {
-      file = filename;
-   } else {
-      if (filename.find("/")==0) { // absolute location
-         TRG_MSG_WARNING("Can not find file with absolute location " << filename);
-         return StatusCode::RECOVERABLE;
-      } else {
-         // check if environment DATAPATH exists
-         PathResolver::SearchPathStatus pathStatus = PathResolver::check_search_path ("DATAPATH");
-         if ( pathStatus == PathResolver::EnvironmentVariableUndefined ) {
-            TRG_MSG_WARNING("Path environment $DATAPATH has not been defined");
-            return StatusCode::RECOVERABLE;
-         }
-         
-         // resolve absolute location
-         file = PathResolver::find_file (filename, "DATAPATH");   
-         if ( file == "" ) {
-            TRG_MSG_WARNING("Did not find file " << filename << " in $DATAPATH");
-            return StatusCode::RECOVERABLE;
-         }
-      }
+   std::string file = findFile(filename); // resolved file name
+   if ( file == "" ) {
+      return false;
    }
-
    TRG_MSG_INFO("Reading information from " << file);
 
    // Load the json file
@@ -69,7 +90,7 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
    }
    catch (const boost::property_tree::json_parser_error& e) {
       TRG_MSG_WARNING("Could either not locate or parse the file " << file);
-      return StatusCode::RECOVERABLE; 
+      return false; 
    }
 
    if( ! pathToChild.empty() ) {
@@ -84,36 +105,33 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
       }
    }
 
-   return StatusCode::SUCCESS;
+   return true;
 }
 
 
-StatusCode
+bool
 TrigConf::JsonFileLoader::loadFile( const std::string & filename,
                                     DataStructure & data,
                                     const std::string & pathToChild ) const
 {
    boost::property_tree::ptree pt;
 
-   StatusCode sc = this -> loadFile( filename, pt, pathToChild);
+   if( ! loadFile( filename, pt, pathToChild) )
+      return false;
 
-   if(!sc.isSuccess())
-      return sc;
+   data.setData(std::move(pt));
 
-   data.setData(pt);
-
-   return StatusCode::SUCCESS;
+   return true;
 }
 
 
 std::string
-TrigConf::JsonFileLoader::getFileType( const std::string & filename ) const {
+TrigConf::JsonFileLoader::getFileType( const std::string & filename ) const
+{
    std::string ft = "UNKNOWN";
 
    DataStructure data;
-   StatusCode sc = this -> loadFile ( filename, data );
-
-   if (sc == StatusCode::SUCCESS) {
+   if ( loadFile ( filename, data ) ) {
       ft = data.getAttribute("filetype", /*ignoreIfMissing*/ true, ft);
    }
 
@@ -121,16 +139,17 @@ TrigConf::JsonFileLoader::getFileType( const std::string & filename ) const {
 }
 
 
-StatusCode
+bool
 TrigConf::JsonFileLoader::checkTriggerLevel( const std::string & filename,
-                                             std::string & level ) const {
+                                             std::string & level ) const
+{
    level = "UNKNOWN";
 
    DataStructure data;
 
-   StatusCode sc = this -> loadFile ( filename, data );
+   bool succeeded = this -> loadFile ( filename, data );
 
-   if (sc == StatusCode::SUCCESS) {
+   if ( succeeded ) {
       if (data.hasChild("chains")) {
          level = "HLT";
       } else if (data.hasChild("items")) {
@@ -138,5 +157,5 @@ TrigConf::JsonFileLoader::checkTriggerLevel( const std::string & filename,
       }
    }
 
-   return sc;
+   return succeeded;
 }

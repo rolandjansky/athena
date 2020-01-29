@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // csc_cosmic_cluster.cxx
@@ -72,13 +72,11 @@ namespace {
     float m_dpos;
     int m_phisec;
     int m_wlay;
-    float m_x;
-    float m_y;
     float m_z;
   public:
     Cluster(float pos, float dpos, float z)
       : m_pos(pos), m_dpos(dpos), m_phisec(-1), m_wlay(-1),
-        m_x(-9999.), m_y(-9999.), m_z(z) { }
+        m_z(z) { }
     float z()    const { return m_z; }
     float pos()    const { return m_pos; }
     float dpos()   const { return m_dpos; }

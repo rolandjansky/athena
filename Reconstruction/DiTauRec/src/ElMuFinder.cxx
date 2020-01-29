@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "DiTauRec/ElMuFinder.h"
 #include "DiTauRec/DiTauToolBase.h"
@@ -10,9 +9,6 @@
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
-
-// #include "MuonSelectorTools/errorcheck.h"
-#include "MuonSelectorTools/MuonSelectionTool.h"
 
 #include "tauRecTools/KineUtils.h"
 
@@ -77,42 +73,51 @@ StatusCode ElMuFinder::execute(DiTauCandidateData * data,
     SG::ReadHandle<xAOD::MuonContainer> pMuCont (m_muContName, ctx);
 
     // select electrons
-    data->electrons.clear();
     float dR;
-    for (const auto& el : *pElCont ) {
-        ATH_MSG_DEBUG("electron pt:" << el->pt() << " eta:" << el->eta() << " phi:" << el->phi());
-        if ( !el->author(xAOD::EgammaParameters::AuthorElectron) && 
-             !el->author(xAOD::EgammaParameters::AuthorAmbiguous) )
-            continue;    
-        ATH_MSG_DEBUG("Electron passes author selection.");
-
-        if (el->pt() < m_elMinPt || fabs(el->eta()) > m_elMaxEta)
-            continue;
-        ATH_MSG_DEBUG("Electron passes basic kinematic selection");
-
-        // electron inside seed jet area?
-        dR = Tau1P3PKineUtils::deltaR(data->seed->eta(), data->seed->phi(), el->eta(), el->phi());
-        if (dR > data->Rjet)
-            continue;
-
-        data->electrons.push_back(el);
+    data->electrons.clear();
+    if (pElCont.isValid()) {
+        for (const auto& el : *pElCont ) {
+            ATH_MSG_DEBUG("electron pt:" << el->pt() << " eta:" << el->eta() << " phi:" << el->phi());
+            if ( !el->author(xAOD::EgammaParameters::AuthorElectron) && 
+                 !el->author(xAOD::EgammaParameters::AuthorAmbiguous) )
+                continue;    
+            ATH_MSG_DEBUG("Electron passes author selection.");
+    
+            if (el->pt() < m_elMinPt || fabs(el->eta()) > m_elMaxEta)
+                continue;
+            ATH_MSG_DEBUG("Electron passes basic kinematic selection");
+    
+            // electron inside seed jet area?
+            dR = Tau1P3PKineUtils::deltaR(data->seed->eta(), data->seed->phi(), el->eta(), el->phi());
+            if (dR > data->Rjet)
+                continue;
+    
+            data->electrons.push_back(el);
+        }
+        ATH_MSG_DEBUG("Number of good electrons found: " << data->electrons.size() );
     }
-    ATH_MSG_DEBUG("Number of good electrons found: " << data->electrons.size() );
-
+    else {
+        ATH_MSG_WARNING("Can not obtain ElectronContainer with key " << m_elContName);
+    }
     // select muons
     data->muons.clear();
-    for (const auto& mu : *pMuCont) {
-        ATH_MSG_DEBUG("muon pt:" << mu->pt() << " eta:" << mu->eta() << " ");
-	    xAOD::Muon::Quality muonQuality = mu->quality();
-	    if (muonQuality >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta) continue;
-
-        // electron inside seed jet area?
-        dR = Tau1P3PKineUtils::deltaR(data->seed->eta(), data->seed->phi(), mu->eta(), mu->phi());
-        if (dR > data->Rjet)
-            continue;
-        data->muons.push_back(mu);
+    if (pMuCont.isValid()) {
+        for (const auto& mu : *pMuCont) {
+            ATH_MSG_DEBUG("muon pt:" << mu->pt() << " eta:" << mu->eta() << " ");
+    	    xAOD::Muon::Quality muonQuality = mu->quality();
+    	    if (muonQuality >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta) continue;
+    
+            // electron inside seed jet area?
+            dR = Tau1P3PKineUtils::deltaR(data->seed->eta(), data->seed->phi(), mu->eta(), mu->phi());
+            if (dR > data->Rjet)
+                continue;
+            data->muons.push_back(mu);
+        }
+        ATH_MSG_DEBUG("Number of good muons found: " << data->muons.size() );
     }
-    ATH_MSG_DEBUG("Number of good muons found: " << data->muons.size() );
+    else {
+        ATH_MSG_WARNING("Can not obtain MuonContainer with key " << m_muContName);
+    }
 
     return StatusCode::SUCCESS;
 }

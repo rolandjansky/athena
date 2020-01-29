@@ -16,14 +16,11 @@ decription           : Abstract base class for convolution of material effects
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "GaudiKernel/IAlgTool.h"
 
 namespace Trk {
-
-class MultiComponentState;
 class Layer;
-
 static const InterfaceID IID_IMaterialMixtureConvolution("IMaterialMixtureConvolution", 1, 0);
 
 class IMaterialMixtureConvolution : virtual public IAlgTool
@@ -31,10 +28,10 @@ class IMaterialMixtureConvolution : virtual public IAlgTool
 
 public:
   //!< IAlgTool and AlgTool interface method
-  static const InterfaceID interfaceID() { return IID_IMaterialMixtureConvolution; };
+  static const InterfaceID& interfaceID() { return IID_IMaterialMixtureConvolution; };
 
   //!< Virtual destructor
-  virtual ~IMaterialMixtureConvolution(){};
+  virtual ~IMaterialMixtureConvolution()= default;
 
   //!< Convolution with full material properties
   virtual std::unique_ptr<MultiComponentState> 
@@ -59,9 +56,9 @@ public:
 
   //!< Retain for now redundant simplified material effects
   virtual std::unique_ptr<MultiComponentState>
-    simpliedMaterialUpdate(const MultiComponentState& multiComponentState,
-                           PropDirection direction = anyDirection,
-                           ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
+                             PropDirection direction = anyDirection,
+                             ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 
 } // end Trk namespace

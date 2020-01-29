@@ -1,82 +1,29 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 def dumpConfigurables(obj) :
-    print '==== %s ====' % obj.name()
-    import collections
+    print ('==== %s ====' % obj.name())
     for cfg in obj._properties :
         try:
            if ( len(cfg)<2 or cfg[0:2] != '__' ) :
                val = getattr(obj,cfg)
                # if not isinstance(val, collections.Callable):
-               print ' %s / %s = %s | %s' % (cfg,type(val), val, obj._properties[cfg])
+               print (' %s / %s = %s | %s' % (cfg,type(val), val, obj._properties[cfg]))
         except :
-            print ' %s not an attribute' % (cfg)
+            print (' %s not an attribute' % (cfg))
 
-def injectNameArgument(inFunction):
-    configurable_base_classes = ['ConfigurableAlgTool','ConfigurableAlgorithm']
-    '''
-    Auxiliary method to inject a name argument in the keyword argument dictionary
-    '''
+def extractCollectionPrefix(track_collection_name) :
+    return track_collection_name[:-6] if track_collection_name[-6:] == 'Tracks'  else track_collection_name
 
-    def setConfigurables(_cls) :
-        class_stack = [_cls]
-
-        the_base_class = None
-        while len(class_stack) > 0 : 
-            the_class = class_stack.pop()
-            for base in the_class.__bases__ :
-               if base.__name__ in configurable_base_classes :
-                   _cls.configurables = the_class.configurables
-                   break
-               class_stack.append(base)
-        return
-
-    def outFunction(*args,**kwargs):
-        _cls = args[0]
-
-        # set the name argument to be equal to the class name
-        import copy
-        kw_cp=copy.copy(kwargs)
-        kw_cp['name']=_cls.__name__
-
-        if len(_cls.configurables)==0 :
-            setConfigurables(_cls)
-
-        return inFunction(*args,**kw_cp)
-
-    return outFunction
-
-def checkKWArgs(inFunction):
-    '''
-    Auxiliary method to check that only a name kw arg is given.
-    '''
-
-    def outFunction(*args,**kwargs):
-        if len(args)==2 and isinstance(args[1],basestring) and len(kwargs)==0 :
-            kwargs['name']=args[1]
-            args=args[0:1]
-
-        if len(kwargs)>0 and (len(kwargs)>1 or kwargs.keys()[0] != 'name') :
-            raise(' No keyword arguments shall be given')
-
-        return inFunction(*args,**kwargs)
-
-    return outFunction
-
-def _args( kwargs, **extra_kwargs) :
-    import copy
-    _kwargs = copy.copy(kwargs)
-    for kw in extra_kwargs :
-        _kwargs.setdefault(kw,extra_kwargs[kw])
-    return _kwargs;
-
+from InDetRecExample.TrackingCommon import setDefaults
 
 def toolFactory( tool_class ):
     from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,tool_class.__name__) :
         tool = getattr(ToolSvc,tool_class.__name__)
     else :
-        # print 'DEBUG toolFactory create %s' % (tool_class.__name__)
+        # print ('DEBUG toolFactory create %s' % (tool_class.__name__))
         tool = tool_class()
         ToolSvc += tool 
     return tool
@@ -86,18 +33,18 @@ def serviceFactory( svc_class ):
     if hasattr(ServiceMgr,svc_class.__name__) :
         svc = getattr(ServiceMgr,svc_class.__name__)
     else :
-        # print 'DEBUG svcFactory create %s' % (svc_class.__name__)
+        # print ('DEBUG svcFactory create %s' % (svc_class.__name__))
         svc = svc_class()
         ServiceMgr += svc 
     return svc
 
 def create(cfg_class, kwargs_in, **kwargs_default) :
-    kwargs=_args(kwargs_in, **kwargs_default)
+    kwargs=setDefaults(kwargs_in, **kwargs_default)
     name = kwargs.pop('name',cfg_class.__class__.__name__)
     return cfg_class(name = name,**kwargs)
 
 def createPublicTool(cfg_class, kwargs_in, **kwargs_default) :
-    kwargs=_args(kwargs_in, **kwargs_default)
+    kwargs=setDefaults(kwargs_in, **kwargs_default)
     name = kwargs.pop('name',cfg_class.__class__.__name__)
     from AthenaCommon.AppMgr import ToolSvc
     if hasattr(ToolSvc,name) :
@@ -108,7 +55,7 @@ def createPublicTool(cfg_class, kwargs_in, **kwargs_default) :
 
 
 def createExtendNameIfNotDefault(cfg_class, check_prop, def_val, kwargs_in, **kwargs_default) :
-    kwargs=_args(kwargs_in, **kwargs_default)
+    kwargs=setDefaults(kwargs_in, **kwargs_default)
     def_name = cfg_class.getType() if hasattr(cfg_class,'getType') else cfg_class.__class__.__name__
     the_name = kwargs.pop('name',def_name)
     if check_prop in kwargs and kwargs[check_prop] != def_val :

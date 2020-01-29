@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,11 +19,6 @@ public:
 
   virtual StatusCode initialize() {
     ATH_MSG_INFO(" initializing with MyProperty = " << m_value );
-    return StatusCode::SUCCESS;
-  }
-
-  virtual StatusCode beginInputFile() {
-    ATH_MSG_INFO(" Loaded file " );
     return StatusCode::SUCCESS;
   }
 

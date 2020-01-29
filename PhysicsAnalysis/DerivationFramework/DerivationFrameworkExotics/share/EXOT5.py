@@ -106,7 +106,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import \
 # Keep clusters associated to electrons
 EXOT5ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
     name                    = 'EXOT5ElectronCCThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SGKey                   = 'Electrons',
     CaloClCollectionSGKey   = 'egammaClusters',
     TopoClCollectionSGKey   = 'CaloCalTopoClusters',
@@ -117,7 +117,7 @@ thinningTools.append(EXOT5ElectronCCThinningTool)
 # Keep clusters associated to photons
 EXOT5PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(
     name                    = 'EXOT5PhotonCCThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SGKey                   = 'Photons',
     CaloClCollectionSGKey   = 'egammaClusters',
     TopoClCollectionSGKey   = 'CaloCalTopoClusters',

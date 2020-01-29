@@ -23,7 +23,7 @@ class TileTTL1FromRawChGetter ( Configured )  :
             theTileTTL1FromRawChGetter=TileTTL1FromRawChGetter()
         except Exception:
             mlog.error("could not get handle to TileTTL1FromRawChGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileTTL1FromRawChGetter.usable():
@@ -38,7 +38,7 @@ class TileTTL1FromRawChGetter ( Configured )  :
             from TileRecAlgs.TileRecAlgsConf import TileRawChannelToTTL1                
         except Exception:
             mlog.error("could not import TileRecAlgs.TileRawChannelToTTL1")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileRawChannelToTTL1=TileRawChannelToTTL1()

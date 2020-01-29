@@ -24,8 +24,8 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc.Trk::So...   INFO SolenoidalIntersector::initialize() - package version TrkExSolenoidalIntersector-00-00-00
 ToolSvc.Trk::So...   INFO Retrieved service MagFieldSvc = ServiceHandle('MagField::AtlasFieldSvc/AtlasFieldSvc')
-ToolSvc.RungeKu...   INFO Retrieved service MagFieldSvc = ServiceHandle('MagField::AtlasFieldSvc/AtlasFieldSvc')
-ToolSvc.Trk::So...   INFO Retrieved tool RungeKuttaIntersector = PublicToolHandle('Trk::RungeKuttaIntersector/RungeKuttaIntersector')
+ToolSvc.Trk::So...   INFO Retrieved service MagFieldSvc = ServiceHandle('MagField::AtlasFieldSvc/AtlasFieldSvc')
+ToolSvc.Trk::So...   INFO Retrieved tool RungeKuttaIntersector = PrivateToolHandle('Trk::RungeKuttaIntersector/RungeKuttaIntersector')
 AtlasFieldSvc        INFO handling incidents ...
 AtlasFieldSvc        INFO importCurrents() ...
 AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7730 toroidCurrent=20400)

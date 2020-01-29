@@ -49,37 +49,25 @@ void RatesTrigger::execute(const WeightingValuesSummary_t& weights) {
   if (m_pass == false) return; 
   double w =  m_totalPrescaleWeight * weights.m_enhancedBiasWeight;
   // The vs. mu histogram is a property of the INPUT event so we don't apply any L scaling here
-  if (m_rateVsMu != nullptr) m_rateVsMu->Fill(weights.m_eventMu, w);
-  w *= getExtrapolationFactor(weights);
+  if (m_rateVsMuCachedPtr != nullptr) m_rateVsMuCachedPtr->Fill(weights.m_eventMu, w);
+  w *= getExtrapolationFactor(weights, m_extrapolationStrategy);
   // The vs. position in train is agnostic to INPUT event & TARGET conditions - i.e. the bunch train structure is not
   // re-weighted in any way. Hence we can apply whatever extrapolation strategy we want here.
-  if (m_rateVsTrain != nullptr) m_rateVsTrain->Fill(weights.m_distanceInTrain, w);
+  if (m_rateVsTrainCachedPtr != nullptr) m_rateVsTrainCachedPtr->Fill(weights.m_distanceInTrain, w);
   m_rateAccumulator  += w;
   m_rateAccumulator2 += w * w;
-  if (m_data != nullptr) m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, w);
+  if (m_dataCachedPtr != nullptr) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, w);
   if (m_expressPrescale >= 1) {
-    const double wExp = m_totalPrescaleWeightExpress * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights);
+    const double wExp = m_totalPrescaleWeightExpress * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights, m_extrapolationStrategy);
     m_rateExpressAccumulator  += wExp;
     m_rateExpressAccumulator2 += wExp * wExp;
-    if (m_data != nullptr) m_data->Fill(RatesBinIdentifier_t::kEXPRESS_BIN, wExp);
+    if (m_dataCachedPtr != nullptr) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kEXPRESS_BIN, wExp);
   }
 }
 
 double RatesTrigger::getPrescale(const bool includeExpress) const { 
   if (includeExpress) return m_prescale * m_expressPrescale;
   return m_prescale;
-}
-
-double RatesTrigger::getExtrapolationFactor(const WeightingValuesSummary_t& weights) const {
-  switch (m_extrapolationStrategy) {
-    case kLINEAR: return weights.m_linearLumiFactor;
-    case kEXPO_MU: return weights.m_expoMuFactor;
-    case kBUNCH_SCALING: return weights.m_bunchFactor;
-    case kMU_SCALING: return weights.m_muFactor;
-    case kNONE: return weights.m_noScaling;
-    default: m_log << MSG::ERROR << "Error in getExtrapolationFactor. Unknown ExtrapStrat_t ENUM supplied " << m_extrapolationStrategy << endmsg;
-  }
-  return 0.;
 }
 
 const std::string RatesTrigger::printConfig() const {
@@ -96,30 +84,32 @@ const std::string RatesTrigger::printConfig() const {
 const std::string RatesTrigger::printRate(const double ratesDenominator) const {
   std::stringstream ss;
   ss << std::setfill(' '); 
-  ss << "Rate:" << std::setw(11) << std::right << m_rateAccumulator/ratesDenominator 
+  ss << "Rate: " << std::setw(11) << std::right << m_rateAccumulator/ratesDenominator 
      << " +- "    << std::setw(11) << std::left << sqrt(m_rateAccumulator2)/ratesDenominator << " Hz";
   if (m_uniqueGroup != nullptr) {
     const double unique = (getDisabled() == true ? 0. : m_uniqueGroup->getUniqueWeight(ratesDenominator));
     //const double unique = m_uniqueGroup->m_rateAccumulatorOR / ratesDenominator; // For dbg - this is the rate of N-1 
     // Getting the fractional error of refgular rate and applying it to the unique rate
     const double uniqueErr = (isZero(m_rateAccumulator) ? 0. : (sqrt(m_rateAccumulator2)/m_rateAccumulator) * unique);
-    ss << ", Unique Rate:" << std::setw(11) << std::right << unique
+    ss << ", Unique Rate: " << std::setw(11) << std::right << unique
        << " +- "           << std::setw(11) << std::left << uniqueErr << " Hz";
   }
   ss << " : ";
   ss << m_name << " [PS:" << m_prescale << "]";
   if (m_seed != "") ss << " <- " << m_seed << " [PS:" << m_seedPrescale << "]";
+  ss << " (Extrap:"<< getExtrapolationFactorString(m_extrapolationStrategy) <<")";
   return ss.str();
 }
 
 const std::string RatesTrigger::printExpressRate(const double ratesDenominator) const {
   std::stringstream ss;
   ss << std::setfill(' '); 
-  ss << "Express Rate:" << std::setw(11) << std::right << m_rateExpressAccumulator/ratesDenominator 
+  ss << "Express Rate: " << std::setw(11) << std::right << m_rateExpressAccumulator/ratesDenominator 
      << " +- "    << std::setw(11) << std::left << sqrt(m_rateExpressAccumulator2)/ratesDenominator << " Hz";
   ss << " : ";
-  if (m_seed != "") ss << m_seed << " [PS:" << m_seedPrescale << "] -> ";
   ss << m_name << " [PS:" << m_prescale << "] [EXPRESS PS:" << m_expressPrescale << "]";
+  if (m_seed != "") ss << " <- " << m_seed << " [PS:" << m_seedPrescale << "]";
+  ss << " (Extrap:"<< getExtrapolationFactorString(m_extrapolationStrategy) <<")";
   return ss.str();
 }
 

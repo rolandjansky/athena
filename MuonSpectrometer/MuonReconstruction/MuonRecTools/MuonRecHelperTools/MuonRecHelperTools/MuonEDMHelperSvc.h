@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MuonEDMHelperSvc_H
 #define MUON_MuonEDMHelperSvc_H
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 
-#include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <set>
 #include <string>
@@ -27,7 +26,6 @@ static const InterfaceID IID_MuonEDMHelperSvc("Muon::MuonEDMHelperSvc",1,0);
 namespace Muon {
  
   class MuonSegment;
-  class MuonIdHelperTool;
 
   /** 
       Helper tool containing functionality needed by multiple tools. 
@@ -38,14 +36,11 @@ namespace Muon {
     MuonEDMHelperSvc(const std::string& name, ISvcLocator* svc);
 
     /** @brief destructor */
-    virtual ~MuonEDMHelperSvc() override;
+    virtual ~MuonEDMHelperSvc() override {};
     
     /** @brief initialize method, method taken from bass-class AlgTool */
     virtual StatusCode initialize() override;
 
-    /** @brief finialize method, method taken from bass-class AlgTool */
-    virtual StatusCode finalize() override;
-    
     /** @brief tries to get Identifier for measurement, if not possible it will return Identifier() */
     virtual Identifier getIdentifier( const Trk::MeasurementBase& meas ) const override;
 
@@ -71,7 +66,7 @@ namespace Muon {
     virtual bool isSLTrack( const Trk::Track& track ) const override;
 
   private:
-    ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   };
   

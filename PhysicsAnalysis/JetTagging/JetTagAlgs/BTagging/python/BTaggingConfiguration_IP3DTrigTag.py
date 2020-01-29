@@ -270,14 +270,13 @@ def toolSpecialTrackAssociator(name, useBTagFlagsDefaults = True, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
-                     'dzSinTheta_cut'         : 3,
-                     'doPV'                   : True }
+                     'WorkingPoint'           : 'Loose' }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
     
-    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
-    return CP__TightTrackVertexAssociationTool(**options)
+    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
+    return CP__TrackVertexAssociationTool(**options)
 
 #------------------------------------------------------------------
 

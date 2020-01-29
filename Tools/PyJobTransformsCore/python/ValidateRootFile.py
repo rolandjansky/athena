@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys,os
 from PyUtils import RootUtils
@@ -12,7 +14,7 @@ from PyUtils import RootUtils
 
 def checkPFCorruption(filename,verbose=False):
     if not os.access(filename,os.R_OK):
-        print "ERROR can't access file",filename
+        print ("ERROR can't access file",filename)
         return -1
 
     ROOT = RootUtils.import_root()
@@ -21,7 +23,7 @@ def checkPFCorruption(filename,verbose=False):
     try:
         f=TFile.Open(filename)
     except:
-        print "Can't open file",filename
+        print ("Can't open file",filename)
         return -1
 
     nEvents=n=None
@@ -33,22 +35,22 @@ def checkPFCorruption(filename,verbose=False):
             t=f.Get(tn)
             if not isinstance(t,TTree): return
         except:
-            print "Can't get tree %s from file %s",tn,fn
+            print ("Can't get tree %s from file %s",tn,fn)
             f.Close()
             return -1
 
-        if (verbose): print "Working on tree",tn
+        if (verbose): print ("Working on tree",tn)
         n=t.GetEntriesFast()
         for i in range(n):
             s=t.GetEntry(i)
             if s<=0:
-                print "Tree %s: Found corruption in event %i" % (i,n)
+                print ("Tree %s: Found corruption in event %i" % (i,n))
                 f.Close()
                 return -2
             else:
                 if verbose and i>0 and i%100==0:
-                    print "Checking event",i
-        print "Tree %s: %i event(s) ok" % (tn,n)
+                    print ("Checking event",i)
+        print ("Tree %s: %i event(s) ok" % (tn,n))
 
         # Use CollectionTree determine the number of events
         if tn=='CollectionTree': 
@@ -56,16 +58,16 @@ def checkPFCorruption(filename,verbose=False):
         pass #end of loop over trees
 
     f.Close()
-    print "ROOT file",filename,"looks ok"
+    print ("ROOT file",filename,"looks ok")
     if n is None:
-        print "Failed to determine number of events in file %s. No tree named 'CollectionTree'" % filename
+        print ("Failed to determine number of events in file %s. No tree named 'CollectionTree'" % filename)
         return 0
     return n
 
 
 if __name__ == "__main__":
     if len(sys.argv)!=2:
-        print "Usage: ",sys.argv[0]," <file>"
+        print ("Usage: ",sys.argv[0]," <file>")
     else:
         fn=sys.argv[1]
         checkPFCorruption(fn)#,True)

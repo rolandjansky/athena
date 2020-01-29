@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // this :
 
 #include <Inventor/C/errors/debugerror.h>
-#define private public
 #include <Inventor/SbPList.h>//hack to work around numitems not initialised in coin
-#undef private
 #include "SbStringHelpers.h"
 
 #include <Inventor/SbString.h>

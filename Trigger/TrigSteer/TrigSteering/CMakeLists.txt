@@ -77,7 +77,7 @@ atlas_add_test( Signature_test
                 test/Signature_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib
-                EXTRA_PATTERNS ".*" )
+                POST_EXEC_SCRIPT nopost.sh )
 
 
 atlas_add_test( SteeringChain_test
@@ -85,7 +85,7 @@ atlas_add_test( SteeringChain_test
                 test/SteeringChain_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaMonitoringLib AthContainers StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfBase TrigConfHLTData TrigROBDataProviderSvcLib TrigSteeringEvent L1TopoAlgorithms L1TopoCoreSim L1TopoEvent L1TopoSimulationLib TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Result TrigTimeAlgsLib TestTools ByteStreamCnvSvcBaseLib xAODTrigger TrigConfL1Data TrigSerializeResultLib TrigNavigationLib TrigStorageDefinitions TrigMonitorBaseLib TrigInterfacesLib L1TopoCommon L1TopoConfig TrigT1Interfaces TrigSteeringLib
-                EXTRA_PATTERNS ".*" )
+                POST_EXEC_SCRIPT nopost.sh )
 
 
 # Install files from the package:

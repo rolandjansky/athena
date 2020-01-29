@@ -1,9 +1,28 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 ###### Here some graphical methods to produce dot files from Decision Handling
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
  
 from AthenaCommon.AlgSequence import AthSequencer
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
 import itertools
+
+
+def create_dot():
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    return TriggerFlags.generateMenuDiagnostics() or ConfigFlags.Trigger.generateMenuDiagnostics
+
+
+DrawHypoTools=True
+
+def drawHypoTools(file, all_hypos):
+    all_hypos=list(set(all_hypos))
+    for hp in all_hypos:
+        for hypotool in hp.tools:
+            file.write("    %s[fillcolor=yellow,style=filled,shape= Mdiamond]\n"%(hypotool))
+            file.write("    %s -> %s [style=dashed, color=grey]\n"%(hp.Alg.name(), hypotool))
+
 
 def algColor(alg):
     """ Set given color to Alg type"""
@@ -59,8 +78,8 @@ def stepCF_ControlFlow_to_dot(stepCF):
 
     with open('%s.CF.dot'%stepCF.name(), mode="wt") as file:
     #strict
-        file.write( 'digraph step  {\n'\
-                    +'\n'\
+        file.write( 'digraph step  {  \n'\
+                    +' concentrate=true;\n'\
                     +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
@@ -80,8 +99,8 @@ def stepCF_ControlFlow_to_dot(stepCF):
 
 def all_DataFlow_to_dot(name, step_list):
     with open('%s.dot'%(name), mode="wt") as file:
-        file.write( 'digraph step  {\n'\
-                        +'\n'\
+        file.write( 'digraph step  {  \n'\
+                        +' concentrate=true;\n'\
                         +' rankdir="LR";\n'
                         +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                         +'  edge [ fontname=Helvetica ]\n'
@@ -89,6 +108,7 @@ def all_DataFlow_to_dot(name, step_list):
 
         nstep=1
         last_step_hypoNodes=[]
+        all_hypos=[]
         for cfseq_list in step_list:
             # loop over steps
             step_connections = []
@@ -99,6 +119,7 @@ def all_DataFlow_to_dot(name, step_list):
                 file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
                 step_connections.append(cfseq.filter)                      
                 file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
+                            +'     concentrate=true;\n'
                             +'     node [color=white style=filled]\n'\
                             +'     style=filled\n'\
                             +'     color=lightgrey\n'\
@@ -108,11 +129,7 @@ def all_DataFlow_to_dot(name, step_list):
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
 
-                for menuseq in cfseq.step.sequences:
-                    if  cfseq.step.isCombo:
-                        menuseq.reuse=True # do not draw combo reco sequence
-                    else:
-                        menuseq.reuse=False
+                alreadydrawn = set()
 
                 if len(cfseq.step.sequences)==0:
                     last_step_hypoNodes.append(cfseq.filter)
@@ -120,18 +137,20 @@ def all_DataFlow_to_dot(name, step_list):
                 for menuseq in cfseq.step.sequences:
                     cfseq_algs.append(menuseq.maker)
                     cfseq_algs.append(menuseq.sequence )
-                    if menuseq.reuse is False:
+                    if menuseq not in alreadydrawn:
+                        alreadydrawn.add(menuseq)
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                        menuseq.reuse=True
                     if type(menuseq.hypo) is list:
                        for hp in menuseq.hypo:
                           cfseq_algs.append(hp)
                           file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                          all_hypos.append(hp)
                     else:
                        cfseq_algs.append(menuseq.hypo)
                        file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
-                    if not cfseq.step.isCombo:
+                       all_hypos.append(menuseq.hypo)
+                       if not cfseq.step.isCombo:
                         if type(menuseq.hypo) is list:
                            last_step_hypoNodes.append(menuseq.hypo[-1])
                         else:
@@ -146,7 +165,7 @@ def all_DataFlow_to_dot(name, step_list):
                 file.write('  }\n')              
                 file.write(findConnections(cfseq_algs))
                 file.write('\n')
-           
+               
             file.write(findConnections(step_connections))
             nstep+=1
 
@@ -157,20 +176,22 @@ def all_DataFlow_to_dot(name, step_list):
 def stepCF_DataFlow_to_dot(name, cfseq_list):
     with open( '%s.DF.dot'%name, mode="wt" ) as file:
     #strict
-        file.write( 'digraph step  {\n'\
-                    +'\n'\
+        file.write( 'digraph step  {  \n'\
+                    +' concentrate=true; \n'\
                     +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
                     +'  %s   [shape=Mdiamond]\n'%name)
 
 
+        all_hypos = []
         for cfseq in cfseq_list:
             file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
             for inp in cfseq.filter.getInputList():
                 file.write(addConnection(name, cfseq.filter.Alg.name(), inp))
 
             file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
+                        +'     concentrate=true;\n'
                         +'     node [color=white style=filled]\n'\
                         +'     style=filled\n'\
                         +'     color=lightgrey\n'\
@@ -180,27 +201,24 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)
 
-            for menuseq in cfseq.step.sequences:
-                if  cfseq.step.isCombo:
-                    menuseq.reuse=True # do not draw combo reco sequence
-                else:
-                    menuseq.reuse=False
+            alreadydrawn = set()
                     
             for menuseq in cfseq.step.sequences:
                 cfseq_algs.append(menuseq.maker)
                 cfseq_algs.append(menuseq.sequence )
-                if menuseq.reuse is False:
+                if menuseq not in alreadydrawn:
+                    alreadydrawn.add(menuseq)
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                    menuseq.reuse=True
                 if type(menuseq.hypo) is list:
                    for hp in menuseq.hypo:
                       cfseq_algs.append(hp)
                       file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                      all_hypos.append(hp)
                 else:
                    cfseq_algs.append(menuseq.hypo)
                    file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
-
+                   all_hypos.append(menuseq.hypo)
 
                 #combo
             if cfseq.step.isCombo:
@@ -211,6 +229,9 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
             file.write(findConnections(cfseq_algs))
             file.write('\n')
+
+        if DrawHypoTools:
+            drawHypoTools(file, all_hypos)
             
         file.write( '}')
         file.close()
@@ -277,7 +298,6 @@ def getValuesProperties(node):
                     values.append(cval)
             else:
                 continue
-            #getattr(alg, prop))
     return set(values)
         
 

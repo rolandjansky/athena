@@ -9,11 +9,11 @@ __doc__ = """Configuration of Muon Spectrometer Standalone muon reconstruction""
 #==============================================================
 from AthenaCommon import CfgMgr
 
-from MuonStandaloneFlags import muonStandaloneFlags,MoorelikeStrategy
-from MuonRecFlags import muonRecFlags
-from ConfiguredMuonRec import ConfiguredMuonRec
+from .MuonStandaloneFlags import muonStandaloneFlags,MoorelikeStrategy
+from .MuonRecFlags import muonRecFlags
+from .ConfiguredMuonRec import ConfiguredMuonRec
 
-from MuonRecUtils import logMuon,ExtraFlags
+from .MuonRecUtils import logMuon,ExtraFlags
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.DetFlags import DetFlags

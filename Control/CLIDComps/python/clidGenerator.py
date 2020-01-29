@@ -7,6 +7,22 @@
 from __future__ import print_function
 import string, re, os, csv
 
+# CLID assignment was originally based on the builtin hash() function.
+# However, the results of that are not standardized, and in fact changed
+# between py2 and py3.  (In py3, hash(s) can return differing values
+# from run to run.)  This is an implementation of the py2 string hashing
+# algorithm, so we can give the same results for py2 vs. py3.
+def py2_hash (s):
+    if len(s) == 0: return 0
+    x = ord(s[0]) << 7
+    for c in s:
+        x = (1000003*x) ^ ord(c)
+    x ^= len(s)
+    x &= 0xffffffff
+    if x == 0xffffffff:
+        x = 0xfffffffe
+    return x
+
 ## Athena CLID Generator Class
 class clidGenerator (object):
     "Athena CLID Generator"
@@ -35,21 +51,21 @@ class clidGenerator (object):
         try:
             for cliddb in self.__cliddbs:
                 if os.path.isfile(cliddb):
-                    for row in csv.reader (open(cliddb, 'r'),
-                                           delimiter=';'):
-                        row = [i.strip() for i in row]
-                        if len(row) >= 3:
-                            clid = int(row[0])
-                            class_name = row[1]
-                            pkg_name   = row[2]
-                            if len(row) > 3: tid_name = row[3]
-                            else:            tid_name = class_name
-                            
-                            self.__clidRep[clid] = class_name
-                            self.__clidPkg[clid] = pkg_name
-                            self.__clidTid[clid] = tid_name
-                            self.__nameRep[class_name] = clid
-                            self.__tidRep [tid_name]   = clid
+                    with open(cliddb, 'r') as f_cliddb:
+                        for row in csv.reader (f_cliddb, delimiter=';'):
+                            row = [i.strip() for i in row]
+                            if len(row) >= 3:
+                                clid = int(row[0])
+                                class_name = row[1]
+                                pkg_name   = row[2]
+                                if len(row) > 3: tid_name = row[3]
+                                else:            tid_name = class_name
+
+                                self.__clidRep[clid] = class_name
+                                self.__clidPkg[clid] = pkg_name
+                                self.__clidTid[clid] = tid_name
+                                self.__nameRep[class_name] = clid
+                                self.__tidRep [tid_name]   = clid
                             
                 else:
                     print ("No CLID DataBase file <%s> " % cliddb)
@@ -85,7 +101,7 @@ class clidGenerator (object):
         c = self.getClidFromName(className)
         if c:
             return c
-        c = hash(className) & self.__mask
+        c = py2_hash(className) & self.__mask
         if c < 10001 or c > self.__mask:
             c = self.genClidFromName(className+'_')
         if self.isCollection(className):

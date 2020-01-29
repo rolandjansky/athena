@@ -38,8 +38,8 @@ def TileJetMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags,'TileMonitoring')
 
     # Adding an TileJetMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileJetMonitorAlgorithm
-    tileJetMonAlg = helper.addAlgorithm(TileJetMonitorAlgorithm, 'TileJetMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tileJetMonAlg = helper.addAlgorithm(CompFactory.TileJetMonitorAlgorithm, 'TileJetMonAlg')
 
     tileJetMonAlg.TileBadChanTool = badChanTool
     tileJetMonAlg.TriggerChain = ''

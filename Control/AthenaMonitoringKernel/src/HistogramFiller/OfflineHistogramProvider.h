@@ -15,6 +15,13 @@
 
 #include "HistogramFactory.h"
 
+#include "TTree.h"
+
+// this mutex is used to protect access to the metadata trees
+namespace {
+  static std::mutex s_metadataMutex;
+}
+
 namespace Monitored {
   /**
    * @brief Implementation of IHistogramProvider for offline histograms
@@ -38,6 +45,9 @@ namespace Monitored {
     , m_objcache({0, 0, nullptr})
     {}
 
+    // store metadata trees on object destruction
+    virtual ~OfflineHistogramProvider() override { storeMetadata(); }
+
     /**
      * @brief Getter of ROOT object
      *
@@ -55,9 +65,9 @@ namespace Monitored {
       std::scoped_lock lock(m_cacheMutex);
       objcache& objcacheref = m_objcache;
       if (objcacheref.lumiBlock == lumiBlock
-	  && objcacheref.runNumber == runNumber
-	  && objcacheref.object) {
-	return objcacheref.object;
+	        && objcacheref.runNumber == runNumber
+	        && objcacheref.object) {
+	      return objcacheref.object;
       }
 
       std::string conv = m_histDef->convention;
@@ -75,6 +85,10 @@ namespace Monitored {
       objcacheref.lumiBlock = lumiBlock;
       objcacheref.runNumber = runNumber;
       objcacheref.object = m_factory->create(*m_histDef);
+      const auto fullName = m_factory->getFullName(*m_histDef);
+      if (std::find(m_storedPaths.begin(), m_storedPaths.end(), fullName) == m_storedPaths.end()) {
+        m_storedPaths.push_back(fullName);
+      }
       return objcacheref.object;
     }
 
@@ -90,6 +104,64 @@ namespace Monitored {
     };
     mutable Gaudi::Hive::ContextSpecificData<objcache> m_objcache ATLAS_THREAD_SAFE;
     std::mutex m_cacheMutex;
+
+    std::vector<std::string> m_storedPaths;
+
+    /**
+     * @brief Store metadata trees
+     *
+     * Offline ROOT output should have "metadata" TTrees; this function makes them
+     *
+     */ 
+    void storeMetadata() const {
+      std::scoped_lock<std::mutex> metadataLock(s_metadataMutex);
+      for (const auto &path : m_storedPaths) {
+        //std::cout << "Path " << path << std::endl;
+        size_t pos = path.find_last_of('/');
+        auto splitPath = std::make_pair(path.substr(0, pos), path.substr(pos + 1));
+        std::string treePath = splitPath.first + "/metadata";
+        auto &histSvc = m_gmTool->histogramService();
+        std::string interval;
+        std::string conv = m_histDef->convention;
+        char triggerData[] = "<none>";
+        char mergeData[] = "<default>";
+        if (conv.find("run") != std::string::npos) {
+          interval = "run";
+        } else if (conv.find("lowStat") != std::string::npos) {
+          interval = "lowStat";
+        } else {
+          interval = "lumiBlock";
+        }
+        if (!histSvc->existsTree(treePath)) {
+          auto tree = std::make_unique<TTree>("metadata", "Monitoring Metadata");
+
+          tree->Branch("Name", &(splitPath.second[0]), "Name/C");
+          tree->Branch("Interval", &(interval[0]), "Interval/C");
+          tree->Branch("TriggerChain", triggerData, "TriggerChain/C");
+          tree->Branch("MergeMethod", mergeData, "MergeMethod/C");
+          tree->Fill();
+
+          if (!histSvc->regTree(treePath, std::move(tree))) {
+            MsgStream log(Athena::getMessageSvc(), "OfflineHistogramProvider");
+            log << MSG::ERROR
+                << "Failed to register DQ metadata TTree " << treePath << endmsg;
+          }
+        } else {
+          TTree *tree{nullptr};
+          if (histSvc->getTree(treePath, tree).isSuccess()) {
+            tree->SetBranchAddress("Name", &(splitPath.second[0]));
+            tree->SetBranchAddress("Interval", &(interval[0]));
+            tree->SetBranchAddress("TriggerChain", triggerData);
+            tree->SetBranchAddress("MergeMethod", mergeData);
+            tree->Fill();
+          } else {
+            MsgStream log(Athena::getMessageSvc(), "OfflineHistogramProvider");
+            log << MSG::ERROR
+                << "Failed to retrieve DQ metadata TTree " << treePath << " which is reported to exist" << endmsg;
+          }
+        }
+      }
+    }
   };
 }
 

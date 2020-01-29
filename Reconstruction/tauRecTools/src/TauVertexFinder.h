@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUVERTEXFINDER_H
@@ -39,22 +39,9 @@ public:
   //-------------------------------------------------------------
   //! Algorithm functions
   //-------------------------------------------------------------
-  virtual StatusCode initialize();
-  virtual StatusCode eventInitialize();
-  virtual StatusCode execute(xAOD::TauJet& pTau);
-  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode eventFinalize();
-  virtual StatusCode finalize();
-
-  virtual void cleanup(xAOD::TauJet* ) { }
-  virtual void print() const { }
-
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode finalize() override;
 
 private:
   ElementLink<xAOD::VertexContainer>
@@ -81,7 +68,7 @@ private:
   float m_longDistMax;
   float m_maxZ0SinTheta;
   
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "InDetTrackParticles", "input vertex container key"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};   
   SG::ReadHandleKey<jet::TrackVertexAssociation> m_jetTrackVtxAssoc{this, "Key_JetTrackVtxAssoc_forTaus", "JetTrackVtxAssoc_forTaus", "input TVA for taus"};
 

@@ -5,7 +5,7 @@
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
-from PrecisionCaloSequenceSetup import precisionCaloMenuDefs
+from .PrecisionCaloSequenceSetup import precisionCaloMenuDefs
 # logger
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloRec' )

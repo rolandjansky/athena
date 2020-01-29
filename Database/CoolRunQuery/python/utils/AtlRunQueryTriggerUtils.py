@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ----------------------------------------------------------------
 # Script : AtlRunQueryTriggerUtils.py
@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------
 
 
+from __future__ import print_function
 
 
 __cursor_schema = [ (None ,"") , (None , "") ] # run 1 and run 2 cursor
@@ -152,11 +153,11 @@ def _getConnectionParameters(connection):
         if connection.count(';') == 2:
             pattern = "(.*)://(.*)/(.*);username=(.*);password=(.*)"
             m = re.match(pattern,connection)
-            #print 'Groups ', m
+            #print ('Groups ', m)
             if not m:
                 log.fatal("connection string '%s' doesn't match the pattern '%s'?" % (connection,pattern))
             (techno, server, schema, user, passwd) = m.groups()
-            #print (techno, server, schema, user, passwd)
+            #print ((techno, server, schema, user, passwd))
         else:
             global authDict
             if not authDict: authDict = _readAuthentication()
@@ -210,7 +211,7 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
     # connection = connection.lstrip("dblookup://")
     # connection = connection.lstrip("dblookup:")
     # connection = connection.rstrip(";")
-    #print connection
+    #print (connection)
 
     # what to return
     connectionParameters = {}
@@ -295,7 +296,7 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
 
 def _get_sqlite_cursor (filename):
     try: import sqlite3
-    except ImportError: raise RuntimeError, "ERROR: Can't import sqlite3?"
+    except ImportError: raise RuntimeError ("ERROR: Can't import sqlite3?")
     os.lstat(filename)
     connection = sqlite3.connect(filename)
     return connection.cursor()
@@ -305,7 +306,7 @@ def _get_oracle_cursor (tns, user, passwd=""):
         from getpass import getpass
         passwd = getpass("[Oracle] database password for %s@%s: " % (user, tns))
     try: from cx_Oracle import connect
-    except ImportError: raise RuntimeError, "ERROR: Can't import cx_Oracle?"
+    except ImportError: raise RuntimeError ("ERROR: Can't import cx_Oracle?")
     connection = connect (user, passwd, tns, threaded=True)
     return connection.cursor()
 
@@ -315,7 +316,7 @@ def _get_mysql_cursor (host, db, user, passwd=""):
         from getpass import getpass
         passwd = getpass("[MySQL] `%s' database password for %s@%s: " % (db, user, host))
     try: from MySQLdb import connect
-    except ImportError: raise RuntimeError, "ERROR: Can't import MySQLdb?"
+    except ImportError: raise RuntimeError ("ERROR: Can't import MySQLdb?")
     connection = connect(host=host, user=user, passwd=passwd, db=db, connect_timeout=10)
     return connection.cursor()
 
@@ -601,18 +602,18 @@ def getRandom(smk):
 
 
 if __name__=="__main__":
-    #print getL1PskNames([2517, 2518, 2284, 2536])
+    #print (getL1PskNames([2517, 2518, 2284, 2536]))
 
-    #print getHLTPskNames([2517, 2530, 2537, 2491])
+    #print (getHLTPskNames([2517, 2530, 2537, 2491]))
     
-    #print getSmkNames([931, 932, 933])
+    #print (getSmkNames([931, 932, 933]))
 
-    #print getL1Menu(931)
+    #print (getL1Menu(931))
 
-    #print getHLTMenu(931)
+    #print (getHLTMenu(931))
 
-    #print getL1Prescales(2517)
+    #print (getL1Prescales(2517))
 
-    #print getHLTPrescales(2530)
+    #print (getHLTPrescales(2530))
 
-    print getRandom(1038)
+    print (getRandom(1038))
