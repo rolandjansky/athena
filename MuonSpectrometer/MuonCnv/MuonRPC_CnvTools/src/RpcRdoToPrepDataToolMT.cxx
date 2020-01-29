@@ -14,8 +14,8 @@ Muon::RpcRdoToPrepDataToolMT::RpcRdoToPrepDataToolMT( const std::string& type, c
   : AthAlgTool( type, name, parent ),
     RpcRdoToPrepDataToolCore( type, name, parent )
 {
-  declareProperty("RpcRdoContainerCacheKey", m_prdContainerCacheKey, "Optional external cache for the RPC RDO container");
-  declareProperty("RpcCoinContainterCacheKey", m_coinContainerCacheKey, "Optional external cache for the RPC Trigger Coin container");
+  declareProperty("RpcPrdContainerCacheKey", m_prdContainerCacheKey, "Optional external cache for the RPC RDO container");
+  declareProperty("RpcCoinContainerCacheKey", m_coinContainerCacheKey, "Optional external cache for the RPC Trigger Coin container");
 }
 
 Muon::RpcRdoToPrepDataToolMT::~RpcRdoToPrepDataToolMT()
@@ -39,6 +39,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::finalize()
 
 StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeInTheEvent)
 {
+  // Redundant
   firstTimeInTheEvent = false;
 
   // RPC PRD

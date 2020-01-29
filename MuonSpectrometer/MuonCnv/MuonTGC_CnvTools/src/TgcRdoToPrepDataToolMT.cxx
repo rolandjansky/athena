@@ -15,10 +15,10 @@
 Muon::TgcRdoToPrepDataToolMT::TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
     TgcRdoToPrepDataToolCore(t, n, p),
-    m_prdContainerCacheKeys{"cacheDummy","cacheDummy","cacheDummy","cacheDummy"},
-    m_coinContainerCacheKeys{"cacheDummy","cacheDummy","cacheDummy"},
-    m_prdContainerCacheKeyStr("dummy"),
-    m_coinContainerCacheKeyStr("dummy")
+    m_prdContainerCacheKeys{"","","",""},
+    m_coinContainerCacheKeys{"","",""},
+    m_prdContainerCacheKeyStr(""),
+    m_coinContainerCacheKeyStr("")
 
 {
   // Declare the cache name as a string because we build the keys in initialise same as done for the containers
@@ -36,24 +36,31 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::initialize()
   ATH_CHECK( TgcRdoToPrepDataToolCore::initialize() );
 
   // Build names for the keys same as done for output containers
-  for(int ibc=0; ibc<NBC+1; ibc++) {      
-    int bcTag=ibc+1;
-    std::ostringstream location;
-    location << m_prdContainerCacheKeyStr << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-       << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(NBC+1) ? "AllBCs" : "");    
-    m_prdContainerCacheKeys.at(ibc) = location.str();
+  if(m_prdContainerCacheKeyStr != ""){
+    for(int ibc=0; ibc<NBC+1; ibc++) {      
+      int bcTag=ibc+1;
+      std::ostringstream location;
+      location << m_prdContainerCacheKeyStr << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+         << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(NBC+1) ? "AllBCs" : "");    
+      m_prdContainerCacheKeys.at(ibc) = location.str();
+      ATH_MSG_INFO( location.str() );
+    }
   }
 
-  for(int ibc=0; ibc<NBC; ibc++) {
-    int bcTag=ibc+1;
-    std::ostringstream location;
-    location << m_coinContainerCacheKeyStr << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-             << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");
-    m_coinContainerCacheKeys.at(ibc) = location.str();
+  if(m_prdContainerCacheKeyStr != ""){
+    for(int ibc=0; ibc<NBC; ibc++) {
+      int bcTag=ibc+1;
+      std::ostringstream location;
+      location << m_coinContainerCacheKeyStr << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+               << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");
+      m_coinContainerCacheKeys.at(ibc) = location.str();
+      ATH_MSG_INFO( location.str() );
+    }
   }
 
-  ATH_CHECK( m_prdContainerCacheKeys.initialize( !m_prdContainerCacheKeys.keys().empty() ) );
-  ATH_CHECK( m_coinContainerCacheKeys.initialize( !m_coinContainerCacheKeys.keys().empty() ) );
+  // Only initialise if we passed in the cache name
+  ATH_CHECK( m_prdContainerCacheKeys.initialize( m_prdContainerCacheKeyStr != "" ) );
+  ATH_CHECK( m_coinContainerCacheKeys.initialize( m_prdContainerCacheKeyStr != "" ) );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
