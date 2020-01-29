@@ -617,7 +617,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
       // Fill errors.
       // Values returned by NN are inverse of variance, and we want variances in matrix.
-      ATH_MSG_INFO(" Kate's estimated RMS errors (1) x: " << sqrt(1.0/position["prec_x"]) << ", y: " << sqrt(1.0/position["prec_y"]));      
+      ATH_MSG_DEBUG(" Estimated RMS errors (1) x: " << sqrt(1.0/position["prec_x"]) << ", y: " << sqrt(1.0/position["prec_y"]));      
       Amg::MatrixX erm(2,2);
       erm.setZero();
       erm(0,0)=1.0/position["prec_x"];
@@ -626,7 +626,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     }
 
     std::vector<Amg::Vector2D> myPositions = getPositionsFromOutput(position_values,*raw_input,pCluster);
-    ATH_MSG_INFO(" Kate's Estimated myPositions (1) x: " << myPositions[0][Trk::locX] << " y: " << myPositions[0][Trk::locY]);
+    ATH_MSG_DEBUG(" Estimated myPositions (1) x: " << myPositions[0][Trk::locX] << " y: " << myPositions[0][Trk::locY]);
     
     for (unsigned int index = 0; index < error_matrices.size(); index++) errors.push_back(error_matrices.at(index));
 
@@ -646,13 +646,13 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
 
     // If we're using new networks via lwtnn, call those now
-//    if (m_uselwtnn_position) {
+    if (m_uselwtnn_position) {
       NnClusterizationFactory::InputMap nn_inputData = flattenInput(*input);
       auto test_position = estimatePositions(nn_inputData,input,pCluster,numberSubClusters,errors);
-//      return test_position;
-//    }
+      return test_position;
+    }
 
-    // Otherwise continue to older function
+    // Otherwise continue to older function.
 
     bool applyRecentering=false;
     if (m_useRecenteringNNWithouTracks && !useTrackInfo)
@@ -692,7 +692,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
       std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,*input,pCluster,sizeX,sizeY);
 
-      ATH_MSG_INFO(" Original Estimated myPositions (1) x: " << myPosition1[0][Trk::locX] << " y: " << myPosition1[0][Trk::locY]);
+      ATH_MSG_DEBUG(" Original Estimated myPositions (1) x: " << myPosition1[0][Trk::locX] << " y: " << myPosition1[0][Trk::locY]);
 
       std::vector<double> inputDataNew=inputData;
       inputDataNew.push_back(position1P[0]);
@@ -721,9 +721,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 	    errors1PY=m_NetworkEstimateImpactPointErrorsY[0]->calculateNormalized(inputDataNew);
 	  }
 	}
-     
-  ATH_MSG_INFO(" Original errors1PX: " << errors1PX << ", errors1PY: " << errors1PY);
- 
+   
       std::vector<Amg::MatrixX> errorMatrices1;
       getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,1);
 
