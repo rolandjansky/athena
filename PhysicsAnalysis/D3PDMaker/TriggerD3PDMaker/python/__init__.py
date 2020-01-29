@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TriggerD3PDMaker/python/__init__.py
 # @author scott snyder <snyder@bnl.gov>
@@ -16,7 +15,7 @@
 #   TriggerD3PDMaker.FourMomFillerTool
 #
 
-import TriggerD3PDMakerConf
+from . import TriggerD3PDMakerConf
 for k, v in TriggerD3PDMakerConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
