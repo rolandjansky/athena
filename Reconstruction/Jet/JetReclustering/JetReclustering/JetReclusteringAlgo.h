@@ -50,7 +50,7 @@ private:
   xAOD::TEvent *m_event; //!
   xAOD::TStore *m_store; //!
 
-  asg::AnaToolHandle<IJetExecuteTool> m_jetReclusteringTool; //!
+  asg::AnaToolHandle<IJetExecuteTool> m_jetReclusteringTool{"JetReclusteringTool", this}; //!
 
 public:
   // this is a standard constructor

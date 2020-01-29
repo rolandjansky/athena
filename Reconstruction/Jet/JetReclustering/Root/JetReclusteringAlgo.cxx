@@ -22,9 +22,7 @@
 // this is needed to distribute the algorithm to the workers
 ClassImp(JetReclusteringAlgo)
 
-JetReclusteringAlgo :: JetReclusteringAlgo () :
-  m_jetReclusteringTool("JetReclusteringTool/"+m_name)
-{}
+JetReclusteringAlgo :: JetReclusteringAlgo () {}
 
 EL::StatusCode JetReclusteringAlgo :: setupJob (EL::Job& job)
 {
@@ -72,6 +70,7 @@ EL::StatusCode JetReclusteringAlgo :: initialize ()
   }
 
   ANA_CHECK(ASG_MAKE_ANA_TOOL(m_jetReclusteringTool, JetReclusteringTool));
+  m_jetReclusteringTool.setName(m_name);
   ANA_CHECK(m_jetReclusteringTool.setProperty("InputJetContainer",         m_inputJetContainer));
   ANA_CHECK(m_jetReclusteringTool.setProperty("OutputJetContainer",        m_outputJetContainer));
   ANA_CHECK(m_jetReclusteringTool.setProperty("ReclusterRadius",           m_radius));
