@@ -22,7 +22,7 @@ void MM_Electron::propagateElectron(float lorentzAngle, float driftVel) {
 
   float tanLorentzAngle = TMath::Tan(lorentzAngle);
   if (tanLorentzAngle == tanLorentzAngle) // checking that it's not NAN
-    m_offsetPosition.Set(m_offsetPosition.X() + tanLorentzAngle * ( m_offsetPosition.Y() + m_initialPosition.Y() ) , m_offsetPosition.Y() - m_initialPosition.Y()  );
+    m_offsetPosition.Set(m_offsetPosition.X() + tanLorentzAngle * ( m_offsetPosition.Y() + m_initialPosition.Y() ) , m_offsetPosition.Y() + m_initialPosition.Y()  );
 
   if (driftVel > 0.)
     m_time = m_offsetPosition.Mod()/driftVel;
