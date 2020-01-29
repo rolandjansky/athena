@@ -268,6 +268,7 @@ class Registry(object):
         self.add_default("min_Z_mass", 1.0, name="mass_Z_low", description="Require Z boson mass > mass low")
         self.add_default("min_z_mass", 1.0, name="mass_Z_low", description="Require Z boson mass > mass low")
         self.add_default("minlo", 0, description="use MiNLO (if minlo is set for unsupported processes, Powheg will crash with an 'st_bornorder' error) [1:enabled]")
+        self.add_default("minnlo", 0, description="use MiNNLO (if minlo is set for unsupported processes, Powheg will crash with an 'st_bornorder' error) [1:enabled]")
         self.add_default("minlo_nnll", 1, description="enable MiNLO NNLL. [0:disabled; 1:enabled]")
         self.add_default("minloscfac", 1, description="MiNLO scaling factor:  q2merge=q2merge * (minloscfac)**2")
         self.add_default("mint_density_map", -1, description="keep track of the distribution of integrand values while doing the integration (for debugging).")
@@ -574,6 +575,10 @@ class Registry(object):
                 self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
         for coefficient in ["QphiD_{flavours}", "Dphi_{flavours}", "QLd_{flavours}", "Ced_{flavours}", "CLd_{flavours}", "Qe_{flavours}"]:
             for flavours in ["dd", "ds", "db", "ss", "sb", "bb"]:
+                coefficient_name = coefficient.format(flavours=flavours)
+                self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
+        for coefficient in ["ReXi_{flavours}", "ImXi_{flavours}"]:
+            for flavours in ["{}{}".format(*x) for x in itertools.product(["u", "c", "t"], ["d", "s", "b"])]:
                 coefficient_name = coefficient.format(flavours=flavours)
                 self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
 

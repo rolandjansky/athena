@@ -877,12 +877,22 @@ def setupFastjet(isNLO, proc_dir=None):
     return
 
 def get_LHAPDF_DATA_PATH():
-    LHAPATH=os.environ['LHAPATH'].split(':')[0]
-    if len(os.environ['LHAPATH'].split(':')) >=2 :
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
-    else:
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
-    return LHADATAPATH
+    return get_LHAPDF_PATHS()[1]
+
+def get_LHAPDF_PATHS():
+    LHADATAPATH=None
+    LHAPATH=None
+    for p in os.environ['LHAPATH'].split(':')+os.environ['LHAPDF_DATA_PATH'].split(':'):
+        if os.path.exists(p+"/../../lib/") and LHAPATH==None:
+            LHAPATH=p
+    for p in os.environ['LHAPDF_DATA_PATH'].split(':')+os.environ['LHAPATH'].split(':'):
+        if os.path.exists(p) and LHADATAPATH==None and p!=LHAPATH:
+            LHADATAPATH=p
+    if LHADATAPATH==None:
+        LHADATAPATH=LHAPATH
+    if LHAPATH==None:
+        mglog.error('Could not find path to LHAPDF installation')
+    return LHAPATH,LHADATAPATH
 
 # function to get lhapdf id and name from either id or name
 def get_lhapdf_id_and_name(pdf):
@@ -923,12 +933,7 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
     origLHAPATH=os.environ['LHAPATH']
     origLHAPDF_DATA_PATH=os.environ['LHAPDF_DATA_PATH']
 
-
-    LHAPATH=os.environ['LHAPATH'].split(':')[0]
-    if len(os.environ['LHAPATH'].split(':')) >=2 :
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
-    else:
-        LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
+    LHAPATH,LHADATAPATH=get_LHAPDF_PATHS()
 
     pdfname=''
     pdfid=-999
@@ -1203,7 +1208,10 @@ def add_lifetimes(process_dir=None,threshold=None):
             mglog.error('Process directory could not be found!')
         else:
             process_dir = glob('*PROC*')[-1]
-    me_exec=process_dir+'/bin/madevent'
+    madpath=os.environ['MADPATH']
+    if not os.access(madpath+'/bin/mg5_aMC',os.R_OK):
+        mglog.error('mg5_aMC executable not found in '+madpath)
+    me_exec=madpath+'/bin/mg5_aMC'
     if len(glob(process_dir+'/Events/*'))<1:
         mglog.error('Process dir %s does not contain events?'%process_dir)
     run = glob(process_dir+'/Events/*')[0].split('/')[-1]
@@ -1212,7 +1220,8 @@ def add_lifetimes(process_dir=None,threshold=None):
     # See : https://answers.launchpad.net/mg5amcnlo/+question/267904
 
     tof_c = open('time_of_flight_exec_card','w')
-    tof_c.write('add_time_of_flight '+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
+    tof_c.write('launch '+process_dir+''' -i
+add_time_of_flight '''+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
     tof_c.close()
 
     mglog.info('Started adding time of flight info '+str(time.asctime()))
@@ -2673,17 +2682,19 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
     newscript = open(runscript+'.tmp','w')
     # in older MG versions the gridpack is run with the command below
     gridrun_line_old='./bin/gridrun $num_events $seed'
-    syst_line_old='./bin/madevent syscalc GridRun_${seed} -f\n'
-    if systematics_program=='systematics':
-        #syst_line_old='./bin/madevent systematics GridRun_${seed} -f\n'
-        syst_line_old='python bin/internal/systematics.py Events/GridRun_123456/unweighted_events.lhe.gz Events/GridRun_123456/unweighted_events.lhe.gz '+systematics_arguments+'\n'
+    syst_line_old=''
+    if not is_version_or_newer([2,6,6]):
+        syst_line_old='./bin/madevent syscalc GridRun_${seed} -f\n'
+        if systematics_program=='systematics':
+            syst_line_old='python bin/internal/systematics.py Events/GridRun_${seed}/unweighted_events.lhe.gz Events/GridRun_${seed}/unweighted_events.lhe.gz '+systematics_arguments+'\n'
     reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
     # in new versions it is run like this
     gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
-    syst_line_new='${DIR}/bin/madevent syscalc GridRun_${seed} -f\n'
-    if systematics_program=='systematics':
-#        syst_line_new='${DIR}/bin/madevent systematics GridRun_${seed} -f\n'
-        syst_line_new='python ${DIR}/bin/internal/systematics.py  ${DIR}/Events/GridRun_123456/unweighted_events.lhe.gz ${DIR}/Events/GridRun_123456/unweighted_events.lhe.gz '+systematics_arguments+'\n'
+    syst_line_new=''
+    if not is_version_or_newer([2,6,6]):
+        syst_line_new='${DIR}/bin/madevent syscalc GridRun_${seed} -f\n'
+        if systematics_program=='systematics':
+            syst_line_new='python ${DIR}/bin/internal/systematics.py  ${DIR}/Events/GridRun_${seed}/unweighted_events.lhe.gz ${DIR}/Events/GridRun_${seed}/unweighted_events.lhe.gz '+systematics_arguments+'\n'
     reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
 
     for line in oldscript:

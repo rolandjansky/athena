@@ -5,7 +5,7 @@ genSeq += Herwig7()
 
 ## Provide config information
 evgenConfig.generators += ["aMcAtNlo", "Herwig7"] 
-evgenConfig.tune        = "MMHT2014"
+evgenConfig.tune        = "H7.1-Default"
 evgenConfig.description = "MG5aMCatNLO/Herwig7 FxFx"
 evgenConfig.keywords    = ["SM","ttbar"]
 evgenConfig.contact     = ["Krishna Kulkarni (krishna.kulkarni@cern.ch), Daniel Rauch (daniel.rauch@desy.de)", "atlas-generators-herwig7@cern.ch"]

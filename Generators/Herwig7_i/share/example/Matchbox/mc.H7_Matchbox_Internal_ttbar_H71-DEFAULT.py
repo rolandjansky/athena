@@ -5,7 +5,8 @@ genSeq += Herwig7()
 
 ## Provide config information
 evgenConfig.generators += ["Herwig7"]
-evgenConfig.description = "Herwig7 ttbar sample with Herwig 7.1 default tune and NNPDF30 ME PDF"
+evgenConfig.tune        = "H7.1-Default"
+evgenConfig.description = "Herwig7 ttbar sample with H7.1-Default tune and NNPDF30 ME PDF"
 evgenConfig.keywords    = ["SM","ttbar"]
 evgenConfig.contact     = ["Tetiana Moskalets (tetiana.moskalets@cern.ch)"]
 
