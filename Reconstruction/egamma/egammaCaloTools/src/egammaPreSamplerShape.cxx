@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,7 +25,7 @@ egammaPreSamplerShape::egammaPreSamplerShape(const std::string& type,
         const std::string& name,
         const IInterface* parent)
     : AthAlgTool(type, name, parent),
-    m_calo_dd(0){
+    m_calo_dd(nullptr){
 
         // declare Interface
         declareInterface<IegammaPreSamplerShape>(this);

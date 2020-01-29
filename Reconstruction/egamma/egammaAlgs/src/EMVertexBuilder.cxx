@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -126,7 +126,8 @@ StatusCode EMVertexBuilder::execute()
   
   // Decorate the vertices with the momentum at the conversion point and 
   // etaAtCalo, phiAtCalo (extrapolate each vertex)
-  float etaAtCalo = -9999., phiAtCalo = -9999.;
+  float etaAtCalo = -9999.;
+  float phiAtCalo = -9999.;
   for (itVtx = vertices->begin(); itVtx != vertices->end(); ++itVtx ){
     xAOD::Vertex *vertex = *itVtx;
     
