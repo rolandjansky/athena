@@ -363,6 +363,9 @@ if InDetFlags.doPattern():
     #
     if not InDetFlags.doDBMstandalone():
         InDetTRTDetElementsRoadMaker =  TrackingCommon.getInDetTRT_RoadMaker()
+        from InDetRecExample.TrackingCommon import getTRT_DetElementsRoadCondAlg
+        createAndAddCondAlg(getTRT_DetElementsRoadCondAlg,'TRT_DetElementsRoadCondAlg_xk')
+
         if (InDetFlags.doPrintConfigurables()):
             printfunc (     InDetTRTDetElementsRoadMaker)
 

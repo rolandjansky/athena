@@ -1075,7 +1075,6 @@ def getInDetTRT_RoadMaker(name='InDetTRT_RoadMaker',**kwargs) :
     the_name = makeName( name, kwargs)
     from InDetRecExample.InDetKeys import InDetKeys
     kwargs=setDefaults(kwargs,
-                       TRTManagerLocation    = InDetKeys.TRT_Manager(),
                        RoadWidth             = 20.,
                        PropagatorTool        = getInDetPatternPropagator())
     from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
@@ -1170,3 +1169,9 @@ def getInDetTRT_ExtensionTool(TrackingCuts=None, **kwargs) :
             return getInDetTRT_TrackExtensionTool_xk(TrackingCuts=TrackingCuts, **kwargs)
     elif InDetFlags.trtExtensionType() == 'DAF' :
         return getInDetTRT_TrackExtensionTool_DAF('InDetTRT_ExtensionTool',**kwargs)
+
+
+def getTRT_DetElementsRoadCondAlg(**kwargs):
+    the_name=kwargs.pop("name","TRT_DetElementsRoadCondAlg")
+    from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
+    return InDet__TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs)
