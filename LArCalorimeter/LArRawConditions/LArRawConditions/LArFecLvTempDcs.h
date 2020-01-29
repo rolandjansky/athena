@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFECLVTEMPDCS_H
@@ -121,7 +121,7 @@ class LArFecLvTempDcsManifold {
 	void print( MsgStream& log ) const;
 	// Set Methods
 	// Four Manifold Temperatures in a vector
-	inline void temperature( const std::vector<float> p ){
+	inline void temperature( const std::vector<float>& p ){
 		m_temps.clear();
 		for(std::vector<float>::const_iterator i=p.begin();
 			i!=p.end(); ++i) m_temps.push_back(*i);
@@ -144,7 +144,7 @@ class LArFecLvTempDcsVolts {
 	void print( MsgStream& log ) const;
 	// Set Methods
 	// Seven Crate Voltages in a vector
-	inline void voltage( const std::vector<float> p ){
+	inline void voltage( const std::vector<float>& p ){
 		m_volts.clear();
 		for(std::vector<float>::const_iterator i=p.begin();
 			i!=p.end(); ++i) m_volts.push_back(*i);
@@ -250,8 +250,8 @@ class LArFecLvTempDcs {
      // crateName
      inline std::string crateName() const
 	{ return m_crateName; };
-     inline void crateName(const std::string cratename)
-	{ m_crateName.clear(); m_crateName.assign( cratename ); };
+     inline void crateName(const std::string& cratename)
+	{ m_crateName = cratename; };
    protected:
      LArFecLvTempDcsOcem m_OCEM;
      LArFecLvTempDcsManifold m_manifold;
