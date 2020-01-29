@@ -651,8 +651,9 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         const int pileupType = phit.pileupType();
         HepMcParticleLink trklink(hit.particleLink());
         if (m_needsMcEventCollHelper) {
-          if(pileupType!=lastPileupType)        {
-            currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType);
+          if(pileupType!=lastPileupType) {
+            MsgStream* amsg = &(msg());
+            currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType, amsg);
             lastPileupType=pileupType;
           }
           trklink.setEventCollection(currentMcEventCollection);
