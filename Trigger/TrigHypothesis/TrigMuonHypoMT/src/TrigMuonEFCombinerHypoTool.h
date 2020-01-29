@@ -19,9 +19,6 @@ class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
  public:
   TrigMuonEFCombinerHypoTool(const std::string& type, const std::string & name, const IInterface* parent);
   ~TrigMuonEFCombinerHypoTool();
- 
-/// Muon selection tool
-  ToolHandle<CP::IMuonSelectionTool> m_muonSelTool; 
    
   struct MuonEFInfo {
   MuonEFInfo( TrigCompositeUtils::Decision* d, 
@@ -47,6 +44,7 @@ class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
   bool decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const;
   StatusCode inclusiveSelection(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const;
   StatusCode multiplicitySelection(std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo>& toolInput) const;
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
 
   HLT::Identifier m_decisionId;
   // Properties:

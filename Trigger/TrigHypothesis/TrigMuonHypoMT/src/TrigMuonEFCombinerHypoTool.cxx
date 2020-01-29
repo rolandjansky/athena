@@ -8,8 +8,10 @@
 class ISvcLocator;
 TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),
-  m_muonSelTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_decisionId(HLT::Identifier::fromToolName(name)){
+    if( m_muonqualityCut == true ) {
+       m_muonSelTool = ToolHandle<CP::IMuonSelectionTool>("CP::MuonSelectionTool/MuonSelectionTool",this);
+    }
 }
 TrigMuonEFCombinerHypoTool::~TrigMuonEFCombinerHypoTool(){
 }
