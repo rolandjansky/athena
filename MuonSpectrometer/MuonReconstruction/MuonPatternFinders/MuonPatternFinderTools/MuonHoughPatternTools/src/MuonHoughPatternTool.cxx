@@ -28,12 +28,9 @@
 MuonHoughPatternTool::MuonHoughPatternTool(const std::string& type, const std::string& name, const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_number_of_ids(7),
-  m_number_of_maxima(5),
   //m_use_rpc_measures_phi(true),
   m_use_rpc_measures_eta(true),
   m_use_ip(false),
-  m_thresholdpattern_xyz(1),
-  m_thresholdpattern_rz(3),
   m_maximum_residu_mm(500.),
   m_maximum_residu_mm_cosmics(2000.),
   m_maximum_residu_angle(3.),
@@ -64,13 +61,7 @@ MuonHoughPatternTool::MuonHoughPatternTool(const std::string& type, const std::s
   //m_stepsize_per_inv_sqrt_curvature(0.001),
   m_nbins_curved(160),
   m_weightmdt(0.),
-  m_thresholdhisto_xyz(0.9),
-  m_thresholdhisto_rz(2.1),
-  m_number_of_sectors_xyz(12),
-  m_number_of_sectors_rz(16),
-  m_number_of_sectors_rz_cosmics(12),
-  m_printlevel(0),
-  m_ncalls(0)
+  m_number_of_sectors_rz_cosmics(12)
 {
   declareInterface<IMuonHoughPatternTool>(this);
   
@@ -79,38 +70,7 @@ MuonHoughPatternTool::MuonHoughPatternTool(const std::string& type, const std::s
   m_detectorsize_xy = m_detectorsize_xy_full;
   m_detectorsize_yz = m_detectorsize_yz_full;
   m_detectorsize_rz = m_detectorsize_rz_full;
-
-  m_use_csc_in_hough = true;
-  m_use_csc_in_pattern = true;
-  m_use_curvedhough = true;
-  m_use_negative_weights = false;
-  m_use_cosmics = false;
-  m_use_histos = false;
-
-  declareProperty("UseCosmics",m_use_cosmics);
-  declareProperty("SetThresholdHistoRPhi",m_thresholdhisto_xyz);
-  declareProperty("SetThresholdHistoREta",m_thresholdhisto_rz);
-
-  declareProperty("SetThresholdPatternRPhi",m_thresholdpattern_xyz);
-  declareProperty("SetThresholdPatternREta",m_thresholdpattern_rz);
-
-  declareProperty("SetNumberOfSectorsRPhi",m_number_of_sectors_xyz);
-  declareProperty("SetNumberOfSectorsREta",m_number_of_sectors_rz);
-
-  declareProperty("UseCscInPattern", m_use_csc_in_pattern);
-  declareProperty("UseCscInHough", m_use_csc_in_hough);
-  declareProperty("UseNegativeWeights",m_use_negative_weights);
-  declareProperty("UseCurvedHough",m_use_curvedhough);
-  declareProperty("NumberOfMaximaPerIterations",m_number_of_maxima);
-
-  declareProperty("ApplyWeightCut",m_weightcut = true);
-  declareProperty("WeightCut",m_weight = 0.25); // cut all hits under 0.25
-  declareProperty("ApplyWeightCutMdt",m_weightcutmdt = true);  // cut all mdt hits under a certain weight (dependent on number of mdt hits in event
-
-  declareProperty("UseHistos",m_use_histos);
-  declareProperty("Printlevel",m_printlevel);
   
-  declareProperty("MaximumNumberOfPhiHits",m_maxNumberOfPhiHits = -1 );
 }
 
 MuonHoughPatternTool::~MuonHoughPatternTool()
@@ -135,7 +95,6 @@ void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontaine
   m_event = hitcontainer;
   /** empty and reinitialize the houghpattern vectors */
   reset();
-  init();
 
   /** skip cosmic events that have more than 1000 phi hits */
   if (m_use_cosmics == true && m_maxNumberOfPhiHits >= 0 ) {
@@ -279,7 +238,6 @@ void MuonHoughPatternTool::makePatterns(int id_number) const
 
 StatusCode MuonHoughPatternTool::initialize()
 {
-  init();
   m_houghpattern=emptyHoughPattern();
 
   if (m_use_histos == true) // debug histos
@@ -315,15 +273,6 @@ StatusCode MuonHoughPatternTool::initialize()
   StatusCode sc = StatusCode::SUCCESS;
 
   return sc;
-}
-
-void MuonHoughPatternTool::init() const
-{
-  ATH_MSG_VERBOSE("init()");
-
-  //  m_houghpattern=emptyHoughPattern();
-  m_npatterns= std::vector<int> (m_number_of_ids);
-
 }
 
 void MuonHoughPatternTool::resetAssociation() const
@@ -460,11 +409,6 @@ bool MuonHoughPatternTool::analyseHisto(int id_number,int level,const MuonHoughH
 	  ATH_MSG_DEBUG("id_number: " << id_number << " maximum_number: " << maximum_number << " size patternseg: " << houghpattern->size());
 
 	  if (houghpattern->empty()) {ATH_MSG_DEBUG("houghpattern==0");}
-	  
-	  else 
-	    {
-	      m_npatterns[id_number]++;
-	    } // houghpattern.size() !=0
 	  
 	  // some print statements
 	  

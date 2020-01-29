@@ -135,7 +135,10 @@ namespace Muon {
           const std::vector<const TgcPrepDataCollection*>& tgcCols,  
           const std::vector<const RpcPrepDataCollection*>& rpcCols,  
           const MuonSegmentCombinationCollection* ) const override;
+
     void reset() const;
+
+  private:
 
     void getSectors( const Amg::Vector3D& pos, std::vector<int>& sectors ) const;
     void getSectors( const TgcClusterObj3D& tgc, std::vector<int>& sectors ) const;
@@ -146,8 +149,6 @@ namespace Muon {
     double rCor( const TgcClusterObj3D& tgc, int val, int sector ) const;
 
     int sublay( const Identifier& id, float z = 0 ) const; // the z value is only used for the tgcs
-
-  private:
 
     struct State {
       MaximumVec seedMaxima; // Does not own the contained objects, they're just references to objects stored in houghDataPerSectorVec.

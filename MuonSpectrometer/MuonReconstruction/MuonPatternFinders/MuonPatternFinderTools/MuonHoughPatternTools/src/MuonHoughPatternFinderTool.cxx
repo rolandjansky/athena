@@ -47,56 +47,10 @@ namespace Muon {
 
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
-    m_muonHoughPatternTool("MuonHoughPatternTool"), 
-    m_muonCombinePatternTool("MuonCombinePatternTool", this), 
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_hit_reweights(true),
-    m_mdt_adc_cut(true), 
-    m_mdt_adc_min(50), 
-    m_mdt_tdc_cut(true), 
-    m_use_rpc(true),
-    m_use_tgc(true),
-    m_use_csc(true),
-    m_use_mdt(true),
     m_weight_csc_on_segment(2.),
-    m_showerskip(true),
-    m_showerskipperc(0.3),
-    m_use_histos(false),
-    m_summary(false),
-    m_recordAllOutput(false),
-    m_cscAssoOutputLocation("MuonPatCscSegAssMap"), 
-    m_phietahitassociation(0),
-    m_CosmicPhiPatternsKey("CosmicPhiPatterns"),
-    m_CosmicEtaPatternsKey("CosmicEtaPatterns"),
-    m_COMBINED_PATTERNSKey("COMBINED_PATTERNS")
+    m_phietahitassociation(0)
   {
     declareInterface<IMuonHoughPatternFinderTool>(this);
-    
-    declareProperty("muonHoughPatternTool",m_muonHoughPatternTool);
-    declareProperty("muonCombinePatternTool",m_muonCombinePatternTool);
-
-    declareProperty("HitReweights",m_hit_reweights);
-    declareProperty("MDT_ADC_cut",m_mdt_adc_cut);
-    declareProperty("MDT_TDC_cut",m_mdt_tdc_cut);
-
-    declareProperty("MDT_ADC_value",m_mdt_adc_min);
-
-    declareProperty("RPC",m_use_rpc);
-    declareProperty("TGC",m_use_tgc);
-    declareProperty("CSC",m_use_csc);
-    declareProperty("MDT",m_use_mdt);
-
-    declareProperty("ShowerSkipping",m_showerskip);
-    declareProperty("ShowerSkipPercentage",m_showerskipperc);
-
-    declareProperty("PatCscSegAssMapOutputLocation",m_cscAssoOutputLocation);//Not used
-    declareProperty("UseHistos",m_use_histos);
-    declareProperty("DoSummary",m_summary);
-    declareProperty("RecordAll",m_recordAllOutput);
-
-    declareProperty("CosmicPhiKey", m_CosmicPhiPatternsKey);
-    declareProperty("CosmicEtaPatterns", m_CosmicEtaPatternsKey);
-    declareProperty("COMBINED_PATTERNS", m_COMBINED_PATTERNSKey);
   }
 
   StatusCode MuonHoughPatternFinderTool::initialize()

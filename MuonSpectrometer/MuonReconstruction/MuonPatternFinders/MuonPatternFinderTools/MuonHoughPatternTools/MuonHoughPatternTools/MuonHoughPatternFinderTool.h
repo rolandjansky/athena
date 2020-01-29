@@ -115,52 +115,52 @@ namespace Muon {
 
     void addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end) const;
 
-    ToolHandle <IMuonHoughPatternTool>   m_muonHoughPatternTool;    //!< Pointer to concrete tool
-    mutable ToolHandle <Muon::IMuonCombinePatternTool>  m_muonCombinePatternTool;   //!< Pointer to concrete tool  
+    ToolHandle <IMuonHoughPatternTool>   m_muonHoughPatternTool{this,"muonHoughPatternTool","MuonHoughPatternTool"};    //!< Pointer to concrete tool
+    mutable ToolHandle <Muon::IMuonCombinePatternTool>  m_muonCombinePatternTool{this,"muonCombinePatternTool","MuonCombinePatternTool"};   //!< Pointer to concrete tool  
     ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
       "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};  //!< Pointer to concrete tool
     /** ToolHandle for EDM printing of segments */
-    ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"printerTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
  
     /** reweight hits (true) */
-    bool       m_hit_reweights;
+    Gaudi::Property<bool>       m_hit_reweights{this,"HitReweights",true};
     /** use adc cut (true) */
-    bool       m_mdt_adc_cut;
+    Gaudi::Property<bool>       m_mdt_adc_cut{this,"MDT_ADC_cut",true};
     /** value of adc cut (50) */
-    int        m_mdt_adc_min;
+    Gaudi::Property<int>        m_mdt_adc_min{this,"MDT_ADC_value",50};
     /** use tdc cut (false) */
-    bool       m_mdt_tdc_cut;
+    Gaudi::Property<bool>       m_mdt_tdc_cut{this,"MDT_TDC_cut",true};
 
     /** use rpc preprawdata (true) */
-    bool       m_use_rpc;
+    Gaudi::Property<bool>       m_use_rpc{this,"RPC",true};
     /** use tgc preprawdata (true) */
-    bool       m_use_tgc;
+    Gaudi::Property<bool>       m_use_tgc{this,"TGC",true};
     /** use csc preprawdata (true) */
-    bool       m_use_csc;
+    Gaudi::Property<bool>       m_use_csc{this,"CSC",true};
     /** use mdt preprawdata (true) */
-    bool       m_use_mdt;
+    Gaudi::Property<bool>       m_use_mdt{this,"MDT",true};
     /** use weight for csc segments */
     double     m_weight_csc_on_segment;
 
     /** reduce cpu for showers (true) */
-    bool m_showerskip;
+    Gaudi::Property<bool> m_showerskip{this,"ShowerSkipping",true};
     /** percentage of occupancy to skip MDT chamber (0.3) */
-    double m_showerskipperc;
+    Gaudi::Property<double>  m_showerskipperc{this,"ShowerSkipPercentage",0.3};
 
     /** flag to output a root file to study the weights of hits */
-    bool m_use_histos;
+    Gaudi::Property<bool> m_use_histos{this,"UseHistos",false};
 
     /** flag to print out a summary of what comes in and what comes out */
-    bool m_summary; 
+    Gaudi::Property<bool> m_summary{this,"DoSummary",false}; 
 
     /** flag to write out intermediate patterns */
-    bool m_recordAllOutput;
+    Gaudi::Property<bool> m_recordAllOutput{this,"RecordAll",false};
 
     /** map for association between (csc) hits and their segments (only used when m_use_csc_segments is true), used for writing out a MuonSegPatAssMap */
     mutable std::map <const Trk::PrepRawData*, const Muon::MuonSegmentCombination*> m_cschitsegassociation;
 
     /** storegate location for csc association map */
-    std::string m_cscAssoOutputLocation;
+    Gaudi::Property<std::string> m_cscAssoOutputLocation{this,"PatCscSegAssMapOutputLocation","MuonPatCscSegAssMap"}; //Not used
 
     /** pointer to the CSC segment combination collection */
     // const MuonSegmentCombinationCollection* m_csc_segments;
@@ -181,9 +181,9 @@ namespace Muon {
     /** csc histogram */
     TH1F* m_weighthistogramcsc;
 
-    SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicPhiPatternsKey;
-    SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicEtaPatternsKey;
-    SG::WriteHandleKey<MuonPrdPatternCollection> m_COMBINED_PATTERNSKey;
+    SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicPhiPatternsKey{this,"CosmicPhiKey","CosmicPhiPatterns"};
+    SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicEtaPatternsKey{this,"CosmicEtaPatterns","CosmicEtaPatterns"};
+    SG::WriteHandleKey<MuonPrdPatternCollection> m_COMBINED_PATTERNSKey{this,"PATTERNS","COMBINED_PATTERNS"};
   };
 
 }
