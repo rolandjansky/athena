@@ -24,7 +24,6 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetRecTools/InDetRecToolInterfaces
    Tracking/TrkEvent/TrkParameters
    PRIVATE
-   Tools/PathResolver
    Database/AthenaPOOL/AthenaPoolUtilities
    DetectorDescription/AtlasDetDescr
    DetectorDescription/DetDescrCond/DetDescrCondTools
@@ -51,12 +50,11 @@ atlas_add_library( SiClusterizationToolLib
    InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
    TrkParameters TrkNeuralNetworkUtilsLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities AtlasDetDescr
-   TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib PathResolver)
+   TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib )
 
 atlas_add_component( SiClusterizationTool
    src/components/*.cxx
    LINK_LIBRARIES GaudiKernel SiClusterizationToolLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

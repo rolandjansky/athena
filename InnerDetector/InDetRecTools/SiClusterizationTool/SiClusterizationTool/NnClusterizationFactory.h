@@ -28,7 +28,6 @@
  #include <map>
  
  #include <TString.h>
- #include <TFile.h>
  #include "AthenaKernel/IOVSvcDefs.h"
 
 
@@ -39,6 +38,7 @@
 
  class TTrainedNetwork;
  class TH1;
+ class ICoolHistSvc;
  class IPixelCalibSvc;
 
 namespace Trk {
@@ -66,6 +66,7 @@ namespace InDet {
     float phi;
     float theta;
     float etaModule;
+    bool useTrackInfo;
     int columnWeightedPosition;
     int rowWeightedPosition;
   };
@@ -85,12 +86,25 @@ namespace InDet {
      
     virtual StatusCode initialize();
     virtual StatusCode finalize() { return StatusCode::SUCCESS; };
+     
+    std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
+                                                  Amg::Vector3D & beamSpotPosition,
+                                                  int sizeX=7,
+                                                  int sizeY=7);
 
     std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
                                                   const Trk::Surface& pixelSurface,
                                                   const Trk::TrackParameters& trackParsAtSurface,
                                                   int sizeX=7,
                                                   int sizeY=7);
+    
+    std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
+                                                      Amg::Vector3D & beamSpotPosition,
+                                                      std::vector<Amg::MatrixX> & errors,
+                                                      int numberSubClusters,
+                                                      int sizeX=7,
+                                                      int sizeY=7);
+
     
     std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
                                                       const Trk::Surface& pixelSurface,
@@ -101,10 +115,21 @@ namespace InDet {
                                                       int sizeY=7);
                                                       
     /** Callback for nnSetup */
-    StatusCode nnSetup();
+    StatusCode nnSetup( IOVSVC_CALLBACK_ARGS );
     
    private:
     void clearCache(std::vector<TTrainedNetwork*>& ttnn);
+ 
+ 
+    /* estimate position for both with and w/o tracks */
+    std::vector<Amg::Vector2D> estimatePositions(std::vector<double> inputData,
+                                                      NNinput* input,
+                                                      const InDet::PixelCluster& pCluster,
+                                                      int sizeX,
+                                                      int sizeY,
+                                                      bool useTrackInfo,
+                                                      int numberSubClusters,
+                                                      std::vector<Amg::MatrixX> & errors);
 
      /* algorithmic component */
     NNinput* createInput(const InDet::PixelCluster& pCluster,
@@ -119,15 +144,28 @@ namespace InDet {
                              const Trk::TrackParameters& trackParsAtSurface,
                              const double tanl);
 
-    /* neural networks: read from COOL using TTrainedNetwork? */
-    bool m_loadTTrainedNetworks;
+    /* neural network component */
+    bool m_loadNoTrackNetworks;
+    bool m_loadWithTrackNetworks;
 
-    TTrainedNetwork* retrieveNetwork(std::unique_ptr<TFile> & ifile, const std::string & folder);
+    TTrainedNetwork* retrieveNetwork(const std::string& folder, const std::string& subfolder);
 
 
     std::vector<double> assembleInput(NNinput& input,
                                       int sizeX,
                                       int sizeY);
+
+
+  std::vector<double> assembleInputRunI(NNinput& input,
+                                      int sizeX,
+                                      int sizeY);
+
+
+
+  std::vector<double> assembleInputRunII(NNinput& input,
+                                      int sizeX,
+                                      int sizeY);
+
 
 
     std::vector<Amg::Vector2D> getPositionsFromOutput(std::vector<double> & output,
@@ -142,29 +180,40 @@ namespace InDet {
                                   std::vector<Amg::MatrixX>& errorMatrix,
                                   int nParticles);
 
-    // NN calibration file from which to load neural networks (TTrainedNetwork type)
-    std::string m_configTTrainedNetwork;
+    //use cool histogram service to load neural networks
+     ICoolHistSvc*  m_coolHistSvc;
+     
+     
     
-    // TTrainedNetworks
-    TTrainedNetwork* m_NetworkEstimateNumberParticles;
-    std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPoints;
-    std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsX;
-    std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY;
+     TTrainedNetwork* m_NetworkEstimateNumberParticles;
+     TTrainedNetwork* m_NetworkEstimateNumberParticles_NoTrack;
 
-    std::string m_layerInfoHistogram;
-    std::string m_layerPrefix;
-    std::string m_weightIndicator;
-    std::string m_thresholdIndicator;
+     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPoints;
+     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPoints_NoTrack;
+
+     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsX;
+     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsX_NoTrack;
+
+     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY;
+     std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY_NoTrack;
+
+     std::string m_coolFolder;
+     std::string m_layerInfoHistogram;
+     std::string m_layerPrefix;
+     std::string m_weightIndicator;
+     std::string m_thresholdIndicator;
 
     ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool;
     ServiceHandle<IPixelCalibSvc> m_calibSvc;
     
 
     bool m_useToT;
-
-    // Having no IBL changes treatment of inputs slightly
+    bool m_addIBL;
     bool m_doRunI;
 
+    bool m_useRecenteringNNWithouTracks;
+    bool m_useRecenteringNNWithTracks;
+    double m_correctLorShiftBarrelWithoutTracks;
     double m_correctLorShiftBarrelWithTracks;
    };
    

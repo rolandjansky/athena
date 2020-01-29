@@ -34,6 +34,9 @@ namespace InDet
 
             /** interface ID */
             static const InterfaceID& interfaceID() { return IID_IPixelClusterSplitProbTool; }
+    
+            /** take one, give many */
+            virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster ) const = 0;
 
             /** take one, give many */
             virtual InDet::PixelClusterSplitProb splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters&  trackParameters ) const = 0;

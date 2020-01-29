@@ -9,6 +9,7 @@
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "SiClusterizationTool/TotPixelClusterSplitter.h"
+#include "SiClusterizationTool/NnPixelClusterSplitter.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "SiClusterizationTool/NnPixelClusterSplitProbTool.h"
 
@@ -19,6 +20,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( InDet, SCT_ClusteringTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, PixelGangedAmbiguitiesFinder )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, ClusterMakerTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, TotPixelClusterSplitter )
+DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnPixelClusterSplitter )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnClusterizationFactory )
 DECLARE_NAMESPACE_TOOL_FACTORY( InDet, NnPixelClusterSplitProbTool )
 
@@ -29,6 +31,7 @@ DECLARE_FACTORY_ENTRIES( SiClusterizationTool ){
   DECLARE_NAMESPACE_TOOL( InDet, PixelGangedAmbiguitiesFinder )
   DECLARE_NAMESPACE_TOOL( InDet, ClusterMakerTool )
   DECLARE_NAMESPACE_TOOL( InDet, TotPixelClusterSplitter )
+  DECLARE_NAMESPACE_TOOL( InDet, NnPixelClusterSplitter )
   DECLARE_NAMESPACE_TOOL( InDet, NnClusterizationFactory )
   DECLARE_NAMESPACE_TOOL( InDet, NnPixelClusterSplitProbTool )
   

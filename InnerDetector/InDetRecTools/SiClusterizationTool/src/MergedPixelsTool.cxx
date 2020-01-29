@@ -409,7 +409,16 @@ namespace InDet {
 
                // prepare for the return value of the pixel cluster 
                std::vector<InDet::PixelClusterParts> splitClusterParts;
-               if ( !m_clusterSplitter.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) 
+               if ( !m_splitProbTool.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())){                   
+                   InDet::PixelClusterSplitProb splitProbObj = m_splitProbTool->splitProbability(*cluster);
+                   clusterSplitP1 = splitProbObj.splitProbability(2);
+                   clusterSplitP2 = splitProbObj.splitProbability(3);
+                   ATH_MSG_VERBOSE( "Obtained split prob object with split prob: " << splitProbObj.splitProbability());
+                   if ( splitProbObj.splitProbability() >  m_minSplitProbability ) {
+                       ATH_MSG_VERBOSE( "Trying to split cluster ... ");
+                       splitClusterParts = m_clusterSplitter->splitCluster(*cluster,splitProbObj);
+                   }
+               } else if ( !m_clusterSplitter.empty() && (m_doIBLSplitting || m_IBLAbsent || !element->isBlayer())) 
                     splitClusterParts = m_clusterSplitter->splitCluster(*cluster);
               // check if splitting worked
               clusterModified      = !m_emulateSplitter && splitClusterParts.size() > 0;
