@@ -452,7 +452,7 @@ elif "AcerMC" in evgenConfig.generators:
 elif "CompHep" in evgenConfig.generators:
     datFile = "inparmCompHep.dat"
 
-if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
+#if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
 ## Events files
 eventsFile = None
 if "Alpgen" in evgenConfig.generators:
@@ -466,8 +466,8 @@ elif "BeamHaloGenerator" in evgenConfig.generators:
 elif "HepMCAscii" in evgenConfig.generators:
     eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
-    eventsFile = outputTXTFile
-#    eventsFile = "events.lhe"
+    #eventsFile = outputTXTFile
+    eventsFile = "events.lhe"
 
 
 ## Helper functions for input file handling
