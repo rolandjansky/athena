@@ -30,13 +30,8 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) override;
-    virtual StatusCode eventInitialize() override { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
-
 
 private:
-
-    std::string m_readerOption;
     MVAUtils::BDT* m_mvaBDT;
 
     std::string m_weightfile;

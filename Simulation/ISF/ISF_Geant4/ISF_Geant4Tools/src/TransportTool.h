@@ -91,8 +91,6 @@ namespace iGeant4
 
     virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Geant4; };
 
-    virtual void push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent ) override;
-
   private:
 
     /// This command prints a message about a G4Command depending on its returnCode

@@ -15,8 +15,8 @@ if not ('conddb' in dir()):
 # --- Setup BeamSpot data
 #
 try:
-   from RecExConfig.RecFlags import rec
    # If express processing, point beam spot to online folder results
+   from RecExConfig.RecFlags import rec
    if (rec.doExpressProcessing()):
         conddb.addFolder('INDET_ONL', '/Indet/Onl/Beampos <key>/Indet/Beampos</key>', className="AthenaAttributeList")
    else:
@@ -33,11 +33,10 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
    condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
-
 #
 # --- Load PixelConditionsTools
 #
-if DetFlags.haveRIO.pixel_on():
+if DetFlags.pixel_on():
     # Load pixel conditions summary service
     from AthenaCommon.AppMgr import ToolSvc
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags

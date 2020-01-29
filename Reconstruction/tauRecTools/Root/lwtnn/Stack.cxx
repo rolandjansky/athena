@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/lwtnn/Stack.h"
 #include <Eigen/Dense>
-
 #include <set>
 
 // internal utility functions
@@ -282,6 +281,8 @@ namespace lwtDev {
         n_inputs = add_lstm_layers(n_inputs, layer);
       } else if (layer.architecture == Architecture::GRU) {
         n_inputs = add_gru_layers(n_inputs, layer);
+      } else if (layer.architecture == Architecture::BIDIRECTIONAL) {
+        n_inputs = add_bidirectional_layers(n_inputs, layer);
       } else if (layer.architecture == Architecture::EMBEDDING) {
         n_inputs = add_embedding_layers(n_inputs, layer);
       } else {
@@ -296,9 +297,9 @@ namespace lwtDev {
       layer = 0;
     }
   }
-  MatrixXd RecurrentStack::scan(MatrixXd in, MatMap& inp_map, MatMap& out_map) const {
+  MatrixXd RecurrentStack::scan(MatrixXd in) const {
     for (auto* layer: m_layers) {
-      in = layer->scan(in, inp_map, out_map);
+      in = layer->scan(in);
     }
     return in;
   }
@@ -313,12 +314,16 @@ namespace lwtDev {
     const auto& o = get_component(comps.at(Component::O), n_inputs);
     const auto& f = get_component(comps.at(Component::F), n_inputs);
     const auto& c = get_component(comps.at(Component::C), n_inputs);
+    const bool& go_backwards = layer.go_backwards;
+    const bool& return_sequence = layer.return_sequence;
     m_layers.push_back(
       new LSTMLayer(layer.activation, layer.inner_activation,
                     i.W, i.U, i.b,
                     f.W, f.U, f.b,
                     o.W, o.U, o.b,
-                    c.W, c.U, c.b));
+                    c.W, c.U, c.b,
+                    go_backwards,
+                    return_sequence));
     return o.b.rows();
   }
 
@@ -334,6 +339,46 @@ namespace lwtDev {
                     r.W, r.U, r.b,
                     h.W, h.U, h.b));
     return h.b.rows();
+  }
+
+  size_t RecurrentStack::add_bidirectional_layers(size_t n_inputs,
+                                         const LayerConfig& layer) {
+    // nasty hack to get the hands on RNNs: create RNN, fetch it from m_layers and finally pop it
+    if(layer.sublayers.size() != 2)
+        throw NNConfigurationException("Number of sublayers not matching expected number of 2 for bidirectional layers");
+    const LayerConfig forward_layer_conf = layer.sublayers[0];
+    const LayerConfig backward_layer_conf = layer.sublayers[1];
+    size_t n_forward = 0;
+    // fixing nasty -Wunused-but-set-variable warning
+    (void) n_forward;
+    size_t n_backward = 0;
+    if(forward_layer_conf.architecture == Architecture::LSTM)
+      n_forward = add_lstm_layers(n_inputs, forward_layer_conf);
+    else if(forward_layer_conf.architecture == Architecture::GRU)
+      n_forward = add_gru_layers(n_inputs, forward_layer_conf);
+    else
+      throw NNConfigurationException("Bidirectional forward layer type not supported");
+
+    IRecurrentLayer* forward_layer = m_layers.back();
+    m_layers.pop_back();
+
+    if(backward_layer_conf.architecture == Architecture::LSTM)
+      n_backward = add_lstm_layers(n_inputs, backward_layer_conf);
+    else if(backward_layer_conf.architecture == Architecture::GRU)
+      n_backward = add_gru_layers(n_inputs, backward_layer_conf);
+    else
+        throw NNConfigurationException("Bidirectional backward layer type not supported");
+
+    IRecurrentLayer* backward_layer = m_layers.back();
+    backward_layer->m_go_backwards = (!forward_layer->m_go_backwards);
+    m_layers.pop_back();
+
+    m_layers.push_back(new BidirectionalLayer(forward_layer, 
+                                              backward_layer, 
+                                              layer.merge_mode, 
+                                              layer.return_sequence));
+    return n_backward;
+
   }
 
   size_t RecurrentStack::add_embedding_layers(size_t n_inputs,
@@ -369,9 +414,7 @@ namespace lwtDev {
     delete m_stack;
   }
   VectorXd ReductionStack::reduce(MatrixXd in) const {
-    MatMap inp_1;
-    MatMap out_1;
-    in = m_recurrent->scan(in, inp_1, out_1);
+    in = m_recurrent->scan(in);
     return m_stack->compute(in.col(in.cols() -1));
   }
   size_t ReductionStack::n_outputs() const {
@@ -391,9 +434,8 @@ namespace lwtDev {
         " it is an index for a matrix row!");
   }
 
-  MatrixXd EmbeddingLayer::scan( const MatrixXd& x, MatMap& inp_map, MatMap& out_map) const {
-    (void) inp_map; //silence unused variable warning
-    (void) out_map; //silence unused variable warning
+  MatrixXd EmbeddingLayer::scan( const MatrixXd& x) const {
+
     if( m_var_row_index >= x.rows() )
       throw NNEvaluationException(
         "EmbeddingLayer::scan - var_row_index is larger than input matrix"
@@ -433,7 +475,9 @@ namespace lwtDev {
                        MatrixXd W_i, MatrixXd U_i, VectorXd b_i,
                        MatrixXd W_f, MatrixXd U_f, VectorXd b_f,
                        MatrixXd W_o, MatrixXd U_o, VectorXd b_o,
-                       MatrixXd W_c, MatrixXd U_c, VectorXd b_c):
+                       MatrixXd W_c, MatrixXd U_c, VectorXd b_c,
+                       bool go_backwards,
+                       bool return_sequence):
     m_W_i(W_i),
     m_U_i(U_i),
     m_b_i(b_i),
@@ -451,16 +495,13 @@ namespace lwtDev {
 
     m_activation_fun = get_activation(activation);
     m_inner_activation_fun = get_activation(inner_activation);
+    m_go_backwards = go_backwards;
+    m_return_sequence = return_sequence;
   }
 
   // internal structure created on each scan call
   struct LSTMState {
     LSTMState(size_t n_input, size_t n_outputs);
-    void SetInitialC(MatrixXd C_init);
-    void SetInitialH(MatrixXd C_init);
-    MatrixXd GetFinalC();
-    MatrixXd GetFinalH();
-
     MatrixXd C_t;
     MatrixXd h_t;
     int time;
@@ -470,26 +511,6 @@ namespace lwtDev {
     h_t(MatrixXd::Zero(n_output, n_input)),
     time(0)
   {
-  }
-
-  void LSTMState::SetInitialC(MatrixXd C_init)
-  {
-    C_t.col(0) = C_init;
-  }
-
-  void LSTMState::SetInitialH(MatrixXd h_init)
-  {
-    h_t.col(0) = h_init;
-  }
-
-  MatrixXd LSTMState::GetFinalC()
-  {
-    return C_t.col(time-1);
-  }
-
-  MatrixXd LSTMState::GetFinalH()
-  {
-    return h_t.col(time-1);
   }
 
   void LSTMLayer::step(const VectorXd& x_t, LSTMState& s) const {
@@ -509,24 +530,17 @@ namespace lwtDev {
 
     s.C_t.col(s.time) = f.cwiseProduct(C_tm1) + i.cwiseProduct(ct);
     s.h_t.col(s.time) = o.cwiseProduct(s.C_t.col(s.time).unaryExpr(act_fun));
-
   }
 
-  MatrixXd LSTMLayer::scan( const MatrixXd& x , MatMap& inp_map, MatMap& out_map) const {
-
+  MatrixXd LSTMLayer::scan( const MatrixXd& x ) const {
     LSTMState state(x.cols(), m_n_outputs);
 
-    for(auto inp_it = inp_map.begin(); inp_it != inp_map.end(); inp_it++)
-    {
-      if(inp_it->first == "1") state.SetInitialC(inp_it->second);
-      if(inp_it->first == "2") state.SetInitialH(inp_it->second);
+    for(state.time = 0; state.time < x.cols(); state.time++) {
+      if(m_go_backwards)
+        step( x.col( x.cols() -1 - state.time ), state );
+      else
+        step( x.col( state.time ), state );
     }
-
-    for(state.time = 0; state.time < x.cols(); ++state.time) {
-      step( x.col( state.time ), state );
-    }
-    out_map["1"] = state.GetFinalC();
-    out_map["2"] = state.GetFinalH();
 
     return state.h_t;
   }
@@ -581,9 +595,8 @@ namespace lwtDev {
     s.h_t.col(s.time)  = z.cwiseProduct(h_tm1) + (one - z).cwiseProduct(hh);
   }
 
-  MatrixXd GRULayer::scan( const MatrixXd& x , MatMap& inp_map, MatMap& out_map) const {
-    (void) inp_map; //silence unused variable warning
-    (void) out_map; //silence unused variable warning
+  MatrixXd GRULayer::scan( const MatrixXd& x ) const {
+
     GRUState state(x.cols(), m_n_outputs);
 
     for(state.time = 0; state.time < x.cols(); state.time++) {
@@ -592,6 +605,48 @@ namespace lwtDev {
 
     return state.h_t;
   }
+
+  /// bidirectional layer ///
+
+  BidirectionalLayer::BidirectionalLayer(IRecurrentLayer* forward_layer,
+                                         IRecurrentLayer* backward_layer,
+                                         std::string merge_mode,
+                                         bool return_sequence):
+  m_merge_mode(merge_mode)
+  {
+    m_forward_layer = forward_layer;
+    m_backward_layer = backward_layer;
+    m_return_sequence = return_sequence;
+  }
+
+  MatrixXd BidirectionalLayer::scan( const MatrixXd& x) const{
+    MatrixXd forward = m_forward_layer->scan(x);
+    MatrixXd backward = m_backward_layer->scan(x);
+    MatrixXd backward_rev;
+    if (m_return_sequence){
+      backward_rev = backward.rowwise().reverse();
+    }else{
+      backward_rev = backward;
+    }
+    
+    if(m_merge_mode == "mul")
+      return forward.array()*backward_rev.array();
+    else if(m_merge_mode == "sum")
+      return forward.array() + backward_rev.array();
+    else if(m_merge_mode == "ave")
+      return (forward.array() + backward_rev.array())/2.;
+    else if(m_merge_mode == "concat"){
+      MatrixXd concatMatr(forward.rows(), forward.cols()+backward_rev.cols());
+      concatMatr << forward, backward_rev;
+      return concatMatr;
+    }else
+      throw NNEvaluationException(
+        "Merge mode "+m_merge_mode+"not implemented. Choose one of [mul, sum, ave, concat]");
+
+    // mute compiler
+    return forward;
+  }
+
 
   // _____________________________________________________________________
   // Activation functions
@@ -623,6 +678,7 @@ namespace lwtDev {
     case Activation::ELU: return ELU(act.alpha);
     case Activation::LEAKY_RELU: return LeakyReLU(act.alpha);
     case Activation::LINEAR: return [](double x){return x;};
+    case Activation::ABS: return [](double x){return std::abs(x);};
     default: {
       throw NNConfigurationException("Got undefined activation function");
     }

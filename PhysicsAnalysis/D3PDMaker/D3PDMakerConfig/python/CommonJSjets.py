@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #####Jet Reco ############
 
@@ -78,9 +78,6 @@ def getGroomingTools(GroomedDicts):
         if kw["SaveSubjets"] == True:
            catNames += [ kw['SubjetsName'] ]
 
-  print "aaaaaaaa myGroomingTools = ", myGroomingTools
-  print "bbbbbbbb catNames = ", catNames
-
   return myGroomingTools, catNames  
 
 
@@ -141,7 +138,6 @@ def setupTruthJets(myjetfinder, myjetdr, myjetinput, GroomedDicts, theseq):
     if myjetgetter_truth.jetAlgorithmHandle() == None:
       if truthcontname ==  None:
          truthcontname = myjetgetter_truth.buildName()
-      print 'yot: ', truthcontname
       extra_moments_list += [widthtool]  ## jet moments lost for truth jets in ESD->AOD transition
 
     sss = make_JetMomentGetter(truthcontname , extra_moments_list + [assoc_tool_truth,jetsubstructure_tool_truth], theseq )

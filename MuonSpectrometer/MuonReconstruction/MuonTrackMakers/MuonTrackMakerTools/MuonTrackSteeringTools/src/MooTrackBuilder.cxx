@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackBuilder.h"
@@ -58,6 +58,7 @@ namespace Muon {
     ATH_CHECK( m_compRotCreator.retrieve() );
     ATH_CHECK( m_propagator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -91,6 +92,10 @@ namespace Muon {
         << m_printer->print(*finalTrack) << std::endl
         << m_printer->printStations(*finalTrack) );
 
+    // generate a track summary for this track
+    if (m_trackSummaryTool.isEnabled()) {
+      m_trackSummaryTool->computeAndReplaceTrackSummary(*finalTrack, nullptr, false);
+    }
 
     bool recalibrateMDTHits = m_recalibrateMDTHits;
     bool recreateCompetingROTs = true;

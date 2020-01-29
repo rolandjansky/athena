@@ -141,7 +141,7 @@ void CaloLayerCalculator::resetOnNegativeEnergy(double eta, double phi)
 
 
 /// Phi-wrapping helper.
-CaloPhiRange CaloLayerCalculator::Helper::s_range;
+const CaloPhiRange CaloLayerCalculator::Helper::s_range;
 
 
 /**

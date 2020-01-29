@@ -32,20 +32,12 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
     virtual StatusCode finalize() override;
-    virtual StatusCode eventInitialize() override { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
-
 
 private:
-    std::string m_configPath;
-    std::string m_trackContainerName;
-    std::string m_tauTrackConName;
     std::vector<bool> m_TrkPass;
     int m_nProng;
     int m_flag;
-
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleInputContainer{this,"Key_trackParticleInputContainer","InDetTrackParticles","track key"};
-
 };
 
 #endif

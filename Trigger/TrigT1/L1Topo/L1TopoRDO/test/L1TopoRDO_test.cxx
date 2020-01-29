@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -329,7 +329,14 @@ void test14()
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Woverflow"
 #endif
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wconstant-conversion"
+#endif
   L1Topo::ModuleID d(0x00910091); // expect build warning due to implicit truncation to 16 bits
+#ifdef __clang__
+# pragma GCC diagnostic pop
+#endif
 #ifdef __GNUC__
 # pragma GCC diagnostic pop
 #endif

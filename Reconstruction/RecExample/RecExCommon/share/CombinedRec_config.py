@@ -57,7 +57,7 @@ if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
 #
 #  functionality : add cells crossed by high pt ID tracks 
 #
-if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on():
+if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on() and DetFlags.Muon_on() and DetFlags.Calo_on():
     from AthenaCommon.CfgGetter import getPublicTool
     getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
     from TrkExTools.AtlasExtrapolator import AtlasExtrapolator

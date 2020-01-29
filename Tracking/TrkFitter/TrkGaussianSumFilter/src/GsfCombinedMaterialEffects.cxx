@@ -27,7 +27,7 @@ Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(const std::string& t
   declareInterface<IMultiStateMaterialEffects>(this);
 }
 
-Trk::GsfCombinedMaterialEffects::~GsfCombinedMaterialEffects() {}
+Trk::GsfCombinedMaterialEffects::~GsfCombinedMaterialEffects() = default;
 
 StatusCode
 Trk::GsfCombinedMaterialEffects::initialize()

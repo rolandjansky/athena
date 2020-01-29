@@ -30,7 +30,7 @@ Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(const std::str
   declareInterface<IMaterialMixtureConvolution>(this);
 }
 
-Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() {}
+Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
@@ -258,7 +258,7 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
   std::unique_ptr<Trk::TrackParameters> combinedState =MultiComponentStateCombiner::combine(multiComponentState);
   const Amg::Vector3D& globalPosition = combinedState->position();
 
-  const Trk::MaterialProperties* materialProperties = 0;
+  const Trk::MaterialProperties* materialProperties = nullptr;
 
   // Material properties 2.5% X0 - pixels
   if (globalPosition.x() >= 180. && globalPosition.x() < 350.) {

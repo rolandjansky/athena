@@ -196,24 +196,6 @@ class useNewRPCCabling(_modifier):
         if hasattr(muonCnvFlags,'RpcCablingMode'):
             muonCnvFlags.RpcCablingMode.set_Value_and_Lock('new')
 
-class openThresholdRPCCabling(_modifier):
-    """
-    RPC cabling need to tell CMA to use open thresholds
-    see http://alxr.usatlas.bnl.gov/lxr/source/atlas/MuonSpectrometer/MuonCablings/RPCcabling/src/EtaCMA.cxx#448
-    and other entries at http://alxr.usatlas.bnl.gov/lxr/ident?i=cosmic
-    """
-    def postSetup(self):
-        if not TriggerFlags.doMuon():
-            return
-
-        from MuonCnvExample.MuonCnvFlags import muonCnvFlags
-        if muonCnvFlags.RpcCablingMode=='new':
-            from MuonRPC_Cabling.MuonRPC_CablingConfig import MuonRPC_CablingSvc
-            MuonRPC_CablingSvc.CosmicConfiguration = True
-        else:
-            from RPCcabling.RPCcablingConfig import RPCcablingSvc
-            RPCcablingSvc.CosmicConfiguration = True
-
 class MdtCalibFromDB(_modifier):
     """
     setup MDT calibration from DB instead of ascii

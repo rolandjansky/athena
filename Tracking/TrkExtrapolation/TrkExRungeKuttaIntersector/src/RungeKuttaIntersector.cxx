@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
     if (std::abs(qOverP) > m_momentumThreshold)
     {
 	ATH_MSG_DEBUG(" trapped as below momentum threshold" );
-	return 0;
+	return nullptr;
     }
     const PlaneSurface* plane			= dynamic_cast<const PlaneSurface*>(&surface);
     if (plane)		return intersectPlaneSurface(*plane,trackIntersection,qOverP);
@@ -157,7 +157,7 @@ RungeKuttaIntersector::intersectSurface(const Surface&		surface,
     if (perigee)	return approachPerigeeSurface(*perigee,trackIntersection,qOverP);
     
     ATH_MSG_WARNING( " unrecognized Surface" );
-    return 0;
+    return nullptr;
 }
                                     
 /**IIntersector interface method for specific Surface type : PerigeeSurface */

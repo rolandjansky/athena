@@ -43,9 +43,6 @@ TauTrackFilter::TauTrackFilter(const std::string &name ) :
   m_nProng(0),
   m_flag(0)
 {
-    declareProperty("ConfigPath", m_configPath);
-    declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");
-    declareProperty("TauTrackContainerName", m_tauTrackConName = "TauTracks");
 }
 
 //-----------------------------------------------------------------------------

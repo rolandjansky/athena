@@ -51,7 +51,6 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
 	declareProperty("pileUpAlpha", m_pileUpAlpha);
 	declareProperty("VertexCorrection", m_doVertexCorrection);
 	declareProperty("inAODmode", m_inAODmode);
-	declareProperty("ConfigPath", m_configPath);
 }
 
 
@@ -76,10 +75,6 @@ StatusCode TauSubstructureVariables::initialize() {
 //***********************************
 
 StatusCode TauSubstructureVariables::finalize() {
-	return StatusCode::SUCCESS;
-}
-
-StatusCode TauSubstructureVariables::eventInitialize() {
 	return StatusCode::SUCCESS;
 }
 

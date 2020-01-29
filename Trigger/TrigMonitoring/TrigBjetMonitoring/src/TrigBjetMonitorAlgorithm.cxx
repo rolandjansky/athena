@@ -346,7 +346,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    fill("TrigBjetMonitor",jetEta,jetPhi);
 	    // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	    if (ijet == 0) {
-	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
+	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "EFHistoPrmVtx"); // CV 200120
+	      ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	      const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	      NameH = "PVz_jet_"+trigName;
 	      ATH_MSG_DEBUG( " NameH: " << NameH  );

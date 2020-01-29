@@ -96,7 +96,7 @@ thinningTools.append(HIGG2D3TauTPThinningTool)
 # cluster thinning tools
 # from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
 # HIGG2D3ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D3ElectronCCThinningTool",
-#                                                                          ThinningService       = HIGG2D3ThinningHelper.ThinningSvc(),
+#                                                                          StreamName            = streamName,
 #                                                                          SGKey                 = "Electrons",
 #                                                                          CaloClCollectionSGKey = "egammaClusters",
 #                                                                          SelectionString       = "Electrons.DFCommonElectronsLHVeryLoose",
@@ -105,7 +105,7 @@ thinningTools.append(HIGG2D3TauTPThinningTool)
 # thinningTools.append(HIGG2D3ElectronCCThinningTool)
 
 # HIGG2D3PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D3PhotonCCThinningTool",
-#                                                                        ThinningService       = HIGG2D3ThinningHelper.ThinningSvc(),
+#                                                                          StreamName          = streamName,
 #                                                                        SGKey                 = "Photons",
 #                                                                        CaloClCollectionSGKey = "egammaClusters",
 #                                                                        SelectionString       = "Photons.pt>0.*GeV",

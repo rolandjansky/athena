@@ -137,7 +137,7 @@ thinningTools.append(HIGG8D1TauTPThinningTool)
 #from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 HIGG8D1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "HIGG8D1ElectronCCThinningTool",
-                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           SGKey                   = "Electrons",
                                                                           CaloClCollectionSGKey   = "egammaClusters",
                                                                           SelectionString         = "Electrons.pt >= 5*GeV",

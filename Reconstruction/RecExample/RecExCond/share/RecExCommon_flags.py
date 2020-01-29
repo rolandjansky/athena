@@ -855,6 +855,7 @@ if not rec.doInDet:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.ID_setOff()
    from InDetRecExample.InDetJobProperties import InDetFlags
    InDetFlags.Enabled=False
@@ -881,6 +882,7 @@ if not rec.doCalo:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.Calo_setOff()
    try:
       from CaloRec.CaloRecFlags import jobproperties
@@ -893,6 +895,7 @@ if not rec.doMuon:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.Muon_setOff()
    #FIXME redundant
    recAlgs.doTrackRecordFilter=False
@@ -901,6 +904,7 @@ if not rec.doMuon:
 
 if not rec.doMuon and not rec.doCalo and not rec.doInDet:
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
 
 if not rec.doJetMissingETTag:
    recAlgs.doMissingET=False
@@ -958,6 +962,7 @@ if not rec.doTrigger:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
 
    #FIXME a separate container to be used eventually
    recAlgs.doTrigger=False

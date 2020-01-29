@@ -16,7 +16,7 @@ if not hasattr(svcMgr, 'PerfMonMTSvc'):
     from PerfMonComps.MTJobOptCfg import PerfMonMTSvc
     svcMgr += PerfMonMTSvc("PerfMonMTSvc")
     # Disable event loop monitoring by default
-    svcMgr.PerfMonMTSvc.doEventLoopMonitoring = False 
+    svcMgr.PerfMonMTSvc.doEventLoopMonitoring = False
     # Disable detailed table printing by default
     svcMgr.PerfMonMTSvc.printDetailedTables = False
     # Configure the check point sequence in the event loop monitoring.

@@ -116,10 +116,7 @@ public:
       double R = -r;
       double localCos = x / R;
       double deltaR = std::sqrt(h * h + (w * w - h * h) * localCos * localCos);
-      if (deltaR < R - std::sqrt(x * x + y * y))
-        return false;
-      else
-        return true;
+      return deltaR >= R - std::sqrt(x * x + y * y);
     }
   }
   EllipseCollisionTest(int maxIterations) { this->m_maxIterations = maxIterations; }
@@ -200,7 +197,7 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
 }
 
 // destructor
-Trk::AnnulusBounds::~AnnulusBounds() {}
+Trk::AnnulusBounds::~AnnulusBounds() = default;
 
 bool
 Trk::AnnulusBounds::operator==(const Trk::SurfaceBounds& sbo) const

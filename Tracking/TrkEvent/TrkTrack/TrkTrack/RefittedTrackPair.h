@@ -41,7 +41,7 @@ class RefittedTrackPair : public std::pair< ElementLink< DataVector< Track > >, 
   RefittedTrackPair();
 
   //!< Constructor using the element link to the original track and the pointer to the refitted track
-  RefittedTrackPair( ElementLink< DataVector< Track > >, Track* );
+  RefittedTrackPair( const ElementLink< DataVector< Track > >&, Track* );
 
   //!< Virtual destructor
   virtual ~RefittedTrackPair();

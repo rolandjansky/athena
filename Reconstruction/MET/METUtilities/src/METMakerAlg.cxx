@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// METMakerAlg.cxx
 
 #include "METMakerAlg.h"
 #include "METInterface/IMETMaker.h"
@@ -12,7 +10,7 @@
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETAssociationHelper.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "PATCore/AcceptData.h"

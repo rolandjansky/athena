@@ -228,7 +228,6 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'detailedErrorStreams',
                                 'optimizeChainOrder',    
                                 'enableHotIDMasking',
-                                'openThresholdRPCCabling',
                                 #special streaming setup
                                 #'enable7BitL1TTStreaming',
 ]

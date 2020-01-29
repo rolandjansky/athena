@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARWAVEHELPER_H
@@ -56,7 +56,7 @@ class LArWaveHelper {
 
   // the following returns a linear master waveform and a "dac0" intercept
   // [0] is dac0, [1] is master waveform
-  std::vector<LArWave> linearMasterWave(const std::vector<const LArWave*>& vWaves,const std::vector<double> vAmpli) const;
+  std::vector<LArWave> linearMasterWave(const std::vector<const LArWave*>& vWaves,const std::vector<double>& vAmpli) const;
 
  private:
 
@@ -68,7 +68,7 @@ class LArWaveHelper {
 			double& rho) const;
   std::vector<double> polyfit(const std::vector<double>& X,const std::vector<double>& Y,
 			 unsigned Ndeg) const;
-  unsigned get_fit_vectors(const LArWave theWave,unsigned iFirst,unsigned iLast,
+  unsigned get_fit_vectors(const LArWave& theWave,unsigned iFirst,unsigned iLast,
 		  std::vector<double>& X,std::vector<double>& Y) const;
 
 } ;

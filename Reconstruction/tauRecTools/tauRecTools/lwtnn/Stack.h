@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STACK_HH_TAURECTOOLS
@@ -40,8 +40,6 @@ namespace lwtDev {
   class ILayer;
   class IRecurrentLayer;
 
-  typedef std::map<std::string, MatrixXd> MatMap;
-  
 
   // ______________________________________________________________________
   // Feed forward Stack class
@@ -179,12 +177,13 @@ namespace lwtDev {
     ~RecurrentStack();
     RecurrentStack(RecurrentStack&) = delete;
     RecurrentStack& operator=(RecurrentStack&) = delete;
-    MatrixXd scan(MatrixXd inputs, MatMap& inp_map, MatMap& out_map) const;
+    MatrixXd scan(MatrixXd inputs) const;
     size_t n_outputs() const;
   private:
     std::vector<IRecurrentLayer*> m_layers;
     size_t add_lstm_layers(size_t n_inputs, const LayerConfig&);
     size_t add_gru_layers(size_t n_inputs, const LayerConfig&);
+    size_t add_bidirectional_layers(size_t n_inputs, const LayerConfig&);
     size_t add_embedding_layers(size_t n_inputs, const LayerConfig&);
     size_t m_n_outputs;
   };
@@ -214,7 +213,10 @@ namespace lwtDev {
   {
   public:
     virtual ~IRecurrentLayer() {}
-    virtual MatrixXd scan( const MatrixXd&, MatMap& inp_map, MatMap& out_map) const = 0;
+    virtual MatrixXd scan( const MatrixXd&) const = 0;
+
+    bool m_go_backwards = false;
+    bool m_return_sequence = false;
   };
 
   class EmbeddingLayer : public IRecurrentLayer
@@ -222,7 +224,7 @@ namespace lwtDev {
   public:
     EmbeddingLayer(int var_row_index, MatrixXd W);
     virtual ~EmbeddingLayer() {};
-    virtual MatrixXd scan( const MatrixXd&, MatMap& inp_map, MatMap& out_map) const override;
+    virtual MatrixXd scan( const MatrixXd&) const override;
 
   private:
     int m_var_row_index;
@@ -239,10 +241,12 @@ namespace lwtDev {
               MatrixXd W_i, MatrixXd U_i, VectorXd b_i,
               MatrixXd W_f, MatrixXd U_f, VectorXd b_f,
               MatrixXd W_o, MatrixXd U_o, VectorXd b_o,
-              MatrixXd W_c, MatrixXd U_c, VectorXd b_c);
+              MatrixXd W_c, MatrixXd U_c, VectorXd b_c,
+              bool go_backwards,
+              bool return_sequence);
 
     virtual ~LSTMLayer() {};
-    virtual MatrixXd scan( const MatrixXd&, MatMap& inp_map, MatMap& out_map) const override;
+    virtual MatrixXd scan( const MatrixXd&) const override;
     void step( const VectorXd& input, LSTMState& ) const;
 
   private:
@@ -280,7 +284,7 @@ namespace lwtDev {
              MatrixXd W_h, MatrixXd U_h, VectorXd b_h);
 
     virtual ~GRULayer() {};
-    virtual MatrixXd scan( const MatrixXd&, MatMap& inp_map, MatMap& out_map) const override;
+    virtual MatrixXd scan( const MatrixXd&) const override;
     void step( const VectorXd& input, GRUState& ) const;
 
   private:
@@ -298,6 +302,27 @@ namespace lwtDev {
     MatrixXd m_W_h;
     MatrixXd m_U_h;
     VectorXd m_b_h;
+
+    int m_n_outputs;
+  };
+
+  /// bidirectional unit ///
+  class BidirectionalLayer : public IRecurrentLayer
+  {
+  public:
+    BidirectionalLayer(IRecurrentLayer* forward_layer,
+                       IRecurrentLayer* backward_layer,
+                       std::string merge_mode,
+                       bool return_sequence);
+
+    virtual ~BidirectionalLayer() {};
+    virtual MatrixXd scan( const MatrixXd&) const override;
+
+  private:
+    IRecurrentLayer* m_forward_layer;
+    IRecurrentLayer* m_backward_layer;
+
+    std::string m_merge_mode;
 
     int m_n_outputs;
   };

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "egammaShowerShape.h"
@@ -70,7 +70,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     IegammaBackShape::Info egammaBackShapeInfo;
     
     // shower shapes in presampler
-    if ( m_ExecAllVariables && m_ExecOtherVariables && m_ExecPreSampler ) {
+    if ( m_ExecAllVariables ||  m_ExecPreSampler ) {
         // call execute method
         StatusCode sc = m_egammaPreSamplerShape->execute(cluster,cell_container,egammaPreSamplerShapeInfo);
         if ( sc.isFailure() ) {
@@ -79,7 +79,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     }
 
     // shower shapes in 1st compartment
-    if ( m_ExecEMFirst ) {
+    if ( m_ExecAllVariables || m_ExecEMFirst ) {
         // call the execute method
         StatusCode sc = m_egammaStripsShape->execute(cluster,egammaStripsShapeInfo );
         if ( sc.isFailure() ) {
@@ -88,7 +88,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     }
 
     // shower shapes in 2nd compartment
-    if ( m_ExecEMSecond ) {
+    if ( m_ExecAllVariables || m_ExecEMSecond ) {
         // call the execute method
         StatusCode sc = m_egammaMiddleShape->execute(cluster,cell_container,egammaMiddleShapeInfo);
         if ( sc.isFailure() ) {
@@ -97,7 +97,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     }
 
     // shower shapes in 3rd compartment
-    if ( m_ExecAllVariables && m_ExecEMThird ) {
+    if ( m_ExecAllVariables || m_ExecEMThird ) {
         // call execute method
         StatusCode sc = m_egammaBackShape->execute(cluster,cell_container,egammaBackShapeInfo);
         if ( sc.isFailure() ) {
@@ -159,7 +159,7 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
     info.f3core = egammaBackShapeInfo.f3core;
 
     // shower shapes combined in different samplings
-    if ( m_ExecAllVariables && m_ExecEMCombined ) {
+    if ( m_ExecAllVariables || m_ExecEMCombined ) {
         /* Shower shapes combining different samplings
          * all energy values have to be initialised to zero 
          * which is equivalent to have nothing (if it does not exists)
@@ -169,53 +169,51 @@ StatusCode egammaShowerShape::execute(const xAOD::CaloCluster& cluster,
         // energy in 3 strips in the 1st sampling
         double e132  = (info.e132>-999.) ? info.e132 : 0.;
 
-        if (m_ExecOtherVariables) {
-            // energy in 1X1 in the presampler
-            double e011  = (info.e011>-999.) ? info.e011 : 0.; 
-            // energy in 3X3 in the presampler
-            double e033  = (info.e033>-999.) ? info.e033 : 0.;
-            // energy in 15 strips in the 1st sampling
-            double e1152  = (info.e1152>-999.) ? info.e1152 : 0.;
-            // energy in 3X3 in the 2nd sampling
-            double e233  = (info.e233>-999.) ? info.e233 : 0.;
-            // energy in 5X5 in the 2nd sampling
-            double e255  = (info.e255>-999.) ? info.e255 : 0.;
-            // energy in 3X7 in the 2nd sampling
-            double e237  = (info.e237>-999.) ? info.e237 : 0.;
-            // energy in 3X3 in the 3rd sampling
-            double e333  = (info.e333>-999.) ? info.e333 : 0.;
-            // energy in 3X5 in the 3rd sampling
-            double e335  = (info.e335>-999.) ? info.e335 : 0.;
-            // energy in 3X7 in the 3rd sampling
-            double e337  = (info.e337>-999.) ? info.e337 : 0.;
+        // energy in 1X1 in the presampler
+        double e011  = (info.e011>-999.) ? info.e011 : 0.; 
+        // energy in 3X3 in the presampler
+        double e033  = (info.e033>-999.) ? info.e033 : 0.;
+        // energy in 15 strips in the 1st sampling
+        double e1152  = (info.e1152>-999.) ? info.e1152 : 0.;
+        // energy in 3X3 in the 2nd sampling
+        double e233  = (info.e233>-999.) ? info.e233 : 0.;
+        // energy in 5X5 in the 2nd sampling
+        double e255  = (info.e255>-999.) ? info.e255 : 0.;
+        // energy in 3X7 in the 2nd sampling
+        double e237  = (info.e237>-999.) ? info.e237 : 0.;
+        // energy in 3X3 in the 3rd sampling
+        double e333  = (info.e333>-999.) ? info.e333 : 0.;
+        // energy in 3X5 in the 3rd sampling
+        double e335  = (info.e335>-999.) ? info.e335 : 0.;
+        // energy in 3X7 in the 3rd sampling
+        double e337  = (info.e337>-999.) ? info.e337 : 0.;
 
-            /*energy in core of the shower
-             * 3X3 in the presampler (info.e033)
-             * 15X2 in the strips     (info.e1152)
-             * 5X5 in the middle     (info.e255)
-             * 3X5 in the back       (info.e335)
-             */
-            info.ecore = e033 + e1152 + e255 + e335;
+        /*energy in core of the shower
+         * 3X3 in the presampler (info.e033)
+         * 15X2 in the strips     (info.e1152)
+         * 5X5 in the middle     (info.e255)
+         * 3X5 in the back       (info.e335)
+         */
+        info.ecore = e033 + e1152 + e255 + e335;
 
-            /* e 3X3 / e 3X7, the ratio of energies deposited
-             * in a 3X3 and 3X7 clusters. More precisely, 
-             * for the 3X3 cluster, sampling by sampling, the cell energies
-             * are summed on the following eta by phi windows
-             * 1X1 in the presampler (info.e011)
-             * 3X2 in the strips     (info.e132)
-             * 3X3 in the middle     (info.e233)
-             * 3X3 in the back       (info.e333)
-             * for the 7X3 cluster, sampling by sampling, the cell energies
-             * are summed on the following eta by phi windows
-             * 3X3 in the presampler (info.e033)
-             * 15X2 in the strips     (info.e1152) 
-             * 3X7 in the middle     (info.e237)
-             * 3X7 in the back       (info.e337)
-             */
-            double e33 = e011 + e132 + e233 + e333;
-            double e37 = e033 + e1152 + e237 + e337;
-            info.reta3337_allcalo = fabs(e37) > 0. ? 1.-e33/e37 : 1.; 
-        }
+        /* e 3X3 / e 3X7, the ratio of energies deposited
+         * in a 3X3 and 3X7 clusters. More precisely, 
+         * for the 3X3 cluster, sampling by sampling, the cell energies
+         * are summed on the following eta by phi windows
+         * 1X1 in the presampler (info.e011)
+         * 3X2 in the strips     (info.e132)
+         * 3X3 in the middle     (info.e233)
+         * 3X3 in the back       (info.e333)
+         * for the 7X3 cluster, sampling by sampling, the cell energies
+         * are summed on the following eta by phi windows
+         * 3X3 in the presampler (info.e033)
+         * 15X2 in the strips     (info.e1152) 
+         * 3X7 in the middle     (info.e237)
+         * 3X7 in the back       (info.e337)
+         */
+        double e33 = e011 + e132 + e233 + e333;
+        double e37 = e033 + e1152 + e237 + e337;
+        info.reta3337_allcalo = fabs(e37) > 0. ? 1.-e33/e37 : 1.; 
     }
     return StatusCode::SUCCESS;  
 }

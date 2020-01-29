@@ -198,7 +198,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
   }
 
   // Clear rioOnTrack pointer
-  firstSmootherMeasurementOnTrack = 0;
+  firstSmootherMeasurementOnTrack = nullptr;
 
   // =============================================================================
   // Loop over all remaining TrackStateOnSurface objects in the forward trajectory
@@ -240,7 +240,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
       type.set(TrackStateOnSurface::Outlier);
 
       Trk::MultiComponentStateOnSurface* updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
-        measurement.release(), MultiComponentStateHelpers::clone(*updatedState).release(), new FitQuality(1, 1), 0, type);
+        measurement.release(), MultiComponentStateHelpers::clone(*updatedState).release(), new FitQuality(1, 1), nullptr, type);
       smoothedTrajectory->push_back(updatedStateOnSurface);
       continue;
     }
@@ -395,7 +395,7 @@ Trk::GsfSmoother::combine(const Trk::MultiComponentState& forwardsMultiState,
                                                                                newParameters[Trk::qOverP],
                                                                                covarianceOfNewParameters);
       // Covariance matrix object now owned by TrackParameters object. Reset pointer to prevent delete
-      covarianceOfNewParameters = 0;
+      covarianceOfNewParameters = nullptr;
       const AmgSymMatrix(5) invertedSummedCovariance = summedCovariance.inverse();
       // Determine the scaling factor for the new weighting. Determined from the PDF of the many-dimensional gaussian
       double exponent = parametersDiff.transpose() * invertedSummedCovariance * parametersDiff;
@@ -428,7 +428,7 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
 
   const Trk::MultiComponentState* currentMultiComponentState = currentMultiStateOS->components();
   const Trk::MeasurementBase* measurement = currentState->measurementOnTrack();
-  const Trk::Surface* currentSurface(0);
+  const Trk::Surface* currentSurface(nullptr);
 
   if (measurement) {
     currentSurface = &(measurement->associatedSurface());

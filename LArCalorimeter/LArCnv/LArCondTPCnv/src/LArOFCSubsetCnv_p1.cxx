@@ -1,13 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected
-
 #include "LArCondTPCnv/LArOFCSubsetCnv_p1.h"
 
 void
@@ -15,26 +10,23 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
                                   LArOFCTransType* transObj, 
                                   MsgStream & log)
 {
+    transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
+
     // Copy conditions
-    unsigned int ncorrs     = persObj->m_subset.m_corrChannels.size();
     unsigned int nfebids    = persObj->m_subset.m_febIds.size();
     unsigned int nPhases    = persObj->m_nPhases;
     unsigned int nSamples   = persObj->m_nSamples;
     unsigned int dataIndex  = 0;
     unsigned int timeIndex  = 0;
 
-    // resize subset to with then number of febids
-    transObj->m_subset.resize(nfebids);
-
     // Loop over febs
-    unsigned int febid        = 0;
     unsigned int ifebWithData = 0; // counter for febs with data
 
-    for (unsigned int i = 0; i < nfebids; ++i){
+    auto subsetIt = transObj->subsetBegin();
+    for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
         // Set febid
-        febid = transObj->m_subset[i].first = persObj->m_subset.m_febIds[i];
-        // Fill channels with empty ofc vectors
-        transObj->m_subset[i].second.resize(NCHANNELPERFEB);
+        unsigned int febid = (*subsetIt).first;
+
         bool hasSparseData       = false;
         unsigned int chansSet    = 0;
         unsigned int chansOffset = 0;
@@ -84,7 +76,7 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
                 }
 
                 LArOFCTransType::Reference ofcs =
-                  transObj->m_subset[i].second[j];
+                  (*subsetIt).second[j];
                 LArOFCP1 tmp (persObj->m_timeOffset[timeIndex],
                               persObj->m_timeBinWidth[timeIndex],
                               nPhases,
@@ -98,16 +90,18 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
             }
         }
     }
-    
+
     // Copy corrections
-    
+    unsigned int ncorrs     = persObj->m_subset.m_corrChannels.size();
+    LArOFCTransType::CorrectionVec corrs;
+
     if (ncorrs) {
         // corrs exist - resize vector
         std::vector<float>               vSamples(nSamples, 0.0);
         std::vector<std::vector<float> > vOFC(nPhases, vSamples);
         LArOFCP1  larOFCP1(0.0, 0.0, vOFC, vOFC);
 
-        transObj->m_correctionVec.resize(ncorrs, LArOFCTransType::CorrectionPair(0, larOFCP1));
+        corrs.resize(ncorrs, LArOFCTransType::CorrectionPair(0, larOFCP1));
     }
 
     // Loop over corrections
@@ -128,9 +122,9 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
         }
 
         // copy channel id
-        transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
+        corrs[i].first = persObj->m_subset.m_corrChannels[i];
 
-        LArOFCP1& ofcs = transObj->m_correctionVec[i].second;
+        LArOFCP1& ofcs = corrs[i].second;
         LArOFCP1 tmp (persObj->m_timeOffset[timeIndex],
                       persObj->m_timeBinWidth[timeIndex],
                       nPhases,
@@ -142,24 +136,21 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
         ++timeIndex;
         dataIndex += nPhases * nSamples;
     }
+    transObj->insertCorrections (std::move (corrs));
 
     // Copy the rest
-    transObj->m_gain          = persObj->m_subset.m_gain; 
-    transObj->m_channel       = persObj->m_subset.m_channel;
-    transObj->m_groupingType  = persObj->m_subset.m_groupingType;
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 
-    transObj->m_subset.trim();
+    transObj->shrink_to_fit();
 }
 
 
-        
-    
 void
 LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj, 
                                 LArOFCPersType* persObj, 
                                 MsgStream &log) 
 {
-    
     // Copy conditions
 
     // We copy all ofcs into a few simple vectors. 
@@ -192,9 +183,8 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
     //
 
     // Get the number of channels, corrections and the size of ofc vectors
-    unsigned int nfebs            = transObj->m_subset.size();
     unsigned int nsubsetsNotEmpty = 0;
-    unsigned int ncorrs           = transObj->m_correctionVec.size();
+    unsigned int ncorrs           = transObj->correctionVecSize();
     unsigned int nchans           = 0;
     unsigned int nPhases          = 0;
     unsigned int nSamples         = 0;
@@ -203,9 +193,12 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
 
     // Find the number of ofcs and check for sparse conditions,
     // e.g. MC conditions
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    const auto subsetEnd = transObj->subsetEnd();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = (*subsetIt).second.size();
 
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
@@ -219,12 +212,12 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
         bool subsetIsSparse = false;
         for (unsigned int j = 0; j < nfebChans; ++j) {
             LArOFCTransType::ConstReference ofc = 
-              transObj->m_subset[i].second[j];
+              (*subsetIt).second[j];
             if (ofc.OFC_aSize() == 0) {
                 if (!subsetIsSparse) {
                     // save febids for sparse subsets
                     subsetIsSparse = true;
-                    febsWithSparseData.push_back(transObj->m_subset[i].first);
+                    febsWithSparseData.push_back((*subsetIt).first);
                 }
             }
             else {
@@ -242,7 +235,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
     if (!foundOFCs && ncorrs>0) {
         // Save the number of phases and samples for each ofc from
         // first correction - couldn't find it from channels
-        const LArOFCP1& ofc = transObj->m_correctionVec[0].second;
+        const LArOFCP1& ofc = transObj->correctionVecBegin()->second;
         nPhases             = ofc.OFC_aSize();
         nSamples            = ofc.OFC_a(0).size();
     }
@@ -270,14 +263,16 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
 
     // Copy conditions in subset
     unsigned int isparse = 0;
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = (*subsetIt).second.size();
 
         // skip subsets without any channels
         if (nfebChans == 0) continue;
         
-        unsigned int febid = transObj->m_subset[i].first;
+        unsigned int febid = (*subsetIt).first;
         persObj->m_subset.m_febIds.push_back(febid);
 
 
@@ -299,7 +294,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
             bool saveOFCs = true;
             if (isSparse) {
                 // subset with sparse data
-	      if (transObj->m_subset[i].second[j].OFC_aSize() > 0) {
+	      if ((*subsetIt).second[j].OFC_aSize() > 0) {
                     // store the channel number in bit map
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
@@ -324,23 +319,25 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
                 for (unsigned int k = 0; k < nPhases; ++k) {
                     for (unsigned int l = 0; l < nSamples; ++l) {
 		      //check if data object is big enough
-		      if (k>=transObj->m_subset[i].second[j].OFC_aSize() || l>=transObj->m_subset[i].second[j].OFC_a(k).size()) {
+		      if (k >= (*subsetIt).second[j].OFC_aSize() ||
+                          l >= (*subsetIt).second[j].OFC_a(k).size())
+                      {
 			tooSmall=true;
 			persObj->m_vOFC_a.push_back(0.);
 			persObj->m_vOFC_b.push_back(0.);
 		      }
 		      else {
-                        persObj->m_vOFC_a.push_back(transObj->m_subset[i].second[j].OFC_a(k)[l]);
-                        persObj->m_vOFC_b.push_back(transObj->m_subset[i].second[j].OFC_b(k)[l]);
+                        persObj->m_vOFC_a.push_back((*subsetIt).second[j].OFC_a(k)[l]);
+                        persObj->m_vOFC_b.push_back((*subsetIt).second[j].OFC_b(k)[l]);
 //                      std::cout << "WL Data: FEB=" << std::hex << febid << std::dec << " [" << i << "] Channel=" 
 // 				  << j << " Phase="<< k<< " Sample " << l << " OFC=" 
-// 				  << transObj->m_subset[i].second[j].m_vOFC_a[k][l] << std::endl;
+// 				  << (*subsetIt).second[j].m_vOFC_a[k][l] << std::endl;
 		      }
                     }
                 }
                 // set time offset and binwidth
-                persObj->m_timeOffset.push_back(transObj->m_subset[i].second[j].timeOffset());
-                persObj->m_timeBinWidth.push_back(transObj->m_subset[i].second[j].timeBinWidth());
+                persObj->m_timeOffset.push_back((*subsetIt).second[j].timeOffset());
+                persObj->m_timeBinWidth.push_back((*subsetIt).second[j].timeBinWidth());
 		if (tooSmall)
 		  log << MSG::ERROR << "Feb 0x" << std::hex << febid << std::dec << " channel " << j <<": OFC object too small. Expected " 
 		      << nPhases << " phases and " << nSamples << " samples. Padded with 0.0" << endmsg;
@@ -357,39 +354,44 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
 
         }
     }
-    
+
     // Copy corrections
-    for (unsigned int i = 0; i < ncorrs; ++i){
-        // Save channel id in febid vector
-        persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
+    const auto corrEnd = transObj->correctionVecEnd();
+    for (auto corrIt = transObj->correctionVecBegin();
+         corrIt != corrEnd;
+         ++corrIt)
+    {
+        persObj->m_subset.m_corrChannels.push_back(corrIt->first);
         // OFCs
 	bool tooSmall=false;
 	// Loop over phases and samples per channel
         for (unsigned int k = 0; k < nPhases; ++k) {
             for (unsigned int l = 0; l < nSamples; ++l) {
 	       //check if data object is big enough
-	      if (k>=transObj->m_correctionVec[i].second.OFC_aSize() || l>=transObj->m_correctionVec[i].second.OFC_a(k).size()) {
+	      if (k >= corrIt->second.OFC_aSize() ||
+                  l >= corrIt->second.OFC_a(k).size())
+              {
 		tooSmall=true;
 		persObj->m_vOFC_a.push_back(0.);
 		persObj->m_vOFC_b.push_back(0.);
 	      }
 	      else {
-                persObj->m_vOFC_a.push_back(transObj->m_correctionVec[i].second.OFC_a(k)[l]);
-                persObj->m_vOFC_b.push_back(transObj->m_correctionVec[i].second.OFC_b(k)[l]);
+                persObj->m_vOFC_a.push_back(corrIt->second.OFC_a(k)[l]);
+                persObj->m_vOFC_b.push_back(corrIt->second.OFC_b(k)[l]);
 	      }
 	    }
         }
         // set time offset and binwidth
-        persObj->m_timeOffset.push_back(transObj->m_correctionVec[i].second.timeOffset());
-        persObj->m_timeBinWidth.push_back(transObj->m_correctionVec[i].second.timeBinWidth());
+        persObj->m_timeOffset.push_back(corrIt->second.timeOffset());
+        persObj->m_timeBinWidth.push_back(corrIt->second.timeBinWidth());
 	if (tooSmall)
-	  log << MSG::ERROR << "Correction index "<< i <<"(channel 0x" << std::hex << transObj->m_correctionVec[i].first << std::dec <<  
+	  log << MSG::ERROR << "Correction (channel 0x" << std::hex << corrIt->first << std::dec <<  
 	    "): OFC object too small. Expected " << nPhases << " phases and " << nSamples << " samples. Padded with 0.0" << endmsg;
     }
 
     // Copy the rest
-    persObj->m_subset.m_gain          = transObj->m_gain; 
-    persObj->m_subset.m_channel       = transObj->m_channel;
-    persObj->m_subset.m_groupingType  = transObj->m_groupingType;
+    persObj->m_subset.m_gain          = transObj->gain(); 
+    persObj->m_subset.m_channel       = transObj->channel();
+    persObj->m_subset.m_groupingType  = transObj->groupingType();
     
 }

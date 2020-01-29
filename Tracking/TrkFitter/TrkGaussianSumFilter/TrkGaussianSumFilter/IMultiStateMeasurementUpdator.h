@@ -31,10 +31,10 @@ class IMultiStateMeasurementUpdator : virtual public IAlgTool
 
 public:
   /** IAlgTool and AlgTool interface method */
-  static const InterfaceID interfaceID() { return IID_IMultiStateMeasurementUpdator; };
+  static const InterfaceID& interfaceID() { return IID_IMultiStateMeasurementUpdator; };
 
   /** Virtual destructor */
-  virtual ~IMultiStateMeasurementUpdator(){};
+  virtual ~IMultiStateMeasurementUpdator()= default;
 
   /** Method for forward filters to incorporate measurement updates */
   virtual std::unique_ptr<MultiComponentState> update(MultiComponentState&&, const MeasurementBase&) const = 0;

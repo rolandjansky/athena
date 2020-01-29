@@ -1,11 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  The MM detector = an assembly module = STGC in amdb 
  ----------------------------------------------------
 ***************************************************************************/
+
+
+//<doc><file>	$Id: MMReadoutElement.cxx,v 1.5 2009-05-13 15:03:47 stefspa Exp $
+//<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -32,8 +36,14 @@ namespace MuonGM {
 				     MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
-    m_ml = mL;
+    m_rots = 0.;
+    m_rotz = 0.;
+    m_rott = 0.;
 
+    m_hasALines = false;
+    m_delta = NULL;
+    m_ml = mL;
+    
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
 
@@ -68,19 +78,14 @@ namespace MuonGM {
 	  if ((npos = childname.find("Sensitive")) != std::string::npos ) {
 	    llay ++;
             if (llay > 4) {
-	      std::cerr<<"number of MM layers > 4: increase transform array size"<< std::endl;
+	                         (*m_Log)<<MSG::ERROR<<"number of MM layers > 4: increase transform array size"<< endmsg;
               continue;
 	    }
-	    //std::cerr<<" navigating MM named "
-	    //       <<childname<<" child "
-	    //       <<ich<<" is a layer with tag "<<llay<<std::endl;
-	    m_Xlg[llay-1] = pvc->getXToChildVol(ich);
+           m_Xlg[llay-1] = pvc->getXToChildVol(ich);
             // save layer dimensions
             if (llay==1) {
               if (pc->getLogVol()->getShape()->type()=="Trd") {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (pc->getLogVol()->getShape());
-		//std::cerr<<"MM layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		//	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
                 m_halfX =  trd->getZHalfLength();
                 // adjust phi dimensions according to the active area  
                 m_minHalfY = trd->getYHalfLength1();
@@ -99,10 +104,8 @@ namespace MuonGM {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (sub);
                 
                 if (!trd) {
-		  std::cerr<<"MM layer base shape not trapezoid? " << sub->type()<< std::endl;
+		                        (*m_Log)<<MSG::ERROR<<"MM layer base shape not trapezoid? " << sub->type()<<endmsg;
 		} else {
-		  //std::cerr<<"MM layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		  //	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
 		  m_halfX =  trd->getZHalfLength();
 		  m_minHalfY = trd->getYHalfLength1();
 		  m_maxHalfY = trd->getYHalfLength2();
@@ -111,14 +114,14 @@ namespace MuonGM {
 		  foundShape = true;
                 }
               } else {
-	        std::cerr<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<< std::endl;
+	                     (*m_Log)<<MSG::ERROR<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<<endmsg;
 	      }
 	    }
 	  }
 	}
         m_nlayers=llay;
       } else {
-	std::cerr<<"Cannot perform a dynamic cast ! "<<std::endl;
+	             (*m_Log)<<MSG::ERROR<<"Cannot perform a dynamic cast ! "<<endmsg;
       }
     }
     if( !foundShape ){
@@ -161,9 +164,7 @@ namespace MuonGM {
   void MMReadoutElement::initDesign( double /*maxY*/, double /*minY*/, double /*xS*/, double /*pitch*/, double /*thickness*/) {
         
     m_etaDesign= std::vector<MuonChannelDesign>(m_nlayers);
-    
-
-
+     
     for (int il=0; il<m_nlayers; il++) {
 
       // identifier of the first channel to retrieve max number of strips
@@ -333,10 +334,28 @@ namespace MuonGM {
     
     //    Amg::Vector3D  locP = (m_Xlg[gg-1].inverse())*locPos;
     Amg::Vector3D  locP = (m_Xlg[gg-1])*locPos;
-    std::cout<<"locPos in the gg      r.f. "<<locPos<<std::endl;
-    std::cout<<"locP in the multilayer r.f. "<<locP<<std::endl;
+    (*m_Log)<<MSG::DEBUG<<"locPos in the gg      r.f. "<<locPos<<endmsg;
+    (*m_Log)<<MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
     
     return absTransform()*locP;
+  }
+
+  void MMReadoutElement::setDelta(double tras, double traz, double trat,
+                                  double rots, double rotz, double rott)
+  {
+    m_rots = rots;
+    m_rotz = rotz;
+    m_rott = rott;
+
+    HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
+     if (fabs(tras)+fabs(traz)+fabs(trat)+(fabs(rots)+fabs(rotz)+fabs(rott))*1000. > 0.01)
+    {
+       // compute the delta transform 
+       delta = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
+                     HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
+                    HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
+       m_hasALines = true;
+    }
   }
 
 } // namespace MuonGM

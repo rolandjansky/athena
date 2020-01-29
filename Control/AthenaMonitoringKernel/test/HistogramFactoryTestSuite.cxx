@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -14,11 +14,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TInterpreter.h"
 
 #include "AthenaMonitoringKernel/HistogramDef.h"
 
@@ -261,6 +263,7 @@ class HistogramFactoryTestSuite {
       result.title = histogramType;
       result.xbins = 1;
       result.ybins = 1;
+      result.zbins = 0;
 
       return result;
     }
@@ -325,6 +328,7 @@ class HistogramFactoryTestSuite {
 };
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   ISvcLocator* pSvcLoc;
 
   if (!Athena_test::initGaudi("GenericMon.txt", pSvcLoc)) {

@@ -2,10 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonStationTypeBuilder.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 // Muon
 #include "MuonTrackingGeometry/MuonStationTypeBuilder.h"
 //MuonSpectrometer include
@@ -2375,7 +2371,8 @@ double Muon::MuonStationTypeBuilder::decodeX(const GeoShape* sh) const
   const GeoSimplePolygonBrep* spb = dynamic_cast<const GeoSimplePolygonBrep*> (sh);
 
   if (!trd && !box && !tub && !shift && !uni && !sub && !spb) {
-    std::cout << "MuonStationTypeBuilder::decodeX : unknown shape type ?" <<sh->type() << std::endl;  
+    ATH_MSG_WARNING("decodeX(GeoShape="<<sh->type()<<"): shape type "<<sh->type()<<" is unknown, returning xHalf=0");
+    return xHalf;
   }
 
   if(spb) {
@@ -2386,37 +2383,28 @@ double Muon::MuonStationTypeBuilder::decodeX(const GeoShape* sh) const
     ATH_MSG_DEBUG( " GeoSimplePolygonBrep xHalf " << xHalf );
   }
 
-  //  if (trd ) std::cout << "trapezoid dimensions:" << trd->getXHalfLength1()<<"," << trd->getXHalfLength2()<<
-  //	      "," << trd->getYHalfLength1()<<"," << trd->getYHalfLength2()<<"," << trd->getZHalfLength() << std::endl; 
   if (trd) xHalf = fmax( trd->getXHalfLength1(), trd->getXHalfLength2() );
   if (box) xHalf = box->getXHalfLength();
-  // if (box ) std::cout << "box dimensions:" << box->getXHalfLength()<<"," << box->getYHalfLength()<<"," << box->getZHalfLength() << std::endl; 
   if (tub) xHalf = tub->getRMax();
 
   if (sub) {
     // be careful to handle properly GeoModel habit of subtracting large volumes from smaller ones
-    // std::cout << " decoding subtraction:" << sub->getOpA()->type() << "," << sub->getOpB()->type() << std::endl;
     double xA = decodeX( sub->getOpA() );
-    // double xB = decodeX( sub->getOpB() );
     xHalf = xA;
   }
   if (uni) {
-    // std::cout << " decoding union:" << uni->getOpA()->type() << "," << uni->getOpB()->type() << std::endl;
     double xA = decodeX( uni->getOpA() );
     double xB = decodeX( uni->getOpB() );
     xHalf = fmax(xA,xB);
   }
   if (shift) {
-    // std::cout << " decoding shift:" << shift->getOp()->type() <<"," << shift->getX().translation() << std::endl;
     double xA = decodeX( shift->getOp() );
     double xB = shift->getX().translation()[0]; 
     xHalf = xA + fabs(xB);
   }
 
-  // std::cout << "MuonStationTypeBuilder::decodeX : returns " << xHalf << std::endl;  
   return xHalf;
 }
-//
 
 std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> Muon::MuonStationTypeBuilder::createLayerRepresentation(const Trk::TrackingVolume* trVol) const
 {

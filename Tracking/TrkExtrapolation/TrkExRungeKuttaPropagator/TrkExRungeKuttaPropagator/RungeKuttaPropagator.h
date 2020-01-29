@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -200,12 +200,12 @@ public:
 
   /** Global position together with direction of the trajectory on the surface */
 
-  virtual const IntersectionSolution*      intersect
+  virtual IntersectionSolution*      intersect
     (const TrackParameters          &,
      const Surface                  &,
      const MagneticFieldProperties  &, 
      ParticleHypothesis particle=pion, 
-     const TrackingVolume*   tvol=0  ) const override final;
+     const TrackingVolume*   tvol=nullptr  ) const override final;
 
   /** GlobalPositions list interface:*/
 
@@ -216,7 +216,7 @@ public:
      const CylinderBounds&           ,
      double                          ,
      ParticleHypothesis particle=pion,
-     const TrackingVolume* tvol=0    ) const override final;
+     const TrackingVolume* tvol=nullptr    ) const override final;
 
  /////////////////////////////////////////////////////////////////////////////////
   // Public methods for Trk::PatternTrackParameters (from IPattern'Propagator)
@@ -328,7 +328,7 @@ private:
      const TrackParameters        &,
      const Surface                &,
      const PropDirection           ,
-     BoundaryCheck                 ,
+     const BoundaryCheck&                 ,
      const MagneticFieldProperties&,
      double                       *,
      bool                returnCurv) const;
@@ -341,7 +341,7 @@ private:
      const NeutralParameters      &,
      const Surface                &,
      const PropDirection           ,
-     BoundaryCheck                 ,
+     const BoundaryCheck&                 ,
      double                       *,
      bool                returnCurv) const;
 
@@ -443,12 +443,12 @@ private:
 
   //placeholder for compatibility with new interface
   virtual
-  const TrackSurfaceIntersection* intersectSurface(const Surface&,
-                                                   const TrackSurfaceIntersection*,
-                                                   const double,
-                                                   const MagneticFieldProperties&,
-                                                   ParticleHypothesis) const override
-  {return 0;}
+  TrackSurfaceIntersection* intersectSurface(const Surface&,
+                                             const TrackSurfaceIntersection*,
+                                             const double,
+                                             const MagneticFieldProperties&,
+                                             ParticleHypothesis) const override
+  {return nullptr;}
 
   /////////////////////////////////////////////////////////////////////////////////
   // Private data members: 

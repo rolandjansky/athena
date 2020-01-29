@@ -33,7 +33,7 @@ Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(const std::string& typ
   declareProperty("MinimalMomentum", m_momentumCut);
 }
 
-Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() {}
+Trk::GsfMaterialEffectsUpdator::~GsfMaterialEffectsUpdator() = default;
 
 StatusCode
 Trk::GsfMaterialEffectsUpdator::initialize()
@@ -70,7 +70,7 @@ Trk::GsfMaterialEffectsUpdator::updateState(const Trk::ComponentParameters& comp
   }
   const double weight=componentParameters.second;
   // Extract the material properties from the layer
-  const Trk::MaterialProperties* materialProperties(0);
+  const Trk::MaterialProperties* materialProperties(nullptr);
   double pathCorrection(0.);
 
   if (m_useReferenceMaterial) {
@@ -85,7 +85,7 @@ Trk::GsfMaterialEffectsUpdator::updateState(const Trk::ComponentParameters& comp
       const Trk::LayerMaterialProperties* layerMaterial = layer.layerMaterialProperties();
 
       // Assign the material properties
-      materialProperties = layerMaterial ? layerMaterial->fullMaterial(trackParameters->position()) : 0;
+      materialProperties = layerMaterial ? layerMaterial->fullMaterial(trackParameters->position()) : nullptr;
 
       // Determine the pathCorrection if the material properties exist
       pathCorrection = materialProperties ? 1. / fabs(surface->normal().dot(trackParameters->momentum().unit())) : 0.;
@@ -158,7 +158,7 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(const Trk::ComponentParameters& c
     return nullptr;
   }
 
-  const Trk::MaterialProperties* materialProperties(0);
+  const Trk::MaterialProperties* materialProperties(nullptr);
   double pathCorrection(0.);
 
   // Incorporate the reference material
@@ -175,7 +175,7 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(const Trk::ComponentParameters& c
       const Trk::LayerMaterialProperties* layerMaterial = layer.layerMaterialProperties();
 
       // Assign the material properties
-      materialProperties = layerMaterial ? layerMaterial->fullMaterial(trackParameters->position()) : 0;
+      materialProperties = layerMaterial ? layerMaterial->fullMaterial(trackParameters->position()) : nullptr;
 
       // Determine the pathCorrection if the material properties exist
       pathCorrection = materialProperties ? 1. / fabs(surface->normal().dot(trackParameters->momentum().unit())) : 0.;
@@ -239,7 +239,7 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(const Trk::ComponentParameters& 
     return nullptr;
   }
 
-  const Trk::MaterialProperties* materialProperties(0);
+  const Trk::MaterialProperties* materialProperties(nullptr);
   double pathCorrection(0.);
 
   if (m_useReferenceMaterial) {
@@ -254,7 +254,7 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(const Trk::ComponentParameters& 
       const Trk::LayerMaterialProperties* layerMaterial = layer.layerMaterialProperties();
 
       // Assign the material properties
-      materialProperties = layerMaterial ? layerMaterial->fullMaterial(trackParameters->position()) : 0;
+      materialProperties = layerMaterial ? layerMaterial->fullMaterial(trackParameters->position()) : nullptr;
 
       // Determine the pathCorrection if the material properties exist
       pathCorrection = materialProperties ? 1. / fabs(surface->normal().dot(trackParameters->momentum().unit())) : 0.;
@@ -339,8 +339,8 @@ Trk::GsfMaterialEffectsUpdator::compute(const Trk::ComponentParameters& componen
       return nullptr;
     }
 
-    AmgSymMatrix(5)* updatedCovariance = 0;
-    if (measuredCov && !cache.deltaCovariances.empty() && cache.deltaCovariances[componentIndex] != 0) {
+    AmgSymMatrix(5)* updatedCovariance = nullptr;
+    if (measuredCov && !cache.deltaCovariances.empty() && cache.deltaCovariances[componentIndex] != nullptr) {
       updatedCovariance = new AmgSymMatrix(5)(*cache.deltaCovariances[componentIndex] + *measuredCov);
     }
 

@@ -101,7 +101,7 @@ StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) cons
     ATH_MSG_DEBUG("Executing EMPIDBuilder::execute");
 
     // Protection against bad pointers
-    if (eg==0) {
+    if (eg==nullptr) {
         ATH_MSG_WARNING("NULL egamma object given to execute function");
         return StatusCode::SUCCESS;
     }

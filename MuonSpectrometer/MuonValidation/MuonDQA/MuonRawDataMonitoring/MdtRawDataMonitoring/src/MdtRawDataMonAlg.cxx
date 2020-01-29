@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -956,7 +956,6 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	auto sector = Monitored::Collection("sector",thisVects.sector);
 	auto stationEta = Monitored::Collection("stEta_"+region[iregion]+"_"+layer[ilayer]+"_phi"+std::to_string(stationPhi+1), thisVects.stationEta); 
 
-  const auto& tvec = std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>{lb_mon, sector};
 	fill("MdtMonitor", lb_mon, sector);
 
 	auto adc_mon =  Monitored::Collection("adc_mon", thisVects.adc_mon); 

@@ -1,20 +1,20 @@
 *** AthenaOutputStream_test starts ***
 
 
-Initializing Gaudi ApplicationMgr using job opts /build1/mnowak/athena/Control/AthenaServices/share/AthenaOutputStream_test.txt
-JobOptionsSvc        INFO # =======> /build1/mnowak/athena/Control/AthenaServices/share/AthenaOutputStream_test.txt
+Initializing Gaudi ApplicationMgr using job opts /build2/amete/athena-workspace/athena/Control/AthenaServices/share/AthenaOutputStream_test.txt
+JobOptionsSvc        INFO # =======> /build2/amete/athena-workspace/athena/Control/AthenaServices/share/AthenaOutputStream_test.txt
 JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (6,1): StoreGateSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (8,1): AthenaOutputStream.OutputLevel = 1
 JobOptionsSvc        INFO # (10,1): AthenaOutputStream.ItemList = ["Bar#uno", "Bar#due", "Bar#tre", "8101#*", "Fee#quattro", "Fee!#cinque", "13#*"]
 JobOptionsSvc        INFO # (15,1): AthenaOutputStream.AcceptAlgs = ["AthenaOutputStream", "aSFQS"]
-JobOptionsSvc        INFO Job options successfully read in from /build1/mnowak/athena/Control/AthenaServices/share/AthenaOutputStream_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /build2/amete/athena-workspace/athena/Control/AthenaServices/share/AthenaOutputStream_test.txt
 MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r1)
-                                          running on aibuild025.cern.ch on Tue Sep 10 11:33:54 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r0)
+                                          running on aibuild001.cern.ch on Tue Jan 21 20:44:45 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ServiceManager      DEBUG Initializing service AppMgrRunable
@@ -30,14 +30,13 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramDataSvc    DEBUG Service base class initialized successfully
 HistogramPersis...  DEBUG Service base class initialized successfully
-HistogramPersis...WARNING Histograms saving not required.
+HistogramPersis...  DEBUG Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ClassIDSvc          DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
-ClassIDSvc           INFO  getRegistryEntries: read 1501 CLIDRegistry entries for module ALL
-ClassIDSvc          DEBUG processCLIDDB: read 1681 entries from CLIDDB file: /build1/mnowak/sequencer.mt/build/x86_64-slc6-gcc8-opt/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1681 entries from CLIDDB file: /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-08T2134/Athena/22.0.5/InstallArea/x86_64-slc6-gcc8-opt/share/clid.db
+ClassIDSvc           INFO  getRegistryEntries: read 1564 CLIDRegistry entries for module ALL
+ClassIDSvc          DEBUG processCLIDDB: read 1710 entries from CLIDDB file: /build2/amete/athena-workspace/build/build/Athena/x86_64-centos7-gcc8-opt/share/clid.db
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
 StoreGateSvc_Impl   DEBUG Service base class initialized successfully
@@ -45,7 +44,7 @@ ProxyProviderSvc    DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'StoreGateSvc' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'StoreGateSvc' with priority 100
 ToolSvc             DEBUG Service base class initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 2420 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2536 CLIDRegistry entries for module ALL
 AthenaOutputStream  DEBUG Property update for OutputLevel : new value = 1
 AthenaOutputStreamVERBOSE ServiceLocatorHelper::service: found service EventDataSvc
 TimelineSvc         DEBUG Service base class initialized successfully
@@ -91,8 +90,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.x
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc        DEBUG Service base class initialized successfully
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-08T2134/Athena/22.0.5/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /build2/amete/athena-workspace/build/build/Athena/x86_64-centos7-gcc8-opt/share/dbreplica.config
 DBReplicaSvc        DEBUG Candidate server ATLF (priority -2700)
 DBReplicaSvc        DEBUG Candidate server ATLAS_COOLPROD (priority -695)
 DBReplicaSvc        DEBUG Candidate server atlas_dd (priority -690)
@@ -103,7 +102,7 @@ DBReplicaSvc        DEBUG Candidate server ATONR_COOL (priority -670)
 DBReplicaSvc        DEBUG Candidate server ATONR_CONF (priority -665)
 DBReplicaSvc        DEBUG Candidate server DEVDB11 (priority -660)
 DBReplicaSvc        DEBUG Candidate server ATLF (priority -2200)
-DBReplicaSvc         INFO Total of 10 servers found for host aibuild025.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Total of 10 servers found for host aibuild001.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -119,11 +118,10 @@ MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray([])
 IncidentSvc         DEBUG Adding [FirstInputFile] listener 'MetaDataSvc' with priority 80
 IncidentSvc         DEBUG Adding [BeginInputFile] listener 'MetaDataSvc' with priority 80
 IncidentSvc         DEBUG Adding [EndInputFile] listener 'MetaDataSvc' with priority 10
-IncidentSvc         DEBUG Adding [LastInputFile] listener 'MetaDataSvc' with priority 10
 IoComponentMgr      DEBUG --> io_register(MetaDataSvc)
 IoComponentMgr      DEBUG     registering IoComponent "MetaDataSvc"
 AthenaOutputStr...  DEBUG Property update for OutputLevel : new value = 1
-ClassIDSvc           INFO  getRegistryEntries: read 1139 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1140 CLIDRegistry entries for module ALL
 AthenaOutputStr...   INFO Initializing AthenaOutputStream.AthenaOutputStreamTool - package version AthenaServices-00-00-00
 ServiceManager      FATAL No Service factory for DetectorStore available.
 AthenaOutputStr...  ERROR ServiceLocatorHelper::service: can not locate service DetectorStore
@@ -145,37 +143,43 @@ AthenaOutputStream  DEBUG Registering all Tools in ToolHandleArray HelperTools
 AthenaOutputStream  DEBUG Adding private ToolHandle tool AthenaOutputStream.AthenaOutputStreamTool (AthenaOutputStreamTool)
 AthenaOutputStream  DEBUG Data Deps for AthenaOutputStream
   + INPUT IGNORED  ( 'AthenaAttributeList' , '' ) 
-StoreGateSvc        DEBUG Recorded object @0x2081c40 with key uno of type Foo(CLID 8101)
- in DataObject @0x36173f0
+StoreGateSvc        DEBUG Recorded object @0x35b82f0 with key uno of type Foo(CLID 8101)
+ in DataObject @0x3276770
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2081ae0 with key due of type Foo(CLID 8101)
- in DataObject @0x2081a30
+StoreGateSvc        DEBUG Recorded object @0x35b8410 with key due of type Foo(CLID 8101)
+ in DataObject @0x35b8290
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2081f50 with key uno of type Bar(CLID 8107)
- in DataObject @0x2081fa0
+StoreGateSvc        DEBUG Recorded object @0x35b8650 with key uno of type Bar(CLID 8107)
+ in DataObject @0x35e9e00
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2081ac0 with key due of type Bar(CLID 8107)
- in DataObject @0x3f452d0
+StoreGateSvc        DEBUG Recorded object @0x35b83f0 with key due of type Bar(CLID 8107)
+ in DataObject @0x35b88c0
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2081f30 with key quattro of type Bar(CLID 8107)
- in DataObject @0x2081bd0
+StoreGateSvc        DEBUG Recorded object @0x30a07f0 with key quattro of type Bar(CLID 8107)
+ in DataObject @0x35b8bc0
  object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x2081c20 with key cinque of type Bar(CLID 8107)
- in DataObject @0x3f45850
+StoreGateSvc        DEBUG Recorded object @0x35b8f70 with key cinque of type Bar(CLID 8107)
+ in DataObject @0x35b8ee0
  object modifiable when retrieved
 AthenaOutputStr...WARNING add: can not find clid 13 in clid db
 AthenaOutputStream  DEBUG addItemObjects(13,"*") called
 AthenaOutputStream  DEBUG            Key:*
 AthenaOutputStr...  DEBUG Property update for OutputLevel : new value = 1
+AthenaOutputStream  DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+AthenaOutputStream  DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 AthenaOutputStream  DEBUG  Failed to receive proxy iterators from StoreGate for 13,"*". Skipping
 AthenaOutputStream  DEBUG addItemObjects(8101,"*") called
 AthenaOutputStream  DEBUG            Key:*
+AthenaOutputStream  DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+AthenaOutputStream  DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 AthenaOutputStreamVERBOSE Calling tokenizeAtStep( [], *, *)
 AthenaOutputStreamVERBOSE Done calling tokenizeAtStep( [, ], *, *)
 AthenaOutputStream  DEBUG  Added object 8101,"due"
 AthenaOutputStream  DEBUG  Added object 8101,"uno"
 AthenaOutputStream  DEBUG addItemObjects(8107,"due") called
 AthenaOutputStream  DEBUG            Key:due
+AthenaOutputStream  DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+AthenaOutputStream  DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 AthenaOutputStreamVERBOSE Calling tokenizeAtStep( [], due, *)
 AthenaOutputStreamVERBOSE Done calling tokenizeAtStep( [due], due, *)
 AthenaOutputStreamVERBOSE Calling matchKey( [due], cinque)
@@ -190,6 +194,8 @@ AthenaOutputStreamVERBOSE Couldn't match every sub-string... return: 0
 AthenaOutputStreamVERBOSE Done calling matchKey( [due], uno) with result: 0
 AthenaOutputStream  DEBUG addItemObjects(8107,"tre") called
 AthenaOutputStream  DEBUG            Key:tre
+AthenaOutputStream  DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+AthenaOutputStream  DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 AthenaOutputStreamVERBOSE Calling tokenizeAtStep( [], tre, *)
 AthenaOutputStreamVERBOSE Done calling tokenizeAtStep( [tre], tre, *)
 AthenaOutputStreamVERBOSE Calling matchKey( [tre], cinque)
@@ -207,6 +213,8 @@ AthenaOutputStreamVERBOSE Done calling matchKey( [tre], uno) with result: 0
 AthenaOutputStream  DEBUG  No object matching 8107,"tre" found
 AthenaOutputStream  DEBUG addItemObjects(8107,"uno") called
 AthenaOutputStream  DEBUG            Key:uno
+AthenaOutputStream  DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+AthenaOutputStream  DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 AthenaOutputStreamVERBOSE Calling tokenizeAtStep( [], uno, *)
 AthenaOutputStreamVERBOSE Done calling tokenizeAtStep( [uno], uno, *)
 AthenaOutputStreamVERBOSE Calling matchKey( [uno], cinque)
@@ -221,6 +229,8 @@ AthenaOutputStreamVERBOSE Done calling matchKey( [uno], quattro) with result: 0
 AthenaOutputStream  DEBUG  Added object 8107,"uno"
 AthenaOutputStream  DEBUG addItemObjects(8108,"cinque") called
 AthenaOutputStream  DEBUG            Key:cinque
+AthenaOutputStream  DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+AthenaOutputStream  DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 AthenaOutputStreamVERBOSE Calling tokenizeAtStep( [], cinque, *)
 AthenaOutputStreamVERBOSE Done calling tokenizeAtStep( [cinque], cinque, *)
 AthenaOutputStream  DEBUG  Added object 8108,"cinque"
@@ -229,6 +239,8 @@ AthenaOutputStreamVERBOSE Couldn't match every sub-string... return: 0
 AthenaOutputStreamVERBOSE Done calling matchKey( [cinque], quattro) with result: 0
 AthenaOutputStream  DEBUG addItemObjects(8108,"quattro") called
 AthenaOutputStream  DEBUG            Key:quattro
+AthenaOutputStream  DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+AthenaOutputStream  DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 AthenaOutputStreamVERBOSE Calling tokenizeAtStep( [], quattro, *)
 AthenaOutputStreamVERBOSE Done calling tokenizeAtStep( [quattro], quattro, *)
 AthenaOutputStreamVERBOSE Calling matchKey( [quattro], cinque)

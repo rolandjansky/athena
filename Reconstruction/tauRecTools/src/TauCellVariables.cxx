@@ -56,17 +56,13 @@ TauCellVariables::TauCellVariables(const std::string& name) :
   TauRecToolBase(name),
 m_cellEthr(0.2 * GeV),
 m_stripEthr(0.2 * GeV),
-m_EMSumThr(0.5 * GeV),
-m_EMSumR(0.2),
 m_cellCone(0.2),
-m_doCellCorrection(false) //FF: don't do cell correction by default
+m_doVertexCorrection(false) //FF: don't do cell correction by default
 {
     declareProperty("CellEthreshold", m_cellEthr);
     declareProperty("StripEthreshold", m_stripEthr);
-    declareProperty("EMSumThreshold", m_EMSumThr);
-    declareProperty("EMSumRadius", m_EMSumR);
     declareProperty("CellCone", m_cellCone);
-    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("VertexCorrection", m_doVertexCorrection);
 }
 
 TauCellVariables::~TauCellVariables() {
@@ -77,10 +73,6 @@ StatusCode TauCellVariables::finalize() {
 }
 
 StatusCode TauCellVariables::initialize() {
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauCellVariables::eventInitialize() {
     return StatusCode::SUCCESS;
 }
 
@@ -123,9 +115,9 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     ATH_MSG_VERBOSE("position is eta=" << pTau.eta() << " phi=" << pTau.phi() );
 
     //use tau vertex to correct cell position
-    bool applyCellCorrection = false;
-    if (m_doCellCorrection && pTau.vertexLink()) {
-       applyCellCorrection = true;
+    bool applyVertexCorrection = false;
+    if (m_doVertexCorrection && pTau.vertexLink()) {
+       applyVertexCorrection = true;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -175,7 +167,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 	// ATH_MSG_VERBOSE( "in loop over clusters and cells : phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
 
         // correct cell for tau vertex
-        if (applyCellCorrection) {
+        if (applyVertexCorrection) {
           //ATH_MSG_INFO( "before cell correction: phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
           CaloVertexedCell vxCell (*cell, (*pTau.vertexLink())->position());
           cellPhi = vxCell.phi();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../src/TrigALFAROBMonitor.h"
@@ -206,8 +206,8 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
 
   uint32_t  LB; // luminosity block number
   uint32_t previousEventLB(99999); // luminosity block number of the previous events
-  uint32_t prevLB10reset;   // LB at which previous reset of 10LB histograms happened
-  uint32_t prevLB60reset;   // LB  -- 60LB histograms were reset
+  uint32_t prevLB10reset = 0;   // LB at which previous reset of 10LB histograms happened
+  uint32_t prevLB60reset = 0;   // LB  -- 60LB histograms were reset
   uint32_t prescKey(-999); // current hlt prescale key
   bool SBflag(false);
 

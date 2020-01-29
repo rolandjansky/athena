@@ -75,7 +75,7 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
 /**
  * @brief Standard initialize method.
  */
-StatusCode CaloRunClusterCorrections::initialize()
+StatusCode CaloRunClusterCorrections::initialize ATLAS_NOT_THREAD_SAFE /*Can Register callbacks but no need to be thread safe*/ ()
 {
   // Fetch services used.
   CHECK( m_jos.retrieve() );
@@ -363,7 +363,7 @@ StatusCode CaloRunClusterCorrections::parseKeeplist()
  * @brief Create all tools that we can during initialization.
  *        Set up to create remaining tools during a callback.
  */
-StatusCode CaloRunClusterCorrections::createTools ()
+StatusCode CaloRunClusterCorrections::createTools ATLAS_NOT_THREAD_SAFE /*Binds to callback*/()
 {
   // Set to true if creation of any tools is deferred to a callback.
   bool any_cb = false;
@@ -435,7 +435,7 @@ StatusCode CaloRunClusterCorrections::createTools ()
  * has been registered (see comment in @c createTools).
  */
 void
-CaloRunClusterCorrections::registerCallbacks()
+CaloRunClusterCorrections::registerCallbacks ATLAS_NOT_THREAD_SAFE /*Registers callback*/ ()
 {
   if (m_folderName.size()) { //COOL inline storage
 
@@ -526,7 +526,7 @@ StatusCode CaloRunClusterCorrections::makeTool (Tool& tool)
  * (or after the DB is accessed for the first time).
  */
 StatusCode
-CaloRunClusterCorrections::updateTools (IOVSVC_CALLBACK_ARGS_P( i, keys))
+CaloRunClusterCorrections::updateTools ATLAS_NOT_THREAD_SAFE /*callbacks*/ (IOVSVC_CALLBACK_ARGS_P( i, keys))
 {
   REPORT_MESSAGE(MSG::DEBUG) << "In IOV Callback method updateTools";
 

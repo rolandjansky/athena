@@ -23,9 +23,15 @@ TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
 {
 }
 
-StatusCode TauIDVarCalculator::eventInitialize()
+StatusCode TauIDVarCalculator::initialize()
 {
+  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  return StatusCode::SUCCESS;
+}
 
+StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
+{
   SG::ReadHandle<xAOD::EventInfo> xEventInfo(m_eventInfoKey);
   m_mu = xEventInfo->averageInteractionsPerCrossing();
 
@@ -54,18 +60,6 @@ StatusCode TauIDVarCalculator::eventInitialize()
     }
   }
  
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauIDVarCalculator::initialize()
-{
-  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
-  ATH_CHECK( m_eventInfoKey.initialize() );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
-{
   //define accessors:
   SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();

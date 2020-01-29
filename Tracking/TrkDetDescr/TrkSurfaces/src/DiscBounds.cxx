@@ -40,7 +40,7 @@ Trk::DiscBounds::DiscBounds(double minrad, double maxrad, double avephi, double 
     swap(m_boundValues[DiscBounds::bv_rMin], m_boundValues[DiscBounds::bv_rMax]);
 }
 
-Trk::DiscBounds::~DiscBounds() {}
+Trk::DiscBounds::~DiscBounds() = default;
 
 bool
 Trk::DiscBounds::operator==(const Trk::SurfaceBounds& sbo) const

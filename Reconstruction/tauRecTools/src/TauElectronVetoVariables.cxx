@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -49,10 +49,10 @@ using Gaudi::Units::GeV;
 //-------------------------------------------------------------------------
 TauElectronVetoVariables::TauElectronVetoVariables(const std::string &name) :
 TauRecToolBase(name),
-m_doCellCorrection(false), //FF: don't do cell correction by default
+m_doVertexCorrection(false), //FF: don't do cell correction by default
 m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
 {
-    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("VertexCorrection", m_doVertexCorrection);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
 }
 
@@ -87,10 +87,6 @@ StatusCode TauElectronVetoVariables::initialize()
               << m_caloExtensionTool.typeAndName());
   }
   return StatusCode::SUCCESS;
-}
-StatusCode TauElectronVetoVariables::eventInitialize()
-{
-    return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------
@@ -146,9 +142,9 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     int trackIndex = -1;
 
     //use tau vertex to correct cell position
-    bool applyCellCorrection = false;
-    if (m_doCellCorrection && pTau.vertexLink()) {
-       applyCellCorrection = true;
+    bool applyVertexCorrection = false;
+    if (m_doVertexCorrection && pTau.vertexLink()) {
+       applyVertexCorrection = true;
     }
 
     //---------------------------------------------------------------------
@@ -257,7 +253,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 	}
 
 
-        if (applyCellCorrection) {
+        if (applyVertexCorrection) {
           //ATH_MSG_INFO( "before cell correction: phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
           CaloVertexedCell vxCell (*pCell, (*pTau.vertexLink())->position());
           cellPhi = vxCell.phi();

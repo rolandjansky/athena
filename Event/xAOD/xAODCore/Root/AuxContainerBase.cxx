@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxContainerBase.cxx 793746 2017-01-24 21:23:52Z ssnyder $
@@ -652,7 +652,7 @@ namespace xAOD {
    //
 
    void
-   AuxContainerBase::setCompressedAuxIDs( const std::set< std::string >& attributes ) {
+   AuxContainerBase::setCompressedAuxIDs( const std::vector< std::set< std::string > >& attributes ) {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex );
@@ -661,24 +661,50 @@ namespace xAOD {
    }
 
    AuxContainerBase::auxid_set_t
-   AuxContainerBase::getCompressedAuxIDs() const {
+   AuxContainerBase::getCompressedAuxIDs( const bool& highComp ) const {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex );
 
-      return m_compression.getCompressedAuxIDs( getWritableAuxIDs() );
+      return m_compression.getCompressedAuxIDs( getWritableAuxIDs(), highComp );
    }
 
    float
-   AuxContainerBase::getCompressedValue( float value ) const {
+   AuxContainerBase::getCompressedValue( const float& value, const bool& highComp ) const {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex );
 
-      // For testing purposes
-      static const xAOD::FloatCompressor myFloatCompressor( 7 );
+      // Two main modes are supported: High and Low Compression
+      const unsigned int idx = highComp ? AuxCompression::High : AuxCompression::Low;
 
-      return myFloatCompressor.reduceFloatPrecision( value );
+      // This part could be nicer if we were to rewrite xAOD::FloatCompressor
+      // to accept the number of bits in the call to reduceFloatPrecision instead
+      // of the constructor
+      static const unsigned int high_bits = m_compression.getCompressionBits(true);
+      static const unsigned int low_bits = m_compression.getCompressionBits(false);
+      static const std::vector< xAOD::FloatCompressor >
+      myFloatCompressors { xAOD::FloatCompressor(high_bits), xAOD::FloatCompressor(low_bits) };
+
+      return myFloatCompressors[ idx ].reduceFloatPrecision( value );
+   }
+
+   void
+   AuxContainerBase::setCompressionBits( const std::vector< unsigned int >& nbits ) {
+
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      m_compression.setCompressionBits( nbits );
+   }
+
+   unsigned int
+   AuxContainerBase::getCompressionBits( const bool& highComp ) const {
+
+      // Guard against multi-threaded execution:
+      guard_t guard( m_mutex );
+
+      return m_compression.getCompressionBits( highComp );
    }
 
    //
