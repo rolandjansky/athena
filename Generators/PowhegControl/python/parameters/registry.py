@@ -577,6 +577,10 @@ class Registry(object):
             for flavours in ["dd", "ds", "db", "ss", "sb", "bb"]:
                 coefficient_name = coefficient.format(flavours=flavours)
                 self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
+        for coefficient in ["ReXi_{flavours}", "ImXi_{flavours}"]:
+            for flavours in ["{}{}".format(*x) for x in itertools.product(["u", "c", "t"], ["d", "s", "b"])]:
+                coefficient_name = coefficient.format(flavours=flavours)
+                self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
 
 
 
