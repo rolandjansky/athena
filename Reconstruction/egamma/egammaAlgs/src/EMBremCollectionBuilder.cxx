@@ -142,19 +142,18 @@ StatusCode EMBremCollectionBuilder::execute()
    * Do the refit and get all the info
    */
   ATH_CHECK(refitTracks(Gaudi::Hive::currentContext(),siliconTrkTracks,refitted,failedfit)); 
-  /* 
-   * update counters
-   * */
-  m_FailedFitTracks.fetch_add(failedfit.size(), std::memory_order_relaxed); 
-  m_RefittedTracks.fetch_add(refitted.size(), std::memory_order_relaxed);
-  m_FailedSiliconRequirFit.fetch_add(trtAloneTrkTracks.size(),std::memory_order_relaxed);
   siliconTrkTracks.clear();
   /*
    * Fill the final collections
    */
   ATH_CHECK(createCollections(refitted,failedfit,trtAloneTrkTracks,
                     cPtrTracks,cPtrTrkPart,trackTES.ptr()));
-  ATH_MSG_DEBUG ("Final Track container size: "  << cPtrTrkPart->size() );
+   /* 
+   * update counters
+   * */
+  m_RefittedTracks.fetch_add(refitted.size(), std::memory_order_relaxed);
+  m_FailedFitTracks.fetch_add(failedfit.size(), std::memory_order_relaxed); 
+  m_FailedSiliconRequirFit.fetch_add(trtAloneTrkTracks.size(),std::memory_order_relaxed);
   return StatusCode::SUCCESS;
 }
 
@@ -193,26 +192,23 @@ StatusCode EMBremCollectionBuilder::createCollections(const std::vector<TrackWit
                                                       xAOD::TrackParticleContainer* finalTrkPartContainer,
                                                       const xAOD::TrackParticleContainer* AllTracks) const {
   /*
-   * Refitted Treatment
-   * The other types are "cloned" this is new
+   * Refitted are  new tracks (not copied/cloned)
    * so need to update the summary
    */
   for (auto& Info : refitted){
     updateGSFTrack(Info, AllTracks);
-    
-    ATH_CHECK(createNew(Info,true,finalTracks,finalTrkPartContainer,AllTracks));
   }
-  /*
-   * Failed Fit Treatment
-   */                                                                 
+
+  for (auto& Info : refitted){
+    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
+  }
+                                                               
   for (auto& Info  :  failedfit){
-    ATH_CHECK(createNew(Info,true,finalTracks,finalTrkPartContainer,AllTracks));
+    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
   }
-  /*
-   * TRT Treatment
-   */                                                                 
+                                                                
   for (auto& Info : trtAlone){
-    ATH_CHECK(createNew(Info,false,finalTracks,finalTrkPartContainer,AllTracks));
+    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
   }
   return StatusCode::SUCCESS;
 } 
@@ -220,7 +216,6 @@ StatusCode EMBremCollectionBuilder::createCollections(const std::vector<TrackWit
 
 
 StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
-                                              bool isSilicon,
                                               TrackCollection* finalTracks,
                                               xAOD::TrackParticleContainer* finalTrkPartContainer,
                                               const xAOD::TrackParticleContainer* AllTracks
@@ -241,58 +236,7 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
     return StatusCode::SUCCESS;
   }
 
-  /*
-   * Add qoverP from the last measurement
-   */
-  static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
-  float QoverPLast(0);
-  auto rtsos = track->trackStateOnSurfaces()->rbegin();
-  for (;rtsos != track->trackStateOnSurfaces()->rend(); ++rtsos){
-    if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
-        && (*rtsos)->trackParameters()!=nullptr
-        &&(*rtsos)->measurementOnTrack()!=nullptr
-        && !(*rtsos)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
-      QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
-      break;
-    }
-  }
-  QoverPLM(*aParticle) = QoverPLast;
-  /*
-   * Additional info for  
-   * internal e/gamma usage via the full Trk::Track
-   * Save extrapolated perigee to calo (eta,phi) for later usage in supercluster algorithm.
-   * Only for silicon tracks as in only needed in this case
-   */
-  static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
-  static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");  
-  float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
-
-  if(isSilicon){
-    auto tsos = track->trackStateOnSurfaces()->begin();
-    for (;tsos != track->trackStateOnSurfaces()->end(); ++tsos) {
-      if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
-        float extrapEta(-999.), extrapPhi(-999.);
-        const Trk::TrackParameters *perigeeTrackParams(0);
-        perigeeTrackParams = (*tsos)->trackParameters();
-
-        const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
-        std::unique_ptr<const Trk::TrackParameters> pTrkPar(
-          pSurface.createTrackParameters( perigeeTrackParams->position(), 
-                                          perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
-        //Do the straight-line extrapolation.	  
-        bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
-        if (hitEM2) {
-          perigeeExtrapEta = extrapEta;
-          perigeeExtrapPhi = extrapPhi;
-        }
-        break;
-      }
-    }
-  }
-  pgExtrapEta(*aParticle) = perigeeExtrapEta;    
-  pgExtrapPhi(*aParticle) = perigeeExtrapPhi; 
   //Add an element link back to original Track Particle collection  
-
   static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer>>tP ("originalTrackParticle");
   ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*AllTracks,origIndex);   	  
   tP(*aParticle) = linkToOriginal;	      
@@ -320,6 +264,23 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
       tO(*aParticle) = truthOrigin ;
     } 
   }//End truth
+
+  /*
+   * Add qoverP from the last measurement
+   */
+  static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+  float QoverPLast(0);
+  auto rtsos = track->trackStateOnSurfaces()->rbegin();
+  for (;rtsos != track->trackStateOnSurfaces()->rend(); ++rtsos){
+    if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
+        && (*rtsos)->trackParameters()!=nullptr
+        &&(*rtsos)->measurementOnTrack()!=nullptr
+        && !(*rtsos)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
+      QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
+      break;
+    }
+  }
+  QoverPLM(*aParticle) = QoverPLast;
 
   //Now  Slim the TrK::Track for writing to disk   
   std::unique_ptr<Trk::Track> slimmed = m_slimTool->slimCopy(*track);

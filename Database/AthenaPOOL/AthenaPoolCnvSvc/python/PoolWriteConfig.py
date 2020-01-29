@@ -1,12 +1,13 @@
 """Configuration for POOL file writing
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+from AthenaConfiguration.ComponentFactory import CompFactory
+AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
 
 
-def PoolWriteCfg(configFlags, **kwargs):
+def PoolWriteCfg(flags, **kwargs):
     """Return ComponentAccumulator configured to Write POOL files"""
     # based on WriteAthenaPool._configureWriteAthenaPool
     acc = ComponentAccumulator()
@@ -24,7 +25,25 @@ def PoolWriteCfg(configFlags, **kwargs):
     PoolAttributes += ["ContainerName = 'POOLContainer(DataHeader)'; BRANCH_BASKET_SIZE = '256000'"]
     PoolAttributes += ["ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'"]
     PoolAttributes += ["ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'"]
+    
+    # based on RecoUtils.py#0145
+    if flags.Output.RDOFileName:
+        PoolAttributes += ["DatabaseName = '" + flags.Output.RDOFileName + "'; COMPRESSION_ALGORITHM = '2'"]
+        PoolAttributes += ["DatabaseName = '" + flags.Output.RDOFileName + "'; COMPRESSION_LEVEL = '1'"]
+        PoolAttributes += ["DatabaseName = '" + flags.Output.RDOFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
 
+    if flags.Output.ESDFileName:
+        PoolAttributes += ["DatabaseName = '" + flags.Output.ESDFileName + "'; COMPRESSION_ALGORITHM = '2'"]
+        PoolAttributes += ["DatabaseName = '" + flags.Output.ESDFileName + "'; COMPRESSION_LEVEL = '1'"]
+        # Optimize Basket Sizes to store data for 10 entries/events
+        PoolAttributes += ["DatabaseName = '" + flags.Output.ESDFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '10'"]
+
+    if flags.Output.AODFileName:
+        PoolAttributes += ["DatabaseName = '" + flags.Output.AODFileName + "'; COMPRESSION_ALGORITHM = '2'"]
+        PoolAttributes += ["DatabaseName = '" + flags.Output.AODFileName + "'; COMPRESSION_LEVEL = '1'"]
+        # Optimize Basket Sizes to store data for 100 entries/events
+        PoolAttributes += ["DatabaseName = '" + flags.Output.AODFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100'"]
+        
     kwargs.setdefault("PoolAttributes", PoolAttributes)
 
     acc.addService(AthenaPoolCnvSvc(**kwargs))

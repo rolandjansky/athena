@@ -1,36 +1,24 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-   */
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "egammaMiddleShape.h"
-#include "egammaInterfaces/Iegammaqweta2c.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
 
 #include "CaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
-// INCLUDE GAUDI HEADER FILES:
+#include "egammaUtils/egammaqweta2c.h"
+#include <cmath>
 
-#include "GaudiKernel/ObjectVector.h"      
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-
-#include <math.h>
-
-// Constructor 
-egammaMiddleShape::egammaMiddleShape(const std::string& type,
-        const std::string& name,
-        const IInterface* parent)
-    : AthAlgTool(type, name, parent),
-    m_calo_dd(0) { 
-        // declare Interface
-        declareInterface<IegammaMiddleShape>(this);
-    }
+// Constructor
+egammaMiddleShape::egammaMiddleShape(const std::string &type, const std::string &name, const IInterface *parent)
+    : AthAlgTool(type, name, parent), m_calo_dd(nullptr) {
+  // declare Interface
+  declareInterface<IegammaMiddleShape>(this);
+}
 
 // ====================================================================
 // DESTRUCTOR:
@@ -43,20 +31,6 @@ StatusCode egammaMiddleShape::initialize()
 
     // retrieve all helpers from det store
     m_calo_dd = CaloDetDescrManager::instance();
-
-    // Create egammaqweta2c Tool
-    if(m_egammaqweta2c.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaqweta2c);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaqweta2c << " retrieved"); 
-
-    // Create egammaEnergyPositionAllSamples Tool
-    if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
 
     return StatusCode::SUCCESS;
 }
@@ -88,7 +62,7 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     }
 
     // check if cluster is in barrel or end-cap
-    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(cluster,2);
+    bool in_barrel = egammaEnergyPositionAllSamples::inBarrel(cluster,2);
     CaloSampling::CaloSample sam=CaloSampling::EMB2;
     if (in_barrel) {
         sam=CaloSampling::EMB2; 
@@ -158,10 +132,9 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
     info.e235 = calc.em(); 
     double etaw = calc.etas();
     info.phiw = calc.phis();
-    //egammaqweta2c qweta2; 
-    info.etaw = m_egammaqweta2c->Correct(eta,etacell, etaw); 
+    info.etaw = egammaqweta2c::Correct(eta,etacell, etaw); 
     info.width = etaw;
-    info.poscs2 = m_egammaqweta2c->RelPosition(eta,etacell);
+    info.poscs2 = egammaqweta2c::RelPosition(eta,etacell);
     // 5X5
     if (m_ExecOtherVariables) {
         sc = calc.fill(&cell_container,etamax,phimax,5.*deta,5.*dphi, (CaloSampling::CaloSample) sam);

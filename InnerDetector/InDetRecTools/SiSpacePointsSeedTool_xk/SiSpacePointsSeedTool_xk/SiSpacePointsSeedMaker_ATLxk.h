@@ -1,16 +1,11 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiSpacePointsSeedMaker_ATLxk
-/////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for track candidates generation using space points information
-// for standard Atlas geometry
 /////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +36,17 @@ namespace InDet {
 
   using EventData = SiSpacePointsSeedMakerEventData;
 
+  /**
+   * @class SiSpacePointsSeedMaker_ATLxk
+   * Class for track candidates generation using space points information
+   * for standard Atlas geometry
+   *
+   * In AthenaMT, event dependent cache inside SiSpacePointsSeedMaker_ATLxk
+   * is not preferred. SiSpacePointsSeedMakerEventData = EventData class
+   * holds event dependent data for SiSpacePointsSeedMaker_ATLxk.
+   * Its object is instantiated in SiSPSeededTrackFinder::execute.
+   */
+
   class SiSpacePointsSeedMaker_ATLxk : 
     public extends<AthAlgTool, ISiSpacePointsSeedMaker>
   {
@@ -51,62 +57,64 @@ namespace InDet {
   public:
       
     ///////////////////////////////////////////////////////////////////
-    // Standard tool methods
+    /// @name Standard tool methods
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     SiSpacePointsSeedMaker_ATLxk(const std::string&, const std::string&, const IInterface*);
     virtual ~SiSpacePointsSeedMaker_ATLxk() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Methods to initialize tool for new event or region
+    /// @name Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual void newEvent(EventData& data, int iteration) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
                            const IRoiDescriptor& iRD) const override;
-      
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with two space points with or without vertex constraint
-    ///////////////////////////////////////////////////////////////////
+    //@}
 
+    ///////////////////////////////////////////////////////////////////
+    /// @name Methods to initilize different strategies of seeds production
+    ///////////////////////////////////////////////////////////////////
+    //@{
+
+    /// With two space points with or without vertex constraint
     virtual void find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with three space points with or without vertex constraint
-    ///////////////////////////////////////////////////////////////////
-
+    /// with three space points with or without vertex constraint
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+
+    /// with three space points with or without vertex constraint
+    /// with information about min and max Z of the vertex
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with variable number space points with or without vertex constraint
-    // Variable means (2,3,4,....) any number space points
-    ///////////////////////////////////////////////////////////////////
- 
+    /// with variable number space points with or without vertex constraint
+    /// Variable means (2,3,4,....) any number space points
     virtual void findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
-      
-    ///////////////////////////////////////////////////////////////////
-    // Iterator through seeds pseudo collection produced accordingly
-    // methods find    
-    ///////////////////////////////////////////////////////////////////
-      
-    virtual const SiSpacePointsSeed* next(EventData& data) const override;
-      
-    ///////////////////////////////////////////////////////////////////
-    // Print internal tool parameters and status
-    ///////////////////////////////////////////////////////////////////
+    //@}
 
+    ///////////////////////////////////////////////////////////////////
+    /// @name Iterator through seeds pseudo collection
+    /// produced accordingly methods find    
+    ///////////////////////////////////////////////////////////////////
+    //@{
+    virtual const SiSpacePointsSeed* next(EventData& data) const override;
+    //@}
+      
+    ///////////////////////////////////////////////////////////////////
+    /// @name Print internal tool parameters and status
+    ///////////////////////////////////////////////////////////////////
+    //@{
     virtual MsgStream& dump(EventData& data, MsgStream& out) const override;
+    //@}
 
   private:
+    /// enum for array sizes
     enum Size {SizeRF=53,
                SizeZ=11,
                SizeRFZ=SizeRF*SizeZ,
@@ -119,22 +127,23 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
-  
+
+    /// @name Service handles
+    //@{
     ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
+    //@}
 
-    ///////////////////////////////////////////////////////////////////
-    // Space points containers
-    ///////////////////////////////////////////////////////////////////
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
+    /// @name Data handles
+    //@{
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints", "Pixel space points container"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints", "SCT space points container"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
-    SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
-       {this,"PRDtoTrackMap",""};                                   ///< option PRD-to-track association
-
+    SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap{this,"PRDtoTrackMap","","option PRD-to-track association"};
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+    //@}
 
-
-    // Properties, which will not be changed after construction
+    /// @name Properties, which will not be changed after construction
+    //@{
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_sct{this, "useSCT", true};
     BooleanProperty m_dbm{this, "useDBM", false};
@@ -152,22 +161,28 @@ namespace InDet {
     FloatProperty m_zmax{this, "maxZ", +250.};
     FloatProperty m_dzver{this, "maxdZver", 5.};
     FloatProperty m_dzdrver{this, "maxdZdRver", .02};
+    //@}
 
-    // Properties, which can be updated in buildFrameWork method which is called in initialize method
+    /// @name Properties, which can be updated in buildFrameWork method which is called in initialize method
+    //@{
     FloatProperty m_etamin{this, "etaMin", 0.};
     FloatProperty m_r_rmax{this, "radMax", 600.};
     FloatProperty m_r_rstep{this, "radStep", 2.};
-    FloatProperty m_r3max{this, "maxRadius3", 600.}; // This is always overwritten by m_r_rmax.
+    FloatProperty m_r3max{this, "maxRadius3", 600.}; //!< This is always overwritten by m_r_rmax.
     FloatProperty m_drmin{this, "mindRadius", 5.};
     FloatProperty m_diver{this, "maxdImpact", 10.};
     FloatProperty m_diversss{this, "maxdImpactSSS", 50.};
     FloatProperty m_divermax{this, "maxdImpactForDecays", 20.};
     FloatProperty m_ptmin{this, "pTmin", 500.};
+    //@}
 
-    // Properties, which can be updated in newEvent method. checketa is prepared in EventData.
+    /// @name Properties, which can be updated in newEvent method. checketa is prepared in EventData.
+    //@{
     BooleanProperty m_checketa{this, "checkEta", false};
+    //@}
 
-    // Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ATLxk class
+    /// @name Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ATLxk class
+    //@{
     UnsignedIntegerProperty m_maxNumberVertices{this, "maxNumberVertices", 99};
     FloatProperty m_r1min{this, "minRadius1", 0.};
     FloatProperty m_r1max{this, "maxRadius1", 600.};
@@ -176,15 +191,15 @@ namespace InDet {
     FloatProperty m_r3min{this, "minRadius3", 0.};
     FloatProperty m_rapcut{this, "RapidityCut", 2.7};
     FloatProperty m_diverpps{this, "maxdImpactPPS", 1.7};
+    //@}
 
-    // Not be updated at all.
+    /// @name Data member, which is not updated at all.
+    //@{
     float m_drminv{20.};
+    //@}
 
-    // Updated only in initialize
-    int m_outputlevel{0};
-    bool m_initialized{false};
-
-    // Updated only in buildFrameWork in initialize
+    /// @name Data members, which are updated only in buildFrameWork in initialize
+    //@{
     float m_dzdrmin0{0.};
     float m_dzdrmax0{0.};
     float m_ipt{0.};
@@ -201,12 +216,13 @@ namespace InDet {
     int m_rfzv_i[SizeRFZV][SizeIV];
     float m_sF{0};
     float m_sFv{0};
+    //@}
 
     ///////////////////////////////////////////////////////////////////
     // Private methods
     ///////////////////////////////////////////////////////////////////
 
-    /**    @name Disallow default instantiation, copy, assignment */
+    /// @name Disallow default instantiation, copy, assignment
     //@{
     SiSpacePointsSeedMaker_ATLxk() = delete;
     SiSpacePointsSeedMaker_ATLxk(const SiSpacePointsSeedMaker_ATLxk&) = delete;
@@ -236,22 +252,22 @@ namespace InDet {
     void production3Sp(EventData& data) const;
     void production3Sp
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rt,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
-     int NB, int NT, int& nseed) const;
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rb,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rt,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
+     const int NB, const int NT, int& nseed) const;
     void production3SpTrigger
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rb,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rt,
-     std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
-     int NB, int NT, int& nseed) const;
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rb,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rt,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
+     const int NB, const int NT, int& nseed) const;
  
     bool newVertices(EventData& data, const std::list<Trk::Vertex>& lV) const;
     void findNext(EventData& data) const;
-    bool isZCompatible(EventData& data, float& Zv, float& R, float& T) const;
+    bool isZCompatible(EventData& data, const float& Zv, const float& R, const float& T) const;
     void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const& sp, float* r) const;
     bool isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDIGITIZATION_FrontEndSimTool_H
 #define PIXELDIGITIZATION_FrontEndSimTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -36,24 +37,18 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
 
   public:
     FrontEndSimTool( const std::string& type, const std::string& name,const IInterface* parent):
-      AthAlgTool(type,name,parent),
-      m_BarrelEC(0),
-      m_doNoise(true)
+      AthAlgTool(type,name,parent)
   {
     declareInterface<FrontEndSimTool>(this);
-    declareProperty("BarrelEC",                  m_BarrelEC,       "Index of barrel or endcap");
-    declareProperty("DoNoise",                   m_doNoise);
   }
 
     static const InterfaceID& interfaceID() { return IID_IFrontEndSimTool; }
 
     virtual StatusCode initialize() {
       ATH_CHECK(m_pixelConditionsTool.retrieve());
-
       ATH_CHECK(m_pixelCabling.retrieve());
       ATH_CHECK(m_moduleDataKey.initialize());
       ATH_CHECK(m_chargeDataKey.initialize());
-
       return StatusCode::SUCCESS;
     }
 
@@ -92,9 +87,11 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     }
 
     void ThermalNoise(double thermalNoise, SiChargedDiodeCollection &chargedDiodes, CLHEP::HepRandomEngine *rndmEngine) const {
-      for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
+      for (SiChargedDiodeOrderedIterator i_chargedDiode=chargedDiodes.orderedBegin();
+           i_chargedDiode!=chargedDiodes.orderedEnd(); ++i_chargedDiode)
+      {
         SiCharge charge(thermalNoise*CLHEP::RandGaussZiggurat::shoot(rndmEngine),0,SiCharge::noise);
-        (*i_chargedDiode).second.add(charge);
+        (*i_chargedDiode)->add(charge);
       }
       return;
     }
@@ -145,9 +142,9 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
       int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
       int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
-      for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
+      for (SiChargedDiodeOrderedIterator i_chargedDiode=chargedDiodes.orderedBegin(); i_chargedDiode!=chargedDiodes.orderedEnd(); ++i_chargedDiode) {
         if (CLHEP::RandFlat::shoot(rndmEngine)<moduleData->getDisableProbability(barrel_ec,layerIndex)) {
-          SiHelper::disabled((*i_chargedDiode).second,true,false);
+          SiHelper::disabled(**i_chargedDiode,true,false);
         }
       }
       return;
@@ -169,8 +166,11 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
     {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
-    int m_BarrelEC;
-    bool   m_doNoise;
+    Gaudi::Property<int> m_BarrelEC
+    {this, "BarrelEC", 0, "Index of barrel or endcap"};
+
+    Gaudi::Property<bool> m_doNoise
+    {this, "DoNoise", true, "Flag ofnoise simulation"};
 
     double getG4Time(const SiTotalCharge &totalCharge) const {
       // If there is one single charge, return its time:
@@ -181,12 +181,12 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       SiCharge first = *p_charge;
 
       // Look for first charge which is not noise
-      for ( ; p_charge!=totalCharge.chargeComposition().end() ; p_charge++) {
+      for (; p_charge!=totalCharge.chargeComposition().end(); p_charge++) {
         if (p_charge->processType()!=SiCharge::noise) { findfirst=1; break; }
       }
 
       // if all charges were noise, return the time of the highest charge
-      if (findfirst == 0) { return totalCharge.time(); }
+      if (findfirst==0) { return totalCharge.time(); }
 
       // look for the earlist charge among the remaining non-noise charges:
       first = *p_charge;

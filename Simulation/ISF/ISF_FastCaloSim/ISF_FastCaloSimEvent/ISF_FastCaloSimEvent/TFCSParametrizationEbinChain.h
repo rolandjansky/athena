@@ -23,8 +23,4 @@ private:
   ClassDefOverride(TFCSParametrizationEbinChain,1)  //TFCSParametrizationEbinChain
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationEbinChain+;
-#endif
-
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -74,7 +74,6 @@ namespace Trk
       /** The smearing */
       double                    m_sigmaLoc;       //!< local sigma of start value
       double                    m_sigmaR;         //!< r sigma of start value
-      double                    m_sigmaZ;         //!< Z sigma of start value
       double                    m_minPhi;         //!< Minimal phi value
       double                    m_maxPhi;         //!< Maximal phi value
       double                    m_minEta;         //!< Minimal eta value

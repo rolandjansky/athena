@@ -1,9 +1,10 @@
 """Define methods to construct configured EventInfo conversion algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
@@ -18,7 +19,7 @@ def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
 
     # TODO: luminosity
 
-    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+    xAODMaker__EventInfoCnvAlg=CompFactory.xAODMaker__EventInfoCnvAlg
     alg = xAODMaker__EventInfoCnvAlg(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -37,7 +38,7 @@ def EventInfoOverlayAlgCfg(flags, name="EventInfoOverlay", **kwargs):
     kwargs.setdefault("DataOverlay", flags.Overlay.DataOverlay)
 
     # Do the xAOD::EventInfo overlay
-    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoOverlay
+    xAODMaker__EventInfoOverlay=CompFactory.xAODMaker__EventInfoOverlay
     alg = xAODMaker__EventInfoOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -75,7 +76,7 @@ def EventInfoOverlayCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     # Check if running on legacy HITS
-    if "EventInfo" not in flags.Input.SecondaryCollections:
+    if "EventInfo" not in flags.Input.Collections and "EventInfo" not in flags.Input.SecondaryCollections:
         acc.merge(EventInfoCnvAlgCfg(flags, outputKey=flags.Overlay.SigPrefix+"EventInfo", **kwargs))
 
     acc.merge(EventInfoOverlayAlgCfg(flags, **kwargs))

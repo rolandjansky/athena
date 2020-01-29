@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s)
 #include "PathResolver/PathResolver.h"
 
-//#include "TauAnalysisTools/HelperFunctions.h"
-
 // local include(s)
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
-
 
 //Root includes(s)
 #include "TH1F.h"

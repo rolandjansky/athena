@@ -271,8 +271,8 @@ for i in RecExCommonFlags.keys():
 #      raise RuntimeError, ( ' Variable %s is in RecExCommonFlags but not in varInit. Impossible !', i)
 
 if rec.OutputLevel() <= DEBUG:
-   print "RecExCommon Flags values:"
-   print RecExCommonFlags
+   printfunc ("RecExCommon Flags values:")
+   printfunc (RecExCommonFlags)
 # at this step RecExCommonFlags is consistent with the variables
 # i.e. doTruth=True ==> RecExCommonFlags['doTruth"]=True
 
@@ -335,7 +335,7 @@ except Exception:
    treatException("Could not instantiate egammaRecFlags ")
    egammaRecFlagsOK=False
 
-#print jobproperties
+#printfunc (jobproperties)
 
 varInit=dir()
 
@@ -353,12 +353,12 @@ else:
     # FIXME why not the contrary
     if jobproperties.Rec.__dict__.keys().__contains__(i) :
        if i in varInit:
-          exec 'i_value=%s' % (i)
+          i_value = eval ('%s' % (i))
           data={'JobProperties.Rec':{i:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration data %s',data)  
           jobproperties.set_JobProperties(data)
        else:
-          exec 'jpvalue=jobproperties.Rec.%s()' % (i)
+          jpvalue = getattr(jobproperties.Rec, i)()
           i_value=RecExCommonFlags.get(i)
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
@@ -366,56 +366,56 @@ else:
     if(jobproperties.MuonCombinedRec.__dict__.keys().__contains__(inew)):
        if i in varInit:
           # i_value=RecExCommonFlags.get(i)
-          exec 'i_value=%s' % (i)
+          i_value = eval('%s' % (i))
           data={'JobProperties.MuonCombinedRec':{inew:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration LOCKED data %s',data)  
           jobproperties.set_JobProperties(data)
           #for RecAlgFlags : lock the value
-          exec 'jobproperties.MuonCombinedRec.%s._locked=True' % (inew)
+          getattr(jobproperties.MuonCombinedRec, inew)._locked = True
        else:
-          exec 'jpvalue=jobproperties.MuonCombinedRec.%s()' % (inew)
+          jpvalue = getattr(jobproperties.MuonCombinedRec, inew)()
           i_value=RecExCommonFlags.get(i)
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
     if(jobproperties.Rec.RecAlgs.__dict__.keys().__contains__(i)) :
        if i in varInit:
           # i_value=RecExCommonFlags.get(i)
-          exec 'i_value=%s' % (i)
+          i_value = eval('%s' % (i))
           data={'JobProperties.Rec.RecAlgs':{i:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration LOCKED data %s',data)  
           jobproperties.set_JobProperties(data)
           #for RecAlgFlags : lock the value
-          exec 'recAlgs.%s._locked=True' % (i)
+          getattr(recAlgs,i)._locked = True
        else:
-          exec 'jpvalue=jobproperties.Rec.RecAlgs.%s()' % (i)
+          jpvalue = getattr(jobproperties.Rec.RecAlgs, i)()
           i_value=RecExCommonFlags.get(i)
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
     if(CaloRecFlagsOK and jobproperties.CaloRecFlags.__dict__.keys().__contains__(i)):
        if i in varInit:
           # i_value=RecExCommonFlags.get(i)
-          exec 'i_value=%s' % (i)
+          i_value = eval ('%s' % (i))
           data={'JobProperties.CaloRecFlags':{i:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration LOCKED data %s',data)  
           jobproperties.set_JobProperties(data)
           #for RecAlgFlags : lock the value
-          exec 'jobproperties.CaloRecFlags.%s._locked=True' % (i)
+          getattr(jobproperties.CaloRecFlags, i)._locked = True
        else:
-          exec 'jpvalue=jobproperties.CaloRecFlags.%s()' % (i)
+          jpvalue = getattr(jobproperties.CaloRecFlags, i)()
           i_value=RecExCommonFlags.get(i)
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
     elif(tauRecFlagsOK and jobproperties.tauRecFlags.__dict__.keys().__contains__(i)):
        if i in varInit:
           # i_value=RecExCommonFlags.get(i)
-          exec 'i_value=%s' % (i)
+          i_value = eval('%s' % (i))
           data={'JobProperties.tauRecFlags':{i:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration LOCKED data %s',data)  
           jobproperties.set_JobProperties(data)
           #for RecAlgFlags : lock the value
-          exec 'jobproperties.tauRecFlags.%s._locked=True' % (i)
+          getattr(jobproperties.tauRecFlags, i)._locked = True
        else:
-          exec 'jpvalue=jobproperties.tauRecFlags.%s()' % (i)
+          jpvalue = getattr(jobproperties.tauRecFlags, i)()
           i_value=RecExCommonFlags.get(i)
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
@@ -423,53 +423,53 @@ else:
     if(jobproperties.InDetJobProperties.__dict__.keys().__contains__(inew)) and inew!= 'doPerfMon':
        if i in varInit:
           # i_value=RecExCommonFlags.get(i)
-          exec 'i_value=%s' % (i)
+          i_value = eval ('%s' % (i))
           data={'JobProperties.InDetJobProperties':{inew:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration LOCKED data %s',data)  
           jobproperties.set_JobProperties(data)
           #for RecAlgFlags : lock the value
-          exec 'jobproperties.InDetJobProperties.%s._locked=True' % (inew)
+          getattr(jobproperties.InJetJobProperties, inew)._locked = True
        else:
-          exec 'jpvalue=jobproperties.InDetJobProperties.%s()' % (inew)
+          jpvalue = getattr(jobproperties.InDetJobProperties, inew)()
           i_value=RecExCommonFlags.get(i)
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
     if(jobproperties.MuonRec.__dict__.keys().__contains__(inew)):
        if i in varInit:
           # i_value=RecExCommonFlags.get(i)
-          exec 'i_value=%s' % (i)
+          i_value = eval('%s' % (i))
           data={'JobProperties.MuonRec':{inew:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration LOCKED data %s',data)  
           jobproperties.set_JobProperties(data)
           #for RecAlgFlags : lock the value
-          exec 'jobproperties.MuonRec.%s._locked=True' % (inew)
+          getattr(jobproperties.MuonRec, inew)._locked = True
        else:
-          exec 'jpvalue=jobproperties.MuonRec.%s()' % (inew)
+          jpvalue = getattr(jobproperties.MuonRec, inew)()
           i_value=RecExCommonFlags.get(i)
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
     if(jobproperties.Global.__dict__.keys().__contains__(i)):
        if i in varInit:
-          exec 'i_value=%s' % (i)
+          i_value = eval('%s' % (i))
           data={'JobProperties.Global':{i:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration data %s',data)  
           jobproperties.set_JobProperties(data)
 
        else:
           i_value=RecExCommonFlags.get(i)
-          exec 'jpvalue=jobproperties.Global.%s()' % (i)
+          jpvalue = getattr(jobproperties.Global, i)()
           if i_value!=jpvalue:
              logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
 
     if(jobproperties.AthenaCommonFlags.__dict__.keys().__contains__(i)):
        if i in varInit:
-          exec 'i_value=%s' % (i)
+          i_value = eval('%s' % (i))
           data={'JobProperties.AthenaCommonFlags':{i:i_value}}
           jobproperties._log.info('RecExCommon_flags:: migration data %s',data)
           jobproperties.set_JobProperties(data)
        else:   
           i_value=RecExCommonFlags.get(i)
-          exec 'jpvalue=jobproperties.AthenaCommonFlags.%s()' % (i)
+          jpvalue = getattr(jobproperties.AthenaCommonFlags, i)()
           if i!="PoolRDOInput":
             if i_value!=jpvalue:
                logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
@@ -508,12 +508,12 @@ if 'doJetRec' in varInit:
 varInit=dir()
 #delete again !
 if not rec.oldFlagCompatibility():
-   print "oldFlagCompatibility==True : Deleting all standalone flags!"
+   printfunc ("oldFlagCompatibility==True : Deleting all standalone flags!")
    for i in RecExCommonFlags.keys(): 
       # delete old flags unless required otherwise
       if i in varInit:
-         print "now deleting:",i
-         exec 'del %s' % i
+         printfunc ("now deleting:",i)
+         exec ('del %s' % i)
 
 
 
@@ -536,7 +536,7 @@ if rec.doWriteRDO():
    rec.doWriteTAG=False            
    rec.doCBNT=False
    if rec.readESD or rec.readAOD:
-      raise RuntimeError, "Cannot have readESD or readAOD if doWriteRDO"
+      raise RuntimeError ("Cannot have readESD or readAOD if doWriteRDO")
 
 # in case several read specified, favour the highest one
 if rec.readAOD():
@@ -569,7 +569,7 @@ if rec.readESD() :
 # consistency check in case of lock
 _allRead=rec.readRDO()+rec.readESD()+rec.readAOD()
 if _allRead !=1 :
-   raise RuntimeError," one and only one of readRDO (%s)  readESD (%s) readAOD (%s) should be on !!!" % (rec.readRDO(),rec.readESD(),rec.readAOD())
+   raise RuntimeError (" one and only one of readRDO (%s)  readESD (%s) readAOD (%s) should be on !!!" % (rec.readRDO(),rec.readESD(),rec.readAOD()))
 
 
 
@@ -640,7 +640,7 @@ if rec.Commissioning():
        #
        # --- setup StoreGate keys (JobProperties!)
        #
-       print "InDetRec_jobOptions: InDetKeys not set before - I import them now"
+       printfunc ("InDetRec_jobOptions: InDetKeys not set before - I import them now")
        from InDetRecExample.InDetKeys import InDetKeys
 
 
@@ -712,7 +712,7 @@ if rec.Production():
 
 
 if not rec.oldFlagTopSteering and rec.oldFlagCompatibility:
-   raise RuntimeError,"rec.oldFlagTopSteering false inconsistent with rec.oldFlagCompatibility true"
+   raise RuntimeError ("rec.oldFlagTopSteering false inconsistent with rec.oldFlagCompatibility true")
 
 
    # put back oldFlagCompatibility which has just been deleted ! Needed further down.   
@@ -855,6 +855,7 @@ if not rec.doInDet:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.ID_setOff()
    from InDetRecExample.InDetJobProperties import InDetFlags
    InDetFlags.Enabled=False
@@ -881,6 +882,7 @@ if not rec.doCalo:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.Calo_setOff()
    try:
       from CaloRec.CaloRecFlags import jobproperties
@@ -893,6 +895,7 @@ if not rec.doMuon:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.Muon_setOff()
    #FIXME redundant
    recAlgs.doTrackRecordFilter=False
@@ -901,6 +904,7 @@ if not rec.doMuon:
 
 if not rec.doMuon and not rec.doCalo and not rec.doInDet:
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
 
 if not rec.doJetMissingETTag:
    recAlgs.doMissingET=False
@@ -958,6 +962,7 @@ if not rec.doTrigger:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
 
    #FIXME a separate container to be used eventually
    recAlgs.doTrigger=False
@@ -1093,20 +1098,20 @@ if rec.doTrigger():
 
 class landmine:
    def __nonzero__(self):
-      raise RuntimeError,"usage of this flag is forbidden!"
+      raise RuntimeError ("usage of this flag is forbidden!")
 
 #delete again !
 varInit=dir()
 if not rec.oldFlagCompatibility():
-   print "oldFlagCompatibility==True : Deleting all standalone flags! and forbidding use of old flags"
+   printfunc ("oldFlagCompatibility==True : Deleting all standalone flags! and forbidding use of old flags")
    for i in RecExCommonFlags.keys(): 
       if i in varInit:
-         print "deleting again:",i
-         exec 'del %s' % i
+         printfunc ("deleting again:",i)
+         exec ('del %s' % i)
       # if true this will prevent reuse of old flags   
       # May 2011: actually this does not seem to work anymore. Just ignored.
-      if rec.oldFlagLandMine():   
-         exec '%s=landmine()' % i    
+      if rec.oldFlagLandMine():
+         globals()[i] = landmine()
 
 del _AODFlagsAvailable
 

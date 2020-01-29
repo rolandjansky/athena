@@ -38,8 +38,6 @@ int main() {
   assert(pStore);
   
   assert(pStore->storeID() == StoreID::EVENT_STORE);
-  pStore->setStoreID(StoreID::SPARE_STORE);
-  assert(pStore->storeID() == StoreID::SPARE_STORE);
 
   assert((pSvcLoc->service("DetectorStore", pStore)).isSuccess());
   assert(pStore);

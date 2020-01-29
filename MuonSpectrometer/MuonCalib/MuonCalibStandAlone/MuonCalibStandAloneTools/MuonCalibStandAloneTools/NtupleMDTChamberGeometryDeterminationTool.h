@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -51,11 +51,6 @@
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 
 class MdtCalibInputSvc;
-
-
-namespace MuonGM {
-class MuonDetectorManager;
-}
 
 namespace MuonCalib {
 
@@ -168,8 +163,6 @@ private:
 
 // helpers //
 	const MdtIdHelper *m_MdtIdHelper; // pointer to the MDT ID helper
-	const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
-						     // detector manager
 	const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
 
 // private methods //

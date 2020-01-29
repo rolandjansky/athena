@@ -249,7 +249,6 @@ namespace MuonCombined {
     ToolHandle<Muon::IMuonRecoValidationTool>        m_recoValidationTool;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbibuityResolver;
     ToolHandle<Muon::IMuonHitTimingTool>             m_hitTimingTool;
-    ToolHandle<Muon::MuonLayerHoughTool>             m_layerHoughTool;
     ToolHandle<Muon::IMuonPRDSelectionTool>          m_muonPRDSelectionTool;
     ToolHandle<Muon::IMuonPRDSelectionTool>          m_muonPRDSelectionToolStau;
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_mdtCreator;
@@ -280,16 +279,6 @@ namespace MuonCombined {
         return sout.str();
       }
     };
-
-    // map to store truth counters for a given pdgID (uses abs(pdg))
-    mutable std::map<int,TruthMatchingCounters> m_truthMatchingCounters;
-    
-    TruthMatchingCounters* getTruthMatchingCounters( const TruthInfo* truthInfo ) const {
-      if( !truthInfo ) return nullptr;
-      auto pos = m_truthMatchingCounters.find(std::abs(truthInfo->pdgId));
-      if( pos == m_truthMatchingCounters.end() ) return nullptr;
-      return &pos->second;
-    }
 
     bool m_doSummary; // enable summary output
     bool m_useTruthMatching; // enable usage of truth info for reconstruction

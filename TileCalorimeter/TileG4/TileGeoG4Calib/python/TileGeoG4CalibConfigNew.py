@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TileGeoG4Calib.TileGeoG4CalibConf import TileGeoG4CalibSDTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+TileGeoG4CalibSDTool=CompFactory.TileGeoG4CalibSDTool
 
 
 def TileGeoG4CalibSDCfg(ConfigFlags, name="TileGeoG4CalibSD", **kwargs):

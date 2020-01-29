@@ -12,7 +12,7 @@
 
 
 #include "MuonIdHelpers/RpcIdHelper.h"
-#include "RPCcablingInterface/RDOindex.h"
+#include "RPC_CondCabling/RDOindex.h"
 #include "IdDictParser/IdDictParser.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"

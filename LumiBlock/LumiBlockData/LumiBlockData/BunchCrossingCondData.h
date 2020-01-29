@@ -92,6 +92,35 @@ public:
    */
   bool isBeam2(const bcid_type bcid ) const;
 
+  /// Enumeration type for a given bunch crossing
+  /**
+  * This enumeration can specify what kind of bunch crossing one BCID
+  * belongs to. The types could easily be extended later on.
+  */
+  enum BunchCrossingType
+  {
+    Empty = 0,       ///< An empty bunch far away from filled bunches
+    FirstEmpty = 1,  ///< The first empty bunch after a train
+    MiddleEmpty = 2, ///< An empty BCID in the middle of a train
+    Single = 100,    ///< This is a filled, single bunch (not in a train)
+    Front = 200,     ///< The BCID belongs to the first few bunches in a train
+    Middle = 201,    ///< The BCID belongs to the middle bunches in a train
+    Tail = 202,      ///< The BCID belongs to the last few bunces in a train
+    Unpaired = 300   ///< This is an unpaired bunch (either beam1 or beam2)
+  };
+
+  /// Convenience function for the type of the specific bunch crossing
+  /**
+   * This function could be used as a single entry point to this data in
+   * principle. It gives a summary about a specific BCID. Remember however
+   * that the exact meaning of many of the return values of this function
+   * are configuration dependent.
+   *
+   * @param bcid The bcid that should be checked
+   * @returns The type of the bcid in question
+   */
+  BunchCrossingType bcType(const bcid_type bcid ) const;
+
   /// Enumeration specifying the units in which to expect the bunch distance type
   /**
    * To make it clear for the following functions what units to interpret their
@@ -241,6 +270,7 @@ private:
   std::bitset<m_MAX_BCID> m_beam1;
   std::bitset<m_MAX_BCID> m_beam2;
   std::bitset<m_MAX_BCID> m_luminous;
+  const static int m_headTailLength = 300; // magic number 300 ns from Run 2 tool
 
   struct bunchTrain_t {
     bunchTrain_t(bcid_type first, bcid_type last, unsigned ncoll) : 

@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloInterface
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/AthenaMonitoring
+                          Control/AthenaMonitoringKernel
                           DetectorDescription/IRegionSelector
                           Event/xAOD/xAODCaloEvent
                           GaudiKernel
@@ -41,7 +41,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigCaloRecLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigCaloRec
-                   LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel IRegionSelector xAODCaloEvent GaudiKernel TrigCaloEvent TrigSteeringEvent AthenaMonitoringLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloRecLib CaloUtilsLib LArCablingLib
+                   LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel IRegionSelector xAODCaloEvent GaudiKernel TrigCaloEvent TrigSteeringEvent AthenaMonitoringKernelLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloRecLib CaloUtilsLib LArCablingLib
                    PRIVATE_LINK_LIBRARIES CaloGeoHelpers CaloIdentifier EventKernel NavFourMom xAODTrigCalo xAODHIEvent xAODTrigL1Calo LArIdentifier TrigT1Interfaces )
 
 atlas_add_component( TrigCaloRec

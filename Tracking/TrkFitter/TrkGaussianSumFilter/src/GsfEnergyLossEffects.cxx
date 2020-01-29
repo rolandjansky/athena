@@ -35,7 +35,7 @@ Trk::GsfEnergyLossEffects::GsfEnergyLossEffects(const std::string& type,
   declareInterface<IMultiStateMaterialEffects>(this);
 }
 
-Trk::GsfEnergyLossEffects::~GsfEnergyLossEffects() {}
+Trk::GsfEnergyLossEffects::~GsfEnergyLossEffects() = default;
 
 StatusCode
 Trk::GsfEnergyLossEffects::initialize()
@@ -69,7 +69,7 @@ void Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache
   // Reset the cache
   cache.reset();
   // Request track parameters from component parameters
-  const Trk::TrackParameters* trackParameters = componentParameters.first;
+  const Trk::TrackParameters* trackParameters = componentParameters.first.get();
 
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 

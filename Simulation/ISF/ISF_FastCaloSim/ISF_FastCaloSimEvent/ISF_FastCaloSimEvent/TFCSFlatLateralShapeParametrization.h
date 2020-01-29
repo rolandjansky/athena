@@ -66,8 +66,4 @@ inline float TFCSFlatLateralShapeParametrization::scale() const
   return m_scale;
 }
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSFlatLateralShapeParametrization+;
-#endif
-
 #endif

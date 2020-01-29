@@ -116,6 +116,6 @@ for alg in job:
       setdebug(alg)
 
 # Print the final job for reference purposes
-print job
+printfunc (job)
 
 # End of AthExJobOptions_BasicJobOptions.py

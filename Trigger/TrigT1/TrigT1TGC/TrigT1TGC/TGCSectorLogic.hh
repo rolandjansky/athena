@@ -22,6 +22,10 @@
 #include "TrigT1TGC/TGCSLSelectorOut.hh"
 #include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
 
+//for Run3
+#include "TrigT1TGC/TGCTrackSelector.h"
+
+
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
@@ -33,15 +37,22 @@ class  TGCHighPtBoard;
 class  TGCHighPtChipOut;
 class  TGCTMDB;
 
+//for Run3
+class TGCTrackSelectorOut;
+
+
 class TGCSectorLogic {
 public:
   TGCSectorLogic(const TGCSectorLogic& right);
 
   TGCSLSelectorOut* getSelectorOutput() const;
+  void getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const ;
+
   int  getTileMuonWord() const;
   int  getInnerStationWord() const;
 
   void eraseSelectorOut(); 
+
   void clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
                int bidIn);
 
@@ -104,9 +115,17 @@ private:
   const TGCInnerCoincidenceMap*  m_mapInner;
   const TGCTileMuCoincidenceMap*  m_mapTileMu;
   const TGCTMDB*            m_pTMDB;
+
+  // for Run2
   TGCSLPreSelector m_preSelector; 
   TGCSLSelector m_selector;
-  TGCSLSelectorOut* m_selectorOut; 
+  TGCSLSelectorOut* m_selectorOut;
+  
+  // for Run3
+  TGCTrackSelector m_trackSelector;
+  std::shared_ptr<TGCTrackSelectorOut> m_trackSelectorOut;
+
+ 
   int m_wordTileMuon;
   int m_wordInnerStation;
 

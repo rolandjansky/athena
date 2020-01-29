@@ -36,8 +36,8 @@ def TrigBjetMonConfig(inputFlags):
     # is the algorithm.
     #The added algorithm must exist as a .h file 
 
-    from TrigBjetMonitoring.TrigBjetMonitoringConf import TrigBjetMonitorAlgorithm
-    trigBjetMonAlg = helper.addAlgorithm(TrigBjetMonitorAlgorithm,'TrigBjetMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    trigBjetMonAlg = helper.addAlgorithm(CompFactory.TrigBjetMonitorAlgorithm,'TrigBjetMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
@@ -312,7 +312,8 @@ if __name__=='__main__':
     # file to be run w/ doRun2 = False
     # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/build.AOD.pool.root'
     # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/AOD.pool.root'
-    file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_131119/AOD.pool.root'
+    # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_131119/AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_140120/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
     # file to be run w/ doRun2 = True
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_ST_240919/AOD.pool.root'

@@ -51,13 +51,13 @@ atlas_add_test( ActiveStore_test
 atlas_add_test( SGTiming_test
    SOURCES test/SGTiming_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "${_hivePatterns}|rec:|averages"
+   LOG_IGNORE_PATTERN "${_hivePatterns}|rec:|averages"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( SGHive_test
    SOURCES test/SGHive_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "${_hivePatterns}"
+   LOG_IGNORE_PATTERN "${_hivePatterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( DataHandle_test
@@ -121,7 +121,7 @@ atlas_add_test( TypelessWriteHandleKey_test
 atlas_add_test( VarHandleBase_test
    SOURCES test/VarHandleBase_test.cxx
    LINK_LIBRARIES SGtests
-   EXTRA_PATTERNS "could not get proxy for|try using a ReadHandle"
+   LOG_IGNORE_PATTERN "could not get proxy for|try using a ReadHandle"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( VarHandles_test

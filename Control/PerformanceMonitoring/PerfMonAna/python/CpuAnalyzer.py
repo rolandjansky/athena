@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: CpuAnalyzer.py
 # @purpose: a set of classes to analyze (CPU) data from a perfmon tuple
@@ -16,9 +16,9 @@ import os
 import logging
 import numpy,pylab
 import matplotlib.pyplot as plt
-from PyRootLib import importRoot
-from Analyzer  import Analyzer,bookAvgHist,mon_project,make_canvas
-from Constants import Units
+from .PyRootLib import importRoot
+from .Analyzer  import Analyzer,bookAvgHist,mon_project,make_canvas
+from .Constants import Units
 
 class CpuAnalyzer( Analyzer ):
     """analyzer working on CPU related quantities. It reads the perfmon tuple
@@ -42,9 +42,9 @@ class CpuAnalyzer( Analyzer ):
     def bookHistos(self, monComp):
         ROOT = importRoot()
         #Analyzer.__bookHistos(self)
-        from PyRootLib import setupRootStyle; setupRootStyle();
+        from .PyRootLib import setupRootStyle; setupRootStyle();
 
-        from App import DataSetMgr
+        from .App import DataSetMgr
         for dataSetName in monComp.data.keys():
             dataSet  = DataSetMgr.instances[dataSetName]
             nEntries = len(dataSet.bins)
@@ -66,7 +66,7 @@ class CpuAnalyzer( Analyzer ):
 
     def fillHistos(self, monComp):
 
-        from App import DataSetMgr
+        from .App import DataSetMgr
         self.msg.debug("filling histograms...")
         
         # short-hands
@@ -84,7 +84,7 @@ class CpuAnalyzer( Analyzer ):
         figs    = monComp.figs
 
         for dsName in dsNames:
-            if not monComp.data.has_key(dsName):
+            if dsName not in monComp.data:
                 continue
             data = monComp.data[dsName]
             ## print "..",dsName,data.keys()
@@ -121,7 +121,7 @@ class CpuAnalyzer( Analyzer ):
         yMax = max(yMax)
         
         for dsName in dsNames:
-            if not monComp.data.has_key(dsName):
+            if dsName not in monComp:
                 continue
             data = monComp.data[dsName]
             if not 'evt' in data:

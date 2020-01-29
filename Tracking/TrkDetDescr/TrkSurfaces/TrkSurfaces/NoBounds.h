@@ -30,10 +30,10 @@ class NoBounds : public SurfaceBounds
 {
 public:
   /**Default Constructor*/
-  NoBounds() {}
+  NoBounds() = default;
 
   /** Destructor */
-  ~NoBounds() {}
+  ~NoBounds() = default;
 
   /**Equality operator */
   virtual bool operator==(const SurfaceBounds& sbo) const override;

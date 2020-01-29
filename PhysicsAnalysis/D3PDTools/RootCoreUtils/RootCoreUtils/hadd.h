@@ -21,18 +21,9 @@ namespace RCU
   /// guarantee: basic
   /// failures: out of memory III
   /// failures: i/o errors
-  void hadd (std::string output_file,
-	     std::vector<std::string> input_files,
+  void hadd (const std::string& output_file,
+	     const std::vector<std::string>& input_files,
 	     unsigned max_files = 0);
-
-
-  /// effects: perform the core hadd functionality
-  /// guarantee: basic
-  /// failures: out of memory III
-  /// failures: i/o errors
-  void hadd_core (std::string output_file,
-		  std::vector<std::string> input_files,
-		  unsigned max_files);
 }
 
 #endif

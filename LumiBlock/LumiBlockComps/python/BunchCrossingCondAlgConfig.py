@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 #from AthenaConfiguration.MainServicesConfig import MainServicesSerial
 
 
 def BunchCrossingCondAlgCfg(configFlags):
-    from LumiBlockComps.LumiBlockCompsConf import BunchCrossingCondAlg
+    BunchCrossingCondAlg=CompFactory.BunchCrossingCondAlg
     from IOVDbSvc.IOVDbSvcConfig import addFolders
 
     result=ComponentAccumulator()
@@ -14,7 +15,7 @@ def BunchCrossingCondAlgCfg(configFlags):
 
     if (configFlags.Input.isMC):
         folder = "/Digitization/Parameters"
-        result.merge(addFolders(configFlags,folder,"",className="AthenaAttributeList"))
+        result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList"))
     else: #data case
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
         result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList'))
@@ -51,8 +52,9 @@ if __name__=="__main__":
     result=MainServicesSerialCfg()
 
 
-    from McEventSelector.McEventSelectorConf import McEventSelector,McCnvSvc
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    McEventSelector=CompFactory.McEventSelector
+    McCnvSvc=CompFactory.McCnvSvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
 
     #event & time-stamp from the q431 test input 
     mcevtsel=McEventSelector(RunNumber=330470,
@@ -76,7 +78,7 @@ if __name__=="__main__":
     result.merge(BunchCrossingCondAlgCfg(ConfigFlags))
     
     
-    from LumiBlockComps.LumiBlockCompsConf import BunchCrossingCondTest
+    BunchCrossingCondTest=CompFactory.BunchCrossingCondTest
     result.addEventAlgo(BunchCrossingCondTest(FileName="BCData1.txt"))
 
     result.run(1)

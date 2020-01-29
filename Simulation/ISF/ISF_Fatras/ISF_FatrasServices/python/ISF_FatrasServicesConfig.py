@@ -643,6 +643,13 @@ def getFatrasSimHitCreatorMS(name="ISF_FatrasSimHitCreatorMS", **kwargs):
     kwargs.setdefault("TGCCollectionName", tgc_hits_collection_name)
     kwargs.setdefault("CSCCollectionName", csc_hits_collection_name)
 
+    from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonTGMeasurementTool
+    MuonTGMeasurementTool = Muon__MuonTGMeasurementTool(  name = 'MuonTGMeasurementTool', 
+                                                          UseDSManager = True )
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += MuonTGMeasurementTool
+    kwargs.setdefault("MeasurementTool", MuonTGMeasurementTool)
+
     from ISF_FatrasToolsMS.ISF_FatrasToolsMSConf import iFatras__SimHitCreatorMS
     return iFatras__SimHitCreatorMS(name, **kwargs )
 

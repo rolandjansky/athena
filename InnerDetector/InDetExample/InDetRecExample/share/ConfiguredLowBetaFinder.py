@@ -26,4 +26,4 @@ class ConfiguredLowBetaFinder:
 
         topSequence += InDetLowBetaTrkAlgorithm
         if (InDetFlags.doPrintConfigurables()):
-            print InDetLowBetaTrkAlgorithm
+            printfunc (InDetLowBetaTrkAlgorithm)

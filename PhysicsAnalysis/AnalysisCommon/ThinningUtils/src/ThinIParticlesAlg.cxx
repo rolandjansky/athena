@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinIParticlesAlg.cxx
@@ -31,7 +31,6 @@ ThinIParticlesAlg::ThinIParticlesAlg( const std::string& name,
 																		  ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_jos("JobOptionsSvc", name),
-	m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_thinTool("ThinIParticlesTool/ThinIParticlesTool", this),
 	m_setIPartKey(false),
 	m_setInCollKey(false),
@@ -41,9 +40,6 @@ ThinIParticlesAlg::ThinIParticlesAlg( const std::string& name,
   declareProperty("JobOptionsSvc",        m_jos, "The JobOptionService instance.");
 
   declareProperty("ThinTool",             m_thinTool, "The private ThinningTool" );
-
-  declareProperty("ThinningSvc",          m_thinningSvc,
-                  "The ThinningSvc instance for a particular output stream" );
 
   declareProperty("IParticlesToThin",     m_ipartKey = "",
                   "The xAOD::IParticleContainer to be thinned" );
@@ -76,7 +72,7 @@ StatusCode ThinIParticlesAlg::initialize()
   // Print out the used configuration
   ATH_MSG_DEBUG ( " using = " << m_jos );
   ATH_MSG_DEBUG ( " using = " << m_thinTool );
-  ATH_MSG_DEBUG ( " using = " << m_thinningSvc );
+  ATH_MSG_DEBUG ( " using = " << m_streamName );
   ATH_MSG_DEBUG ( " using = " << m_ipartKey );
   ATH_MSG_DEBUG ( " using = " << m_inCollKeyList );
   ATH_MSG_DEBUG ( " using = " << m_selection );
@@ -96,10 +92,10 @@ StatusCode ThinIParticlesAlg::initialize()
   ATH_MSG_DEBUG( "Got the full name of the tool: " << fullToolName );
 
   // Now, set all properties of the private skimTool that were acutally configured
-	ATH_MSG_DEBUG( "Setting property" << m_thinningSvc
+	ATH_MSG_DEBUG( "Setting property" << m_streamName
                  << " of private tool with name: '" << fullToolName << "'" );
-  ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
-																						 StringProperty("ThinningSvc",m_thinningSvc.typeAndName()) ) );
+        ATH_CHECK( m_jos->addPropertyToCatalogue ( fullToolName,
+                                                   StringProperty("StreamName",m_streamName) ) );
 
   if (m_setIPartKey) {
     ATH_MSG_DEBUG( "Setting property" << m_ipartKey

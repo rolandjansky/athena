@@ -5,6 +5,8 @@ from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 
+from six import iteritems
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -43,7 +45,7 @@ def generateMenu( flags ):
     menuAcc.addSequence( seqAND(mainSequenceName) )
 
 
-    for name, cfgFlag in list(flags._flagdict.iteritems()):
+    for name, cfgFlag in list(iteritems(flags._flagdict)):
         if 'Trigger.menu.' not in name:
             continue
         value = flags._get(name)
@@ -99,7 +101,7 @@ def generateMenu( flags ):
 
     # # generate JOSON representation of the config
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
-    generateJSON_newJO( allChainDicts, menuChains )
+    generateJSON_newJO( allChainDicts, menuChains, menuAcc.getSequence("HLTAllSteps") )
 
     return menuAcc
 

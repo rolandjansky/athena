@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id$
 #
 # File: D3PDMakerTest/python/difftuple_text.py
 # Author: snyder@bnl.gov
 # Date: Oct, 2010
 # Purpose: Diff a root tuple file against a text dump.
 #
+
+from __future__ import print_function
 
 
 import operator
@@ -1255,7 +1255,7 @@ class Dumpreader (object):
             if l.find ('wrong interface id') >= 0: continue
             ll = l.split()
             if len(ll) != 2:
-                print 'Unknown line', l
+                print ('Unknown line', l)
                 break
             (typ, key) = ll
             if typ == 'Tree':
@@ -1265,7 +1265,7 @@ class Dumpreader (object):
             elif typ == 'TH1':
                 self.keys[key] = Hist (self.reader)
             else:
-                print 'Unknown type', typ
+                print ('Unknown type', typ)
                 break
 
 
@@ -1278,9 +1278,9 @@ def dictkey_diff (d1, d2, msg, filter = None):
     if filter: keys = [k for k in keys if not filter(k)]
     if keys:
         keys.sort()
-        print msg
+        print (msg)
         for k in keys:
-            print '  ', k
+            print ('  ', k)
     return
 
 
@@ -1295,8 +1295,8 @@ def apply_renames (d1, d2, renames):
 
 def diff_string (k, s1, s2):
     if s1.val != s2.val:
-        print 'String', k, 'has value', s1.val, \
-              'in new file but value', s2.val, 'in reference file'
+        print ('String', k, 'has value', s1.val,
+               'in new file but value', s2.val, 'in reference file')
     return
 
 
@@ -1334,7 +1334,7 @@ def compare (o1, o2, thresh = 1e-6, ithresh = None, eltcmp = None):
                 if den == 0: continue
                 x = xabs(num / den)
                 if x > thresh:
-                    print 'fnmismatch', x1, x2, x, thresh
+                    print ('fnmismatch', x1, x2, x, thresh)
                     return False
             return True
 
@@ -1361,7 +1361,7 @@ def compare (o1, o2, thresh = 1e-6, ithresh = None, eltcmp = None):
         x = abs(num / den)
         if callable(thresh): thresh = thresh(den)
         if x > thresh:
-            print 'fmismatch', o1, o2, x, thresh
+            print ('fmismatch', o1, o2, x, thresh)
             return False
         return True
     return o1 == o2
@@ -1541,8 +1541,8 @@ def diff_branch (k, kb, v1, v2):
             ev1 = list(set(ev1).intersection(set(ev2)))
             ev1.sort()
         else:
-            print head, 'Different set of events; new file: ', \
-                  ev1, 'reference file', ev2
+            print (head, 'Different set of events; new file: ',
+                   ev1, 'reference file', ev2)
             return
 
     ithresh = None
@@ -1675,13 +1675,13 @@ def diff_branch (k, kb, v1, v2):
             b2 = float(b2)
 
         if type(b1) != type(b2):
-            print head, 'Type differs; new file: ', type(b1).__name__, \
-                  'reference file:', type(b2).__name__
+            print (head, 'Type differs; new file: ', type(b1).__name__,
+                   'reference file:', type(b2).__name__)
         elif not compare (b1, b2, thresh = thresh, ithresh = ithresh,
                           eltcmp = eltcmp):
-            print head, 'Branch mismatch'
-            print '  new file:', b1
-            print '  ref file:', b2
+            print (head, 'Branch mismatch')
+            print ('  new file:', b1)
+            print ('  ref file:', b2)
         
     return
 
@@ -1701,13 +1701,13 @@ def diff_tree (k, t1, t2):
 
 def diff_hist (k, h1, h2):
     if not compare (h1.bins, h2.bins):
-        print 'Hist', k, 'has bins', h1.bins
-        print 'in new file but bins', h2.bins
-        print 'in reference file'
+        print ('Hist', k, 'has bins', h1.bins)
+        print ('in new file but bins', h2.bins)
+        print ('in reference file')
     if not compare (h1.errs, h2.errs):
-        print 'Hist', k, 'has errs', h1.errs
-        print 'in new file but errs', h2.errs
-        print 'in reference file'
+        print ('Hist', k, 'has errs', h1.errs)
+        print ('in new file but errs', h2.errs)
+        print ('in reference file')
     return
 
 
@@ -1722,9 +1722,9 @@ def diff_files (d1, d2):
             v1 = d1.keys[k]
             v2 = d2.keys[k]
             if type(v1) != type(v2):
-                print 'Key', k, 'has type', type(v1).__name__, \
-                      'in new file, but type', type(v2).__name__, \
-                      'in reference file'
+                print ('Key', k, 'has type', type(v1).__name__,
+                       'in new file, but type', type(v2).__name__,
+                       'in reference file')
             elif type(v1) == String:
                 diff_string (k, v1, v2)
             elif type(v1) == Tree:
@@ -1732,7 +1732,7 @@ def diff_files (d1, d2):
             elif type(v1) == Hist:
                 diff_hist (k, v1, v2)
             else:
-                print 'Unknown type for diff:', type(v1).__name__
+                print ('Unknown type for diff:', type(v1).__name__)
     return
 
 

@@ -3,6 +3,8 @@
 # ----------- Draft version of TRT Segment finding
 #
 # common things
+from __future__ import print_function
+
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.Include import include
 
@@ -68,7 +70,7 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
       
       ToolSvc += InDetTrigTRTExtensionTool
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigTRTExtensionTool
+        print (     InDetTrigTRTExtensionTool)
 
       if seqType is "TRTOnly":
         # segment finding
@@ -111,12 +113,12 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
                                                                                )
          ToolSvc += InDetTrigTRT_TrackSegmentsMaker_CTB
          if (InDetTrigFlags.doPrintConfigurables()):
-            print InDetTrigTRT_TrackSegmentsMaker_CTB
+            print (InDetTrigTRT_TrackSegmentsMaker_CTB)
 
 
       ToolSvc += InDetTrigTRT_TrackSegmentsMaker
       if (InDetTrigFlags.doPrintConfigurables()):
-        print       InDetTrigTRT_TrackSegmentsMaker
+        print (      InDetTrigTRT_TrackSegmentsMaker)
  	 
       # TRT track reconstruction
       self.SegmentsMakerTool = InDetTrigTRT_TrackSegmentsMaker
@@ -179,7 +181,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
 
          ServiceMgr += InDetTrigRegSelSvc
          if (InDetTrigFlags.doPrintConfigurables()):
-            print               InDetTrigRegSelSvc
+            print (              InDetTrigRegSelSvc)
 
          from TRT_SeededSpacePointFinderTool.TRT_SeededSpacePointFinderToolConf import InDet__SimpleTRT_SeededSpacePointFinder_ATL
          InDetTrigTRT_SeededSpacePointFinder =  InDet__SimpleTRT_SeededSpacePointFinder_ATL(name                   = 'InDetTrigTRT_SeededSpFinder_'+type  ,
@@ -196,7 +198,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
 
       ToolSvc += InDetTrigTRT_SeededSpacePointFinder
       if (InDetTrigFlags.doPrintConfigurables()):
-        print            InDetTrigTRT_SeededSpacePointFinder
+        print (           InDetTrigTRT_SeededSpacePointFinder)
 
       # Silicon det elements road maker tool
       #
@@ -209,7 +211,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
                                                                         MaxStep            = 20.)
       ToolSvc += InDetTrigTRT_SeededSiRoadMaker
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigTRT_SeededSiRoadMaker
+        print (     InDetTrigTRT_SeededSiRoadMaker)
 
       # Local combinatorial track finding using space point seed and detector element road
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
@@ -224,7 +226,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
 
       # ToolSvc += InDetTrigSiComTrackFinder
       # if (InDetTrigFlags.doPrintConfigurables()):
-      #   print      InDetTrigSiComTrackFinder
+      #   print      (InDetTrigSiComTrackFinder)
 
       # TRT seeded back tracking tool
       #
@@ -248,7 +250,7 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
 
       ToolSvc   += InDetTrigTRT_SeededTrackTool
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigTRT_SeededTrackTool
+        print (     InDetTrigTRT_SeededTrackTool)
 
       self.RefitterTool          = InDetTrigTrackFitter
       self.TrackTool             = InDetTrigTRT_SeededTrackTool
@@ -301,7 +303,7 @@ class TRTSeededTrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       
       ToolSvc += TRTSeededInDetTrigAmbiTrackSelectionTool
       if (InDetTrigFlags.doPrintConfigurables()):
-        print       TRTSeededInDetTrigAmbiTrackSelectionTool
+        print (      TRTSeededInDetTrigAmbiTrackSelectionTool)
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
 
@@ -332,7 +334,7 @@ class TRTSeededTrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       #
       ToolSvc += TRTSeededInDetTrigScoringTool
       if (InDetTrigFlags.doPrintConfigurables()):
-        print          TRTSeededInDetTrigScoringTool
+        print (         TRTSeededInDetTrigScoringTool)
 
       # load Ambiguity Processor
       #
@@ -354,7 +356,7 @@ class TRTSeededTrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
          
       ToolSvc += TRTSeededInDetTrigAmbiguityProcessor
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      TRTSeededInDetTrigAmbiguityProcessor
+        print (     TRTSeededInDetTrigAmbiguityProcessor)
 
       self.AmbiguityProcessor = TRTSeededInDetTrigAmbiguityProcessor
       self.InputTracksLabel = 'TRTSeededTracks'
@@ -413,7 +415,7 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
 
       ToolSvc += InDetTrigTRT_StandaloneScoringTool
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigTRT_StandaloneScoringTool
+         print (     InDetTrigTRT_StandaloneScoringTool)
 
       # import InDetRecExample.TrackingCommon   as TrackingCommon
       # asso_tool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels()
@@ -437,7 +439,7 @@ class TRT_TrigStandaloneTrackFinder_EF( InDet__TRT_TrigStandaloneTrackFinder ):
 
       ToolSvc += InDetTrigTRT_SegmentToTrackTool
       if (InDetTrigFlags.doPrintConfigurables()):
-         print      InDetTrigTRT_SegmentToTrackTool
+         print (     InDetTrigTRT_SegmentToTrackTool)
       
       self.TRT_SegToTrackTool    = InDetTrigTRT_SegmentToTrackTool
       self.MinNumDriftCircles    = InDetTrigCutValues.minTRTonly()

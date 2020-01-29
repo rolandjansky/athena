@@ -1,12 +1,14 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
 createHLTMenuExternally=True # menu will be build up explicitly here 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 ##########################################
 # menu
@@ -122,7 +124,7 @@ if opt.doMuonSlice == True:
     # Full scan MS tracking step
     stepFSmuEFSA=ChainStep("Step_FSmuEFSA", [muEFSAFSSequence()])
     stepFSmuEFCB=ChainStep("Step_FSmuEFCB", [muEFCBFSSequence()])
-    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=[""],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
+    MuonChains += [ makeChain(name='HLT_mu6noL1_L1MU6', L1Thresholds=["FSNOSEED"],  ChainSteps=[stepFSmuEFSA, stepFSmuEFCB])] 
 
     testChains += MuonChains
 
@@ -178,14 +180,14 @@ if opt.doBjetSlice == True:
 
     jetSequence = jetMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf")
 
-    step0 = ChainStep("Step0_bjet", [jetSequence] )
-    step1 = ChainStep("Step1_bjet", [getBJetSequence('j')])
-    step2 = ChainStep("Step2_bjet", [getBJetSequence('gsc')])
+    step1 = ChainStep("Step1_bjet", [jetSequence] )
+    step2 = ChainStep("Step2_bjet", [getBJetSequence('j')])
+    step3 = ChainStep("Step3_bjet", [getBJetSequence('btag')])
 
-    bjetChains  = [                                                                                                                                                                         
-          makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] ),
-          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] ),
-          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step0,step1,step2] )
+    bjetChains  = [
+          makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
+          makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] )
         ]
     testChains += bjetChains
 

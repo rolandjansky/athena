@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Trigger executor to call base transforms
 # @details: Based on athenaExecutor with some modifications
@@ -236,7 +236,7 @@ class trigRecoExecutor(athenaExecutor):
                 msg.info('Renaming %s to %s' % (expectedFileName, expectedMotherFileName) )
                 try:
                     os.rename(expectedFileName, expectedMotherFileName)
-                except OSError, e:
+                except OSError as e:
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
                         'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, expectedMotherFileName, e))
             else:
@@ -250,7 +250,7 @@ class trigRecoExecutor(athenaExecutor):
                     #have checked that at least one worker file exists
                     cmd = 'hadd ' + self.conf.argdict['outputHIST_HLTMONFile'].value[0] + ' athenaHLT_workers/*/expert-monitoring.root expert-monitoring-mother.root'
                     subprocess.call(cmd, shell=True)
-                except OSError, e:
+                except OSError as e:
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
                         'Exception raised when merging worker and mother {0} files to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputHIST_HLTMONFile'].value[0], e))
             else:
@@ -270,8 +270,8 @@ class trigRecoExecutor(athenaExecutor):
             argInDict = self.conf.dataDictionary['BS']
             #create expected string by taking only some of input
             #know that the format will be of the format ####._HLTMPPy_Argument_####.data
-	    expectedOutputFileName = '*HLTMPPy_'
-	    # removes uncertainty of which parts of the filename are used by athenaHLT
+            expectedOutputFileName = '*HLTMPPy_'
+            # removes uncertainty of which parts of the filename are used by athenaHLT
             split_argInDict = argInDict.value[0].split('.')
             #drop most of the input string to remove any potential ._####.data clash
             # already in argInDict - so just take first element from input
@@ -306,7 +306,7 @@ class trigRecoExecutor(athenaExecutor):
                 msg.info('Renaming BS file from %s to %s' % (matchedOutputFileNames[0], argInDict.value[0]))
                 try:
                     os.rename(matchedOutputFileNames[0], argInDict.value[0])
-                except OSError, e:
+                except OSError as e:
                     msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
                               'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))

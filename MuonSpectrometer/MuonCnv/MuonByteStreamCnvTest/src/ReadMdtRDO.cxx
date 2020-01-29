@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -67,7 +67,7 @@ StatusCode ReadMdtRDO::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
 
-  const DataHandle<MdtCsmContainer> MdtRDO; 
+  const MdtCsmContainer* MdtRDO = nullptr; 
   ATH_CHECK( (*m_activeStore)->retrieve( MdtRDO, "MDTCSM" ) );
 
  // Access by Collection 

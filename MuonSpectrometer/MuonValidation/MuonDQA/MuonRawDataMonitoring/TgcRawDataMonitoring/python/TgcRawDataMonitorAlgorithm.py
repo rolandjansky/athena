@@ -14,8 +14,8 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 
-    from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcRawDataMonitorAlgorithm
-    tgcRawDataMonAlg = helper.addAlgorithm(TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
 
     tgcRawDataMonAlg.TagAndProbe = False
 
@@ -31,7 +31,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
         tgcRawDataMonAlg.MuonEFContainerName='HLT_xAOD__MuonContainer_MuonEFInfo'
     
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'
-    pi = 3.14159265359
+    import math
 
     trigPath = 'Trig/'
 
@@ -46,26 +46,26 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     array = helper.addArray([16],tgcRawDataMonAlg,'TgcRawDataMonitor')
 
-    array.defineHistogram('roiEta,roiPhi',title='roiEta2Phi;roiEta;roiPhi',type='TH2F',path=mainDir+trigPath,
+    array.defineHistogram('roiEta2,roiPhi2',title='roiEta2Phi;roiEta;roiPhi',type='TH2F',path=mainDir+trigPath,
                           xbins=100,xmin=-2.5,xmax=2.5,
-                          ybins=48,ymin=-pi,ymax=pi)
+                          ybins=48,ymin=-math.pi,ymax=math.pi)
     
     array.defineHistogram('roiEta',title='roiEta;roiEta;Events',type='TH1F',path=mainDir+trigPath,
                           xbins=100,xmin=-2.5,xmax=2.5)
 
     array.defineHistogram('roiPhi_barrel_A',title='roiPhi_barrel_A;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
+                          xbins=16,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('roiPhi_endcap_A',title='roiPhi_endcap_A;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
+                          xbins=48,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('roiPhi_forward_A',title='roiPhi_forward_A;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
+                          xbins=24,xmin=-math.pi,xmax=math.pi)
 
     array.defineHistogram('roiPhi_barrel_C',title='roiPhi_barrel_C;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
+                          xbins=16,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('roiPhi_endcap_C',title='roiPhi_endcap_C;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
+                          xbins=48,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('roiPhi_forward_C',title='roiPhi_forward_C;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
+                          xbins=24,xmin=-math.pi,xmax=math.pi)
 
     array.defineHistogram('bcID_barrel',title='trig2bcid_barrel;BCID;Events',type='TH1F',path=mainDir+trigPath,
                           xbins=4000,xmin=0,xmax=4000)
@@ -76,7 +76,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
     
     array.defineHistogram('muEta,muPhi',title='muEta2Phi;muEta;muPhi',type='TH2F',path=mainDir+trigPath,
                           xbins=100,xmin=-2.5,xmax=2.5,
-                          ybins=48,ymin=-pi,ymax=pi)
+                          ybins=48,ymin=-math.pi,ymax=math.pi)
 
     array.defineHistogram('muEta',title='muEta;muEta;Events',type='TH1F',path=mainDir+trigPath,
                           xbins=100,xmin=-2.5,xmax=2.5)
@@ -89,18 +89,18 @@ def TgcRawDataMonitoringConfig(inputFlags):
                           xbins=40,xmin=0,xmax=40)
 
     array.defineHistogram('muPhi_barrel_A',title='muPhi_barrel_A;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
+                          xbins=16,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('muPhi_endcap_A',title='muPhi_endcap_A;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
+                          xbins=48,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('muPhi_forward_A',title='muPhi_forward_A;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
+                          xbins=24,xmin=-math.pi,xmax=math.pi)
 
     array.defineHistogram('muPhi_barrel_C',title='muPhi_barrel_C;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
+                          xbins=16,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('muPhi_endcap_C',title='muPhi_endcap_C;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
+                          xbins=48,xmin=-math.pi,xmax=math.pi)
     array.defineHistogram('muPhi_forward_C',title='muPhi_forward_C;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
+                          xbins=24,xmin=-math.pi,xmax=math.pi)
 
 
     return helper.result()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -60,11 +60,11 @@ public:
         return IID_ISecVertexInJetFinder;
     };
     
-    virtual const Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
+    virtual Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
 						      const TLorentzVector & jetMomentum,
 						      const std::vector<const Trk::TrackParticleBase*> & inputTracks) const=0;
     
-    virtual const Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & primaryVertex,
+    virtual Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & primaryVertex,
 						      const TLorentzVector & jetMomentum,
 						      const std::vector<const xAOD::IParticle*> & inputTracks) const=0;
     

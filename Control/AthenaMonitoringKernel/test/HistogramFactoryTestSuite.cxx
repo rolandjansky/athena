@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -14,11 +14,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TInterpreter.h"
 
 #include "AthenaMonitoringKernel/HistogramDef.h"
 
@@ -116,9 +118,9 @@ class HistogramFactoryTestSuite {
     }
 
     void test_shouldRegisterAndReturnTEfficiencyHistogram() {
-      TEfficiency* const graph = createHistogram<TEfficiency>("TEfficiency");
-      // VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
-      VALUE(graph) NOT_EXPECTED(nullptr);
+      TEfficiency* const efficiency = createHistogram<TEfficiency>("TEfficiency");
+      VALUE(m_histSvc->existsEfficiency("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
+      VALUE(efficiency) NOT_EXPECTED(nullptr);
     }
 
     void test_shouldThrowExceptionForUnknownHistogramType() {
@@ -138,7 +140,7 @@ class HistogramFactoryTestSuite {
         make_tuple("SHIFT", "/SHIFT/HistogramFactoryTestSuite/onlineHistAlias"),
         make_tuple("DEBUG", "/DEBUG/HistogramFactoryTestSuite/onlineHistAlias"),
         make_tuple("RUNSTAT", "/RUNSTAT/HistogramFactoryTestSuite/onlineHistAlias"),
-        make_tuple("EXPRES", "/EXPRES/HistogramFactoryTestSuite/onlineHistAlias"),
+        make_tuple("EXPRESS", "/EXPRESS/HistogramFactoryTestSuite/onlineHistAlias"),
       };
   
       for (auto possibleCase : possibleCases) {
@@ -183,15 +185,16 @@ class HistogramFactoryTestSuite {
       histogramDef.alias = "labels1DTestAlias";
       histogramDef.xbins = 3;
       histogramDef.ybins = 0;
-      histogramDef.labels = { "label1", "label2", "label3", "label4" };
+      histogramDef.xlabels = { "xlabel1", "xlabel2", "xlabel3" };
+      histogramDef.ylabels = { "ylabel1" };
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetXaxis()->GetNbins()) EXPECTED(3);
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("label1");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("label2");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("label3");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("xlabel1");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("xlabel2");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("xlabel3");
       VALUE(histogram->GetYaxis()->GetNbins()) EXPECTED(1);
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("label4");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("ylabel1");
     }
 
     void test_shouldSetXAndYAxisLabelsFor2DHistogram() {
@@ -199,17 +202,18 @@ class HistogramFactoryTestSuite {
       histogramDef.alias = "labels2DTestAlias";
       histogramDef.xbins = 3;
       histogramDef.ybins = 3;
-      histogramDef.labels = { "label1", "label2", "label3", "label4", "label5", "label6" };
+      histogramDef.xlabels = { "xlabel1", "xlabel2", "xlabel3" };
+      histogramDef.ylabels = { "ylabel1", "ylabel2", "ylabel3" };
       TH2F* const histogram = dynamic_cast<TH2F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetXaxis()->GetNbins()) EXPECTED(3);
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("label1");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("label2");
-      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("label3");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(1))) EXPECTED("xlabel1");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(2))) EXPECTED("xlabel2");
+      VALUE(string(histogram->GetXaxis()->GetBinLabel(3))) EXPECTED("xlabel3");
       VALUE(histogram->GetYaxis()->GetNbins()) EXPECTED(3);
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("label4");
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(2))) EXPECTED("label5");
-      VALUE(string(histogram->GetYaxis()->GetBinLabel(3))) EXPECTED("label6");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(1))) EXPECTED("ylabel1");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(2))) EXPECTED("ylabel2");
+      VALUE(string(histogram->GetYaxis()->GetBinLabel(3))) EXPECTED("ylabel3");
     }
 
     void test_shouldSetExtendAxesWhenkCanRebinIsSet() {
@@ -259,6 +263,7 @@ class HistogramFactoryTestSuite {
       result.title = histogramType;
       result.xbins = 1;
       result.ybins = 1;
+      result.zbins = 0;
 
       return result;
     }
@@ -280,6 +285,10 @@ class HistogramFactoryTestSuite {
 
       for (string graphName : m_histSvc->getGraphs()) {
         m_histSvc->deReg(graphName);
+      }
+
+      for (string efficiencyName : m_histSvc->getEfficiencies()) {
+        m_histSvc->deReg(efficiencyName);
       }
     }
 
@@ -319,6 +328,7 @@ class HistogramFactoryTestSuite {
 };
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   ISvcLocator* pSvcLoc;
 
   if (!Athena_test::initGaudi("GenericMon.txt", pSvcLoc)) {

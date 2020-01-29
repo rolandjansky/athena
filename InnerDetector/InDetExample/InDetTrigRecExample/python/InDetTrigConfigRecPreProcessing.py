@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # ------------------------------------------------------------
 #
@@ -127,7 +129,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder")
       ToolSvc += InDetTrigSCTRodDecoder
       if (InDetTrigFlags.doPrintConfigurables()):
-        print      InDetTrigSCTRodDecoder
+        print (     InDetTrigSCTRodDecoder)
 
 
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
@@ -277,7 +279,7 @@ class SiTrigSpacePointFinder_EF( InDet__SiTrigSpacePointFinder ):
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
       if (InDetTrigFlags.doPrintConfigurables()):
-         print SCT_TrigSpacePointTool 
+         print (SCT_TrigSpacePointTool )
       ToolSvc +=  SCT_TrigSpacePointTool
 
       # Condition algorithm for SiTrigSpacePointFinder

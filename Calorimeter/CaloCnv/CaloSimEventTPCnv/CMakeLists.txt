@@ -55,19 +55,19 @@ atlas_add_test( CaloCalibrationHitContainerCnv_p1_test
                 test/CaloCalibrationHitContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv
-                EXTRA_PATTERNS "Athena::getMessageSvc" )
+                LOG_IGNORE_PATTERN "Athena::getMessageSvc" )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p2_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv
-                EXTRA_PATTERNS "Athena::getMessageSvc" )
+                LOG_IGNORE_PATTERN "Athena::getMessageSvc" )
 
 atlas_add_test( CaloCalibrationHitContainerCnv_p3_test
                 SOURCES
                 test/CaloCalibrationHitContainerCnv_p3_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} CaloSimEvent AthenaPoolCnvSvcLib Identifier TestTools CaloIdentifier AthenaKernel GaudiKernel CaloSimEventTPCnv
-                EXTRA_PATTERNS "Athena::getMessageSvc" )
+                LOG_IGNORE_PATTERN "Athena::getMessageSvc" )
 

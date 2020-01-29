@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,12 +53,7 @@ iFatras::G4ParticleDecayHelper::G4ParticleDecayHelper(const std::string& t, cons
    m_g4runManager(0),
    m_validationMode(false),
    m_validationTool(""),
-   m_nProcessedParticles(0),
-   m_nStableParticles(0),
-   m_nExitedParticles(0),
-   m_nDecayedParticles(0),
-   m_nChargedParticles(0),
-   m_nNeutralParticles(0)
+   m_nDecayedParticles(0)
 {
   // ISF: truth and broker service
   declareProperty("ParticleBroker",           m_particleBroker,       "ISF Particle Broker Svc");

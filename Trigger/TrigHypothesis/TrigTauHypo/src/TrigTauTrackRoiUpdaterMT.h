@@ -31,7 +31,7 @@ class TrigTauTrackRoiUpdaterMT : public AthReentrantAlgorithm {
   Gaudi::Property< bool > m_updateEta {this,"updateEta",true,"flag to determine whether Roi eta should be updated using the track direction (true by default)"};
   Gaudi::Property< bool > m_updatePhi {this,"updatePhi",false,"flag to determine whether Roi phi should be updated using the track direction (false by default)"};
 
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","Undefined",""};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","InputRoI","Input RoI key name"};
   SG::ReadHandleKey< TrackCollection > m_tracksKey { this, "fastTracksKey", "fasttracks", "fast tracks in view" };
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roIOutputKey {this,"RoIOutputKey","Updefined","Output RoI Collection Key"};
 

@@ -19,9 +19,10 @@
 #include "TTree.h"
 
 
-StatusCode MMPRDVariables::fillVariables()
+StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
   ATH_MSG_DEBUG(" do fillNSWMMPRDVariables()");
+  ATH_MSG_VERBOSE("MuonDetectorManager from Conditions Store accessed" << MuonDetMgr);
 
   CHECK( this->clearVariables() );
 

@@ -30,11 +30,11 @@ FastChain_tf.py --simulator G4HS_FastPileup \
 rc=$?
 echo  "art-result: ${rc} EVNTtoRDO"
 
-inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_fastSim_fastDigi"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_fullHS_fastPU_simDigi"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
-dcubeName="ttFC_fastSim_fastDigi"
-dcubeXmlRDO="${inputXmlDir}/RDOTruthCompare.xml"
+dcubeName="ttFC_fullHS_fastPU_simDigi"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_pileup.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 rc2=-9999

@@ -87,6 +87,15 @@ if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
 if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
 
+DetFlags.pileup.all_setOff()
+DetFlags.readRDOBS.all_setOff()
+DetFlags.readRDOPool.all_setOff()
+DetFlags.readRIOBS.all_setOff()
+DetFlags.readRIOPool.all_setOff()
+DetFlags.simulate.all_setOff()
+DetFlags.writeBS.all_setOff()
+DetFlags.writeRIOPool.all_setOff()
+
 DetFlags.Print()
 
 globalflags.DataSource.set_Value_and_Lock('geant4')
@@ -139,7 +148,7 @@ try:
 except:
     overlaylog.warning('Could not add TimingAlg, no timing info will be written out.')
 
-
+include.block( "RecExCond/RecExCommon_DetFlags.py" )
 include ( "RecExCond/AllDet_detDescr.py" ) #FIXME Dangerous to use this one
 
 from AthenaCommon.AppMgr import theApp
@@ -203,11 +212,10 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 #Patch /TagInfo metadata container
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
-for key in overlayFlags.extraTagInfoPairs.get_Value().keys():
-    ServiceMgr.TagInfoMgr.ExtraTagValuePairs += [str(key), str(overlayFlags.extraTagInfoPairs.get_Value()[key])]
+ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(overlayFlags.extraTagInfoPairs.get_Value())
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : runArgs.AMITag})
 
 #print "OverlayPool_tf.py: at the end. job=\n", job
 print "\nOverlayPool_tf.py: at the end. ServiceMgr=\n", ServiceMgr

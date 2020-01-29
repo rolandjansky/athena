@@ -19,9 +19,6 @@
 # Offload service has build problems
 - Offloading/.*
 
-# Abandoned generator package(s):
-- Generators/Herwigpp_i
-
 # Temporary VP1 compilation issues
 - graphics/VP1/VP1Systems/VP1TriggerSystems
 - graphics/VP1/VP1Systems/VP12DGeometrySystems
@@ -71,17 +68,3 @@
 # Old packages that don't work with AthenaMT
 - LArCalorimeter/LArSim
 - PhysicsAnalysis/HiggsPhys/HSG5/HSG5DPDUtils
-
-# the following packages have been rewritten in the past and are contained inside
-# MuonCombinedTrackFindingTools/MuonTrackPerformance/MuonRecValidationNtuples now
-# removing them from the build, later on, they will be deleted if no issues are found
-- Reconstruction/MuonIdentification/MuGirl
-- Reconstruction/MuonIdentification/MuGirlCandidate
-- Reconstruction/MuonIdentification/MuGirlGlobalFit
-- Reconstruction/MuonIdentification/MuGirlInterfaces
-- Reconstruction/MuonIdentification/MuGirlParticleCreatorTool
-- Reconstruction/MuonIdentification/MuGirlPerformance
-- Reconstruction/MuonIdentification/MuGirlPerformanceInterfaces
-- Reconstruction/MuonIdentification/MuGirlPerformanceTools
-- Reconstruction/MuonIdentification/MuGirlSelection
-- Reconstruction/MuonIdentification/MuGirlStau

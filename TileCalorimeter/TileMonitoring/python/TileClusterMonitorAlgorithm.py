@@ -23,8 +23,8 @@ def TileClusterMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags,'TileClusterMonitoring')
 
     # Adding an TileCellMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileClusterMonitorAlgorithm
-    tileClusterMonAlg = helper.addAlgorithm(TileClusterMonitorAlgorithm, 'TileClusterMonAlg')
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tileClusterMonAlg = helper.addAlgorithm(CompFactory.TileClusterMonitorAlgorithm, 'TileClusterMonAlg')
 
     tileClusterMonAlg.TriggerChain = ''
 
@@ -81,21 +81,21 @@ def TileClusterMonitoringConfig(flags, **kwargs):
     from TileMonitoring.TileMonitoringCfgHelper import addTile1DHistogramsArray
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEnergy', value = 'energy',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEnergy', xvalue = 'energy',
                              title = 'Energy in most energetic Tile Cluster [MeV]', path = 'Tile/Cluster',
                              xbins = 80, xmin = 0., xmax = 20000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = True, perSample = False,
                              perGain = False, subDirectory = True, allPartitions = True)
 
     # ) Configure histograms with Et in most energetic Tile tower per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEt', value = 'Et',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEt', xvalue = 'Et',
                              title = 'E_{T} [MeV] in most energetic Tile Cluster', path = 'Tile/Cluster',
                              xbins = 80, xmin = 0., xmax = 20000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterNCells', value = 'nCells',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterNCells', xvalue = 'nCells',
                              title = 'Number of cells in most energetic Tile Cluster', path = 'Tile/Cluster',
                              xbins = 100, xmin = 0., xmax = 100., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
@@ -103,35 +103,35 @@ def TileClusterMonitoringConfig(flags, **kwargs):
 
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileAllClusterEnergy', value = 'energy',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileAllClusterEnergy', xvalue = 'energy',
                              title = 'All Tile Cluster Energy [MeV]', path = 'Tile/Cluster',
                              xbins = 80, xmin = 0., xmax = 20000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileNClusters', value = 'nClusters',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileNClusters', xvalue = 'nClusters',
                              title = 'Number of Tile Clusters', path = 'Tile/Cluster',
                              xbins = 200, xmin = 0., xmax = 200., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterSumPx', value = 'sumPx',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterSumPx', xvalue = 'sumPx',
                              title = 'Tile Clusters SumPx [MeV]', path = 'Tile/Cluster',
                              xbins = 101, xmin = -10000., xmax = 10000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterSumPy', value = 'sumPy',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterSumPy', xvalue = 'sumPy',
                              title = 'Tile Clusters SumPy [MeV]', path = 'Tile/Cluster',
                              xbins = 101, xmin = -10000., xmax = 10000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterSumEt', value = 'sumEt',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterSumEt', xvalue = 'sumEt',
                              title = 'Tile Clusters SumEt [MeV]', path = 'Tile/Cluster',
                              xbins = 100, xmin = 0., xmax = 20000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
@@ -139,14 +139,14 @@ def TileClusterMonitoringConfig(flags, **kwargs):
 
     # ) Configure histograms with all Tile towers energy per partition
     timeDiffTitle = 'Tile time correlation of cluster opposite to most energetic cluster; Time difference [ns]'
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterTimeDiff', value = 'timeDiff',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterTimeDiff', xvalue = 'timeDiff',
                              title = timeDiffTitle, path = 'Tile/Cluster', xbins = 200, xmin = -100., xmax = 100.,
                              type = 'TH1D', run = run, triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
     # ) Configure histograms with all Tile towers energy per partition
     eneDiffTitle = 'Tile energy correlation of cluster opposite to most energetic cluster; Time energy [MeV]'
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEneDiff', value = 'energyDiff',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEneDiff', xvalue = 'energyDiff',
                              title = eneDiffTitle, path = 'Tile/Cluster', xbins = 200, xmin = -10000., xmax = 10000.,
                              type = 'TH1D', run = run, triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)

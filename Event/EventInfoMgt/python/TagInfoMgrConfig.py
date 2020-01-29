@@ -1,32 +1,33 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
-import collections
 
 
-def TagInfoMgrCfg(configFlags,tagValuePairs=[]):
+def TagInfoMgrCfg(configFlags,tagValuePairs={}):
 
     #Sanity check:
-    if not isinstance(tagValuePairs,collections.Sequence) or len(tagValuePairs)%2!=0:
-        raise ConfigurationError("Parameter extraTagValuePairs is supposed to be an even-numbered list of strings")
+    if not isinstance(tagValuePairs,dict):
+        raise ConfigurationError("Parameter extraTagValuePairs is supposed to be a dictionary")
 
     result=ComponentAccumulator()
 
-    from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
-    from SGComps.SGCompsConf import ProxyProviderSvc
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    TagInfoMgr=CompFactory.TagInfoMgr
+    ProxyProviderSvc=CompFactory.ProxyProviderSvc
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
 
     #Build project-version string for the TagInfoMgr 
     project = os.getenv('AtlasProject',"Unknown")
     version = os.getenv('AtlasVersion',"Unknown")     
     atlasRelease=project+"-"+version
     
-    releasetag=["AtlasRelease", atlasRelease ]
 
-    tagInfoMgr=TagInfoMgr(ExtraTagValuePairs = releasetag+list(tagValuePairs))
+    tagValuePairs.update({"AtlasRelease" : atlasRelease})
+
+    tagInfoMgr=TagInfoMgr(ExtraTagValuePairs = tagValuePairs)
     result.addService(tagInfoMgr)
     
     #Add to EventPersistencySvc 

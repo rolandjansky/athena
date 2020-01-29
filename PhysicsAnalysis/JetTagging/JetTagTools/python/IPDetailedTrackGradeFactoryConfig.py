@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the DetailedTrackGradeFactory configurable
-from JetTagTools.JetTagToolsConf import Analysis__DetailedTrackGradeFactory
+Analysis__DetailedTrackGradeFactory=CompFactory.Analysis__DetailedTrackGradeFactory
 
 def IPDetailedTrackGradeFactoryCfg( name = 'IPDetailedTrackGradeFactory', useBTagFlagsDefaults = True, **options ):
     """Sets up a IPDetailedTrackGradeFactory tool and returns it.

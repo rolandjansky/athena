@@ -1,4 +1,4 @@
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 def InDetPriVxFinderMonitoringTool():
     newMonTool = GenericMonitoringTool("PriVxMonTool")

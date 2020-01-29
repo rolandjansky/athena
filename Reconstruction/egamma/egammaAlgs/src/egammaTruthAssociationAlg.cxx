@@ -224,7 +224,7 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
       return egammaTruth;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //// The templated functions
@@ -233,7 +233,7 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
 template<class T> 
 StatusCode 
 egammaTruthAssociationAlg::initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys, 
-					       std::string name)
+					       const std::string& name)
 {
   if (keys.size() != 0) {
     ATH_MSG_FATAL("The WriteDecorHandle should not be configured directly.");

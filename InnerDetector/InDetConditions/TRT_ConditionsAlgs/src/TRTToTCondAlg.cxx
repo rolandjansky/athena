@@ -140,7 +140,7 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
 
       for (; first_channel != last_channel; ++first_channel) {
         if (current_channel != first_channel->first){
-          result_dict[dict_names[current_channel]] = current_array_values;
+          if(current_array_values.size()!=0) result_dict[dict_names[current_channel]] = current_array_values;
           current_channel = first_channel->first;      
           current_array_values.clear();
         }
@@ -169,7 +169,7 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
 
         for (; first_channel != last_channel; ++first_channel) {
             if (current_channel != first_channel->first) {
-                result_dict[dict_names_old[current_channel]] = current_array_values;
+	      if(current_array_values.size()!=0) result_dict[dict_names_old[current_channel]] = current_array_values; 
                 current_channel = first_channel->first;      
                 current_array_values.clear();
              }

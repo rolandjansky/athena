@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -148,21 +148,29 @@ class IApproachDescriptor;
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
        virtual void resizeLayer(const VolumeBounds& vBounds, double envelope)  override; 
    
-       /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, double envelope) const override{
+       /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
+                                                            double envelope) const override
+       {
          const_cast<CylinderLayer*>(this)->resizeLayer(vBounds,envelope);
-       } 
-       
-       /** Resize the layer to the tracking volume */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelope)  override;
-  
-       /** Resize the layer to the tracking volume */ 
-       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelope) const override{
+       }
+
+       /** Resize the layer to the tracking volume */
+       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
+                                             const Amg::Vector3D& cCenter,
+                                             double envelope) override;
+
+       /** Resize the layer to the tracking volume */
+       virtual void resizeAndRepositionLayer
+       ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
+                                   const Amg::Vector3D& cCenter,
+                                   double envelope) const override
+       {
          const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(vBounds,cCenter,envelope);
        }
-       
+
        /** build approach surfaces */
-       void buildApproachDescriptor() const;
+       void buildApproachDescriptor();
        
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
@@ -171,7 +179,7 @@ class IApproachDescriptor;
 
      protected:
        /** surfaces on approach to the layer */
-       mutable IApproachDescriptor*  m_approachDescriptor;
+       IApproachDescriptor*  m_approachDescriptor;
        
        
   };

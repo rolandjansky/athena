@@ -1,22 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonAmbiTrackSelectionTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUON_MUONAMBITRACKSELECTIONTOOL_H
 #define MUON_MUONAMBITRACKSELECTIONTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include <map>
 #include <vector>
-
-class Identifier;
 
 namespace Trk{
    class Track;
@@ -25,9 +22,6 @@ namespace Trk{
 
 namespace Muon 
 {
-
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
 
   /** @class MuonAmbiTrackSelectionTool 
       This tool cross checks the hits on a track with the hits already stored in 
@@ -44,12 +38,10 @@ namespace Muon
     MuonAmbiTrackSelectionTool(const std::string&,const std::string&,const IInterface*);
       
     /** default destructor */
-    virtual ~MuonAmbiTrackSelectionTool ();
+    virtual ~MuonAmbiTrackSelectionTool () {};
       
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
+    virtual StatusCode initialize() override;
 
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
@@ -57,7 +49,7 @@ namespace Muon
   private:
 
     ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
-    ToolHandle<Muon::MuonIdHelperTool>    m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     /** maximum hit overlap fraction between two track, if higher track will be rejected*/
     double m_maxOverlapFraction;

@@ -11,6 +11,7 @@
 
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -63,21 +64,21 @@ public:
   StatusCode execute();
   StatusCode finalize();
 
-  StatusCode retrieveMeasurements();
+  StatusCode retrieveMeasurements(const MuonGM::MuonDetectorManager* MuonDetMgr);
   StatusCode storeMeasurements();
   StatusCode storeSegments();
 
 private:
-  std::vector<PairOfLayerPrd*>* createMdtHitCollectionLayers() const;
-  std::vector<PairOfLayerPrd*>* createRpcHitCollectionLayers() const;
-  std::vector<PairOfLayerPrd*>* createCscHitCollectionLayers() const;
-  std::vector<PairOfLayerPrd*>* createTgcHitCollectionLayers() const;
+  std::vector<PairOfLayerPrd*>* createMdtHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  std::vector<PairOfLayerPrd*>* createRpcHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  std::vector<PairOfLayerPrd*>* createCscHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  std::vector<PairOfLayerPrd*>* createTgcHitCollectionLayers(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
   StatusCode createStationHitCollection() const;
-  StatusCode createStationSegmentCollection() const;
-  void createStationMap(const Trk::TrackingVolume* vol) const;
+  StatusCode createStationSegmentCollection(const MuonGM::MuonDetectorManager* MuonDetMgr) const;
+  void createStationMap(const Trk::TrackingVolume* vol, const MuonGM::MuonDetectorManager* MuonDetMgr) const;
   void misAlignStations() const;
   void reAlignStations() const;
-  const Trk::Layer* associatedLayer(int techn, Identifier id) const;
+  const Trk::Layer* associatedLayer(int techn, Identifier id, const MuonGM::MuonDetectorManager* MuonDetMgr) const;
   const Trk::Layer* associatedLayer(const Trk::TrackingVolume* trVol, Identifier id) const;
   Identifier getStationId( Identifier id ) const;
   
@@ -101,7 +102,9 @@ private:
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   std::string  m_inputSegmentCollectionMoore;  
   std::string  m_inputSegmentCollectionMoMu;  
@@ -124,7 +127,7 @@ private:
   mutable std::vector<std::pair<Identifier, Amg::Transform3D> > m_misAlignDiff;     // vector holding required misalignment
 };
 
- inline StatusCode MuonTGMeasAssocAlg::retrieveMeasurements() {
+ inline StatusCode MuonTGMeasAssocAlg::retrieveMeasurements(const MuonGM::MuonDetectorManager* MuonDetMgr) {
    // Get the messaging service, print where you are
   ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::retrieveMeasurements()" );
   //
@@ -134,10 +137,10 @@ private:
   if (m_cscHits) delete m_cscHits;
   if (m_tgcHits) delete m_tgcHits;
 
-  if (m_mdtIn) m_mdtHits = createMdtHitCollectionLayers();  
-  if (m_rpcIn) m_rpcHits = createRpcHitCollectionLayers();  
-  if (m_cscIn) m_cscHits = createCscHitCollectionLayers();  
-  if (m_tgcIn) m_tgcHits = createTgcHitCollectionLayers();  
+  if (m_mdtIn) m_mdtHits = createMdtHitCollectionLayers(MuonDetMgr);  
+  if (m_rpcIn) m_rpcHits = createRpcHitCollectionLayers(MuonDetMgr);  
+  if (m_cscIn) m_cscHits = createCscHitCollectionLayers(MuonDetMgr);  
+  if (m_tgcIn) m_tgcHits = createTgcHitCollectionLayers(MuonDetMgr);  
   ATH_CHECK( createStationHitCollection() );
 
   ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::collected hits from " << m_allHits->size() << " stations"  );

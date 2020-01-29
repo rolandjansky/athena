@@ -97,12 +97,12 @@ class TriggerGetter(Configured):
         from PyUtils.MetaReaderPeekerFull import metadata
         if "metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys()):
             # Use xAOD configuration. 
-            if not hasattr(ToolSvc, 'xAODConfigTool'):
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
-                ToolSvc += TrigConf__xAODConfigTool('xAODConfigTool')
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            if not hasattr(svcMgr, 'xAODConfigSvc'):
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+                svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
             ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-            ToolSvc.TrigDecisionTool.ConfigTool = ToolSvc.xAODConfigTool
-            ToolSvc.TrigDecisionTool.TrigConfigSvc = "" # Force use of in-file configuration
+            ToolSvc.TrigDecisionTool.TrigConfigSvc = svcMgr.xAODConfigSvc
         else:
             # Use TrigConfigSvc
             ToolSvc.TrigDecisionTool.TrigConfigSvc = "TrigConf::TrigConfigSvc/TrigConfigSvc"
@@ -121,7 +121,7 @@ class TriggerGetter(Configured):
             lvl1 = Lvl1SimulationGetter()  # noqa: F841
             
 
-            if jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT()):
+            if TF.doTransientByteStream() or (jobproperties.Global.InputFormat() != 'bytestream' and (TF.doLVL2() or TF.doEF() or TF.doHLT())):
                 # Transient BS construction and intialization
                 from ByteStreamCnvSvc import WriteByteStream
                 StreamBS = WriteByteStream.getStream("Transient","StreamBS")

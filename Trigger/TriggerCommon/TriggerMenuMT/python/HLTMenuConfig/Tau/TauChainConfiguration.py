@@ -12,7 +12,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauCoreTrackSequence, tauPrecisionSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso, tauIdTrackSeq, tauTrackSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -23,17 +23,17 @@ def getTauCaloCfg(flags):
 def getTauCaloMVACfg(flags):
     return tauCaloMVAMenuSequence("Tau")
 
-def getTauCoreTrackCfg(flags):
-    return tauCoreTrackSequence()
+def getTauTrackCfg(flags):
+    return tauTrackSeq()
+
+def getTauIdTrackCfg(flags):
+    return tauIdTrackSeq()
 
 def getTauFastTrackCfg(flags):
     return tauTwoStepTrackSeqCore()
 
 def getTauIsoTrackCfg(flags):
     return tauTwoStepTrackSeqIso()
-
-def getTauPrecisionCfg(flags):
-    return tauPrecisionSequence()
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -55,11 +55,10 @@ class TauChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "ptonly":[self.getCaloSeq(), self.getFastTrack()],
-            #"tracktwo":[self.getCaloSeq(), self.getFastTrack()],
-            "tracktwo":[self.getCaloSeq(), self.getFastTrack(), self.getTrackIso()],
-            #"tracktwo":[self.getCaloSeq(), self.getTrackCore()],
-            "tracktwoMVA":[self.getCaloMVASeq()],
+            "ptonly":[self.getCaloMVASeq(), self.getIdTrack()],
+            "track":[self.getCaloMVASeq(), self.getTrack()],
+            "tracktwo":[self.getCaloMVASeq(), self.getFastTrack(), self.getTrackIso()],
+            "tracktwoMVA":[self.getCaloMVASeq(),self.getFastTrack(), self.getTrackIso()],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -85,14 +84,21 @@ class TauChainConfiguration(ChainConfigurationBase):
         log.debug("Configuring step " + stepName)
         tauSeq = RecoFragmentsPool.retrieve( getTauCaloMVACfg, None)
         return ChainStep(stepName, [tauSeq])
-        
-    # --------------------
-    def getTrackCore(self):
-        stepName = 'Step2TP_tau'
+
+    # --------------------                                                                                                                                    
+    def getTrack(self):
+        stepName = 'StepTrack_tau'
         log.debug("Configuring step " + stepName)
-        tauSeq = RecoFragmentsPool.retrieve( getTauCoreTrackCfg, None)
+        tauSeq = RecoFragmentsPool.retrieve( getTauTrackCfg, None)
         return ChainStep(stepName, [tauSeq])
 
+    # --------------------                                                                                                                    
+    def getIdTrack(self):
+        stepName = 'StepFTId_tau'
+        log.debug("Configuring step " + stepName)
+        tauSeq = RecoFragmentsPool.retrieve( getTauIdTrackCfg, None)
+        return ChainStep(stepName, [tauSeq])
+        
     # --------------------
     def getFastTrack(self):
         stepName = 'Step2FT_tau'
@@ -106,13 +112,4 @@ class TauChainConfiguration(ChainConfigurationBase):
         log.debug("Configuring step " + stepName)
         tauSeq = RecoFragmentsPool.retrieve( getTauIsoTrackCfg, None)
         return ChainStep(stepName, [tauSeq])
-        
-    # --------------------
-    def getPrecision(self):
-        stepName = 'Step2PT_tau'
-        log.debug("Configuring step " + stepName)
-        tauSeq = RecoFragmentsPool.retrieve( getTauPrecisionCfg, None)
-        return ChainStep(stepName, [tauSeq])
-
-
 

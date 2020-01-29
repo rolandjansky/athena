@@ -61,7 +61,7 @@ and eventually conversions.
 egammaBuilder::egammaBuilder(const std::string& name, 
         ISvcLocator* pSvcLocator): 
     AthAlgorithm(name, pSvcLocator),
-    m_timingProfile(0)
+    m_timingProfile(nullptr)
 {
 }
 
@@ -328,12 +328,12 @@ StatusCode egammaBuilder::execute(){
 
     for (auto& tool : m_electronTools)
     {
-        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), nullptr) );
     }
 
     for (auto& tool : m_photonTools)
     {
-        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, nullptr, photonContainer.ptr()) );
     }
     ATH_MSG_DEBUG("execute completed successfully");
 
@@ -404,34 +404,27 @@ bool egammaBuilder::getElectron(const egammaRec* egRec,
 
     electron->setCharge(electron->trackParticle()->charge());
 
-    //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
-    float deltaEta = static_cast<float>(egRec->deltaEta(0));
-    float deltaPhi = static_cast<float>(egRec->deltaPhi(0));
-    float deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(0));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta0 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi0 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled0 );
+     //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
+    std::array<double,4> deltaEta = egRec->deltaEta();
+    std::array<double,4> deltaPhi = egRec->deltaPhi();
+    std::array<double,4> deltaPhiRescaled = egRec->deltaPhiRescaled();
 
-    deltaEta = static_cast<float>(egRec->deltaEta(1));
-    deltaPhi = static_cast<float>(egRec->deltaPhi(1));
-    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(1));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta1 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi1 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled1);
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[0]),xAOD::EgammaParameters::deltaEta0);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[0]),xAOD::EgammaParameters::deltaPhi0 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[0]), xAOD::EgammaParameters::deltaPhiRescaled0);
 
-    deltaEta = static_cast<float>(egRec->deltaEta(2));
-    deltaPhi = static_cast<float>(egRec->deltaPhi(2));
-    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(2));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta2 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi2 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled2);
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[1]), xAOD::EgammaParameters::deltaEta1);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[1]),xAOD::EgammaParameters::deltaPhi1 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[1]), xAOD::EgammaParameters::deltaPhiRescaled1);
 
-    deltaEta = static_cast<float>(egRec->deltaEta(3));
-    deltaPhi = static_cast<float>(egRec->deltaPhi(3));
-    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(3));
-    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta3 );
-    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi3 );
-    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled3);
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[2]), xAOD::EgammaParameters::deltaEta2);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[2]),xAOD::EgammaParameters::deltaPhi2 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[2]), xAOD::EgammaParameters::deltaPhiRescaled2);
+
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaEta[3]), xAOD::EgammaParameters::deltaEta3);
+    electron->setTrackCaloMatchValue(static_cast<float> (deltaPhi[3]),xAOD::EgammaParameters::deltaPhi3 );
+    electron->setTrackCaloMatchValue(static_cast<float>(deltaPhiRescaled[3]), xAOD::EgammaParameters::deltaPhiRescaled3);
+
 
     float deltaPhiLast = static_cast<float>(egRec->deltaPhiLast ());
     electron->setTrackCaloMatchValue(deltaPhiLast,xAOD::EgammaParameters::deltaPhiFromLastMeasurement );

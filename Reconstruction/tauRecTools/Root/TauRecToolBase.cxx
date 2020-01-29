@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauRecToolBase.h"
@@ -151,6 +151,37 @@ StatusCode TauRecToolBase::eventInitialize(){
 
 //________________________________________
 StatusCode TauRecToolBase::execute(xAOD::TauJet&){
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloClusterContainer& /*shotClusterContainer*/, xAOD::PFOContainer& /*PFOContainer*/ ) {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TauRecToolBase::executePi0ClusterCreator(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, 
+					      xAOD::PFOContainer& /*hadronicPFOContainer*/, 
+					      xAOD::CaloClusterContainer& /*caloClusterContainer*/, 
+					      const xAOD::CaloClusterContainer& /*pCaloClusterContainer*/ ) {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TauRecToolBase::executeVertexVariables(xAOD::TauJet& /*pTau*/, xAOD::VertexContainer& /*vertexContainer*/ ) {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TauRecToolBase::executePi0ClusterScaler(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, xAOD::PFOContainer& /*chargedPFOContainer*/ ) {
+  return StatusCode::SUCCESS;
+} 
+
+StatusCode TauRecToolBase::executePi0nPFO(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/) {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TauRecToolBase::executePanTau(xAOD::TauJet& /*pTau*/, xAOD::ParticleContainer& /*particleContainer*/) {
   return StatusCode::SUCCESS;
 }
 

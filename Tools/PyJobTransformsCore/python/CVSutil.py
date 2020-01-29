@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 def CVSkeywords( listOfKeyWords ):
     """Take as input a list of strings containing CVS keywords of the form: \"$<name>:<value>$\"
@@ -10,7 +12,7 @@ def CVSkeywords( listOfKeyWords ):
         dollar1 = kw.find('$')
         dollar2 = kw.find('$',dollar1+1)
         if dollar1 == -1 or dollar2 == -1:
-            print "WARNING: %s is not a CVS keyword (it should have 2 '$' signs)" % kw
+            print ("WARNING: %s is not a CVS keyword (it should have 2 '$' signs)" % kw)
             continue
         # get part in between the 2 '$' signs
         cvskw = kw[dollar1+1:dollar2]
@@ -27,7 +29,7 @@ def CVSkeywords( listOfKeyWords ):
             if colon + 1 < len(cvskw):
                 value = cvskw[colon+1:].strip()
         if not name:
-            print "WARNING: \"%s\" is not a CVS keyword (it should have a name after the first $" % kw
+            print ("WARNING: \"%s\" is not a CVS keyword (it should have a name after the first $" % kw)
             continue
         kwDict[name] = value
 

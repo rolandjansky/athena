@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscSegmentUtilTool_H
@@ -9,14 +9,16 @@
 #include <string>
 #include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h" // separately...
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
+#include "MuonCondData/CscCondDbData.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
-//#include "CscClusterization/CalibCscStripFitter.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -26,12 +28,11 @@ namespace Trk {
   class PlaneSurface;
 }
 namespace Muon {
-  class MuonIdHelperTool;
   class MuonSegment;
-  class ICscClusterOnTrackCreator;
   class CscPrepData;
 }
 class ICscSegmentFinder;
+class CscCondDbData;
 
 class CscSegmentUtilTool : virtual public ICscSegmentUtilTool, public AthAlgTool {
 
@@ -42,14 +43,9 @@ public:
                  const IInterface* parent );
 
   // Destructor.
-  virtual ~CscSegmentUtilTool();
-  
-  // AlgTool InterfaceID    
-  //  static const InterfaceID& interfaceID( ) ;
+  virtual ~CscSegmentUtilTool() {};
   
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  
 
   // calls get2dMuonSegmentCombination and get4dMuonSegmentCombination with 2d segments!!
   std::unique_ptr<std::vector<std::unique_ptr<Muon::MuonSegment> > >
@@ -93,8 +89,7 @@ public:
   
 
 private:  // data
-  const MuonGM::MuonDetectorManager* m_gm;
-  const CscIdHelper* m_phelper;
+
   double m_max_chisquare_tight;
   double m_max_chisquare_loose;
   double m_max_chisquare;
@@ -116,11 +111,14 @@ private:  // data
   int  m_nunspoil;
  
   ToolHandle<Muon::ICscClusterOnTrackCreator> m_rotCreator;
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
-  ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
-
+  SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
+      "MuonDetectorManager", 
+      "Key of input MuonDetectorManager condition data"};    
 
   // Convert a local 2D segment to MuonSegment
   Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const;

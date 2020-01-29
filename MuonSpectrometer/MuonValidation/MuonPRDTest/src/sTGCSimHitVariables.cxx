@@ -12,7 +12,7 @@
 
 #include "TTree.h"
 
-StatusCode sTGCSimHitVariables::fillVariables() 
+StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr) 
 {
   ATH_MSG_INFO("do fillNSWsTGCHitVariables()");
 
@@ -86,7 +86,7 @@ StatusCode sTGCSimHitVariables::fillVariables()
 	continue;
       }
 
-      const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcReadoutElement(offId);
+      const MuonGM::sTgcReadoutElement* detEl = MuonDetMgr->getsTgcReadoutElement(offId);
       if( !detEl ){
         ATH_MSG_WARNING("sTGC geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
                         << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );

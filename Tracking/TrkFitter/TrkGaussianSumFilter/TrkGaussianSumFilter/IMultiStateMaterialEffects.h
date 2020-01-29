@@ -66,7 +66,7 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMultiStateMaterialEffects; };
 
   /** virtual destructor */
-  virtual ~IMultiStateMaterialEffects(){};
+  virtual ~IMultiStateMaterialEffects()= default;
 
   virtual void compute(IMultiStateMaterialEffects::Cache&,
                        const ComponentParameters&,

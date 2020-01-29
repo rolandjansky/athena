@@ -6,12 +6,13 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TRT_CalDbToolCfg(flags, name = "TRT_CalDbTool"):
     """Return a ComponentAccumulator for TRT_CalDbTool"""
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
     acc = addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className='TRTCond::StrawT0MultChanContainer')
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    TRT_CalDbTool=CompFactory.TRT_CalDbTool
     acc.setPrivateTools(TRT_CalDbTool(name = "TRT_CalDbTool"))
     return acc
 
@@ -19,7 +20,7 @@ def TRT_CalDbToolCfg(flags, name = "TRT_CalDbTool"):
 def TRT_StrawStatusSummaryToolCfg(flags, name = "TRT_StrawStatusSummaryTool"):
     """Return a ComponentAccumulator for TRT_StrawStatusSummaryTool"""
     acc = ComponentAccumulator()
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+    TRT_StrawStatusSummaryTool=CompFactory.TRT_StrawStatusSummaryTool
     acc.setPrivateTools(TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
                                                    isGEANT4 = flags.Detector.Simulate))
     return acc
@@ -31,7 +32,7 @@ def TRT_LocalOccupancyCfg(flags, name = "TRT_LocalOccupancy"):
     trtCalDbTool = acc.popToolsAndMerge(TRT_CalDbToolCfg(flags))
     trtStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
 
-    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+    InDet__TRT_LocalOccupancy=CompFactory.InDet__TRT_LocalOccupancy
     acc.setPrivateTools(InDet__TRT_LocalOccupancy(name = "TRT_LocalOccupancy",
                                                   isTrigger = False,
                                                   TRTCalDbTool = trtCalDbTool,
@@ -44,7 +45,7 @@ def TRTStrawCondAlgCfg(flags, name = "TRTStrawCondAlg"):
     acc = ComponentAccumulator()
     trtStrawStatusSummaryTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
     # Alive straws algorithm
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
+    TRTStrawCondAlg=CompFactory.TRTStrawCondAlg
     acc.addCondAlgo(TRTStrawCondAlg(name = "TRTStrawCondAlg",
                                     TRTStrawStatusSummaryTool = trtStrawStatusSummaryTool,
                                     isGEANT4 =flags.Detector.Simulate))

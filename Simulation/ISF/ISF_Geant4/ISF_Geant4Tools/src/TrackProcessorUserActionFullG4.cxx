@@ -193,7 +193,10 @@ namespace G4UA{
           if (vname1!=(*it).first) continue;
 
           if (il<=(nLev2+1)) {
-            if (vname1==postTHist->GetVolume(nLev2-il+1)->GetName()) continue;
+            if (vname1 == static_cast<const std::string&>(postTHist->GetVolume(nLev2-il+1)->GetName()))
+            {
+              continue;
+            }
           }
 
           pass=true;

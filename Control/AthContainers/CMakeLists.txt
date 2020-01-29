@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777300 2016-10-08 21:20:26Z ssnyder $
 ################################################################################
 # Package: AthContainers
 ################################################################################
@@ -47,9 +46,9 @@ atlas_add_dictionary( AthContainersDict
 
 # Helper function setting up the test(s) in the package:
 function( _add_test name )
-   cmake_parse_arguments( ARG "" "EXTRA_PATTERNS" "" ${ARGN} )
-   if( ARG_EXTRA_PATTERNS )
-      set( extra_arg EXTRA_PATTERNS ${ARG_EXTRA_PATTERNS} )
+   cmake_parse_arguments( ARG "" "LOG_IGNORE_PATTERN" "" ${ARGN} )
+   if( ARG_LOG_IGNORE_PATTERN )
+      set( extra_arg LOG_IGNORE_PATTERN ${ARG_LOG_IGNORE_PATTERN} )
    endif()
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
@@ -76,8 +75,8 @@ _add_test( DVLIterator_test )
 _add_test( DVL_iter_swap_test )
 _add_test( AuxTypeVector_test )
 _add_test( AuxTypeVectorFactory_test )
-_add_test( AuxTypeRegistry_test EXTRA_PATTERNS "will use std::" )
-_add_test( AuxVectorBase_test EXTRA_PATTERNS "will use std::" )
+_add_test( AuxTypeRegistry_test LOG_IGNORE_PATTERN "will use std::" )
+_add_test( AuxVectorBase_test LOG_IGNORE_PATTERN "will use std::" )
 _add_test( AuxStoreInternal_test )
 _add_test( AuxStoreStandalone_test )
 _add_test( AuxElement_test )
@@ -104,6 +103,6 @@ if( NOT XAOD_STANDALONE )
    _add_test( dataVectorAsELV_test )
    _add_test( ViewVector_test )
    _add_test( ViewVectorBase_test )
-   _add_test( AuxVectorData_test EXTRA_PATTERNS "will use std::" )
+   _add_test( AuxVectorData_test LOG_IGNORE_PATTERN "will use std::" )
    _add_test( DVLDataBucket_test )
 endif()

@@ -82,7 +82,7 @@ globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="geant4"
 if doPrint:
-    print globalflags
+    printfunc (globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -169,28 +169,113 @@ include("InDetRecExample/InDetRecCabling.py")
 # Set up Pixel conditions
 if doPixel:
     # Taken from InDetRecExample/share/InDetRecConditionsAccess.py
+    #################
+    # Module status #
+    #################
+    useNewConditionsFormat = False
+
+    if not useNewConditionsFormat:
+        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
+
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg")
-        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay", "/PIXEL/PixMapOverlay", className="CondAttrListCollection")
-    if not hasattr(condSeq, "PixelChargeCalibCondAlg"):
+
+        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                      UseDeadmapConditions=True,
+                                      UseDCSStateConditions=False,
+                                      UseDCSStatusConditions=False,
+                                      UseTDAQConditions=False,
+                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
+                                      UseCalibConditions=True,
+                                      UseCablingConditions=False,
+                                      CablingMapFileName=IdMappingDat)
+
+    if useNewConditionsFormat:
+        if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+
+    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+    if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+        conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+
+    if not hasattr(condSeq, "PixelDCSCondStateAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+
+    if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
+        condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
+
+    if not hasattr(condSeq, "PixelTDAQCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg")
+
+    #####################
+    # Calibration Setup #
+    #####################
+    if not conddb.folderRequested("/PIXEL/PixCalib"):
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+
+    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
         condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-        if not conddb.folderRequested("/PIXEL/PixCalib"):
-            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
-    if not hasattr(condSeq, "PixelOfflineCalibCondAlg"):
+
+    #####################
+    # Cabling map Setup #
+    #####################
+    if not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+        conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
+
+    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+        condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+
+    if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
+        conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+
+    if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+        condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
+
+    if not hasattr(condSeq, 'PixelCablingCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                       MappingFile=IdMappingDat,
+                                       RodIDForSingleLink40=0)
+
+    if not conddb.folderRequested('/PIXEL/PixdEdx'):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")
+
+    if not conddb.folderRequested("/PIXEL/PixReco"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
+
+    if not conddb.folderRequested("/Indet/PixelDist"):
+        conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
+
+    if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
-        condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco",
-                                            InputSource = 2)
-        if not conddb.folderRequested("/PIXEL/PixReco"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
+        condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
+        PixelOfflineCalibCondAlg.InputSource = 2
+
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
     if not hasattr(condSeq, 'PixelDistortionAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
         condSeq += PixelDistortionAlg(name="PixelDistortionAlg")
+
+    if not hasattr(condSeq, 'PixeldEdxAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixeldEdxAlg
+        condSeq += PixeldEdxAlg(name="PixeldEdxAlg")
+        PixeldEdxAlg.ReadFromCOOL = True
+
     # Takne from InDetRecExample/share/InDetRecLoadTools.py
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
     createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelClusterNnCondAlg",          GetInputsInfo = do_runI)
@@ -488,14 +573,14 @@ if not doSCT:
     InDetSiSPSeededTrackFinder.SpacePointsSCTName = ""
 
 if doPrint:
-    print InDetSiSPSeededTrackFinder
+    printfunc (InDetSiSPSeededTrackFinder)
 if numThreads >= 2:
     InDetSiSPSeededTrackFinder.Cardinality = numThreads
 topSequence += InDetSiSPSeededTrackFinder
 
 # Print algorithms
 if doPrint:
-    print topSequence
+    printfunc (topSequence)
 
 # Set the number of events to be processed
 theApp.EvtMax = EvtMax

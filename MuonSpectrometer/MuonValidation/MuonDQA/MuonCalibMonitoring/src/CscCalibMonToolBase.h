@@ -1,15 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ********************************************************************
-//
-// NAME:      CscCalibMonTool.h
-// PACKAGE:   MuonCalibMonTool.h
-//
-// AUTHORS:   Caleb Parnell-Lampen <lampen@physics.arizona.edu>
-//
-// ********************************************************************
 
 #ifndef CSCCALIBMONITORING_CSCCALIBMONTOOLBASE_H
 #define CSCCALIBMONITORING_CSCCALIBMONTOOLBASE_H
@@ -27,18 +18,17 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-//#include "MuonGeoModel/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonCondData/CscCondDataCollection.h"
 #include "MuonCondData/CscCondDataContainer.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 
 #include "CscCalibData/CscCalibResultContainer.h"
 
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
+
+class CscCondDbData;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +58,7 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
         CscCalibMonToolBase (const std::string & type, const std::string & name, 
                 const IInterface* parent);
 
-        /**
-          @brief destructor
-
-          Doesn't do anything currently. 
-         */
-        ~CscCalibMonToolBase();
+        ~CscCalibMonToolBase() {};
 
         /**
           @brief initializes services, tools, etc. Also determines the maximum hash id.
@@ -175,16 +160,10 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
         /**Calibration result storegate key*/
         std::string m_calibResultKey;
 
-        /** Muon Detector Descriptor*/
-        const MuonGM::MuonDetectorManager * m_muon_mgr;
-
-        /** Tool for CSC identifier helper*/
-        ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-          "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
         /**Access to COOL database*/
-        MuonCalib::CscICoolStrSvc* m_cscCoolSvc;
-
+        SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
 
 
         /**

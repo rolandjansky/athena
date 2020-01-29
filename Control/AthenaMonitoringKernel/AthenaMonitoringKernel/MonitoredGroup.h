@@ -47,10 +47,16 @@ namespace Monitored {
         m_monitoredGroup{monitoredGroup...},
         m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
 
-    Group(const ToolHandle<GenericMonitoringTool>& tool, std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredGroup)
+     Group(const ToolHandle<GenericMonitoringTool>& tool, const std::vector<std::reference_wrapper<IMonitoredVariable>>& monitoredGroup)
       : m_tool(tool),
         m_autoFill(true),
         m_monitoredGroup(monitoredGroup),
+        m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
+
+     Group(const ToolHandle<GenericMonitoringTool>& tool, std::vector<std::reference_wrapper<IMonitoredVariable>>&& monitoredGroup)
+      : m_tool(tool),
+        m_autoFill(true),
+        m_monitoredGroup(std::move(monitoredGroup)),
         m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
 
     virtual ~Group() {

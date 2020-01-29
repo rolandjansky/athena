@@ -39,9 +39,9 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRIGTRUTHEVENTATHENAPOOL_REFERENCE_TAG
        TrigTruthEventAthenaPool-01-00-00 )
-  run_tpcnv_test( TrigTruthEventTPCnv_15.8.0   AOD-15.8.0-full
+  run_tpcnv_legacy_test( TrigTruthEventTPCnv_15.8.0   AOD-15.8.0-full
                   REFERENCE_TAG ${TRIGTRUTHEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( TrigTruthEventTPCnv_18.0.0   AOD-18.0.0-full
+  run_tpcnv_legacy_test( TrigTruthEventTPCnv_18.0.0   AOD-18.0.0-full
                   REFERENCE_TAG ${TRIGTRUTHEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )

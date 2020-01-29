@@ -1,26 +1,28 @@
-Tue Sep 17 11:41:46 CEST 2019
+Warning in <TInterpreter::ReadRootmapFile>: class  CP::IMuonCalibrationAndSmearingTool found in libMuonMomentumCorrectionsDict.so  is already in libMuonAnalysisInterfacesDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  CP::IMuonSelectionTool found in libMuonSelectorToolsDict.so  is already in libMuonAnalysisInterfacesDict.so 
+Fri Jan 24 17:17:59 CET 20?0
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5540 configurables from 4 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5625 configurables from 37 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r1)
-                                          running on aibuild025.cern.ch on Tue Sep 17 11:41:57 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r0)
+                                          running on lxplus730.cern.ch on Fri Jan 24 17:18:07 20?0
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3281 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3459 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 608 CLIDRegistry entries for module ALL
@@ -32,9 +34,9 @@ PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-16T2131/Athena/22.0.5/InstallArea/x86_64-slc6-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host aibuild025.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master--py3/20?0-01-23T2132/Athena/22.0.9/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus730.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -112,18 +114,21 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-ClassIDSvc           INFO  getRegistryEntries: read 2052 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2064 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
+ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
+Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
+Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
+Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG In initialize 
 Stream1             DEBUG Found IDecisionSvc.
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
@@ -137,7 +142,8 @@ Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version Ath
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
-Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
+Stream1.Thinnin...  DEBUG Property update for OutputLevel : new value = 2
+Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
 Stream1              INFO Data output: SimplePoolReplica1.root
 Stream1              INFO I/O reinitialization...
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
@@ -146,10 +152,10 @@ Stream1             DEBUG input handles: 0
 Stream1             DEBUG output handles: 0
 Stream1             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEventStreamInfo (MakeEventStreamInfo)
+Stream1             DEBUG Adding private ToolHandle tool Stream1.ThinningCacheTool_Stream1 (Athena::ThinningCacheTool)
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
   + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+SimpleTag' ) 
-HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
@@ -190,9 +196,13 @@ EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(ExampleHitContainer_p1/MyHits)
 CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
@@ -289,9 +299,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 1 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
@@ -312,9 +326,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 2 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
@@ -335,9 +353,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 3 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
@@ -358,9 +380,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 4 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
@@ -381,9 +407,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 5 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
@@ -404,9 +434,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 6 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
@@ -427,9 +461,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 7 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
@@ -450,9 +488,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 8 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
@@ -473,9 +515,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 9 events p
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
@@ -496,9 +542,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 10 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
@@ -519,9 +569,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 11 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
@@ -542,9 +596,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 12 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
@@ -565,9 +623,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 13 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
@@ -588,9 +650,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 14 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
@@ -611,9 +677,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 15 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
@@ -634,9 +704,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 16 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
@@ -657,9 +731,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 17 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
@@ -680,9 +758,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 18 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
@@ -703,9 +785,13 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 19 events
 EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9102,"MyHits") called
 Stream1             DEBUG            Key:MyHits
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
@@ -722,9 +808,13 @@ Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream1             DEBUG slot 0  handle() incident type: MetaDataStop
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
 Stream1             DEBUG            Key:Stream1
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 167728019,"Stream1"
 Stream1             DEBUG addItemObjects(1316383046,"*") called
 Stream1             DEBUG            Key:*
+Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO EventStreamInfo_p3 [????]
@@ -769,13 +859,13 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 62
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 21
-cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.154(+- 1.23)/    0/   10 [ms] #= 65
-fRep_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.323(+- 1.77)/    0/   10 [ms] #= 62
-cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.323(+- 1.77)/    0/   10 [ms] #= 62
-cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.312(+- 1.74)/    0/   10 [ms] #= 64
-ChronoStatSvc        INFO Time User   : Tot= 0.62  [s]                                             #=  1
+cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 62
+cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 65
+fRep_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.161(+- 1.26)/    0/   10 [ms] #= 62
+cObj_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.161(+- 1.26)/    0/   10 [ms] #= 62
+cRepR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.156(+- 1.24)/    0/   10 [ms] #= 64
+ChronoStatSvc        INFO Time User   : Tot=  420 [ms]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

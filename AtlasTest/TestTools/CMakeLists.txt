@@ -27,7 +27,7 @@ endif()
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/runUnitTests.sh share/post.sh share/nopost.sh scripts/nightlies/TestHelloWorld.sh share/skip_if_libraryMissing.sh )
+atlas_install_scripts( share/post.sh share/nopost.sh )
 
 if( NOT XAOD_STANDALONE )
    find_package( TBB )
@@ -47,24 +47,13 @@ atlas_add_test( postsh_failure_test
 
 atlas_add_test( postsh_ignore_test
    SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-   EXTRA_PATTERNS "MyAlg" )
+   LOG_IGNORE_PATTERN "MyAlg" )
 
 atlas_add_test( postsh_select_test
    SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-   EXTRA_PATTERNS "-s MyAlg" )
+   LOG_SELECT_PATTERN "MyAlg" )
 
-# Temporarily disabled until next version of atlasexternals
-if( FALSE )
-   atlas_add_test( postsh_ignore_new_test
-      SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-      LOG_IGNORE_PATTERN "MyAlg" )
-
-   atlas_add_test( postsh_select_new_test
-      SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-      LOG_SELECT_PATTERN "MyAlg" )
-
-   atlas_add_test( postsh_select_ignore_test
-      SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
-      LOG_SELECT_PATTERN "MyAlg"
-      LOG_IGNORE_PATTERN "XYZ marker" )
-endif()
+atlas_add_test( postsh_select_ignore_test
+   SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
+   LOG_SELECT_PATTERN "MyAlg"
+   LOG_IGNORE_PATTERN "XYZ marker" )

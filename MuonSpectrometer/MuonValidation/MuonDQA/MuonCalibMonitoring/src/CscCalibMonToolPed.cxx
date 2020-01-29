@@ -1,15 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ********************************************************************
-//
-// NAME:     CscCalibMonToolPed.cxx
-// PACKAGE:  MuonCalibMonitoring  
-//
-// AUTHORS: Caleb Parnell-Lampen <lampen@physics.arizona.edu> 
-//
-// ********************************************************************
 
 #include "CscCalibMonToolPed.h"
 
@@ -21,13 +12,10 @@
 #include "CscCalibData/CscCalibReportContainer.h"
 #include "CscCalibData/CscCalibReportPed.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
-using namespace std;
-
 
 CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::string & name, 
     const IInterface* parent) : 
   CscCalibMonToolBase(type, name, parent),
-  m_muon_mgr(NULL),
   m_h_pedMissingChannels(NULL),
   m_pedBadBin(1),
   m_noiseBadBin(2),
@@ -37,7 +25,6 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_chi2BadBin(6),
   m_missingBadBin(7),
   m_onlTHoldBreachBadBin(8),
-  m_alwaysPrintErrorReport(true),
   m_h_numBad(NULL),
   m_pedNewColl(NULL),
   m_pedOldColl(NULL),
@@ -93,7 +80,6 @@ StatusCode CscCalibMonToolPed::initialize()
 {
   StatusCode sc = CscCalibMonToolBase::initialize();
 
-
   m_generic_path_csccalibmonitoring = "MUON_CSC_PED";
 
   return sc;
@@ -119,13 +105,6 @@ StatusCode CscCalibMonToolPed::finalize()
   return CscCalibMonToolBase::finalize();
 }
 
-
-CscCalibMonToolPed::~CscCalibMonToolPed()
-{
-
-  ATH_MSG_INFO( "CscCalibMonToolPed :  deleting CscCalibMonToolPed "  );
-}
-
 StatusCode CscCalibMonToolPed::bookHistograms()
 { 
   if (!CscCalibMonToolBase::bookHistograms().isSuccess())
@@ -140,11 +119,11 @@ StatusCode CscCalibMonToolPed::bookHistograms()
   {
     m_monGroupVec = new DataVector<MonGroup>;  
 
-    string geoPath = getGeoPath();
-    string path = getFullPath(geoPath, "Misc", "");
+    std::string geoPath = getGeoPath();
+    std::string path = getFullPath(geoPath, "Misc", "");
     MonGroup monGroup( this, path, run, ATTRIB_MANAGED );
 
-    string name,title,xaxis,yaxis;
+    std::string name,title,xaxis,yaxis;
     int highbound,lowbound,nbins;
 
     //num bad histograms
@@ -157,17 +136,17 @@ StatusCode CscCalibMonToolPed::bookHistograms()
     m_h_numBad = new TH1I(name.c_str(),title.c_str(),highbound-lowbound+1,lowbound,highbound+1);
     m_h_numBad->GetYaxis()->SetTitle(yaxis.c_str());     
     m_h_numBad->GetXaxis()->SetTitle(xaxis.c_str());
-    stringstream pedBinTitle; pedBinTitle << "#Delta ped > " << m_pedMaxDiff;
+    std::stringstream pedBinTitle; pedBinTitle << "#Delta ped > " << m_pedMaxDiff;
     m_h_numBad->GetXaxis()->SetBinLabel(m_pedBadBin, pedBinTitle.str().c_str());
-    stringstream noiseBinTitle; noiseBinTitle << "#Delta noise > "<< m_noiseMaxDiff;
+    std::stringstream noiseBinTitle; noiseBinTitle << "#Delta noise > "<< m_noiseMaxDiff;
     m_h_numBad->GetXaxis()->SetBinLabel(m_noiseBadBin, noiseBinTitle.str().c_str());
-    stringstream rmsBinTitle; rmsBinTitle << "#Delta RMS > " << m_rmsMaxDiff;
+    std::stringstream rmsBinTitle; rmsBinTitle << "#Delta RMS > " << m_rmsMaxDiff;
     m_h_numBad->GetXaxis()->SetBinLabel(m_rmsBadBin, rmsBinTitle.str().c_str());
-    stringstream f001BinTitle; f001BinTitle << "#Delta F001 > " << m_f001MaxDiff;
+    std::stringstream f001BinTitle; f001BinTitle << "#Delta F001 > " << m_f001MaxDiff;
     m_h_numBad->GetXaxis()->SetBinLabel(m_f001BadBin, f001BinTitle.str().c_str());
-    stringstream statisticsBinTitle; statisticsBinTitle << "N Entries < " << m_minAmpHistEntries;
+    std::stringstream statisticsBinTitle; statisticsBinTitle << "N Entries < " << m_minAmpHistEntries;
     m_h_numBad->GetXaxis()->SetBinLabel(m_nEntriesBadBin, statisticsBinTitle.str().c_str());
-    stringstream chiBinTitle; chiBinTitle << "#frac{#chi^{2}}{ndf} > " << m_chi2Max;
+    std::stringstream chiBinTitle; chiBinTitle << "#frac{#chi^{2}}{ndf} > " << m_chi2Max;
     m_h_numBad->GetXaxis()->SetBinLabel(m_chi2BadBin,chiBinTitle.str().c_str());
     m_h_numBad->GetXaxis()->SetBinLabel(m_missingBadBin,"Missing channels ");
     m_h_numBad->GetXaxis()->SetBinLabel(m_onlTHoldBreachBadBin, "Onl THold Breaches");
@@ -189,86 +168,86 @@ StatusCode CscCalibMonToolPed::bookHistograms()
     monGroup.regHist(m_h_pedMissingChannels).ignore();
 
     //Set naming parameters for datatypes
-    string pedDataName      = "ped";
-    string pedDataTitle     = "Pedestals";
-    string pedSubDir        = "Ped";
+    std::string pedDataName      = "ped";
+    std::string pedDataTitle     = "Pedestals";
+    std::string pedSubDir        = "Ped";
 
-    string noiseDataName    = "noise";
-    string noiseDataTitle   = "Noise (ped sigma)";
-    string noiseSubDir      = "Noise";
+    std::string noiseDataName    = "noise";
+    std::string noiseDataTitle   = "Noise (ped sigma)";
+    std::string noiseSubDir      = "Noise";
 
-    string chi2DataName     = "chi2";
-    string chi2DataTitle    = "Chi^2/ndf for Pedestal Gaussian Fit";
-    string chi2SubDir       = "Chi2";
+    std::string chi2DataName     = "chi2";
+    std::string chi2DataTitle    = "Chi^2/ndf for Pedestal Gaussian Fit";
+    std::string chi2SubDir       = "Chi2";
 
-    string rmsDataName      = "rms";
-    string rmsDataTitle     = "RMS from gaussian distribution";
-    string rmsSubDir        = "RMS";
+    std::string rmsDataName      = "rms";
+    std::string rmsDataTitle     = "RMS from gaussian distribution";
+    std::string rmsSubDir        = "RMS";
 
-    string f001DataName      = "f001";
-    string f001DataTitle     = "F001";
-    string f001SubDir        = "F001";
+    std::string f001DataName      = "f001";
+    std::string f001DataTitle     = "F001";
+    std::string f001SubDir        = "F001";
 
-    string onlTHoldBreachDataName = "onlTHoldBreach";
-    string onlTHoldBreachDataTitle = "Online Threshold Breaches";
-    string onlTHoldBreachSubDir = "OnlTHoldBreaches";
+    std::string onlTHoldBreachDataName = "onlTHoldBreach";
+    std::string onlTHoldBreachDataTitle = "Online Threshold Breaches";
+    std::string onlTHoldBreachSubDir = "OnlTHoldBreaches";
 
-    string nEntriesDataName = "nEntries";
-    string nEntriesDataTitle = "Number of Entries from Pedestal Amplitude Hist";
-    string nEntriesSubDir    = "NumEntries";
+    std::string nEntriesDataName = "nEntries";
+    std::string nEntriesDataTitle = "Number of Entries from Pedestal Amplitude Hist";
+    std::string nEntriesSubDir    = "NumEntries";
 
-    string maxBitCorrDataName = "maxBitCorr";
-    string maxBitCorrDataTitle = "Maximimum Bit Correlation";
-    string maxBitCorrSubDir = "MaxBitCorr";
+    std::string maxBitCorrDataName = "maxBitCorr";
+    std::string maxBitCorrDataTitle = "Maximimum Bit Correlation";
+    std::string maxBitCorrSubDir = "MaxBitCorr";
 
 
     //Set naming parameters for histogram category names
-    string newCatName       = "new";
-    string newCatTitle      = "New";
+    std::string newCatName       = "new";
+    std::string newCatTitle      = "New";
 
-    string oldCatName       = "old";
-    string oldCatTitle      = "COOL";
+    std::string oldCatName       = "old";
+    std::string oldCatTitle      = "COOL";
 
-    string diffCatName      = "diff";
-    string diffCatTitle     = "Change of ";
+    std::string diffCatName      = "diff";
+    std::string diffCatTitle     = "Change of ";
 
     //axis info
-    string pedAxisLabel = "Pedestal Mean (ADC counts)";
-    string pedDiffAxisLabel = "Pedestal Difference (ADC counts)";
+    std::string pedAxisLabel = "Pedestal Mean (ADC counts)";
+    std::string pedDiffAxisLabel = "Pedestal Difference (ADC counts)";
     int pedNumBins =300;
     float pedLowBound = 1900;
     float pedHighBound = 2200;
 
-    string noiseAxisLabel = "Pedestal Noise (ADC counts)";
-    string noiseDiffAxisLabel = "Noise Difference (ADC counts)";
+    std::string noiseAxisLabel = "Pedestal Noise (ADC counts)";
+    std::string noiseDiffAxisLabel = "Noise Difference (ADC counts)";
     int noiseNumBins = 300;
     float noiseLowBound = 0;
     float noiseHighBound = 30;
 
-    string chi2AxisLabel = "Chi^2/ndf";
+    std::string chi2AxisLabel = "Chi^2/ndf";
     int chi2NumBins = 500;
     float chi2LowBound = 0;
     float chi2HighBound = 500;
 
-    string rmsAxisLabel = "RMS (ADC Counts)";
-    string rmsDiffAxisLabel = "RMS Difference (ADC Counts)";
+    std::string rmsAxisLabel = "RMS (ADC Counts)";
+    std::string rmsDiffAxisLabel = "RMS Difference (ADC Counts)";
     int rmsNumBins = 300;
     float rmsLowBound =0;
     float rmsHighBound = 30;
 
-    string f001AxisLabel = "F001 (ADC)";
-    string f001DiffAxisLabel = "F001 Difference (ADC)";
+    std::string f001AxisLabel = "F001 (ADC)";
+    std::string f001DiffAxisLabel = "F001 Difference (ADC)";
     int f001NumBins = 350;
     float f001LowBound =1950;
     float f001HighBound = 2300;
 
-    string nEntriesAxisLabel = "Number of Entries";
+    std::string nEntriesAxisLabel = "Number of Entries";
     int nEntriesNumBins = 20;
     float nEntriesLowBound = 0; 
     float nEntriesHighBound = 10000;
     uint16_t nEntriesHistMask = 0x3F; //only do overall spectra and 2d view
 
-    string maxBitCorrAxisLabel = "Correlation";
+    std::string maxBitCorrAxisLabel = "Correlation";
     int maxBitCorrNumBins = 300;
     float maxBitCorrLowBound = -3;
     float maxBitCorrHighBound = 3;
@@ -401,7 +380,7 @@ StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* p
     ATH_MSG_FATAL("Blank parval passed to handle parameter");
     return StatusCode::FAILURE;
   }
-  string parName = parVals->parName();
+  std::string parName = parVals->parName();
   if(parName == "ped")
   {
     ProcParameterInput.dbName = parVals->parName();
@@ -540,15 +519,15 @@ StatusCode CscCalibMonToolPed::postProc()
 {
   ATH_MSG_DEBUG( "CscCalibMonToolPed : in postProc()"  );
 
-  IdContext chanContext = m_muonIdHelperTool->cscIdHelper().channel_context();
+  IdContext chanContext = m_idHelperSvc->cscIdHelper().channel_context();
 
   genThreshold(m_pedDiffColl, m_noiseDiffColl, m_tholdDiffColl, 3.5);
 
   copyDataToHists(m_tholdDiffColl);
 
   if(m_doRmsVNoise) {
-    string geoPath = getGeoPath();
-    string path = getFullPath(geoPath, "Misc", "");
+    std::string geoPath = getGeoPath();
+    std::string path = getFullPath(geoPath, "Misc", "");
 
     m_h2_rmsVnoiseEta = new TH2I("rmsVsigma_eta", "RMS versus sigma for #eta strips", 100, 0, 30, 100, 0,30) ;
     m_h2_rmsVnoiseEta->GetXaxis()->SetTitle("Sigma");
@@ -572,8 +551,8 @@ StatusCode CscCalibMonToolPed::postProc()
     for(unsigned int hashId = 0; hashId < nEntries; hashId++){
       ATH_MSG_DEBUG( "Filling rmsVnoise for hash id " << hashId  );
       Identifier chanId;
-      m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(hashId), chanId, &chanContext);
-      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
+      m_idHelperSvc->cscIdHelper().get_id(IdentifierHash(hashId), chanId, &chanContext);
+      int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(chanId);
 
       if(m_expectedHashIdsAll.count(hashId)) {
         if(measuresPhi)
@@ -641,21 +620,21 @@ StatusCode CscCalibMonToolPed::postProc()
         TH1I * sourceHist;
 
         Identifier chanId;
-        m_muonIdHelperTool->cscIdHelper().get_id(IdentifierHash(idItr), chanId, &chanContext);
-        int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(chanId);
-        int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(chanId);
-        int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(chanId);
-        int wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(chanId);
-        int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
-        int strip = m_muonIdHelperTool->cscIdHelper().strip(chanId);
+        m_idHelperSvc->cscIdHelper().get_id(IdentifierHash(idItr), chanId, &chanContext);
+        int stationSize = m_idHelperSvc->cscIdHelper().stationName(chanId);
+        int stationEta = m_idHelperSvc->cscIdHelper().stationEta(chanId);
+        int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(chanId);
+        int wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(chanId);
+        int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(chanId);
+        int strip = m_idHelperSvc->cscIdHelper().strip(chanId);
         int sector = getSector(stationPhi, stationSize);
 
-        string geoPath = getGeoPath(stationEta, sector, wireLayer, measuresPhi);
+        std::string geoPath = getGeoPath(stationEta, sector, wireLayer, measuresPhi);
 
-        string pedAmpPath = getFullPath(geoPath, "PedAmpHists", "");
-        string sampPath = getFullPath(geoPath, "SampHists","");
-        string bitHistPath = getFullPath(geoPath, "BitHists", "");
-        string bitCorrelationPath("");
+        std::string pedAmpPath = getFullPath(geoPath, "PedAmpHists", "");
+        std::string sampPath = getFullPath(geoPath, "SampHists","");
+        std::string bitHistPath = getFullPath(geoPath, "BitHists", "");
+        std::string bitCorrelationPath("");
         if(bitCorrelations)
           bitCorrelationPath = getFullPath(geoPath, "BitCorrelations", "");
 
@@ -693,23 +672,20 @@ StatusCode CscCalibMonToolPed::postProc()
           if(m_detailedHashIds[idItr] || m_doAllDetailed){
 
 
-            stringstream name;
+            std::stringstream name;
             name << "h_pedAmp"
               << "_EC" << getEndCap(stationEta)
               << "_sector_" << sector 
               << "_layer_" << wireLayer
               << "_" << (measuresPhi ? "trans" : "prec")
               << "_strip_" 
-              << setfill('0') <<  setw(measuresPhi ? 2 : 3) 
+              << std::setfill ('0') <<  std::setw (measuresPhi ? 2 : 3) 
               << strip;
-
-            //TH1I * newHist = (TH1I*)sourceHist->Clone(name.str().c_str());
 
             //Calibration is finished with histogram, so we can modify it a bit:
 
             sourceHist->SetName(name.str().c_str());
             sourceHist->SetFillColor((m_detailedHashIds[idItr] ? m_histColAlert : m_histCol));
-            //regHist(newHist, chanPath, run, ATTRIB_MANAGED);
             regHist(sourceHist, pedAmpPath, run, ATTRIB_MANAGED);
           }
         }
@@ -720,14 +696,14 @@ StatusCode CscCalibMonToolPed::postProc()
           size_t hNum = histVect->size();
           for(size_t hCnt = 0; hCnt < hNum; hCnt++) {
             sourceHist = const_cast<TH1I*>((*histVect)[hCnt]);
-            stringstream name;
+            std::stringstream name;
             name << "h_samp"
               << "_EC" << getEndCap(stationEta)
               << "_sector_" << sector 
               << "_layer_" << wireLayer
               << "_" << (measuresPhi ? "trans" : "prec")
               << "_strip_" 
-              << setfill('0') <<  setw(measuresPhi ? 2 : 3) 
+              << std::setfill ('0') <<  std::setw (measuresPhi ? 2 : 3) 
               << strip 
               <<"_samp_"
               << hCnt;
@@ -749,20 +725,18 @@ StatusCode CscCalibMonToolPed::postProc()
             return StatusCode::RECOVERABLE;
           }
 
-          stringstream name2;
+          std::stringstream name2;
           name2 << "h_bitMap"
             << "_EC" << getEndCap(stationEta)
             << "_sector_" << sector 
             << "_layer_" << wireLayer
             << "_" << (measuresPhi ? "trans" : "prec")
             << "_strip_" 
-            << setfill('0') <<  setw(measuresPhi ? 2 : 3) 
+            << std::setfill ('0') <<  std::setw (measuresPhi ? 2 : 3) 
             << strip;
-          // TH1I * newHist2 = (TH1I*)sourceHist->Clone(name2.str().c_str());
           sourceHist->SetName(name2.str().c_str());
           sourceHist->SetFillColor((m_detailedHashIds[idItr] ? m_histColAlert : m_histCol));
 
-          //regHist(newHist2, chanPath, run, ATTRIB_MANAGED);
           regHist(sourceHist, bitHistPath, run, ATTRIB_MANAGED);
         }//end if bithists*/
 
@@ -808,35 +782,35 @@ StatusCode CscCalibMonToolPed::postProc()
 
 
 void CscCalibMonToolPed::makeErrorReport(){
-  stringstream report; 
+  std::stringstream report; 
 
   double numBadPed = m_h_numBad->GetBinContent(m_pedBadBin);
-  report << "Num channels with Delta Ped > " << m_pedMaxDiff << " : " << numBadPed << endl;
+  report << "Num channels with Delta Ped > " << m_pedMaxDiff << " : " << numBadPed << std::endl ;
 
   double numBadRms = m_h_numBad->GetBinContent(m_rmsBadBin);
-  report << "Num channels with Delta RMS > " << m_rmsMaxDiff << " : " << numBadRms << endl;
+  report << "Num channels with Delta RMS > " << m_rmsMaxDiff << " : " << numBadRms << std::endl ;
 
   double numBadF001 = m_h_numBad->GetBinContent(m_f001BadBin);
-  report << "Num channels with Delta f001 > " << m_f001MaxDiff << " : " << numBadF001 << endl;
+  report << "Num channels with Delta f001 > " << m_f001MaxDiff << " : " << numBadF001 << std::endl ;
 
   double numBadNoise = m_h_numBad->GetBinContent(m_noiseBadBin);
-  report << "Num channels with Delta sigma > " << m_noiseMaxDiff << " : " << numBadNoise << endl;
+  report << "Num channels with Delta sigma > " << m_noiseMaxDiff << " : " << numBadNoise << std::endl ;
 
   double numBadNEntries = m_h_numBad->GetBinContent(m_nEntriesBadBin);
   report << "Num channels with num pedestal amplitude entries < " << m_minAmpHistEntries 
-    << ": " << numBadNEntries <<endl;
+    << ": " << numBadNEntries <<std::endl ;
 
   double numBreachEntries = m_h_numBad->GetBinContent(m_onlTHoldBreachBadBin);
   report << "Num channels with too high an occupancy (> " << m_onlTHoldBreachMax << ")."
-    << ": " << numBreachEntries <<endl;
+    << ": " << numBreachEntries <<std::endl ;
 
   if(!(numBadPed >100 || numBadRms > 100 || numBadNEntries>0|| numBreachEntries > 0)){
-    ofstream allGoodFile(m_allGoodFileName.c_str());
+    std::ofstream  allGoodFile(m_allGoodFileName.c_str());
     allGoodFile << "All tests past.";
     allGoodFile.close();
   }
 
-  ofstream reportFile(m_statusReportName.c_str());
+  std::ofstream  reportFile(m_statusReportName.c_str());
   reportFile << m_statusReportPrefix;
   reportFile << "\n\n";
   reportFile << report.str();

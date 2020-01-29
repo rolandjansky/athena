@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from six import iteritems
@@ -10,10 +10,9 @@ def mapThresholdToL1DecisionCollection(threshold):
     """
     Translates L1 threshold  name of the DecisionsContainer name in the L1Decoder unpacking tools
     """
-    if threshold == "" or threshold == "FS":
-        return "HLTNav_L1FS"
 
-    mapThresholdToL1Decoder = { "EM" : "HLTNav_L1EM",
+    mapThresholdToL1Decoder = { "FSNOSEED": "HLTNav_L1FSNOSEED",
+                                "EM" : "HLTNav_L1EM",
                                 "MU" : "HLTNav_L1MU",
                                 "J"  : "HLTNav_L1J",
                                 "TAU": "HLTNav_L1TAU",
@@ -26,16 +25,15 @@ def mapThresholdToL1DecisionCollection(threshold):
         if threshold.startswith( thresholdType ):
             return l1Collection
 
-    log.error("Threshold "+ threshold + " not mapped to any Decision collection! Available are: " + str(mapThresholdToL1Decoder.values()))
+    log.error("Threshold \""+ threshold + "\" not mapped to any Decision collection! Available are: " + str(mapThresholdToL1Decoder.values()))
 
 def mapThresholdToL1RoICollection(threshold):
     """
     Translates L1 threshold  name of the RoIDescriptor name in the L1Decoder unpacking tools
     """
-    if threshold == "" or threshold == "FS":
-        return "HLT_FSRoI"
 
-    mapThresholdToL1Decoder = { "EM" : "HLT_EMRoIs",
+    mapThresholdToL1Decoder = { "FSNOSEED": "HLT_FSRoIs",
+                                "EM" : "HLT_EMRoIs",
                                 "MU" : "HLT_MURoIs",
                                 "J"  : "HLT_JETRoI",
                                 "TAU": "HLT_TAURoI",
@@ -48,7 +46,7 @@ def mapThresholdToL1RoICollection(threshold):
         if threshold.startswith( thresholdType ):
             return l1Collection
 
-    log.error("Threshold "+ threshold + " not mapped to any ROI collection! Available are: " + str(mapThresholdToL1Decoder.values()))
+    log.error("Threshold \""+ threshold + "\" not mapped to any ROI collection! Available are: " + str(mapThresholdToL1Decoder.values()))
 
 
 def createCaloRoIUnpackers():
@@ -109,12 +107,11 @@ class L1Decoder(L1Decoder) :
 
         # CTP unpacker
 
-        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                       ForceEnableAllChains = True)
+        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),)
 
         self.ctpUnpacker = ctpUnpacker
         from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
-        self.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FS") ) ]
+        self.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED") ) ]
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
@@ -150,7 +147,7 @@ def L1DecoderCfg(flags):
 
 
     from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
-    decoderAlg.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FS") ) ]
+    decoderAlg.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED") ) ]
 
     unpackers, rerunUnpackers = createCaloRoIUnpackers()
     decoderAlg.roiUnpackers += unpackers
@@ -170,8 +167,10 @@ def L1DecoderCfg(flags):
     acc.merge( TrigConfigSvcCfg( flags ) )
 
     # Add the algorithm producing the input RoIBResult
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg, L1TriggerResultMakerCfg
+    # TODO: implement flags to allow disabling either RoIBResult or L1TriggerResult
     acc.merge( RoIBResultDecoderCfg(flags) )
+    acc.merge( L1TriggerResultMakerCfg(flags) )
 
     return acc,decoderAlg
 

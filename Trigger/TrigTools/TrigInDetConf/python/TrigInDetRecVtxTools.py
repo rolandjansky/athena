@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 #
@@ -26,7 +28,7 @@ InDetTrigLinFactory = Trk__FullLinearizedTrackFactory(name              = "InDet
                                                       )
 ToolSvc += InDetTrigLinFactory
 if (InDetTrigFlags.doPrintConfigurables()):
-  print      InDetTrigLinFactory
+  print (     InDetTrigLinFactory)
 
 
 #
@@ -38,4 +40,4 @@ InDetTrigVxEdmCnv.LinearizedTrackFactory=InDetTrigLinFactory
 ToolSvc += InDetTrigVxEdmCnv
 
 if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigVxEdmCnv
+    print (InDetTrigVxEdmCnv)

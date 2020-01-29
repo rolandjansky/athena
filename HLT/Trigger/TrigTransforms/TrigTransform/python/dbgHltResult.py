@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #### This is the dbgHLTResult class for the Debug Stream event analysis
+
+from __future__ import print_function
 
 from PyUtils import RootUtils
 ROOT = RootUtils.import_root()
@@ -72,7 +74,7 @@ def get_feature_data_blob(data, index):
   end += size
   if end <= len(data):
     index = end
-    #print "getting blob of data from: ", begin, " to ", end 
+    #print ("getting blob of data from: ", begin, " to ", end )
     return data[begin:end]
   else:
     return []
@@ -95,34 +97,34 @@ def deserialize_string(lwords):
 
 def print_ranges(l):
   for i in range(len(l)):
-    print "%-16d%16d" % ( (i+1)*32, i*32)
+    print ("%-16d%16d" % ( (i+1)*32, i*32))
 
 def print_chain(counter, s):
   ch = cppyy.makeClass('HLT::Chain')(s)
   ch.deserialize(s)
-  print ".... chain %-3d Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
+  print (".... chain %-3d Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
         % ( counter, ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(),\
-            ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str())
+            ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str()))
 
 def print_all_chains(blob):
-  print "... chains:"
+  print ("... chains:")
   for i in range(len(blob)):
     print_chain(i, blob[i])
 
 
 def print_all_navigation(result):
-  print "... features"
+  print ("... features")
   for f in result.nav_payload:
-    print ".... %-52s %6d B " % (f[0]+'#'+f[1], f[2])
+    print (".... %-52s %6d B " % (f[0]+'#'+f[1], f[2]))
   return
 
 
 def print_HLTResult(result):    
 #  if opt.sizes:
-  print "... Payload size: ", result.as_int_v.size(), " ", (4.0*result.as_int_v.size())/(1024), "kB"
+  print ("... Payload size: ", result.as_int_v.size(), " ", (4.0*result.as_int_v.size())/(1024), "kB")
 
   if result.as_int_v.size() == 0:
-    print "... Payload size is 0"
+    print ("... Payload size is 0")
 
   # header info
 
@@ -136,11 +138,11 @@ def print_HLTResult(result):
   nosigs = result.getNumOfSatisfiedSigs()
   bad = result.isCreatedOutsideHLT()
   trunc = result.isHLTResultTruncated()
-  print '... Version:', version ,' Lvl1Id:',l1id ,' Decision:',acc ,\
+  print ('... Version:', version ,' Lvl1Id:',l1id ,' Decision:',acc ,\
         ' PassThrough:',pt,' Status:',status.str(),\
         ' ConverterStatus:', cnvstatus.str(),' LVL:',level,' Signatures:',nosigs,' Bad:',bad,' Truncated:', trunc,\
-        ' App:', result.appName()
-  print
+        ' App:', result.appName())
+  print()
 
   chains_data = list(result.getChainResult())
   nchains = chains_data[0] if chains_data else 0
@@ -149,27 +151,27 @@ def print_HLTResult(result):
   nver = nav_data[0] if nav_data else 0
   
 #  if opt.sizes:
-  print '... tot:', result.as_int_v.size(), ' chains:', nchains, ' chains (expected):', len(chains_data)-1, \
-          ' navigation:', nnav, ' navigation (expected):',result.getNavigationResult()[1] if nnav > 1 else "0 or 1"
+  print ('... tot:', result.as_int_v.size(), ' chains:', nchains, ' chains (expected):', len(chains_data)-1, \
+          ' navigation:', nnav, ' navigation (expected):',result.getNavigationResult()[1] if nnav > 1 else "0 or 1")
     
 #  if opt.conf:
   try:
-    print "... SMkey: ", result.getConfigSuperMasterKey(), " Prescalers key ", result.getConfigPrescalesKey()
+    print ("... SMkey: ", result.getConfigSuperMasterKey(), " Prescalers key ", result.getConfigPrescalesKey())
   except:
-    print "... No config info "
+    print ("... No config info ")
 
 #  if opt.chains:
   print_all_chains(chains_data[1:])
     
     
-  print "... Navigation version: ", nver
+  print ("... Navigation version: ", nver)
  # if opt.tes:
   if nnav > 3:
     tessize  = result.getNavigationResult()[2]
     tescount = result.getNavigationResult()[3]
-    print "... Number of TEs: ",  tescount, " and size: ", tessize, " ", 4.0*tessize/(1024), "kB"
+    print ("... Number of TEs: ",  tescount, " and size: ", tessize, " ", 4.0*tessize/(1024), "kB")
   else:
-    print "... Cannot print TriggerElement details (not enough navigation data)"
+    print ("... Cannot print TriggerElement details (not enough navigation data)")
 
 #  if opt.features:
     print_all_navigation(result)

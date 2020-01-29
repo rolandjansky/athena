@@ -80,7 +80,9 @@ topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_copy",
 topSequence += DMTest__xAODTestReadCInfo ("xAODTestReadCInfo_copy",
                                           CInfoKey = "copy_cinfo")
 topSequence += DMTest__xAODTestRead ("xAODTestRead_copy",
-                                     ReadPrefix = "copy_")
+                                     CTrigReadKey = 'copy_ctrig',
+                                     GVecReadKey = 'copy_gvec',
+                                     CVecWDReadKey = 'copy_cvecWD')
 topSequence += DMTest__xAODTestReadCView ("xAODTestReadCView_copy",
                                           CViewKey = "copy_cview")
 topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_copy",
@@ -91,7 +93,9 @@ topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_scopy",
 topSequence += DMTest__xAODTestReadCInfo ("xAODTestReadCInfo_scopy",
                                           CInfoKey = "scopy_cinfo")
 topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
-                                     ReadPrefix = "scopy_")
+                                     CTrigReadKey = 'scopy_ctrig',
+                                     GVecReadKey = '',
+                                     CVecWDReadKey = 'scopy_cvecWD')
 topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_scopy",
                                          HVecKey = "scopy_hvec",
                                          HViewKey = "")
@@ -104,21 +108,8 @@ Stream1.WritingTool.SubLevelBranchName = '<key>'
 Stream1.ItemList   += fullItemList # List of DO's to write out
 
 
-#--------------------------------------------------------------
-# Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-#--------------------------------------------------------------
-svcMgr.MessageSvc.OutputLevel = 3
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.ClassIDSvc.OutputLevel = 3
-
-# No stats printout
-ChronoStatSvc = Service( "ChronoStatSvc" )
-ChronoStatSvc.ChronoPrintOutTable = FALSE
-ChronoStatSvc.PrintUserTime       = FALSE
-ChronoStatSvc.StatPrintOutTable   = FALSE
-
-#svcMgr.ExceptionSvc.Catch = "None"
-
 # Avoid races when running tests in parallel.
 FILECATALOG = 'xAODTestRead2_catalog.xml'
-include ('DataModelRunTests/setCatalog.py')
+
+include ('DataModelRunTests/commonTrailer.py')
+

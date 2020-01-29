@@ -3,9 +3,10 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
-from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_SiliconConditionsTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+SCT_SiliconHVCondAlg=CompFactory.SCT_SiliconHVCondAlg
+SCT_SiliconTempCondAlg=CompFactory.SCT_SiliconTempCondAlg
+SCT_SiliconConditionsTool=CompFactory.SCT_SiliconConditionsTool
 
 def SCT_SiliconConditionsToolCfg(flags, name="SCT_SiliconConditionsTool", **kwargs):
     """Return a configured SCT_SiliconConditionsTool (a.k.a. SiConditionsTool)"""

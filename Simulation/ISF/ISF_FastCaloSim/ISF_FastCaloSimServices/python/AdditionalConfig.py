@@ -919,11 +919,9 @@ def getFastCaloSimV2Tool(name="ISF_FastCaloSimV2Tool", **kwargs):
     kwargs.setdefault("ParamSvc", "ISF_FastCaloSimV2ParamSvc")
     # register the FastCaloSim random number streams
     from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed(ISF_FastCaloSimFlags.RandomStreamName()):
-        simFlags.RandomSeedList.addSeed( ISF_FastCaloSimFlags.RandomStreamName(), 98346412, 12461240 )
-
     kwargs.setdefault("RandomStream"                     , ISF_FastCaloSimFlags.RandomStreamName())
-    kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvc.get_Value() )
+    kwargs.setdefault("RandomSvc"                        , simFlags.RandomSvcMT())
+    kwargs.setdefault("PunchThroughTool"                 , '') #ISF_PunchThroughTool
 
     return CfgMgr.ISF__FastCaloSimV2Tool(name, **kwargs )
 

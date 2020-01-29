@@ -8,6 +8,8 @@ from ..Config.MonitorDef import MonitorDef
 from .PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
 from .MenuUtils import binstr
 
+from past.builtins import cmp
+
 
 log = logging.getLogger("Menu.L1.Base.Items")
 
@@ -80,7 +82,7 @@ class MenuItem(object):
     # New items will be assigned to this partition
     currentPartition = 0
     
-    __slots__ = ['name', 'group', 'ctpid', 'psCut', 'trigger_type', 'partition', 'logic', 'bunchGroups', 'monitorsLF', 'monitorsHF', 'verbose']
+    __slots__ = ['name', 'group', 'ctpid', 'psCut', 'trigger_type', 'partition', 'logic', 'bunchGroups', 'legacy', 'monitorsLF', 'monitorsHF', 'verbose']
     def __init__(self, name, ctpid=-1, group='1', prescale=1, psCut=None, verbose=False):
         self.name             = name
         self.group            = group
@@ -93,10 +95,10 @@ class MenuItem(object):
         self.monitorsHF       = 0
         self.verbose          = verbose
         self.bunchGroups      = None
+        self.legacy           = False
 
         if MenuItem.l1configForRegistration:
             MenuItem.l1configForRegistration.registerItem(self.name, self)
-
 
     def __str__(self):
         s = "Item %s (ctp id=%i) [%s]" % (self.name, self.ctpid, self.logic)
@@ -118,17 +120,11 @@ class MenuItem(object):
             self.monitorsHF |= flag
     
     def setLogic(self, logic):
-        self.logic = logic
-        if self.verbose:
-            log.debug('%s', self)
-
         if MenuItemsCollection.splitBunchGroups:
-            bgLogic = self.logic.stripBunchGroups()
-            self.bunchGroups = bgLogic.thresholdNames(include_bgrp=True)
+            (self.logic, self.bunchGroups) = logic.stripBunchGroups(logic)
+        else:
+            self.logic = logic
         return self
-
-
-
 
     def setCtpid(self, x):
         self.ctpid = int(x)
@@ -150,6 +146,9 @@ class MenuItem(object):
         self.trigger_type = int(ttype) & 0xff
         return self
 
+    def markLegacy(self,legacyThresholdsSet):
+        self.legacy = bool ( legacyThresholdsSet.intersection(self.logic.thresholdNames()) )
+
     def binary_trigger_type(self, width=8):
         """Turns integer triggertype in a binary string of given width"""
         return binstr(self.trigger_type, width=width)
@@ -157,6 +156,8 @@ class MenuItem(object):
     def json(self):
         confObj = odict()
         confObj["name"] = self.name
+        if self.legacy:
+            confObj["legacy"] = self.legacy
         confObj["ctpid"] = self.ctpid
         confObj["definition"] = str(self.logic)
         if self.bunchGroups:

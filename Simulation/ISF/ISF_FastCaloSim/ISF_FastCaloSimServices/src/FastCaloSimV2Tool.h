@@ -11,10 +11,11 @@
 // FastCaloSim includes
 #include "IFastCaloSimParamSvc.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
+#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
 
 #include "CaloInterface/ICaloCellMakerTool.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h" /// TODO: Update to thread-safe version
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -61,12 +62,13 @@ namespace ISF {
 
     virtual StatusCode releaseEventST() override final;
 
-    virtual SimulationFlavor simFlavor() const override final { return ISF::FastCaloSim; };
+    virtual SimulationFlavor simFlavor() const override final { return ISF::FastCaloSimV2; };
   private:
     StatusCode commonSetup();
 
     ServiceHandle<IFastCaloSimParamSvc> m_paramSvc{this, "ParamSvc", "ISF_FastCaloSimV2ParamSvc"};
-
+    bool m_doPunchThrough{false};
+    ToolHandle< IPunchThroughTool >     m_punchThroughTool{this, "PunchThroughTool", ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsSetup{this, "CaloCellMakerTools_setup", {}, ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerToolsRelease{this, "CaloCellMakerTools_release", {}, ""};
 
@@ -75,8 +77,7 @@ namespace ISF {
     CaloCellContainer*        m_theContainer{};
     SG::WriteHandleKey< CaloCellContainer > m_caloCellKey{ this, "CaloCells", "DefaultCaloCellContainer", "The name of the output CaloCellContainer" };
 
-    ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc{this, "RandomSvc", "AtRndmGenSvc"};
-    CLHEP::HepRandomEngine*         m_randomEngine{};
+    ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RandomSvc", "AthRNGSvc", ""};
     Gaudi::Property<std::string>    m_randomEngineName{this, "RandomStream", ""};
     Gaudi::Property<std::string>    m_caloCellsOutputName{this, "CaloCellsOutputName", "AllCalo"};
   };

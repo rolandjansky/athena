@@ -15,6 +15,7 @@
 // STD
 #include <iomanip>
 #include <iostream>
+#include <utility>
 
 const double Trk::Surface::s_onSurfaceTolerance = 10e-5; // 0.1 * micron
 
@@ -27,11 +28,11 @@ Trk::Surface::Surface()
   : m_transform(nullptr)
   , m_center(nullptr)
   , m_normal(nullptr)
-  , m_associatedDetElement(0)
+  , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
-  , m_associatedLayer(0)
-  , m_materialLayer(0)
-  , m_owner(Trk::SurfaceOwner(0))
+  , m_associatedLayer(nullptr)
+  , m_materialLayer(nullptr)
+  , m_owner(Trk::noOwn)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++;     // EDM Monitor
@@ -43,13 +44,13 @@ Trk::Surface::Surface(Amg::Transform3D* tform)
   : m_transform(nullptr)
   , m_center(nullptr)
   , m_normal(nullptr)
-  , m_associatedDetElement(0)
+  , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
-  , m_associatedLayer(0)
-  , m_materialLayer(0)
-  , m_owner(Trk::SurfaceOwner(0))
+  , m_associatedLayer(nullptr)
+  , m_materialLayer(nullptr)
+  , m_owner(Trk::noOwn)
 {
-  m_transform.store(std::unique_ptr<Amg::Transform3D>(tform));
+  m_transform=std::unique_ptr<Amg::Transform3D>(tform);
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   s_numberOfFreeInstantiations++;
@@ -68,8 +69,8 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement)
   , m_normal(nullptr)
   , m_associatedDetElement(&detelement)
   , m_associatedDetElementId()
-  , m_associatedLayer(0)
-  , m_materialLayer(0)
+  , m_associatedLayer(nullptr)
+  , m_materialLayer(nullptr)
   , m_owner(Trk::DetElOwn)
 {
 #ifndef NDEBUG
@@ -83,8 +84,8 @@ Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement, const Identifier
   , m_normal(nullptr)
   , m_associatedDetElement(&detelement)
   , m_associatedDetElementId(id)
-  , m_associatedLayer(0)
-  , m_materialLayer(0)
+  , m_associatedLayer(nullptr)
+  , m_materialLayer(nullptr)
   , m_owner(Trk::DetElOwn)
 {
 #ifndef NDEBUG
@@ -97,11 +98,11 @@ Trk::Surface::Surface(const Surface& sf)
   : m_transform(nullptr)
   , m_center(nullptr)
   , m_normal(nullptr)
-  , m_associatedDetElement(0)
+  , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
   , m_associatedLayer(sf.m_associatedLayer)
   , m_materialLayer(sf.m_materialLayer)
-  , m_owner(Trk::SurfaceOwner(0))
+  , m_owner(Trk::noOwn)
 {
 
   m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
@@ -118,13 +119,13 @@ Trk::Surface::Surface(const Surface& sf)
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
   : m_transform(sf.m_transform ? std::make_unique<Amg::Transform3D>(shift * (*(sf.m_transform)))
                                : std::make_unique<Amg::Transform3D>(shift))
-  , m_center((sf.m_center) ? std::make_unique<Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
+  , m_center((sf.m_center) ? std::make_unique<const Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
   , m_normal(nullptr)
-  , m_associatedDetElement(0)
+  , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
-  , m_associatedLayer(0)
-  , m_materialLayer(0)
-  , m_owner(Trk::SurfaceOwner(0))
+  , m_associatedLayer(nullptr)
+  , m_materialLayer(nullptr)
+  , m_owner(Trk::noOwn)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
@@ -153,7 +154,7 @@ Trk::Surface::operator=(const Trk::Surface& sf)
     m_center.release();
     m_normal.release();
     m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
-    m_associatedDetElement = 0;
+    m_associatedDetElement = nullptr;
     m_associatedDetElementId = Identifier();
     m_associatedLayer = sf.m_associatedLayer;
     m_materialLayer = sf.m_materialLayer;
@@ -164,22 +165,24 @@ Trk::Surface::operator=(const Trk::Surface& sf)
 
 // returns the LocalPosition on a surface of a GlobalPosition
 const Amg::Vector2D*
-Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
+Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, const BoundaryCheck& bchk, double tol1, double tol2) const
 {
   const Amg::Vector2D* posOnSurface = globalToLocal(glopo, tol1);
-  if (!bchk)
+  if (!bchk){
     return posOnSurface;
-  if (posOnSurface && insideBounds(*posOnSurface, tol1, tol2))
+  }
+  if (posOnSurface && insideBounds(*posOnSurface, tol1, tol2)){
     return posOnSurface;
+  }
   delete posOnSurface;
-  return 0;
+  return nullptr;
 }
 
 // checks if GlobalPosition is on Surface and inside bounds
 bool
 Trk::Surface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
 {
-  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, bchk, tol1, tol2);
+  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, std::move(bchk), tol1, tol2);
   if (posOnSurface) {
     delete posOnSurface;
     return true;
@@ -188,7 +191,7 @@ Trk::Surface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double
 }
 
 // return the measurement frame
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::Surface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D&) const
 {
   return transform().rotation();

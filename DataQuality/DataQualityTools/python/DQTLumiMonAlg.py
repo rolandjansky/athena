@@ -3,21 +3,34 @@
 #
 
 def DQTLumiMonAlgConfig(flags, isOld=False):
-    from AthenaMonitoring import AthMonitorCfgHelper
     if isOld: # replace with the old version of the tool
         from AthenaMonitoring import AthMonitorCfgHelperOld as AthMonitorCfgHelper
+        from .DataQualityToolsConf import DQTLumiMonAlg
+    else:
+        from AthenaMonitoring import AthMonitorCfgHelper
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        DQTLumiMonAlg = CompFactory.DQTLumiMonAlg
+
 
     helper = AthMonitorCfgHelper(flags, 'DQTLumiMonAlgCfg')
     # Three instances of the algorithm. One using any trigger, another using only muon
     # triggers, and the final using only electron triggers.
-    DQTLumiMonAlgConfigByTriggerChain(helper)
-    DQTLumiMonAlgConfigByTriggerChain(helper,'CATEGORY_monitoring_muonIso','EF_muX')
-    DQTLumiMonAlgConfigByTriggerChain(helper,'CATEGORY_primary_single_ele','EF_eX')
-    return helper.result()
+    DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg)
+    DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg, 
+                                    'CATEGORY_monitoring_muonIso','EF_muX')
+    DQTLumiMonAlgConfigByTriggerChain(helper, DQTLumiMonAlg,
+                                    'CATEGORY_primary_single_ele','EF_eX')
+    if isOld:
+        return helper.result()
+    else:
+        result = helper.result()
+        from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+        result.merge(AtlasGeometryCfg(flags))
+        return result
 
-def DQTLumiMonAlgConfigByTriggerChain(helper, triggerChain='', triggerPath=''):
-    from .DataQualityToolsConf import DQTLumiMonAlg
-    monAlg = helper.addAlgorithm(DQTLumiMonAlg, 'DQTLumiMonAlg'+triggerPath)
+
+def DQTLumiMonAlgConfigByTriggerChain(helper, algConfObj, triggerChain='', triggerPath=''):
+    monAlg = helper.addAlgorithm(algConfObj, 'DQTLumiMonAlg'+triggerPath)
 
     if triggerChain:
         monAlg.TriggerChain = triggerChain

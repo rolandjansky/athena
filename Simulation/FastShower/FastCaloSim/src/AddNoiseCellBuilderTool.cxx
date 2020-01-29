@@ -5,6 +5,7 @@
 #include "FastCaloSim/AddNoiseCellBuilderTool.h"
 #include "FastCaloSim/FastSimCell.h"
 
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -22,11 +23,7 @@ AddNoiseCellBuilderTool::AddNoiseCellBuilderTool(
                                                  const std::string& name,
                                                  const IInterface* parent)
   : BasicCellBuilderTool(type, name, parent)
-  , m_rndmSvc("AtRndmGenSvc", name)
 {
-  declareProperty("doNoise",               m_donoise);
-  declareProperty("RandomStreamName",      m_randomEngineName,     "Name of the random number stream");
-
 }
 
 
@@ -45,14 +42,7 @@ StatusCode AddNoiseCellBuilderTool::initialize()
   ATH_CHECK(m_estimatedGain.retrieve());
 
   // Random number service
-  ATH_CHECK(m_rndmSvc.retrieve());
-
-  //Get own engine with own seeds:
-  m_randomEngine = m_rndmSvc->GetEngine(m_randomEngineName);
-  if (!m_randomEngine) {
-    ATH_MSG_ERROR("Could not get random engine '" << m_randomEngineName << "'");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmGenSvc.retrieve());
 
   ATH_MSG_DEBUG("Initialization finished");
   return StatusCode::SUCCESS;
@@ -62,11 +52,14 @@ StatusCode
 AddNoiseCellBuilderTool::process (CaloCellContainer* theCellContainer,
                                   const EventContext& ctx) const
 {
-  m_rndmSvc->print(m_randomEngineName);
-  //m_randomEngine->showStatus();
+  // Set the RNG to use for this event.
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  rngWrapper->setSeed( m_randomEngineName, ctx );
+  CLHEP::HepRandomEngine *randomEngine = rngWrapper->getEngine(ctx);
+
   unsigned int rseed=0;
   while(rseed==0) {
-    rseed=(unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) * std::numeric_limits<unsigned int>::max() );
+    rseed=(unsigned int)( CLHEP::RandFlat::shoot(randomEngine) * std::numeric_limits<unsigned int>::max() );
   }
 
   ATH_MSG_INFO("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt()/*<<" rseed="<<rseed*/);
@@ -96,7 +89,7 @@ AddNoiseCellBuilderTool::process (CaloCellContainer* theCellContainer,
 
       if(m_donoise) {
         double sigma = noise->getNoise (cell->caloDDE()->calo_hash(), cell->gain());
-        double enoise=CLHEP::RandGaussZiggurat::shoot(m_randomEngine,0.0,1.0)*sigma;
+        double enoise=CLHEP::RandGaussZiggurat::shoot(randomEngine,0.0,1.0)*sigma;
         /*
           if(cell->energy()>1000) {
           ATH_MSG_DEBUG("sample="<<cell->caloDDE()->getSampling()<<" eta="<<cell->eta()<<" phi="<<cell->phi()<<" gain="<<gain<<" e="<<cell->energy()<<" sigma="<<sigma<<" enoise="<<enoise);

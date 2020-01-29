@@ -127,7 +127,4 @@ atlas_add_test( AssociationMap_test
                 SOURCES
                 test/AssociationMap_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthLinks
-                EXTRA_PATTERNS "ClassIDSvc Initialized successfully|^HistogramPersis.* INFO" )
-
-
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools GaudiKernel TestTools AthLinks )

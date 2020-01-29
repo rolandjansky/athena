@@ -3,6 +3,7 @@
 """Define method to construct configured private Calo bad channels tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloBadChanToolCfg(flags, **kwargs):
     """Return component accumulator with configured private Calo bad channels tool
@@ -22,7 +23,7 @@ def CaloBadChanToolCfg(flags, **kwargs):
         badChannelsTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
         kwargs['TileBadChanTool'] = badChannelsTool
 
-    from CaloBadChannelTool.CaloBadChannelToolConf import CaloBadChanTool
+    CaloBadChanTool=CompFactory.CaloBadChanTool
     acc.setPrivateTools(CaloBadChanTool(**kwargs))
 
     return acc

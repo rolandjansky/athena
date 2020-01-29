@@ -1,18 +1,15 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
  */
 
 #include "egammaStripsShape.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
-
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "SGTools/DataProxy.h" 
-
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "egammaUtils/egammaqweta1c.h"
 #include <cmath>
 #include <cfloat>
 
@@ -62,20 +59,6 @@ StatusCode egammaStripsShape::initialize(){
     // retrieve all helpers from det store
     m_calo_dd = CaloDetDescrManager::instance();
 
-    // Create egammaqweta1c Tool
-    if(m_egammaqweta1c.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaqweta1c);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaqweta1c << " retrieved"); 
-
-    // Create egammaEnergyPositionAllSamples Tool
-    if(m_egammaEnergyPositionAllSamples.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve "<<m_egammaEnergyPositionAllSamples);
-        return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaEnergyPositionAllSamples << " retrieved"); 
-
     return StatusCode::SUCCESS;
 }
 
@@ -99,16 +82,16 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster, Info& in
 
     // retrieve energy in all samplings
 
-    double eallsamples = m_egammaEnergyPositionAllSamples->e(cluster);
+    double eallsamples = egammaEnergyPositionAllSamples::e(cluster);
     // retrieve energy in 1st sampling
-    double e1 = m_egammaEnergyPositionAllSamples->e1(cluster);
+    double e1 = egammaEnergyPositionAllSamples::e1(cluster);
 
     //check if cluster is in barrel or end-cap
     // sam is used in SetArray to check that cells belong to strips
     // samgran is used to estimate the window to use cells in eta
     // it is based on the granularity of the middle layer
     // For phi we use the strip layer granularity  
-    bool in_barrel =  m_egammaEnergyPositionAllSamples->inBarrel(cluster,2);
+    bool in_barrel =  egammaEnergyPositionAllSamples::inBarrel(cluster,2);
     CaloSampling::CaloSample sam=CaloSampling::EMB1;
     CaloSampling::CaloSample samgran=CaloSampling::EMB2;
     CaloCell_ID::SUBCALO subcalo= CaloCell_ID::LAREM;
@@ -188,8 +171,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster& cluster, Info& in
     if (m_ExecAllVariables) {
         setEnergy(info,enecell);
         setF1core(info,cluster);
-    }
-    if (m_ExecAllVariables && m_ExecOtherVariables){
+        
         setAsymmetry(info,enecell);
         // Using strips centered on the hottest cell
         // position in eta from +/- 1 strips 
@@ -490,8 +472,8 @@ void egammaStripsShape::setWs3(Info& info,
         info.etas3   = eta1 / energy;
         // corrected width for position inside the cell
         // estimated from the first sampling
-        info.ws3c = m_egammaqweta1c->Correct(cluster.etaSample(sam),cluster.etamax(sam),info.ws3); 
-        info.poscs1 =  m_egammaqweta1c->RelPosition(cluster.etaSample(sam),cluster.etamax(sam));    
+        info.ws3c = egammaqweta1c::Correct(cluster.etaSample(sam),cluster.etamax(sam),info.ws3); 
+        info.poscs1 =  egammaqweta1c::RelPosition(cluster.etaSample(sam),cluster.etamax(sam));    
     }
     return;
 }
@@ -637,7 +619,6 @@ int egammaStripsShape::setEmax2(Info& info, double* enecell,
     return ncetasec1;
 }
 
-// =====================================================================
 void egammaStripsShape::setEmin(int ncsec1,Info& info, double* enecell, 
         double* gracell, int* ncell ) const {
     //
@@ -669,7 +650,6 @@ void egammaStripsShape::setEmin(int ncsec1,Info& info, double* enecell,
     return;
 }
 
-// =====================================================================
 void egammaStripsShape::setValley(Info& info, double* enecell) const {
     //
     // Variable defined originally by Michal Seman

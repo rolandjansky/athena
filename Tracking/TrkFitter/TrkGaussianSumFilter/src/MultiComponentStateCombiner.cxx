@@ -1,93 +1,42 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
       MultiComponentStateCombiner.cxx  -  description
       -----------------------------------------------
 begin                : Monday 20th December 2004
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-description          : Implementation code for MultiComponentStateCombiner class
+author               : atkinson,morley,anastopoulos
+description          : Implementation code for MultiComponentStateCombiner helpers
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
-#include "MultiComponentStateModeCalculator.h"
+#include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 
-Trk::MultiComponentStateCombiner::MultiComponentStateCombiner(const std::string& type,
-                                                              const std::string& name,
-                                                              const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-  , m_useMode(false)
-  , m_useModeD0(true)
-  , m_useModeZ0(true)
-  , m_useModePhi(true)
-  , m_useModeTheta(true)
-  , m_useModeqOverP(true)
-  , m_fractionPDFused(1.0)
-{
-
-  declareInterface<IMultiComponentStateCombiner>(this);
-  declareProperty("UseMode", m_useMode, "Calculate mode for all mergers  (not recommended)");
-  declareProperty("UseModeqOverP", m_useModeqOverP);
-  declareProperty("UseModeD0", m_useModeD0);
-  declareProperty("UseModeZ0", m_useModeZ0);
-  declareProperty("UseModePhi", m_useModePhi);
-  declareProperty("UseModeTheta", m_useModeTheta);
-  declareProperty("FractionPDFused", m_fractionPDFused);
-}
-
-StatusCode
-Trk::MultiComponentStateCombiner::initialize()
-{
-
-  if (m_fractionPDFused < 0.1) {
-    ATH_MSG_INFO("Fraction of PDF is set too low begin reset to 1");
-    m_fractionPDFused = 1;
-  }
-
-  if (m_fractionPDFused > 1) {
-    ATH_MSG_INFO("Fraction of PDF is set high low begin reset to 1");
-    m_fractionPDFused = 1;
-  }
-
-  ATH_MSG_VERBOSE("Initialisation of " << name() << " was successful");
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::MultiComponentStateCombiner::finalize()
-{
-
-  ATH_MSG_INFO("-----------------------------------------------");
-  ATH_MSG_INFO("         GSF MCS Combiner  Statistics          ");
-  ATH_MSG_INFO("-----------------------------------------------");
-  ATH_MSG_INFO("Finalisation of " << name() << " was successful");
-
-  return StatusCode::SUCCESS;
-}
-
 std::unique_ptr<Trk::TrackParameters>
-Trk::MultiComponentStateCombiner::combine(const Trk::MultiComponentState& uncombinedState, bool useModeTemp) const
+Trk::MultiComponentStateCombiner::combine(const Trk::MultiComponentState& uncombinedState,
+                                          const bool useMode,
+                                          const double fractionPDFused)
 {
-  std::unique_ptr<Trk::SimpleComponentParameters> combinedComponent = compute(&uncombinedState, useModeTemp);
+  std::unique_ptr<Trk::ComponentParameters> combinedComponent =
+    compute(&uncombinedState, useMode, fractionPDFused);
   return std::move(combinedComponent->first);
 }
 
-std::unique_ptr<Trk::SimpleComponentParameters>
+std::unique_ptr<Trk::ComponentParameters>
 Trk::MultiComponentStateCombiner::combineWithWeight(const Trk::MultiComponentState& uncombinedState,
-                                                    bool useModeTemp) const
+                                                    const bool useMode,
+                                                    const double fractionPDFused)
+
 {
-  return compute(&uncombinedState, useModeTemp);
+  return compute(&uncombinedState, useMode, fractionPDFused);
 }
 
 void
-Trk::MultiComponentStateCombiner::combineWithWeight(
-  std::pair<std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
-  const std::pair<std::unique_ptr<Trk::TrackParameters>, double>& addThis) const
+Trk::MultiComponentStateCombiner::combineWithWeight(Trk::ComponentParameters& mergeTo,
+                                                    const Trk::ComponentParameters& addThis)
 {
 
   const Trk::TrackParameters* firstParameters = mergeTo.first.get();
@@ -127,7 +76,8 @@ Trk::MultiComponentStateCombiner::combineWithWeight(
     mean[2] += 2 * M_PI;
   }
 
-  // Extract local error matrix: Must make sure track parameters are measured, ie have an associated error matrix.
+  // Extract local error matrix: Must make sure track parameters are measured, ie have an associated
+  // error matrix.
   if (firstMeasuredCov && secondMeasuredCov) {
     AmgSymMatrix(5)* covariance = new AmgSymMatrix(5);
     AmgSymMatrix(5) covariancePart1;
@@ -155,38 +105,34 @@ Trk::MultiComponentStateCombiner::combineWithWeight(
     mergeTo.first->updateParameters(mean, covariance);
     mergeTo.second = totalWeight;
   } else {
-    mergeTo.first->updateParameters(mean, 0);
+    mergeTo.first->updateParameters(mean, nullptr);
     mergeTo.second = totalWeight;
   }
 }
 
-std::unique_ptr<Trk::SimpleComponentParameters>
-Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncombinedState, bool useModeTemp) const
+std::unique_ptr<Trk::ComponentParameters>
+Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncombinedState,
+                                          const bool useMode,
+                                          const double fractionPDFused)
 {
   if (uncombinedState->empty()) {
-    ATH_MSG_WARNING("Trying to collapse state with zero components");
     return nullptr;
   }
 
-  const Trk::TrackParameters* firstParameters = uncombinedState->front().first;
+  const Trk::TrackParameters* firstParameters = uncombinedState->front().first.get();
 
   // Check to see if first track parameters are measured or not
   const AmgSymMatrix(5)* firstMeasuredCov = firstParameters->covariance();
 
   if (uncombinedState->size() == 1)
-    return std::make_unique<Trk::SimpleComponentParameters>(uncombinedState->front().first->clone(), 
-                                                            uncombinedState->front().second);
+    return std::make_unique<Trk::ComponentParameters>(uncombinedState->front().first->clone(),
+                                                      uncombinedState->front().second);
 
   double sumW(0.);
   const int dimension = (uncombinedState->front()).first->parameters().rows();
   if (dimension != 5) {
-    ATH_MSG_FATAL("More than 5 track parameters");
+    return nullptr;
   }
-  // generalized in 'dimension' causing headaches - temperarily removed
-  // Amg::VectorX        mean(dimension);
-  // Amg::MatrixX* covariance = new Amg::MatrixX(dimension,dimension);
-  // Amg::MatrixX covariancePart1(dimension,dimension); covariancePart1.setZero();
-  // Amg::MatrixX covariancePart2(dimension,dimension); covariancePart2.setZero();
 
   AmgVector(5) mean;
   mean.setZero();
@@ -195,10 +141,6 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
   covariancePart1.setZero();
   AmgSymMatrix(5) covariancePart2;
   covariancePart2.setZero();
-
-  /* =============================
-     Loop over all components
-     ============================= */
 
   Trk::MultiComponentState::const_iterator component = uncombinedState->begin();
   double totalWeight(0.);
@@ -211,7 +153,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
 
   for (; component != uncombinedState->end(); ++component) {
 
-    const TrackParameters* trackParameters = (*component).first;
+    const TrackParameters* trackParameters = (*component).first.get();
     double weight = (*component).second;
 
     AmgVector(5) parameters = trackParameters->parameters();
@@ -229,7 +171,8 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
     sumW += weight;
     mean += weight * parameters;
 
-    // Extract local error matrix: Must make sure track parameters are measured, ie have an associated error matrix.
+    // Extract local error matrix: Must make sure track parameters are measured, ie have an
+    // associated error matrix.
     const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
     if (measuredCov) {
@@ -248,7 +191,8 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
         if (remainingComponentIterator == component)
           continue;
 
-        AmgVector(5) parameterDifference = parameters - ((*remainingComponentIterator).first)->parameters();
+        AmgVector(5) parameterDifference =
+          parameters - ((*remainingComponentIterator).first)->parameters();
 
         double remainingComponentIteratorWeight = (*remainingComponentIterator).second;
 
@@ -263,7 +207,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
       } // end loop over remaining components
 
     } // end clause if errors are involved
-    if (weight / totalWeight > m_fractionPDFused)
+    if (weight / totalWeight > fractionPDFused)
       break;
   } // end loop over all components
 
@@ -279,110 +223,82 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
 
   (*covariance) = covariancePart1 / sumW + covariancePart2 / (sumW * sumW);
 
-  if (m_useMode || useModeTemp) {
+  if (useMode && dimension == 5) {
 
-    if (dimension == 5) {
+    // Calculate the mode of the q/p distribution
+    std::array<double,10> modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState);
 
-      // Calculate the mode of the q/p distribution
-      Amg::VectorX modes(10);
-      modes.setZero();
-      modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState, msgStream());
+    //  Replace mean with mode if qOverP mode is not 0
+    if (modes[4] != 0) {
+      mean[0] = modes[0];
+      mean[1] = modes[1];
+      mean[2] = modes[2];
+      mean[3] = modes[3];
+      mean[4] = modes[4];
 
-      if (msgLvl(MSG::VERBOSE) && modes[4])
-        ATH_MSG_VERBOSE("Calculated mode q/p is: " << modes[4]);
-
-      //  Replace mean with mode if qOverP mode is not 0
-      if (modes[4] != 0) {
-        if (m_useModeD0) {
-          mean[0] = modes[0];
-          if (modes[5 + 0] > 0) {
-            double currentErr = sqrt((*covariance)(0, 0));
-            currentErr = modes[5 + 0] / currentErr;
-            (*covariance)(0, 0) = modes[5 + 0] * modes[5 + 0];
-            covariance->fillSymmetric(1, 0, (*covariance)(1, 0) * currentErr);
-            covariance->fillSymmetric(2, 0, (*covariance)(2, 0) * currentErr);
-            covariance->fillSymmetric(3, 0, (*covariance)(3, 0) * currentErr);
-            covariance->fillSymmetric(4, 0, (*covariance)(4, 0) * currentErr);
-          }
-        }
-        if (m_useModeZ0) {
-          mean[1] = modes[1];
-          if (modes[5 + 1] > 0) {
-            double currentErr = sqrt((*covariance)(1, 1));
-            currentErr = modes[5 + 1] / currentErr;
-            covariance->fillSymmetric(1, 0, (*covariance)(1, 0) * currentErr);
-            (*covariance)(1, 1) = modes[5 + 1] * modes[5 + 1];
-            covariance->fillSymmetric(2, 1, (*covariance)(2, 1) * currentErr);
-            covariance->fillSymmetric(3, 1, (*covariance)(3, 1) * currentErr);
-            covariance->fillSymmetric(4, 1, (*covariance)(4, 1) * currentErr);
-          }
-        }
-        if (m_useModePhi) {
-          mean[2] = modes[2];
-          if (modes[5 + 2] > 0) {
-            double currentErr = sqrt((*covariance)(2, 2));
-            currentErr = modes[5 + 2] / currentErr;
-            covariance->fillSymmetric(2, 0, (*covariance)(2, 0) * currentErr);
-            covariance->fillSymmetric(2, 1, (*covariance)(2, 1) * currentErr);
-            (*covariance)(2, 2) = modes[5 + 2] * modes[5 + 2];
-            covariance->fillSymmetric(3, 2, (*covariance)(3, 2) * currentErr);
-            covariance->fillSymmetric(4, 2, (*covariance)(4, 2) * currentErr);
-          }
-        }
-        if (m_useModeTheta) {
-          mean[3] = modes[3];
-          if (modes[5 + 3] > 0) {
-            double currentErr = sqrt((*covariance)(3, 3));
-            currentErr = modes[5 + 3] / currentErr;
-            covariance->fillSymmetric(3, 0, (*covariance)(3, 0) * currentErr);
-            covariance->fillSymmetric(3, 1, (*covariance)(3, 1) * currentErr);
-            covariance->fillSymmetric(3, 2, (*covariance)(3, 2) * currentErr);
-            (*covariance)(3, 3) = modes[5 + 3] * modes[5 + 3];
-            covariance->fillSymmetric(4, 3, (*covariance)(4, 3) * currentErr);
-          }
-        }
-        if (m_useModeqOverP) {
-          mean[4] = modes[4];
-          if (modes[5 + 4] > 0) {
-            double currentErr = sqrt((*covariance)(4, 4));
-            currentErr = modes[5 + 4] / currentErr;
-            covariance->fillSymmetric(4, 0, (*covariance)(4, 0) * currentErr);
-            covariance->fillSymmetric(4, 1, (*covariance)(4, 1) * currentErr);
-            covariance->fillSymmetric(4, 2, (*covariance)(4, 2) * currentErr);
-            covariance->fillSymmetric(4, 3, (*covariance)(4, 3) * currentErr);
-            (*covariance)(4, 4) = modes[5 + 4] * modes[5 + 4];
-          }
-        }
+      if (modes[5 + 0] > 0) {
+        double currentErr = sqrt((*covariance)(0, 0));
+        currentErr = modes[5 + 0] / currentErr;
+        (*covariance)(0, 0) = modes[5 + 0] * modes[5 + 0];
+        covariance->fillSymmetric(1, 0, (*covariance)(1, 0) * currentErr);
+        covariance->fillSymmetric(2, 0, (*covariance)(2, 0) * currentErr);
+        covariance->fillSymmetric(3, 0, (*covariance)(3, 0) * currentErr);
+        covariance->fillSymmetric(4, 0, (*covariance)(4, 0) * currentErr);
       }
-    } else {
+      if (modes[5 + 1] > 0) {
+        double currentErr = sqrt((*covariance)(1, 1));
+        currentErr = modes[5 + 1] / currentErr;
+        covariance->fillSymmetric(1, 0, (*covariance)(1, 0) * currentErr);
+        (*covariance)(1, 1) = modes[5 + 1] * modes[5 + 1];
+        covariance->fillSymmetric(2, 1, (*covariance)(2, 1) * currentErr);
+        covariance->fillSymmetric(3, 1, (*covariance)(3, 1) * currentErr);
+        covariance->fillSymmetric(4, 1, (*covariance)(4, 1) * currentErr);
+      }
+      if (modes[5 + 2] > 0) {
+        double currentErr = sqrt((*covariance)(2, 2));
+        currentErr = modes[5 + 2] / currentErr;
+        covariance->fillSymmetric(2, 0, (*covariance)(2, 0) * currentErr);
+        covariance->fillSymmetric(2, 1, (*covariance)(2, 1) * currentErr);
+        (*covariance)(2, 2) = modes[5 + 2] * modes[5 + 2];
+        covariance->fillSymmetric(3, 2, (*covariance)(3, 2) * currentErr);
+        covariance->fillSymmetric(4, 2, (*covariance)(4, 2) * currentErr);
+      }
+      if (modes[5 + 3] > 0) {
+        double currentErr = sqrt((*covariance)(3, 3));
+        currentErr = modes[5 + 3] / currentErr;
+        covariance->fillSymmetric(3, 0, (*covariance)(3, 0) * currentErr);
+        covariance->fillSymmetric(3, 1, (*covariance)(3, 1) * currentErr);
+        covariance->fillSymmetric(3, 2, (*covariance)(3, 2) * currentErr);
+        (*covariance)(3, 3) = modes[5 + 3] * modes[5 + 3];
+        covariance->fillSymmetric(4, 3, (*covariance)(4, 3) * currentErr);
+      }
+      if (modes[5 + 4] > 0) {
+        double currentErr = sqrt((*covariance)(4, 4));
+        currentErr = modes[5 + 4] / currentErr;
+        covariance->fillSymmetric(4, 0, (*covariance)(4, 0) * currentErr);
+        covariance->fillSymmetric(4, 1, (*covariance)(4, 1) * currentErr);
+        covariance->fillSymmetric(4, 2, (*covariance)(4, 2) * currentErr);
+        covariance->fillSymmetric(4, 3, (*covariance)(4, 3) * currentErr);
+        (*covariance)(4, 4) = modes[5 + 4] * modes[5 + 4];
+      }
 
-      ATH_MSG_DEBUG(" Dimension != 5 not updating q/p to mode q/p");
-    }
-  }
+    } // modes[4]!=0
+  }   // useMode && dimensions==5
 
   std::unique_ptr<Trk::TrackParameters> combinedTrackParameters = nullptr;
-
   double loc1 = mean[Trk::loc1];
   double loc2 = mean[Trk::loc2];
   double phi = mean[Trk::phi];
   double theta = mean[Trk::theta];
   double qoverp = mean[Trk::qOverP];
-
   if (firstMeasuredCov)
-    // combinedTrackParameters =
-    // firstParameters->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],par[Trk::phi],par[Trk::theta],par[Trk::qOverP],
-    // covariance );
-    combinedTrackParameters.reset(
-      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, covariance));
+    combinedTrackParameters.reset(firstParameters->associatedSurface().createTrackParameters(
+      loc1, loc2, phi, theta, qoverp, covariance));
   else {
-    // combinedTrackParameters =
-    // firstParameters->associatedSurface().createTrackParameters(par[Trk::loc1],par[Trk::loc2],par[Trk::phi],par[Trk::theta],par[Trk::qOverP],
-    // 0 );
-    combinedTrackParameters.reset(
-      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, nullptr));
+    combinedTrackParameters.reset(firstParameters->associatedSurface().createTrackParameters(
+      loc1, loc2, phi, theta, qoverp, nullptr));
     delete covariance;
   }
 
-    return std::make_unique<Trk::SimpleComponentParameters>(std::move(combinedTrackParameters), totalWeight);
-
+  return std::make_unique<ComponentParameters>(std::move(combinedTrackParameters), totalWeight);
 }

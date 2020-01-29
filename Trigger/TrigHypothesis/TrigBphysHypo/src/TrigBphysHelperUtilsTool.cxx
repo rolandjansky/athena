@@ -79,6 +79,11 @@ StatusCode TrigBphysHelperUtilsTool::finalize()
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
 
+int TrigBphysHelperUtilsTool::sumCharge(const xAOD::TrackParticle *p1, const xAOD::TrackParticle* p2){
+   int q1 = (p1->qOverP() > 0) ? 1 : ((p1->qOverP() < 0) ? -1 : 0);
+   int q2 = (p2->qOverP() > 0) ? 1 : ((p2->qOverP() < 0) ? -1 : 0);
+   return q1+q2;
+}
 
 double TrigBphysHelperUtilsTool::deltaPhi( double phi1, double phi2) const {
     double dphi = phi1 - phi2;

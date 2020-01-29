@@ -63,7 +63,6 @@ Trk::BasicVtxValidationNtupleTool::BasicVtxValidationNtupleTool(
         m_chi2{},
         m_chi2prob{},
         m_numTracksPerVertex{},
-        m_numTracks{},
         m_d0(nullptr),
         m_z0(nullptr),
         m_phi0(nullptr),

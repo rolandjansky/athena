@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define private public
@@ -67,7 +67,7 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
                 // and copy to the persistent object
 
                 // check indexes
-                if (rampIndex    >= persObj->m_vRamp.size()) {
+                if (rampIndex + persObj->m_vRampSize > persObj->m_vRamp.size()) {
                     log << MSG::ERROR 
                         << "LArRampSubsetCnv_p1::persToTrans - ramp index too large: ramp/size " 
                         << rampIndex << " " << persObj->m_vRamp.size() << " " 
@@ -111,7 +111,7 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
     // Loop over corrections
     for (unsigned int i = 0; i < ncorrs; ++i){
         // check indexes
-        if (rampIndex    >= persObj->m_vRamp.size()) {
+        if (rampIndex + persObj->m_vRampSize > persObj->m_vRamp.size()) {
             log << MSG::ERROR 
                 << "LArRampSubsetCnv_p1::persToTrans - ramp index too large: ramp/size " 
                 << rampIndex << " " << persObj->m_vRamp.size() << " " 

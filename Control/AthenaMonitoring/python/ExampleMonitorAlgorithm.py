@@ -31,12 +31,13 @@ def ExampleMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    from AthenaMonitoring.AthenaMonitoringConf import ExampleMonitorAlgorithm
-    exampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'ExampleMonAlg')
+    # This uses the new Configurables object system.
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    exampleMonAlg = helper.addAlgorithm(CompFactory.ExampleMonitorAlgorithm,'ExampleMonAlg')
 
     # You can actually make multiple instances of the same algorithm and give 
     # them different configurations
-    anotherExampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
+    anotherExampleMonAlg = helper.addAlgorithm(CompFactory.ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
@@ -84,8 +85,18 @@ def ExampleMonitoringConfig(inputFlags):
                             xbins=[0,.1,.2,.4,.8,1.6])
     myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
-    # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
-    #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
+    # TEfficiencies
+    myGroup.defineHistogram('pT_passed,pT', type='TEfficiency', title='Test TEfficiency;x;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0)
+    myGroup.defineHistogram('pT_passed,pT,random', type='TEfficiency', title='Test TEfficiency 2D;x;y;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0,
+                            ybins=10, ymin=0.0, ymax=2.0)
+    # # use a cutmask to only fill certain events
+    myGroup.defineHistogram('pT;pT_with_cut', title='p_{T};p_{T};Events', path='AndInTheDarkness',
+                             xbins=50, xmin=0, xmax=50, cutmask='pT_passed')
+    # make a TTree
+    myGroup.defineTree('pT,lb,pT_vec,strvec,str;testtree', path='BindThem',
+                        treedef='pT/F:lb/i:pT_vec/vector<float>:strvec/vector<string>:str/string')
 
     anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
                                  path='top',xbins=1000,xmin=-0.5,xmax=999.5)
@@ -98,22 +109,23 @@ def ExampleMonitoringConfig(inputFlags):
     # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
     for alg in [exampleMonAlg,anotherExampleMonAlg]:
         # Using an array of groups
-        array = helper.addArray([2],alg,'ExampleMonitor')
+        topPath = 'OneRing' if alg == exampleMonAlg else ''
+        array = helper.addArray([2],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
                               xbins=10,xmin=0.0,xmax=10.0,
                               ybins=10,ymin=0.0,ymax=10.0)
         array.defineHistogram('c',title='C',path='Eta',
                               xbins=10,xmin=0.0,xmax=10.0)
-        array = helper.addArray([4,2],alg,'ExampleMonitor')
+        array = helper.addArray([4,2],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('a',title='A',path='EtaPhi',
                               xbins=10,xmin=0.0,xmax=10.0)
         # Using a map of groups
         layerList = ['layer1','layer2']
         clusterList = ['clusterX','clusterB']
-        array = helper.addArray([layerList],alg,'ExampleMonitor')
+        array = helper.addArray([layerList],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('c',title='C',path='Layer',
                               xbins=10,xmin=0,xmax=10.0)
-        array = helper.addArray([layerList,clusterList],alg,'ExampleMonitor')
+        array = helper.addArray([layerList,clusterList],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('c',title='C',path='LayerCluster',
                               xbins=10,xmin=0,xmax=10.0)
 
@@ -141,18 +153,20 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    import sys
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
+    ConfigFlags.fillFromArgs(sys.argv[1:])
     
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesThreadedCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     exampleMonitorAcc = ExampleMonitoringConfig(ConfigFlags)

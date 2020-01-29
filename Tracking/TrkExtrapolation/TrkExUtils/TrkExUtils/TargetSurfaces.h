@@ -11,6 +11,8 @@
 
 
 // CLHEP
+#include <utility>
+
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/BoundaryCheck.h"
@@ -68,13 +70,13 @@ namespace Trk {
     /** Constructor */
     TargetSurface( const Surface* sf, BoundaryCheck bc, SurfNavigType stype, int ind,
 		   const TrackingVolume* tVol, TVNavigType vtype ):
-    surf(sf),bcheck(bc),sfType(stype),index(ind),assocVol(tVol),volType(vtype)
+    surf(sf),bcheck(std::move(bc)),sfType(stype),index(ind),assocVol(tVol),volType(vtype)
     {
       distanceAlongPath=0.; distance=0.; signAbsDist=0.; intersection=Amg::Vector3D(0.,0.,0.); status = 0; 
     }
 
     /** Destructor */
-    ~TargetSurface(){};
+    ~TargetSurface()= default;
 
     /** Distance info */
     void setDistance( double dAlongPath, double dMin, float sign) {
@@ -85,7 +87,7 @@ namespace Trk {
 
     /** Intersection info */
     void setPosition( Amg::Vector3D intPos ) {
-      intersection = intPos;
+      intersection = std::move(intPos);
     }
 
     /** Navigation status info */
@@ -115,33 +117,33 @@ namespace Trk {
     public:
     
       /** Constructor */
-      TargetSurfaces(){};
+      TargetSurfaces()= default;
       
       /** Destructor */
-      ~TargetSurfaces(){};
+      ~TargetSurfaces()= default;
 
       /** Extract surfaces for charged propagation, step into new frame volume */
-      Trk::ExtrapolationCode  setOnInput(Trk::ExCellCharged, const Trk::Surface* sf, BoundaryCheck bc) ;
+      Trk::ExtrapolationCode  setOnInput(const Trk::ExCellCharged&, const Trk::Surface* sf, BoundaryCheck bc) ;
       
       /** Extract surfaces for charged propagation, step into new frame volume */
-      Trk::ExtrapolationCode  setOnInput(Amg::Vector3D position, Amg::Vector3D direction,
-					 const Trk::TrackingVolume*, const Trk::Surface* sf, BoundaryCheck bc) ;
+      Trk::ExtrapolationCode  setOnInput(const Amg::Vector3D& position, const Amg::Vector3D& direction,
+					 const Trk::TrackingVolume*, const Trk::Surface* sf, const BoundaryCheck& bc) ;
 
       /** Ordered intersections for neutral transport, step into new frame volume */
-      TargetSurfaceVector  orderedIntersections(Trk::ExCellNeutral, const Trk::Surface* sf, BoundaryCheck bc);
+      TargetSurfaceVector  orderedIntersections(const Trk::ExCellNeutral&, const Trk::Surface* sf, BoundaryCheck bc);
       
       /** Ordered intersections for neutral transport, step into new frame volume */
-      TargetSurfaceVector  orderedIntersections(Amg::Vector3D position, Amg::Vector3D direction,
-						const Trk::TrackingVolume*, const Trk::Surface* sf, BoundaryCheck bc );
+      TargetSurfaceVector  orderedIntersections(const Amg::Vector3D& position, const Amg::Vector3D& direction,
+						const Trk::TrackingVolume*, const Trk::Surface* sf, const BoundaryCheck& bc );
 
       /** update of target surfaces at input or at frame volume boundary */
-      bool initFrameVolume(Amg::Vector3D position, Amg::Vector3D direction,const Trk::TrackingVolume*) ;      
+      bool initFrameVolume(const Amg::Vector3D& position, const Amg::Vector3D& direction,const Trk::TrackingVolume*) ;      
 
       /** intersections */
       void fillSolutions(int index, Amg::Vector3D gp, TargetSurfaceVector& solutions);
 
       /** distance reevaluation */
-      bool checkDistance(Amg::Vector3D position, Amg::Vector3D direction, double nextStep);
+      bool checkDistance(const Amg::Vector3D& position, const Amg::Vector3D& direction, double nextStep);
 
       /** estimated distance along path to the nearest surface */
       double distanceToNext();
@@ -172,11 +174,11 @@ namespace Trk {
       
     private:
 
-      void evaluateInputDistance(Trk::TargetSurface& tt, Amg::Vector3D pos, Amg::Vector3D dir, bool base);
+      void evaluateInputDistance(Trk::TargetSurface& tt, const Amg::Vector3D& pos, const Amg::Vector3D& dir, bool base);
       void save(Trk::TargetSurface& tt, bool base) ;
       void findNext();
       TargetSurfaceVector  orderIntersections() const;
-      bool updateDistance(int index, Trk::TargetSurface& tt, Amg::Vector3D position, Amg::Vector3D direction);
+      bool updateDistance(int index, Trk::TargetSurface& tt, const Amg::Vector3D& position, const Amg::Vector3D& direction);
 
        bool                              m_orderTrue;       // neutral(true)/charged(false)  
        TargetSurfaceVector               m_baseSurfaces;    // surfaces to be followed all along the path;

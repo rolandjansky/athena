@@ -49,16 +49,16 @@ atlas_add_executable( lwhists_comphistfiles src/tests/comphistfiles/*.cxx
 atlas_add_test( LWHists_val
    SCRIPT lwhists_validate --seed=117
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "Systematic tests" )
+   LOG_IGNORE_PATTERN "Systematic tests" )
 
 
 atlas_add_test( LWHists_val_rootbackend
    SCRIPT lwhists_validate --rootbackend --seed=117
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "Systematic tests" )
+   LOG_IGNORE_PATTERN "Systematic tests" )
 
 
 atlas_add_test( LWHists_val_triggerrootconv
    SCRIPT lwhists_validate --triggerconv --seed=117
    PROPERTIES TIMEOUT 600
-   EXTRA_PATTERNS "Systematic tests" )
+   LOG_IGNORE_PATTERN "Systematic tests" )

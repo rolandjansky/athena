@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def PoolReadCfg(configFlags):
     """
@@ -13,13 +14,13 @@ def PoolReadCfg(configFlags):
 
     result=ComponentAccumulator()
 
-    from PoolSvc.PoolSvcConf import PoolSvc
-    from SGComps.SGCompsConf import ProxyProviderSvc
-    from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import AthenaPoolAddressProviderSvc, EventSelectorAthenaPool, DoubleEventSelectorAthenaPool
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    PoolSvc=CompFactory.PoolSvc
+    ProxyProviderSvc=CompFactory.ProxyProviderSvc
+    AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
+    AthenaPoolAddressProviderSvc, EventSelectorAthenaPool, DoubleEventSelectorAthenaPool=CompFactory.getComps("AthenaPoolAddressProviderSvc","EventSelectorAthenaPool","DoubleEventSelectorAthenaPool",)
+    EvtPersistencySvc=CompFactory.EvtPersistencySvc
     
-    from StoreGate.StoreGateConf import StoreGateSvc
+    StoreGateSvc=CompFactory.StoreGateSvc
 
     result.addService(PoolSvc(MaxFilesOpen=0))
     apcs=AthenaPoolCnvSvc()
@@ -31,29 +32,49 @@ def PoolReadCfg(configFlags):
 
 
     if filenamesSecondary:
-        # We have primary and secondary inputs, create two address providers
-        apapsPrimary = AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvcPrimary")
-        apapsPrimary.DataHeaderKey = "EventSelector"
-        apapsPrimary.AttributeListKey = "Input"
-        result.addService(apapsPrimary)
-        apapsSecondary = AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvcSecondary")
-        apapsSecondary.DataHeaderKey = "SecondaryEventSelector"
-        result.addService(apapsSecondary)
+        # Create DoubleEventSelector (universal for any seconday input type)
+        evSel = DoubleEventSelectorAthenaPool("DoubleEventSelector",
+                                              InputCollections=filenames)
 
-        result.addService(ProxyProviderSvc(ProviderNames = [
-            apapsPrimary.getFullJobOptName(),
-            apapsSecondary.getFullJobOptName()
-        ])) #No service handle yet???
+        if configFlags.Overlay.DataOverlay:
+            # We have to check if we're running data overlay - BS is needed in this case
+            from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+            result.merge(ByteStreamReadCfg(configFlags))
 
-        evSel=DoubleEventSelectorAthenaPool(PrimaryInputCollections = filenames,
-                                            SecondaryaryInputCollections = filenamesSecondary)
+            # We still have to add primary address provider
+            apapsPrimary = AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvcPrimary")
+            apapsPrimary.DataHeaderKey = "EventSelector"
+            result.addService(apapsPrimary)
+
+            result.addService(ProxyProviderSvc(ProviderNames = [
+                apapsPrimary.getFullJobOptName(),
+            ])) #No service handle yet???
+        else:
+            # We have primary and secondary pool inputs, create two address providers
+            apapsPrimary = AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvcPrimary")
+            apapsPrimary.DataHeaderKey = "EventSelector"
+            apapsPrimary.AttributeListKey = "Input"
+            result.addService(apapsPrimary)
+            apapsSecondary = AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvcSecondary")
+            apapsSecondary.DataHeaderKey = "SecondaryEventSelector"
+            result.addService(apapsSecondary)
+
+            result.addService(ProxyProviderSvc(ProviderNames = [
+                apapsPrimary.getFullJobOptName(),
+                apapsSecondary.getFullJobOptName()
+            ])) #No service handle yet???
+
+            secondarySel = EventSelectorAthenaPool("SecondaryEventSelector",
+                                                   IsSecondary=True,
+                                                   InputCollections=filenamesSecondary)
+            result.addService(secondarySel)
     else:
         # We have only primary inputs
         apaps=AthenaPoolAddressProviderSvc()
         result.addService(apaps)
         result.addService(ProxyProviderSvc(ProviderNames=[apaps.getFullJobOptName(),])) #No service handle yet???
 
-        evSel=EventSelectorAthenaPool(InputCollections = filenames)
+        evSel=EventSelectorAthenaPool("EventSelector", InputCollections = filenames)
 
     result.addService(evSel)
     result.setAppProperty("EvtSel",evSel.getFullJobOptName())

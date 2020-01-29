@@ -98,7 +98,7 @@ thinningTools.append(SUSY1TauTPThinningTool)
 # Calo Clusters associated with Photons
 #from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 #SUSY1PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "SUSY1PhotonCCThinningTool",
-#                                                                                     ThinningService         = SUSY1ThinningHelper.ThinningSvc(),
+#                                                                                     StreamName              = streamName,
 #                                                                                     SGKey                   = "Photons",
 #                                                                                     CaloClCollectionSGKey   = "egammaClusters",
 #                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -110,7 +110,7 @@ thinningTools.append(SUSY1TauTPThinningTool)
 
 # Calo Clusters associated with Electrons
 #SUSY1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "SUSY1ElectronCCThinningTool",
-#                                                                                     ThinningService         = SUSY1ThinningHelper.ThinningSvc(),
+#                                                                                     StreamName              = streamName,
 #                                                                                     SGKey                   = "Electrons",
 #                                                                                     CaloClCollectionSGKey   = "egammaClusters",
 #                                                                                     TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -123,7 +123,7 @@ thinningTools.append(SUSY1TauTPThinningTool)
 # Calo Clusters associated with jets
 #from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__JetCaloClusterThinning
 #SUSY1aKt4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "SUSY1aKt4CCThinningTool",
-#                                                                     ThinningService         = SUSY1ThinningHelper.ThinningSvc(),
+#                                                                      StreamName              = streamName,
 #                                                                      SGKey                   = "AntiKt4LCTopoJets",
 #                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
 #                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",

@@ -57,7 +57,7 @@ if not rec.doHeavyIon():
     
         #ToolSvc += JpsiMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
-            print JpsiMon_NoTrig
+            printfunc (JpsiMon_NoTrig)
         InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_NoTrig ]
     
     if doZmumu:
@@ -77,13 +77,13 @@ if not rec.doHeavyIon():
     
         #ToolSvc += ZmumuMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
-            print ZmumuMon_NoTrig
+            printfunc (ZmumuMon_NoTrig)
         InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_NoTrig ]
     
     
     
     if not DQMonFlags.useTrigger():
-        print "DiMuMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
+        printfunc ("DiMuMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring")
     else:
         if doJpsi:
             JpsiMon_XpressTrig_idperf = DiMuMon (name = "JpsiMon_XpressTrig_idperf",
@@ -102,7 +102,7 @@ if not rec.doHeavyIon():
             JpsiMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
             #ToolSvc += JpsiMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
-                print JpsiMon_XpressTrig_idperf
+                printfunc (JpsiMon_XpressTrig_idperf)
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_idperf ]
     
             JpsiMon_XpressTrig_2mu = DiMuMon (name = "JpsiMon_XpressTrig_2mu",
@@ -121,7 +121,7 @@ if not rec.doHeavyIon():
             JpsiMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
             #ToolSvc += JpsiMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
-                print JpsiMon_XpressTrig_2mu
+                printfunc (JpsiMon_XpressTrig_2mu)
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_2mu ]
     
     
@@ -142,7 +142,7 @@ if not rec.doHeavyIon():
             ZmumuMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
             #ToolSvc += ZmumuMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
-                print ZmumuMon_XpressTrig_idperf
+                printfunc (ZmumuMon_XpressTrig_idperf)
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_idperf ]
     
     
@@ -162,7 +162,7 @@ if not rec.doHeavyIon():
             ZmumuMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
             #ToolSvc += ZmumuMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
-                print ZmumuMon_XpressTrig_2mu
+                printfunc (ZmumuMon_XpressTrig_2mu)
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_2mu ]
     
     ## Setup the output histogram file(s):
@@ -178,7 +178,7 @@ if not rec.doHeavyIon():
     
     topSequence +=InDetDiMuMonManager
     if (InDetFlags.doPrintConfigurables()):
-        print InDetDiMuMonManager
+        printfunc (InDetDiMuMonManager)
 
 
 
@@ -218,7 +218,7 @@ if rec.doHeavyIon():
     
         #ToolSvc += JpsiMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
-            print JpsiMon_NoTrig
+            printfunc (JpsiMon_NoTrig)
         InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_NoTrig ]
     
     if doZmumu:
@@ -238,13 +238,13 @@ if rec.doHeavyIon():
     
         #ToolSvc += ZmumuMon_NoTrig
         if (InDetFlags.doPrintConfigurables()):
-            print ZmumuMon_NoTrig
+            printfunc (ZmumuMon_NoTrig)
         InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_NoTrig ]
     
     
     
     if not hasattr(ToolSvc, 'monTrigDecTool'):
-        print "DiMuMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"
+        printfunc ("DiMuMon_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring")
     else:
         if doJpsi:
             JpsiMon_XpressTrig_idperf = DiMuMon (name = "JpsiMon_XpressTrig_idperf",
@@ -263,7 +263,7 @@ if rec.doHeavyIon():
             JpsiMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
             #ToolSvc += JpsiMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
-                print JpsiMon_XpressTrig_idperf
+                printfunc (JpsiMon_XpressTrig_idperf)
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_idperf ]
     
             JpsiMon_XpressTrig_2mu = DiMuMon (name = "JpsiMon_XpressTrig_2mu",
@@ -282,7 +282,7 @@ if rec.doHeavyIon():
             JpsiMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
             #ToolSvc += JpsiMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
-                print JpsiMon_XpressTrig_2mu
+                printfunc (JpsiMon_XpressTrig_2mu)
             InDetDiMuMonManager.AthenaMonTools += [ JpsiMon_XpressTrig_2mu ]
     
     
@@ -303,7 +303,7 @@ if rec.doHeavyIon():
             ZmumuMon_XpressTrig_idperf.TrigDecisionTool = monTrigDecTool
             #ToolSvc += ZmumuMon_XpressTrig_idperf
             if (InDetFlags.doPrintConfigurables()):
-                print ZmumuMon_XpressTrig_idperf
+                printfunc (ZmumuMon_XpressTrig_idperf)
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_idperf ]
     
     
@@ -323,7 +323,7 @@ if rec.doHeavyIon():
             ZmumuMon_XpressTrig_2mu.TrigDecisionTool = monTrigDecTool
             #ToolSvc += ZmumuMon_XpressTrig_2mu
             if (InDetFlags.doPrintConfigurables()):
-                print ZmumuMon_XpressTrig_2mu
+                printfunc (ZmumuMon_XpressTrig_2mu)
             InDetDiMuMonManager.AthenaMonTools += [ ZmumuMon_XpressTrig_2mu ]
     
     ## Setup the output histogram file(s):
@@ -339,7 +339,7 @@ if rec.doHeavyIon():
     
     topSequence +=InDetDiMuMonManager
     if (InDetFlags.doPrintConfigurables()):
-        print InDetDiMuMonManager
+        printfunc (InDetDiMuMonManager)
 
 
 

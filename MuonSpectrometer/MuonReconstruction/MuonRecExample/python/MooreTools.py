@@ -346,8 +346,6 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
 
 
 def MuonRefitTool(name,**kwargs):
-    if not muonRecFlags.doCSCs():
-        kwargs["CscRotCreator"] = ""	   
     # To activate the tuning of meas. errors using alignment constants from DB
     # kwargs.setdefault("AlignmentErrorTool", getPublicTool("MuonAlignmentErrorTool"))
     # kwargs.setdefault("DeweightBEE", False)
@@ -364,8 +362,6 @@ def MuonErrorOptimisationTool(name,extraFlags=None,**kwargs):
     fitter=getattr(extraFlags,"Fitter",None)
     if fitter is not None:
         cloneArgs["Fitter"] = fitter
-    if not MuonGeometryFlags.hasCSC():
-        cloneArgs["CscRotCreator"] = ""
     if "RefitTool" not in kwargs:
         if namePrefix or namePostfix:
             cloneName = namePrefix+"MuonRefitTool"+namePostfix

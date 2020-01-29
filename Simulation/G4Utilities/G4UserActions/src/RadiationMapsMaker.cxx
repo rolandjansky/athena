@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RadiationMapsMaker.h"
@@ -373,6 +373,9 @@ namespace G4UA{
       G4ThreeVector startPoint = pre_step_point->GetPosition();
       G4ThreeVector endPoint   = post_step_point->GetPosition();
       G4ThreeVector p = (startPoint + endPoint) * 0.5;
+
+      // process upper hemisphere only in case PositiveYOnly is true
+      if ( m_config.posYOnly && p.y() < 0 ) return;
 
       double timeOfFlight = (pre_step_point->GetGlobalTime() +
 			     post_step_point->GetGlobalTime()) * 0.5;

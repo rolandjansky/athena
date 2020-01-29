@@ -26,9 +26,9 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
+#include "InDetReadoutGeometry/TRT_BaseElement.h"
 #include "DetDescrConditions/AlignableTransform.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -51,7 +51,6 @@ namespace InDetAlignment
         m_pixelIdHelper(nullptr),
         m_sctIdHelper(nullptr),
         m_trtIdHelper(nullptr),
-        m_TRT_Manager(nullptr),
 	m_IDAlignDBTool("InDetAlignDBTool"),
 	m_trtaligndbservice("TRT_AlignDbSvc",name),
 	m_asciiFileNameBase("MisalignmentSet"),
@@ -127,9 +126,8 @@ namespace InDetAlignment
 		// TRT
 		ATH_CHECK(detStore()->retrieve(m_trtIdHelper, "TRT_ID"));
 		ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
-		// TRT manager
-		ATH_CHECK(detStore()->retrieve(m_TRT_Manager, "TRT"));
                 // ReadCondHandleKey
+		ATH_CHECK(m_trtDetEleCollKey.initialize());
                 ATH_CHECK(m_pixelDetEleCollKey.initialize());
                 ATH_CHECK(m_SCTDetEleCollKey.initialize());
 		// Retrieve the Histo Service
@@ -360,13 +358,19 @@ namespace InDetAlignment
 		//TODO: writing into the Identifier tree is undone for TRT (AthenaHashedID and HumanReadableID)
 		
 		std::map< Identifier, std::vector<double> > trtModulesWithCOG;
-		
-		InDetDD::TRT_DetElementCollection::const_iterator iter;
+
+                // TRT_DetElementContainer->TRT_DetElementCollection for TRT                                                                                                                            
+		SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleCollKey);
+                const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+                if (not trtDetEleHandle.isValid() or elements==nullptr) {
+		  ATH_MSG_FATAL(m_trtDetEleCollKey.fullKey() << " is not available.");
+		  return;
+                }
 		
 		//step through all detector elements (=strawlayers) and accumulate strawcenters per
 		// element (with DB granularity, i.e. phi sectors in endcap, bi-modules in barrel)
-		for (iter=m_TRT_Manager->getDetectorElementBegin(); iter!= m_TRT_Manager->getDetectorElementEnd(); ++iter) {
-			const Identifier TRTID_orig = (*iter)->identify();
+		for (const InDetDD::TRT_BaseElement *element: *elements) {
+			const Identifier TRTID_orig = element->identify();
 			const Identifier TRTID      = reduceTRTID(TRTID_orig);
 			
 			if (trtModulesWithCOG.find(TRTID) == trtModulesWithCOG.end()) {
@@ -378,9 +382,9 @@ namespace InDetAlignment
 			//                   msg(MSG::DEBUG) << "center of module: " << module_center.rho()/CLHEP::cm << ";" << module_center.phi() << ";" << module_center.z()/CLHEP::cm << endmsg;
 			//                   msg(MSG::DEBUG) << "center of reduced module: " << module_center_reduced.rho()/CLHEP::cm << ";" << module_center_reduced.phi() << ";" << module_center_reduced.z()/CLHEP::cm << endmsg;
 			
-			unsigned int nStraws = (*iter)->nStraws();
+			unsigned int nStraws = element->nStraws();
 			for (unsigned int l = 0; l<nStraws; l++) {
-				const Amg::Vector3D strawcenter = (*iter)->strawCenter(l);
+				const Amg::Vector3D strawcenter = element->strawCenter(l);
 				trtModulesWithCOG[TRTID].at(0) += strawcenter.x(); /*sumx*/
 				trtModulesWithCOG[TRTID].at(1) += strawcenter.y(); /*sumy*/
 				trtModulesWithCOG[TRTID].at(2) += strawcenter.z(); /*sumz*/
@@ -515,7 +519,7 @@ namespace InDetAlignment
 			} else if (m_idHelper->is_sct(ModuleID)) {
                                 const IdentifierHash SCT_ModuleHash = m_sctIdHelper->wafer_hash(ModuleID);
 				SiModule = sctElements->getDetectorElement(SCT_ModuleHash);
-				//module = SiModule;
+				//module = SiModule;OB
 			} else if (m_idHelper->is_trt(ModuleID)) {
 				//module = m_TRT_Manager->getElement(ModuleID);
 				//const InDetDD::TRT_BaseElement *p_TRT_Module = m_TRT_Manager->getElement(iter->second.moduleID());

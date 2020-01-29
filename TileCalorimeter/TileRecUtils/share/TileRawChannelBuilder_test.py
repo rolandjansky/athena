@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileRecUtils/share/TileRawChannelBuilder_test.py
 # Author: sss
@@ -265,7 +265,7 @@ class PrepareDataAlg (Alg):
             coll = ROOT.TileRawChannelCollection (hashFunc.identifier (icoll))
             mask = 0
             for chan in chans:
-                mask |= (1<<(chan/3))
+                mask |= (1<<(chan//3))
             coll.setFragMemoryPar(mask)
             cont.addCollection (coll, ROOT.IdentifierHash(icoll))
             ROOT.SetOwnership (coll, False)

@@ -101,7 +101,8 @@ svcMgr.MessageSvc.errorLimit  = 100000
 #ClassIDSvc.OutputLevel = INFO
 InDetRawDataFakeWriter.OutputLevel = DEBUG
 
-AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
+from AthenaServices import AthenaServicesConf
+AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()
 AthenaEventLoopMgr.OutputLevel = INFO
 
 # No stats printout

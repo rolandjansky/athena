@@ -9,6 +9,7 @@
 
 class ITLorentzVectorFactory{
  public:
+  virtual ~ITLorentzVectorFactory() = default;
   virtual TLorentzVector make(double, double) const = 0;
 };
 #endif

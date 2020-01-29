@@ -14,6 +14,8 @@
 #include <set>
 #include <string>
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonRDO/MdtCsm_Cache.h"
@@ -21,10 +23,6 @@
 
 class MdtCsmContainer;
 class IROBDataProviderSvc;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
 
 namespace Muon 
 {
@@ -56,7 +54,9 @@ class MDT_RawDataProviderToolCore : public AthAlgTool
   ToolHandle<MdtROD_Decoder>        m_decoder; 
   SG::WriteHandleKey<MdtCsmContainer>   m_rdoContainerKey{
 	this, "RdoLocation", "MDTCSM", "Name of the MDTCSM produced by RawDataProvider"};
-  const MuonGM::MuonDetectorManager* m_muonMgr;    
+
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
   unsigned int m_maxhashtoUse;
 
   // Rob Data Provider handle 

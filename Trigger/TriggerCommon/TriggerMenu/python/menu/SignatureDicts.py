@@ -5,6 +5,8 @@ logging.getLogger().info("Importing %s",__name__)
 logSignatureDict = logging.getLogger("TriggerMenu.menu.SignatureDicts")
 from copy import deepcopy
 
+import six
+
 #==========================================================
 ##This is stored in chainDict['Signature']
 #==========================================================
@@ -830,7 +832,7 @@ BeamspotChainParts_Default = {
 #==========================================================
 def getSignatureNameFromToken(chainpart):
     theMatchingTokens = []
-    reverseSliceIDDict = dict([(value, key) for key, value in SliceIDDict.iteritems()]) #reversed SliceIDDict
+    reverseSliceIDDict = dict([(value, key) for key, value in six.iteritems (SliceIDDict)]) #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
             if (token in chainpart):
                 theMatchingTokens += [token]
@@ -893,7 +895,6 @@ def getSignatureInformation(signature):
 
 def getBasePattern():
     import re
-    import itertools
     # possibleTT = '|'.join(allowedSignaturePropertiesAndValues['trigType'])
     #print 'SignatureDicts.py: Allowed values for triType in base pattern', SliceIDDict.values()
     allTrigTypes = SliceIDDict.values()

@@ -7,11 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //  Header file for class SiSpacePointsSeedMaker_HeavyIon
 /////////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-/////////////////////////////////////////////////////////////////////////////////
-// Class for track candidates generation using space points information
-// for standard Atlas geometry
-/////////////////////////////////////////////////////////////////////////////////
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +36,17 @@ namespace InDet {
 
   using EventData = SiSpacePointsSeedMakerEventData;
 
+  /**
+   * @class SiSpacePointsSeedMaker_HeavyIon
+   * Class for track candidates generation using space points information
+   * for standard Atlas geometry
+   *
+   * In AthenaMT, event dependent cache inside SiSpacePointsSeedMaker_HeavyIon
+   * is not preferred. SiSpacePointsSeedMakerEventData = EventData class
+   * holds event dependent data for SiSpacePointsSeedMaker_HeavyIon.
+   * Its object is instantiated in SiSPSeededTrackFinder::execute.
+   */
+
   class SiSpacePointsSeedMaker_HeavyIon : 
     public extends<AthAlgTool, ISiSpacePointsSeedMaker>
   {
@@ -51,63 +57,65 @@ namespace InDet {
   public:
       
     ///////////////////////////////////////////////////////////////////
-    // Standard tool methods
+    /// @name Standard tool methods
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     SiSpacePointsSeedMaker_HeavyIon
     (const std::string&,const std::string&,const IInterface*);
     virtual ~SiSpacePointsSeedMaker_HeavyIon() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Methods to initialize tool for new event or region
+    /// @name Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
-
+    //@{
     virtual void newEvent(EventData& data, int iteration) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>&vSCT) const override;
     virtual void newRegion(EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>&vSCT,
                            const IRoiDescriptor& iRD) const override;
+    //@}
      
     ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with two space points with or without vertex constraint
+    /// @name Methods to initilize different strategies of seeds production
     ///////////////////////////////////////////////////////////////////
+    //@{
 
+    /// with two space points with or without vertex constraint
     virtual void find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
-    // with three space points with or without vertex constraint
-    ///////////////////////////////////////////////////////////////////
-
+    /// with three space points with or without vertex constraint
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+
+    /// with three space points with or without vertex constraint
+    /// with information about min and max Z of the vertex
     virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
 
-    ///////////////////////////////////////////////////////////////////
-    // Methods to initilize different strategies of seeds production
     // with variable number space points with or without vertex constraint
     // Variable means (2,3,4,....) any number space points
-    ///////////////////////////////////////////////////////////////////
-
     virtual void findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+    //@}
 
     ///////////////////////////////////////////////////////////////////
-    // Iterator through seeds pseudo collection produced accordingly
-    // methods find    
+    /// @name Iterator through seeds pseudo collection
+    /// produced accordingly methods find    
     ///////////////////////////////////////////////////////////////////
-      
+    //@{
     virtual const SiSpacePointsSeed* next(EventData& data) const override;
-      
-    ///////////////////////////////////////////////////////////////////
-    // Print internal tool parameters and status
-    ///////////////////////////////////////////////////////////////////
+    //@}
 
+    ///////////////////////////////////////////////////////////////////
+    /// @name Print internal tool parameters and status
+    ///////////////////////////////////////////////////////////////////
+    //@{
     virtual MsgStream& dump(EventData& data, MsgStream& out) const override;
+    //@}
 
   private:
+    /// enum for array sizes
     enum Size {SizeRF=53,
                SizeZ=11,
                SizeRFZ=SizeRF*SizeZ,
@@ -120,19 +128,22 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
-      
+
+    /// @name Service handles
+    //@{
     ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
+    //@}
 
-    ///////////////////////////////////////////////////////////////////
-    // Space points container
-    ///////////////////////////////////////////////////////////////////
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
-    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
+    /// @name Data handles
+    //@{
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints", "SCT space points container"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints", "Pixel space points container"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
-
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+    //@}
 
-    // Properties, which will not be changed after construction
+    /// @name Properties, which will not be changed after construction
+    //@{
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_sct{this, "useSCT", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", false};
@@ -155,27 +166,35 @@ namespace InDet {
     FloatProperty m_diver{this, "maxdImpact", 10.};
     FloatProperty m_diverpps{this, "maxdImpactPPS", 1.7};
     FloatProperty m_diversss{this, "maxdImpactSSS", 1000.};
+    //@}
 
-    // Properties, which can be updated in initialize
-    FloatProperty m_r3max{this, "maxRadius3", 600.}; // Always overwritten by m_r_rmax
+    /// @name Properties, which can be updated in initialize
+    //@{
+    FloatProperty m_r3max{this, "maxRadius3", 600.}; //!< Always overwritten by m_r_rmax
     FloatProperty m_rapcut{this, "RapidityCut", 2.7};
     FloatProperty m_ptmin{this, "pTmin", 500.};
+    //@}
 
-    // Properties, which are not used in this implementation of SiSpacePointsSeedMaker_HeavyIon class
+    /// @name Properties, which are not used in this implementation of SiSpacePointsSeedMaker_HeavyIon class
+    //@{
     FloatProperty m_r1min{this, "minRadius1", 0.};
     FloatProperty m_r1max{this, "maxRadius1", 600.};
     FloatProperty m_r2min{this, "minRadius2", 0.};
     FloatProperty m_r2max{this, "maxRadius2", 600.};
     FloatProperty m_r3min{this, "minRadius3", 0.};
+    //@}
 
-    // Not updated at all
+    /// @name Data members, which are not updated at all
+    //@{
     float m_drminv{20.};
     float m_zminU{0.};
     float m_zmaxU{0.};
     float m_ftrig{0.};
     float m_ftrigW{0.};
+    //@}
 
-    // Updated in only initialize
+    // @name Data members, which are updated only in initialize
+    //@{
     bool m_initialized{false};
     int m_outputlevel{0};
     int m_r_size{0};
@@ -194,11 +213,12 @@ namespace InDet {
     float m_COF{0.};
     float m_sF{0.};
     float m_sFv{0.};
+    //@}
 
     ///////////////////////////////////////////////////////////////////
     // Private methods
     ///////////////////////////////////////////////////////////////////
-    /**    @name Disallow default instantiation, copy, assignment */
+    /// @name Disallow default instantiation, copy, assignment
     //@{
     SiSpacePointsSeedMaker_HeavyIon() = delete;
     SiSpacePointsSeedMaker_HeavyIon(const SiSpacePointsSeedMaker_HeavyIon&) = delete;
@@ -234,24 +254,24 @@ namespace InDet {
     void production3Sp(EventData& data) const;
     void production3Sp
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&) const;
     void production3SpTrigger
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&) const;
     void production3SpNoVertex
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&) const;
 
     bool newVertices(EventData& data, const std::list<Trk::Vertex>&) const;

@@ -210,8 +210,6 @@ Aud::py_before (IAuditor::StandardEventType evt, const std::string& component)
   case Initialize:   evtname = "initialize";   break;
   case ReInitialize: evtname = "reinitialize"; break;
   case Execute:      evtname = "execute";      break;
-  case BeginRun:     evtname = "beginrun";     break;
-  case EndRun:       evtname = "endrun";       break;
   case Finalize:     evtname = "finalize";     break;
   case Start:        evtname = "start";        break;
   case Stop:         evtname = "stop";         break;
@@ -236,8 +234,6 @@ Aud::py_after(IAuditor::StandardEventType evt,
   case Initialize:   evtname = "initialize";   break;
   case ReInitialize: evtname = "reinitialize"; break;
   case Execute:      evtname = "execute";      break;
-  case BeginRun:     evtname = "beginrun";     break;
-  case EndRun:       evtname = "endrun";       break;
   case Finalize:     evtname = "finalize";     break;
   case Start:        evtname = "start";        break;
   case Stop:         evtname = "stop";         break;

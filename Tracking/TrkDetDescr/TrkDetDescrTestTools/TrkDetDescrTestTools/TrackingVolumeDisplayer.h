@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 // Trk
 #include "TrkDetDescrTestTools/RecursiveGeometryProcessor.h"
 // STL
-#include <algorithm>
 #include <string>
 #include <fstream>
 
@@ -73,7 +72,6 @@ namespace Trk {
         mutable std::ofstream               m_fileLayerOutput;                    //!< file output for visualization action
         mutable std::string                 m_fileLayerOutputName;                //!< file name for visualization action
         mutable bool                        m_fileLayerOutputMode;                //!< steer writing
-        mutable bool                        m_fileLayerSenstiveVolume;            //!< write the sensitive volume info
 
         mutable std::ofstream               m_fileSurfaceOutput;                  //!< file output for visualization action
         mutable std::string                 m_fileSurfaceOutputName;              //!< file name for visualization action

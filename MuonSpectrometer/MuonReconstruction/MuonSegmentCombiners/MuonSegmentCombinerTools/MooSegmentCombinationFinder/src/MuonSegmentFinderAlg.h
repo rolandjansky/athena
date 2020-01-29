@@ -7,17 +7,14 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
@@ -53,7 +50,7 @@ class MuonSegmentFinderAlg : public AthAlgorithm
 
  private:
 
-  ToolHandle<Muon::MuonIdHelperTool>              m_idHelperTool;   //<! Id helper tool  
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<Muon::MuonEDMPrinterTool>            m_printer;   //<! helper printer tool  
   ToolHandle<Muon::IMuonPatternCalibration>       m_patternCalibration;
   ToolHandle<Muon::IMuonPatternSegmentMaker>      m_patternSegmentMaker;
@@ -81,7 +78,6 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,Trk::SegmentCollection* segments);
 
   bool m_printSummary;
-  bool m_useNSWMode;
   
   /** selection flags for cluster based segment finding */
   bool                m_doTGCClust;

@@ -27,8 +27,6 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "TrigKernel/ITrigMessageSvc.h"
-
 // Helper to mark some virtual methods as not supported
 #define NOTSUPPORTED                                                                               \
   throw std::logic_error(std::string(__func__) + " is not supported by TrigMessageSvc")
@@ -55,7 +53,7 @@ class TH2I;
  *
  * @author    Iain Last, Werner Wiedenmann, Frank Winklmeier
  */
-class TrigMessageSvc : public extends<Service, IMessageSvc, ITrigMessageSvc, IIncidentListener> {
+class TrigMessageSvc : public extends<Service, IMessageSvc, IIncidentListener> {
 public:
   typedef std::map<std::string, int> ThresholdMap;
 
@@ -88,7 +86,6 @@ public:
   virtual void setOutputLevel(int new_level) override;
   virtual void setOutputLevel(const std::string& source, int new_level) override;
   virtual int messageCount(MSG::Level logLevel) const override;
-  virtual void resetOutputLevels() override;
 
   virtual bool useColor() const override { return m_color; }
   virtual std::string getLogColor(int) const override { return ""; }

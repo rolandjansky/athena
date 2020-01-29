@@ -88,10 +88,11 @@ class OverlapDescriptor;
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)   override {}
 
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, const Amg::Vector3D&, double) const  override {}
-               
- 
+       /** Resize the layer to the tracking volume - not implemented */
+       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                                         const Amg::Vector3D&,
+                                                                         double) const override
+       {}
   };
  
 } // end of namespace

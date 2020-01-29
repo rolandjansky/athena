@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -214,7 +214,7 @@ namespace SH
     const std::string treeName (meta()->castString (MetaFields::treeName, MetaFields::treeName_default));
     if (treeName.empty())
       RCU_THROW_MSG ("sample " + name() + " does not have a tree name associated");
-    std::auto_ptr<TChain> result (new TChain (treeName.c_str()));
+    std::unique_ptr<TChain> result (new TChain (treeName.c_str()));
     for (std::vector<std::string>::const_iterator file = files.begin(),
 	   end = files.end(); file != end; ++ file)
       result->AddFile (file->c_str());
@@ -241,7 +241,7 @@ namespace SH
       dir += treeName.substr (0, split);
       treeName = treeName.substr (split+1);
     }
-    std::auto_ptr<TDSet> result (new TDSet ("TTree", treeName.c_str(), dir.c_str()));
+    std::unique_ptr<TDSet> result (new TDSet ("TTree", treeName.c_str(), dir.c_str()));
     for (std::vector<std::string>::const_iterator file = files.begin(),
 	   end = files.end(); file != end; ++ file)
       result->Add (file->c_str());
@@ -317,7 +317,7 @@ namespace SH
     for (std::vector<std::string>::const_iterator fileName = fileList.begin(),
 	   end = fileList.end(); fileName != end; ++ fileName)
     {
-      std::auto_ptr<TFile> file (TFile::Open (fileName->c_str(), "READ"));
+      std::unique_ptr<TFile> file (TFile::Open (fileName->c_str(), "READ"));
       if (file.get() == 0)
 	RCU_THROW_MSG ("failed to open file: " + *fileName);
       TTree *tree = dynamic_cast<TTree*>(file->Get (treeName.c_str()));
@@ -359,7 +359,7 @@ namespace SH
   void Sample ::
   addReplaceMeta (TNamed *meta_swallow)
   {
-    std::auto_ptr<TNamed> mymeta (meta_swallow);
+    std::unique_ptr<TNamed> mymeta (meta_swallow);
 
     // no invariant used
     RCU_REQUIRE_SOFT (meta_swallow != 0);

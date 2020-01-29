@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
@@ -35,7 +35,7 @@ class SCT_ID;
  * and uses AlgTools (SCTRawDataProviderTool and SCT_RodDecoder
  * to read the ByteStream and make RDOs.
  * Output is one RDO container (IDC) per event, which contains
- * one Collection per link (8196 in total), each of which contains
+ * one Collection per link (8176 in total), each of which contains
  * RDOs for hits (one RDO per strip in expanded mode, one per cluster
  * in condensed mode).
  *

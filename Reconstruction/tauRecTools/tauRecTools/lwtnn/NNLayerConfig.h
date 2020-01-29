@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NN_LAYER_CONFIG_HH_TAURECTOOLS
@@ -17,9 +17,9 @@
 
 namespace lwtDev {
   enum class Activation {NONE, LINEAR, SIGMOID, RECTIFIED, SOFTMAX, TANH,
-      HARD_SIGMOID, ELU, LEAKY_RELU, SWISH};
+      HARD_SIGMOID, ELU, LEAKY_RELU, SWISH, ABS};
   enum class Architecture {NONE, DENSE, NORMALIZATION, MAXOUT, HIGHWAY,
-      LSTM, GRU, EMBEDDING};
+      LSTM, GRU, BIDIRECTIONAL, EMBEDDING};
   // components (for LSTM, etc)
   enum class Component {
     I, O, C, F,                 // LSTM
@@ -49,6 +49,10 @@ namespace lwtDev {
     std::vector<double> U;      // TODO: what is this thing called in LSTMs?
     ActivationConfig activation;
     ActivationConfig inner_activation; // for LSTMs and GRUs
+    bool go_backwards; // for LSTMs and GRUs
+    bool return_sequence; // for LSTMs and GRUs
+    std::string merge_mode; // for Bidirectional
+
 
     // additional info for sublayers
     std::vector<LayerConfig> sublayers;
@@ -59,14 +63,14 @@ namespace lwtDev {
     Architecture architecture;
   };
 
-
   // graph node configuration
   struct NodeConfig
   {
-    enum class Type { INPUT, INPUT_SEQUENCE, FEED_FORWARD,
-        CONCATENATE, SEQUENCE, TIME_DISTRIBUTED};
+    enum class Type {
+      INPUT, INPUT_SEQUENCE, FEED_FORWARD, CONCATENATE, SEQUENCE,
+      TIME_DISTRIBUTED, SUM };
     Type type;
-    std::map<const std::string, std::vector<size_t>> sources;
+    std::vector<size_t> sources;
     int index;                  // input node size, or layer number
   };
 }

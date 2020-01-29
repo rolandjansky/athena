@@ -3,8 +3,9 @@
 __doc__ = "Configure cluster correction"
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaTools.egammaToolsConf import egammaSwTool
+egammaSwTool=CompFactory.egammaSwTool
 
 import six
 

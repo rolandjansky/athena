@@ -23,6 +23,10 @@ StatusCode TrigBjetEtHypoAlgMT::initialize() {
   CHECK( m_inputRoIKey.initialize()        );
   CHECK( m_inputPrmVtx.initialize()        );
 
+  renounce( m_inputJetsKey );
+  renounce( m_inputRoIKey );
+  if ( m_retrieveVertexFromEventView == true ) renounce( m_inputPrmVtx );
+
   return StatusCode::SUCCESS;
 }
 
@@ -34,24 +38,46 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
   // ========================================================================================================================== 
 
   // Read in previous Decisions made before running this Hypo Alg.
+  // The decisions come from the Jet group
   const TrigCompositeUtils::DecisionContainer *prevDecisionContainer = nullptr;
   CHECK( retrievePreviousDecisionContainer( context,prevDecisionContainer ) );
+  ATH_MSG_DEBUG( "Found a total of " << prevDecisionContainer->size() << " previous decisions!" );
 
   // Retrieve Jets
+  // These are the jets coming from the Jet selector in which RoIs have been constructed
+  // with PV constraint
   ElementLinkVector< xAOD::JetContainer > jetELs;
-  CHECK( retrieveJets( context,jetELs,m_inputJetsKey,prevDecisionContainer ) ); 
+  CHECK( retrieveObjectFromEventView( context,jetELs,m_inputJetsKey,prevDecisionContainer ) );
 
   ATH_MSG_DEBUG( "Found " << jetELs.size()<< " jets."  );
   for ( const ElementLink< xAOD::JetContainer >& jetLink : jetELs ) 
-    ATH_MSG_DEBUG("   -- Jet pt=" << (*jetLink)->p4().Et() 
-		  <<" eta="<< (*jetLink)->eta() 
-		  << " phi="<< (*jetLink)->phi() );
-
-
+    ATH_MSG_DEBUG( "   -- Jet pt=" << (*jetLink)->p4().Et() 
+		   <<" eta="<< (*jetLink)->eta() 
+		   << " phi="<< (*jetLink)->phi() );
+  
+  // The following is just for debugging. 
   // Retrieve RoI (to be linked to the output decision)
-  const TrigRoiDescriptorCollection *roiContainer = nullptr;
-  if ( m_roiLink.value() != "Undefined" )
-    CHECK( retrieveRoIs( context,roiContainer,m_inputRoIKey ) );
+  ElementLinkVector< TrigRoiDescriptorCollection > roiELs;
+  CHECK( retrieveObjectFromEventView( context,roiELs,m_inputRoIKey,prevDecisionContainer ) );
+  
+  ATH_MSG_DEBUG( "Found " << roiELs.size() << " rois." );
+  for ( const ElementLink< TrigRoiDescriptorCollection >& roiLink : roiELs )
+    ATH_MSG_DEBUG( "   -- RoI eta=" << (*roiLink)->eta() << 
+		   " phi=" << (*roiLink)->phi() );
+
+  // The following is just for debugging.
+  // Retrieve PVs 
+  ElementLinkVector< xAOD::VertexContainer > vertexELs;
+  if ( m_retrieveVertexFromEventView == true )
+    CHECK( retrieveObjectFromEventView( context,vertexELs,m_inputPrmVtx,prevDecisionContainer ) );
+  else
+    CHECK( retrieveObjectFromStoreGate( context,vertexELs,m_inputPrmVtx ) );
+
+  ATH_MSG_DEBUG( "Found " << vertexELs.size() <<" vertexes." );
+  for ( const ElementLink< xAOD::VertexContainer >& vertexLink : vertexELs )
+    ATH_MSG_DEBUG( "  -- PV x="<<  (*vertexLink)->x() << 
+		   " y=" << (*vertexLink)->y() << 
+		   " z=" << (*vertexLink)->z() );
 
   // ========================================================================================================================== 
   //    ** Prepare Outputs
@@ -65,21 +91,55 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
   //    ** Compute Decisions
   // ==========================================================================================================================
 
-  // We need nDecisions (one per RoI if we run on Event Views). Each decision having m chains ( m=m_hypoTools.size() ) 
-  const unsigned int nDecisions = jetELs.size();
-
-  // Create output decisions
   ATH_MSG_DEBUG("Creating Output Decisions and Linking Stuff to it");
   std::vector< TrigCompositeUtils::Decision* > newDecisions;
-  for ( unsigned int index(0); index<nDecisions; index++ ) {
+  /*
+  for ( const TrigCompositeUtils::Decision* inputDecision : *prevDecisionContainer ) {
+    
+    int index = 0;
+    if ( index < 0 ) continue;
     TrigCompositeUtils::Decision *toAdd = TrigCompositeUtils::newDecisionIn( outputDecisions,
-									     getPreviousDecision(prevDecisionContainer,index),
+                                                                             inputDecision,
+                                                                             "", context );
+
+    // Adding Links 
+    CHECK( attachLinksToDecision( context,*toAdd,index ) ); 
+    newDecisions.push_back( toAdd );    
+  }
+  */
+  
+  // Create output decisions
+  for ( unsigned int index(0); index < jetELs.size(); index++ ) {
+
+    // Find correct previous decision
+    const TrigCompositeUtils::Decision *previousDecision = prevDecisionContainer->at(0);
+
+    // Create new decisions
+    TrigCompositeUtils::Decision *toAdd = TrigCompositeUtils::newDecisionIn( outputDecisions,
+									     previousDecision,
 									     "", context );
+
+    // find index of PV 
+    int PVindex = -1;
+
+    for ( unsigned int pvi(0); pvi < vertexELs.size(); pvi++ ) {
+      const ElementLink< xAOD::VertexContainer >& vertexLink = vertexELs.at( pvi );
+      if ( (*vertexLink)->vertexType() != xAOD::VxType::VertexType::PriVtx ) continue;
+      PVindex = pvi;
+      break;
+    }
+
+    if ( PVindex == -1 ) {
+      ATH_MSG_DEBUG( "Primary Vertex could not be found!" );
+      ATH_MSG_DEBUG( "Using dummy vertex!" );
+      PVindex = 0;
+    }
+
+    // Adding Links 
+    CHECK( attachLinksToDecision( context,*toAdd,index,PVindex ) );
     newDecisions.push_back( toAdd );
   }
 
-  // Adding Links
-  CHECK( attachLinkToDecisions( context,prevDecisionContainer,newDecisions) );
 
   // ==========================================================================================================================
   //    ** Prepare input to Hypo Tools
@@ -87,11 +147,38 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
 
   std::vector< TrigBjetEtHypoTool::TrigBjetEtHypoToolInfo > bJetHypoInputs;
 
-  for ( unsigned int index(0); index<nDecisions; index++ ) {
+  for ( TrigCompositeUtils::Decision* newDecision : newDecisions ) {
+    // Check navigation is set properly
+    if ( not newDecision->hasObjectCollectionLinks( TrigCompositeUtils::seedString() ) ) {
+      ATH_MSG_ERROR( "Trying to extract the IDs of the b-jet chains which are active." );
+      ATH_MSG_ERROR( "But output decision has no link to seed collection." );
+      return StatusCode::FAILURE;
+    }
+    // Check jets are attached properly
+    if ( not newDecision->hasObjectLink( TrigCompositeUtils::featureString() ) ) {
+      ATH_MSG_ERROR( "Trying to extract the associated jet from the output decisions." );
+      ATH_MSG_ERROR( "But output decision has no link to jet." );
+      return StatusCode::FAILURE;
+    }
+    // Check vertex is attached properly
+    if ( not newDecision->hasObjectLink( m_prmVtxLink.value() ) ) {
+      ATH_MSG_ERROR( "Trying to extract the associated primary vertex from the output decisions." );
+      ATH_MSG_ERROR( "But output decision has no link to primary vertex" );
+      return StatusCode::FAILURE;
+    }    
+
+    // Get Parent Decision
+    const ElementLinkVector< TrigCompositeUtils::DecisionContainer > mySeeds = newDecision->objectCollectionLinks< TrigCompositeUtils::DecisionContainer >( TrigCompositeUtils::seedString() );
+    // Get Associated Jet
+    const ElementLink< xAOD::JetContainer > myJet = newDecision->objectLink< xAOD::JetContainer >( TrigCompositeUtils::featureString() ); 
+    CHECK( myJet.isValid() );
+    // Get primary vertex
+    const ElementLink< xAOD::VertexContainer > myVertex = newDecision->objectLink< xAOD::VertexContainer >( m_prmVtxLink.value() );
+    CHECK( myVertex.isValid() );
 
     // Extract the IDs of the b-jet chains which are active.
     // Previous decision IDs.
-    const TrigCompositeUtils::Decision *previousDecision = getPreviousDecision(prevDecisionContainer,index);
+    const TrigCompositeUtils::Decision *previousDecision = *mySeeds.back();
 
     TrigCompositeUtils::DecisionIDContainer previousDecisionIDs {
       TrigCompositeUtils::decisionIDs( previousDecision ).begin(),
@@ -100,8 +187,9 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
 
     TrigBjetEtHypoTool::TrigBjetEtHypoToolInfo infoToAdd;
     infoToAdd.previousDecisionIDs = previousDecisionIDs;
-    infoToAdd.jetEL = jetELs.at( index );
-    infoToAdd.decision = newDecisions.at( index );
+    infoToAdd.jetEL = myJet; 
+    infoToAdd.vertexEL = myVertex;
+    infoToAdd.decision = newDecision;
     bJetHypoInputs.push_back( infoToAdd );
   }
 
@@ -120,66 +208,40 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigBjetEtHypoAlgMT::retrieveJets( const EventContext& context,
-					      ElementLinkVector< xAOD::JetContainer >& jetELs,
-					      const SG::ReadHandleKey< xAOD::JetContainer >& inputJetsKey,
-					      const TrigCompositeUtils::DecisionContainer* prevDecisionContainer ) const {
-  
-  CHECK( retrieveObjectFromStoreGate( context,jetELs,inputJetsKey,prevDecisionContainer ) );
-  return StatusCode::SUCCESS;
-}
+StatusCode TrigBjetEtHypoAlgMT::attachLinksToDecision( const EventContext& context,
+						       TrigCompositeUtils::Decision& toAdd,
+						       int index,
+						       int indexPrmVertex ) const {
 
-StatusCode TrigBjetEtHypoAlgMT::retrieveRoIs( const EventContext& context,
-					      const TrigRoiDescriptorCollection*& roiContainer,
-					      const SG::ReadHandleKey< TrigRoiDescriptorCollection >& inputRoIKey ) const {
-  ATH_MSG_DEBUG( "Retrieving input TrigRoiDescriptorCollection with key: " << inputRoIKey );
-  SG::ReadHandle< TrigRoiDescriptorCollection > roiContainerHandle = SG::makeHandle( inputRoIKey,context );
-  CHECK( roiContainerHandle.isValid() );
+  // Do the linking...
+  // Link Jet
+  CHECK( attachObjectLinkToDecisionFromEventView( context,
+						  toAdd,
+						  m_inputJetsKey,
+						  TrigCompositeUtils::featureString(),
+						  index ) );
 
-  roiContainer = roiContainerHandle.get();
-  ATH_MSG_DEBUG( "Retrieved " << roiContainer->size() <<" input RoIs" );
-  for ( const TrigRoiDescriptor *roi : *roiContainer )
-    ATH_MSG_DEBUG( "   ** eta="<< roi->eta() << " phi=" << roi->phi() );
+  // Link RoI
+  CHECK( attachObjectLinkToDecisionFromEventView( context,
+						  toAdd,
+						  m_inputRoIKey,
+						  m_roiLink.value(),
+						  index ) );
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigBjetEtHypoAlgMT::setJetLink( const EventContext& /*context*/,
-					    const SG::ReadHandleKey< xAOD::JetContainer >& jetKey,
-					    const unsigned int index,
-					    const TrigCompositeUtils::DecisionContainer*& /*inputDecisions*/,
-					    std::vector< TrigCompositeUtils::Decision* >& outputDecisions ) const {
-
-  outputDecisions.at(index)->setObjectLink( TrigCompositeUtils::featureString(),ElementLink< xAOD::JetContainer >( jetKey.key(),index ) );           
-  return StatusCode::SUCCESS;
-}
-
-const TrigCompositeUtils::Decision* TrigBjetEtHypoAlgMT::getPreviousDecision( const TrigCompositeUtils::DecisionContainer* decisionContainer,
-									      unsigned int /*index*/ ) const {
-  return decisionContainer->at(0);
-}
-
-StatusCode TrigBjetEtHypoAlgMT::attachLinkToDecisions( const EventContext& context,
-						       const TrigCompositeUtils::DecisionContainer* prevDecisionContainer,
-						       std::vector< TrigCompositeUtils::Decision* >& newDecisions ) const {
-  const unsigned int nDecisions = newDecisions.size();
-
-  for ( unsigned int index(0); index<nDecisions; index++ ) {
-    // We want multiple output decision (one per RoI/Jet)    
-
-    // A little bit tricky here, we may need to revise this in the future
-    // In case what we want to link lives inside a view we have to do a few additional things 
-    // in order to be able to link it to the output decision
-    if ( m_roiLink.value() != "Undefined" && m_inputRoIKey.key() != "Undefined" )
-      newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
-    
-    if ( m_prmVtxLink.value() != "Undefined" && m_inputPrmVtx.key() != "Undefined")
-      newDecisions.at( index )->setObjectLink( m_prmVtxLink.value(),ElementLink< xAOD::VertexContainer >( m_inputPrmVtx.key(),0 ) );
-    
-    CHECK( setJetLink( context,m_inputJetsKey,index,prevDecisionContainer,newDecisions ) );
-  }
+  // Link Vertex
+  if ( m_retrieveVertexFromEventView )
+    CHECK( attachObjectLinkToDecisionFromEventView( context,
+						    toAdd,
+						    m_inputPrmVtx,
+						    m_prmVtxLink.value(),
+						    indexPrmVertex ) );
+  else
+    CHECK( attachObjectLinkToDecisionFromStoreGate( toAdd,
+						    m_inputPrmVtx,
+						    m_prmVtxLink.value(),
+						    indexPrmVertex ) );
 
   ATH_MSG_DEBUG("   ** Added object links to output decision");
-
   return StatusCode::SUCCESS;
 }
+

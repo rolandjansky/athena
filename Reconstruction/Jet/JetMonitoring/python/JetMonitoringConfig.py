@@ -1,4 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # #######################################
 ## JetMonitoringConfig
@@ -28,6 +29,8 @@
 ##
 ## See python/JetMonitoringExample.py for usage of the system
 
+import six
+
 class ConfigDict(dict):
     """A python dictionnary extended so that each entry in the dict can also be accessed as 
        member attribute.  
@@ -40,24 +43,24 @@ class ConfigDict(dict):
     """
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
-        for k,v in kwargs.iteritems():
+        for k,v in six.iteritems (kwargs):
             dict.__setattr__(self, k,  v)
     def __getattr__(self, attr):
         try:
             return self[attr]
-        except:
+        except KeyError:
             dict.__getattribute__(self,attr)
             #raise AttributeError(attr)
 
     def __setattr__(self, attr, value):
         if attr in ['keys', 'clear', 'update', 'pop', 'iteritems', 'values','setdefault','get','has_key','copy']:
-            print 'ConfigDict ERROR can not assign attribute ', attr
+            print('ConfigDict ERROR can not assign attribute ', attr)
             return
         dict.__setitem__(self, attr,  value)
         dict.__setattr__(self, attr,  value)
     def __setitem__(self, attr, value):
         if attr in ['keys', 'clear', 'update', 'pop', 'iteritems', 'values','setdefault','get','has_key','copy']:
-            print 'ConfigDict ERROR can not assign attribute ', attr
+            print('ConfigDict ERROR can not assign attribute ', attr)
             return
         dict.__setitem__(self, attr,  value)
         dict.__setattr__(self, attr,  value)
@@ -66,7 +69,7 @@ class ConfigDict(dict):
     def clone(self, **kwargs):
         from copy import deepcopy
         c = deepcopy(self)
-        for k,v in kwargs.iteritems():
+        for k,v in six.iteritems (kwargs):
             setattr(c,k,v)
         return c
 
@@ -77,13 +80,13 @@ class ConfigDict(dict):
             from sys import stdout
             out = stdout
         _write = out.write
-        write = lambda s, e='\n' : _write(s+e)
+        def write(s, e='\n'): _write(s+e)
         self._dump(write)
         
     def _dump(self, writeFunc):
-        write = lambda s, e='\n' : writeFunc('  '+s,e)
+        def write(s, e='\n'): writeFunc('  '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(self.iteritems()):
+        for k,v in sorted(six.iteritems (self)):
             if isinstance(v, ConfigDict):
                 write(k+' = ','')
                 v._dump(write)
@@ -109,8 +112,8 @@ def interpretSelStr(selStr):
     """
 
     if '>' in selStr:
-        print "JetMonitoring ERROR interpreting selection string ", selStr
-        print "JetMonitoring ERROR  can not interpret '>', please use only '<' "
+        print("JetMonitoring ERROR interpreting selection string ", selStr)
+        print("JetMonitoring ERROR  can not interpret '>', please use only '<' ")
     parts = selStr.split('<')
     cmin, cmax = None, None
     var = selStr
@@ -118,7 +121,7 @@ def interpretSelStr(selStr):
         ismin = False
         try :
             var, cut = parts[0] , float(parts[1])
-        except:
+        except ValueError:
             cut, var = float(parts[0]) ,parts[1]
             ismin=True
         if ismin : cmin = cut
@@ -136,7 +139,7 @@ def findSelectIndex( name):
     """ interprets 'varName[X]' into ('varName',x) """
     try:
         name, index = name.split('[')
-    except:
+    except ValueError:
         name, index = name, ''
     if not index.endswith(']'):
         return name, -1
@@ -159,9 +162,9 @@ class ToolSpec(ConfigDict):
         from AthenaCommon import CfgMgr
         conf = self.clone(self.name)
         klass = getattr(CfgMgr,conf.pop('klass')) # remove 'klass'
-        name = conf.pop('name')
+        conf.pop('name')
         conf.pop('defineHistoFunc',None) # not used here.
-        for k, v in conf.iteritems():
+        for k, v in six.iteritems (conf):
             if isinstance(v,ToolSpec):
                 conf[k] = v.toTool()
             if isinstance(v,list):
@@ -202,8 +205,8 @@ class VarSpec(ToolSpec):
 
 
     def toTool(self):
-        from JetMonitoring.JetMonitoringConf import JetHistoVarTool
-        return JetHistoVarTool(self.Name, **self)
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        return CompFactory.JetHistoVarTool(self.Name, **self)
 
     def vname(self):
         if self.Index ==-1: return self.Name
@@ -293,9 +296,9 @@ class HistoSpec(ToolSpec):
     
 
     def toTool(self):
-        from JetMonitoring.JetMonitoringConf import JetHistoAttributeFiller
+        from AthenaConfiguration.ComponentFactory import CompFactory
         vx = retrieveVarToolConf( self.xvar)
-        tool = JetHistoAttributeFiller(self.groupName()+"hfiller",
+        tool = CompFactory.JetHistoAttributeFiller(self.groupName()+"hfiller",
                                        VarX = vx.toTool(),
                                        Group = self.groupName(),
         )
@@ -352,7 +355,7 @@ class HistoSpec(ToolSpec):
 
 
     def _dump(self, writeFunc):
-        write = lambda s : writeFunc('  '+s)
+        def write(s): writeFunc('  '+s)
         writeFunc('HistoSpec("'+self.name+'", '+str(self.bins) )
         for k in [ 'xvar',  'yvar', 'zvar', 'isProfile' ]:
             if self[k] is not None:
@@ -385,7 +388,7 @@ class SelectSpec(ToolSpec):
             # assume it's a known pre-defined jet selector
             selSpec = knownSelector.get(selexpr, None)
             if selSpec is None :
-                print "ERROR  ", selexpr , " is an unknown JetSelector "
+                print("ERROR  ", selexpr , " is an unknown JetSelector ")
                 # should raise an exception ??
                 return
             args['Selector'] = selSpec
@@ -403,10 +406,10 @@ class SelectSpec(ToolSpec):
         self.FillerTools += tmpL
         
     def toTool(self):
-        from JetMonitoring.JetMonitoringConf import JetHistoSelectSort
+        from AthenaConfiguration.ComponentFactory import CompFactory
         # conf = self.clone(self.name)
         # name = conf.pop('name')
-        selTool = JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1))
+        selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1))
         if hasattr(self,'Selector'):
             selTool.Selector = self.Selector.toTool()
         if hasattr(self, 'SortVariable'):
@@ -427,8 +430,8 @@ class SelectSpec(ToolSpec):
 
 
     def _dump(self, writeFunc):
-        write = lambda s,e='\n' : writeFunc('  '+s,e)
-        write2 = lambda s,e='\n' : writeFunc('    '+s,e)
+        def write(s,e='\n'): writeFunc('  '+s,e)
+        def write2(s,e='\n'): writeFunc('    '+s,e)
         writeFunc('SelectSpec("'+self.name+'", path='+self.path+',')
         if hasattr(self, 'Selector' ):
             write('  Selector=','')
@@ -456,8 +459,8 @@ class JetMonAlgSpec(ConfigDict):
         self.FillerTools += tmpL
             
     def toAlg(self, monhelper):
-        from JetMonitoring.JetMonitoringConf import JetMonitoringAlg        
-        alg = monhelper.addAlgorithm(JetMonitoringAlg, self.name)
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        alg = monhelper.addAlgorithm(CompFactory.JetMonitoringAlg, self.name)
         alg.TriggerChain = self.TriggerChain
         alg.JetContainerName = self.JetContainerName
         
@@ -470,10 +473,10 @@ class JetMonAlgSpec(ConfigDict):
         return alg
 
     def _dump(self, writeFunc):
-        write = lambda s,e='\n' : writeFunc('  '+s,e)
-        write2 = lambda s,e='\n' : writeFunc('    '+s,e)
+        def write(s,e='\n'): writeFunc('  '+s,e)
+        def write2(s,e='\n'): writeFunc('    '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(self.iteritems()):
+        for k,v in sorted(six.iteritems (self)):
             if k == 'FillerTools':
                 write('FillerTools = [')
                 for hspec in v:
@@ -535,7 +538,7 @@ def retrieveHistoToolConf(alias):
         cY = knownHistos.get(aliasY,None)
         if len(aliases) == 2:
             if None in (cX,cY):
-                print "ERROR unknown Histo Filler specification  ", cX if cX is None else cY
+                print("ERROR unknown Histo Filler specification  ", cX if cX is None else cY)
                 return None
             # merge the spec            
             return cX.to2DSpec(cY)
@@ -552,7 +555,7 @@ def retrieveHistoToolConf(alias):
         
     else:
         # What is this :
-        print 'ERROR can not instantiate a tool from ', alias
+        print('ERROR can not instantiate a tool from ', alias)
         return None
 
 

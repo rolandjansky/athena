@@ -19,9 +19,8 @@ class EDMCollection:
     '''A simple representation of an EDM collection storing just its names and size'''
 
     def __init__(self, name_vec, size_words):
-        self.name_transient = name_vec[0]
-        self.name_persistent = name_vec[1]
-        self.name_key = name_vec[2]
+        self.name_persistent = name_vec[0]
+        self.name_key = name_vec[1]
         self.size_words = size_words
         self.size_bytes = size_words*4
         self.parent = None
@@ -31,18 +30,18 @@ class EDMCollection:
 
     def name(self):
         if not self.parent:
-            return '{:s}#{:s}'.format(self.name_transient, self.name_key)
+            return '{:s}#{:s}'.format(self.name_persistent, self.name_key)
         else:
-            return '{:s}#{:s}{:s}'.format(self.name_transient, self.parent.name_key, self.name_key)
+            return '{:s}#{:s}{:s}'.format(self.name_persistent, self.parent.name_key, self.name_key)
 
     def is_xAOD_interface_container(self):
-        return self.name_transient.startswith('xAOD') and not self.name_key.endswith('Aux.')
+        return self.name_persistent.startswith('xAOD') and not self.name_key.endswith('Aux.')
 
     def is_xAOD_aux_container(self):
-        return self.name_transient.startswith('xAOD') and self.name_key.endswith('Aux.')
+        return self.name_persistent.startswith('xAOD') and self.name_key.endswith('Aux.')
 
     def is_xAOD_decoration(self):
-        return 'vector' in self.name_transient and \
+        return 'vector' in self.name_persistent and \
                     not self.is_xAOD_interface_container() and \
                     not self.is_xAOD_aux_container()
 

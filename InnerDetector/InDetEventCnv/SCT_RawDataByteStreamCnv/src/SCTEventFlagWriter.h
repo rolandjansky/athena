@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H
@@ -18,7 +18,7 @@ class ISCT_ByteStreamErrorsTool;
 /** 
  * @class SCTEventFlagWriter
  *
- * @brief Athena Algorithm to flag an event bad if number of error exceed threshold. 
+ * @brief Athena reentrant Algorithm to flag an event bad if the number of errors exceed threshold. 
  *
  * This algorithm flags an event bad if it has >500 LVL1ID errors or 
  * >1000 ROBFragment errors.

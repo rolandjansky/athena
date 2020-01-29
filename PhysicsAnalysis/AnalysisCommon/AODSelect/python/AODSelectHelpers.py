@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # =============================================================================
 # Name:        AODSelectFlags
@@ -9,6 +9,8 @@
 # Description: Here, some helper functions for AODSelect are defined.
 #
 # =============================================================================
+
+from __future__ import print_function
 
 __doc__ = """Here, some helper functions for AODSelect are defined."""
 __version__ = "0.0.1"
@@ -332,9 +334,9 @@ def allAvailableObjectsLists():
 
 # Method to print all available AODSelect containers
 def printAODSelect():
-    print "========================================================================================"
-    print "Showing below the all available AODSelect containers for each available input container:"
-    print "    (format: <container type>#<container key>)"
+    print ("========================================================================================")
+    print ("Showing below the all available AODSelect containers for each available input container:")
+    print ("    (format: <container type>#<container key>)")
 
     """
     # Get the input types and keys
@@ -344,17 +346,17 @@ def printAODSelect():
 
     # Print the available outputs for each input
     for inputTypeAndKey in inputTypeAndKeyList:
-        print
-        print "    Available AODSelect containers for input container %s are:" % inputTypeAndKey
+        print()
+        print ("    Available AODSelect containers for input container %s are:" % inputTypeAndKey)
         
         # Get the values of outputType and outputKeys
         outputTypeAndKeyList = inOutDict[inputTypeAndKey]
         outputTypeAndKeyList.sort()
         for outputTypeAndKey in outputTypeAndKeyList:
-            print "        %s" % outputTypeAndKey
+            print ("        %s" % outputTypeAndKey)
             pass
         pass
 """
-    print "========================================================================================"
+    print ("========================================================================================")
 
     return

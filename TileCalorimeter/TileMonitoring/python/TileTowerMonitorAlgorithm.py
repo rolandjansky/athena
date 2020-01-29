@@ -6,6 +6,7 @@
 @brief Python configuration of TileTowerMonitorAlgorithm algorithm for the Run III
 '''
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileTowerMonitoringConfig(flags, **kwargs):
 
@@ -25,7 +26,7 @@ def TileTowerMonitoringConfig(flags, **kwargs):
     helper = AthMonitorCfgHelper(flags,'TileTowerMonitoring')
 
     # Adding an TileTowerMonitorAlgorithm algorithm to the helper
-    from TileMonitoring.TileMonitoringConf import TileTowerMonitorAlgorithm
+    TileTowerMonitorAlgorithm=CompFactory.TileTowerMonitorAlgorithm
     tileTowerMonAlg = helper.addAlgorithm(TileTowerMonitorAlgorithm, 'TileTowerMonAlg')
 
     tileTowerMonAlg.TriggerChain = ''
@@ -60,21 +61,21 @@ def TileTowerMonitoringConfig(flags, **kwargs):
     addTileEtaPhiMapsArray(helper, tileTowerMonAlg, name = 'TileTowerEtaPhiDiff', type='TH2D',
                            title = 'Position correlation of Tile Tower opposite to most energetic tower',
                            path = 'Tile/Tower', run = run, triggers = l1Triggers, perSample = False,
-                           etaTitle = '#Delta #eta', etabins = 40, etamin = -2.0, etamax = 2.0,
-                           phiTitle = '#Delta #phi', phibins = Tile.MAX_DRAWER, phimin = 0.0, phimax = 6.4)
+                           etaTitle = '#Delta #eta', etabins = 41, etamin = -2.05, etamax = 2.05,
+                           phiTitle = '#Delta #phi', phibins = Tile.MAX_DRAWER + 1, phimin = -0.05, phimax = 6.45)
 
 
     from TileMonitoring.TileMonitoringCfgHelper import addTile1DHistogramsArray
 
     # ) Configure histograms with Et in most energetic Tile tower per partition
-    addTile1DHistogramsArray(helper, tileTowerMonAlg, name = 'TileTowerEt', value = 'Et',
+    addTile1DHistogramsArray(helper, tileTowerMonAlg, name = 'TileTowerEt', xvalue = 'Et',
                              title = 'E_{T} [MeV] in most energetic Tile Tower', path = 'Tile/Tower',
                              xbins = 80, xmin = 0., xmax = 20000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = True, perSample = False,
                              perGain = False, subDirectory = True, allPartitions = True)
 
     # ) Configure histograms with all Tile towers energy per partition
-    addTile1DHistogramsArray(helper, tileTowerMonAlg, name = 'TileAllTowerEnergy', value = 'energy',
+    addTile1DHistogramsArray(helper, tileTowerMonAlg, name = 'TileAllTowerEnergy', xvalue = 'energy',
                              title = 'All Tile Towers Energy [MeV]', path = 'Tile/Tower',
                              xbins = 80, xmin = 0., xmax = 20000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = True, perSample = False,

@@ -12,24 +12,26 @@
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
+#include <utility>
+
 #include "GaudiKernel/MsgStream.h"
 #include "TrkExUtils/TargetSurfaces.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkGeometry/TrackingVolume.h"
 
-Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(Trk::ExCellCharged eCell, const Trk::Surface* sf, 
+Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(const Trk::ExCellCharged& eCell, const Trk::Surface* sf, 
 							Trk::BoundaryCheck bcheck) 
 {
   Amg::Vector3D gp  = eCell.leadParameters->position();	
   Amg::Vector3D mom = eCell.leadParameters->momentum().normalized();	
   Trk::PropDirection dir = eCell.propDirection;
   
-  return setOnInput( gp, mom*dir, eCell.leadVolume, sf, bcheck);
+  return setOnInput( gp, mom*dir, eCell.leadVolume, sf, std::move(bcheck));
 }
 
-  Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(Amg::Vector3D position, Amg::Vector3D direction,
+  Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(const Amg::Vector3D& position, const Amg::Vector3D& direction,
 							 const Trk::TrackingVolume* fVol, 
-               const Trk::Surface* sf, Trk::BoundaryCheck bcheck) 
+               const Trk::Surface* sf, const Trk::BoundaryCheck& bcheck) 
 {
   // clear cache
   m_baseSurfaces.clear();
@@ -39,7 +41,7 @@ Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(Trk::ExCellCharged eCell
 
   // destination surface(s) first
   if (sf) { 
-    Trk::TargetSurface tt(sf,bcheck,Trk::SurfNavigType::Target,0,0,Trk::TVNavigType::Unknown);
+    Trk::TargetSurface tt(sf,bcheck,Trk::SurfNavigType::Target,0,nullptr,Trk::TVNavigType::Unknown);
     evaluateInputDistance(tt,position,direction,true);  
     // abort if no valid intersection
     if (!m_baseSurfaces.size() || (m_baseSurfaces.back().distanceAlongPath<0 && !sf->isOnSurface(position,bcheck,m_tolerance)))
@@ -51,18 +53,18 @@ Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(Trk::ExCellCharged eCell
 
 }
 
-Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(Trk::ExCellNeutral eCell, const Trk::Surface* sf,
+Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(const Trk::ExCellNeutral& eCell, const Trk::Surface* sf,
 							       Trk::BoundaryCheck bcheck) 
 {
   Amg::Vector3D gp  = eCell.leadParameters->position();	
   Amg::Vector3D mom = eCell.leadParameters->momentum().normalized();	
   Trk::PropDirection dir = eCell.propDirection;
   
-  return orderedIntersections( gp, mom*dir, eCell.leadVolume, sf, bcheck);
+  return orderedIntersections( gp, mom*dir, eCell.leadVolume, sf, std::move(bcheck));
 }
 
-Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(Amg::Vector3D position, Amg::Vector3D direction,
-					  const Trk::TrackingVolume* fVol, const Trk::Surface* sf,Trk::BoundaryCheck bcheck  )
+Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(const Amg::Vector3D& position, const Amg::Vector3D& direction,
+					  const Trk::TrackingVolume* fVol, const Trk::Surface* sf,const Trk::BoundaryCheck& bcheck  )
 {
   Trk::TargetSurfaceVector empty;   
 
@@ -74,7 +76,7 @@ Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(Amg::Vector3
 
   // destination surface(s) first
   if (sf) { 
-    Trk::TargetSurface tt(sf,bcheck,Trk::SurfNavigType::Target,0,0,Trk::TVNavigType::Unknown);
+    Trk::TargetSurface tt(sf,bcheck,Trk::SurfNavigType::Target,0,nullptr,Trk::TVNavigType::Unknown);
     evaluateInputDistance(tt,position,direction,true);  
     // abort if no valid intersection
     if (!m_baseSurfaces.size() || (m_baseSurfaces.back().distanceAlongPath<0 && !sf->isOnSurface(position,bcheck,m_tolerance)))
@@ -86,7 +88,7 @@ Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(Amg::Vector3
 
 }
 
-bool Trk::TargetSurfaces::initFrameVolume(Amg::Vector3D pos, Amg::Vector3D dir, const Trk::TrackingVolume* fVol) 
+bool Trk::TargetSurfaces::initFrameVolume(const Amg::Vector3D& pos, const Amg::Vector3D& dir, const Trk::TrackingVolume* fVol) 
 {
   if (!fVol) return true;
 
@@ -165,7 +167,7 @@ bool Trk::TargetSurfaces::initFrameVolume(Amg::Vector3D pos, Amg::Vector3D dir, 
 
 }
 
-void Trk::TargetSurfaces::evaluateInputDistance(Trk::TargetSurface& tt, Amg::Vector3D pos, Amg::Vector3D mom, bool base) 
+void Trk::TargetSurfaces::evaluateInputDistance(Trk::TargetSurface& tt, const Amg::Vector3D& pos, const Amg::Vector3D& mom, bool base) 
 {
     Trk::DistanceSolution distSol = tt.surf->straightLineDistanceEstimate(pos,mom);
 
@@ -211,7 +213,7 @@ void Trk::TargetSurfaces::evaluateInputDistance(Trk::TargetSurface& tt, Amg::Vec
     return;
 }  
 
-bool Trk::TargetSurfaces::updateDistance(int index, Trk::TargetSurface& tt, Amg::Vector3D pos, Amg::Vector3D dir) 
+bool Trk::TargetSurfaces::updateDistance(int index, Trk::TargetSurface& tt, const Amg::Vector3D& pos, const Amg::Vector3D& dir) 
 {
     double previousDistance = tt.distanceAlongPath;
 
@@ -356,7 +358,7 @@ void Trk::TargetSurfaces::findNext() {
 }
 
 
-bool Trk::TargetSurfaces::checkDistance(Amg::Vector3D pos, Amg::Vector3D dir, double nextStep) {
+bool Trk::TargetSurfaces::checkDistance(const Amg::Vector3D& pos, const Amg::Vector3D& dir, double nextStep) {
 
   m_lastStep = (pos-m_probePos).mag();
 

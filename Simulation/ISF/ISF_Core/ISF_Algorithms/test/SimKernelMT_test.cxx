@@ -103,13 +103,13 @@ namespace ISFTesting {
     MOCK_METHOD0(finalize, StatusCode());
 
     // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
-    virtual StatusCode initialize() override {
+    virtual StatusCode initialize() {
       ATH_MSG_INFO ("initializing MockTruthSvc: " << name());
       return StatusCode::SUCCESS;
     };
-    void registerTruthIncident(ISF::ITruthIncident&) const override { };
-    StatusCode initializeTruthCollection() override { return StatusCode::SUCCESS; };
-    StatusCode releaseEvent() override { return StatusCode::SUCCESS; };
+    void registerTruthIncident(ISF::ITruthIncident&) const { };
+    StatusCode initializeTruthCollection() { return StatusCode::SUCCESS; };
+    StatusCode releaseEvent() { return StatusCode::SUCCESS; };
   };
 
   DECLARE_COMPONENT( MockTruthSvc ) // MockTruthSvc class
@@ -200,14 +200,14 @@ public:
   MOCK_METHOD0(finalize, StatusCode());
 
   // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
-  virtual StatusCode initialize() override {
+  virtual StatusCode initialize() {
     ATH_MSG_INFO ("initializing MockEntryLayerTool: " << name());
     return StatusCode::SUCCESS;
   };
-  virtual bool passesFilters( const ISF::ISFParticle& ) override { return true; };
-  virtual ISF::EntryLayer identifyEntryLayer( const ISF::ISFParticle& ) override { return ISF::fUnsetEntryLayer; };
-  virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle&, ISF::EntryLayer layer=ISF::fUnsetEntryLayer ) override { return layer; };
-  virtual StatusCode registerTrackRecordCollection(TrackRecordCollection*, ISF::EntryLayer) override { return StatusCode::SUCCESS; };
+  virtual bool passesFilters( const ISF::ISFParticle& ) { return true; };
+  virtual ISF::EntryLayer identifyEntryLayer( const ISF::ISFParticle& ) { return ISF::fUnsetEntryLayer; };
+  virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle&, ISF::EntryLayer layer=ISF::fUnsetEntryLayer ) { return layer; };
+  virtual StatusCode registerTrackRecordCollection(TrackRecordCollection*, ISF::EntryLayer) { return StatusCode::SUCCESS; };
 
 }; // MockEntryLayerTool
 

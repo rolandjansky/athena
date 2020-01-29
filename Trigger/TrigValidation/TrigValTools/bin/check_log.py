@@ -23,6 +23,7 @@ errorRegex = [
     'tcmalloc\: allocation failed',
     'athenaHLT.py\: error',
     'HLTMPPU.*Child Issue',
+    'HLTMPPU.*Configuration Issue',
     'There was a crash',
     'illegal instruction',
     'failure loading library',

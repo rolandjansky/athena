@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: flagTestLOD.py 528970 2012-12-05 11:23:27Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/flagTestLOD.py
 # @author scott snyder <snyder@bnl.gov>
@@ -10,7 +9,7 @@
 
 
 from AthenaCommon.JobProperties import JobProperty
-from D3PDObject                 import DeferArg
+from .D3PDObject                import DeferArg
 
 
 def _make_fdict (flags):

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 #/** @file post.sh
-# @brief sh script that check the return code of an executable and compares
+# @brief sh script that checks the return code of an executable and compares
 # its output with a reference (if available).
 #
 # @author Scott Snyder <snyder@fnal.gov> - ATLAS Collaboration.
@@ -13,12 +13,14 @@
 
 usage() {
     cat <<EOF
-Syntax: post.sh TESTNAME [EXTRAPATTERNS] [-s REGEX] [-i REGEX]
+Syntax: post.sh TESTNAME [-s REGEX] [-i REGEX]
     TESTNAME       name of unit test
-    EXTRAPATTERNS  additional regex patterns to exlude in diff (deprecated, use -i)
     -s             lines matching REGEX will be selected for the diff
     -i             lines matching REGEX will be ignored for the diff
     -h             help
+
+Post-processing script that checks the return code of an executable (expected
+in \$testStatus) and compares its output with a reference.
 
 The select pattern is always extended to include common ERROR patterns.
 If both select and ignore are specified, the lines are first selected and
@@ -26,24 +28,12 @@ then filtered by the ignore pattern. In all cases, a default ignore list is appl
 EOF
 }
 
-if [ "$#" -lt 1 ]; then
+if [ "$#" -lt 1 -o "$1" == "-h" ]; then
     usage
     exit 1
 fi
 test=$1
 shift
-
-# Backwards-compatible code for use with EXTRA_PATTERNS where the '-s' and
-# patterns arrived as one argument. This can be removed once EXTRA_PATTERNS
-# support has been removed in atlas_add_test.
-if [ "$#" -eq 1 ]; then
-    if [[ "$1" = "-s "* ]]; then
-        selectpatterns=`echo "$1" | sed 's/-s\s*//' | sed 's/ $//'`
-    else
-        ignorepatterns=$1
-    fi
-    shift
-fi
 
 while getopts ":s:i:h" opt; do
     case $opt in
@@ -60,21 +50,14 @@ while getopts ":s:i:h" opt; do
     esac
 done
 
-#verbose="1"
 if [ "$POST_SH_NOCOLOR" = "" ]; then
- GREEN="[92;1m"
  YELLOW="[93;1m"
  RED="[97;101;1m"
  RESET="[m"
 else
- GREEN=""
  YELLOW=""
  RED=""
  RESET=""
-fi
-
-if [ "$ATLAS_CTEST_PACKAGE" = "" ]; then
-  ATLAS_CTEST_PACKAGE="__NOPACKAGE__"
 fi
 
 ########################################## START ####################################################
@@ -165,6 +148,7 @@ PP="$PP"'|^WARNING: TCMALLOCDIR not defined'
 #Sebastien says not to worry about this...
 PP="$PP"'|^Py:AthFile .*shutting down athfile-server'
 PP="$PP"'|^HistogramPersis...   INFO *.CnvServices.:'
+PP="$PP"'|^HistogramPersis.*Histograms saving not required.'
 PP="$PP"'|StatusCodeSvc        INFO initialize'
 PP="$PP"'|^ApplicationMgr +INFO Successfully loaded'
 PP="$PP"'|^IncidentSvc +DEBUG Service base class'
@@ -292,15 +276,11 @@ if [ -n "$selectpatterns" ]; then
 fi
 
 if [ -z "$testStatus" ]; then
-   echo "$YELLOW post.sh> Warning: athena exit status is not available $RESET"
+   echo "$YELLOW post.sh> Warning: athena exit status is not available (\$testStatus is not set). $RESET"
 else
    # check exit status
    joblog=${test}.log
-   if [ "$testStatus" = 0 ]
-       then
-       if [ "$verbose" != "" ]; then
-         echo "$GREEN post.sh> OK: ${test} exited normally. Output is in `realpath $joblog` $RESET"
-       fi
+   if [ "$testStatus" = 0 ]; then
        reflog=../share/${test}.ref
 
        # If we can't find the reference file, maybe it's located outside
@@ -340,10 +320,6 @@ else
                echo "$RED post.sh> ERROR: $joblog and $reflog differ $RESET"
                # Return with failure in this case:
                exit 1
-           else
-               if [ "$verbose" != "" ]; then
-                   echo "$GREEN post.sh> OK: $joblog and $reflog identical $RESET"
-               fi
            fi
        else
            # Don't warn for gtest tests.

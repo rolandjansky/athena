@@ -4,7 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "CTPUnpackingTool.h"

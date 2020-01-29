@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // *****************************************************************************
@@ -229,7 +229,7 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
   if ( m_GetTruthMuon ) {
     
     // retrieving the Montecarlo thru from the Storegate
-    const DataHandle<McEventCollection> mcCollptr;
+    const McEventCollection* mcCollptr = nullptr;
     //std::string       key = "GEN_EVENT";
     std::string   key = m_key_for_truth;
     

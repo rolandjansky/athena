@@ -26,7 +26,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigObjectMatching
                           Trigger/TrigConfiguration/TrigConfHLTData
-                          Trigger/TrigEvent/TrigSteeringEvent )
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( CLHEP )
@@ -39,7 +40,7 @@ atlas_add_component( TrigMuonMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigInDetEvent TrigMuonEvent TrigHLTMonitoringLib 
                      AthenaMonitoringLib TrigDecisionToolLib TrigObjectMatchingLib EventInfo xAODMuon xAODPrimitives 
                      xAODTracking xAODTrigMuon xAODTrigger GaudiKernel AnalysisTriggerEvent muonEvent VxVertex 
-                     TrigConfHLTData TrigSteeringEvent )
+                     TrigConfHLTData TrigSteeringEvent DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

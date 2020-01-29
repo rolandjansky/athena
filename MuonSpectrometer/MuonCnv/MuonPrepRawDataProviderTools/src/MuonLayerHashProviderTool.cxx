@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
@@ -14,8 +14,7 @@ namespace Muon {
 
   MuonLayerHashProviderTool::MuonLayerHashProviderTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_ntechnologies(4),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_ntechnologies(4)
   {
     declareInterface<MuonLayerHashProviderTool>(this);
 
@@ -29,7 +28,7 @@ namespace Muon {
 
   StatusCode MuonLayerHashProviderTool::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     if( !initializeSectorMapping() ){
       ATH_MSG_ERROR("Failed to initialize sector mapping");
@@ -41,12 +40,12 @@ namespace Muon {
 
 
   void MuonLayerHashProviderTool::insertHash( const IdentifierHash& hash, const Identifier& id ) {
-    insertHash(m_idHelper->sector(id),hash,id);
+    insertHash(m_idHelperSvc->sector(id),hash,id);
   }
 
   void MuonLayerHashProviderTool::insertHash( int sector, const IdentifierHash& hash, const Identifier& id ) {
-    MuonStationIndex::TechnologyIndex techIndex = m_idHelper->technologyIndex(id);
-    int sectorLayerHash = MuonStationIndex::sectorLayerHash(m_idHelper->regionIndex(id),m_idHelper->layerIndex(id));
+    MuonStationIndex::TechnologyIndex techIndex = m_idHelperSvc->technologyIndex(id);
+    int sectorLayerHash = MuonStationIndex::sectorLayerHash(m_idHelperSvc->regionIndex(id),m_idHelperSvc->layerIndex(id));
     m_regionHashesPerSector[sector-1].technologyRegionHashVecs[techIndex][sectorLayerHash].push_back(hash);
   }
 
@@ -75,16 +74,16 @@ namespace Muon {
     MuonSectorMapping sectorMapping;
 
     // loop over all available TGC collection identifiers and order them per sector
-    MuonIdHelper::const_id_iterator it = m_idHelper->tgcIdHelper().module_begin();
-    MuonIdHelper::const_id_iterator it_end = m_idHelper->tgcIdHelper().module_end();
+    MuonIdHelper::const_id_iterator it = m_idHelperSvc->tgcIdHelper().module_begin();
+    MuonIdHelper::const_id_iterator it_end = m_idHelperSvc->tgcIdHelper().module_end();
     for( ;it!=it_end; ++it ){
       const MuonGM::TgcReadoutElement* detEl = detMgr->getTgcReadoutElement(*it);
       if( !detEl ) {
-        ATH_MSG_DEBUG(" No detector element found for " << m_idHelper->toString(*it) );
+        ATH_MSG_DEBUG(" No detector element found for " << m_idHelperSvc->toString(*it) );
         continue;
       }
       IdentifierHash hash;
-      m_idHelper->tgcIdHelper().get_module_hash(*it,hash);
+      m_idHelperSvc->tgcIdHelper().get_module_hash(*it,hash);
       int nstrips = detEl->getNStrips(1);
       Amg::Vector3D p1 = detEl->channelPos(1,1,1);
       Amg::Vector3D p2 = detEl->channelPos(1,1,nstrips);
@@ -115,7 +114,7 @@ namespace Muon {
   // all chambers are mapped onto a layer and sector map
   bool MuonLayerHashProviderTool::initializeSectorMapping() {
 
-    m_ntechnologies = m_idHelper->mdtIdHelper().technologyNameIndexMax()+1;
+    m_ntechnologies = m_idHelperSvc->mdtIdHelper().technologyNameIndexMax()+1;
     m_regionHashesPerSector.resize(MuonStationIndex::numberOfSectors());
     // set sector numbers
     unsigned int nsectorHashMax = MuonStationIndex::sectorLayerHashMax();
@@ -130,11 +129,11 @@ namespace Muon {
                   << " technologies " << m_ntechnologies << " sectorLayers " << MuonStationIndex::sectorLayerHashMax() );
 
     // add technologies
-    if (m_idHelper->hasMdtIdHelper()) insertTechnology(m_idHelper->mdtIdHelper());
-    if (m_idHelper->hasRpcIdHelper()) insertTechnology(m_idHelper->rpcIdHelper());
-    if (m_idHelper->hasCscIdHelper()) insertTechnology(m_idHelper->cscIdHelper());
-    if (m_idHelper->hasMmIdHelper()) insertTechnology(m_idHelper->mmIdHelper());
-    if (m_idHelper->hasSTgcIdHelper()) insertTechnology(m_idHelper->stgcIdHelper());
+    if (m_idHelperSvc->hasMDT()) insertTechnology(m_idHelperSvc->mdtIdHelper());
+    if (m_idHelperSvc->hasRPC()) insertTechnology(m_idHelperSvc->rpcIdHelper());
+    if (m_idHelperSvc->hasCSC()) insertTechnology(m_idHelperSvc->cscIdHelper());
+    if (m_idHelperSvc->hasMM()) insertTechnology(m_idHelperSvc->mmIdHelper());
+    if (m_idHelperSvc->hasSTgc()) insertTechnology(m_idHelperSvc->stgcIdHelper());
 
     if( !insertTgcs() ) return false;
 

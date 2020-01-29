@@ -18,18 +18,17 @@
 
 namespace Trig {
 
-   DecisionObjectHandleStandalone::
-   DecisionObjectHandleStandalone( EventPtr_t sg, const std::string& deckey,
-                                   const std::string& navikey )
-     : m_sg( sg ), m_deckey( deckey ), m_navikey( navikey ),
-     m_decision( 0 ), m_navigation( 0 ) {
+   DecisionObjectHandleStandalone::DecisionObjectHandleStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
+                                                                   SG::ReadHandleKey<xAOD::TrigNavigation>* navikey )
+     : m_deckey( deckey ), m_navikey( navikey ),
+     m_decision( nullptr ), m_navigation( nullptr ) {
 
    }
 
    void DecisionObjectHandleStandalone::reset(bool) {
 
-      m_decision = 0;
-      m_navigation = 0;
+      m_decision = nullptr;
+      m_navigation = nullptr;
       invalidate();
 
       return;
@@ -38,20 +37,19 @@ namespace Trig {
    const xAOD::TrigDecision*
    DecisionObjectHandleStandalone::getDecision() const {
 
-      if( ! m_decision ) {
-         if( ! m_sg->contains< xAOD::TrigDecision >( m_deckey ) ) {
+      if( ! m_decision && !m_deckey->empty() ) {
+         const EventContext ctx = Gaudi::Hive::currentContext();
+         SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_deckey, ctx);
+         if( ! decisionReadHandle.isValid() ) {
             static bool warningPrinted = false;
             if( ! warningPrinted ) {
                ATH_MSG_WARNING( "xAOD::TrigDecision is not available on the "
                                 "input" );
                warningPrinted = true;
             }
-            return 0;
+            return nullptr;
          }
-         if( ! m_sg->retrieve( m_decision, m_deckey ).isSuccess() ) {
-            ATH_MSG_ERROR( "Problems retrieving xAOD::TrigDecision" );
-            return 0;
-         }
+         m_decision = decisionReadHandle.ptr();
       }
       return m_decision;
    }
@@ -59,20 +57,19 @@ namespace Trig {
    const xAOD::TrigNavigation*
    DecisionObjectHandleStandalone::getNavigation() const {
 
-      if( ! m_navigation ) {
-         if( ! m_sg->contains< xAOD::TrigNavigation >( m_navikey ) ) {
+      if( ! m_navigation && !m_navikey->empty() ) {
+         const EventContext ctx = Gaudi::Hive::currentContext();
+         SG::ReadHandle<xAOD::TrigNavigation> navReadHandle = SG::makeHandle(*m_navikey, ctx);
+         if( ! navReadHandle.isValid() ) {
             static bool warningPrinted = false;
             if( ! warningPrinted ) {
                ATH_MSG_WARNING( "xAOD::TrigNavigation is not available on the "
                                 "input" );
                warningPrinted = true;
             }
-            return 0;
+            return nullptr;
          }
-         if( ! m_sg->retrieve( m_navigation, m_navikey ).isSuccess() ) {
-            ATH_MSG_ERROR( "Problems retrieving xAOD::TrigNavigation" );
-            return 0;
-         }
+         m_navigation = navReadHandle.ptr();
       }
       return m_navigation;
    }

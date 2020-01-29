@@ -1,7 +1,6 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
-// $Id$
 /**
  * @file StoreGate/WriteDecorHandle.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -163,14 +162,15 @@ StatusCode WriteDecorHandle<T, D>::setProxyDict (IProxyDict* store)
  */
 template <class T, class D>
 typename WriteDecorHandle<T, D>::reference_type
-WriteDecorHandle<T, D>::operator() (const AuxElement& e) const
+WriteDecorHandle<T, D>::operator() (const AuxElement& e)
 {
+  this->cptr();
   return m_acc (e);
 }
 
 
 /**
- * @brief Fetch the variable for one element, as a const reference.
+ * @brief Fetch the variable for one element, as a reference.
  * @param index The index of the desired element.
  *
  * This looks up the variable in the object referenced by this handle.

@@ -2,11 +2,9 @@
 
 from __future__ import print_function
 
-import copy
 import unittest
 from mock import MagicMock
 from hypo_factory import (hypo_factory,
-                          HypoAlg,
                           JetStandardHypo,
                           JetSingleEtaRegionHypo,
                           JetMaximumBipartiteHypo,

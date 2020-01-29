@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUTRACKRNNCLASSIFIER_H
@@ -54,17 +54,9 @@ public:
   virtual StatusCode initialize() override;
  // pass all tracks in the tau cone to all track classifier sub tools
   virtual StatusCode execute(xAOD::TauJet& pTau) override;
-  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
 
 private:
   ToolHandleArray<TrackRNN> m_vClassifier;
-  std::string m_tauTrackConName;
   std::vector<std::string> m_vClassifierNames;//optional
 
 }; // class TauTrackRNNClassifier
@@ -87,13 +79,6 @@ class TrackRNN
   // for possible MVA inputs. Only Variables defined in the root weights file
   // are passed to the MVA object
   virtual StatusCode initialize() override;
-  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) override { return StatusCode::SUCCESS; }
-  virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) override { return StatusCode::SUCCESS; }
   virtual StatusCode finalize() override;
   
   // executes MVA object to get the BDT score, makes the decision and resets

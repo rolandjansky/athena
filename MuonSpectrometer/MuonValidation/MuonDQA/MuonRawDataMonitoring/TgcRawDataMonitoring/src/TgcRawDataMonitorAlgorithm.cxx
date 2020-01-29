@@ -93,7 +93,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   auto thrNumber_forward = Monitored::Scalar<float>("thrNumber_forward",0.0);
 
   auto roiEta = Monitored::Scalar<float>("roiEta",0.0);
-  auto roiPhi = Monitored::Scalar<float>("roiPhi",0.0);
+  auto roiEta2 = Monitored::Scalar<float>("roiEta2",0.0);
+  auto roiPhi2 = Monitored::Scalar<float>("roiPhi2",0.0);
   auto roiPhi_barrel_A = Monitored::Scalar<float>("roiPhi_barrel_A",0.0);
   auto roiPhi_endcap_A = Monitored::Scalar<float>("roiPhi_endcap_A",0.0);
   auto roiPhi_forward_A = Monitored::Scalar<float>("roiPhi_forward_A",0.0);
@@ -109,8 +110,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   
   for(const auto& roi : *rois){
     roiEta = roi->eta();
-    roiPhi = roi->phi();
-    fill(m_tools[m_Groups_roiEta2Phi[roi->getThrNumber()]],roiEta,roiPhi);
+    roiEta2 = roi->eta();
+    roiPhi2 = roi->phi();
+    fill(m_tools[m_Groups_roiEta2Phi[roi->getThrNumber()]],roiEta2,roiPhi2);
     fill(m_tools[m_Groups_roiEta[roi->getThrNumber()]],roiEta);
 
     if(roi->getSource()==xAOD::MuonRoI::Barrel){
@@ -216,7 +218,8 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   }
 
   auto muEta = Monitored::Scalar<float>("muEta",0.0);
-  auto muPhi = Monitored::Scalar<float>("muPhi",0.0);
+  auto muEta2 = Monitored::Scalar<float>("muEta2",0.0);
+  auto muPhi2 = Monitored::Scalar<float>("muPhi2",0.0);
   auto muPhi_barrel_A = Monitored::Scalar<float>("muPhi_barrel_A",0.0);
   auto muPhi_endcap_A = Monitored::Scalar<float>("muPhi_endcap_A",0.0);
   auto muPhi_forward_A = Monitored::Scalar<float>("muPhi_forward_A",0.0);
@@ -283,8 +286,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       if(!matched)continue;
       if(muPt>25.){
 	muEta = mymuon.muon->eta();
-	muPhi = mymuon.muon->phi();
-	fill(m_tools[m_Groups_muEta2Phi[i]],muEta,muPhi);
+	muEta2 = mymuon.muon->eta();
+	muPhi2 = mymuon.muon->phi();
+	fill(m_tools[m_Groups_muEta2Phi[i]],muEta2,muPhi2);
 	fill(m_tools[m_Groups_muEta[i]],muEta);
       }
       if(TMath::Abs(mymuon.muon->eta())<1.05){

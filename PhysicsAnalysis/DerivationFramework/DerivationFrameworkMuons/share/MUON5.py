@@ -184,7 +184,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramew
 
 # Egamma clusters associated with electrons
 MUON5ElectronEgammaCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "MUON5ElectronEgammaCThinningTool",
-                                                                             ThinningService         = MUON5ThinningHelper.ThinningSvc(),
+                                                                             StreamName              = streamName,
                                                                              SGKey                   = "Electrons",
                                                                              CaloClCollectionSGKey   = "egammaClusters",
                                                                              SelectionString         = "Electrons.pt >= 4*GeV",
