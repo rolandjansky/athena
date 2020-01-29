@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_G4LEGACYTRANSPORTTOOL_H
@@ -88,8 +88,6 @@ namespace iGeant4
     virtual StatusCode releaseEvent() override;
 
     virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Geant4; };
-
-    virtual void push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent ) override;
 
   private:
 
