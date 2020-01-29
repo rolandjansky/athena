@@ -128,6 +128,7 @@ ServiceMgr.DetDescrCnvSvc.DecodeIdDict = True
 
 include ("LArRecUtils/LArAffectedRegion.py")
 include("InDetBeamSpotService/BeamCondSvc.py")
+include("InDetRecExample/InDetRecConditionsAccess.py")
 # Detector Description
 #---------------------------------------------------------------------------------#
 
@@ -157,8 +158,8 @@ except Exception:
 
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 
-include( "TrackToCalo/CaloExtensionBuilderAlg_jobOptions.py" )
-CaloExtensionBuilder("TightPrimary", 500.) 
+from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
+CaloExtensionBuilder("NoCut", 500.) 
 
 from egammaRec.egammaRecFlags import jobproperties
 
