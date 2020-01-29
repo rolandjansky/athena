@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -55,31 +55,13 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   virtual Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const override;
   Trk::TrackScore  ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const;
   
-  struct ROIInfo {
-    ROIInfo (double the_emF,
-             //double the_emE,
-             double the_emR,
-             double the_emZ)
-    : emF(the_emF),
-      //emE(the_emE),
-      emR(the_emR),
-      emZ(the_emZ) {}
-    double emF;
-    //double emE;
-    double emR;
-    double emZ;
-  };
-  typedef std::vector<ROIInfo> ROIInfoVec;
 
  private:
-  const ROIInfoVec* getInfo() const;
-  
   void setupScoreModifiers();
   
   
     /** Check if the cluster is compatible with a EM cluster*/
-  bool isEmCaloCompatible(const Trk::Track& track,
-                          const ROIInfoVec* info) const;
+  bool isEmCaloCompatible(const Trk::Track& track) const;
   
   
   //these are used for ScoreModifiers 
@@ -143,5 +125,4 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
 } // namespace InDet
 
 
-CLASS_DEF (InDet::InDetAmbiScoringTool::ROIInfoVec, 169195041, 0)
 #endif 

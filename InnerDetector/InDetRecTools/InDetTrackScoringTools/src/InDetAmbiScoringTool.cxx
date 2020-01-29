@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -343,8 +343,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
 
   double maxD0 = m_maxRPhiImp;
   if(m_useEmClusSeed) {
-    const ROIInfoVec* info = getInfo();
-    if (isEmCaloCompatible( track, info ) ) 
+    if (isEmCaloCompatible( track) )
       maxD0 = m_maxRPhiImpEM;
   }
   if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > maxD0) {
@@ -904,44 +903,11 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
 
 }
 
-
-const InDet::InDetAmbiScoringTool::ROIInfoVec*
-InDet::InDetAmbiScoringTool::getInfo() const
-{
-  std::string roiname = name() + "ROIInfoVec";
-  SG::ReadHandle<ROIInfoVec> rh (roiname);
-  if (rh.isValid())
-    return rh.cptr();
-
-  if (m_useEmClusSeed) {
-    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
-    auto info = std::make_unique<ROIInfoVec>();
-    for( const Trk::CaloClusterROI* ccROI : *calo) {
-      if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 
-        continue;
-      }  
-      info->emplace_back( ccROI->globalPosition().phi(),
-                          ccROI->globalPosition().perp(),
-                          ccROI->globalPosition().z() );
-    }
-
-    SG::WriteHandle<ROIInfoVec> wh (roiname);
-    return wh.put (std::move(info), true);
-  }
-
-  return nullptr;
-}
-
-
 //==========================================================================================
-bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track,
-                                                     const ROIInfoVec* info) const
+bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track) const
 {
-
-
   const Trk::TrackParameters * Tp = track.trackParameters()->front();
-  
-  
+
   //Switch to the track parameters of the first measurment instead of the perigee parameters 
   ATH_MSG_VERBOSE ("--> Looping over TSOS's");
   for (auto tsos : *track.trackStateOnSurfaces() ) {
@@ -956,27 +922,30 @@ bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track,
       break;
     }
   }
-  
-  
-  
+
   const double pi = M_PI, pi2 = 2.*M_PI;
-  if(!info || info->empty()) return false;
 
   double F = Tp->momentum().phi();
   double E = Tp->momentum().eta();
   double R = Tp->position().perp();
   double Z = Tp->position().z();
 
-  for (const ROIInfo& i : *info) {
-    double df = fabs(F-(i.emF));
+  SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
+  for( const Trk::CaloClusterROI* ccROI : *calo) {
+     Amg::Vector3D pos( ccROI->globalPosition());
+     if( ccROI->energy() * sin(pos.theta()) < m_minPtEm){
+        continue;
+     }
+
+    double df = fabs(F-( pos.phi()));
     if(df > pi        ) df = fabs(pi2-df);
     if(df < m_phiWidthEm) {
       //Correct eta of cluster to take into account the z postion of the track
-      double newZ   = i.emZ - Z;
-      double newR   = i.emR - R;
+      double newZ   = pos.z() - Z;
+      double newR   = pos.perp() - R;
       double newEta =  atanh( newZ / sqrt( newR*newR + newZ*newZ ) );
       double de = fabs(E-newEta);
-       
+
       if(de < m_etaWidthEm) return true;
     }
   }
