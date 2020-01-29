@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -420,13 +420,6 @@ namespace Trk {
       void getField        (double*,double*        ) const;
       void getFieldGradient(double*,double*,double*) const;
 
-      //placeholder for compatibility with new interface
-      const TrackSurfaceIntersection* intersectSurface(const Surface&,
-						       const TrackSurfaceIntersection*,
-						       const double,
-						       const MagneticFieldProperties&,
-						       ParticleHypothesis) const {return 0;}
-      
       /////////////////////////////////////////////////////////////////////////////////
       // Private data members: 
       /////////////////////////////////////////////////////////////////////////////////

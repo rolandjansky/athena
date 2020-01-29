@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -167,12 +167,6 @@ public:
 			 ParticleHypothesis particle=pion,
 			 const TrackingVolume* tVol=0) const;
 
-    //placeholder for compatibility with new interface                                                                                                                        
-    const TrackSurfaceIntersection* intersectSurface(const Surface&,
-						     const TrackSurfaceIntersection*,
-						     const double,
-						     const MagneticFieldProperties&,
-						     ParticleHypothesis) const {return 0;}
 
     /** Validation Action:
 	Can be implemented optionally, outside access to internal validation steps */
@@ -183,12 +177,10 @@ public:
 private:
     
     // private methods
-    void			
-    createParameters (const Surface&	surface,
+    void			createParameters (const Surface&	surface,
 						  BoundaryCheck		boundsCheck,
 						  bool			curvilinear) const;
-    void			
-    findIntersection (const TrackParameters& parameters,
+    void			findIntersection (const TrackParameters& parameters,
 						  const Surface&	surface,
 						  PropDirection		dir = Trk::anyDirection) const;
         

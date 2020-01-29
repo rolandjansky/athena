@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,8 +18,8 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "ITimedExtrapolator.h"
-#include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExUtils/ExtrapolationCache.h"
+#include "TrkExUtils/TargetSurfaces.h"
 
 // STL
 #include <utility>
@@ -116,8 +116,8 @@ namespace Trk {
                                                  std::vector<unsigned int>& solutions,
                                                  double& path,
                                                  bool usePathLim = false,
-						                         bool returnCurv = false,
-						                         const TrackingVolume* tVol=0) const = 0;
+						 bool returnCurv = false,
+						 const TrackingVolume* tVol=0) const = 0;
        
        /** Propagation interface:
          
@@ -127,7 +127,7 @@ namespace Trk {
        virtual const TrackParameters* propagateT( const TrackParameters& parm,
 						  std::vector<DestSurf>& sfs,
 						  PropDirection dir,
-                          const MagneticFieldProperties& mprop,
+						  const MagneticFieldProperties& mprop,
 						  ParticleHypothesis particle,
 						  std::vector<unsigned int>& solutions,
 						  PathLimit& pathLim, TimeLimit& timeLim,
@@ -135,7 +135,29 @@ namespace Trk {
 						  const TrackingVolume* tVol,
 						  std::vector<Trk::HitInfo>*& hitVector) const;
          
+       /** Propagation interface:
+         
+         The propagation method called by the TrkExtrapolator. The propagator
+         finds the closest surface. Timing included.
+         */
+       virtual const TrackParameters* propagateT( const TrackParameters& parm,
+						  TargetSurfaces& sfs,
+						  PropDirection dir,
+						  const MagneticFieldProperties& mprop,
+						  ParticleHypothesis particle,
+						  TargetSurfaceVector& solutions,
+						  PathLimit& pathLim, TimeLimit& timeLim,
+						  bool returnCurv ,
+						  std::vector<Trk::HitInfo>*& hitVector) const;
+         
 
+       /** Propagation interface:
+         
+         The propagation method called by the TrkExEngine. All options included.
+         */
+       virtual Trk::ExtrapolationCode propagate( Trk::ExCellCharged& eCell,
+						 Trk::TargetSurfaces& sfs,
+						 Trk::TargetSurfaceVector& solutions) const;         
        /** Propagation interface:
          
          The propagation method with internal material collection. The propagator
@@ -208,16 +230,6 @@ namespace Trk {
                                                       ParticleHypothesis particle=pion,
 						      const TrackingVolume* tVol=0) const = 0;
                                                       
-      /** Intersection and Intersector interface: 
-        */
-
-       virtual const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
-                                                     const TrackSurfaceIntersection*    trackIntersection,
-                                                     const double               qOverP,
-                                                     const MagneticFieldProperties& mft,
-                                                     ParticleHypothesis       particle) const = 0;                        
-
-
       /** GlobalPositions list interface:
          This is used mostly in pattern recognition in the road finder, the propagation direction is intrinsically given
          by the sign of the stepSize.
@@ -278,6 +290,25 @@ inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackPara
 {                  
   return 0;
 }
+
+inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters& ,
+								 Trk::TargetSurfaces& ,
+								 PropDirection ,
+								 const MagneticFieldProperties& ,
+								 ParticleHypothesis ,
+								 Trk::TargetSurfaceVector& ,
+								 PathLimit& , TimeLimit& ,
+								 bool,std::vector<Trk::HitInfo>*& ) const
+{
+  return 0;
+}
+
+inline Trk::ExtrapolationCode Trk::IPropagator::propagate( Trk::ExCellCharged& ,
+							   Trk::TargetSurfaces&,
+							   Trk::TargetSurfaceVector& ) const
+{
+  return Trk::ExtrapolationCode::FailureConfiguration;
+}         
 
 inline const Trk::TrackParameters* Trk::IPropagator::propagateM( const TrackParameters&,
 								 std::vector<DestSurf>&,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -135,12 +135,12 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
     // check for progress 
     if (eCode.inProgress()){         
         // check if the boundary solution is compatible with the radial direciton of the extrapolation
-	    if (!eCell.checkRadialCompatibility()) {
+	if (!eCell.checkRadialCompatibility()) {
             // screen output for the radial compatibility check
             EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "handleBoundaryT", "radial compatbility check failed, radial direction is: " << eCell.radialDirection);
             // it's not jump back to the last valid lead parameters and return Unset as a trigger
-	        eCell.leadParameters = eCell.lastLeadParameters;
-	        return Trk::ExtrapolationCode::Unset;
+	    eCell.leadParameters = eCell.lastLeadParameters;
+	    return Trk::ExtrapolationCode::Unset;
         }
         EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", "parameters on boundary surface created, moving to next volume."); 
         // get the nextVolume - modify the position in case you have a step out trial, take attachment otherwise
@@ -148,7 +148,10 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
                 trackingGeometry().lowestTrackingVolume(Amg::Vector3D(eCell.leadParameters->position()+pDir*eCell.leadParameters->momentum().unit())) :
                 bSurfaceTV.attachedVolume(eCell.leadParameters->position(), eCell.leadParameters->momentum(), pDir);
         // check if we have no nextVolume : boundary rechaed @TODO it's not really a success
-        if (!nextVolume) return Trk::ExtrapolationCode::SuccessBoundaryReached;
+        if (!nextVolume) {
+          eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectBoundary);   // ST fixing memory leak	
+	  return Trk::ExtrapolationCode::SuccessBoundaryReached;
+	}
         // check if it is a boundary reached case
         // - geometrySignature change and configuration to stop then triggers a Success 
         bool stopAtThisBoundary = eCell.checkConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary) 
@@ -180,19 +183,52 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
         if (stopAtThisBoundary){
             EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", "geometry signature change from " << eCell.leadVolume->geometrySignature()  << " to " << nextVolume->geometrySignature());
 	        eCell.nextGeometrySignature = nextVolume->geometrySignature();
-            // return the boundary reached     
+            // return the boundary reached : the navigation resolved already    
+	    eCell.leadVolume                      = nextVolume;    
             return Trk::ExtrapolationCode::SuccessBoundaryReached;
         } 
         // remember the last boundary surface for loop protection
         eCell.lastBoundarySurface             = &bSurface;
         eCell.lastBoundaryParameters          = eCell.leadParameters;
         // set next volume and reset lead layer
-        eCell.leadVolume                      = nextVolume;    
+	eCell.leadVolume                      = nextVolume;    
         eCell.leadLayer                       = 0;
         // we have bParameters -> break the loop over boundaryIntersections
         return  Trk::ExtrapolationCode::InProgress;
+     } else if (eCode!= Trk::ExtrapolationCode::Recovered) {
+      eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);              
      }
 
      // you need to keep on trying 
      return Trk::ExtrapolationCode::Unset;
  }
+
+
+/** handle the failure - as configured */
+template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePositionT(Trk::ExtrapolationCell<T>& eCell,
+                                                                                        Trk::PropDirection pDir,
+                                                                                        bool /*noLoop*/ ) const 
+{   
+    EX_MSG_DEBUG(++eCell.navigationStep, "navigation", "", "resolve position '"<< eCell.leadParameters->position() 
+                << (int(pDir) > 0 ? "' along momentum." : "' opposite momentum.") );
+
+    // noLoop= True is used when we have exit from leadVolume 
+
+    if (!eCell.leadVolume) eCell.leadVolume = trackingGeometry().lowestStaticTrackingVolume(eCell.leadParameters->position());
+    if (!eCell.leadVolume) return Trk::ExtrapolationCode::FailureNavigation;
+    const Trk::TrackingVolume* nextVol=0;
+    if ( trackingGeometry().atVolumeBoundary(eCell.leadParameters->position(),
+                                             eCell.leadParameters->momentum(), 
+                                             eCell.leadVolume,
+                                             nextVol, pDir, 0.01) ) {          // set tolerance globally 
+  
+       //if (noLoop && nextVol==eCell.leadVolume) return Trk::ExtrapolationCode::FailureLoop;  
+
+       if (nextVol) {
+         eCell.leadVolume = nextVol;
+         return Trk::ExtrapolationCode::InProgress;
+       } else return Trk::ExtrapolationCode::FailureNavigation;
+    }
+
+    return Trk::ExtrapolationCode::InProgress;
+}
