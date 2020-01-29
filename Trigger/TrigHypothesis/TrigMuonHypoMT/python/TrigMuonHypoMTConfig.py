@@ -597,20 +597,15 @@ class TrigMuonEFCombinerHypoConfig(object):
 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality ):
 
-        tool = TrigMuonEFCombinerHypoTool( thresholdHLT)  
+        tool = TrigMuonEFCombinerHypoTool( thresholdHLT )  
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-
  
         if(muonquality is True):
            tool.MuonQualityCut = True
-        #else:
-        #   AthenaCommon.Logging("tool.LooseCut ")
-
-
  
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
