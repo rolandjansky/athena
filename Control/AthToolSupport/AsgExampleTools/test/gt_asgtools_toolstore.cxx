@@ -1,4 +1,9 @@
-// $Id: ut_asgtools_toolstore.cxx 671353 2015-06-01 13:33:51Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
 
 // System include(s):
 #include <iostream>
