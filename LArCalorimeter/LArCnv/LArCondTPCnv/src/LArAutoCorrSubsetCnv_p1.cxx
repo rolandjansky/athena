@@ -2,12 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected
-
 #include "LArCondTPCnv/LArAutoCorrSubsetCnv_p1.h"
 
 void
@@ -15,122 +10,105 @@ LArAutoCorrSubsetCnv_p1::persToTrans(const LArAutoCorrPersType* persObj,
                                   LArAutoCorrTransType* transObj, 
                                   MsgStream & log)
 {
-    // Copy conditions
-    unsigned int ncorrs        = persObj->m_subset.m_corrChannels.size();
-    unsigned int nfebids       = persObj->m_subset.m_febIds.size();
-    unsigned int nAutoCorrs    = persObj->m_vAutoCorrSize;
-    unsigned int autocorrIndex    = 0;
-    
-    // resize subset to with then number of febids
-    transObj->m_subset.resize(nfebids);
+  transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
-    // Loop over febs
-    unsigned int febid        = 0;
-    unsigned int ifebWithData = 0; // counter for febs with data
+  unsigned int nfebids          = persObj->m_subset.m_febIds.size();
+  unsigned int nAutoCorrs       = persObj->m_vAutoCorrSize;
+  unsigned int autocorrIndex    = 0;
 
-    for (unsigned int i = 0; i < nfebids; ++i){
-        // Set febid
-        febid = transObj->m_subset[i].first = persObj->m_subset.m_febIds[i];
-        // Fill channels with empty autocorr vectors
-        transObj->m_subset[i].second.resize(NCHANNELPERFEB);
-        bool hasSparseData       = false;
-        unsigned int chansSet    = 0;
-        unsigned int chansOffset = 0;
-        if (ifebWithData < persObj->m_subset.m_febsWithSparseData.size() &&
-            febid == persObj->m_subset.m_febsWithSparseData[ifebWithData] ) {
-            // Found feb with sparse data
-            hasSparseData = true;
-            ifebWithData++;
-            chansSet    = persObj->m_subset.m_febsWithSparseData[ifebWithData];
-            chansOffset = 0;
-            ifebWithData++;
-        }
+  unsigned int ifebWithData = 0; // counter for febs with data
+  auto subsetIt = transObj->subsetBegin();
+  for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
+    unsigned int febid = subsetIt->first;
+    bool hasSparseData       = false;
+    unsigned int chansSet    = 0;
+    unsigned int chansOffset = 0;
+    if (ifebWithData < persObj->m_subset.m_febsWithSparseData.size() &&
+        febid == persObj->m_subset.m_febsWithSparseData[ifebWithData] ) {
+      // Found feb with sparse data
+      hasSparseData = true;
+      ifebWithData++;
+      chansSet    = persObj->m_subset.m_febsWithSparseData[ifebWithData];
+      chansOffset = 0;
+      ifebWithData++;
+    }
             
-        // Loop over channels in feb - only some channels are filled
-        for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+    // Loop over channels in feb - only some channels are filled
+    for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
 
-            bool copyChannel = true;
-            if (hasSparseData) {
-                if (!(chansSet & (1 << (j - chansOffset)))) {
-                    // Channel is missing data - skip
-                    copyChannel = false;
-                }
-                if (j%32 == 31 && j < 126) {
-                    chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
-                    chansOffset += 32;
-                    ifebWithData++;
-                }
-            }
-            if (copyChannel) {
-                        
-                // Channel has autocorrs - loop over autocorrs per channel
-                // and copy to the persistent object
-
-                // check indexes
-                if (autocorrIndex + nAutoCorrs > persObj->m_vAutoCorr.size()) {
-                    log << MSG::ERROR 
-                        << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
-                        << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
-                        << endmsg;
-                    return;
-                }
-
-                // This channel has autocorrs, resize vectors
-                transObj->m_subset[i].second[j].m_vAutoCorr.resize(nAutoCorrs);
-
-                for (unsigned int k = 0; k < persObj->m_vAutoCorrSize; ++k){
-                    transObj->m_subset[i].second[j].m_vAutoCorr[k] = persObj->m_vAutoCorr[autocorrIndex];
-                    autocorrIndex++;
-                }
-            }
-
-//             static unsigned int nch1 = 0;
-//             ++nch1;
-//             std::cout << "persToTrans - i, j, copy " << i << " " << j << " " 
-//                       << copyChannel << " " << nch1 
-//                       << " hasSparseData " << hasSparseData 
-//                       << " chansSet, chansOffset, ifebWithData " << std::hex 
-//                       << chansSet << std::dec << " " << chansOffset << " " << ifebWithData 
-//                       << " febids " << febid << " " 
-//                       << sparseFebid
-//                       << std::endl;
-
+      bool copyChannel = true;
+      if (hasSparseData) {
+        if (!(chansSet & (1 << (j - chansOffset)))) {
+          // Channel is missing data - skip
+          copyChannel = false;
         }
-    }
-    
-    // Copy corrections
-    
-    if (ncorrs) {
-        // corrs exist - resize vector
-        std::vector<float> vAutoCorr(nAutoCorrs,0.0);
-        LArAutoCorrP1  larAutoCorrP1(vAutoCorr);
+        if (j%32 == 31 && j < 126) {
+          chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
+          chansOffset += 32;
+          ifebWithData++;
+        }
+      }
+      if (copyChannel) {
+                        
+        // Channel has autocorrs - loop over autocorrs per channel
+        // and copy to the persistent object
 
-        transObj->m_correctionVec.resize(ncorrs, LArAutoCorrTransType::CorrectionPair(0, larAutoCorrP1));
-    }
-
-    // Loop over corrections
-    for (unsigned int i = 0; i < ncorrs; ++i){
         // check indexes
         if (autocorrIndex + nAutoCorrs > persObj->m_vAutoCorr.size()) {
-            log << MSG::ERROR 
-                << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
-                << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
-                << endmsg;
-            return;
+          log << MSG::ERROR 
+              << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
+              << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
+              << endmsg;
+          return;
         }
-        transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
-        // Loop over autocorrs per channel
-        for (unsigned int k = 0; k < persObj->m_vAutoCorrSize; ++k){
-            transObj->m_correctionVec[i].second.m_vAutoCorr[k] = persObj->m_vAutoCorr[autocorrIndex];
-            autocorrIndex++;
-        }
+
+        subsetIt->second[j].m_vAutoCorr.assign
+          (persObj->m_vAutoCorr.begin() + autocorrIndex,
+           persObj->m_vAutoCorr.begin() + autocorrIndex + nAutoCorrs);
+        autocorrIndex += nAutoCorrs;
+      }
+
+      //             static unsigned int nch1 = 0;
+      //             ++nch1;
+      //             std::cout << "persToTrans - i, j, copy " << i << " " << j << " " 
+      //                       << copyChannel << " " << nch1 
+      //                       << " hasSparseData " << hasSparseData 
+      //                       << " chansSet, chansOffset, ifebWithData " << std::hex 
+      //                       << chansSet << std::dec << " " << chansOffset << " " << ifebWithData 
+      //                       << " febids " << febid << " " 
+      //                       << sparseFebid
+      //                       << std::endl;
+
+    }
+  }    
+
+  unsigned int ncorrs           = persObj->m_subset.m_corrChannels.size();
+  LArAutoCorrTransType::CorrectionVec corrs;
+  corrs.resize(ncorrs);
+  
+  // Loop over corrections
+  for (unsigned int i = 0; i < ncorrs; ++i){
+    // check indexes
+    if (autocorrIndex + nAutoCorrs > persObj->m_vAutoCorr.size()) {
+      log << MSG::ERROR 
+          << "LArAutoCorrSubsetCnv_p1::persToTrans - autocorr index too large: autocorr/size " 
+          << autocorrIndex << " " << persObj->m_vAutoCorr.size() << " " 
+          << endmsg;
+      return;
     }
 
-    // Copy the rest
-    transObj->m_gain          = persObj->m_subset.m_gain; 
-    transObj->m_channel       = persObj->m_subset.m_channel;
-    transObj->m_groupingType  = persObj->m_subset.m_groupingType;
+    corrs[i].first = persObj->m_subset.m_corrChannels[i];
 
+    corrs[i].second.m_vAutoCorr.assign
+      (persObj->m_vAutoCorr.begin() + autocorrIndex,
+       persObj->m_vAutoCorr.begin() + autocorrIndex + nAutoCorrs);
+    autocorrIndex += nAutoCorrs;
+  }
+  transObj->insertCorrections (std::move (corrs));
+
+  // Copy the rest
+  transObj->setChannel       (persObj->m_subset.m_channel);
+  transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 
@@ -141,7 +119,6 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
                                   LArAutoCorrPersType* persObj, 
                                   MsgStream &log) 
 {
-    
     // Copy conditions
 
     // We copy all autocorrs into a single vector. 
@@ -174,9 +151,8 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
     //
 
     // Get the number of channels, corrections and the size of autocorr 
-    unsigned int nfebs            = transObj->m_subset.size();
     unsigned int nsubsetsNotEmpty = 0;
-    unsigned int ncorrs           = transObj->m_correctionVec.size();
+    unsigned int ncorrs           = transObj->correctionVecSize();
     unsigned int nchans           = 0;
     unsigned int nAutoCorrs       = 0;
     bool foundNAutoCorrs          = false;
@@ -184,9 +160,12 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
 
     // Find the number of autocorrs and check for sparse conditions,
     // e.g. MC conditions
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    const auto subsetEnd = transObj->subsetEnd();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = subsetIt->second.size();
 
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
@@ -199,12 +178,12 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
         // Loop over channels and check if this subset has sparse data
         bool subsetIsSparse = false;
         for (unsigned int j = 0; j < nfebChans; ++j) {
-            const LArAutoCorrP1& autocorr = transObj->m_subset[i].second[j];
+            const LArAutoCorrP1& autocorr = subsetIt->second[j];
             if (autocorr.m_vAutoCorr.size() == 0) {
                 if (!subsetIsSparse) {
                     // save febids for sparse subsets
                     subsetIsSparse = true;
-                    febsWithSparseData.push_back(transObj->m_subset[i].first);
+                    febsWithSparseData.push_back(subsetIt->first);
                 }
             }
             else {
@@ -220,7 +199,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
     if (!foundNAutoCorrs && ncorrs>0) {
         // Save the number of autocorrs and derivatives from first
         // correct - couldn't find it from channels
-            const LArAutoCorrP1& autocorr = transObj->m_correctionVec[0].second;
+            const LArAutoCorrP1& autocorr = transObj->correctionVecBegin()->second;
             nAutoCorrs                    = autocorr.m_vAutoCorr.size();
     }
     // Save sizes
@@ -241,14 +220,16 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
 
     // Copy conditions in subset
     unsigned int isparse = 0;
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = subsetIt->second.size();
 
         // skip subsets without any channels
         if (nfebChans == 0) continue;
         
-        unsigned int febid = transObj->m_subset[i].first;
+        unsigned int febid = subsetIt->first;
         persObj->m_subset.m_febIds.push_back(febid);
 
 
@@ -271,7 +252,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
             if (isSparse) {
                 // subset with sparse data
 
-                if (transObj->m_subset[i].second[j].m_vAutoCorr.size() > 0) {
+                if (subsetIt->second[j].m_vAutoCorr.size() > 0) {
                     // store the channel number in bit map
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
@@ -294,12 +275,12 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
                 // save autocorrs
  	        bool tooSmall=false;
                 for (unsigned int k = 0; k < nAutoCorrs; ++k){
-		  if (k>=transObj->m_subset[i].second[j].m_vAutoCorr.size()) {
+		  if (k>=subsetIt->second[j].m_vAutoCorr.size()) {
 		    persObj->m_vAutoCorr.push_back(0.);
 		    tooSmall=true;
 		  }
 		  else
-		    persObj->m_vAutoCorr.push_back(transObj->m_subset[i].second[j].m_vAutoCorr[k]);
+		    persObj->m_vAutoCorr.push_back(subsetIt->second[j].m_vAutoCorr[k]);
                 }
 		if (tooSmall)
 		  log << MSG::ERROR << "Feb 0x" << std::hex << febid << std::dec << " channel " << j <<": AutoCorr object too small. Expected " 
@@ -315,28 +296,32 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
 
         }
     }
-    
-    // Copy corrections
-    for (unsigned int i = 0; i < ncorrs; ++i){
+
+    const auto corrEnd = transObj->correctionVecEnd();
+    for (auto corrIt = transObj->correctionVecBegin();
+         corrIt != corrEnd;
+         ++corrIt)
+    {
         // Save channel id in febid vector
-        persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
+        persObj->m_subset.m_corrChannels.push_back(corrIt->first);
         // AutoCorrs
 	bool tooSmall=false;
         for (unsigned int k = 0; k < nAutoCorrs; ++k){
-	  if (k>=transObj->m_correctionVec[i].second.m_vAutoCorr.size()) {
+	  if (k>=corrIt->second.m_vAutoCorr.size()) {
 	    persObj->m_vAutoCorr.push_back(0.);
 	    tooSmall=true;
 	  }
 	  else
-            persObj->m_vAutoCorr.push_back(transObj->m_correctionVec[i].second.m_vAutoCorr[k]);
+            persObj->m_vAutoCorr.push_back(corrIt->second.m_vAutoCorr[k]);
         }
 	if (tooSmall)
-	  log << MSG::ERROR << "Correction index "<< i <<"(channel 0x" << std::hex << transObj->m_correctionVec[i].first << std::dec <<  
+	  log << MSG::ERROR << "Correction (channel 0x" << std::hex << corrIt->first << std::dec <<  
 	    "): AutoCorr object too small. Expected " << nAutoCorrs << " entries. Padded with 0.0" << endmsg;
     }
+
     // Copy the rest
-    persObj->m_subset.m_gain          = transObj->m_gain; 
-    persObj->m_subset.m_channel       = transObj->m_channel;
-    persObj->m_subset.m_groupingType  = transObj->m_groupingType;
+    persObj->m_subset.m_gain          = transObj->gain(); 
+    persObj->m_subset.m_channel       = transObj->channel();
+    persObj->m_subset.m_groupingType  = transObj->groupingType();
     
 }
