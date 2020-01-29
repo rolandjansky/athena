@@ -1,150 +1,57 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// CollectionMerger.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "CollectionMerger.h"
 
 /** Constructor */
 ISF::CollectionMerger::CollectionMerger( const std::string& name, ISvcLocator* pSvcLocator ) :
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_inputBCMHitsSGKeys(),
-  m_inputBLMHitsSGKeys(),
-  m_inputPixelHitsSGKeys(),
-  m_inputSCTHitsSGKeys(),
-  m_inputTRTUncompressedHitsSGKeys(),
-  m_inputLArEMBHitsSGKeys(),
-  m_inputLArEMECHitsSGKeys(),
-  m_inputLArFCALHitsSGKeys(),
-  m_inputLArHECHitsSGKeys(),
-  m_inputTileHitsSGKeys(),
-  m_inputMBTSHitsSGKeys(),
-  m_inputCSCHitsSGKeys(),
-  m_inputMDTHitsSGKeys(),
-  m_inputRPCHitsSGKeys(),
-  m_inputTGCHitsSGKeys(),
-  m_inputBCMHits(),
-  m_inputBLMHits(),
-  m_inputPixelHits(),
-  m_inputSCTHits(),
-  m_inputTRTUncompressedHits(),
-  m_inputLArEMBHits(),
-  m_inputLArEMECHits(),
-  m_inputLArFCALHits(),
-  m_inputLArHECHits(),
-  m_inputTileHits(),
-  m_inputMBTSHits(),
-  m_inputCSCHits(),
-  m_inputMDTHits(),
-  m_inputRPCHits(),
-  m_inputTGCHits(),
-  m_outputBCMHits(),
-  m_outputBLMHits(),
-  m_outputPixelHits(),
-  m_outputSCTHits(),
-  m_outputTRTUncompressedHits(),
-  m_outputLArEMBHits(),
-  m_outputLArEMECHits(),
-  m_outputLArFCALHits(),
-  m_outputLArHECHits(),
-  m_outputTileHits(),
-  m_outputMBTSHits(),
-  m_outputCSCHits(),
-  m_outputMDTHits(),
-  m_outputRPCHits(),
-  m_outputTGCHits()
+  ::AthAlgorithm( name, pSvcLocator )
 {
-  // Input collections StoreGate keys
-  declareProperty( "InputBCMHits",             m_inputBCMHitsSGKeys             );
-  declareProperty( "InputBLMHits",             m_inputBLMHitsSGKeys             );
-  declareProperty( "InputPixelHits",           m_inputPixelHitsSGKeys           );
-  declareProperty( "InputSCTHits",             m_inputSCTHitsSGKeys             );
-  declareProperty( "InputTRTUncompressedHits", m_inputTRTUncompressedHitsSGKeys );
-
-  declareProperty( "InputLArEMBHits",          m_inputLArEMBHitsSGKeys          );
-  declareProperty( "InputLArEMECHits",         m_inputLArEMECHitsSGKeys         );
-  declareProperty( "InputLArFCALHits",         m_inputLArFCALHitsSGKeys         );
-  declareProperty( "InputLArHECHits",          m_inputLArHECHitsSGKeys          );
-
-  declareProperty( "InputTileHits",            m_inputTileHitsSGKeys            );
-  declareProperty( "InputMBTSHits",            m_inputMBTSHitsSGKeys            );
-
-  declareProperty( "InputCSCHits",             m_inputCSCHitsSGKeys             );
-  declareProperty( "InputMDTHits",             m_inputMDTHitsSGKeys             );
-  declareProperty( "InputRPCHits",             m_inputRPCHitsSGKeys             );
-  declareProperty( "InputTGCHits",             m_inputTGCHitsSGKeys             );
-
-  // Output collections
-  declareProperty( "OutputBCMHits",             m_outputBCMHits             );
-  declareProperty( "OutputBLMHits",             m_outputBLMHits             );
-  declareProperty( "OutputPixelHits",           m_outputPixelHits           );
-  declareProperty( "OutputSCTHits",             m_outputSCTHits             );
-  declareProperty( "OutputTRTUncompressedHits", m_outputTRTUncompressedHits );
-
-  declareProperty( "OutputLArEMBHits",          m_outputLArEMBHits          );
-  declareProperty( "OutputLArEMECHits",         m_outputLArEMECHits         );
-  declareProperty( "OutputLArFCALHits",         m_outputLArFCALHits         );
-  declareProperty( "OutputLArHECHits",          m_outputLArHECHits          );
-
-  declareProperty( "OutputTileHits",            m_outputTileHits            );
-  declareProperty( "OutputMBTSHits",            m_outputMBTSHits            );
-
-  declareProperty( "OutputCSCHits",             m_outputCSCHits             );
-  declareProperty( "OutputMDTHits",             m_outputMDTHits             );
-  declareProperty( "OutputRPCHits",             m_outputRPCHits             );
-  declareProperty( "OutputTGCHits",             m_outputTGCHits             );
 }
-
-
-/** Destructor */
-ISF::CollectionMerger::~CollectionMerger()
-{}
 
 
 /** Athena Algorithm initialize */
 StatusCode ISF::CollectionMerger::initialize()
 {
-  ATH_CHECK( setupReadHandleKeyVector(m_inputBCMHitsSGKeys,             m_inputBCMHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputBLMHitsSGKeys,             m_inputBLMHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputPixelHitsSGKeys,           m_inputPixelHits          ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputSCTHitsSGKeys,             m_inputSCTHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputTRTUncompressedHitsSGKeys, m_inputTRTUncompressedHits) );
+  ATH_CHECK( m_inputBCMHits.initialize(not m_inputBCMHits.empty()) );
+  ATH_CHECK( m_inputBLMHits.initialize(not m_inputBLMHits.empty()) );
+  ATH_CHECK( m_inputPixelHits.initialize(not m_inputPixelHits.empty()) );
+  ATH_CHECK( m_inputSCTHits.initialize(not m_inputSCTHits.empty()) );
+  ATH_CHECK( m_inputTRTUncompressedHits.initialize(not m_inputTRTUncompressedHits.empty()) );
 
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArEMBHitsSGKeys,          m_inputLArEMBHits         ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArEMECHitsSGKeys,         m_inputLArEMECHits        ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArFCALHitsSGKeys,         m_inputLArFCALHits        ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputLArHECHitsSGKeys,          m_inputLArHECHits         ) );
+  ATH_CHECK( m_inputLArEMBHits.initialize(not m_inputLArEMBHits.empty()) );
+  ATH_CHECK( m_inputLArEMECHits.initialize(not m_inputLArEMECHits.empty()) );
+  ATH_CHECK( m_inputLArFCALHits.initialize(not m_inputLArFCALHits.empty()) );
+  ATH_CHECK( m_inputLArHECHits.initialize(not m_inputLArHECHits.empty()) );
 
-  ATH_CHECK( setupReadHandleKeyVector(m_inputTileHitsSGKeys,            m_inputTileHits           ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputMBTSHitsSGKeys,            m_inputMBTSHits           ) );
+  ATH_CHECK( m_inputTileHits.initialize(not m_inputTileHits.empty()) );
+  ATH_CHECK( m_inputMBTSHits.initialize(not m_inputMBTSHits.empty()) );
 
-  ATH_CHECK( setupReadHandleKeyVector(m_inputCSCHitsSGKeys,             m_inputCSCHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputMDTHitsSGKeys,             m_inputMDTHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputRPCHitsSGKeys,             m_inputRPCHits            ) );
-  ATH_CHECK( setupReadHandleKeyVector(m_inputTGCHitsSGKeys,             m_inputTGCHits            ) );
+  ATH_CHECK( m_inputCSCHits.initialize(not m_inputCSCHits.empty()) );
+  ATH_CHECK( m_inputMDTHits.initialize(not m_inputMDTHits.empty()) );
+  ATH_CHECK( m_inputRPCHits.initialize(not m_inputRPCHits.empty()) );
+  ATH_CHECK( m_inputTGCHits.initialize(not m_inputTGCHits.empty()) );
 
 
-  ATH_CHECK( initializeVarHandleKey(m_outputBCMHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputBLMHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputPixelHits          ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputSCTHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputTRTUncompressedHits) );
+  ATH_CHECK( m_outputBCMHits.initialize(not m_outputBCMHits.key().empty()            ) );
+  ATH_CHECK( m_outputBLMHits.initialize(not m_outputBLMHits.key().empty()            ) );
+  ATH_CHECK( m_outputPixelHits.initialize(not m_outputPixelHits.key().empty()          ) );
+  ATH_CHECK( m_outputSCTHits.initialize(not m_outputSCTHits.key().empty()            ) );
+  ATH_CHECK( m_outputTRTUncompressedHits.initialize(not m_outputTRTUncompressedHits.key().empty()) );
 
-  ATH_CHECK( initializeVarHandleKey(m_outputLArEMBHits         ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputLArEMECHits        ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputLArFCALHits        ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputLArHECHits         ) );
+  ATH_CHECK( m_outputLArEMBHits.initialize(not m_outputLArEMBHits.key().empty()         ) );
+  ATH_CHECK( m_outputLArEMECHits.initialize(not m_outputLArEMECHits.key().empty()        ) );
+  ATH_CHECK( m_outputLArFCALHits.initialize(not m_outputLArFCALHits.key().empty()        ) );
+  ATH_CHECK( m_outputLArHECHits.initialize(not m_outputLArHECHits.key().empty()         ) );
 
-  ATH_CHECK( initializeVarHandleKey(m_outputTileHits           ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputMBTSHits           ) );
+  ATH_CHECK( m_outputTileHits.initialize(not m_outputTileHits.key().empty()           ) );
+  ATH_CHECK( m_outputMBTSHits.initialize(not m_outputMBTSHits.key().empty()           ) );
 
-  ATH_CHECK( initializeVarHandleKey(m_outputCSCHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputMDTHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputRPCHits            ) );
-  ATH_CHECK( initializeVarHandleKey(m_outputTGCHits            ) );
+  ATH_CHECK( m_outputCSCHits.initialize(not m_outputCSCHits.key().empty()            ) );
+  ATH_CHECK( m_outputMDTHits.initialize(not m_outputMDTHits.key().empty()            ) );
+  ATH_CHECK( m_outputRPCHits.initialize(not m_outputRPCHits.key().empty()            ) );
+  ATH_CHECK( m_outputTGCHits.initialize(not m_outputTGCHits.key().empty()            ) );
 
   return StatusCode::SUCCESS;
 }
@@ -173,19 +80,4 @@ StatusCode ISF::CollectionMerger::execute()
   ATH_CHECK(mergeCollections( m_inputTGCHits,             m_outputTGCHits             ));
 
   return StatusCode::SUCCESS;
-}
-
-
-/** Athena Algorithm finalize */
-StatusCode ISF::CollectionMerger::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-/** Initialize the given VarHandleKey */
-StatusCode ISF::CollectionMerger::initializeVarHandleKey( SG::VarHandleKey& varHandleKey ) const {
-  if ( varHandleKey.key().empty() )
-    return StatusCode::SUCCESS;
-
-  return varHandleKey.initialize();
 }

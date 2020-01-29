@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -70,16 +70,6 @@ class CollectionMerger_test : public ::testing::Test {
     //     CollectionMerger AthAlgorithm
     //
     template<typename... Args>
-    StatusCode initializeVarHandleKey(Args&&... args) const {
-      return m_alg->initializeVarHandleKey(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    StatusCode setupReadHandleKeyVector(Args&&... args) const {
-      return m_alg->setupReadHandleKeyVector(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
     void mergeCollections(Args&&... args) const {
       m_alg->mergeCollections(std::forward<Args>(args)...);
     }
@@ -93,64 +83,8 @@ TEST_F(CollectionMerger_test, empty_alg_execute) {
   ASSERT_TRUE( m_alg->execute().isSuccess() );
 }
 
-
-TEST_F(CollectionMerger_test, initializeVarHandleKey) {
-  SG::VarHandleKey testKey{ 123456789 /* clid */,
-                            std::string("testKey"),
-                            Gaudi::DataHandle::Reader };
-  ASSERT_TRUE( initializeVarHandleKey(testKey).isSuccess() );
-  ASSERT_TRUE( testKey.storeHandle().isSet() );
-}
-
-
-TEST_F(CollectionMerger_test, initializeVarHandleKey_emptyKey) {
-  SG::VarHandleKey emptyTestKey{ 123456789 /* clid */,
-                                 std::string(),
-                                 Gaudi::DataHandle::Reader };
-  ASSERT_TRUE( initializeVarHandleKey(emptyTestKey).isSuccess() );
-  ASSERT_TRUE( !emptyTestKey.storeHandle().isSet() );
-}
-
-
-TEST_F(CollectionMerger_test, setupReadHandleKeyVector) {
-  std::vector<std::string>                            sgKeys{};
-  std::vector<SG::ReadHandleKey<TestHitCollection_t>> readHandles{};
-
-  ASSERT_TRUE( setupReadHandleKeyVector(sgKeys, readHandles).isSuccess() );
-  ASSERT_TRUE( readHandles.empty() );
-
-  sgKeys.emplace_back( "testKeyA" );
-  sgKeys.emplace_back( "testKeyB" );
-  sgKeys.emplace_back( "testKeyC" );
-
-  ASSERT_TRUE( setupReadHandleKeyVector(sgKeys, readHandles).isSuccess() );
-  ASSERT_EQ( readHandles.size(), 3u );
-  ASSERT_EQ( readHandles.at(0).key(), "testKeyA" );
-  ASSERT_TRUE( readHandles.at(0).clid() );
-  ASSERT_EQ( readHandles.at(0).mode(), Gaudi::DataHandle::Reader );
-  ASSERT_TRUE( readHandles.at(0).storeHandle().isSet() );
-  ASSERT_EQ( readHandles.at(1).key(), "testKeyB" );
-  ASSERT_TRUE( readHandles.at(1).clid() );
-  ASSERT_EQ( readHandles.at(1).mode(), Gaudi::DataHandle::Reader );
-  ASSERT_TRUE( readHandles.at(1).storeHandle().isSet() );
-  ASSERT_EQ( readHandles.at(2).key(), "testKeyC" );
-  ASSERT_TRUE( readHandles.at(2).clid() );
-  ASSERT_EQ( readHandles.at(2).mode(), Gaudi::DataHandle::Reader );
-  ASSERT_TRUE( readHandles.at(2).storeHandle().isSet() );
-}
-
-
-TEST_F(CollectionMerger_test, setupReadHandleKeyVector_emptyKey) {
-  std::vector<std::string>                            sgKeys{"testKeyA", std::string(), "testKeyC"};
-  std::vector<SG::ReadHandleKey<TestHitCollection_t>> readHandles{};
-
-  // isFailure because of the empty string in the sgKeys vector
-  ASSERT_TRUE( setupReadHandleKeyVector(sgKeys, readHandles).isFailure() );
-}
-
-
 TEST_F(CollectionMerger_test, mergeCollections) {
-  std::vector<SG::ReadHandleKey<TestHitCollection_t>> inputKeys{};
+  SG::ReadHandleKeyArray<TestHitCollection_t> inputKeys{};
   SG::WriteHandleKey<TestHitCollection_t>             outputKey{"outputCollectionMergeTest"};
   ASSERT_TRUE( outputKey.initialize().isSuccess() );
 
@@ -331,7 +265,7 @@ TEST_F(CollectionMerger_test, nonexisting_input_collection___expect_SG_exception
 
 
 TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merged_pointers_not_equal_to_input) {
-  std::vector<SG::ReadHandleKey<TestPointerHitCollection_t>> inputKeys{};
+  SG::ReadHandleKeyArray<TestPointerHitCollection_t> inputKeys{};
   SG::WriteHandleKey<TestPointerHitCollection_t> outputKey{"outputPointerCollectionMergeTest"};
   ASSERT_TRUE( outputKey.initialize().isSuccess() );
 
