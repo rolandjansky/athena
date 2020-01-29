@@ -1,27 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
 // in the SUSYObjDef_xAOD class
 
-// Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
 #include "xAODBase/IParticleHelpers.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-//#include "xAODPrimitives/IsolationType.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "AthContainers/ConstDataVector.h"
-//#include "PATInterfaces/SystematicsUtil.h"
 
-//#include "PileupReweighting/IPileupReweightingTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 
 #include "PrimaryDPDMaker/DRAW_ZMUMUSkimmingTool.h"
 #include "xAODMuon/MuonContainer.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
 #include <vector>
 #include <string>
 

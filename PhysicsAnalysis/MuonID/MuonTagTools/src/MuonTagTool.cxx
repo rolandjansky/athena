@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -21,7 +21,6 @@ Purpose : create a collection of MuonTag
 #include "TagEvent/MuonAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <sstream>
 #include <cmath>
