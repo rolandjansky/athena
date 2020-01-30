@@ -98,7 +98,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
   InDetTrigAmbiScoringTool =  InDet__InDetAmbiScoringTool( name                        = '%sScoringTool%s'%(algNamePrefix, signature) ,
                                                            Extrapolator                = InDetTrigExtrapolator,
-                                                           InputEmClusterContainerName = '', #need to be reset to empty string
                                                            doEmCaloSeed                = False,
                                                            SummaryTool                 = SummaryTool_config)
 

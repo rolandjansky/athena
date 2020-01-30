@@ -13,7 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "InDetTrackScoringTools/ROIInfoVec.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "ROIInfoVec.h"
 
 namespace Trk {
   class IExtrapolator;
@@ -118,7 +119,8 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   float m_phiWidthEm;
   float m_etaWidthEm;
 
-  SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName;
+  SG::ReadHandleKey<InDet::ROIInfoVec> m_caloROIInfoKey
+     {this,"CaloROIInfoName", "ROIInfoVec","Name of the calo cluster ROI vector."};
 };
 
 

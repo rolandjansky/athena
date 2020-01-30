@@ -83,13 +83,11 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("SummaryTool" ,      m_trkSummaryTool);
   declareProperty("DriftCircleCutTool",m_selectortool );
   declareProperty("MagFieldSvc",       m_magFieldSvc);
-  
+
   declareProperty("maxRPhiImpEM",      m_maxRPhiImpEM  = 50.  );
   declareProperty("doEmCaloSeed",      m_useEmClusSeed = true );
-  declareProperty("minPtEM",           m_minPtEm      = 5000. ); // in MeV
   declareProperty("phiWidthEM",        m_phiWidthEm   = 0.075 );
   declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
-  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName="InDetCaloClusterROIs");
 
   //set values for scores
   m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
@@ -173,7 +171,7 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
 
-  ATH_CHECK( m_inputEmClusterContainerName.initialize(m_useEmClusSeed) );
+  ATH_CHECK( m_caloROIInfoKey.initialize(m_useEmClusSeed) );
   
   return StatusCode::SUCCESS;
 }
@@ -325,36 +323,32 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
 
   // uses perigee on track or extrapolates, no material in any case, we cut on impacts
   // add back extrapolation without errors
-  const Trk::TrackParameters* parm = m_extrapolator->extrapolateDirectly(*input, perigeeSurface);
+  {
+  std::unique_ptr<const Trk::TrackParameters> parm( m_extrapolator->extrapolateDirectly(*input, perigeeSurface) );
 
-  const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm ); 
+  const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm.get());
   if (!extrapolatedPerigee) {
-      msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endmsg;
-      delete parm;
-      return Trk::TrackScore(0);
+     ATH_MSG_WARNING( "Extrapolation of perigee failed, this should never happen" );
+     return Trk::TrackScore(0);
   }
-  
+
   ATH_MSG_VERBOSE ("extrapolated perigee: "<<*extrapolatedPerigee);
   if (fabs(extrapolatedPerigee->parameters()[Trk::z0]) > m_maxZImp) {
     ATH_MSG_DEBUG ("Track Z impact > "<<m_maxZImp<<", reject it");
-    delete extrapolatedPerigee;
     return Trk::TrackScore(0);
   }
 
   double maxD0 = m_maxRPhiImp;
   if(m_useEmClusSeed) {
-    if (isEmCaloCompatible( track) )
-      maxD0 = m_maxRPhiImpEM;
+     if (isEmCaloCompatible( track ) ) {
+        maxD0 = m_maxRPhiImpEM;
+     }
   }
   if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > maxD0) {
     ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
-    delete extrapolatedPerigee;
     return Trk::TrackScore(0);
   }
-
-
-
-  delete extrapolatedPerigee;
+  }
 
   //
   // --- now start scoring
@@ -903,7 +897,6 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
 
 }
 
-//==========================================================================================
 bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track) const
 {
   const Trk::TrackParameters * Tp = track.trackParameters()->front();
@@ -930,19 +923,15 @@ bool InDet::InDetAmbiScoringTool::isEmCaloCompatible(const Trk::Track& track) co
   double R = Tp->position().perp();
   double Z = Tp->position().z();
 
-  SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
-  for( const Trk::CaloClusterROI* ccROI : *calo) {
-     Amg::Vector3D pos( ccROI->globalPosition());
-     if( ccROI->energy() * sin(pos.theta()) < m_minPtEm){
-        continue;
-     }
+  SG::ReadHandle<InDet::ROIInfoVec> calo(m_caloROIInfoKey);
+  for( const InDet::ROIInfo &ccROI : *calo) {
 
-    double df = fabs(F-( pos.phi()));
+    double df = fabs(F-ccROI.emF);
     if(df > pi        ) df = fabs(pi2-df);
     if(df < m_phiWidthEm) {
       //Correct eta of cluster to take into account the z postion of the track
-      double newZ   = pos.z() - Z;
-      double newR   = pos.perp() - R;
+      double newZ   = ccROI.emZ - Z;
+      double newR   = ccROI.emR - R;
       double newEta =  atanh( newZ / sqrt( newR*newR + newZ*newZ ) );
       double de = fabs(E-newEta);
 
