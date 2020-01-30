@@ -36,9 +36,11 @@ atlas_add_library( FlavorTagDiscriminants
   Root/BTagMuonAugmenterTool.cxx
   Root/DL2.cxx
   Root/DL2HighLevel.cxx
+  Root/DL2HighLevelTools.cxx
   Root/DL2Tool.cxx
   Root/customGetter.cxx
-  Root/EDMSchemaEnums.cxx
+  Root/FlipTagEnums.cxx
+  Root/VRJetOverlapDecorator.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES AsgTools xAODBase xAODJet xAODEventInfo PathResolver

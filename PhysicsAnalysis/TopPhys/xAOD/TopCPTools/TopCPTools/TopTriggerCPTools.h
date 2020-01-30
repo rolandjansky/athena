@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPCPTOOLS_TOPTRIGGERCPTOOLS_H_
 #define TOPCPTOOLS_TOPTRIGGERCPTOOLS_H_
@@ -26,37 +26,32 @@
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 namespace top {
+  class TopConfig;
 
-class TopConfig;
+  class TriggerCPTools final: public asg::AsgTool {
+  public:
+    explicit TriggerCPTools(const std::string& name);
+    virtual ~TriggerCPTools() {}
 
-class TriggerCPTools final : public asg::AsgTool {
- public:
-  explicit TriggerCPTools(const std::string& name);
-  virtual ~TriggerCPTools() {}
+    StatusCode initialize();
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
-  StatusCode initialize();
+    ToolHandle<TrigConf::ITrigConfigTool> m_trigConfTool;
+    ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+    ToolHandle<Trig::IMatchingTool> m_trigMatchTool;
+    ToolHandle<Trig::ITrigTauMatchingTool> m_trigMatchTauTool;
+    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffTool;
+    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
+    StatusCode initialiseGlobalTriggerEff();
+    std::string mapWorkingPoints(const std::string& type);
 
- private:
-  std::shared_ptr<top::TopConfig> m_config;
-
-  int m_release_series = 24;  // Default to 2.4
-
-  ToolHandle<TrigConf::ITrigConfigTool> m_trigConfTool;
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-  ToolHandle<Trig::IMatchingTool> m_trigMatchTool;
-  ToolHandle<Trig::ITrigTauMatchingTool> m_trigMatchTauTool;
-  ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffTool;
-  ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
-  StatusCode initialiseGlobalTriggerEff();
-  std::string mapWorkingPoints(const std::string& type);
-
-  // Tool handles for the CP tools, need to be members here, or inaccessible to global trigger tool
-  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTool;
-  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonToolLoose;
-  std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_electronToolsFactory;
-  std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_electronToolsFactoryLoose;
-
-};
+    // Tool handles for the CP tools, need to be members here, or inaccessible to global trigger tool
+    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTool;
+    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonToolLoose;
+    std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronToolsFactory;
+    std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > m_electronToolsFactoryLoose;
+  };
 }  // namespace top
 
 #endif  // TOPCPTOOLS_TOPTRIGGERCPTOOLS_H_

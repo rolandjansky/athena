@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------------------------
@@ -15,21 +15,17 @@
 #include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h" 
 #include "JetSubStructureUtils/EnergyCorrelator.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorGeneralizedTool::EnergyCorrelatorGeneralizedTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing EnergyCorrelatorGeneralized tool");
   declareProperty("Beta", m_Beta = 1.0);
   declareProperty("BetaList", m_betaVals = {});
-  declareProperty("DoN3", m_doN3 = false);  
-  declareProperty("DoLSeries", m_doLSeries = false);  
+  declareProperty("DoN3", m_doN3 = false);
+  declareProperty("DoLSeries", m_doLSeries = false);
+  declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorGeneralizedTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
-
   // Add beta = 1.0 by default
   betaVals.push_back(1.0);
 
@@ -54,7 +50,23 @@ StatusCode EnergyCorrelatorGeneralizedTool::initialize() {
 int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
   
   fastjet::PseudoJet jet;
+  fastjet::PseudoJet jet_ungroomed;
+  
   bool decorate = SetupDecoration(jet,injet);
+  bool decorate_ungroomed = false;
+  if(m_doDichroic) {
+    // Get parent jet here and replace injet
+    ElementLink<xAOD::JetContainer> parentLink = injet.auxdata<ElementLink<xAOD::JetContainer> >("Parent");
+
+    // Return error is parent element link is broken
+    if(!parentLink.isValid()) {
+      ATH_MSG_ERROR("Parent element link is not valid. Aborting");
+      return 1;
+    }
+
+    const xAOD::Jet* parentJet = *(parentLink);
+    decorate_ungroomed = SetupDecoration(jet_ungroomed,*parentJet);
+  }
 
   for(float beta : betaVals) {
 
@@ -62,9 +74,11 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
 
     // These are used for N2 and M2
     float ECFG_2_1_value = -999, ECFG_3_2_value = -999;
+    float ECFG_2_1_value_ungroomed = -999, ECFG_3_2_value_ungroomed = -999;
 
     // These are used for N3
     float ECFG_3_1_value = -999, ECFG_4_2_value = -999;
+    float ECFG_3_1_value_ungroomed = -999;
 
     if (decorate) {
 
@@ -75,6 +89,11 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
       ECFG_2_1_value = ECFG_2_1.result(jet);
       ECFG_3_2_value = ECFG_3_2.result(jet);
 
+      if (decorate_ungroomed) {
+        ECFG_2_1_value_ungroomed = ECFG_2_1.result(jet_ungroomed);
+        ECFG_3_2_value_ungroomed = ECFG_3_2.result(jet_ungroomed);
+      }
+
       // These are used for N3
 
       if(m_doN3) {
@@ -82,6 +101,11 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
         JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_1(1, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
         ECFG_3_1_value = ECFG_3_1.result(jet);
         ECFG_4_2_value = ECFG_4_2.result(jet);
+
+        if (decorate_ungroomed) {
+          ECFG_3_1_value_ungroomed = ECFG_3_1.result(jet_ungroomed);
+        }
+
       }
 
     }
@@ -90,6 +114,10 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
     injet.setAttribute(m_prefix+"ECFG_3_2"+suffix, ECFG_3_2_value);
     injet.setAttribute(m_prefix+"ECFG_3_1"+suffix, ECFG_3_1_value);
     injet.setAttribute(m_prefix+"ECFG_4_2"+suffix, ECFG_4_2_value);
+
+    injet.setAttribute(m_prefix+"ECFG_2_1_ungroomed"+suffix, ECFG_2_1_value_ungroomed);
+    injet.setAttribute(m_prefix+"ECFG_3_2_ungroomed"+suffix, ECFG_3_2_value_ungroomed);
+    injet.setAttribute(m_prefix+"ECFG_3_1_ungroomed"+suffix, ECFG_3_1_value_ungroomed);
 
   }
 

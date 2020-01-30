@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -85,7 +85,7 @@ namespace SH
   {
     RCU_READ_INVARIANT (this);
 
-    std::auto_ptr<SampleLocal> result (new SampleLocal (name()));
+    std::unique_ptr<SampleLocal> result (new SampleLocal (name()));
     for (auto& file : makeFileList ())
       result->add (file.c_str());
     return SamplePtr (result.release());
@@ -97,11 +97,27 @@ namespace SH
   doMakeFileList () const
   {
     RCU_READ_INVARIANT (this);
+    using namespace msgGridTools;
 
-    const std::string sample_name
+    const char *downloadDir = getenv (downloadStageEnvVar().c_str());
+
+    const std::string sampleName
       = meta()->castString (MetaFields::gridName, name());
-    const std::string file_filter
+    const std::string fileFilter
       = meta()->castString (MetaFields::gridFilter, MetaFields::gridFilter_default);
-    return rucioDirectAccessGlob (sample_name, file_filter);
+
+    if (downloadDir)
+    {
+      ANA_MSG_DEBUG ("download dir set, trying download");
+      if (downloadDir[0] != '/')
+        throw std::runtime_error ("rucio download path in variable " + downloadStageEnvVar() + " should start with /");
+      return rucioCacheDatasetGlob (downloadDir, sampleName, fileFilter);
+    } else
+    {
+      ANA_MSG_DEBUG ("download dir not set, trying direct access");
+      const std::string sourceOptions
+        = meta()->castString (MetaFields::gridSourceOptions);
+      return rucioDirectAccessGlob (sampleName, fileFilter, sourceOptions);
+    }
   }
 }

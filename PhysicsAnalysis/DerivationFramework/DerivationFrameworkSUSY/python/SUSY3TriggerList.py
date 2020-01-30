@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from DerivationFrameworkSUSY.SUSYCommonTriggerList import SingleLepton_2015,SingleLepton_2016,SingleLepton_2017,SingleLepton_2018
 
 triggerRegEx = [
-    'HLT.*_tau[0-9][0-9].*_medium.*', 'HLT.*_tau[0-9][0-9].*_loose.*',
+    'HLT.*_tau[0-9][0-9].*_medium.*',
     'HLT.*_j.*_xe.*', 'HLT_xe[0-9][0-9].*', 'HLT_noalg_L1J400',
 ]
 

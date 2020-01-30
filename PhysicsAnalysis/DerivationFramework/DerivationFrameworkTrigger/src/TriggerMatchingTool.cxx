@@ -10,6 +10,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include <memory>
+#include <algorithm>
 
 namespace {
   /// Helper typedefs for accessors/decorators, vectors of ele links
@@ -56,11 +57,19 @@ namespace DerivationFramework {
     declareProperty("CheckEmptyChainGroups", m_checkEmptyChainGroups = true,
         "If set, discard any empty chain groups. Otherwise these will cause "
         "a job failure.");
+    declareProperty("InputDependentConfig", m_inputDependentConfig=false,
+        "Warn when a trigger is removed (if the configuration is dependent "
+        "on the inputs, removal is not expected).");
   }
 
   StatusCode TriggerMatchingTool::initialize()
   {
     ATH_MSG_INFO( "Initializing " << name() );
+
+    // Remove any duplicates from the list of chain names
+    std::sort(m_chainNames.begin(), m_chainNames.end() );
+    m_chainNames.erase(std::unique(m_chainNames.begin(), m_chainNames.end() ), m_chainNames.end() );
+
     ATH_CHECK( m_trigParticleTool.retrieve() );
     return StatusCode::SUCCESS;
   }
@@ -72,9 +81,11 @@ namespace DerivationFramework {
       auto itr = m_chainNames.begin();
       while (itr != m_chainNames.end() ) {
         const Trig::ChainGroup* cg = m_tdt->getChainGroup(*itr);
-        if (cg->getListOfTriggers().size() == 0)
+        if (cg->getListOfTriggers().size() == 0){
+          if (m_inputDependentConfig)
+            ATH_MSG_WARNING("Removing trigger " << (*itr) << " -- suggests a bad tool configuration (asking for triggers not in the menu)");
           itr = m_chainNames.erase(itr);
-        else
+        } else
           ++itr;
       }
     }
@@ -184,8 +195,12 @@ namespace DerivationFramework {
     auto aux = std::make_unique<xAOD::AuxContainerBase>();
     uniqueContainer->setStore(aux.get() );
     container = uniqueContainer.get();
-    ATH_CHECK( evtStore()->record(std::move(uniqueContainer), m_outputPrefix+chain) );
-    ATH_CHECK( evtStore()->record(std::move(aux), m_outputPrefix+chain+"Aux.") );
+    std::string name = m_outputPrefix+chain;
+    // We have to replace '.' characters with '_' characters so that these are
+    // valid container names...
+    std::replace(name.begin(), name.end(), '.', '_');
+    ATH_CHECK( evtStore()->record(std::move(uniqueContainer), name) );
+    ATH_CHECK( evtStore()->record(std::move(aux), name+"Aux.") );
     return StatusCode::SUCCESS;
   }
 

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # TOPQ3
 # LEPTON + JETS SELECTION
@@ -21,8 +23,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -37,7 +39,7 @@ TOPQ3Stream.AcceptAlgs(["TOPQ3Kernel"])
 # PDF Weight Metadata
 #====================================================================
 if DFisMC:
-  from DerivationFrameworkCore.WeightMetadata import *
+    from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
 # TRIGGER NAVIGATION THINNING
@@ -72,40 +74,49 @@ TOPQ3Sequence = CfgMgr.AthSequencer("TOPQ3Sequence")
 # First skim on leptons
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-# Then build fat/trimmed jets
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-addStandardJetsForTop(TOPQ3Sequence,'TOPQ3')
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["TOPQ3"] = []
 
-#Then apply jet calibration
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ3Sequence)
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoJets"]
+replaceAODReducedJets(reducedJetList, TOPQ3Sequence, "TOPQ3")
+
+# If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
+# *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(TOPQ3Sequence, "TOPQ3")
+
+# apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
+applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ3Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
+
 TaggerList = BTaggingFlags.StandardTaggers
-ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ3Sequence)
-
-# Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
-# if not hasattr(TOPQ3Sequence,"ELReset"):
-#   TOPQ3Sequence += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
-
-
-# THIS IS NO LONGER NEEDED IN REL 21, REMOVE IN FUTURE (May-17)
-# # Then apply the TruthWZ fix
-# if DFisMC:
-#   replaceBuggyAntiKt4TruthWZJets(TOPQ3Sequence,'TOPQ3')
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ3Sequence)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  TOPQ3Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    TOPQ3Sequence += TOPQCommonTruthKernel
 
-DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ3Sequence, ToolSvc)
+# add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
+addMSVVariables("AntiKt4EMTopoJets", TOPQ3Sequence, ToolSvc)
 
 # Then apply thinning
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3Kernel", ThinningTools = thinningTools)

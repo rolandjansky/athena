@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopConfiguration/TopPersistentSettings.h"
 
-namespace top{
+namespace top {
   TopPersistentSettings::TopPersistentSettings() :
     m_isMC(false),
     m_isAFII(false),
@@ -19,7 +19,9 @@ namespace top{
     m_sgKeyPrimaryVertices("SetMe"),
     m_sgKeyPhotons("SetMe"),
     m_sgKeyElectrons("SetMe"),
+    m_sgKeyFwdElectrons("SetMe"),
     m_sgKeyMuons("SetMe"),
+    m_sgKeySoftMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
     m_sgKeyLargeRJets("SetMe"),
@@ -32,6 +34,9 @@ namespace top{
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
     m_useElectronChargeIDSelection(false),
+    m_useEgammaLeakageCorrection(true),
+
+    m_fwdElectronID("SetMe"),
 
     m_muon_trigger_SF("SetMe"),
     m_muonQuality("SetMe"),
@@ -39,11 +44,15 @@ namespace top{
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
 
+    m_softmuonQuality("SetMe"),
+
     m_chosen_btaggingWP(),
 
     m_systSgKeyMapPhotons(),
     m_systSgKeyMapElectrons(),
+    m_systSgKeyMapFwdElectrons(),
     m_systSgKeyMapMuons(),
+    m_systSgKeyMapSoftMuons(),
     m_systSgKeyMapTaus(),
     m_systSgKeyMapJets(),
     m_systSgKeyMapJets_electronInJetSubtraction(),

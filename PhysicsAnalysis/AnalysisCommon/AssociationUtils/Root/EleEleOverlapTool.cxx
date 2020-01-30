@@ -7,7 +7,7 @@
 #include <exception>
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
+
 #include "AthContainers/ConstDataVector.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 

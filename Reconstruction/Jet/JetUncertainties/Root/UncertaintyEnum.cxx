@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -101,6 +101,7 @@ namespace CompParametrization
             case eLOGmOe:       return "eLOGmOe";
             case eLOGmOeEta:    return "eLOGmOeEta";
             case eLOGmOeAbsEta: return "eLOGmOeAbsEta";
+	    case PtLOGPtMassForTagSF: return "PtLOGPtMassForTagSF";
             default:            return "UNKNOWN";
         }
     }
@@ -125,6 +126,8 @@ namespace CompParametrization
             return eLOGmOeEta;
         if (!type.CompareTo("eLOGmOeAbsEta",TString::kIgnoreCase))
             return eLOGmOeAbsEta;
+        if (!type.CompareTo("PtLOGPtMassForTagSF",TString::kIgnoreCase))
+            return PtLOGPtMassForTagSF;
         return UNKNOWN;
     }
 
@@ -145,6 +148,7 @@ namespace CompParametrization
         switch(type)
         {
             case PtMass:
+	    case PtLOGPtMassForTagSF:
             case PtMassEta:
             case PtMassAbsEta:
             case eLOGmOe:
@@ -172,6 +176,7 @@ namespace CompMassDef
     {
         switch(type)
         {
+            case FourVecMass:   return "FourVec";
             case CaloMass:      return "Calo";
             case TAMass:        return "TA";
             case CombMassQCD:   return "CombQCD";
@@ -184,6 +189,8 @@ namespace CompMassDef
 
     TypeEnum stringToEnum(const TString type)
     {
+        if (!type.CompareTo("FourVec",TString::kIgnoreCase) || !type.CompareTo("FourVector",TString::kIgnoreCase))
+            return FourVecMass;
         if (!type.CompareTo("Calo",TString::kIgnoreCase) || !type.CompareTo("Calorimeter",TString::kIgnoreCase))
             return CaloMass;
         if (!type.CompareTo("TA",TString::kIgnoreCase) || !type.CompareTo("TrackAssisted",TString::kIgnoreCase))
@@ -249,6 +256,7 @@ namespace CompScaleVar
             case PtResAbs:      return "PtResAbs";
             case FourVecRes:    return "FourVecRes";
             case FourVecResAbs: return "FourVecResAbs";
+      	    case TagScaleFactor:return "TagScaleFactor";
             default:            return "UNKNOWN";
         }
     }
@@ -291,6 +299,8 @@ namespace CompScaleVar
             return FourVecRes;
         if (!type.CompareTo("FourVecResAbs",TString::kIgnoreCase))
             return FourVecResAbs;
+        if (!type.CompareTo("TagScaleFactor",TString::kIgnoreCase))
+            return TagScaleFactor;
         return UNKNOWN;
     }
 
@@ -310,6 +320,7 @@ namespace CompScaleVar
             case D2Beta1:
             case C2Beta1:
             case Qw:
+            case TagScaleFactor:
                 return true;
 
             default:
@@ -360,6 +371,88 @@ namespace CompScaleVar
             default:
                 return false;
         }
+    }
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
+//  Component parametrization type enum methods //
+//                                              //
+//////////////////////////////////////////////////
+
+namespace CompFlavorLabelVar
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch (type)
+        {
+    	    case t_qqb:         return "t_qqb";
+    	    case t:             return "t";
+	    case V_qq:          return "V_qq";
+    	    case W_qq:          return "W_qq";
+    	    case Z_qq:          return "Z_qq";
+	    case t_other:       return "t_other";
+	    case q:             return "q";
+            default:            return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+        if (type=="t_qqb")
+	  return t_qqb;
+	if (type=="t")
+	  return t;
+	if (type=="V_qq")
+	  return V_qq;
+	if (type=="W_qq")
+	  return W_qq;
+	if (type=="Z_qq")
+	  return Z_qq;
+	if (type=="t_other")
+	  return t_other;
+	if (type=="q")
+	  return q;
+        return UNKNOWN;
+    }
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
+//  Component parametrization type enum methods //
+//                                              //
+//////////////////////////////////////////////////
+
+namespace CompTaggerRegionVar
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch (type)
+        {
+    	    case passMpassD2_2Var:  return "2Var_passMpassD2";
+	    case passMfailD2_2Var:  return "2Var_passMfailD2";
+    	    case failMpassD2_2Var:  return "2Var_failMpassD2";
+    	    case failMfailD2_2Var:  return "2Var_failMfailD2";
+            default:            return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+      if (type.Contains("2Var",TString::kIgnoreCase))
+      {
+	if (type.Contains("passMpassD2",TString::kIgnoreCase))
+	  return passMpassD2_2Var;
+        if (type.Contains("passMfailD2",TString::kIgnoreCase))
+	  return passMfailD2_2Var;
+        if (type.Contains("failMpassD2",TString::kIgnoreCase))
+	  return failMpassD2_2Var;
+        if (type.Contains("failMfailD2",TString::kIgnoreCase))
+	  return failMfailD2_2Var;
+      }
+      return UNKNOWN;
     }
 }
 

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EVENTSAVERBASE_H_
 #define EVENTSAVERBASE_H_
@@ -20,18 +20,17 @@ namespace top {
   class ParticleLevelEvent;
 
   /**
-  * @brief A base class so users can write their own event saving stuff. Some
-  * people, for some reason, prefer flat ntuples to xAODs.
-  */
-  class EventSaverBase{
-      
+   * @brief A base class so users can write their own event saving stuff. Some
+   * people, for some reason, prefer flat ntuples to xAODs.
+   */
+  class EventSaverBase {
   public:
-    /** 
+    /**
      * @brief Default ctor/dtor - ROOT wants to use these, don't use fancy ctors
      */
-    EventSaverBase(){}
-    virtual ~EventSaverBase(){}
-      
+    EventSaverBase() {}
+    virtual ~EventSaverBase() {}
+
     /**
      * @brief Called once at the start of the job after the file has been opened.
      *
@@ -39,7 +38,8 @@ namespace top {
      * @param file You probably need the file if you're going to write to it.
      * @param extraBranches So you can write extra branches (only for xAOD).
      */
-    virtual void initialize(std::shared_ptr<top::TopConfig> config, TFile* file, const std::vector<std::string>& extraBranches) = 0;
+    virtual void initialize(std::shared_ptr<top::TopConfig> config, TFile* file,
+                            const std::vector<std::string>& extraBranches) = 0;
 
     /**
      * @brief I guess you want to save an event sometimes to.
@@ -50,18 +50,18 @@ namespace top {
      *
      * @param event The event in question, in the format used internally.
      */
-    virtual void saveEvent(const top::Event& /*event*/){return;}
-    virtual void saveEventToxAOD(){return;}
-    
-     /**
+    virtual void saveEvent(const top::Event& /*event*/) {return;}
+    virtual void saveEventToxAOD() {return;}
+
+    /**
      * @breif Run for every event
-     * 
+     *
      * This fills, if requested, the:
-     *   MC truth record 
+     *   MC truth record
      *   PDF info
      *   TopPartons
      */
-    virtual void saveTruthEvent(){return;}   
+    virtual void saveTruthEvent() {return;}
 
     /*!
      * @brief Function to save the particle level event.
@@ -71,8 +71,8 @@ namespace top {
      * @param plEvent The particle level event whose contents will be saved.
      */
     virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& /* plEvent */) {
-	/* Deliberately No-Op */
-	return;
+      /* Deliberately No-Op */
+      return;
     }
 
     /*!
@@ -83,18 +83,17 @@ namespace top {
      * @param upgradeEvent The upgrade event whose contents will be saved.
      */
     virtual void saveUpgradeEvent(const top::ParticleLevelEvent& /* plEvent */) {
-       /* Deliberately No-Op */
-       return;
+      /* Deliberately No-Op */
+      return;
     }
 
     /**
      * @brief So you can write something at the end of the job (like metadata).
      */
-    virtual void finalize(){return;}
+    virtual void finalize() {return;}
 
     ClassDef(top::EventSaverBase, 0);
   };
-
 }
 
 #endif

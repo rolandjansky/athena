@@ -85,32 +85,18 @@ StatusCode BTaggingSelectionTool::initialize() {
     m_OP_Veto = m_OP_Veto+"_"+(std::string)(((TObjString *)(wptokens->At(5)))->String());
   }
 
-  // The tool supports only these taggers and jet collections:
-  if ("DL1"!=m_taggerName&&
-        "DL1r"!=m_taggerName&&
-        "DL1rmu"!=m_taggerName&&
-        "MV2c10"!=m_taggerName&&
-        "MV2r"!=m_taggerName&&
-        "MV2rmu"!=m_taggerName&&
-        "MV2cl100_MV2c100"!=m_taggerName){
+  // check the CDI file for the selected tagger and jet collection
+  TString check_CDI = m_taggerName;
+  if(!m_inf->Get(check_CDI)){
+     ATH_MSG_ERROR( "Tagger: "+m_taggerName+" not found in this CDI file: "+m_CutFileName);
+    return StatusCode::FAILURE;
+  }
+  check_CDI = m_taggerName+"/"+m_jetAuthor;
+  if(!m_inf->Get(check_CDI)){
+     ATH_MSG_ERROR( "Tagger: "+m_taggerName+" and Jet Collection : "+m_jetAuthor+"  not found in this CDI file: "+m_CutFileName);
+    return StatusCode::FAILURE;
+  }
 
-    if(m_taggerName=="MV2c10mu" || m_taggerName=="MV2c10rnn" ||  m_taggerName=="DL1mu" || m_taggerName=="DL1rnn"){
-      ATH_MSG_ERROR( "BTaggingSelectionTool: the tagger "+m_taggerName+" has been deprecated." );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName );
-    return StatusCode::FAILURE;
-  }
-  if ("AntiKt4EMTopoJets"  != m_jetAuthor &&
-      "AntiKt4EMPFlowJets" != m_jetAuthor &&
-      "AntiKt2PV0TrackJets"!= m_jetAuthor &&
-      "AntiKt4PV0TrackJets"!= m_jetAuthor &&
-      "AntiKtVR30Rmax4Rmin02TrackJets" !=m_jetAuthor &&
-      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"!= m_jetAuthor
-      ){
-    ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support jet collection: "+m_jetAuthor );
-    return StatusCode::FAILURE;
-  }
 
   // Change the minPt cut if the user didn't touch it
   if (20000==m_minPt){// is it still the default value

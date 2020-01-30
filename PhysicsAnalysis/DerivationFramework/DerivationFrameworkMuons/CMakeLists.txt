@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaKernel
    Control/AthenaBaseComps
+   PhysicsAnalysis/MCTruthClassifier 
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth )
@@ -44,7 +45,7 @@ atlas_add_library( DerivationFrameworkMuonsLib
    TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools CaloTrkMuIdTools
    TrkExInterfaces InDetTrackSelectionToolLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODEventInfo
-   xAODTracking xAODTruth )
+   xAODTracking xAODTruth MCTruthClassifierLib)
 
 atlas_add_component( DerivationFrameworkMuons
    src/components/*.cxx

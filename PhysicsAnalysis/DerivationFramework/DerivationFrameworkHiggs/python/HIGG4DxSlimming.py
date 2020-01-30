@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #################################################
 # Common code used for the HIGG4 slimming       #
@@ -14,17 +14,36 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     
     #smart slimming
     #main collections:
-    HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
+    if HIGG4DxName in ['HDBS1']:
+        HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
+                                              "Muons",
+                                              "TauJets",
+                                              "DiTauJetsLowPt",
+                                              "InDetTrackParticles",
+                                              "PrimaryVertices",
+                                              "MET_Reference_AntiKt4EMPFlow",
+                                              "AntiKt4EMPFlowJets",
+                                              "AntiKt4EMPFlowJets_BTagging201810",
+                                              "BTagging_AntiKt4EMPFlow_201810",
+                                              "AntiKt4EMPFlowJets_BTagging201903",
+                                              "BTagging_AntiKt4EMPFlow_201903"
+                                              ]
+    else:
+        HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
                                               "Muons",
                                               "TauJets",
                                               "MET_Reference_AntiKt4EMTopo",
                                               "AntiKt4EMTopoJets",
-                                              "BTagging_AntiKt4EMTopo",
+                                              "AntiKt4EMTopoJets_BTagging201810",
+                                              "BTagging_AntiKt4EMTopo_201810",
                                               "InDetTrackParticles",
                                               "PrimaryVertices",
-                                              "AntiKt4EMPFlowJets",
                                               "MET_Reference_AntiKt4EMPFlow",
-                                              "BTagging_AntiKt4EMPFlow"
+                                              "AntiKt4EMPFlowJets",
+                                              "AntiKt4EMPFlowJets_BTagging201810",
+                                              "BTagging_AntiKt4EMPFlow_201810",
+                                              "AntiKt4EMPFlowJets_BTagging201903",
+                                              "BTagging_AntiKt4EMPFlow_201903",
                                               ]
     
     # extra containers for some formats                                                  
@@ -35,7 +54,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.SmartCollections += ["AntiKt4LCTopoJets"]  # used as seeds for taus
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
-        HIGG4DxSlimmingHelper.SmartCollections += ["BTagging_AntiKt2Track"]
+        HIGG4DxSlimmingHelper.SmartCollections += ["DiTauJets"]
 
     #extra variables added to the smart slimming content
     ExtraContentElectrons=[
@@ -78,7 +97,9 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn."
         "ele_match_lhscore."
         "ele_olr_pass."
-        "electronLink"
+        "electronLink."
+        "seedTrackWidthPt500."
+        "seedTrackWidthPt1000"
         ,
         "TauNeutralParticleFlowObjects."
         "pt."
@@ -99,7 +120,8 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     # add tau-ID variables needed to rerun tau ID for HiggsCP analysis
     if HIGG4DxName == 'HIGG4D3':
         ExtraContentTaus[0] += ".centFrac.ChPiEMEOverCaloEME.dRmax.etOverPtLeadTrk.EMPOverTrkSysP.innerTrkAvgDist.ipSigLeadTrk.absipSigLeadTrk.massTrkSys.mEflowApprox.ptRatioEflowApprox.SumPtTrkFrac.trFlightPathSig"
-        
+        ExtraContentTaus += ["TauTracks.CaloSamplingEtaEM.CaloSamplingEtaHad.CaloSamplingPhiEM.CaloSamplingPhiHad"]
+
 
     ExtraTausTruth = [
         "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"
@@ -135,12 +157,11 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     if HIGG4DxName == 'HIGG4D6':
         HIGG4DxSlimmingHelper.ExtraVariables += ExtraContentJets
 
-    if HIGG4DxName == 'HIGG4D1':
+    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2']:
         from HIGG4DxAugmentation import JetTagConfig
         HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
         HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
     
-
     #extra containers
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AllVariables += ["LVL1JetRoIs"]
@@ -148,26 +169,19 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     from DerivationFrameworkJetEtMiss.JetCommon import *
     if HIGG4DxName in OutputJets:
         if HIGG4DxName == 'HDBS1':
-            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt4TruthJets', 'AntiKt4TruthWZJets'], ['AntiKt4PV0TrackJets','AntiKt2PV0TrackJets','AntiKt10LCTopoJets']) # last two arguments: smart slimming collection list, veto collection list 
+            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt4TruthJets', 'AntiKt4TruthWZJets'], ['AntiKt4PV0TrackJets','AntiKt2PV0TrackJets','AntiKt10LCTopoJets','AntiKt4EMTopoJets']) # last two arguments: smart slimming collection list, veto collection list 
         else:
-            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets']) # last argument: smart slimming applied for these collections 
+            addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets'])
         
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
-       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
-    if HIGG4DxName in ['HDBS1']:
-       HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPt"] = 'xAOD::DiTauJetContainer' #Added
-       HIGG4DxSlimmingHelper.AppendToDictionary["DiTauJetsLowPtAux"] = 'xAOD::DiTauJetAuxContainer' #Added
-       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJetsLowPt"] #Added
-
     if HIGG4DxName in ['HIGG4D3', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.AppendToDictionary.update( {
-              "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
-              "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
-              "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
-              "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
+              "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"               :   "xAOD::JetContainer"        ,
+              "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"            :   "xAOD::JetAuxContainer"     ,
+              "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"          :   "xAOD::BTaggingContainer"   ,
+              "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"       :   "xAOD::BTaggingAuxContainer",
               } )
               
-        HIGG4DxSlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
+        HIGG4DxSlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"]
     
     # common for all formats
     HIGG4DxSlimmingHelper.AllVariables +=  [ "MET_Track" ]  # this is needed for the forward JVT
@@ -190,6 +204,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                                "TruthNeutrinos", 
                                                "TruthTaus", 
                                                "TruthBoson",
+                                               "TruthPhotons"
                                                ]
 
     #trigger content
@@ -212,7 +227,8 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     elif HIGG4DxName == "HIGG4D6":
         pass
     elif HIGG4DxName == "HDBS1":
-        pass
+        HIGG4DxSlimmingHelper.IncludeMuonTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeEGammaTriggerContent = True
     else:
         assert False, "HIGG4DxSlimming: Unknown derivation stream '{}'".format(HIGG4DxName)
 

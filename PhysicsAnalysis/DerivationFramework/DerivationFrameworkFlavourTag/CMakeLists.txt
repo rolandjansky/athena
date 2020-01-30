@@ -47,3 +47,10 @@ atlas_add_component( DerivationFrameworkFlavourTag
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+# add the test utility
+atlas_add_executable( test_btagging util/test-btagging.cxx )
+atlas_add_executable( test_jet_links util/test-jet-links.cxx )
+target_link_libraries(test_btagging xAODCore xAODJet xAODRootAccess)
+target_link_libraries(test_jet_links xAODCore xAODJet xAODRootAccess)
+

@@ -222,6 +222,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   //  std::string m_CutFileName;
 
   // properties of truth tagging
+  bool m_doOnlyUpVariations;
   bool m_ignoreSF;
   bool m_usePerm;
   bool m_useQuntile;

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopExamples/DileptonAnalysis.h"
 #include "TopExamples/DefaultPlots.h"
@@ -17,7 +17,6 @@
 #include <fstream>
 
 namespace top {
-
 /**
  * @brief Setup the analysis, add some histograms.
  *
@@ -26,32 +25,32 @@ namespace top {
  * and with / without weights to nullptr.  They are loaded from the input files.
  * Also three counters are set to 0 for the number of processed events.
  */
-DileptonAnalysis::DileptonAnalysis(TFile* outputFile, EL::Worker* wk) :
-                m_mcChannelNumber(0),
-                m_runNumber(0),
-                m_histsElEl("ee", outputFile, wk),
-                m_histsMuMu("mumu", outputFile, wk),
-                m_histsElMu("emu", outputFile, wk),
-                m_cutflowEventsElEl(nullptr),
-                m_cutflowMCWeightsElEl(nullptr),
-                m_cutflowEventsMuMu(nullptr),
-                m_cutflowMCWeightsMuMu(nullptr),
-                m_cutflowEventsElMu(nullptr),
-                m_cutflowMCWeightsElMu(nullptr),
-                m_counterElEl(0),
-                m_counterMuMu(0),
-                m_counterElMu(0) {
-            //add some default histograms for each channel
-            top::addPlots(m_histsElEl);
-            top::addPlots(m_histsMuMu);
-            top::addPlots(m_histsElMu);
+  DileptonAnalysis::DileptonAnalysis(TFile* outputFile, EL::Worker* wk) :
+    m_mcChannelNumber(0),
+    m_runNumber(0),
+    m_histsElEl("ee", outputFile, wk),
+    m_histsMuMu("mumu", outputFile, wk),
+    m_histsElMu("emu", outputFile, wk),
+    m_cutflowEventsElEl(nullptr),
+    m_cutflowMCWeightsElEl(nullptr),
+    m_cutflowEventsMuMu(nullptr),
+    m_cutflowMCWeightsMuMu(nullptr),
+    m_cutflowEventsElMu(nullptr),
+    m_cutflowMCWeightsElMu(nullptr),
+    m_counterElEl(0),
+    m_counterMuMu(0),
+    m_counterElMu(0) {
+    //add some default histograms for each channel
+    top::addPlots(m_histsElEl);
+    top::addPlots(m_histsMuMu);
+    top::addPlots(m_histsElMu);
 
-            //a special histogram for emu
-            m_histsElMu.addHist("ht", ";HT / GeV;Events / 20 GeV", 40, 0, 800);
-}
+    //a special histogram for emu
+    m_histsElMu.addHist("ht", ";HT / GeV;Events / 20 GeV", 40, 0, 800);
+  }
 
-DileptonAnalysis::~DileptonAnalysis() {
-}
+  DileptonAnalysis::~DileptonAnalysis() {
+  }
 
 /**
  * @brief When a new input file is opened we want to grab the cutflow histograms
@@ -59,14 +58,14 @@ DileptonAnalysis::~DileptonAnalysis() {
  *
  * @param inputFile The file that was just opened.
  */
-void DileptonAnalysis::newFile(TFile* inputFile) {
+  void DileptonAnalysis::newFile(TFile* inputFile) {
     updateCutflow("ee/cutflow", m_cutflowEventsElEl, inputFile);
     updateCutflow("ee/cutflow_mc", m_cutflowMCWeightsElEl, inputFile);
     updateCutflow("mumu/cutflow", m_cutflowEventsMuMu, inputFile);
     updateCutflow("mumu/cutflow_mc", m_cutflowMCWeightsMuMu, inputFile);
     updateCutflow("emu/cutflow", m_cutflowEventsElMu, inputFile);
     updateCutflow("emu/cutflow_mc", m_cutflowMCWeightsElMu, inputFile);
-}
+  }
 
 /**
  * @brief Work out if it's ee, mumu or emu and send the event to the correct
@@ -80,27 +79,23 @@ void DileptonAnalysis::newFile(TFile* inputFile) {
  *
  * @param topEvent The event in question
  */
-void DileptonAnalysis::event(const top::Event& topEvent) {
+  void DileptonAnalysis::event(const top::Event& topEvent) {
     m_runNumber = topEvent.m_info->runNumber();
 
     double eventWeight = 1.;
     if (top::isSimulation(topEvent)) {
-        m_mcChannelNumber = topEvent.m_info->mcChannelNumber();
-//         eventWeight = topEvent.m_info->mcEventWeight();
-        eventWeight = topEvent.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+      m_mcChannelNumber = topEvent.m_info->mcChannelNumber();
+      eventWeight = topEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
     }
 
     //std::cout << topEvent << std::endl;
 
-    if (top::passesPreSelection(topEvent, "ee"))
-        eeAnalysis(topEvent, eventWeight);
+    if (top::passesPreSelection(topEvent, "ee")) eeAnalysis(topEvent, eventWeight);
 
-    if (top::passesPreSelection(topEvent, "mumu"))
-        mumuAnalysis(topEvent, eventWeight);
+    if (top::passesPreSelection(topEvent, "mumu")) mumuAnalysis(topEvent, eventWeight);
 
-    if (top::passesPreSelection(topEvent, "emu"))
-        emuAnalysis(topEvent, eventWeight);
-}
+    if (top::passesPreSelection(topEvent, "emu")) emuAnalysis(topEvent, eventWeight);
+  }
 
 /**
  * @brief Plot some control regions, then the final plots for the analysis.
@@ -116,7 +111,7 @@ void DileptonAnalysis::event(const top::Event& topEvent) {
  * exactly two electrons for the rest of this function.
  * @param eventWeight The event weight to be used when filling plots.
  */
-void DileptonAnalysis::eeAnalysis(const top::Event& topEvent, double eventWeight) {
+  void DileptonAnalysis::eeAnalysis(const top::Event& topEvent, double eventWeight) {
     ++m_counterElEl;
 
     const auto* e0 = topEvent.m_electrons[0];
@@ -130,45 +125,38 @@ void DileptonAnalysis::eeAnalysis(const top::Event& topEvent, double eventWeight
     const bool inZWindow = fabs(Z.M() - 91000.) < 10000.;
 
     //plot the met for all events in the Z-window
-    if (inZWindow && gteq2jets)
-        m_histsElEl.hist("control_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
+    if (inZWindow && gteq2jets) m_histsElEl.hist("control_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
 
     //plot the invariant mass for low MET events
-    if (!metgt60 && gteq2jets)
-        m_histsElEl.hist("control_invmass")->Fill(Z.M() / 1000., eventWeight);
+    if (!metgt60 && gteq2jets) m_histsElEl.hist("control_invmass")->Fill(Z.M() / 1000., eventWeight);
 
     //plot njet in zwindow for low MET events
-    if (inZWindow && !metgt60)
-        m_histsElEl.hist("control_njet")->Fill(topEvent.m_jets.size(), eventWeight);
+    if (inZWindow && !metgt60) m_histsElEl.hist("control_njet")->Fill(topEvent.m_jets.size(), eventWeight);
 
     //DY control region: inside Z window, but lower pt cut to signal region
     if (inZWindow && metgt30 && gteq2jets) {
-        m_histsElEl.hist("dy_dphi")->Fill(fabs(top::deltaPhi(*e0, *e1)), eventWeight);
-        m_histsElEl.hist("dy_dphi_zpt")->Fill(Z.Pt() * toGeV, eventWeight);
-        m_histsElEl.hist("dy_counter")->Fill(1., eventWeight);
+      m_histsElEl.hist("dy_dphi")->Fill(fabs(top::deltaPhi(*e0, *e1)), eventWeight);
+      m_histsElEl.hist("dy_dphi_zpt")->Fill(Z.Pt() * toGeV, eventWeight);
+      m_histsElEl.hist("dy_counter")->Fill(1., eventWeight);
     }
 
     //signal region - all cuts except Z mass
-    if (gteq2jets && metgt60)
-        m_histsElEl.hist("control_sig_invmass")->Fill(Z.M() * toGeV, eventWeight);
+    if (gteq2jets && metgt60) m_histsElEl.hist("control_sig_invmass")->Fill(Z.M() * toGeV, eventWeight);
 
-    if (!inZWindow && gteq2jets && metgt60)
-        m_histsElEl.hist("control_sig_invmass_cut")->Fill(Z.M() * toGeV, eventWeight);
+    if (!inZWindow && gteq2jets &&
+        metgt60) m_histsElEl.hist("control_sig_invmass_cut")->Fill(Z.M() * toGeV, eventWeight);
 
     //signal region - all cuts except njet
-    if (!inZWindow && metgt60)
-        m_histsElEl.hist("control_sig_njet")->Fill(topEvent.m_jets.size(), eventWeight);
+    if (!inZWindow && metgt60) m_histsElEl.hist("control_sig_njet")->Fill(topEvent.m_jets.size(), eventWeight);
 
     //signal region - all cuts except met
-    if (!inZWindow && gteq2jets)
-        m_histsElEl.hist("control_sig_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
+    if (!inZWindow && gteq2jets) m_histsElEl.hist("control_sig_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
 
     //pretag selection
-    if (gteq2jets && !inZWindow && metgt60)
-        top::fillPlots(topEvent, m_histsElEl, eventWeight);
-}
+    if (gteq2jets && !inZWindow && metgt60) top::fillPlots(topEvent, m_histsElEl, eventWeight);
+  }
 
-void DileptonAnalysis::mumuAnalysis(const top::Event& topEvent, double eventWeight) {
+  void DileptonAnalysis::mumuAnalysis(const top::Event& topEvent, double eventWeight) {
     ++m_counterMuMu;
 
     const auto* mu0 = topEvent.m_muons[0];
@@ -182,43 +170,36 @@ void DileptonAnalysis::mumuAnalysis(const top::Event& topEvent, double eventWeig
     const bool inZWindow = fabs(Z.M() - 91000.) < 10000.;
 
     //plot the met for all events in the Z-window
-    if (inZWindow && gteq2jets)
-        m_histsMuMu.hist("control_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
+    if (inZWindow && gteq2jets) m_histsMuMu.hist("control_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
 
     //plot the invariant mass for low MET events
-    if (!metgt60 && gteq2jets)
-        m_histsMuMu.hist("control_invmass")->Fill(Z.M() / 1000., eventWeight);
+    if (!metgt60 && gteq2jets) m_histsMuMu.hist("control_invmass")->Fill(Z.M() / 1000., eventWeight);
 
     //plot njet in zwindow for low MET events
-    if (inZWindow && !metgt60)
-        m_histsMuMu.hist("control_njet")->Fill(topEvent.m_jets.size(), eventWeight);
+    if (inZWindow && !metgt60) m_histsMuMu.hist("control_njet")->Fill(topEvent.m_jets.size(), eventWeight);
 
     //DY control region: inside Z window, but lower pt cut to signal region
     if (inZWindow && metgt30 && gteq2jets) {
-        m_histsMuMu.hist("dy_dphi")->Fill(fabs(top::deltaPhi(*mu0, *mu1)), eventWeight);
-        m_histsMuMu.hist("dy_dphi_zpt")->Fill(Z.Pt() * toGeV, eventWeight);
-        m_histsMuMu.hist("dy_counter")->Fill(1., eventWeight);
+      m_histsMuMu.hist("dy_dphi")->Fill(fabs(top::deltaPhi(*mu0, *mu1)), eventWeight);
+      m_histsMuMu.hist("dy_dphi_zpt")->Fill(Z.Pt() * toGeV, eventWeight);
+      m_histsMuMu.hist("dy_counter")->Fill(1., eventWeight);
     }
 
     //signal region - all cuts except Z mass
-    if (gteq2jets && metgt60)
-        m_histsMuMu.hist("control_sig_invmass")->Fill(Z.M() * toGeV, eventWeight);
+    if (gteq2jets && metgt60) m_histsMuMu.hist("control_sig_invmass")->Fill(Z.M() * toGeV, eventWeight);
 
-    if (!inZWindow && gteq2jets && metgt60)
-        m_histsMuMu.hist("control_sig_invmass_cut")->Fill(Z.M() * toGeV,eventWeight);
+    if (!inZWindow && gteq2jets &&
+        metgt60) m_histsMuMu.hist("control_sig_invmass_cut")->Fill(Z.M() * toGeV, eventWeight);
 
     //signal region - all cuts except njet
-    if (!inZWindow && metgt60)
-        m_histsMuMu.hist("control_sig_njet")->Fill(topEvent.m_jets.size(), eventWeight);
+    if (!inZWindow && metgt60) m_histsMuMu.hist("control_sig_njet")->Fill(topEvent.m_jets.size(), eventWeight);
 
     //signal region - all cuts except met
-    if (!inZWindow && gteq2jets)
-        m_histsMuMu.hist("control_sig_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
+    if (!inZWindow && gteq2jets) m_histsMuMu.hist("control_sig_met")->Fill(topEvent.m_met->met() * toGeV, eventWeight);
 
     //pretag selection
-    if (gteq2jets && !inZWindow && metgt60)
-        top::fillPlots(topEvent, m_histsMuMu, eventWeight);
-}
+    if (gteq2jets && !inZWindow && metgt60) top::fillPlots(topEvent, m_histsMuMu, eventWeight);
+  }
 
 /**
  * @brief emu channel
@@ -230,7 +211,7 @@ void DileptonAnalysis::mumuAnalysis(const top::Event& topEvent, double eventWeig
  * @param topEvent The event in question
  * @param eventWeight The weights that are used when filling the histograms.
  */
-void DileptonAnalysis::emuAnalysis(const top::Event& topEvent, double eventWeight) {
+  void DileptonAnalysis::emuAnalysis(const top::Event& topEvent, double eventWeight) {
     ++m_counterElMu;
 
     //does it pass some cuts?
@@ -238,10 +219,10 @@ void DileptonAnalysis::emuAnalysis(const top::Event& topEvent, double eventWeigh
     const double ht = top::ht(topEvent);
 
     if (gteq2jets && ht > 120. * toGeV) {
-        m_histsElMu.hist("ht")->Fill(ht * toGeV, eventWeight);
-        top::fillPlots(topEvent, m_histsElMu, eventWeight);
+      m_histsElMu.hist("ht")->Fill(ht * toGeV, eventWeight);
+      top::fillPlots(topEvent, m_histsElMu, eventWeight);
     }
-}
+  }
 
 /**
  * @brief Print cutflows for each of the three channels.  Save any histograms
@@ -250,7 +231,7 @@ void DileptonAnalysis::emuAnalysis(const top::Event& topEvent, double eventWeigh
  *
  * @param outputFile Root file to save the histograms to.
  */
-void DileptonAnalysis::finalise(TFile* outputFile) {
+  void DileptonAnalysis::finalise(TFile* outputFile) {
     //to screen
     std::cout << "Cutflows directly from the input files:\n";
     printCutflow(std::cout, m_cutflowEventsElEl, m_cutflowMCWeightsElEl, "ee", m_counterElEl);
@@ -259,10 +240,8 @@ void DileptonAnalysis::finalise(TFile* outputFile) {
 
     //tofile - mc use channel number, data use run number
     std::stringstream ss;
-    if (m_mcChannelNumber > 0)
-        ss << m_mcChannelNumber;
-    else
-        ss << m_runNumber;
+    if (m_mcChannelNumber > 0) ss << m_mcChannelNumber;
+    else ss << m_runNumber;
 
     std::ofstream cutflowfile_ee(ss.str() + "_ee_cutflow.txt");
     std::ofstream cutflowfile_mumu(ss.str() + "_mumu_cutflow.txt");
@@ -279,8 +258,8 @@ void DileptonAnalysis::finalise(TFile* outputFile) {
     //if MC then calculate a SF to 1 fb-1
     double sf = 1.;
     if (m_mcChannelNumber != 0) {
-        const double mcWeightsInSample = m_cutflowMCWeightsElEl->GetBinContent(1);
-        sf = sfToOneInversefb(m_mcChannelNumber, mcWeightsInSample);
+      const double mcWeightsInSample = m_cutflowMCWeightsElEl->GetBinContent(1);
+      sf = sfToOneInversefb(m_mcChannelNumber, mcWeightsInSample);
     }
 
     //save the plots for the three channels
@@ -288,8 +267,7 @@ void DileptonAnalysis::finalise(TFile* outputFile) {
     m_histsMuMu.scaleHistograms(sf);
     m_histsElMu.scaleHistograms(sf);
     outputFile->Write();
-
-}
+  }
 
 /**
  * @brief Prints the cutflow table to the screen or a file.  This is not scaled
@@ -308,28 +286,27 @@ void DileptonAnalysis::finalise(TFile* outputFile) {
  * @param localYield Yield that the local code ran over.  It should match the
  * number from the grid (since you ran on the same events).
  */
-void DileptonAnalysis::printCutflow(std::ostream& out, const TH1D* const eventHist, const TH1D* const mcWeightHist, const std::string& name, const unsigned int localYield) {
+  void DileptonAnalysis::printCutflow(std::ostream& out, const TH1D* const eventHist, const TH1D* const mcWeightHist,
+                                      const std::string& name, const unsigned int localYield) {
     out << name << " cutflow:\n";
     out << "    " <<
-            std::setw(4) << "Num" << 
-            std::setw(30) << "Name" <<
-            std::setw(20) << "Grid (Events)" <<
-            std::setw(20) << "Grid (MC Weights)" <<
-            std::setw(20) << "Local (Events)" << "\n";
+      std::setw(4) << "Num" <<
+      std::setw(30) << "Name" <<
+      std::setw(20) << "Grid (Events)" <<
+      std::setw(20) << "Grid (MC Weights)" <<
+      std::setw(20) << "Local (Events)" << "\n";
 
     for (int i = 1; i <= eventHist->GetNbinsX(); ++i) {
-        out << "    " << std::setw(4) << i
-                << std::setw(30) << eventHist->GetXaxis()->GetBinLabel(i)
-                << std::setw(20) << eventHist->GetBinContent(i)
-                << std::setw(20) << mcWeightHist->GetBinContent(i);
+      out << "    " << std::setw(4) << i
+          << std::setw(30) << eventHist->GetXaxis()->GetBinLabel(i)
+          << std::setw(20) << eventHist->GetBinContent(i)
+          << std::setw(20) << mcWeightHist->GetBinContent(i);
 
-        if (i == eventHist->GetNbinsX())
-            out << std::setw(20) << localYield;
+      if (i == eventHist->GetNbinsX()) out << std::setw(20) << localYield;
 
-        out << "\n";
+      out << "\n";
     }
 
     out << "\n";
-}
-
+  }
 }

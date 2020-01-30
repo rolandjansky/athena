@@ -81,6 +81,13 @@ namespace Analysis {
     map_var_map m_map_defaults;
     map_var m_map_variables;
 
+    // we want to kill this algorithm eventually. We'll start by
+    // vetoing jet collections where we have the replacement algorithm
+    // running
+    std::set<std::string> m_vetoCollections;
+    // this is the same thing, just for the athena python bindings
+    std::vector<std::string> m_blacklist;
+
     /** This switch is needed to indicate what to do. The algorithm can be run to produce
 	reference histograms from the given MC files (m_runModus=0) or to work in analysis mode
 	(m_runModus=1) where already made reference histograms are read.*/

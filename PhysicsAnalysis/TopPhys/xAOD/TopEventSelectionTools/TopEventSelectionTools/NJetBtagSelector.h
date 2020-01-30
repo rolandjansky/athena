@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef NJETBTAGSELECTOR_H_
 #define NJETBTAGSELECTOR_H_
@@ -13,15 +13,16 @@ namespace top {
 /**
  * @brief A tool that selects events with a certain number of good jets.
  */
-class NJetBtagSelector : public SignValueSelector {
-public:
-    explicit NJetBtagSelector(const std::string& params,std::shared_ptr<top::TopConfig> config);
+  class NJetBtagSelector: public SignValueSelector {
+  public:
+    explicit NJetBtagSelector(const std::string& params, std::shared_ptr<top::TopConfig> config, bool doTrackJets);
 
     bool apply(const top::Event& event) const override;
 
-    const std::string getFullCutName(){return SignValueSelector::valueStringDelimReplace(); };
-};
-
+    const std::string getFullCutName() {return SignValueSelector::valueStringDelimReplace();};
+  private:
+    bool m_doTrackJets;
+  };
 }
 
 #endif

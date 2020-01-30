@@ -19,7 +19,6 @@
 
 #include "JetTagCalibration/CalibrationBroker.h"
 
-#include "JetTagTools/JetTagUtils.h"
 #include "JetTagTools/MultivariateTagManager.h"
 #include "JetTagTools/BTagVariables.h"
 
@@ -76,7 +75,7 @@ namespace Analysis {
     for (auto& itr : m_MultivariateTaggerHandleArray) {
       sc = itr.retrieve(); //initialize the tagger from the array
       if(sc.isFailure()){
-  ATH_MSG_WARNING("Retrieving in the initialization of MultivariateTagManager failed.");
+        ATH_MSG_WARNING("Retrieving in the initialization of MultivariateTagManager failed.");
       }
     }
 
@@ -93,12 +92,12 @@ namespace Analysis {
   // _______________________________________________________________________
   // MultivariateTagManager functions
 
-  StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
-    std::string jetauthor = JetTagUtils::getJetAuthor(jetToTag); // determine the jet's channel
-    ATH_MSG_DEBUG("#BTAG# Jet author: " << jetauthor );
+    // jetName to determine the jet's channel
+    ATH_MSG_DEBUG("#BTAG# Jet author: " << jetName );
 
-    if ( jetauthor.empty() ) {
+    if ( jetName.empty() ) {
       ATH_MSG_WARNING(" #BTAG# Hypothesis or jetauthor is empty."
           " No likelihood value given back. ");
     }
@@ -137,7 +136,7 @@ namespace Analysis {
 
     for (auto& itr: m_MultivariateTaggerHandleArray) {
 
-      itr->assignProbability(BTag, inputs, jetauthor);
+      itr->assignProbability(BTag, inputs, jetName);
 
     }
 
@@ -835,10 +834,10 @@ namespace Analysis {
       // some point
       std::string valid_key = raw_key + "IsValid";
       if ( ! BTag->isAvailable<double>(raw_key) ) {
-        ATH_MSG_WARNING("aux data '" + raw_key + "' is missing,"
+        ATH_MSG_DEBUG("aux data '" + raw_key + "' is missing,"
                         " tagger inputs may be incomplete");
       } else if (!BTag->isAvailable<char>(valid_key)) {
-        ATH_MSG_WARNING("no key '" + valid_key + "' found, invalid inputs"
+        ATH_MSG_DEBUG("no key '" + valid_key + "' found, invalid inputs"
                         " may be interperated incorrectly");
         inputs[key] = BTag->auxdata<double>(raw_key);
       } else if (!BTag->auxdata<char>(valid_key)) {

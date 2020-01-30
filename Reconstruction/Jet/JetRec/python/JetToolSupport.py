@@ -558,7 +558,7 @@ class JetToolManager:
   #   output = name for output container (and JetRecTool)
   #   beta = Beta used in BottomUpSoftDrop
   #   zcut = ZCut used in BottomUpSoftDrop
-  #   r0   = R0   used in RecursiveSoftDrop
+  #   r0   = R0   used in BottomUpSoftDrop
   #   input = name of the input jet container
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   def addJetBottomUpSoftDrop(self, output, beta, zcut, r0, input, modifiersin ="groomed",
@@ -597,7 +597,7 @@ class JetToolManager:
   #   r0   = R0   used in RecursiveSoftDrop
   #   input = name of the input jet container
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
-  def addJetRecursiveSoftDrop(self, output, beta, zcut, r0, input, modifiersin ="groomed",
+  def addJetRecursiveSoftDrop(self, output, beta, zcut, N, r0, input, modifiersin ="groomed",
                      isTrigger =False, useTriggerStore =False, doArea =True):
     from JetRec.JetRecConf import JetRecursiveSoftDrop
     from JetRec.JetRecConf import JetRecTool
@@ -605,6 +605,7 @@ class JetToolManager:
     groomer = JetRecursiveSoftDrop(output + "Groomer")
     groomer.ZCut = zcut
     groomer.Beta = beta
+    groomer.N    = N
     groomer.R0   = r0
     if doArea:
       groomer.JetBuilder = self.jetBuilderWithArea

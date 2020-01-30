@@ -438,6 +438,11 @@ int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo, Double_t x, D
 
 StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool mu_dependent) {
 
+   if (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")){
+     ATH_MSG_WARNING("Attempting to run pileup reweighting, but it has already been run with prefix \"" << m_prefix << "\" - returning");
+     return StatusCode::SUCCESS;
+   }
+
    if(m_inConfigMode)  {
       fill( eventInfo );
       return StatusCode::SUCCESS;

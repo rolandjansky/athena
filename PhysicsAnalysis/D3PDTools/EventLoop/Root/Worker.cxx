@@ -19,27 +19,39 @@
 
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/AlgorithmStateModule.h>
+#include <EventLoop/BatchJob.h>
+#include <EventLoop/BatchSample.h>
+#include <EventLoop/BatchSegment.h>
 #include <EventLoop/Driver.h>
 #include <EventLoop/EventCountModule.h>
 #include <EventLoop/EventRange.h>
 #include <EventLoop/FileExecutedModule.h>
+#include <EventLoop/GridReportingModule.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/LeakCheckModule.h>
 #include <EventLoop/MessageCheck.h>
+#include <EventLoop/OutputStream.h>
+#include <EventLoop/OutputStreamData.h>
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/StopwatchModule.h>
 #include <EventLoop/TEventModule.h>
-#include <EventLoop/OutputStreamData.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
+#include <SampleHandler/DiskOutput.h>
 #include <SampleHandler/DiskWriter.h>
 #include <SampleHandler/MetaFields.h>
 #include <SampleHandler/MetaObject.h>
+#include <SampleHandler/Sample.h>
+#include <SampleHandler/SamplePtr.h>
 #include <SampleHandler/ToolsOther.h>
 #include <TFile.h>
 #include <TH1.h>
+#include <TROOT.h>
+#include <TSystem.h>
 #include <TTree.h>
+#include <fstream>
+#include <memory>
 
 //
 // method implementations
@@ -71,7 +83,7 @@ namespace EL
   void Worker ::
   addOutput (TObject *output_swallow)
   {
-    std::auto_ptr<TObject> output (output_swallow);
+    std::unique_ptr<TObject> output (output_swallow);
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (output_swallow != 0);
@@ -85,13 +97,13 @@ namespace EL
   void Worker ::
   addOutputList (const std::string& name, TObject *output_swallow)
   {
-    std::auto_ptr<TObject> output (output_swallow);
+    std::unique_ptr<TObject> output (output_swallow);
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (output_swallow != 0);
 
     RCU::SetDirectory (output_swallow, 0);
-    std::auto_ptr<TList> list (new TList);
+    std::unique_ptr<TList> list (new TList);
     list->SetName (name.c_str());
     list->Add (output.release());
     addOutput (list.release());
@@ -500,7 +512,11 @@ namespace EL
       m_inputTreeEntry = event;
       for (auto& module : m_modules)
         ANA_CHECK (module->onExecute (*this));
-      ANA_CHECK (algsExecute ());
+      if (algsExecute().isFailure())
+      {
+        ANA_MSG_ERROR ("processing event " << treeEntry() << " on file " << inputFileName());
+        return ::StatusCode::FAILURE;
+      }
       m_eventsProcessed += 1;
       if (m_eventsProcessed % 10000 == 0)
         ANA_MSG_INFO ("Processed " << m_eventsProcessed << " events");
@@ -700,5 +716,314 @@ namespace EL
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE (module != nullptr);
     m_modules.push_back (std::move (module));
+  }
+
+
+
+  ::StatusCode Worker ::
+  directExecute (const SH::SamplePtr& sample, const Job& job,
+                 const std::string& location, const SH::MetaObject& options)
+  {
+    using namespace msgEventLoop;
+    RCU_CHANGE_INVARIANT (this);
+
+    SH::MetaObject meta (*sample->meta());
+    meta.fetchDefaults (options);
+
+    setMetaData (&meta);
+    setOutputHist (location);
+    setSegmentName (sample->name());
+
+    ANA_MSG_INFO ("Running sample: " << sample->name());
+
+    setJobConfig (JobConfig (job.jobConfig()));
+
+    for (Job::outputIter out = job.outputBegin(),
+           end = job.outputEnd(); out != end; ++ out)
+    {
+      Detail::OutputStreamData data {
+        out->output()->makeWriter (sample->name(), "", ".root")};
+      ANA_CHECK (addOutputStream (out->label(), std::move (data)));
+    }
+
+    ANA_CHECK (initialize ());
+
+    Long64_t maxEvents
+      = metaData()->castDouble (Job::optMaxEvents, -1);
+    Long64_t skipEvents
+      = metaData()->castDouble (Job::optSkipEvents, 0);
+
+    std::vector<std::string> files = sample->makeFileList();
+    for (const std::string& fileName : files)
+    {
+      EventRange eventRange;
+      eventRange.m_url = fileName;
+      if (skipEvents == 0 && maxEvents == -1)
+      {
+        ANA_CHECK (processEvents (eventRange));
+      } else
+      {
+        // just open the input file to inspect it
+        ANA_CHECK (openInputFile (fileName));
+        eventRange.m_endEvent = inputFileNumEntries();
+
+        if (skipEvents != 0 && skipEvents >= eventRange.m_endEvent)
+        {
+          skipEvents -= eventRange.m_endEvent;
+          continue;
+        }
+        eventRange.m_beginEvent = skipEvents;
+        skipEvents = 0;
+
+        if (maxEvents != -1)
+        {
+          if (eventRange.m_endEvent > eventRange.m_beginEvent + maxEvents)
+            eventRange.m_endEvent = eventRange.m_beginEvent + maxEvents;
+          maxEvents -= eventRange.m_endEvent - eventRange.m_beginEvent;
+          assert (maxEvents >= 0);
+        }
+        ANA_CHECK (processEvents (eventRange));
+        if (maxEvents == 0)
+          break;
+      }
+    }
+    ANA_CHECK (finalize ());
+    return ::StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode Worker ::
+  batchExecute (unsigned job_id, const char *confFile)
+  {
+    using namespace msgEventLoop;
+    RCU_CHANGE_INVARIANT (this);
+
+    try
+    {
+      std::unique_ptr<TFile> file (TFile::Open (confFile, "READ"));
+      if (file.get() == nullptr || file->IsZombie())
+      {
+        ANA_MSG_ERROR ("failed to open file: " << confFile);
+        return ::StatusCode::FAILURE;
+      }
+
+      std::unique_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file->Get ("job")));
+      if (job.get() == nullptr)
+      {
+        ANA_MSG_ERROR ("failed to retrieve BatchJob object");
+        return ::StatusCode::FAILURE;
+      }
+
+      if (job_id >= job->segments.size())
+      {
+        ANA_MSG_ERROR ("invalid job-id " << job_id << ", max is " << job->segments.size());
+        return ::StatusCode::FAILURE;
+      }
+      BatchSegment *segment = &job->segments[job_id];
+      RCU_ASSERT (segment->job_id == job_id);
+      RCU_ASSERT (segment->sample < job->samples.size());
+      BatchSample *sample = &job->samples[segment->sample];
+
+      gSystem->Exec ("pwd");
+      gSystem->MakeDirectory ("output");
+
+      setMetaData (&sample->meta);
+      setOutputHist (job->location + "/fetch");
+      setSegmentName (segment->fullName);
+
+      setJobConfig (JobConfig (job->job.jobConfig()));
+
+      for (Job::outputIter out = job->job.outputBegin(),
+             end = job->job.outputEnd(); out != end; ++ out)
+      {
+        Detail::OutputStreamData data {
+          out->output()->makeWriter (segment->sampleName, segment->segmentName, ".root")};
+        ANA_CHECK (addOutputStream (out->label(), std::move (data)));
+      }
+
+      Long64_t beginFile = segment->begin_file;
+      Long64_t endFile   = segment->end_file;
+      Long64_t lastFile  = segment->end_file;
+      RCU_ASSERT (beginFile <= endFile);
+      Long64_t beginEvent = segment->begin_event;
+      Long64_t endEvent   = segment->end_event;
+      if (endEvent > 0) endFile += 1;
+
+      ANA_CHECK (initialize ());
+
+      for (Long64_t file = beginFile; file != endFile; ++ file)
+      {
+        RCU_ASSERT (std::size_t(file) < sample->files.size());
+        EventRange eventRange;
+        eventRange.m_url = sample->files[file];
+        eventRange.m_beginEvent = (file == beginFile ? beginEvent : 0);
+        eventRange.m_endEvent = (file == lastFile ? endEvent : EventRange::eof);
+        ANA_CHECK (processEvents (eventRange));
+      }
+      ANA_CHECK (finalize ());
+
+      std::ostringstream job_name;
+      job_name << job_id;
+      std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
+      return ::StatusCode::SUCCESS;
+    } catch (...)
+    {
+      Detail::report_exception ();
+      return ::StatusCode::FAILURE;
+    }
+  }
+
+
+
+  ::StatusCode Worker ::
+  gridExecute (const std::string& sampleName)
+  {
+    using namespace msgEventLoop;
+    RCU_CHANGE_INVARIANT (this);
+
+    ANA_MSG_INFO ("Running with ROOT version " << gROOT->GetVersion()
+                  << " (" << gROOT->GetVersionDate() << ")");
+
+    ANA_MSG_INFO ("Loading EventLoop grid job");
+
+
+    TList bigOutputs;
+    std::unique_ptr<JobConfig> jobConfig;
+    SH::MetaObject *mo = 0;
+
+    std::unique_ptr<TFile> f (TFile::Open("jobdef.root"));
+    if (f == nullptr || f->IsZombie()) {
+      ANA_MSG_ERROR ("Could not read jobdef");
+      return ::StatusCode::FAILURE;
+    }
+
+    mo = dynamic_cast<SH::MetaObject*>(f->Get(sampleName.c_str()));
+    if (!mo) {
+      ANA_MSG_ERROR ("Could not read in sample meta object");
+      return ::StatusCode::FAILURE;
+    }
+
+    jobConfig.reset (dynamic_cast<JobConfig*>(f->Get("jobConfig")));
+    if (jobConfig == nullptr)
+    {
+      ANA_MSG_ERROR ("failed to read jobConfig object");
+      return ::StatusCode::FAILURE;
+    }
+
+    {
+      std::unique_ptr<TList> outs ((TList*)f->Get("outputs"));
+      if (outs == nullptr)
+      {
+        ANA_MSG_ERROR ("Could not read list of outputs");
+        return ::StatusCode::FAILURE;
+      }
+
+      TIter itr(outs.get());
+      TObject *obj = 0;
+      while ((obj = itr())) {
+        EL::OutputStream * out = dynamic_cast<EL::OutputStream*>(obj);
+        if (out) {
+          bigOutputs.Add(out);
+        }
+        else {
+          ANA_MSG_ERROR ("Encountered unexpected entry in list of outputs");
+          return ::StatusCode::FAILURE;
+        }
+      }
+    }
+
+    f->Close();
+    f.reset ();
+
+    const std::string location = ".";
+
+    setMetaData (mo);
+    setOutputHist (location);
+    setSegmentName ("output");
+
+    ANA_MSG_INFO ("Starting EventLoop Grid worker");
+
+    {//Create and register the "big" output files with base class
+      TIter itr(&bigOutputs);
+      TObject *obj = 0;
+      while ((obj = itr())) {
+        EL::OutputStream *os = dynamic_cast<EL::OutputStream*>(obj);
+        if (os == nullptr)
+        {
+          ANA_MSG_ERROR ("Bad input");
+          return ::StatusCode::FAILURE;
+        }
+        {
+          Detail::OutputStreamData data {
+            location + "/" + os->label() + ".root", "RECREATE"};
+          ANA_CHECK (addOutputStream (os->label(), std::move (data)));
+        }
+      }
+    }
+
+    setJobConfig (std::move (*jobConfig));
+
+    addModule (std::make_unique<Detail::GridReportingModule> ());
+    ANA_CHECK (initialize());
+
+    std::vector<std::string> fileList; 
+    {
+      std::ifstream infile("input.txt");
+      while (infile) {
+        std::string sLine;
+        if (!getline(infile, sLine)) break;
+        std::istringstream ssLine(sLine);
+        while (ssLine) {
+          std::string sFile;
+          if (!getline(ssLine, sFile, ',')) break;
+          fileList.push_back(sFile);
+        }
+      }
+    } 
+    if (fileList.size() == 0) {
+      ANA_MSG_ERROR ("no input files provided");
+      //User was expecting input after all.
+      gSystem->Exit(EC_BADINPUT);
+    }
+
+    for (const std::string& file : fileList)
+    {
+      EventRange eventRange;
+      eventRange.m_url = file;
+
+      ANA_CHECK (processEvents (eventRange));
+    }
+
+    ANA_CHECK (finalize ());
+
+    int nEvents = eventsProcessed();
+    int nFiles = fileList.size();
+    ANA_MSG_INFO ("Loop finished.");
+    ANA_MSG_INFO ("Read " << nEvents << " events in " << nFiles << " files.");
+
+    gridNotifyJobFinished(eventsProcessed(), fileList);
+
+    ANA_MSG_INFO ("EventLoop Grid worker finished");
+    ANA_MSG_INFO ("Saving output");
+    return ::StatusCode::SUCCESS;
+  }
+
+  void Worker::gridNotifyJobFinished(uint64_t eventsProcessed,
+                                     const std::vector<std::string>& fileList) {
+    // createJobSummary
+    std::ofstream summaryfile("../AthSummary.txt");
+    if (summaryfile.is_open()) {
+      unsigned int nFiles = fileList.size();
+      summaryfile << "Files read: " << nFiles << std::endl;
+      for (unsigned int i = 0; i < nFiles; i++) {
+        summaryfile << "  " << fileList.at(i) << std::endl;
+      }      
+      summaryfile << "Events Read:    " << eventsProcessed << std::endl;
+      summaryfile.close();
+    }
+    else {
+      //cout << "Failed to write summary file.\n";
+    } 
   }
 }

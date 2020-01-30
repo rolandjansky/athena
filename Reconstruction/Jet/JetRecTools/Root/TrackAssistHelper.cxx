@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackAssistHelper.cxx
@@ -32,7 +32,7 @@ StatusCode TrackAssistHelper::initialize()
   
   // If TrackVertexAssociation is turned off, give warning but proceed
   if( !m_doTrackVtxAssoc ) {
-    ANA_MSG_WARNING("TrackVertexAssociation retquirement will not be applied. This is not recommended for general use.");
+    ANA_MSG_WARNING("TrackVertexAssociation requirement will not be applied. This is not recommended for general use.");
   }
   
   // If no TrackSelector is given, give warning but proceed without it
@@ -135,7 +135,7 @@ bool TrackAssistHelper::isGoodTrack( const xAOD::TrackParticle &track, const xAO
   // Do track selection check if configured to do so
   if ( !m_trackSelTool.empty() ) {
     // Check if track passes selection criteria
-    if( !m_trackSelTool->keep(track) ) return false;
+    if( !m_trackSelTool->accept(track,0) ) return false;
   }
 
   return true;

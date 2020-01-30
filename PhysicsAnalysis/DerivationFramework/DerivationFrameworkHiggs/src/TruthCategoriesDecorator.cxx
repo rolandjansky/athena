@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -98,24 +98,26 @@ namespace DerivationFramework {
     for (TString prodMode:{"GGF","VBF","WH","QQ2ZH","GG2ZH","TTH","BBH","TH","THQB","WHT"}) {
 
       // loop over each mcID belonging to the production mode
-      for ( int mcID : vectorize(m_config->GetValue("HTXS.MCsamples."+prodMode,"")) )
-	if (mcID==(int)mc_channel_number) {
-	  ATH_MSG_INFO("Higgs production for MC channel number "<<mc_channel_number<<" mode is "<<prodMode);
-	  // gah, need to convert
-	  if (prodMode=="GGF"  ) return HTXS::HiggsProdMode::GGF;
-	  if (prodMode=="VBF"  ) return HTXS::HiggsProdMode::VBF;
-	  if (prodMode=="WH"   ) return HTXS::HiggsProdMode::WH;
-	  if (prodMode=="QQ2ZH") return HTXS::HiggsProdMode::QQ2ZH;
-	  if (prodMode=="GG2ZH") return HTXS::HiggsProdMode::GG2ZH;
-	  if (prodMode=="TTH"  ) return HTXS::HiggsProdMode::TTH;
-	  if (prodMode=="BBH"  ) return HTXS::HiggsProdMode::BBH;
-	  if (prodMode=="TH"   ) return HTXS::HiggsProdMode::TH;
-	  if (prodMode=="THQB" ) { th_type = HTXS::tH_type::THQB; return HTXS::HiggsProdMode::TH; }
-	  if (prodMode=="WHT"  ) { th_type = HTXS::tH_type::TWH; return HTXS::HiggsProdMode::TH; }
-	}
+      for ( int mcID : vectorize(m_config->GetValue("HTXS.MCsamples."+prodMode,"")) ){
+        if (mcID==(int)mc_channel_number) {
+          ATH_MSG_INFO("Higgs production for MC channel number "<<mc_channel_number<<" mode is "<<prodMode);
+          // gah, need to convert
+          if (prodMode=="GGF"  ) return HTXS::HiggsProdMode::GGF;
+          if (prodMode=="VBF"  ) return HTXS::HiggsProdMode::VBF;
+          if (prodMode=="WH"   ) return HTXS::HiggsProdMode::WH;
+          if (prodMode=="QQ2ZH") return HTXS::HiggsProdMode::QQ2ZH;
+          if (prodMode=="GG2ZH") return HTXS::HiggsProdMode::GG2ZH;
+          if (prodMode=="TTH"  ) return HTXS::HiggsProdMode::TTH;
+          if (prodMode=="BBH"  ) return HTXS::HiggsProdMode::BBH;
+          if (prodMode=="TH"   ) return HTXS::HiggsProdMode::TH;
+          if (prodMode=="THQB" ) { th_type = HTXS::tH_type::THQB; return HTXS::HiggsProdMode::TH; }
+          if (prodMode=="WHT"  ) { th_type = HTXS::tH_type::TWH; return HTXS::HiggsProdMode::TH; }
+        }
+      }
     }
-    ATH_MSG_WARNING("Did not managed to extract Higgs production mode for MC channel number " << 
-		    mc_channel_number << ". HTXS categorization will hence not be derived.");
+    // This is perfectly fine if we aren't running on a Higgs sample
+    ATH_MSG_INFO("Did not managed to extract Higgs production mode for MC channel number " << 
+                    mc_channel_number << ". HTXS categorization will hence not be derived.");
     return HTXS::HiggsProdMode::UNKNOWN;
   }
 
@@ -188,23 +190,24 @@ namespace DerivationFramework {
     eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type);
     eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type,true);
 
-    // Stage-1.1 binning
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_Category_pTjet25") = (int)htxs->stage1_1_cat_pTjet25GeV;
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_Category_pTjet30") = (int)htxs->stage1_1_cat_pTjet30GeV;
+    // Stage-1.2 binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Category_pTjet25") = (int)htxs->stage1_2_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Category_pTjet30") = (int)htxs->stage1_2_cat_pTjet30GeV;
 
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_FineIndex_pTjet30") = HTXSstage1_1_to_HTXSstage1_1_FineIndex(*htxs,th_type);
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_FineIndex_pTjet25") = HTXSstage1_1_to_HTXSstage1_1_FineIndex(*htxs,th_type,true);
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_FineIndex_pTjet30") = HTXSstage1_2_to_HTXSstage1_2_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_FineIndex_pTjet25") = HTXSstage1_2_to_HTXSstage1_2_FineIndex(*htxs,th_type,true);
 
-    // Stage-1.1 finer binning
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_Category_pTjet25") = (int)htxs->stage1_1_fine_cat_pTjet25GeV;
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_Category_pTjet30") = (int)htxs->stage1_1_fine_cat_pTjet30GeV;
+    // Stage-1.2 finer binning
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_Category_pTjet25") = (int)htxs->stage1_2_fine_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_Category_pTjet30") = (int)htxs->stage1_2_fine_cat_pTjet30GeV;
 
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_FineIndex_pTjet30") = HTXSstage1_1_Fine_to_HTXSstage1_1_Fine_FineIndex(*htxs,th_type);
-    eventInfo->auxdecor<int>("HTXS_Stage1_1_Fine_FineIndex_pTjet25") = HTXSstage1_1_Fine_to_HTXSstage1_1_Fine_FineIndex(*htxs,th_type,true);
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_FineIndex_pTjet30") = HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_2_Fine_FineIndex_pTjet25") = HTXSstage1_2_Fine_to_HTXSstage1_2_Fine_FineIndex(*htxs,th_type,true);
 
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet25")  = (int)htxs->jets25.size();
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet30")  = (int)htxs->jets30.size();
     
+    eventInfo->auxdecor<int>("HTXS_isZ2vvDecay")  = (bool)htxs->isZ2vvDecay;
 
     // At the very least, save the Higgs boson pT
     if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs->higgs.Pt()*CLHEP::GeV;

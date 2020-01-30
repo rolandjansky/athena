@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=8 sw=2
@@ -1281,7 +1281,7 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
                   METoffset = 6.61*(1.0+METresSyst*sigmaSyst);
                 }
 
-              // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt = 5.0 for now
+              // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt = 5.0 for now
               sigma = preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
               preparedInput.METsigmaP = sigma;
               preparedInput.METsigmaL = sigma;

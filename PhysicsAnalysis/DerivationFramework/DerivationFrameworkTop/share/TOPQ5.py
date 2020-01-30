@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # TOPQ5
 # SINGLE TOP SELECTION PLUS J/PSI->MUMU CANDIDATE
@@ -23,8 +25,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -39,7 +41,7 @@ TOPQ5Stream.AcceptAlgs(["TOPQ5Kernel"])
 # PDF Weight Metadata
 #====================================================================
 if DFisMC:
-  from DerivationFrameworkCore.WeightMetadata import *
+    from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
 # TRIGGER NAVIGATION THINNING
@@ -63,27 +65,27 @@ TOPQ5_VertexTools = BPHYVertexTools("TOPQ5")
 ##    actual vertex fitting and some pre-selection.
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
 TOPQ5JpsiFinder = Analysis__JpsiFinder(
-  name                        = "TOPQ5JpsiFinder",
-  OutputLevel                 = INFO,
-  muAndMu                     = True,
-  muAndTrack                  = False,
-  TrackAndTrack               = False,
-  assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-  invMassUpper                = 20000.0,
-  invMassLower                = 0.0,
-  Chi2Cut                     = 200.,
-  oppChargesOnly                    = True,
-  atLeastOneComb              = True,
-  useCombinedMeasurement      = False, # Only takes effect if combOnly=True
-  muonCollectionKey           = "Muons",
-  TrackParticleCollection     = "InDetTrackParticles",
-  V0VertexFitterTool          = TOPQ5_VertexTools.TrkV0Fitter,             # V0 vertex fitter
-  useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
-  TrkVertexFitterTool         = TOPQ5_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
-  TrackSelectorTool           = TOPQ5_VertexTools.InDetTrackSelectorTool,
-  ConversionFinderHelperTool  = TOPQ5_VertexTools.InDetConversionHelper,
-  VertexPointEstimator        = TOPQ5_VertexTools.VtxPointEstimator,
-  useMCPCuts                  = False )
+    name                        = "TOPQ5JpsiFinder",
+    OutputLevel                 = INFO,
+    muAndMu                     = True,
+    muAndTrack                  = False,
+    TrackAndTrack               = False,
+    assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
+    invMassUpper                = 20000.0,
+    invMassLower                = 0.0,
+    Chi2Cut                     = 200.,
+    oppChargesOnly                    = True,
+    atLeastOneComb              = True,
+    useCombinedMeasurement      = False, # Only takes effect if combOnly=True
+    muonCollectionKey           = "Muons",
+    TrackParticleCollection     = "InDetTrackParticles",
+    V0VertexFitterTool          = TOPQ5_VertexTools.TrkV0Fitter,             # V0 vertex fitter
+    useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
+    TrkVertexFitterTool         = TOPQ5_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
+    TrackSelectorTool           = TOPQ5_VertexTools.InDetTrackSelectorTool,
+    ConversionFinderHelperTool  = TOPQ5_VertexTools.InDetConversionHelper,
+    VertexPointEstimator        = TOPQ5_VertexTools.VtxPointEstimator,
+    useMCPCuts                  = False )
 
 ToolSvc += TOPQ5JpsiFinder
 print      TOPQ5JpsiFinder
@@ -97,14 +99,14 @@ print      TOPQ5JpsiFinder
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
 TOPQ5_Reco_mumu = DerivationFramework__Reco_mumu(
-  name                   = "TOPQ5_Reco_mumu",
-  JpsiFinder             = TOPQ5JpsiFinder,
-  OutputVtxContainerName = "TOPQ5OniaCandidates",
-  PVContainerName        = "PrimaryVertices",
-  RefPVContainerName     = "TOPQ5RefittedPrimaryVertices",
-  RefitPV                = True,
-  MaxPVrefit             = 100000,
-  DoVertexType           = 7)
+    name                   = "TOPQ5_Reco_mumu",
+    JpsiFinder             = TOPQ5JpsiFinder,
+    OutputVtxContainerName = "TOPQ5OniaCandidates",
+    PVContainerName        = "PrimaryVertices",
+    RefPVContainerName     = "TOPQ5RefittedPrimaryVertices",
+    RefitPV                = True,
+    MaxPVrefit             = 100000,
+    DoVertexType           = 7)
 
 ToolSvc += TOPQ5_Reco_mumu
 print TOPQ5_Reco_mumu
@@ -123,14 +125,14 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 
 ## a/ augment and select Jpsi->mumu candidates
 TOPQ5_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
-  name                  = "TOPQ5_Select_Jpsi2mumu",
-  HypothesisName        = "Jpsi",
-  InputVtxContainerName = "TOPQ5OniaCandidates",
-  VtxMassHypo           = 3096.916,
-  MassMin               = 0.0,
-  MassMax               = 20000.0,
-  Chi2Max               = 200,
-  DoVertexType          = 7)
+    name                  = "TOPQ5_Select_Jpsi2mumu",
+    HypothesisName        = "Jpsi",
+    InputVtxContainerName = "TOPQ5OniaCandidates",
+    VtxMassHypo           = 3096.916,
+    MassMin               = 0.0,
+    MassMax               = 20000.0,
+    Chi2Max               = 200,
+    DoVertexType          = 7)
 
 ToolSvc += TOPQ5_Select_Jpsi2mumu
 print TOPQ5_Select_Jpsi2mumu
@@ -170,40 +172,49 @@ TOPQ5Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ5SkimmingKern
                                                               SkimmingTools = skimmingTools_lep,
                                                               AugmentationTools = [TOPQ5_Reco_mumu,TOPQ5_Select_Jpsi2mumu])
 
-# Then build fat/trimmed jets
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-addStandardJetsForTop(TOPQ5Sequence,'TOPQ5')
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["TOPQ5"] = []
 
-#Then apply jet calibration
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ5Sequence)
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoJets"]
+replaceAODReducedJets(reducedJetList, TOPQ5Sequence, "TOPQ5")
+
+# If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
+# *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(TOPQ5Sequence, "TOPQ5")
+
+# apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
+applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ5Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ5Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ5SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
+
 TaggerList = BTaggingFlags.StandardTaggers
-ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ5Sequence)
-
-# Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
-# if not hasattr(TOPQ5Sequence,"ELReset"):
-#   TOPQ5Sequence += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
-
-
-# THIS IS NO LONGER NEEDED IN REL 21, REMOVE IN FUTURE (May-17)
-# # Then apply the TruthWZ fix
-# if DFisMC:
-#   replaceBuggyAntiKt4TruthWZJets(TOPQ5Sequence,'TOPQ5')
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ5Sequence)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  TOPQ5Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    TOPQ5Sequence += TOPQCommonTruthKernel
 
-DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ5Sequence, ToolSvc)
+# add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
+addMSVVariables("AntiKt4EMTopoJets", TOPQ5Sequence, ToolSvc)
 
 # Then apply thinning
 TOPQ5Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ5Kernel", ThinningTools = thinningTools)
@@ -226,10 +237,6 @@ DerivationFrameworkJob += TOPQ5Sequence
 #====================================================================
 # SLIMMING
 #====================================================================
-from DerivationFrameworkTop.TOPQCommonExtraContent import TOPQStaticContent
-TOPQStaticContent += ['xAOD::VertexContainer#TOPQ5RefittedPrimaryVertices']
-TOPQStaticContent += ['xAOD::VertexAuxContainer#TOPQ5RefittedPrimaryVerticesAux.']
-
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ5', TOPQ5Stream)
 

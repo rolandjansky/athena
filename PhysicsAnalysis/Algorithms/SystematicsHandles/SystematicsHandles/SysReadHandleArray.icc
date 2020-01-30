@@ -19,31 +19,12 @@
 
 namespace CP
 {
-  template<typename T> inline MsgStream& SysReadHandleArray<T> ::
-  msg () const
-  {
-    assert (m_msg != nullptr);
-    return *m_msg;
-  }
-
-
-
-  template<typename T> inline MsgStream& SysReadHandleArray<T> ::
-  msg (MSG::Level lvl) const
-  {
-    assert (m_msg != nullptr);
-    *m_msg << lvl;
-    return *m_msg;
-  }
-
-
-
   template<typename T> template<typename T2> SysReadHandleArray<T> ::
   SysReadHandleArray (T2 *owner, const std::string& propertyName,
                  const std::string& propertyDescription)
-    : m_propertyName (propertyName)
+    : AsgMessagingForward (owner)
+    , m_propertyName (propertyName)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
     owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);

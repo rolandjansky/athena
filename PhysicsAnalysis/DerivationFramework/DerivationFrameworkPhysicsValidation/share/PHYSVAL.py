@@ -24,7 +24,8 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALK
 # JET/MET   
 #====================================================================
 
-OutputJets["PHYSVAL"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
+OutputJets["PHYSVAL"] = ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                          "AntiKt4EMTopoLowPtJets",
                          "AntiKt4LCTopoLowPtJets",
@@ -62,7 +63,7 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYSVAL",dotruth=True)
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(DerivationFrameworkJob)
 
-FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
+FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets' ], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
 # Truth collections
@@ -96,8 +97,8 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "LCOriginTopoClusters","EMOriginTopoClusters","CaloCalTopoClusters",
                                        "BTagging_AntiKt4EMTopoJFVtx",
                                        "BTagging_AntiKt4EMTopo",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track_201810JFVtx",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                        "BTagging_AntiKt4EMPFlowJFVtx",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKt2Track",
@@ -120,13 +121,14 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
 
 PHYSVALSlimmingHelper.SmartCollections = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
                                            "AntiKt4EMTopoJets","AntiKt4LCTopoJets", "AntiKt4EMPFlowJets",
-                                           "BTagging_AntiKt4EMTopo",
+                                           "BTagging_AntiKt4EMTopo_201810","BTagging_AntiKt4EMPFlow_201810","BTagging_AntiKt4EMPFlow_201903",
+                                           "AntiKt4EMTopoJets_BTagging201810","AntiKt4EMPFlowJets_BTagging201810","AntiKt4EMPFlowJets_BTagging201903",
                                            "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
                                            "TauJets",
                                            ]
 
 PHYSVALSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
-                                         "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810SecVtx.-vxTrackAtVertex",
                                          "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
                                          "CaloCalTopoClusters.rawEta.rawPhi.rawE.rawM.calEta.calPhi.calE.calM.AVG_LAR_Q.AVG_TILE_Q.BADLARQ_FRAC.CENTER_LAMBDA.ENG_BAD_CELLS.ENG_POS.ISOLATION.N_BAD_CELLS.SECOND_R",
                                          "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
@@ -176,18 +178,18 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "AntiKt4EMPFlowLowPtJetsAux"                 :   "xAOD::JetAuxContainer"     ,
   "AntiKt4TruthJets"                           :   "xAOD::JetContainer"        ,
   "AntiKt4TruthJetsAux"                        :   "xAOD::JetAuxContainer"     ,
-  "AntiKtVR30Rmax4Rmin02TrackJets"             :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackJetsAux"          :   "xAOD::JetAuxContainer"     ,
+  "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"             :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"          :   "xAOD::JetAuxContainer"     ,
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"   :   "xAOD::JetContainer"        ,   
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux":   "xAOD::JetAuxContainer"     ,
   "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"    :   "xAOD::JetContainer"        ,
   "AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux" :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"   :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux":   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"  :   "xAOD::VertexContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"  :"xAOD::VertexAuxContainer"  ,  
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"        :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810JFVtx"   :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810JFVtxAux":   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810SecVtx"  :   "xAOD::VertexContainer"     ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810SecVtxAux"  :"xAOD::VertexAuxContainer"  ,  
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"        :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"     :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt4EMPFlowJFVtx"               :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt4EMPFlowJFVtxAux"            :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt4EMPFlowSecVtx"              :   "xAOD::VertexContainer"     ,

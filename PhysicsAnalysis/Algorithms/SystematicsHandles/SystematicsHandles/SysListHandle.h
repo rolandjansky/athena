@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -9,7 +9,7 @@
 #define SYSTEMATICS_HANDLES__SYS_LIST_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/MsgStream.h>
+#include <AsgTools/AsgMessagingForward.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/SysListType.h>
 #include <functional>
@@ -27,7 +27,7 @@ namespace CP
   /// \brief a class managing the property to configure the list of
   /// systematics to process
 
-  class SysListHandle
+  class SysListHandle : public asg::AsgMessagingForward
   {
     //
     // public interface
@@ -37,7 +37,7 @@ namespace CP
   public:
     template<typename T>
     SysListHandle (T *owner, const std::string& propertyName = "systematics",
-                       const std::string& propertyDescription = "list of systematics to evaluate");
+                   const std::string& propertyDescription = "list of systematics to evaluate");
 
 
     /// \brief register an input handle we are using
@@ -102,7 +102,7 @@ namespace CP
     /// \pre isInitialized()
   public:
     StatusCode foreach
-      (const std::function<StatusCode(const CP::SystematicSet)>& func);
+      (const std::function<StatusCode(const CP::SystematicSet&)>& func);
 
 
 
@@ -153,19 +153,6 @@ namespace CP
     /// algorithm instead.
   private:
     std::function<StoreType*()> m_evtStoreGetter;
-
-
-    /// \brief the message stream we use
-  private:
-    MsgStream *m_msg {nullptr};
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( ) const;
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( const MSG::Level lvl ) const;
   };
 }
 

@@ -87,13 +87,26 @@ class doCaloTowerFromCluster(CaloRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-
 class doCaloTopoTower(CaloRecFlagsJobProperty):
     """ switch noise suppressed towers based on standard tower + topo clusters
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
+
+class doCaloTopoSignal(CaloRecFlagsJobProperty):
+    """ produce mixed topo-cluster and topo-tower container 
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    storedValue=False
+
+class doExtendedClusterMoments(CaloRecFlagsJobProperty):
+    """ add more cluster moments for R&D
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    storedValue=False
 
 class doTileMuId(CaloRecFlagsJobProperty):
     """ switch for TileMuId - muon finding algorighm
@@ -170,7 +183,7 @@ jobproperties.add_Container(CaloRecFlags)
 
 
 # I want always the following flags in the Rec container  
-_list_Calo=[Enabled,doCaloTopoCluster,doEmCluster,doCaloEMTopoCluster,emTopoClusterThreshold,doCaloCluster,doCaloTopoTower,doTileMuId,doTileCellCorrection,doLArAffectedRegion,doLArAutoConfiguration,doLArNoisyRO,doEMDigits,doFillMBTSBackgroundBit,doLArNoiseBurstVeto,clusterCellGetterName,doCaloTowerFromCells,doCaloTowerFromCluster]
+_list_Calo=[Enabled,doCaloTopoCluster,doEmCluster,doCaloEMTopoCluster,emTopoClusterThreshold,doCaloCluster,doCaloTopoTower,doCaloTopoSignal,doExtendedClusterMoments,doTileMuId,doTileCellCorrection,doLArAffectedRegion,doLArAutoConfiguration,doLArNoisyRO,doEMDigits,doFillMBTSBackgroundBit,doLArNoiseBurstVeto,clusterCellGetterName,doCaloTowerFromCells,doCaloTowerFromCluster]
 for j in _list_Calo: 
     jobproperties.CaloRecFlags.add_JobProperty(j)
 del _list_Calo

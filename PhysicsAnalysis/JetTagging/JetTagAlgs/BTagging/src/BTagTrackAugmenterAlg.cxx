@@ -81,20 +81,37 @@ namespace Analysis {
     for (const auto* track: *tracks) {
       std::unique_ptr<const Trk::ImpactParametersAndSigma> ip(
         m_track_to_vx->estimate(track, primary));
-      m_dec_d0(*track) = ip->IPd0;
-      m_dec_z0(*track) = ip->IPz0SinTheta;
-      m_dec_d0_sigma(*track) = ip->sigmad0;
-      m_dec_z0_sigma(*track) = ip->sigmaz0SinTheta;
+      if (ip) {
+        m_dec_d0(*track) = ip->IPd0;
+        m_dec_z0(*track) = ip->IPz0SinTheta;
+        m_dec_d0_sigma(*track) = ip->sigmad0;
+        m_dec_z0_sigma(*track) = ip->sigmaz0SinTheta;
+      } else {
+        ATH_MSG_WARNING(
+          "failed to estimate track impact parameter, using dummy values");
+        m_dec_d0(*track) = NAN;
+        m_dec_z0(*track) = NAN;
+        m_dec_d0_sigma(*track) = NAN;
+        m_dec_z0_sigma(*track) = NAN;
+      }
 
       // some other parameters we have go get directly from the
       // extrapolator. This is more or less copied from:
       // https://goo.gl/iWLv5T
       std::unique_ptr<const Trk::TrackParameters> extrap_pars(
         m_extrapolator->extrapolate(*track, primary_surface));
-      const Amg::Vector3D& track_pos = extrap_pars->position();
-      const Amg::Vector3D& vertex_pos = primary->position();
-      m_dec_track_pos.set(*track, track_pos - vertex_pos);
-      m_dec_track_mom.set(*track, extrap_pars->momentum());
+      if (extrap_pars) {
+        const Amg::Vector3D& track_pos = extrap_pars->position();
+        const Amg::Vector3D& vertex_pos = primary->position();
+        m_dec_track_pos.set(*track, track_pos - vertex_pos);
+        m_dec_track_mom.set(*track, extrap_pars->momentum());
+      } else {
+        ATH_MSG_WARNING(
+          "failed to extrapolate track coordinates at primary vertex,"
+          " using dummy values");
+        m_dec_track_pos.set(*track, {NAN,NAN,NAN});
+        m_dec_track_mom.set(*track, {NAN,NAN,NAN});
+      }
     }
 
     return StatusCode::SUCCESS;

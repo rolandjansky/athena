@@ -18,6 +18,10 @@ from DerivationFrameworkCore.WeightMetadata import *
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 stdm9Seq = CfgMgr.AthSequencer("STDM9Sequence")
 
 
@@ -177,6 +181,13 @@ addRscanJets("AntiKt",0.6,"LCTopo",stdm9Seq,"STDM9")
 
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=stdm9Seq, algname="QGTaggerToolAlg")
+
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=stdm9Seq, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=stdm9Seq, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

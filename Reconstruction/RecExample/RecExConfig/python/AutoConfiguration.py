@@ -113,7 +113,6 @@ def GetFieldFromInputFile():
         except:
             logAutoConfiguration.warning("Unable to find solenoid and toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
 
-        # consistency check of GEO and b field values in case of simulated data
         if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
             from AthenaCommon.GlobalFlags import globalflags
             if globalflags.DetDescrVersion().startswith('ATLAS-') and (solenoidCurrent,toroidCurrent)!= (GetApproximateFieldFromGeo()):
@@ -122,8 +121,10 @@ def GetFieldFromInputFile():
                 logAutoConfiguration.warning("BField current in input file (%s,%s) differs from GEO version (%s,%s)!! Field is configured due to GEO version", solenoidCurrent,toroidCurrent,tempSol,tempTor)
                 logAutoConfiguration.warning("Field is configured due to GEO version")
                 solenoidCurrent,toroidCurrent= GetApproximateFieldFromGeo()
+    elif not inputFileSummary['evt_type'][0]=='IS_SIMULATION':
+        logAutoConfiguration.warning("Input data file metadata doesn't have necessary info to get field conditions. It's probably too old.")
     else:
-        logAutoConfiguration.warning("Input file metadata don't have necessary info to get field conditions. It's probably too old.")
+        logAutoConfiguration.info("Input mc file metadata doesn't have necessary info to get field conditions. This is normal in MC15-16.")
     return solenoidCurrent,toroidCurrent
 
 def GetApproximateFieldFromGeo():
@@ -175,7 +176,11 @@ def GetApproximateFieldFromConditions():
         solenoidCurrent=0.0
         toroidCurrent=0.0
     else:
-        logAutoConfiguration.warning("Don't know how to interpret magnetic field status from conditionsTag '%s'."%cond)
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
+            logAutoConfiguration.info("Don't know how to get magnetic field status from conditions tag '%s' - this is normal in simulation"%cond)
+        else:
+            logAutoConfiguration.warning("Don't know how to interpret magnetic field status from conditionsTag '%s'."%cond)
     return solenoidCurrent,toroidCurrent
 
 
@@ -396,7 +401,7 @@ def ConfigureNumberOfCollisions():
         try:
             jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(inputFileSummary['metadata']['/Digitization/Parameters']['numberOfCollisions'])
         except:
-            logAutoConfiguration.warning("numberOfCollisions could not be auto configured, no info available using default value: %s "
+            logAutoConfiguration.info("numberOfCollisions could not be auto configured, no info available using default value: %s "
                                          ,jobproperties.Beam.numberOfCollisions() )
             return
                 

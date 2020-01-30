@@ -25,18 +25,19 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
   m_jvtCut(0),
   m_jvtCutBorder(0)
   {
-    declareProperty( "WorkingPoint", m_wp = "Default"                             );
-    declareProperty( "SFFile",m_file="JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root");
-    declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "JvtSF"  );
-    declareProperty( "JetJvtMomentName",   m_jetJvtMomentName   = "Jvt"           );
-    declareProperty( "JetfJvtMomentName",   m_jetfJvtMomentName   = "passFJVT"    );
-    declareProperty( "OverlapDecorator", m_ORdec = ""                        );
-    declareProperty( "JetEtaName",   m_jetEtaName   = "DetectorEta"               );
-    declareProperty( "MaxPtForJvt",   m_maxPtForJvt   = 120e3                      );
-    declareProperty( "DoTruthReq",   m_doTruthRequirement   = true );
-    declareProperty( "TruthLabel",   m_isHS_decoration_name  = "isJvtHS"          );
-    declareProperty( "TruthJetContainerName", m_truthJetContName = "AntiKt4TruthJets");
-    applySystematicVariation(CP::SystematicSet()).ignore();
+    declareProperty( "WorkingPoint",              m_wp = "Default"                                                );
+    declareProperty( "SFFile",                    m_file="JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root" );
+    declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "JvtSF"                                  );
+    declareProperty( "JetJvtMomentName",          m_jetJvtMomentName   = "Jvt"                                    );
+    declareProperty( "JetfJvtMomentName",         m_jetfJvtMomentName   = "passFJVT"                              );
+    declareProperty( "JetMVfJvtMomentName",       m_jetMVfJvtMomentName = "passMVFJVT"                            );
+    declareProperty( "OverlapDecorator",          m_ORdec = ""                                                    );
+    declareProperty( "JetEtaName",                m_jetEtaName   = "DetectorEta"                                  );
+    declareProperty( "MaxPtForJvt",               m_maxPtForJvt   = 120e3                                         );
+    declareProperty( "DoTruthReq",                m_doTruthRequirement   = true                                   );
+    declareProperty( "TruthLabel",                m_isHS_decoration_name  = "isJvtHS"                             );
+    declareProperty( "TruthJetContainerName",     m_truthJetContName = "AntiKt4TruthJets"                         );
+    declareProperty( "UseMuSFFormat",             m_useMuBinsSF = false , "Use (mu,pT) or (|eta|,pT) binning for fJVT SFs" );
 }
 
 StatusCode JetJvtEfficiency::initialize(){
@@ -44,11 +45,13 @@ StatusCode JetJvtEfficiency::initialize(){
   m_isHSDec.reset(new SG::AuxElement::Decorator<char>(m_isHS_decoration_name));
   m_isHSAcc.reset(new SG::AuxElement::ConstAccessor<char>(m_isHS_decoration_name));
   m_dofJVT = (m_file.find("fJvt") != std::string::npos);
+  m_doMVfJVT = (m_file.find("MVfJVT") != std::string::npos);
   m_doOR = (!m_ORdec.empty());
   if (!m_doTruthRequirement) ATH_MSG_WARNING ( "No truth requirement will be performed, which is not recommended.");
 
   bool ispflow = (m_file.find("EMPFlow") != std::string::npos);
-
+  
+  if (m_wp=="Default" && m_useMuBinsSF) m_wp = "Loose";
   if (m_wp=="Default" && !ispflow) m_wp = "Medium";
   if (m_wp=="Default" && ispflow) m_wp = "Tight";
 
@@ -67,8 +70,11 @@ StatusCode JetJvtEfficiency::initialize(){
     m_wp = "Medium";
   }
   else {
-    ATH_MSG_ERROR("Invalid jvt working point name");
-    return StatusCode::FAILURE;
+    // don't crash for fjvt WP names
+    if(!(m_dofJVT || m_doMVfJVT)){
+      ATH_MSG_ERROR("Invalid jvt working point name");
+      return StatusCode::FAILURE;
+    }
   }
 
   if (m_file.empty()) return StatusCode::SUCCESS;
@@ -82,40 +88,71 @@ StatusCode JetJvtEfficiency::initialize(){
 
   TFile *infile = TFile::Open(filename.c_str());
 
-  if (m_wp=="Loose") h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get("JvtLoose")) );
-  else if (m_wp=="Medium") h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get("JvtDefault")) );
-  else if (m_wp=="Tight") h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get("JvtTight")) );
+  std::string histname = "Jvt";
 
+  if (m_wp=="Loose") histname+="Loose";
+  else if (m_wp=="Medium") histname+="Default";//this is a legacy working point
+  else if (m_wp=="Tight")  histname+="Tight";
+  else if (m_wp=="Tighter")  histname+="Tighter";
+
+
+  h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
+  if(!h_JvtHist){
+    ATH_MSG_ERROR("Histogram does not exist! " << histname << " If you are using Default please update to Loose");
+    return StatusCode::FAILURE;
+  }
   h_JvtHist->SetDirectory(0);
-
-  if (m_wp=="Loose") h_EffHist.reset( dynamic_cast<TH2*>(infile->Get("EffLoose")) );
-  else if (m_wp=="Medium") h_EffHist.reset( dynamic_cast<TH2*>(infile->Get("EffDefault")) );
-  else if (m_wp=="Tight") h_EffHist.reset( dynamic_cast<TH2*>(infile->Get("EffTight")) );
-
+  histname.replace(0,3,"Eff");
+  h_EffHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
   h_EffHist->SetDirectory(0);
+
+  // Check consistency between config file and requested SF binning
+  if ( !(m_dofJVT || m_doMVfJVT) && m_useMuBinsSF ){
+    ATH_MSG_ERROR( "Mismatch in SF format. Please set UseMuSFFormat to false for JVT.");
+    return StatusCode::FAILURE;
+  }
+  if( m_dofJVT || m_doMVfJVT ){
+    if (m_useMuBinsSF && h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())<=5. ){
+      ATH_MSG_ERROR( "Mismatch in fJVT SF format. Please set UseMuSFFormat to false to match the current configuration file.");
+      return StatusCode::FAILURE;
+    }
+    if (!m_useMuBinsSF && h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())>5. ){
+      ATH_MSG_ERROR( "Mismatch in fJVT SF format. Please set UseMuSFFormat to true to match the current configuration file");
+      return StatusCode::FAILURE;
+    }
+  }
 
   if(h_JvtHist.get()==nullptr || h_EffHist.get()==nullptr) {
     ATH_MSG_ERROR("Failed to retrieve histograms.");
     return StatusCode::FAILURE;
   }
 
-  if (m_dofJVT) {
-    if (!addAffectingSystematic(fJvtEfficiencyUp,true)
-      || !addAffectingSystematic(fJvtEfficiencyDown,true)) {
-      ATH_MSG_ERROR("failed to set up fJvt systematics");
-      return StatusCode::FAILURE;
+  if (m_dofJVT){                                              
+    if ( !addAffectingSystematic(fJvtEfficiencyUp,true)
+	 || !addAffectingSystematic(fJvtEfficiencyDown,true)) {
+	ATH_MSG_ERROR("failed to set up fJvt systematics");
+	return StatusCode::FAILURE;
+    }
+  } else if (m_doMVfJVT){
+    if ( !addAffectingSystematic(MVfJvtEfficiencyUp,true)
+	 || !addAffectingSystematic(MVfJvtEfficiencyDown,true)) {
+	ATH_MSG_ERROR("failed to set up MVfJvt systematics");
+	return StatusCode::FAILURE;
     }
   } else {
-    if (!addAffectingSystematic(JvtEfficiencyUp,true)
-      || !addAffectingSystematic(JvtEfficiencyDown,true)) {
-      ATH_MSG_ERROR("failed to set up Jvt systematics");
-      return StatusCode::FAILURE;
-    }
+      if (!addAffectingSystematic(JvtEfficiencyUp,true)
+	  || !addAffectingSystematic(JvtEfficiencyDown,true)) {
+	  ATH_MSG_ERROR("failed to set up Jvt systematics");
+	  return StatusCode::FAILURE;
+      }
   }
-  return StatusCode::SUCCESS;
-}
 
-StatusCode JetJvtEfficiency::finalize(){
+  // Configure for nominal systematics
+  if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Could not configure for nominal settings");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -135,13 +172,30 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
             }
         }
     }
-    int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+
+    int jetbin = 0;
+    if( m_useMuBinsSF ){ // fJVT SFs used (pT,eta) binning, changed to (pT,mu) starting with 'Nov2019' calibration
+      const xAOD::EventInfo *eventInfo = nullptr;
+      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
+	{
+	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+	  return CorrectionCode::Error;
+	}
+      jetbin = h_JvtHist->FindBin(jet.pt(),eventInfo->actualInteractionsPerCrossing());
+    } else {
+      jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+    }
+
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
     float errorTerm  = h_JvtHist->GetBinError(jetbin);
-    if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_UP) baseFactor += errorTerm;
-    else if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
-    else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP) baseFactor += errorTerm;
-    else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
+    
+    if      ( !m_dofJVT && !m_doMVfJVT && m_appliedSystEnum==JVT_EFFICIENCY_UP      ) baseFactor += errorTerm;
+    else if ( !m_dofJVT && !m_doMVfJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN    ) baseFactor -= errorTerm;
+    else if ( m_dofJVT  && !m_doMVfJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP     ) baseFactor += errorTerm;
+    else if ( m_dofJVT  && !m_doMVfJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN   ) baseFactor -= errorTerm;
+    else if ( !m_dofJVT && m_doMVfJVT  && m_appliedSystEnum==MVFJVT_EFFICIENCY_UP   ) baseFactor += errorTerm;
+    else if ( !m_dofJVT && m_doMVfJVT  && m_appliedSystEnum==MVFJVT_EFFICIENCY_DOWN ) baseFactor -= errorTerm;
+ 
     sf = baseFactor;
     return CorrectionCode::Ok;
 }
@@ -162,19 +216,39 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
             }
         }
     }
-    int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+
+    int jetbin = 0;
+    if( m_useMuBinsSF ){
+      const xAOD::EventInfo *eventInfo = nullptr;
+      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
+	{
+	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+	  return CorrectionCode::Error;
+	}
+      jetbin = h_JvtHist->FindBin(jet.pt(),eventInfo->actualInteractionsPerCrossing());
+    } else {
+      jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+    }
+
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
     float effFactor = h_EffHist->GetBinContent(jetbin);
     float errorTerm  = h_JvtHist->GetBinError(jetbin);
     float errorEffTerm  = h_EffHist->GetBinError(jetbin);
-    if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_UP) baseFactor += errorTerm;
-    else if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
-    else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP) baseFactor += errorTerm;
-    else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
-    if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_UP) effFactor += errorEffTerm;
-    else if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN) effFactor -= errorEffTerm;
-    else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP) effFactor += errorEffTerm;
-    else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) effFactor -= errorEffTerm;
+ 
+    if      ( !m_dofJVT && !m_doMVfJVT && m_appliedSystEnum==JVT_EFFICIENCY_UP      ) baseFactor += errorTerm;
+    else if ( !m_dofJVT && !m_doMVfJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN    ) baseFactor -= errorTerm;
+    else if ( m_dofJVT  && !m_doMVfJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP     ) baseFactor += errorTerm;
+    else if ( m_dofJVT  && !m_doMVfJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN   ) baseFactor -= errorTerm;
+    else if ( !m_dofJVT && m_doMVfJVT  && m_appliedSystEnum==MVFJVT_EFFICIENCY_UP   ) baseFactor += errorTerm;
+    else if ( !m_dofJVT && m_doMVfJVT  && m_appliedSystEnum==MVFJVT_EFFICIENCY_DOWN ) baseFactor -= errorTerm;
+
+    if      ( !m_dofJVT && !m_doMVfJVT && m_appliedSystEnum==JVT_EFFICIENCY_UP      ) effFactor += errorEffTerm;
+    else if ( !m_dofJVT && !m_doMVfJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN    ) effFactor -= errorEffTerm;
+    else if ( m_dofJVT  && !m_doMVfJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP     ) effFactor += errorEffTerm;
+    else if ( m_dofJVT  && !m_doMVfJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN   ) effFactor -= errorEffTerm;
+    else if ( !m_dofJVT && m_doMVfJVT  && m_appliedSystEnum==MVFJVT_EFFICIENCY_UP   ) effFactor += errorEffTerm;
+    else if ( !m_dofJVT && m_doMVfJVT  && m_appliedSystEnum==MVFJVT_EFFICIENCY_DOWN ) effFactor -= errorEffTerm;
+
     sf = (1-baseFactor*effFactor)/(1-effFactor);
     return CorrectionCode::Ok;
 }
@@ -197,8 +271,9 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
   sf = 1;
   const xAOD::JetContainer *truthJets = nullptr;
   if( evtStore()->retrieve(truthJets, m_truthJetContName).isFailure()) {
-      ATH_MSG_ERROR("Unable to retrieve truth jet container with name " << m_truthJetContName);
-      return CP::CorrectionCode::Error;
+    ATH_MSG_ERROR("Unable to retrieve truth jet container with name " << m_truthJetContName);
+    return CP::CorrectionCode::Error;
+    
   }
   if(!truthJets || tagTruth(jets,truthJets).isFailure()) {
     ATH_MSG_ERROR("Unable to match truthJets to jets in tagTruth() method");
@@ -211,7 +286,16 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
     }
     const xAOD::Jet *jet = static_cast<const xAOD::Jet*>(ipart);
     float current_sf = 0;
-    CorrectionCode result = (m_dofJVT?jet->getAttribute<char>(m_jetfJvtMomentName):passesJvtCut(*jet))?this->getEfficiencyScaleFactor(*jet,current_sf):this->getInefficiencyScaleFactor(*jet,current_sf);
+
+    CorrectionCode result;
+    if( ( m_dofJVT   && jet->getAttribute<char>(m_jetfJvtMomentName) )   ||
+        ( m_doMVfJVT && jet->getAttribute<char>(m_jetMVfJvtMomentName) ) ||
+	( (!m_dofJVT && ! m_doMVfJVT) && passesJvtCut(*jet) )              ){
+      result = this->getEfficiencyScaleFactor(*jet,current_sf);
+    } else {
+      result = this->getInefficiencyScaleFactor(*jet,current_sf);
+    }
+   
     if (result == CP::CorrectionCode::Error) {
       ATH_MSG_ERROR("Inexplicably failed JVT calibration" );
       return result;
@@ -232,8 +316,13 @@ bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
 
 bool JetJvtEfficiency::isInRange(const xAOD::Jet& jet) {
   if (m_doOR && !jet.getAttribute<char>(m_ORdec)) return false;
-  if (fabs(jet.getAttribute<float>(m_jetEtaName))<h_JvtHist->GetYaxis()->GetBinLowEdge(1)) return false;
-  if (fabs(jet.getAttribute<float>(m_jetEtaName))>h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())) return false;
+  if ( m_useMuBinsSF ){
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))<2.5) return false;
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))>4.5) return false;
+  } else {
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))<h_JvtHist->GetYaxis()->GetBinLowEdge(1)) return false;
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))>h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())) return false;
+  }
   if (jet.pt()<h_JvtHist->GetXaxis()->GetBinLowEdge(1)) return false;
   if (jet.pt()>h_JvtHist->GetXaxis()->GetBinUpEdge(h_JvtHist->GetNbinsX())) return false;
   if (jet.pt()>m_maxPtForJvt) return false;
@@ -251,10 +340,12 @@ SystematicCode JetJvtEfficiency::sysApplySystematicVariation(const CP::Systemati
   }
   SystematicVariation systVar = *systSet.begin();
   if (systVar == SystematicVariation("")) m_appliedSystEnum = NONE;
-  else if (!m_dofJVT && systVar == JvtEfficiencyUp) m_appliedSystEnum = JVT_EFFICIENCY_UP;
-  else if (!m_dofJVT && systVar == JvtEfficiencyDown) m_appliedSystEnum = JVT_EFFICIENCY_DOWN;
-  else if (m_dofJVT && systVar == fJvtEfficiencyUp) m_appliedSystEnum = FJVT_EFFICIENCY_UP;
-  else if (m_dofJVT && systVar == fJvtEfficiencyDown) m_appliedSystEnum = FJVT_EFFICIENCY_DOWN;
+  else if (!m_dofJVT && !m_doMVfJVT && systVar == JvtEfficiencyUp      ) m_appliedSystEnum = JVT_EFFICIENCY_UP;
+  else if (!m_dofJVT && !m_doMVfJVT && systVar == JvtEfficiencyDown    ) m_appliedSystEnum = JVT_EFFICIENCY_DOWN;
+  else if (m_dofJVT && !m_doMVfJVT  && systVar == fJvtEfficiencyUp     ) m_appliedSystEnum = FJVT_EFFICIENCY_UP;
+  else if (m_dofJVT && !m_doMVfJVT  && systVar == fJvtEfficiencyDown   ) m_appliedSystEnum = FJVT_EFFICIENCY_DOWN;
+  else if (!m_dofJVT && m_doMVfJVT  && systVar == MVfJvtEfficiencyUp   ) m_appliedSystEnum = MVFJVT_EFFICIENCY_UP;
+  else if (!m_dofJVT && m_doMVfJVT  && systVar == MVfJvtEfficiencyDown ) m_appliedSystEnum = MVFJVT_EFFICIENCY_DOWN;
   else m_appliedSystEnum = NONE;
 
   ATH_MSG_DEBUG("applied systematic is " << m_appliedSystEnum);

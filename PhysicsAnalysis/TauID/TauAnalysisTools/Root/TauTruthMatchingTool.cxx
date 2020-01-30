@@ -4,6 +4,7 @@
 
 // Local include(s)
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
+#include "TauAnalysisTools/HelperFunctions.h"
 
 // Core include(s):
 #include "AthLinks/ElementLink.h"
@@ -47,7 +48,7 @@ StatusCode TauTruthMatchingTool::initialize()
 //______________________________________________________________________________
 const xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
 {
-  if (m_bIsData)
+  if (isData())
     return nullptr;
 
   if (retrieveTruthTaus().isFailure())
@@ -221,30 +222,7 @@ TLorentzVector TauTruthMatchingTool::getTruthTauP4Invis(const xAOD::TruthParticl
 
 TauAnalysisTools::TruthMatchedParticleType TauTruthMatchingTool::getTruthParticleType(const xAOD::TauJet& xTau)
 {
-  const xAOD::TruthParticle* xTruthParticle = xAOD::TauHelpers::getTruthParticle(&xTau);
-  if (xTruthParticle)
-  {
-    if (xTruthParticle->isTau())
-    {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
-      if ((bool)accIsHadronicTau(*xTruthParticle))
-        return TruthHadronicTau;
-      else
-        return TruthLeptonicTau;
-    }
-    if (xTruthParticle->isMuon())
-      return TruthMuon;
-    if (xTruthParticle->isElectron())
-      return TruthElectron;
-  }
-  // TODO: use const xAOD::Jet* xTruthJet = xAOD::TauHelpers::getLink<xAOD::Jet>(&xTau, "truthJetLink");
-  // currently it is unavailable as templated class is not in icc file
-  static SG::AuxElement::ConstAccessor< ElementLink< xAOD::JetContainer > > accTruthJetLink("truthJetLink");
-  const ElementLink< xAOD::JetContainer > lTruthParticleLink = accTruthJetLink(xTau);
-  if (lTruthParticleLink.isValid())
-    return TruthJet;
-
-  return Unknown;
+	return TauAnalysisTools::getTruthParticleType(xTau);
 }
 
 //______________________________________________________________________________

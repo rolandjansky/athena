@@ -65,7 +65,6 @@ def main():
     logging.basicConfig(format='%(levelname)s:%(message)s')
 
     import time,datetime
-    from pytz import timezone
     import argparse
 
     try:
@@ -126,8 +125,7 @@ def main():
     paramUnits["crossSection_pb"] = "pb"
     paramExplains += ["crossSection_pb: Same as crossSection except in pb units (units: pb)"]
 
-    cern_time = timezone('UCT')
-    current_time = datetime.datetime.fromtimestamp(time.time(),cern_time).strftime('%Y-%m-%d %H:%M:%S')
+    current_time = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
     from argparse import RawTextHelpFormatter
     parser = argparse.ArgumentParser(description=__doc__,formatter_class=RawTextHelpFormatter)

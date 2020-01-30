@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DataVector.h 800990 2017-03-19 23:15:21Z ssnyder $
@@ -76,8 +76,8 @@
  *  - @c std::unique
  *  - @c std::reverse
  *  - @c std::rotate
- *  - @c std::random_shuffle
  *  - @c std::partition
+ *  - @c std::shuffle
  *  - @c std::stable_partition
  *
  * Alternately, for @c sort(), the @c sort() methods defined in @c DataVector

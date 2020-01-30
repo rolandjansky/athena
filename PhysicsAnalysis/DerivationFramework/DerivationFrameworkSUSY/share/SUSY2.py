@@ -95,6 +95,16 @@ SUSY2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
 ToolSvc += SUSY2TauTPThinningTool
 thinningTools.append(SUSY2TauTPThinningTool)
 
+# TrackParticles associated with SV
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+SUSY2VertexTPThinningTool = DerivationFramework__VertexParticleThinning( name                = "SUSY2VertexTPThinningTool",
+                                                                      ThinningService        = SUSY2ThinningHelper.ThinningSvc(),
+                                                                      VertexKey              = "VrtSecInclusive_SoftBtagCandidateVertices",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles")
+
+ToolSvc += SUSY2VertexTPThinningTool
+thinningTools.append(SUSY2VertexTPThinningTool)
+
 # Cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 
@@ -173,7 +183,9 @@ if DerivationFrameworkIsMonteCarlo:
                                                        WriteFirstN                  = -1,
                                                        PreserveAncestors            = True,
                                                        PreserveGeneratorDescendants = False,
-                                                       SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
+                                                       SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset,
+                                                       LongLivedPDGIDs              = [1000011,2000011,1000013,2000013,1000015,2000015,15])
+
   ToolSvc += SUSY2TruthThinningTool
   thinningTools.append(SUSY2TruthThinningTool)
 
@@ -184,6 +196,13 @@ if DerivationFrameworkIsMonteCarlo:
   ToolSvc += BkgElectronClassificationTool
   AugmentationTools.append(BkgElectronClassificationTool)
 
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthClassifierFallback
+  MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MuonTruthClassifierFallback",MCTruthClassifierTool = BkgElectronMCTruthClassifier, ContainerKey="Muons")
+  ElectronTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "ElectronTruthClassifierFallback",MCTruthClassifierTool = BkgElectronMCTruthClassifier, ContainerKey="Electrons")
+  ToolSvc += MuonTruthClassifierFallback
+  ToolSvc += ElectronTruthClassifierFallback
+  AugmentationTools.append(MuonTruthClassifierFallback)
+  AugmentationTools.append(ElectronTruthClassifierFallback)
 
 #====================================================================
 # SKIMMING TOOL
@@ -247,6 +266,12 @@ SeqSUSY2 += CfgMgr.DerivationFramework__DerivationKernel(
   SkimmingTools = [SUSY2SkimmingTool]
   )
 
+#==============================================================================
+# Soft b-tag
+#==============================================================================
+from DerivationFrameworkFlavourTag.SoftBtagCommon import *
+applySoftBtagging("softBtag", SeqSUSY2 )
+
 
 #==============================================================================
 # Jet building
@@ -297,19 +322,22 @@ SUSY2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Muons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
-
+                                        "AntiKt4EMPFlowJets",
                                         #"AntiKt4LCTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
-
+#                                        "BTagging_AntiKt4EMTopo",
+#                                        "BTagging_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 SUSY2SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
-SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
+SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -322,7 +350,10 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.deltaPhi1",
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                       "MuonClusterCollection.eta_sampl.phi_sampl",
-                                      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
+                                      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection",
+                                      "Muons.TruthClassifierFallback_truthType.TruthClassifierFallback_truthOrigin.TruthClassifierFallback_dR",
+                                      "Electrons.TruthClassifierFallback_truthType.TruthClassifierFallback_truthOrigin.TruthClassifierFallback_dR",
+                                      "PrimaryVertices.covariance"]
 
 # Saves BDT and input variables for light lepton algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
@@ -338,6 +369,12 @@ SUSY2SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY2SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY2SlimmingHelper.IncludeBPhysTriggerContent = True
 #SUSY2SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
+
+StaticContent = []
+StaticContent += ["xAOD::VertexContainer#VrtSecInclusive_SoftBtagCandidateVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#VrtSecInclusive_SoftBtagCandidateVerticesAux."]
+
+SUSY2SlimmingHelper.StaticContent = StaticContent
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py

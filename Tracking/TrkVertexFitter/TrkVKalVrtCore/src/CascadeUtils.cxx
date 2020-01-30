@@ -7,6 +7,7 @@
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <array>
 
 namespace Trk {
 
@@ -15,8 +16,8 @@ extern CascadeEvent    cascadeEvent_;
 extern vkalMagFld      myMagFld;
 extern VKalVrtBMag  vkalvrtbmag;
 
-extern std::vector<double> getFitParticleMom( VKTrack *);
-extern std::vector<double> getIniParticleMom( VKTrack *);
+//extern std::array<double, 4> getFitParticleMom( VKTrack *);
+extern std::array<double, 4> getIniParticleMom( VKTrack *);
 
 //  Add to system matrix the derivatives due to pseudotrack constraints
 //
@@ -64,7 +65,7 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide)
         DerivC[posCombTrk+2]=-1.;
         DerivT[posCombTrk+0]=-1.;
         DerivP[posCombTrk+1]=-1.;
-        std::vector<double> ppsum = getIniParticleMom( vk->nextCascadeVrt->TrackList[indCombTrk] ); // INI for pseudo
+        std::array<double, 4> ppsum = getIniParticleMom( vk->nextCascadeVrt->TrackList[indCombTrk] ); // INI for pseudo
 	double csum=vk->nextCascadeVrt->TrackList[indCombTrk]->iniP[2];                             // INI for pseudo
         double ptsum=sqrt(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1]);
         double sinth2sum=(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1])/(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1] + ppsum[2]*ppsum[2]);
@@ -74,7 +75,7 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide)
         vkalvrtbmag.bmag=vMagFld[iv];
 	double tpx,tpy; tpx=tpy=0;
         for(it=0; it<(int)vk->TrackList.size(); it++){
-          std::vector<double> pp =    getIniParticleMom( vk->TrackList[it] );
+          std::array<double, 4> pp =    getIniParticleMom( vk->TrackList[it] );
 	  double curv=vk->TrackList[it]->iniP[2];
           double pt=sqrt(pp[0]*pp[0] + pp[1]*pp[1]);
           double cth=pp[2]/pt;
@@ -87,9 +88,9 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide)
           DerivT[iniPosTrk+it*3+2] =  (sinth2sum*pt*cth)/(curv*ptsum);                 //  dTheta/dC_i      
 	  tpx+=pp[0]; tpy+=pp[1];
         }
-        double iniV0Curv=myMagFld.getCnvCst()*vMagFld[iv]/sqrt(tpx*tpx+tpy*tpy);    //initial PseudoTrack Curvature
-        if(csum<0)iniV0Curv *= -1.;
-        iniV0Curv *= vMagFld[ivnext]/vMagFld[iv];  //magnetic field correction
+//        double iniV0Curv=myMagFld.getCnvCst()*vMagFld[iv]/sqrt(tpx*tpx+tpy*tpy);    //initial PseudoTrack Curvature
+//        if(csum<0)iniV0Curv *= -1.;
+//        iniV0Curv *= vMagFld[ivnext]/vMagFld[iv];  //magnetic field correction
 //
 //fill Full Matrix and left side vector
 //

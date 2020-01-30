@@ -7,10 +7,12 @@ DAOD_StreamID = 'HDBS1'
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
@@ -18,8 +20,6 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 if DFisMC:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
-    #Template Higgs cross section tool for DFHiggs
-    from DerivationFrameworkHiggs.TruthCategories import *
 
 print "Hello, my name is {} and I am running on {}".format(DAOD_StreamID, 'MC' if DFisMC else 'Data')
 
@@ -75,14 +75,18 @@ HDBS1Sequence = CfgMgr.AthSequencer(DAOD_StreamID+"Sequence")
 
 # augmentation
 HDBS1Sequence += CfgMgr.DerivationFramework__CommonAugmentation("HIGG4DxCommonAugmentationKernel", AugmentationTools = augmentationTools)
+applyJetCalibration_xAODColl("AntiKt4EMPFlow", HDBS1Sequence)
+updateJVT_xAODColl("AntiKt4EMPFlow", HDBS1Sequence)
 
-# skimming #1: based on di-taus and trigger
+# skimming #1: based on ttbar and trigger
 HDBS1Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = skimmingTools)
 
 # fat/trimmed jet building (after skimming)
 DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HDBS1Sequence, HDBS1SlimmingHelper)
+#Build Ditaus
+DerivationFrameworkHiggs.HIGG4DxJets.buildDiTau(DAOD_StreamID, HDBS1Sequence, HDBS1SlimmingHelper, ToolSvc)
 
-# thinning + skimming #2 based on fat jets (now we have them created)
+# thinning + skimming #2 based on ditaus (now we have them created)
 HDBS1Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"Kernel", ThinningTools = thinningTools, SkimmingTools = fatJetSkimmingTools)
 
 # add the private sequence to the main job

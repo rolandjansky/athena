@@ -51,6 +51,7 @@ class ICPJetUncertaintiesTool;
 class IJetSelector;
 class IJetUpdateJvt;
 class IJetModifier;
+class IJetSelectorTool;
 
 class IAsgElectronLikelihoodTool;
 class IAsgElectronEfficiencyCorrectionTool;
@@ -140,7 +141,7 @@ namespace ST {
     void setDataSource(int source);
 
     // Apply the correction on a modifyable object
-    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false) override final;
+    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false, bool isTCC = false) override final;
     StatusCode FillTrackJet(xAOD::Jet& input) override final;
     StatusCode FillTau(xAOD::TauJet& input) override final;
     StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) override final;
@@ -149,6 +150,7 @@ namespace ST {
 
     const xAOD::Vertex* GetPrimVtx() const override final;
 
+    StatusCode BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const override final;
     StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "") override final;
@@ -170,14 +172,14 @@ namespace ST {
                            const xAOD::JetContainer* jet,
                            const xAOD::ElectronContainer* elec = 0,
                            const xAOD::MuonContainer* muon = 0
-			   // const xAOD::PhotonContainer* gamma = 0,
-			   // const xAOD::TauJetContainer* taujet = 0,
 			   ) override final;
 
     StatusCode GetMETSig(xAOD::MissingETContainer& met,
                          double& metSignificance,
                          bool doTST = true, bool doJVTCut = true
 		         ) override final;
+
+    bool IsPFlowCrackVetoCleaning(const xAOD::ElectronContainer* elec = 0, const xAOD::PhotonContainer* gamma = 0) const override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
@@ -241,7 +243,7 @@ namespace ST {
     double GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool isoSF = true, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool bmhptSF = true) override final;
 
     //electrons
-    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final;
+    float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool ecidsSF = false, const bool cidSF = false) override final;
 
     double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0") const override final;
 
@@ -259,9 +261,9 @@ namespace ST {
 
     double GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const std::string& trigExpr = "diPhoton") override final;
 
-    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool ecidsSF = false, const bool cidSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
 
-    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
+    float GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool ecidsSF = false, const bool cidSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
 
     //taus
     double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
@@ -423,7 +425,7 @@ namespace ST {
   protected:
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/share/", bool usePathResolver = true, bool RPVLLmode = false, bool Combinedmode = false, const std::string & HFFilter = "");
+    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/share/", const std::string& PRWfileName = "", bool usePathResolver = true, bool RPVLLmode = false, bool Combinedmode = false, const std::string& HFFilter = "");
 
     StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
@@ -439,7 +441,7 @@ namespace ST {
     void configFromFile(int& property, const std::string& propname, TEnv& rEnv,
                         int defaultValue);
     void configFromFile(std::string& property, const std::string& propname, TEnv& rEnv,
-                        const std::string& defaultValue);
+                        const std::string& defaultValue, bool allowEmpty=false);
 
     //little helpers for WP configurations / handling
     bool check_isOption(const std::string& wp, const std::vector<std::string>& list) const;
@@ -462,6 +464,7 @@ namespace ST {
     bool m_force_noMuId;
     bool m_doTTVAsf;
     bool m_doModifiedEleId;
+    bool m_upstreamTriggerMatching; /// Use composite trigger matching tool if matching was done upstream
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;
@@ -476,9 +479,13 @@ namespace ST {
 
     std::string m_fatJetUncConfig;
     std::string m_fatJetUncVars;
+    std::string m_TCCJetUncConfig;
 
     std::string m_WtagConfig;
     std::string m_ZtagConfig;
+    std::string m_WZTaggerCalibArea;
+    std::string m_ToptagConfig;
+    std::string m_TopTaggerCalibArea;
 
     bool m_tool_init;
     bool m_subtool_init;
@@ -512,6 +519,7 @@ namespace ST {
 
     bool m_autoconfigPRW;
     std::string m_autoconfigPRWPath;
+    std::string m_autoconfigPRWFile;
     bool m_autoconfigPRWCombinedmode;
     bool m_autoconfigPRWRPVmode;
     std::string m_autoconfigPRWHFFilter;
@@ -561,6 +569,7 @@ namespace ST {
     std::string m_eleIsoHighPt_WP;
     double      m_eleIsoHighPtThresh;
     std::string m_eleChID_WP;
+    bool        m_eleChIso; // use Charge ID SF with/without Iso applied
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
@@ -571,9 +580,12 @@ namespace ST {
     double      m_muIsoHighPtThresh;
     std::string m_BtagWP;
     std::string m_BtagTagger;
+    std::string m_BtagTimeStamp;
+    std::string m_BtagKeyOverride;
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
+    std::string m_BtagTimeStamp_trkJet;
     double m_BtagMinPt_trkJet;
 
     //configurable cuts here
@@ -630,14 +642,16 @@ namespace ST {
     bool   m_doFwdJVT;
     double m_fwdjetEtaMin;
     double m_fwdjetPtMax;
-    bool   m_fwdjetTightOp;
+    std::string m_fwdjetOp;
 
-    std::string m_JMScalib;
+    bool m_JMScalib;
 
     /// Overlap removal options
     bool   m_orDoTau;
     bool   m_orDoPhoton;
     bool   m_orDoEleJet;
+    bool   m_orDoElEl;
+    bool   m_orDoElMu;
     bool   m_orDoMuonJet;
     bool   m_orDoBjet;
     bool   m_orDoElBjet;
@@ -682,6 +696,7 @@ namespace ST {
     std::string m_defaultJets;
     std::string m_defaultTrackJets;
     std::string m_fatJets;
+    std::string m_TCCJets;
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
     CP::SystematicSet m_currentSyst;
@@ -698,27 +713,26 @@ namespace ST {
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_TCCjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
 
-    asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
-    asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
+    asg::AnaToolHandle<IJetSelectorTool> m_WTaggerTool;
+    asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;
+    asg::AnaToolHandle<IJetSelectorTool> m_TopTaggerTool;
 
     //
     std::string m_jesConfig;
     std::string m_jesConfigJMS;
+    std::string m_jesConfigJMSData;
     std::string m_jesConfigAFII;
-    std::string m_jesConfigEMPFlow;
-    std::string m_jesConfigEMPFlowAFII;
     std::string m_jesConfigFat;
+    std::string m_jesConfigFatData;
     std::string m_jesCalibSeq;
     std::string m_jesCalibSeqJMS;
-    std::string m_jesCalibSeqAFII;
-    std::string m_jesCalibSeqEMPFlow;
-    std::string m_jesCalibSeqEMPFlowAFII;
     std::string m_jesCalibSeqFat;
 
     //
@@ -849,6 +863,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
   const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
+
   // const accessors for reading decorations that we set
   const static SG::AuxElement::ConstAccessor<char> acc_baseline("baseline");
   const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects
@@ -858,6 +873,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
   const static SG::AuxElement::ConstAccessor<char> acc_signal_less_JVT("signal_less_JVT"); //!< Accessor for signal jets without a JVT requirement
   const static SG::AuxElement::ConstAccessor<char> acc_trigmatched("trigmatched");
+
   // more decorations that are set externally
   const static SG::AuxElement::ConstAccessor<unsigned int> acc_OQ("OQ");
   const static SG::AuxElement::ConstAccessor<int> acc_truthType("truthType");
@@ -865,6 +881,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<int> acc_bkgTruthOrigin("bkgTruthOrigin");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
   const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
+  const static SG::AuxElement::ConstAccessor<char> acc_passCrackVetoCleaning("DFCommonCrackVetoCleaning");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
   const static SG::AuxElement::ConstAccessor<float> acc_DetEta("DetectorEta");
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -72,10 +72,13 @@ namespace CP
   private:
     unsigned m_allCutsNum = 0;
 
-
     /// \brief the created histograms
   private:
     std::unordered_map<CP::SystematicSet,TH1*> m_hist;
+
+    /// \brief histogram bin labels
+  private:
+    std::vector<std::string> m_labels;
   };
 }
 

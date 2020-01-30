@@ -18,9 +18,10 @@
 // Shallow copy
 //#include "xAODCore/ShallowCopy.h"
 
-    static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
-    static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
-    static SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
+    static const SG::AuxElement::Decorator<char>  isHS("isJvtHS");
+    static const SG::AuxElement::Decorator<char>  isPU("isJvtPU");
+    static const SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
+    static const SG::AuxElement::ConstAccessor<float> acc_fjvt_der("DFCommonJets_fJvt");
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -36,6 +37,7 @@
     declareProperty("OutputDec",          m_outLabel         = "passFJVT"       );
     declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"   );
     declareProperty("OutputDecTiming",    m_outLabelTiming   = "passOnlyTiming" );
+    declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices");
     declareProperty("EtaThresh",          m_etaThresh        = 2.5              );
     declareProperty("TimingCut",          m_timingCut        = 10.              );
     declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3             );
@@ -48,6 +50,7 @@
     declareProperty("CentralMaxStochPt",  m_maxStochPt       = 35e3             );
     declareProperty("JetScaleFactor",     m_jetScaleFactor   = 0.4              );
     declareProperty("UseTightOP",         m_tightOP          = false            );//Tight or Loose
+    declareProperty("UseFirstVertex",     m_useFirstVertex   = false            );
   }
 
   // Destructor
@@ -76,15 +79,26 @@
   }
 
   int JetForwardJvtTool::modify(xAOD::JetContainer& jetCont) const {
+    // First test to see if the derivation did the work for us
+    if (jetCont.size()>0 && acc_fjvt_der.isAvailable(*jetCont[0])){
+      // We did all the work upstream. Add decorations as requested and get out
+      for (const auto& jetF : jetCont) {
+        double fjvt = acc_fjvt_der(*jetF);
+        (*Dec_outTiming)(*jetF) = fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+        (*Dec_out)(*jetF) = fjvt<=m_fjvtThresh && fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+        (*Dec_outFjvt)(*jetF) = fjvt;
+      }
+      return StatusCode::SUCCESS;
+    }
+    // Did not have it in advance, now do the extra work
     getPV();
-    m_pileupMomenta.clear();
+    if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
     for(const auto& jetF : jetCont) {
       (*Dec_out)(*jetF) = 1;
       (*Dec_outFjvt)(*jetF) = 1;
       (*Dec_outTiming)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
-      if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
       double fjvt = getFJVT(jetF)/jetF->pt();
       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
       if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;
@@ -113,7 +127,7 @@
       ATH_MSG_WARNING("Unable to retrieve MET_Track container");
     }
     const xAOD::VertexContainer *vxCont = 0;
-    if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
+    if( evtStore()->retrieve(vxCont,"PrimaryVertices").isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     }
     for(const auto& vx : *vxCont) {
@@ -192,12 +206,16 @@
   void JetForwardJvtTool::getPV() const {
     const xAOD::VertexContainer *vxCont = 0;
     m_pvind = 0;
-    if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
+    if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve primary vertex container");
     } else if(vxCont->empty()) {
       ATH_MSG_WARNING("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      if (m_useFirstVertex && vxCont->size()) {
+        m_pvind = vxCont->at(0)->index();
+        return;
+      }
       for(const auto& vx : *vxCont) {
         if(vx->vertexType()==xAOD::VxType::PriVtx)
           {m_pvind = vx->index(); break;}

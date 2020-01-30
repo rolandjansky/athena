@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <EventLoop/BatchWorker.h>
+#include <EventLoop/Worker.h>
 #include <xAODRootAccess/Init.h>
 #include <AsgTools/MessageCheck.h>
 
@@ -32,5 +32,7 @@ int main (int argc, char **argv)
 
   auto confFile = argv[2];
 
-  EL::BatchWorker::execute (job_id, confFile);
+  EL::Worker worker;
+  ANA_CHECK (worker.batchExecute (job_id, confFile));
+  return 0;
 }

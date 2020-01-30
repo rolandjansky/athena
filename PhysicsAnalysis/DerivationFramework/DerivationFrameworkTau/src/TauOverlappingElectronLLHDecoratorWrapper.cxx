@@ -61,8 +61,6 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    CHECK(m_TauOverlappingElectronLLHDecorator->initializeEvent());
-
     for(auto xTau : *xTauContainer){
       CHECK( m_TauOverlappingElectronLLHDecorator->decorate(*xTau) );
     }

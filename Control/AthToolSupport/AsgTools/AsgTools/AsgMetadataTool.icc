@@ -1,9 +1,11 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgMetadataTool.icc 628138 2014-11-13 11:51:41Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_ASGMETADATATOOL_ICC
 #define ASGTOOLS_ASGMETADATATOOL_ICC
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 // Athena EDM include(s):
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
@@ -49,7 +51,7 @@ namespace asg {
 
 } // namespace asg
 
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 namespace asg {
 

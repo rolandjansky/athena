@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef CONFIGURATIONSETTINGS_H_
 #define CONFIGURATIONSETTINGS_H_
@@ -13,14 +13,13 @@
 #include "StringData.h"
 
 namespace top {
-
 /**
  * @brief Hold the configuration information for the whole run.  A singleton,
  * so only one of these exists.  It needs populating with a call to loadFromFile
  * early on.  Otherwise it'll be full of rubbish and will refuse to run properly
  */
-class ConfigurationSettings {
-public:
+  class ConfigurationSettings {
+  public:
     /**
      * @brief Design patterns 101.  A singleton getter function.
      */
@@ -45,7 +44,7 @@ public:
      *
      * Note: an attempt to retrieve a key with a non-boolean values raises an exception.
      */
-    bool retrieve(std::string const & key, bool & value) const;
+    bool retrieve(std::string const& key, bool& value) const;
 
     /**
      * @brief Have the configuration settings been read from a file?
@@ -81,16 +80,15 @@ public:
      * @param name The key used to refer to this variable.
      * @param message A human readable explanation
      */
-  void registerParameter(const std::string& name, const std::string& message, const std::string& default_val="");
+    void registerParameter(const std::string& name, const std::string& message, const std::string& default_val = "");
 
-  /**
-  * @brief test whether an (experimental) feature should be enabled
-  *
-  * Note: It's not a particularly cheap operation, so avoid it in loops.
-  */
-  bool feature(std::string const & name) const;
-
-private:
+    /**
+     * @brief test whether an (experimental) feature should be enabled
+     *
+     * Note: It's not a particularly cheap operation, so avoid it in loops.
+     */
+    bool feature(std::string const& name) const;
+  private:
     ///True if the class has read the settings from a file or something
     bool m_configured;
 
@@ -113,14 +111,12 @@ private:
     ConfigurationSettings(const ConfigurationSettings&);
 
     ///Here but not implemented, resulting in a happy compile error if you try and use them
-    ConfigurationSettings operator=(const ConfigurationSettings&);
-    
-};
-
+    ConfigurationSettings operator = (const ConfigurationSettings&);
+  };
 }
 
-std::ostream& operator<<(std::ostream& os, const top::ConfigurationSettings& settings);
-std::ostream& operator<<(std::ostream& os, const top::SelectionConfigurationData& data);
+std::ostream& operator << (std::ostream& os, const top::ConfigurationSettings& settings);
+std::ostream& operator << (std::ostream& os, const top::SelectionConfigurationData& data);
 
 
 #endif

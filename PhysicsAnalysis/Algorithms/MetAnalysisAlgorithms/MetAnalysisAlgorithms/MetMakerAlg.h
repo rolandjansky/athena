@@ -104,6 +104,10 @@ namespace CP
     SysReadHandle<xAOD::JetContainer> m_jetsHandle {
       this, "jets", "", "the jet collection we use"};
 
+  private:
+    SysReadHandle<xAOD::IParticleContainer> m_invisHandle {
+      this, "invisible", "", "Any particles to treat as invisible."};
+
     /// \brief the key for \ref m_jetsHandle
   private:
     std::string m_jetsKey {"RefJet"};

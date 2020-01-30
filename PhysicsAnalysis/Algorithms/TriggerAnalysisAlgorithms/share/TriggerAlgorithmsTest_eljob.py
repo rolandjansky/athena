@@ -22,7 +22,6 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 
 # Set up (Py)ROOT.
 import ROOT
-import os
 ROOT.xAOD.Init().ignore()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
@@ -34,7 +33,7 @@ inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
 
-if not dataType in ["data", "mc", "afii"] :
+if dataType not in ["data", "mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)
 
 # Set up the sample handler object. See comments from the C++ macro
@@ -52,45 +51,9 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Config:
-triggerChains = [
-    'HLT_2mu14',
-    'HLT_mu20_mu8noL1',
-    'HLT_2e17_lhvloose_nod0'
-]
-
-# Import(s) needed for the job configuration.
-from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
-
-# Set up the main analysis algorithm sequence.
-algSeq = AlgSequence( 'AnalysisSequence' )
-
-# Set up the systematics loader/handler algorithm:
-algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-algSeq.SysLoaderAlg.sigmaRecommended = 1
-
-# Include, and then set up the pileup analysis sequence:
-from TriggerAnalysisAlgorithms.TriggerAnalysisSequence import \
-    makeTriggerAnalysisSequence
-triggerSequence = makeTriggerAnalysisSequence( dataType, triggerChains=triggerChains )
-algSeq += triggerSequence
-
-# Set up an ntuple to check the job with:
-ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
-ntupleMaker.TreeName = 'events'
-ntupleMaker.Branches = [
-    'EventInfo.runNumber   -> runNumber',
-    'EventInfo.eventNumber -> eventNumber',
-]
-ntupleMaker.Branches += ['EventInfo.trigPassed_' + t + ' -> trigPassed_' + t for t in triggerChains]
-ntupleMaker.systematicsRegex = '.*'
-algSeq += ntupleMaker
-
-# For debugging.
-print( algSeq )
-
-# Add all algorithms from the sequence to the job.
+from TriggerAnalysisAlgorithms.TriggerAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
 for alg in algSeq:
     job.algsAdd( alg )
     pass

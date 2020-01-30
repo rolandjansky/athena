@@ -4,14 +4,19 @@
 #********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
-exot22Seq = CfgMgr.AthSequencer("EXOT22Sequence")
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
+
+EXOT22Seq = CfgMgr.AthSequencer("EXOT22Sequence")
+DerivationFrameworkJob += EXOT22Seq
 
 #====================================================================
 # SET UP STREAM
@@ -36,6 +41,7 @@ EXOT22ThinningHelper.AppendToStream( EXOT22Stream )
 #====================================================================
 
 thinningTools = []
+augmentationTools = []
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -102,6 +108,19 @@ EXOT22TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          SimBarcodeOffset      = DerivationFrameworkSimBarcodeOffset)
 
 if DerivationFrameworkIsMonteCarlo:
+  # Re-run MCTruthClassifier
+  from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+  EXOT22TruthClassifier = MCTruthClassifier(name                      = "EXOT22TruthClassifier",
+                                            ParticleCaloExtensionTool = "")
+  ToolSvc += EXOT22TruthClassifier
+
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthClassificationDecorator
+  EXOT22ClassificationDecorator = DerivationFramework__TruthClassificationDecorator(name              = "EXOT22ClassificationDecorator",
+                                                                                    ParticlesKey      = "TruthParticles",
+                                                                                    MCTruthClassifier = EXOT22TruthClassifier)
+  ToolSvc += EXOT22ClassificationDecorator
+  augmentationTools.append(EXOT22ClassificationDecorator)
+
   ToolSvc += EXOT22TruthTool
   thinningTools.append(EXOT22TruthTool)
 
@@ -137,22 +156,20 @@ ToolSvc += EXOT22SkimmingTool
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot22Seq
-exot22Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT22Kernel_skim", SkimmingTools = [EXOT22SkimmingTool])
-exot22Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT22Kernel", ThinningTools = thinningTools)
+EXOT22Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT22Kernel_skim", SkimmingTools = [EXOT22SkimmingTool])
+EXOT22Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT22Kernel",
+                                                          ThinningTools = thinningTools,
+                                                          AugmentationTools = augmentationTools)
 
 #=======================================
 # JETS
 #=======================================
-
-#restore AOD-reduced jet collections
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT22"] = []
-reducedJetList = [
-  "AntiKt4TruthJets",
-  "AntiKt4TruthWZJets"
-]
-replaceAODReducedJets(reducedJetList, exot22Seq, "EXOT22")
+
+# Adding Btagging for PFlowJets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = EXOT22Seq)
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

@@ -70,8 +70,25 @@ if DerivationFrameworkIsMonteCarlo:
 jetm13Seq = CfgMgr.AthSequencer("JETM13Sequence")
 DerivationFrameworkJob += jetm13Seq
 
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
-runTCCReconstruction(jetm13Seq,ToolSvc)
+
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
+runTCCReconstruction(jetm13Seq,ToolSvc, outputTCCName="TrackCaloClustersCombinedAndNeutral")
+
+
+# Add the necessary constituents for UFOs
+from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
+addCHSPFlowObjects()
+pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
+
+# add the pflow cssk sequence to the main jetalg if not already there :
+if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
+  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
+
+# Finally we can run the UFO building taking our unified PFlow container as input
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+emufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CHS")
+emcsskufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CSSK")
+
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
@@ -114,6 +131,16 @@ JETM13SlimmingHelper.ExtraVariables = [
   "AntiKt4LCTopoJets.pt.eta.phi.m",
   ]
 
+
+JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.m.taste' ]
+
+JETM13SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.m.taste' ]
+
+
 for truthc in [
   "TruthMuons",
   "TruthElectrons",
@@ -126,7 +153,7 @@ for truthc in [
 
 for truthc in [
   "TruthTopQuark",
-  "TruthBoson"
+  "TruthBosons"
   ]:
   JETM13SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
   JETM13SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"WithDecayParticlesAux.")

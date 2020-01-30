@@ -26,9 +26,7 @@ thinHard = DerivationFramework__CompactHardTruth(
                                 McEvent = "GEN_EVENT",
                                 McEventOut = "GEN_HARD",
                                 DanglePtCut = 1000.,
-                                MaxCount = 5,
-                                OutputLevel = Lvl.INFO)
-
+                                MaxCount = 5)
 DerivationFrameworkJob += thinHard
 
 # Convert GEN_HARD to TruthEvent format with new name(s):
@@ -44,8 +42,7 @@ DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg(
                           xAODTruthParticleContainerName="TruthHardParticles",
                           xAODTruthVertexContainerName="TruthHardVertices",
                           TruthLinks="TruthHardLinks",
-                          WriteTruthMetaData=False,
-                          OutputLevel = Lvl.INFO)
+                          WriteTruthMetaData=False)
 
 #==============================================================================
 # Thin standard TruthEvent with HardTruthThinning
@@ -118,7 +115,6 @@ svcMgr += createThinningSvc( svcName="TRUTH2ThinningSvc", outStreams=[evtStream]
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 TRUTH2SlimmingHelper = SlimmingHelper("TRUTH2SlimmingHelper")
 TRUTH2SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
-                                           'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',
                                            'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
@@ -127,13 +123,15 @@ TRUTH2SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer
                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthForwardProtons':'xAOD::TruthParticleContainer','TruthForwardProtonsAux':'xAOD::TruthParticleAuxContainer',
                                            'AntiKt4TruthDressedWZJets':'xAOD::JetContainer','AntiKt4TruthDressedWZJetsAux':'xAOD::JetAuxContainer',
                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                           }
-TRUTH2SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
-TRUTH2SlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
-                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta"]
+TRUTH2SlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
+from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+addTruth3ContentToSlimmerTool(TRUTH2SlimmingHelper)
 TRUTH2SlimmingHelper.AppendContentToStream(TRUTH2Stream)
+
 # The entire event info, truth event, etc
 TRUTH2Stream.AddItem("xAOD::EventInfo#*")
 TRUTH2Stream.AddItem("xAOD::EventAuxInfo#*")
@@ -145,3 +143,8 @@ TRUTH2Stream.AddItem( "xAOD::TruthParticleContainer#*" )
 TRUTH2Stream.AddItem( "xAOD::TruthParticleAuxContainer#*" )
 # Keep the metadata of course!
 TRUTH2Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
+
+# If we don't have a conditions tag set by now, then assume this job isn't going to have one and kill the conditions service
+if len(globalflags.ConditionsTag())==0:
+    for a in svcMgr.PoolSvc.ReadCatalog:
+        svcMgr.PoolSvc.ReadCatalog.remove(a)

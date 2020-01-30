@@ -1,92 +1,43 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
+
+# User options, which can be set from command line after a "-" character
+# athena EgammaAlgorithmsTest_jobOptions.py - --myOption ...
+from AthenaCommon.AthArgumentParser import AthArgumentParser
+athArgsParser = AthArgumentParser()
+athArgsParser.add_argument("--data-type", action = "store", dest = "data_type",
+                           default = "data",
+                           help = "Type of input to run over. Valid options are 'data', 'mc', 'afii'")
+athArgs = athArgsParser.parse_args()
+
+dataType = athArgs.data_type
+if not dataType in ["data", "mc", "afii"] :
+    raise Exception ("invalid data type: " + dataType)
+
+print("Running on data type: " + dataType)
+
+inputfile = {"data": 'ASG_TEST_FILE_DATA',
+             "mc":   'ASG_TEST_FILE_MC',
+             "afii": 'ASG_TEST_FILE_MC_AFII'}
 
 # Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
 theApp.EvtMax = 500
-testFile = os.getenv ('ASG_TEST_FILE_DATA')
+testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
-# Access the main algorithm sequence of the job:
-from AthenaCommon.AlgSequence import AlgSequence
-algSeq = AlgSequence()
+from MetAnalysisAlgorithms.MetAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
 
-# ideally we'd run over all of them, but we don't have a mechanism to
-# configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
-
-# Set up the systematics loader/handler algorithm:
-sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
-sysLoader.sigmaRecommended = 1
-algSeq += sysLoader
-
-# Include, and then set up the jet analysis algorithm sequence:
-from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetContainer = 'AntiKt4EMTopoJets'
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
-print( jetSequence ) # For debugging
-
-# Add all algorithms to the job:
-algSeq += jetSequence
-
-# Set up a selection alg for demonstration purposes
-# Also to avoid warnings from building MET with very soft electrons
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
-selalg = createAlgorithm( 'CP::AsgSelectionAlg', 'METEleSelAlg' )
-addPrivateTool( selalg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-selalg.selectionTool.minPt = 10e3
-selalg.selectionTool.maxEta = 2.47
-selalg.selectionDecoration = 'selectPtEta'
-selalg.particles = 'Electrons'
-# We need to copy here, because w/o an output container, it's assumed
-# that the input container is non-const
-selalg.particlesOut = 'DecorElectrons_%SYS%'
-algSeq += selalg
-print( selalg ) # For debugging
-
-# Now make a view container holding only the electrons for the MET calculation
-viewalg = createAlgorithm( 'CP::AsgViewFromSelectionAlg','METEleViewAlg' )
-viewalg.selection = [ 'selectPtEta' ]
-viewalg.input = 'DecorElectrons_%SYS%'
-viewalg.output = 'METElectrons_%SYS%'
-algSeq += viewalg
-print( viewalg ) # For debugging
-
-# Include, and then set up the met analysis algorithm sequence:
-from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-metSequence = makeMetAnalysisSequence( dataType, metSuffix = jetContainer[:-4] )
-metSequence.configure( inputName = { 'jets'      : 'AnalysisJets_%SYS%',
-                                     'muons'     : 'Muons',
-                                     'electrons' : 'METElectrons_%SYS%' },
-                       outputName = 'AnalysisMET_%SYS%',
-                       affectingSystematics = { 'jets'      : jetSequence.affectingSystematics(),
-                                                'muons'     : '(^$)',
-                                                'electrons' : '(^$)' } )
-print( metSequence ) # For debugging
-
-# Add the sequence to the job:
-algSeq += metSequence
-
-# Write the freshly produced MET object(s) to an output file:
-ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
-ntupleMaker.TreeName = 'met'
-ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
-                         'EventInfo.eventNumber   -> eventNumber',
-                         'AnalysisMET_%SYS%.mpx   -> met_%SYS%_mpx',
-                         'AnalysisMET_%SYS%.mpy   -> met_%SYS%_mpy',
-                         'AnalysisMET_%SYS%.sumet -> met_%SYS%_sumet',
-                         'AnalysisMET_%SYS%.name  -> met_%SYS%_name', ]
-ntupleMaker.systematicsRegex = '.*'
-algSeq += ntupleMaker
+# Add all algorithms from the sequence to the job.
+athAlgSeq += algSeq
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "ANALYSIS DATAFILE='MetAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='MetAnalysisAlgorithmsTest." + dataType + ".hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:

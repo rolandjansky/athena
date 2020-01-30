@@ -42,6 +42,10 @@ namespace DerivationFramework{
           || (m_DSID>=410557 && m_DSID<=410559) // new Powheg+H7, mc16
           || (m_DSID>=411082 && m_DSID<=411090) //Powheg+H7 HF-filtered
           || (m_DSID>=407354 && m_DSID<=407356) //Powheg+H7 ttbar HT-filtered
+          || m_DSID ==411233 || m_DSID == 411234 //Powheg+H7.1.3 ttbar 
+          || (m_DSID>=411329 && m_DSID<=411334) //Powheg+H7.1.3 ttbar HF-filtered
+          || (m_DSID>=411335 && m_DSID<=411337) //Powheg+H7.1.3 ttbar HT-filtered
+          || m_DSID ==412116 || m_DSID == 412117 //amc@NLO+H7.1.3 ttbar 
           ){
       m_GenUsed=HerwigPP;
       if (m_DSID==410245){
@@ -66,7 +70,7 @@ namespace DerivationFramework{
           || (m_DSID>=412066 && m_DSID<=412074) //aMC@NLO+P8 HF-filtered
           || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
           || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
-          || (m_DSID>=411178 && m_DSID<=411180) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
+          || (m_DSID>=411178 && m_DSID<=411180) || (m_DSID==411275) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
           || (m_DSID>=407342 && m_DSID<=407344) //Powheg+P8 ttbar HT-filtered
           || (m_DSID>=407348 && m_DSID<=407350) //aMC@NLO+P8 ttbar HT-filtered
            ){
@@ -74,7 +78,7 @@ namespace DerivationFramework{
       if ( m_DSID==410244 //aMC@NLO+P8, ttbb (old)
           || (m_DSID>=411068 && m_DSID<=411070) //Powheg+P8 ttbb
           || (m_DSID>=410265 && m_DSID<=410267) //aMC@NLO+P8 ttbb
-          || (m_DSID>=411178 && m_DSID<=411180) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
+          || (m_DSID>=411178 && m_DSID<=411180) || (m_DSID==411275) //Powheg+P8 ttbb OTF production - ATLMCPROD-7240
       ){
         m_ttbb=true;
       }
@@ -88,14 +92,15 @@ namespace DerivationFramework{
           || (m_DSID>=410361 && m_DSID<=410367) //Sherpa 2.2.1 sys
           || (m_DSID>=410281 && m_DSID<=410283) //Sherpa BFilter
           || m_DSID==410051 //Sherpa ttbb (ICHEP sample)
-          || (m_DSID>=410323 && m_DSID<=410325) //New Sherpa ttbb
+          || (m_DSID>=410323 && m_DSID<=410325) || (m_DSID==410369) //New Sherpa 2.2.1 ttbb
           || (m_DSID>=364345 && m_DSID<=364348) //Sherpa 2.2.4 (test)
           || (m_DSID>=410424 && m_DSID<=410427) //Sherpa 2.2.4
           || (m_DSID>=410661 && m_DSID<=410664) //Sherpa 2.2.4 ttbb
+          || (m_DSID>=421152 && m_DSID<=421158) //Sherpa2.2.8 ttbar
            ){
       m_GenUsed=Sherpa;
       if( m_DSID==410051
-          || (m_DSID>=410323 && m_DSID<=410325)
+          || (m_DSID>=410323 && m_DSID<=410325) || (m_DSID==410369)
           || (m_DSID>=410661 && m_DSID<=410664)
         ){
         m_ttbb=true;

@@ -63,8 +63,6 @@ namespace InDet {
       const xAOD::TrackParticleContainer *IDParticles = nullptr;
       ATH_CHECK( evtStore()->retrieve( IDParticles , Track_IP ) );
       std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > IDParticles_shallowCopy = xAOD::shallowCopyContainer( *IDParticles );
-      xAOD::TrackParticleContainer::iterator itr = (IDParticles_shallowCopy.first)->begin();
-      xAOD::TrackParticleContainer::iterator end = (IDParticles_shallowCopy.first)->end();
       for( xAOD::TrackParticle* track : *IDParticles_shallowCopy.first ) {
           double d0_1=0.,d0_2=0.,z0_1=0.,z0_2=0.;
           d0_1=track->d0();

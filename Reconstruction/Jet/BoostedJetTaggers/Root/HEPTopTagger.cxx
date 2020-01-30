@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -542,7 +542,7 @@ namespace HTTxAOD {
           //catch exceptions as occasionally exclusive filtering fails and fastjet::Error is thrown in delete_self_when_unused()
           try {
             cssubtop->delete_self_when_unused(); // Because we'll need this sequence when dealing with subjets
-          } catch (fastjet::Error) {
+          } catch (const fastjet::Error&) {
             continue;
           }
           if (top_subs.size() < 3) {

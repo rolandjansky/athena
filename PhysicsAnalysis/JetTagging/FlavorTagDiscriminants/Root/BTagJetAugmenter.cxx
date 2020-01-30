@@ -11,86 +11,112 @@
 
 #include "TVector3.h"
 
-BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::EDMSchema s):
-  m_use_floats(false),
-  pt_uncalib("pt_uncalib"),
-  eta_uncalib("eta_uncalib"),
-  abs_eta_uncalib("abs_eta_uncalib"),
-  ip2d_weightBOfTracks("IP2D_weightBofTracks"),
-  ip2d_nTrks("IP2D_nTrks"),
-  ip2d_pu("IP2D_pu"),
-  ip2d_pc("IP2D_pc"),
-  ip2d_pb("IP2D_pb"),
-  ip2d_isDefaults("IP2D_isDefaults"),
-  ip2d_cu("IP2D_cu"),
-  ip2d_bu("IP2D_bu"),
-  ip2d_bc("IP2D_bc"),
-  ip3d_weightBOfTracks("IP3D_weightBofTracks"),
-  ip3d_nTrks("IP3D_nTrks"),
-  ip3d_pu("IP3D_pu"),
-  ip3d_pc("IP3D_pc"),
-  ip3d_pb("IP3D_pb"),
-  ip3d_isDefaults("IP3D_isDefaults"),
-  ip3d_cu("IP3D_cu"),
-  ip3d_bu("IP3D_bu"),
-  ip3d_bc("IP3D_bc"),
-  jf_deltaEta("JetFitter_deltaeta"),
-  jf_deltaPhi("JetFitter_deltaphi"),
-  jf_fittedPosition("JetFitter_fittedPosition"),
-  jf_vertices("JetFitter_JFvertices"),
-  jf_nVtx("JetFitter_nVTX"),
-  jf_nSingleTracks("JetFitter_nSingleTracks"),
-  jf_isDefaults("JetFitter_isDefaults"),
-  jf_deltaR("JetFitter_deltaR"),
-  sv1_vertices("SV1_vertices"),
-  sv1_nVtx("SV1_nVtx"),
-  sv1_isDefaults("SV1_isDefaults"),
+namespace {
+  // grab names based on configuration
+  std::string negString(FlavorTagDiscriminants::FlipTagConfig f) {
+    using namespace FlavorTagDiscriminants;
+    switch(f) {
+    case FlipTagConfig::STANDARD: return "";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
+    case FlipTagConfig::NEGATIVE_IP_ONLY: return "Neg";
+    default: throw std::logic_error("undefined flip config");
+    }
+  }
+  std::string flipString(FlavorTagDiscriminants::FlipTagConfig f) {
+    using namespace FlavorTagDiscriminants;
+    switch(f) {
+    case FlipTagConfig::STANDARD: return "";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
+    case FlipTagConfig::NEGATIVE_IP_ONLY: return "Flip";
+    default: throw std::logic_error("undefined flip config");
+    }
+  }
+
+  // the taggers
+  std::string ip2(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "IP2D" + negString(f);
+  }
+  std::string ip3(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "IP3D" + negString(f);
+  }
+  std::string rnn(FlavorTagDiscriminants::FlipTagConfig f) {
+    using namespace FlavorTagDiscriminants;
+    switch(f) {
+    case FlipTagConfig::STANDARD: return "rnnip";
+    case FlipTagConfig::FLIP_SIGN: // intentional fall-through
+    case FlipTagConfig::NEGATIVE_IP_ONLY: return "rnnipflip";
+    default: throw std::logic_error("undefined flip config");
+    }
+  }
+  std::string jf(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "JetFitter" + flipString(f);
+  }
+  std::string sv(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "SV1" + flipString(f);
+  }
+  std::string jfSvNew(FlavorTagDiscriminants::FlipTagConfig f) {
+    return "JetFitterSecondaryVertex" + flipString(f);
+  }
+
+}
+
+BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::FlipTagConfig f):
+  pt_uncalib("pt_btagJes"),
+  eta_uncalib("eta_btagJes"),
+  abs_eta_uncalib("absEta_btagJes"),
+  ip2d_weightBOfTracks(ip2(f) + "_weightBofTracks"),
+  ip2d_nTrks(ip2(f) + "_nTrks"),
+  ip2d_pu(ip2(f) + "_pu"),
+  ip2d_pc(ip2(f) + "_pc"),
+  ip2d_pb(ip2(f) + "_pb"),
+  ip2d_isDefaults(ip2(f) + "_isDefaults"),
+  ip2d_cu(ip2(f) + "_cu"),
+  ip2d_bu(ip2(f) + "_bu"),
+  ip2d_bc(ip2(f) + "_bc"),
+  ip3d_weightBOfTracks(ip3(f) + "_weightBofTracks"),
+  ip3d_nTrks(ip3(f) + "_nTrks"),
+  ip3d_pu(ip3(f) + "_pu"),
+  ip3d_pc(ip3(f) + "_pc"),
+  ip3d_pb(ip3(f) + "_pb"),
+  ip3d_isDefaults(ip3(f) + "_isDefaults"),
+  ip3d_cu(ip3(f) + "_cu"),
+  ip3d_bu(ip3(f) + "_bu"),
+  ip3d_bc(ip3(f) + "_bc"),
+  jf_deltaEta(jf(f) + "_deltaeta"),
+  jf_deltaPhi(jf(f) + "_deltaphi"),
+  jf_fittedPosition(jf(f) + "_fittedPosition"),
+  jf_vertices(jf(f) + "_JFvertices"),
+  jf_nVtx(jf(f) + "_nVTX"),
+  jf_nSingleTracks(jf(f) + "_nSingleTracks"),
+  jf_isDefaults(jf(f) + "_isDefaults"),
+  jf_deltaR(jf(f) + "_deltaR"),
+  sv1_vertices(sv(f) + "_vertices"),
+  sv1_nVtx(sv(f) + "_nVtx"),
+  sv1_isDefaults(sv(f) + "_isDefaults"),
   jet_track_links("BTagTrackToJetAssociator"),
-  secondaryVtx_isDefaults("secondaryVtx_isDefaults"),
-  secondaryVtx_nTrks("secondaryVtx_nTrks"),
-  secondaryVtx_m("secondaryVtx_m"),
-  secondaryVtx_E("secondaryVtx_E"),
-  secondaryVtx_EFrac("secondaryVtx_EFrac"),
-  secondaryVtx_L3d("secondaryVtx_L3d"),
-  secondaryVtx_Lxy("secondaryVtx_Lxy"),
-  secondaryVtx_min_trk_flightDirRelEta("secondaryVtx_min_trk_flightDirRelEta"),
-  secondaryVtx_max_trk_flightDirRelEta("secondaryVtx_max_trk_flightDirRelEta"),
-  secondaryVtx_avg_trk_flightDirRelEta("secondaryVtx_avg_trk_flightDirRelEta"),
-  min_trk_flightDirRelEta("min_trk_flightDirRelEta"),
-  max_trk_flightDirRelEta("max_trk_flightDirRelEta"),
-  avg_trk_flightDirRelEta("avg_trk_flightDirRelEta"),
+  secondaryVtx_isDefaults(jfSvNew(f) + "_isDefaults"),
+  secondaryVtx_nTrks(jfSvNew(f) + "_nTracks"),
+  secondaryVtx_m(jfSvNew(f) + "_mass"),
+  secondaryVtx_E(jfSvNew(f) + "_energy"),
+  secondaryVtx_EFrac(jfSvNew(f) + "_energyFraction"),
+  secondaryVtx_L3d(jfSvNew(f) + "_displacement3d"),
+  secondaryVtx_Lxy(jfSvNew(f) + "_displacement2d"),
+  secondaryVtx_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumTrackRelativeEta"),
+  secondaryVtx_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumTrackRelativeEta"),
+  secondaryVtx_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageTrackRelativeEta"),
+  min_trk_flightDirRelEta("minimumTrackRelativeEta" + flipString(f)),
+  max_trk_flightDirRelEta("maximumTrackRelativeEta" + flipString(f)),
+  avg_trk_flightDirRelEta("averageTrackRelativeEta" + flipString(f)),
   smt_mu_pt("SMT_mu_pt"),
   smt_isDefaults("SMT_isDefaults"),
-  rnnip_pbIsValid("rnnip_pbIsValid"),
-  rnnip_isDefaults("rnnip_isDefaults"),
-  new_secondaryVtx_m("JetFitterSecondaryVertex_mass"),
-  new_secondaryVtx_E("JetFitterSecondaryVertex_energy"),
-  new_secondaryVtx_EFrac("JetFitterSecondaryVertex_energyFraction"),
-  new_secondaryVtx_min_trk_flightDirRelEta("JetFitterSecondaryVertex_minimumTrackRelativeEta"),
-  new_secondaryVtx_max_trk_flightDirRelEta("JetFitterSecondaryVertex_maximumTrackRelativeEta"),
-  new_secondaryVtx_avg_trk_flightDirRelEta("JetFitterSecondaryVertex_averageTrackRelativeEta"),
-  new_min_trk_flightDirRelEta("minimumTrackRelativeEta"),
-  new_max_trk_flightDirRelEta("maximumTrackRelativeEta"),
-  new_avg_trk_flightDirRelEta("averageTrackRelativeEta")
+  rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
+  rnnip_isDefaults(rnn(f) + "_isDefaults")
 {
   using namespace FlavorTagDiscriminants;
-  typedef SG::AuxElement::ConstAccessor<float> AEF;
-  typedef SG::AuxElement::ConstAccessor<double> AED;
   typedef SG::AuxElement::Decorator<float> ADF;
   typedef SG::AuxElement::Decorator<double> ADD;
   typedef SG::AuxElement::Decorator<char> ADC;
   typedef SG::AuxElement::Decorator<int> ADI;
-  if (s != EDMSchema::WINTER_2018) {
-    pt_uncalib = ADD("pt_btagJes");
-    eta_uncalib = ADD("eta_btagJes");
-    abs_eta_uncalib = ADD("absEta_btagJes");
-    secondaryVtx_isDefaults = ADC("JetFitterSecondaryVertex_isDefaults");
-    secondaryVtx_nTrks = ADI("JetFitterSecondaryVertex_nTracks");
-    secondaryVtx_L3d = ADF("JetFitterSecondaryVertex_displacement3d");
-    secondaryVtx_Lxy = ADF("JetFitterSecondaryVertex_displacement2d");
-    m_use_floats = true;
-  }
-
 }
 
 BTagJetAugmenter::~BTagJetAugmenter() = default;
@@ -98,18 +124,49 @@ BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging& btag = *jet.btagging();
-
-  pt_uncalib(btag) = uncalibrated_jet.pt();
-  eta_uncalib(btag) = uncalibrated_jet.eta();
-  abs_eta_uncalib(btag) = std::abs(uncalibrated_jet.eta());
+  augmentBtagJes(jet, uncalibrated_jet);
 
   // pass off to calibrated jet function
   augment(jet);
 }
 
+void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) {
+  if (jfIsDefaults(btag)) {
+    jf_deltaR(btag) = NAN;
+  } else {
+    jf_deltaR(btag) = std::hypot(jf_deltaEta(btag), jf_deltaPhi(btag));
+  }
+}
+void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
+
+  // Note that both numerator and denominator =0 give FPE divide by zero errors, one for
+  // obvious reasosns, and the other within the log function itself because of log(0)
+  ip2d_cu(btag) = (ip2d_pc(btag)!=0. && ip2d_pu(btag)!=0.)?std::log(ip2d_pc(btag) / ip2d_pu(btag)):NAN;
+  ip2d_bu(btag) = (ip2d_pb(btag)!=0. && ip2d_pu(btag)!=0.)?std::log(ip2d_pb(btag) / ip2d_pu(btag)):NAN;
+  ip2d_bc(btag) = (ip2d_pb(btag)!=0. && ip2d_pc(btag)!=0.)?std::log(ip2d_pb(btag) / ip2d_pc(btag)):NAN;
+
+  ip3d_cu(btag) = (ip3d_pc(btag)!=0. && ip3d_pu(btag)!=0.)?std::log(ip3d_pc(btag) / ip3d_pu(btag)):NAN;
+  ip3d_bu(btag) = (ip3d_pb(btag)!=0. && ip3d_pu(btag)!=0.)?std::log(ip3d_pb(btag) / ip3d_pu(btag)):NAN;
+  ip3d_bc(btag) = (ip3d_pb(btag)!=0. && ip3d_pc(btag)!=0.)?std::log(ip3d_pb(btag) / ip3d_pc(btag)):NAN;
+
+}
+void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
+                                      const xAOD::Jet &uncalib) {
+
+  const xAOD::BTagging* btag_ptr = target.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
+
+  pt_uncalib(btag) = uncalib.pt();
+  eta_uncalib(btag) = uncalib.eta();
+  abs_eta_uncalib(btag) = std::abs(uncalib.eta());
+
+}
+
 void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
-  const xAOD::BTagging& btag = *jet.btagging();
+  const xAOD::BTagging* btag_ptr = jet.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
 
   if (ip2d_weightBOfTracks(btag).size() > 0) {
     ip2d_isDefaults(btag) = 0;
@@ -118,29 +175,17 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   }
   ip2d_nTrks(btag) = ip2d_weightBOfTracks(btag).size();
 
-  ip2d_cu(btag) = std::log(ip2d_pc(btag) / ip2d_pu(btag));
-  ip2d_bu(btag) = std::log(ip2d_pb(btag) / ip2d_pu(btag));
-  ip2d_bc(btag) = std::log(ip2d_pb(btag) / ip2d_pc(btag));
-
   if (ip3d_weightBOfTracks(btag).size() > 0) {
     ip3d_isDefaults(btag) = 0;
   } else {
     ip3d_isDefaults(btag) = 1;
   }
 
-  ip3d_cu(btag) = std::log(ip3d_pc(btag) / ip3d_pu(btag));
-  ip3d_bu(btag) = std::log(ip3d_pb(btag) / ip3d_pu(btag));
-  ip3d_bc(btag) = std::log(ip3d_pb(btag) / ip3d_pc(btag));
   ip3d_nTrks(btag) = ip3d_weightBOfTracks(btag).size();
+  augmentIpRatios(btag);
 
-  if (jf_vertices(btag).size() > 0 && (jf_nVtx(btag) > 0 || jf_nSingleTracks(btag) > 0)) {
-    jf_isDefaults(btag) = 0;
-    jf_deltaR(btag) = std::hypot(jf_deltaEta(btag), jf_deltaPhi(btag));
-  } else {
-    jf_isDefaults(btag) = 1;
-    jf_deltaR(btag) = NAN;
-  }
-
+  jf_isDefaults(btag) = jfIsDefaults(btag);
+  augmentJfDr(btag);
 
   if (sv1_vertices(btag).size() > 0) {
     sv1_isDefaults(btag) = 0;
@@ -200,8 +245,11 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
 
     uint8_t n_pixel_hits;
     uint8_t n_sct_hits;
-    track_particle.summaryValue(n_pixel_hits, xAOD::numberOfPixelHits);
-    track_particle.summaryValue(n_sct_hits, xAOD::numberOfSCTHits);
+    bool rc = true;
+    rc &= track_particle.summaryValue(n_pixel_hits, xAOD::numberOfPixelHits);
+    rc &= track_particle.summaryValue(n_sct_hits, xAOD::numberOfSCTHits);
+    if (!rc) throw std::runtime_error(
+      "track summary values are missing, can't compute b-tagging variables");
     if (n_pixel_hits + n_sct_hits < 2) continue;
 
     track_number++;
@@ -255,53 +303,37 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
       E = secondaryVtx_4momentum_total.E();
       EFrac = secondaryVtx_4momentum_total.E() / track_E_total;
     }
-    if (m_use_floats) {
-      new_secondaryVtx_m(btag) = m;
-      new_secondaryVtx_E(btag) = E;
-      new_secondaryVtx_EFrac(btag) = EFrac;
-    } else {
-      secondaryVtx_m(btag) = m;
-      secondaryVtx_E(btag) = E;
-      secondaryVtx_EFrac(btag) = EFrac;
-    }
+    secondaryVtx_m(btag) = m;
+    secondaryVtx_E(btag) = E;
+    secondaryVtx_EFrac(btag) = EFrac;
   }
   {
     double min = secondaryVtx_min_track_flightDirRelEta;
     double max = secondaryVtx_max_track_flightDirRelEta;
-    double avg = secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number;
-    if (m_use_floats) {
-      new_secondaryVtx_min_trk_flightDirRelEta(btag) = min;
-      new_secondaryVtx_max_trk_flightDirRelEta(btag) = max;
-      new_secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
-    } else {
-      secondaryVtx_min_trk_flightDirRelEta(btag) = min;
-      secondaryVtx_max_trk_flightDirRelEta(btag) = max;
-      secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
-    }
+    double avg = secondaryVtx_track_number>0?secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number:NAN;
+    secondaryVtx_min_trk_flightDirRelEta(btag) = min;
+    secondaryVtx_max_trk_flightDirRelEta(btag) = max;
+    secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
   }
   {
     double min = min_track_flightDirRelEta;
     double max = max_track_flightDirRelEta;
-    double avg = track_flightDirRelEta_total / track_number;
-    if (m_use_floats) {
-      new_min_trk_flightDirRelEta(btag) = min;
-      new_max_trk_flightDirRelEta(btag) = max;
-      new_avg_trk_flightDirRelEta(btag) = avg;
-    } else {
-      min_trk_flightDirRelEta(btag) = min;
-      max_trk_flightDirRelEta(btag) = max;
-      avg_trk_flightDirRelEta(btag) = avg;
-    }
+    double avg = track_number>0?track_flightDirRelEta_total / track_number:NAN;
+    min_trk_flightDirRelEta(btag) = min;
+    max_trk_flightDirRelEta(btag) = max;
+    avg_trk_flightDirRelEta(btag) = avg;
   }
+
   if (smt_mu_pt(btag) > 0) {
     smt_isDefaults(btag) = 0;
   }  else {
     smt_isDefaults(btag) = 1;
   }
+  rnnip_isDefaults(btag) = 0;
 
-  if (! rnnip_pbIsValid(btag)) {
-    rnnip_isDefaults(btag) = 1;
-  }  else {
-    rnnip_isDefaults(btag) = 0;
-  }
+}
+
+
+bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) {
+  return !(jf_vertices(btag).size() > 0 && (jf_nVtx(btag) > 0 || jf_nSingleTracks(btag) > 0));
 }

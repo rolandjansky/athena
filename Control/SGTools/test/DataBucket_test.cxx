@@ -334,7 +334,7 @@ int main () {
               << "----Error Message Starts--->>" << std::endl; 
     const WrongType& rWr = SG::Storable_cast<WrongType>(rGRes, VERBOSE);
     pWrong=const_cast<WrongType*>(&rWr); //remove warning
-  } catch (bad_Storable_cast ) {
+  } catch (bad_Storable_cast& ) {
     std::cerr << "<<---Error Message Ends-------" << std::endl;
   }
 

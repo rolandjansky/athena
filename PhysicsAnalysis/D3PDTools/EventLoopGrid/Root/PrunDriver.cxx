@@ -1,11 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Alexander Madsen
+/// @author Nils Krumnack
+
+
 
 #include <EventLoopGrid/PrunDriver.h>
 #include <EventLoopGrid/GridDriver.h>
 #include <EventLoop/Algorithm.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <PathResolver/PathResolver.h>
 #include <RootCoreUtils/Assert.h>
@@ -130,14 +138,10 @@ static SH::MetaObject defaultOpts()
   o.setString("nc_nGBPerJob", "MAX");
   o.setString("nc_mergeOutput", "true");
   o.setString("nc_rootVer", gROOT->GetVersion());
-#ifdef USE_CMAKE
   o.setString("nc_cmtConfig", gSystem->ExpandPathName("$AnalysisBase_PLATFORM"));
   o.setString("nc_useAthenaPackages", "true");
-#endif
-#ifndef USE_CMAKE
-  o.setString("nc_cmtConfig", EL::getRootCoreConfig());
-  o.setString("nc_useRootCore", "true");
-#endif
+  const std::string mergestr = "elg_merge jobdef.root %OUT %IN";
+  o.setString("nc_mergeScript", mergestr);
   return o;
 } 
 
@@ -473,72 +477,86 @@ EL::PrunDriver::PrunDriver()
   RCU_NEW_INVARIANT(this);
 }
 
-void EL::PrunDriver::doSubmit(const EL::Job& job,  
-			      const std::string& location) const 
+::StatusCode EL::PrunDriver ::
+doManagerStep (Detail::ManagerData& data) const
 {
-  RCU_READ_INVARIANT(this);
-  RCU_REQUIRE(not location.empty());
+  using namespace msgEventLoop;
+  ANA_CHECK (Driver::doManagerStep (data));
+  switch (data.step)
+  {
+  case Detail::ManagerStep::submitJob:
+    {
+      const std::string jobELGDir = data.submitDir + "/elg";
+      const std::string runShFile = jobELGDir + "/runjob.sh";
+      //const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
+      const std::string mergeShFile = jobELGDir + "/elg_merge";
+      //const std::string mergeShOrig = 
+      //  "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge";
+      const std::string runShOrig = PathResolverFindCalibFile("EventLoopGrid/runjob.sh");
+      const std::string mergeShOrig = PathResolverFindCalibFile("EventLoopGrid/elg_merge");
+      const std::string jobDefFile = jobELGDir + "/jobdef.root";
+      gSystem->Exec(Form("mkdir -p %s", jobELGDir.c_str()));
+      gSystem->Exec(Form("cp %s %s", runShOrig.c_str(), runShFile.c_str()));
+      gSystem->Exec(Form("chmod +x %s", runShFile.c_str()));
+      gSystem->Exec(Form("cp %s %s", mergeShOrig.c_str(), mergeShFile.c_str()));
+      gSystem->Exec(Form("chmod +x %s", mergeShFile.c_str()));
 
-  const std::string jobELGDir = location + "/elg";
-  const std::string runShFile = jobELGDir + "/runjob.sh";
-  //const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
-  const std::string mergeShFile = jobELGDir + "/elg_merge";
-  //const std::string mergeShOrig = 
-  //  "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge";
-  const std::string runShOrig = PathResolverFindCalibFile("EventLoopGrid/runjob.sh");
-  const std::string mergeShOrig = PathResolverFindCalibFile("EventLoopGrid/elg_merge");
-  const std::string jobDefFile = jobELGDir + "/jobdef.root";
-  gSystem->Exec(Form("mkdir -p %s", jobELGDir.c_str()));
-  gSystem->Exec(Form("cp %s %s", runShOrig.c_str(), runShFile.c_str()));
-  gSystem->Exec(Form("chmod +x %s", runShFile.c_str()));
-  gSystem->Exec(Form("cp %s %s", mergeShOrig.c_str(), mergeShFile.c_str()));
-  gSystem->Exec(Form("chmod +x %s", mergeShFile.c_str()));
+      const SH::SampleHandler& sh = data.job->sampleHandler();
 
-  const SH::SampleHandler& sh = job.sampleHandler();
+      for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
+        SH::MetaObject& meta = *(*s)->meta();
+        meta.fetchDefaults(data.options);
+        meta.fetchDefaults(defaultOpts());
+        meta.setString("nc_outputs", outputFileNames(*data.job));
+        std::string outputSampleName = meta.castString("nc_outputSampleName");
+        if (outputSampleName.empty()) {
+          outputSampleName = "user.%nickname%.%in:name%";
+        }
+        meta.setString("nc_outDS", formatOutputName(meta, outputSampleName));
+        meta.setString("nc_inDS", meta.castString("nc_grid", (*s)->name()));
+        meta.setString("nc_writeInputToTxt", "IN:input.txt");
+        meta.setString("nc_match", meta.castString("nc_grid_filter"));
+        const std::string execstr = "runjob.sh " + (*s)->name();
+        meta.setString("nc_exec", execstr);
+      }
 
-  for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
-    SH::MetaObject& meta = *(*s)->meta();
-    meta.fetchDefaults(*job.options());
-    meta.fetchDefaults(*options());
-    meta.fetchDefaults(defaultOpts());
-    meta.setString("nc_outputs", outputFileNames(job));
-    std::string outputSampleName = meta.castString("nc_outputSampleName");
-    if (outputSampleName.empty()) {
-      outputSampleName = "user.%nickname%.%in:name%";
-    }
-    meta.setString("nc_outDS", formatOutputName(meta, outputSampleName));
-    meta.setString("nc_inDS", meta.castString("nc_grid", (*s)->name()));
-    meta.setString("nc_writeInputToTxt", "IN:input.txt");
-    meta.setString("nc_match", meta.castString("nc_grid_filter"));
-    const std::string execstr = "runjob.sh " + (*s)->name();
-    meta.setString("nc_exec", execstr);
-    const std::string mergestr = "elg_merge jobdef.root %OUT %IN"; 
-    meta.setString("nc_mergeScript", mergestr);
-  }
-
-  saveJobDef(jobDefFile, job, sh);
+      saveJobDef(jobDefFile, *data.job, sh);
   
-  for (EL::Job::outputIter out = job.outputBegin();
-       out != job.outputEnd(); ++out) {
-    SH::SampleHandler shOut = outputSH(sh, out->label());
-    shOut.save(location + "/output-" + out->label());
-  }
-  SH::SampleHandler shHist = outputSH(sh, "hist-output");
-  shHist.save(location + "/output-hist");
+      for (EL::Job::outputIter out = data.job->outputBegin();
+           out != data.job->outputEnd(); ++out) {
+        SH::SampleHandler shOut = outputSH(sh, out->label());
+        shOut.save(data.submitDir + "/output-" + out->label());
+      }
+      SH::SampleHandler shHist = outputSH(sh, "hist-output");
+      shHist.save(data.submitDir + "/output-hist");
  
-  TmpCd keepDir(jobELGDir);
+      TmpCd keepDir(jobELGDir);
 
-  processAllInState(sh, JobState::INIT, 0); 
+      processAllInState(sh, JobState::INIT, 0); 
 
-  sh.save(location + "/input");
+      sh.save(data.submitDir + "/input");
+      data.submitted = true;
+    }
+    break;
+
+  case Detail::ManagerStep::doRetrieve:
+    {
+      ANA_CHECK (doRetrieve (data));
+    }
+    break;
+
+  default:
+    (void) true; // safe to do nothing
+  }
+  return ::StatusCode::SUCCESS;
 }
 
-bool EL::PrunDriver::doRetrieve(const std::string& location) const 
+::StatusCode EL::PrunDriver::doRetrieve (Detail::ManagerData& data) const 
 {
   RCU_READ_INVARIANT(this);
   RCU_REQUIRE(not location.empty());  
 
-  TmpCd tmpDir(location);
+  TmpCd tmpDir(data.submitDir);
 
   SH::SampleHandler sh;
   sh.load("input");
@@ -583,7 +601,9 @@ bool EL::PrunDriver::doRetrieve(const std::string& location) const
 
   std::cout << std::endl;
   
-  return (allDone);
+  data.retrieved = true;
+  data.completed = allDone;
+  return ::StatusCode::SUCCESS;
 }
  
 void EL::PrunDriver::status(const std::string& location)

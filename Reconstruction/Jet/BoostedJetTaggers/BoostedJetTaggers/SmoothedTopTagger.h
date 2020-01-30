@@ -31,7 +31,7 @@ class SmoothedTopTagger : public JSSTaggerBase {
   ~SmoothedTopTagger();
 
   // implement IJSSTagger interface. Returns true if all cuts pass
-  virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
 
   // Run once at the start of the job to setup everything
   StatusCode initialize();

@@ -9,6 +9,7 @@
 + Control/AthLinksSA
 + Control/AthToolSupport/.*
 + Control/CxxUtils
++ Control/xAODDataSource
 + Control/xAODRootAccess.*
 + DataQuality/GoodRunsLists
 + DetectorDescription/GeoPrimitives
@@ -32,6 +33,7 @@
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
++ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/AnalysisCommon/PATCore
@@ -43,8 +45,10 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/GammaORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
@@ -101,4 +105,28 @@
 + Trigger/TriggerSimulation/TrigBtagEmulationTool
 + Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/RecoToolInterfaces
+
+
+
+#
+# Packages to build as part of AnalysisTop:
+#
+
++ PhysicsAnalysis/UpgradePhys/SmearingFunctions/UpgradePerformanceFunctions
++ PhysicsAnalysis/TopPhys/TopPhysUtils/TopDataPreparation
++ PhysicsAnalysis/TopPhys/xAOD/TopAnalysis
++ PhysicsAnalysis/TopPhys/xAOD/TopCPTools
++ PhysicsAnalysis/TopPhys/xAOD/TopConfiguration
++ PhysicsAnalysis/TopPhys/xAOD/TopCorrections
++ PhysicsAnalysis/TopPhys/xAOD/TopEvent
++ PhysicsAnalysis/TopPhys/xAOD/TopEventReconstructionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopEventSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopExamples
++ PhysicsAnalysis/TopPhys/xAOD/TopHLUpgrade
++ PhysicsAnalysis/TopPhys/xAOD/TopJetSubstructure
++ PhysicsAnalysis/TopPhys/xAOD/TopObjectSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopParticleLevel
++ PhysicsAnalysis/TopPhys/xAOD/TopPartons
++ PhysicsAnalysis/TopPhys/xAOD/TopSystematicObjectMaker
+
 - .*

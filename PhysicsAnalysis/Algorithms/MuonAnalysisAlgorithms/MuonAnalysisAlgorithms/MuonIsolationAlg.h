@@ -62,6 +62,10 @@ namespace CP
     /// \brief the accessor for \ref m_isolationDecoration
   private:
     std::unique_ptr<ISelectionAccessor> m_isolationAccessor;
+
+    /// \brief the bits to set for an object failing the preselection
+  private:
+    SelectionType m_setOnFail;
   };
 }
 

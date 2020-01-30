@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetCommon.py
@@ -47,7 +47,8 @@ else:
         if not batmanaugtool in batmanaug.AugmentationTools:
             batmanaug.AugmentationTools.append(batmanaugtool)
     else:
-        dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
+        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
 
 ######################
 
@@ -56,7 +57,7 @@ else:
 ##################################################################
 
 def defineEDAlg(R=0.4, inputtype="LCTopo"):
-    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
 
     from JetRec.JetRecStandard import jtm
@@ -64,14 +65,18 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
     # map a getter to the input argument
     inputgetter = { "LCTopo" : jtm.lcget,
                     "EMTopo" : jtm.emget,
+                    "LCTopoOrigin" : jtm.lcoriginget,
+                    "EMTopoOrigin" : jtm.emoriginget,
                     "EMPFlow": jtm.empflowget,
-                    "EMCPFlow": jtm.emcpflowget,
+                    "EMPFlowPUSB": jtm.empflowpusbget,
+                    "EMPFlowNeut": jtm.empflowneutget,
+                    "PFlowCustomVtx": jtm.pflowcustomvtxget,
                     }[inputtype]
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype, inputgetter, R)
     t.OutputLevel = 3
     ToolSvc += t
-    return EventDensityAlg( "EventDensityAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
+    return EventDensityAthAlg( "EventDensityAthAlg"+t.name(), EventDensityTool = t , OutputLevel=3)
 
 ##################################################################
 
@@ -175,7 +180,7 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
     # map the input to the jtm code for PseudoJetGetter
     getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow',             EMCPFlow = 'emcpflow', 
                       Truth='truth',     TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', TruthCharged='truthcharged', 
-                      PV0Track='pv0track', TrackCaloCluster='tcc')
+                      PV0Track='pv0track', TrackCaloCluster='tcc', UFOCSSK='csskufo')
 
     getters = getterMap[inputtype]
 
@@ -365,11 +370,53 @@ def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
 
 
 ##################################################################
+def addRecursiveSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, N=-1, mods="groomed",
+                    includePreTools=False, algseq=None, outputGroup="SoftDrop",
+                    writeUngroomed=False, constmods=[]):
+    inputname = inputtype + "".join(constmods)
+    if N >= 0:
+      softDropName = "{0}{1}{2}RecursiveSoftDropBeta{3}Zcut{4}N{5}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100), int(N))
+    if N < 0:
+      softDropName = "{0}{1}{2}RecursiveSoftDropBeta{3}Zcut{4}NinfJets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100))
+
+    # a function dedicated to build SoftDrop jet:
+    def recursiveSoftDropToolBuilder( name, inputJetCont):
+        from JetRec.JetRecStandard import jtm
+        if name in jtm.tools: return jtm.tools[name]
+        else: return jtm.addJetRecursiveSoftDrop( name, beta=beta, zcut=zcut, N=N, r0=rsize, input=inputJetCont, modifiersin=mods )
+
+    dfjetlog.info( "Configuring soft drop jets :  "+softDropName )
+    #pass the softDropName and our specific soft drop tool to the generic function:
+    return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, recursiveSoftDropToolBuilder,
+                                includePreTools, algseq, outputGroup,
+                                writeUngroomed=writeUngroomed, constmods=constmods)
+
+##################################################################
+def addBottomUpSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
+                    includePreTools=False, algseq=None, outputGroup="SoftDrop",
+                    writeUngroomed=False, constmods=[]):
+    inputname = inputtype + "".join(constmods)
+    softDropName = "{0}{1}{2}BottomUpSoftDropBeta{3}Zcut{4}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100))
+
+    # a function dedicated to build SoftDrop jet:
+    def bottomUpSoftDropToolBuilder( name, inputJetCont):
+        from JetRec.JetRecStandard import jtm
+        if name in jtm.tools: return jtm.tools[name]
+        else: return jtm.addJetBottomUpSoftDrop( name, beta=beta, zcut=zcut, r0=rsize, input=inputJetCont, modifiersin=mods )
+
+    dfjetlog.info( "Configuring soft drop jets :  "+softDropName )
+    #pass the softDropName and our specific soft drop tool to the generic function:
+    return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, bottomUpSoftDropToolBuilder,
+                                includePreTools, algseq, outputGroup,
+                                writeUngroomed=writeUngroomed, constmods=constmods)
+
+
+##################################################################
 
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, namesuffix="",
-                    outputGroup="CustomJets", customGetters=None, pretools = []):
+                    outputGroup="CustomJets", customGetters=None, pretools = [], constmods = []):
     jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
@@ -399,10 +446,13 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                        "LCTopo":"lctopo_ungroomed",
                        "EMPFlow":"pflow_ungroomed",
                        "EMCPFlow":"pflow_ungroomed",
+                       "PFlowCustomVtx":"pflow_ungroomed",
                        "Truth":"truth_ungroomed",
                        "TruthWZ":"truth_ungroomed",
                        "PV0Track":"track_ungroomed",
                        "TrackCaloCluster":"tcc_ungroomed",
+                       "UFOCSSK":"tcc_ungroomed",
+                       "UFOCHS":"tcc_ungroomed",
                        }
         if mods=="default":
             mods = defaultmods[inputtype] if inputtype in defaultmods else []
@@ -418,7 +468,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         # map the input to the jtm code for PseudoJetGetter
         getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged', 
-                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc' )
+                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFOCSSK = 'csskufo', UFOCHS = 'chsufo' )
 
         # set input pseudojet getter -- allows for custom getters
         if customGetters is None:
@@ -427,7 +477,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             inGetter = customGetters
 
         # create the finder for the temporary collection
-        finderTool = jtm.addJetFinder(jetname, jetalg, rsize, inGetter,
+        finderTool = jtm.addJetFinder(jetname, jetalg, rsize, inGetter, constmods=constmods,
                                       **finderArgs   # pass the prepared arguments
                                       )
 
@@ -463,6 +513,40 @@ def addBadBatmanFlag(sequence=DerivationFrameworkJob):
             batmanaug.AugmentationTools.append(batmanaugtool)
 
 ##################################################################
+# Schedule the adding of BCID info
+##################################################################
+def addDistanceInTrain(sequence=DerivationFrameworkJob):
+    # simple set up -- either the alg exists and contains the tool, in which case we exit
+    if hasattr(sequence,"DistanceInTrainAugmentation"):
+        dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
+        return
+    else:
+        isMC = False
+        if globalflags.DataSource() == 'geant4':
+          isMC = True
+
+        distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")
+        sequence += distanceintrainaug
+
+        distanceintrainaugtool = None
+        from AthenaCommon.AppMgr import ToolSvc        
+        # create and add the tool to the alg if needed
+        if hasattr(ToolSvc,"DistanceInTrainAugmentationTool"):
+            distanceintrainaugtool = getattr(ToolSvc,"DistanceInTrainAugmentationTool")
+        else:
+            distanceintrainaugtool = CfgMgr.DerivationFramework__DistanceInTrainAugmentationTool("DistanceInTrainAugmentationTool")
+            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+            if isMC:
+                ToolSvc += BunchCrossingTool( "MC" )
+                distanceintrainaugtool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
+            else:
+                ToolSvc += BunchCrossingTool( "LHC" )
+                distanceintrainaugtool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
+            ToolSvc += distanceintrainaugtool
+        if not distanceintrainaugtool in distanceintrainaug.AugmentationTools:
+            distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
+
+##################################################################
 
 ##################################################################
 #       Set up helpers for adding jets to the output streams
@@ -486,6 +570,7 @@ OutputJets["SmallR"] = [
 OutputJets["LargeR"] = [
     "AntiKt10LCTopoJets",
     "AntiKt10TrackCaloClusterJets",
+    "AntiKt10UFOCSSKJets",
     "AntiKt10TruthJets",
     "AntiKt10TruthWZJets",
     ]

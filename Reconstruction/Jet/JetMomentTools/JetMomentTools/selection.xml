@@ -5,6 +5,8 @@
 <class name="JetConstitFourMomTool"/>
 <class name="JetECPSFractionTool"/>
 <class name="JetForwardJvtTool"/>
+<class name="JetForwardJvtToolBDT"/>
+<class name="JetForwardPFlowJvtTool"/>
 <class name="JetIsolationTool"/>
 <class name="JetLArHVTool"/>
 <class name="JetMuonSegmentMomentsTool"/>

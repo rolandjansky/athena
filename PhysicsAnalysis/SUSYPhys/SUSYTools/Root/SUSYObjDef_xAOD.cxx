@@ -26,6 +26,7 @@
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
@@ -66,6 +67,9 @@
 #include "PATInterfaces/IWeightTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
+#include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
+
 
 // For reading metadata
 #include "xAODMetaData/FileMetaData.h"
@@ -93,14 +97,19 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noMuId(false),
     m_doTTVAsf(true),
     m_doModifiedEleId(false),
+    m_upstreamTriggerMatching(false),
     m_useBtagging(false),
     m_debug(false),
     m_strictConfigCheck(false),
     m_badJetCut(""),
     m_fatJetUncConfig(""),
     m_fatJetUncVars(""),
+    m_TCCJetUncConfig(""),
     m_WtagConfig(""),
     m_ZtagConfig(""),
+    m_WZTaggerCalibArea(""),
+    m_ToptagConfig(""),
+    m_TopTaggerCalibArea(""),
     m_tool_init(false),
     m_subtool_init(false),
     // set dummies for configuration
@@ -109,6 +118,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauTerm(""),
     m_jetTerm(""),
     m_muonTerm(""),
+    m_inputMETSuffix(""),
     m_outMETTerm(""),
     m_metRemoveOverlappingCaloTaggedMuons(true),
     m_metDoSetMuonJetEMScale(true),
@@ -125,6 +135,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doPhiReso(true),
     m_autoconfigPRW(false),
     m_autoconfigPRWPath(""),
+    m_autoconfigPRWFile(""),
     m_autoconfigPRWCombinedmode(false),
     m_autoconfigPRWRPVmode(false),
     m_autoconfigPRWHFFilter(""),
@@ -151,6 +162,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleIsoHighPt_WP(""),
     m_eleIsoHighPtThresh(-99.),
     m_eleChID_WP(""),
+    m_eleChIso(true),
     m_runECIS(false),
     m_photonBaselineIso_WP(""),
     m_photonIso_WP(""),
@@ -161,9 +173,12 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muIsoHighPtThresh(-99.),
     m_BtagWP(""),
     m_BtagTagger(""),
+    m_BtagTimeStamp(""),
+    m_BtagKeyOverride(""),
     m_BtagSystStrategy(""),
     m_BtagWP_trkJet(""),
     m_BtagTagger_trkJet(""),
+    m_BtagTimeStamp_trkJet(""),
     m_BtagMinPt_trkJet(-99.),
     //configurable cuts here
     m_eleBaselinePt(-99.),
@@ -184,7 +199,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_mud0sig(-99.),
     m_muz0(-99.),
     m_mubaselined0sig(-99.),
-    m_mubaselinez0(-99),
+    m_mubaselinez0(-99.),
     m_murequirepassedHighPtCuts(false),
     m_muCosmicz0(-99.),
     m_muCosmicd0(-99.),
@@ -216,12 +231,14 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doFwdJVT(false),
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
-    m_fwdjetTightOp(false),
-    m_JMScalib(""),
+    m_fwdjetOp(""),
+    m_JMScalib(false),
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
     m_orDoEleJet(true),
+    m_orDoElEl(false),
+    m_orDoElMu(false),
     m_orDoMuonJet(true),
     m_orDoBjet(false),
     m_orDoElBjet(true),
@@ -258,6 +275,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
     m_metJetSelection(""),
     m_fatJets(""),
+    m_TCCJets(""),
     //
     m_currentSyst(),
     m_EG_corrModel(""),
@@ -268,6 +286,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFatCalibTool(""),
     m_jetUncertaintiesTool(""),
     m_fatjetUncertaintiesTool(""),
+    m_TCCjetUncertaintiesTool(""),
     m_jetCleaningTool(""),
     m_jetJvtUpdateTool(""),
     m_jetFwdJvtTool(""),
@@ -276,6 +295,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_WTaggerTool(""),
     m_ZTaggerTool(""),
+    m_TopTaggerTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -381,6 +401,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoTauOR",       m_orDoTau );
   declareProperty( "DoPhotonOR",    m_orDoPhoton );
   declareProperty( "DoEleJetOR",    m_orDoEleJet );
+  declareProperty( "DoElElOR",    m_orDoElEl );
+  declareProperty( "DoElMuOR",    m_orDoElMu );
   declareProperty( "DoMuonJetOR",   m_orDoMuonJet );
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
@@ -408,7 +430,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
   declareProperty( "ORJetFatJetDR", m_JetFatJetDR);
-
+  declareProperty( "TriggerUpstreamMatching", m_upstreamTriggerMatching, "Use alternative trigger matching tool based on upstream (in-derivation) matching");
 
   //--- Object definitions
   //MET
@@ -417,6 +439,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METTauTerm",     m_tauTerm   );
   declareProperty( "METJetTerm",     m_jetTerm   );
   declareProperty( "METMuonTerm",    m_muonTerm  );
+  declareProperty( "METInputSuffix", m_inputMETSuffix );
   declareProperty( "METOutputTerm",  m_outMETTerm );
   declareProperty( "METDoTrkSyst",   m_trkMETsyst  );
   declareProperty( "METDoCaloSyst",  m_caloMETsyst );
@@ -441,19 +464,21 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "JetInputType",  m_jetInputType );
 
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
-  declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
   declareProperty( "JetLargeRcollection",  m_fatJets );
+  declareProperty( "JetTCCcollection",  m_TCCJets );
 
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger);
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
+  declareProperty( "BtagTimeStamp", m_BtagTimeStamp); /// Time stamp of the b-tagging containers introduced in p3954
+  declareProperty( "BtagKeyOverride", m_BtagKeyOverride); /// Override for the b-tagging jet collection
   declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
   declareProperty( "BtagTaggerTrkJet", m_BtagTagger_trkJet);
   declareProperty( "BtagWPTrkJet", m_BtagWP_trkJet);  //the one used in FillTrackJet() afterwards
-
+  declareProperty( "BtagTimeStampTrkJet", m_BtagTimeStamp_trkJet);  //the one used in FillTrackJet() afterwards
   //ELECTRONS
   declareProperty( "EleBaselinePt", m_eleBaselinePt);
   declareProperty( "ElePt", m_elePt);
@@ -469,6 +494,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
   declareProperty( "EleIsoHighPtThresh", m_eleIsoHighPtThresh);
   declareProperty( "EleCFT", m_eleChID_WP);
+  declareProperty( "EleCFTIso", m_eleChIso);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
   declareProperty( "EleBaselineD0sig", m_elebaselined0sig);
@@ -529,7 +555,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //--- Tools configuration
   //PRW
   declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
-  declareProperty( "AutoconfigurePRWToolPath", m_autoconfigPRWPath );
+  declareProperty( "AutoconfigurePRWToolPath", m_autoconfigPRWPath ); // e.g. dev/PileupReweighting/share/ 
+  declareProperty( "AutoconfigurePRWToolFile", m_autoconfigPRWFile ); // e.g. DSID407xxx/pileup_mc16a_dsid407352_FS.root
   declareProperty( "AutoconfigurePRWToolCombinedmode", m_autoconfigPRWCombinedmode );
   declareProperty( "AutoconfigurePRWToolRPVmode", m_autoconfigPRWRPVmode );
   declareProperty( "AutoconfigurePRWToolHFFilter", m_autoconfigPRWHFFilter );
@@ -546,8 +573,12 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
   declareProperty( "JetLargeRuncConfig",  m_fatJetUncConfig );
   declareProperty( "JetLargeRuncVars",  m_fatJetUncVars );
+  declareProperty( "JetTCCuncConfig",  m_TCCJetUncConfig );
   declareProperty( "JetWtaggerConfig",  m_WtagConfig );
   declareProperty( "JetZtaggerConfig",  m_ZtagConfig );
+  declareProperty( "JetWZTaggerCalibArea",  m_WZTaggerCalibArea );
+  declareProperty( "JetToptaggerConfig",  m_ToptagConfig );
+  declareProperty( "JetTopTaggerCalibArea",  m_TopTaggerCalibArea );
   //Btagging MCtoMC SFs
   declareProperty( "ShowerType",    m_showerType = 0 );
   //Egamma NP correlation model
@@ -561,11 +592,16 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_jetFatCalibTool.declarePropertyFor( this, "FatJetCalibTool", "The JetCalibTool for large-R jets" );
   m_jetUncertaintiesTool.declarePropertyFor( this, "JetUncertaintiesTool", "The JetUncertaintiesTool" );
   m_fatjetUncertaintiesTool.declarePropertyFor( this, "FatJetUncertaintiesTool", "The JetUncertaintiesTool for large-R jets" );
+  m_TCCjetUncertaintiesTool.declarePropertyFor( this, "TCCJetUncertaintiesTool", "The JetUncertaintiesTool for TCC jets" );
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
   m_jetJvtUpdateTool.declarePropertyFor( this, "JetJvtUpdateTool", "The JetJvtUpdateTool" );
   m_jetJvtEfficiencyTool.declarePropertyFor( this, "JetJvtEfficiencyTool", "The JetJvtEfficiencyTool" );
   m_jetFJvtEfficiencyTool.declarePropertyFor( this, "JetFJvtEfficiencyTool", "The JetFJvtEfficiencyTool" );
   m_jetFwdJvtTool.declarePropertyFor( this, "JetFwdJvtEfficiencyTool", "The JetFwdJvtTool" );
+  //
+  m_WTaggerTool.declarePropertyFor( this, "WTaggerTool", "The SmoothedWZTaggerTool" );
+  m_ZTaggerTool.declarePropertyFor( this, "ZTaggerTool", "The SmoothedWZTaggerTool" );
+  m_TopTaggerTool.declarePropertyFor( this, "TopTaggerTool", "The DNNTopTaggerTool" );
   //
   m_muonSelectionTool.declarePropertyFor( this, "MuonSelectionTool", "The MuonSelectionTool for signal muons" );
   m_muonSelectionHighPtTool.declarePropertyFor( this, "MuonSelectionHighPtTool", "The MuonSelectionTool for signal muons (HighPt WP)" );
@@ -575,7 +611,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_muonEfficiencyBMHighPtSFTool.declarePropertyFor( this, "MuonBadMuonHighPtScaleFactorsTool", "The MuonBadMuonHighPtSFTool" );
   m_muonTTVAEfficiencySFTool.declarePropertyFor( this, "MuonTTVAEfficiencyScaleFactorsTool", "The MuonTTVAEfficiencySFTool" );
   m_muonIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
-  m_muonHighPtIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
+  m_muonHighPtIsolationSFTool.declarePropertyFor( this, "MuonHighPtIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
   m_muonTriggerSFTool.declarePropertyFor( this, "MuonTriggerScaleFactorsTool", "The MuonTriggerSFTool" );
   //
   m_elecEfficiencySFTool_reco.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_reco", "The ElectronEfficiencyCorrectionTool for reconstruction SFs" );
@@ -777,7 +813,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     ATH_MSG_FATAL( "Data source incorrectly configured!!" );
     ATH_MSG_FATAL("You must set the DataSource property to Data, FullSim or AtlfastII !!");
     if (autoconf) ATH_MSG_FATAL("Autoconfiguration seems to have failed!");
-    // if(m_useLeptonTrigger<0) ATH_MSG_ERROR( " UseLeptonTrigger not set");
+    // if(m_useLeptonTrigger<0) ATH_MSG_ERROR( "UseLeptonTrigger not set");
     ATH_MSG_FATAL( "Exiting... " );
     return StatusCode::FAILURE;
   }
@@ -794,8 +830,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
-  m_defaultJets = m_inputMETSuffix + "Jets";
+  if (m_inputMETSuffix==""){
+    m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
+  }
+  m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
   ATH_MSG_INFO( "Configured for jet collection " << m_defaultJets );
 
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
@@ -823,10 +861,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
 
   // autoconfigure PRW tool if m_autoconfigPRW==true
   if (m_autoconfigPRWPath == "dev/PileupReweighting/share/")
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, true, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, m_autoconfigPRWFile, true, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
   else
     // need to set a full path if you don't use the one in CVMFS
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, m_autoconfigPRWFile, false, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
 
   ATH_CHECK( this->SUSYToolsInit() );
 
@@ -838,7 +876,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfilesDir, bool usePathResolver, bool RPVLLmode, bool Combinedmode, const std::string & HFFilter) {
+StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfilesDir, const std::string& PRWfileName, bool usePathResolver, bool RPVLLmode, bool Combinedmode, const std::string& HFFilter ) {
 
   std::string prwConfigFile("");
 
@@ -857,12 +895,12 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
-      else if ( amiTag.find("r11036")!=string::npos ) mcCampaignMD = "mc16a";
+      else if ( amiTag.find("r11285")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
-      else if ( amiTag.find("r11037")!=string::npos ) mcCampaignMD = "mc16d";
+      else if ( amiTag.find("r11279")!=string::npos ) mcCampaignMD = "mc16d";
       else if ( amiTag.find("r10724")!=string::npos ) mcCampaignMD = "mc16e";
-      else if ( amiTag.find("r11038")!=string::npos ) mcCampaignMD = "mc16e";
+      else if ( amiTag.find("r11249")!=string::npos ) mcCampaignMD = "mc16e";
       else {
 	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
 	return StatusCode::FAILURE;
@@ -912,8 +950,15 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     prwConfigFile += "DSID" + std::to_string(DSID_INT/1000) + "xxx/pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + "_" + simType + ".root";
     if (RPVLLmode) prwConfigFile = TString(prwConfigFile).ReplaceAll(".root","_rpvll.root").Data();
 
-    // Patch for MC16e Znunu metadata bug  (2018.12.21)
-    if (!HFFilter.empty() && mcCampaignMD == "mc16e" && dsid>=366001 && dsid<= 366008) {
+    // PRW file specified by user 
+    // e.g. DSID407xxx/pileup_mc16a_dsid407352_FS.root
+    if (!PRWfileName.empty()) {
+      prwConfigFile = PRWfilesDir + PRWfileName;   
+      ATH_MSG_INFO( "autoconfigurePileupRWTool(): PRW file was specifed by user: " << prwConfigFile.data() );
+    }
+
+    // Patch for MC16 Znunu metadata bug  (updated 2019.05.30)
+    if (!HFFilter.empty() && dsid>=366001 && dsid<= 366008) {
       ATH_MSG_WARNING ("Samples metadata for Znunu samples is corrupted! Remapping to grab the correct RPW file. Only MC16e is supported for now.");
       if (HFFilter == "BFilter") { 
         prwConfigFile = TString(prwConfigFile).ReplaceAll(std::to_string(DSID_INT),std::to_string(DSID_INT+9)).Data();
@@ -1054,7 +1099,7 @@ void SUSYObjDef_xAOD::configFromFile(int& property, const std::string& propname,
 
 
 void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& propname, TEnv& rEnv,
-                                     const std::string& defaultValue)
+                                     const std::string& defaultValue, bool allowEmpty)
 {
   // ignore if already configured
   if (!property.empty()){
@@ -1063,7 +1108,7 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue.c_str());
-  if (property.empty()) {
+  if (property.empty() && !allowEmpty) {
     ATH_MSG_FATAL("Read empty string property from text file (property name: " << propname << ")");
   }
 
@@ -1097,7 +1142,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   ATH_MSG_INFO( "Config file opened" );
 
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
-    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
+    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 9));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
   }
   // Remove the item from the table
@@ -1132,9 +1177,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Photon.CrackVeto"] = "PhotonCrackVeto";
   m_conf_to_prop["Photon.AllowLate"] = "PhotonAllowLate";
 
-
   m_conf_to_prop["FwdJet.doJVT"] = "FwdJetDoJVT";
-  m_conf_to_prop["FwdJet.JvtUseTightOP"] = "FwdJetUseTightOP";
 
   m_conf_to_prop["OR.DoBoostedElectron"] = "DoBoostedElectronOR";
   m_conf_to_prop["OR.DoBoostedMuon"] = "DoBoostedMuonOR";
@@ -1142,6 +1185,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoTau"] = "DoTauOR";
   m_conf_to_prop["OR.DoPhoton"] = "DoPhotonOR";
   m_conf_to_prop["OR.DoEleJet"] = "DoEleJetOR";
+  m_conf_to_prop["OR.DoElEl"] = "DoElElOR";
+  m_conf_to_prop["OR.DoElMu"] = "DoElMuOR";
   m_conf_to_prop["OR.DoMuonJet"] = "DoMuonJetOR";
   m_conf_to_prop["OR.Bjet"] = "DoBjetOR";
   m_conf_to_prop["OR.ElBjet"] = "DoElBjetOR";
@@ -1151,6 +1196,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
+  m_conf_to_prop["Trigger.UpstreamMatching"] = "TriggerUpstreamMatching";
 
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
   m_conf_to_prop["SigEl.RequireIso"] = "SigElRequireIso";
@@ -1185,6 +1231,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_eleChIso, "Ele.CFTIso", rEnv, true); // use charge ID SFs without iso applied
   configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
@@ -1262,26 +1309,28 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
-  configFromFile(m_JVT_WP, "Jet.JVT_WP", rEnv, "Medium");
+  configFromFile(m_JVT_WP, "Jet.JVT_WP", rEnv, "Default");
   configFromFile(m_JvtPtMax, "Jet.JvtPtMax", rEnv, 120.0e3);
-  configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Fall2018/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
+  configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Summer2019/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run MC twice with IsData on/off, see twiki above
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
-  configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Moriond2018/R10_CombMass_medium.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
+  configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Spring2019/R10_GlobalReduction.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
-  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
-  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
-  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config");
-  configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config");
-  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config");
-  configFromFile(m_jesConfigEMPFlowAFII, "Jet.JESConfigEMPFlowAFII", rEnv, "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config");
-  configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config");
+  configFromFile(m_TCCJets, "Jet.TCCcollection", rEnv, "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off TCC jets 
+  configFromFile(m_TCCJetUncConfig, "Jet.TCCuncConfig", rEnv, "rel21/Summer2019/R10_Scale_TCC_all.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019TCC
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
+  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
+  configFromFile(m_WZTaggerCalibArea, "Jet.WZTaggerCalibArea", rEnv, "SmoothedWZTaggers/Rel21/");
+  configFromFile(m_ToptagConfig, "Jet.ToptaggerConfig", rEnv, "JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat");
+  configFromFile(m_TopTaggerCalibArea, "Jet.TopTaggerCalibArea", rEnv, "JSSWTopTaggerDNN/Rel21/");
+  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config");
+  configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config");
+  configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_JMS_MC16Recommendation_Consolidated_MC_only_EMTopo_July2019_Rel21.config");
+  configFromFile(m_jesConfigJMSData, "Jet.JESConfigJMSData", rEnv, "JES_JMS_MC16Recommendation_Consolidated_data_only_EMTopo_Sep2019_Rel21.config");
   configFromFile(m_jesConfigFat, "Jet.JESConfigFat", rEnv, "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config");
+  configFromFile(m_jesConfigFatData, "Jet.JESConfigFatData", rEnv, "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_3April2019.config");
   configFromFile(m_jesCalibSeq, "Jet.CalibSeq", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
-  configFromFile(m_jesCalibSeqAFII, "Jet.CalibSeqAFII", rEnv, "JetArea_Residual_EtaJES_GSC");
-  configFromFile(m_jesCalibSeqEMPFlow, "Jet.CalibSeqEMPFlow", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
-  configFromFile(m_jesCalibSeqEMPFlowAFII, "Jet.CalibSeqEMPFlowAFII", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqJMS, "Jet.CalibSeqJMS", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqFat, "Jet.CalibSeqFat", rEnv, "EtaJES_JMS");
   //
@@ -1294,17 +1343,21 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false); // Tight and Tenacious MET WPs can be used with fJVT by default
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
-  configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
-  configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, "None");
+  configFromFile(m_fwdjetOp, "FwdJet.JvtOp", rEnv, "Loose");
+  configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
-  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
+  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "DL1");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root");
+  configFromFile(m_BtagTimeStamp, "Btag.TimeStamp", rEnv, "201810");
+  
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
+  configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "None");
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, 20e3);
+  configFromFile(m_BtagKeyOverride, "Btag.KeyOverride", rEnv, "", true);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
@@ -1318,6 +1371,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoTau, "OR.DoTau", rEnv, false);
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
   configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
+  configFromFile(m_orDoElEl, "OR.ElEl", rEnv, false);
+  configFromFile(m_orDoElMu, "OR.ElMu", rEnv, false);
   configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, false);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, false);
@@ -1336,6 +1391,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
   configFromFile(m_JetFatJetDR, "OR.JetFatJetDR", rEnv, -999.);
+  ///
+  configFromFile(m_upstreamTriggerMatching, "Trigger.UpstreamMatching", rEnv, false);
   //
   configFromFile(m_doIsoSignal, "SigLep.RequireIso", rEnv, true);
   configFromFile(m_doElIsoSignal, "SigEl.RequireIso", rEnv, m_doIsoSignal);
@@ -1350,6 +1407,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauTerm, "MET.TauTerm", rEnv, "RefTau");
   configFromFile(m_jetTerm, "MET.JetTerm", rEnv, "RefJet");
   configFromFile(m_muonTerm, "MET.MuonTerm", rEnv, "Muons");
+  configFromFile(m_inputMETSuffix, "MET.InputSuffix", rEnv, "", true); // May be empty
   configFromFile(m_outMETTerm, "MET.OutputTerm", rEnv, "Final");
   configFromFile(m_metRemoveOverlappingCaloTaggedMuons, "MET.RemoveOverlappingCaloTaggedMuons", rEnv, true);
   configFromFile(m_metDoSetMuonJetEMScale, "Met.DoSetMuonJetEMScale", rEnv, true);
@@ -1375,6 +1433,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_runDepPrescaleWeightPRW, "PRW.UseRunDependentPrescaleWeight", rEnv, false); // If set to true, the prescale weight is the luminosity-average prescale over the lumiblocks in the unprescaled lumicalc file in the PRW tool.
   configFromFile(m_autoconfigPRWPath, "PRW.autoconfigPRWPath", rEnv, "dev/PileupReweighting/share/");
+  configFromFile(m_autoconfigPRWFile, "PRW.autoconfigPRWFile", rEnv, "None");
   configFromFile(m_autoconfigPRWCombinedmode, "PRW.autoconfigPRWCombinedmode", rEnv, false);
   configFromFile(m_autoconfigPRWRPVmode, "PRW.autoconfigPRWRPVmode", rEnv, false);
   configFromFile(m_autoconfigPRWHFFilter, "PRW.autoconfigPRWHFFilter", rEnv, "None");
@@ -1651,12 +1710,6 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
       ATH_MSG_WARNING("Your baseline tau eta configuration is inconsistent! eta cut : " << m_tauEta << " != TauSelectionTool max eta : " << eta_window[eta_window.size()-1]);
       if(strict) return StatusCode::FAILURE;
     }
-
-    //OR checks
-    if( m_orDoTau && !(elOLR && muOLR) ){
-      ATH_MSG_WARNING("Your baseline tau - lep OR/Veto settings look suspicious! You have enabled tau-e/mu OR (cone based), but set (EleOLR,MuonOLR)=(" << elOLR << "," << muOLR << ") in your config file! PLEASE CHECK!");
-      //if(strict) return StatusCode::FAILURE;
-    }
   }
 
   if(m_tauConfigPath != "") { //signal taus
@@ -1769,6 +1822,14 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
     }
   }
+  if (!m_TCCjetUncertaintiesTool.empty()) {
+    CP::SystematicCode ret = m_TCCjetUncertaintiesTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_VERBOSE("Cannot configure (TCC)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    } else {
+      ATH_MSG_VERBOSE("Configured (TCC)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    }
+  }
   if (!m_jetJvtEfficiencyTool.empty()) {
     CP::SystematicCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
@@ -1868,6 +1929,18 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_diLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
+    for(auto &sfop : m_elecTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigEffTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_elecTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigSFTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_muonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_muonTrigSFTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -1877,6 +1950,18 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_multiLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
+    for(auto &sfop : m_elecTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigEffTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_elecTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigSFTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_muonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_muonTrigSFTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -1949,6 +2034,14 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_diPhoton.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(systConfig);
+    for(auto &sfop : m_photonTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_photonTrigEffTools (diphoton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_photonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_photonTrigSFTools (diphoton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -2143,6 +2236,12 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   }
   if (!m_fatjetUncertaintiesTool.empty()) {
     if ( m_fatjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+      sysInfo.affectsKinematics = true;
+      sysInfo.affectsType = SystObjType::Jet;
+    }
+  }
+  if (!m_TCCjetUncertaintiesTool.empty()) {
+    if ( m_TCCjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
       sysInfo.affectsKinematics = true;
       sysInfo.affectsType = SystObjType::Jet;
     }
@@ -2495,7 +2594,7 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
     if (dec_passOR( *jet )) Njet++;
   }
 
-  ATH_MSG_VERBOSE( " After overlap removal: Nel=" << Nel << ", Nmu=" << Nmu << ", Njet=" << Njet );
+  ATH_MSG_VERBOSE( "After overlap removal: Nel=" << Nel << ", Nmu=" << Nmu << ", Njet=" << Njet );
   */
 
   return StatusCode::SUCCESS;
@@ -2590,7 +2689,8 @@ StatusCode SUSYObjDef_xAOD::ApplyPRWTool(bool muDependentRRN) {
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  ATH_CHECK( m_prwTool->apply( *evtInfo, muDependentRRN ) );
+  if(!evtInfo->isAvailable<unsigned int>("RandomRunNumber"))
+    ATH_CHECK( m_prwTool->apply( *evtInfo, muDependentRRN ) );
   return StatusCode::SUCCESS;
 }
 

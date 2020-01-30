@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -97,7 +97,7 @@ namespace SH
       RCU_THROW_MSG ("nc_nevtfile has the wrong number of entries");
 
     SampleHandler result;
-    std::auto_ptr<SampleLocal> res;
+    std::unique_ptr<SampleLocal> res;
     Long64_t num = 0;
     const std::string meta_tree = sample.meta()->castString (MetaFields::treeName, MetaFields::treeName_default);
     const double meta_xs = sample.meta()->castDouble (MetaFields::crossSection, 0);

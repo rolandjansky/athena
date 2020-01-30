@@ -307,20 +307,23 @@ SeqSUSY9 += CfgMgr.DerivationFramework__DerivationKernel(
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY9SlimmingHelper = SlimmingHelper("SUSY9SlimmingHelper")
 SUSY9SlimmingHelper.SmartCollections = ["Electrons",
-                                         "Photons",
-                                         "Muons",
-                                         "TauJets",
-                                         "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
-
-                                         "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-
-                                         "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
-
-                                         "InDetTrackParticles",
-                                         "PrimaryVertices"]
+                                        "Photons",
+                                        "Muons",
+                                        "TauJets",
+                                        "AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        #"BTagging_AntiKt4EMTopo",
+                                        #"BTagging_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "InDetTrackParticles",
+                                        "PrimaryVertices"]
 SUSY9SlimmingHelper.AllVariables = ["TruthParticles",
                                      "TruthEvents",
                                      "TruthVertices",
@@ -329,7 +332,7 @@ SUSY9SlimmingHelper.AllVariables = ["TruthParticles",
                                      "MET_LocHadTopo",
                                      "MuonSegments",
                                      "MET_Truth"]
-SUSY9SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
+SUSY9SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.eta_sampl.phi_sampl",
                                       "Photons.author.Loose.Tight",
                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
@@ -342,7 +345,7 @@ SUSY9SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                                       "Electrons.bkgTruthType.bkgTruthOrigin.firstEgMotherPdgId.truthPdgId.bkgTruthParticleLink.bkgMotherPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink",
                                       "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
-                                      "BTagging_AntiKt2Track.MV2c10_discriminant",
+                                      #"BTagging_AntiKt2Track.MV2c10_discriminant",
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                       "MuonClusterCollection.eta_sampl.phi_sampl"
 ]

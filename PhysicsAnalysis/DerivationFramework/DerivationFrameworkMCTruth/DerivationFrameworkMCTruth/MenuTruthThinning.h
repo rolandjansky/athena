@@ -38,6 +38,7 @@ namespace DerivationFramework {
         bool isttHFHadron(const xAOD::TruthParticle*) const;
         bool isBoson(const xAOD::TruthParticle*) const;
         bool isFsrFromLepton(const xAOD::TruthParticle*) const;
+	bool parentIsLongLived(const xAOD::TruthParticle*) const;
 
 
     private:
@@ -119,6 +120,9 @@ namespace DerivationFramework {
 
         /// Parameter: List of PDG IDs to always keep
         std::vector<int> m_pdgIdsToKeep;
+
+	/// Parameter: List of PDG IDs of long lived particles so that one can keep their children	
+	std::vector<int> m_longLivedPdgIds;
 
         /// for keeping trace of barcodes in order to detect loops
         mutable std::unordered_set<int> m_barcode_trace;

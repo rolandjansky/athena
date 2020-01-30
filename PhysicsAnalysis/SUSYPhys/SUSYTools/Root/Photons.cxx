@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -71,6 +71,11 @@ StatusCode SUSYObjDef_xAOD::GetPhotons(xAOD::PhotonContainer*& copy, xAOD::Shall
 StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float etacut) {
 
   ATH_MSG_VERBOSE( "Starting FillPhoton on ph with pre-calibration pt=" << input.pt() );
+
+  if ( !input.caloCluster() ) {
+     ATH_MSG_WARNING( "FillPhoton: no caloCluster found: " << input.caloCluster() );
+     return StatusCode::SUCCESS;
+  }
 
   if (m_debug) {
     ATH_MSG_INFO( "PHOTON eta: " << input.eta() );
@@ -221,7 +226,7 @@ double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool eff
     sf *= sf_trigger;
   }
 
-  ATH_MSG_VERBOSE( " ScaleFactor " << sf );
+  ATH_MSG_VERBOSE( "ScaleFactor " << sf );
 
   dec_effscalefact(ph) = sf;
   return sf;
@@ -294,7 +299,7 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
     ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
-  ATH_MSG_VERBOSE( " ScaleFactor " << sf );
+  ATH_MSG_VERBOSE( "ScaleFactor " << sf );
 
   dec_effscalefact(ph) = sf;
   return sf;
@@ -306,7 +311,7 @@ double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, c
 
   double sf(1.);
 
-  for (const auto& photon : photons) {
+  for (const xAOD::Photon* photon : photons) {
     if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF, triggerSF); }
   }
 
@@ -320,7 +325,7 @@ double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons
 
   double sf(1.);
 
-  for (const auto& photon : photons) {
+  for (const xAOD::Photon* photon : photons) {
     if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF, triggerSF); }
   }
 

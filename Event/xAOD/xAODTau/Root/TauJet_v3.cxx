@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJet_v3.cxx 725228 2016-02-19 22:59:42Z griffith $
@@ -54,18 +54,12 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaTauEnergyScale)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiTauEnergyScale)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mTauEnergyScale)
-  // double TauJet_v3::etaTauEnergyScale() const { return etaIntermediateAxis(); }
-  // double TauJet_v3::phiTauEnergyScale() const { return phiIntermediateAxis(); }
-  // double TauJet_v3::mTauEnergyScale() const { return 0; }
-
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mTauEtaCalib)
-  // double TauJet_v3::phiTauEtaCalib() const { return phiIntermediateAxis(); }
-  // double TauJet_v3::mTauEtaCalib() const { return 0; }
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptPanTauCellBasedProto)
@@ -455,6 +449,8 @@ namespace xAOD {
   const TauJet_v3::TauTrackLinks_t TauJet_v3::tauTrackLinksWithMask(unsigned int mask) const{
     TauJet_v3::TauTrackLinks_t links;
     for(const ElementLink< xAOD::TauTrackContainer > &link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       if( (*link)->flagWithMask(mask))
 	links.push_back(link);
     }
@@ -475,6 +471,8 @@ namespace xAOD {
     uint tracks_pass_mask=0;
 
     for(const ElementLink< xAOD::TauTrackContainer > &link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       const TauTrack* trk = *link;
       if(trk->flagWithMask(mask)){
 	if(tracks_pass_mask==i) {
@@ -516,6 +514,8 @@ namespace xAOD {
   std::vector<const TauTrack*> TauJet_v3::tracksWithMask(unsigned int mask )const {
   std::vector<const TauTrack*> trks;
     for(const ElementLink< xAOD::TauTrackContainer > &link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       const TauTrack* trk = *link;
       if(trk->flagWithMask(mask)){
 	trks.push_back(trk);
@@ -572,6 +572,8 @@ namespace xAOD {
   size_t TauJet_v3::nTracksWithMask(unsigned int flags) const{
     size_t n(0);
     for(const ElementLink< xAOD::TauTrackContainer > &link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       const TauTrack* trk = *link;
       if(trk->flagWithMask(flags)) n++;
     }    
@@ -580,7 +582,10 @@ namespace xAOD {
 
   //all tracks regardless of classification or lack thereof
   size_t TauJet_v3::nAllTracks() const{
-    return tauTrackAcc( *this ).size();
+    // unsafe w.r.t. tau track thinning
+    //return tauTrackAcc( *this ).size();
+    TauTrack::TrackFlagType mask=0;
+    return nTracksWithMask( mask );
   }
 
   /// add a TauTrack to the tau

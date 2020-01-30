@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopEventSelectionTools/TrackJetCleaningSelector.h"
 #include "TopEvent/EventTools.h"
@@ -8,30 +8,26 @@
 #include "TopConfiguration/TopConfig.h"
 
 namespace top {
-
   TrackJetCleaningSelector::TrackJetCleaningSelector(std::shared_ptr<top::TopConfig> config) :
-    m_config(config)
-  {    
+    m_config(config) {
   }
 
   bool TrackJetCleaningSelector::apply(const top::Event& event) const {
-    
     //std::cout << "Applying TrackJetCleaningSelector" << std::endl;
 
     // Selection is applied only if Variable-R track jets are used
     if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") {
       static SG::AuxElement::Accessor<char> acc_passDRcut("passDRcut");
       for (const xAOD::Jet* jet : event.m_trackJets) {
-        top::check(acc_passDRcut.isAvailable(*jet),"passDRcut info not found in variable-R track jet. Needed for cleaning algorithm.");
-	if(!acc_passDRcut(*jet) ) return false;
+        top::check(acc_passDRcut.isAvailable(
+                     *jet), "passDRcut info not found in variable-R track jet. Needed for cleaning algorithm.");
+        if (!acc_passDRcut(*jet)) return false;
       }
     }
     return true;
   }
 
-  std::string TrackJetCleaningSelector::name() const 
-  {
+  std::string TrackJetCleaningSelector::name() const {
     return "TRACKJETCLEAN";
   }
-
 }

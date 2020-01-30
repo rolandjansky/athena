@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef ANALYSISBASE_H_
 #define ANALYSISBASE_H_
@@ -10,21 +10,21 @@
 class TFile;
 
 namespace top {
-class Event;
+  class Event;
 
 /**
  * @brief An interface so that the analysis codes look the same and can be
  * run by the mini-to-plots executable.
  */
-class AnalysisBase {
-public:
+  class AnalysisBase {
+  public:
     /**
      * @brief This is run once only at the very start.  You might want to book
      * some histograms or something.
      */
     AnalysisBase() {
-        //container names
-      m_containerNames.eventInfoName ="EventInfo";
+      //container names
+      m_containerNames.eventInfoName = "EventInfo";
       m_containerNames.electronCollectionName = "CorrectedSelectedElectrons";
       m_containerNames.muonCollectionName = "CorrectedSelectedMuons";
       m_containerNames.jetCollectionName = "CorrectedSelectedAntiKt4EMTopoJets";
@@ -63,14 +63,12 @@ public:
      */
     virtual void finalise(TFile*) = 0;
 
-    const ContainerNames containerNames() const { return m_containerNames; }
+    const ContainerNames containerNames() const {return m_containerNames;}
 
-    ContainerNames* SetContainerNames() { return &m_containerNames; }
-
-private:
+    ContainerNames* SetContainerNames() {return &m_containerNames;}
+  private:
     top::ContainerNames m_containerNames;
-};
-
+  };
 }
 
 #endif /* ANALYSISBASE_H_ */

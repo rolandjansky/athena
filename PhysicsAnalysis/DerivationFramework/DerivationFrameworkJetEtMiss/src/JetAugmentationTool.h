@@ -1,7 +1,7 @@
 ////////////////////-*- C++ -*-////////////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetAugmentationTool.h, (c) ATLAS Detector software
@@ -59,6 +59,23 @@ namespace DerivationFramework {
     std::string m_jvtMomentKey;
     bool m_dojvt;
 
+    // PFlow fJVT
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_fjvt;
+    ToolHandle<IJetModifier> m_fjvtTool;
+    std::string m_fjvtMomentKey;
+    bool m_dofjvt;
+
+    // MV-fJVT     @author: louis.portales@cern.ch
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_Sumcle;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_SumclIso;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_SumclEMprob;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_LeadclWidth;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_LeadclSecondLambda;
+    ToolHandle<IJetModifier> m_MVfJvtTool;
+    std::string m_MVfJvtMomentKey;
+    bool m_doMVfJvt;
+
     // b-tagging       @author tripiana@cern.ch
     std::vector<SG::AuxElement::Decorator<float>*> dec_btag;
     std::vector<std::string> m_btagWP;
@@ -93,6 +110,9 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator<int>* dec_AssociatedNTracks;
     SG::AuxElement::Decorator<float>* dec_AssociatedTracksWidth;
     SG::AuxElement::Decorator<float>* dec_AssociatedTracksC1;
+    SG::AuxElement::Decorator<int>*   dec_Associated_truthjet_nCharged;
+    SG::AuxElement::Decorator<float>* dec_Associated_truthjet_pt;
+    SG::AuxElement::Decorator<float>* dec_Associated_truthjet_eta;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
 
   };

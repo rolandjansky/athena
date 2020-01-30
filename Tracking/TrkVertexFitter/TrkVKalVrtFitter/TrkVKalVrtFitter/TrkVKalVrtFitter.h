@@ -14,7 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 //
 //#include  "VxVertex/VxCandidate.h"
-#include  "xAODTracking/Vertex.h" 
+#include  "xAODTracking/VertexContainer.h" 
 #include  "xAODTracking/NeutralParticleContainer.h" 
 #include  "xAODTracking/TrackParticleContainer.h" 
 #include  "TrkParameters/TrackParameters.h" 

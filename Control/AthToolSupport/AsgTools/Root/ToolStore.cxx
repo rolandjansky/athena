@@ -1,6 +1,6 @@
-//
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-//
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <map>
@@ -9,13 +9,14 @@
 // Local include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolStore.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AsgTools/MessageCheckAsgTools.h"
+#include "AsgMessaging/MsgStreamMacros.h"
 
 // Create a simple version of the MSGSTREAM_REPORT_PREFIX macro for Athena:
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   define MSGSTREAM_REPORT_PREFIX              \
    __FILE__ << ":" << __LINE__ << ": "
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 /// Helper macro for printing nicely formatted error messages
 #define TOOLSTORE_ERROR( FNC, MSG )                                  \
@@ -82,10 +83,10 @@ namespace asg {
                           "Received an empty name" );
       }
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       // Set the tool's name to the specified one:
       ptool->setName( name );
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
       // Register the tool using the other function:
       return put( ptool );

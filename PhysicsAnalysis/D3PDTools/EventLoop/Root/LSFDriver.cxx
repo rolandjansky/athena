@@ -1,14 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//          Copyright Nils Krumnack 2011.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -17,7 +11,10 @@
 
 #include <EventLoop/LSFDriver.h>
 
+#include <AsgTools/StatusCode.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -46,23 +43,37 @@ namespace EL
 
 
 
-  void LSFDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool /*resubmit*/)
-    const
+  ::StatusCode LSFDriver ::
+  doManagerStep (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
-
-    std::ostringstream cmd;
-    cmd << "cd " << location << "/submit";
-    for (std::size_t iter : jobIndices)
+    using namespace msgEventLoop;
+    ANA_CHECK (BatchDriver::doManagerStep (data));
+    switch (data.step)
     {
-      cmd << " && bsub " << options.castString (Job::optSubmitFlags);
-      if (options.castBool (Job::optResetShell, true))
-        cmd << " -L /bin/bash";
-      cmd << " " << location << "/submit/run " << iter;
+    case Detail::ManagerStep::submitJob:
+    case Detail::ManagerStep::doResubmit:
+      {
+        // safely ignoring: resubmit
+
+        std::ostringstream cmd;
+        cmd << "cd " << data.submitDir << "/submit";
+        for (std::size_t iter : data.batchJobIndices)
+        {
+          cmd << " && bsub " << data.options.castString (Job::optSubmitFlags);
+          if (data.options.castBool (Job::optResetShell, true))
+            cmd << " -L /bin/bash";
+          cmd << " " << data.submitDir << "/submit/run " << iter;
+        }
+        if (gSystem->Exec (cmd.str().c_str()) != 0)
+          RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+        data.submitted = true;
+      }
+      break;
+
+    default:
+      break;
     }
-    if (gSystem->Exec (cmd.str().c_str()) != 0)
-      RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+    return ::StatusCode::SUCCESS;
   }
 }

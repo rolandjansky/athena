@@ -291,6 +291,46 @@ MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
 ToolSvc += MUON1Thin_vtxTrk
 MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 
+if DerivationFrameworkIsMonteCarlo:
+
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+  MUON1TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "MUON1TruthThinningTool",
+                                                       ThinningService              = MUON1ThinningHelper.ThinningSvc(),
+                                                       WritePartons                 = False,
+                                                       WriteHadrons                 = False,
+                                                       WriteCHadrons                = False,
+                                                       WriteBHadrons                = True,
+                                                       WriteGeant                   = False,
+                                                       WriteTauHad                  = False,
+                                                       PartonPtThresh               = -1.0,
+                                                       WriteBSM                     = True,
+                                                       WriteBosons                  = True,
+                                                       WriteBosonProducts           = False,
+                                                       WriteBSMProducts             = True,
+                                                       WriteTopAndDecays            = False,
+                                                       WriteEverything              = False,
+                                                       WriteAllLeptons              = True,
+                                                       WriteLeptonsNotFromHadrons   = False,
+                                                       WriteStatus3                 = False,
+                                                       WriteFirstN                  = -1,
+                                                       PreserveAncestors            = False,
+                                                       PreserveParentsSiblingsChildren = True,
+                                                       PreserveGeneratorDescendants = False,
+                                                       SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
+  ToolSvc += MUON1TruthThinningTool
+  MUON1ThinningTools.append(MUON1TruthThinningTool)
+
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthClassifierFallback
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
+  MUON1MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MUON1MuonTruthClassifierFallback",MCTruthClassifierTool = MCTruthClassifier, ContainerKey="Muons")
+  ToolSvc += MUON1MuonTruthClassifierFallback
+  MUON1AugmentTools.append(MUON1MuonTruthClassifierFallback)
+
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthIsolationTool
+  MUON1MuonTruthIsolationTool = DerivationFramework__MuonTruthIsolationTool( name = "MUON1MuonTruthIsolationTool",ContainerKey="Muons")
+  ToolSvc += MUON1MuonTruthIsolationTool
+  MUON1AugmentTools.append(MUON1MuonTruthIsolationTool)
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
@@ -329,6 +369,10 @@ if not hasattr(MUON1Seq,"Muons_decoratePromptLepton"):
 
 from DerivationFrameworkMuons import ConstituentPileupIso
 ConstituentPileupIso.ConstituentPileupIso(MUON1Seq)
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=MUON1Seq)
+
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

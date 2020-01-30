@@ -1,25 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
+
 
 #ifndef EVENT_LOOP_BATCH_DRIVER_HH
 #define EVENT_LOOP_BATCH_DRIVER_HH
-
-//          Copyright Nils Krumnack 2011.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a driver base class for running on batch
-/// systems.  The interface provided in this class is intended for
-/// experts only.  The module is considered to be in the pre-alpha
-/// stage.
-
-
 
 #include <EventLoop/Global.h>
 
@@ -28,6 +16,11 @@
 
 namespace EL
 {
+  /// \brief the base class for all drivers running on batch systems
+  ///
+  /// This class implements extra functionality for packaging
+  /// EventLoop jobs into sub-jobs and then retrieving the results.
+
   class BatchDriver : public Driver
   {
     //
@@ -58,22 +51,9 @@ namespace EL
     // interface inherited from Driver
     //
 
-  private:
-    virtual void
-    doUpdateJob (Job& job, const std::string& location) const override;
-
-  private:
-    virtual void
-    doSubmit (const Job& job, const std::string& location) const override;
-
-  private:
-    virtual void
-    doResubmit (const std::string& location,
-                const std::string& option) const override;
-
-  private:
-    virtual bool
-    doRetrieve (const std::string& location) const override;
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
 
 
 
@@ -81,39 +61,11 @@ namespace EL
     // virtual interface
     //
 
-    /// returns: the name of the submission script to use.  if this
-    ///   contains {JOBID} it will create one script for each job id
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems are picky about names.  others
-    ///   don't allow passing arguments into submission scripts
-  private:
-    virtual std::string batchName () const;
 
 
-    /// returns: any additional code we need for setting up the batch
-    ///   job.  if multiple files are used, {JOBID} will be replaced
-    ///   with the index of the current file.
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems need extra lines when making
-    ///   there submission scripts, which can either be specially
-    ///   formatted option lines or just some special commands
-  private:
-    virtual std::string batchInit () const;
-
-
-    /// returns: the code needed for setting EL_JOBID
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: normally one can just pass the index of the job as
-    ///   the first argument to the execution script, but some systems
-    ///   instead use environment variables
-    /// rationale: this is not used if we have separate execution
-    ///   scripts from the job
-  private:
-    virtual std::string batchJobId () const;
-
+    //
+    // private interface
+    //
 
     /// \brief the code for setting up the release
     /// \par Guarantee
@@ -122,31 +74,15 @@ namespace EL
     ///   out of memory II\n
     ///   failed to read environment variables
   private:
-    virtual std::string batchReleaseSetup (bool sharedFileSystem) const;
-
-
-    /// effects: perform the actual batch submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (const std::string& location, const SH::MetaObject& options,
- 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
-      const = 0;
-
-
-
-    //
-    // private interface
-    //
+    std::string defaultReleaseSetup (const Detail::ManagerData& data) const;
 
     /// effects: create the run script to be used
     /// guarantee: basic, may create a partial script
     /// failures: out of memory II
     /// failures: i/o errors
   private:
-    void makeScript (const std::string& location, std::size_t njobs, bool sharedFileSystem) const;
+    void makeScript (Detail::ManagerData& data,
+                     std::size_t njobs) const;
 
 
     /// effects: merge the fetched histograms
@@ -155,27 +91,7 @@ namespace EL
     /// failures: out of memory II
     /// failures: i/o errors
   private:
-    static bool mergeHists (const std::string& location, const BatchJob& config);
-
-    /// effects: determine location for writing output
-    /// returns: path to directory for writing
-    /// guarantee: strong
-  private:
-    const std::string getWriteLocation(const std::string& location) const;
-
-    /// effects: determine location with input configuration
-    /// returns: path to directory with input configuration
-    /// guarantee: strong
-  private:
-    const std::string getSubmitLocation(const std::string& location) const;
-
-#ifndef USE_CMAKE
-    /// effects: determine location of rootcorebin on node
-    /// returns: path to directory of rootcorebin on node
-    /// guarantee: strong
-  private:
-    const std::string getRootCoreBin() const;
-#endif
+    static bool mergeHists (Detail::ManagerData& data);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"

@@ -72,22 +72,28 @@ namespace CP
 
   private:
     float m_minPt {0};
+    float m_maxPt {0};
     float m_maxEta {0};
     float m_etaGapLow {0};
     float m_etaGapHigh {0};
     bool m_useClusterEta {false};
     bool m_printCastWarning {true};
+    bool m_printClusterWarning {true};
 
     /// \}
 
     /// Index for the minimum pT selection
     int m_minPtCutIndex{ -1 };
+    /// Index for the maximum pT selection
+    int m_maxPtCutIndex{ -1 };
     /// Index for the maximum eta selection
     int m_maxEtaCutIndex{ -1 };
     /// Index for the eta gap selection
     int m_etaGapCutIndex{ -1 };
     /// Index for the e/gamma casting
     int m_egammaCastCutIndex{ -1 };
+    /// Index for the e/gamma calo-cluster
+    int m_egammaClusterCutIndex{ -1 };
 
     /// \brief a version of \ref m_printCastWarning that we modify
     /// once we printed the warning
@@ -101,6 +107,19 @@ namespace CP
     /// up on that later.
   private:
     mutable std::atomic<bool> m_shouldPrintCastWarning {true};
+
+    /// \brief a version of \ref m_printClusterWarning that we modify
+    /// once we printed the warning
+    ///
+    /// I don't like modifying property values in the tool itself, so
+    /// I copy it over here and then modify once I print out.
+    ///
+    /// Technically this tool isn't thread-safe due to the use of
+    /// TAccept, but once we move to master this will be fixed, so
+    /// this member is already made thread-safe so that we don't trip
+    /// up on that later.
+  private:
+    mutable std::atomic<bool> m_shouldPrintClusterWarning {true};
 
     /// \brief the \ref TAccept we are using
   private:

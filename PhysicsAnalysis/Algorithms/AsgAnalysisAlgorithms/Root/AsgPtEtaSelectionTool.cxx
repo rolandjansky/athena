@@ -27,11 +27,13 @@ namespace CP
     : AsgTool (name)
   {
     declareProperty ("minPt", m_minPt, "minimum pt to require (or 0 for no pt cut)");
+    declareProperty ("maxPt", m_maxPt, "maximum pt to require (or 0 for no pt cut)");
     declareProperty ("maxEta", m_maxEta, "maximum abs(eta) to allow (or 0 for no eta cut)");
     declareProperty ("etaGapLow", m_etaGapLow, "low end of the eta gap");
     declareProperty ("etaGapHigh", m_etaGapHigh, "high end of the eta gap (or 0 for no eta gap)");
     declareProperty ("useClusterEta", m_useClusterEta, "whether to use the cluster eta (for electrons only)");
-    declareProperty ("printCastWarning", m_printCastWarning, "whether to print a warning when the cast fails");
+    declareProperty ("printCastWarning", m_printCastWarning, "whether to print a warning/error when the cast fails");
+    declareProperty ("printClusterWarning", m_printClusterWarning, "whether to print a warning/error when the cluster is missing");
   }
 
 
@@ -42,6 +44,11 @@ namespace CP
     if (m_minPt < 0 || !std::isfinite (m_minPt))
     {
       ATH_MSG_ERROR ("invalid value of minPt: " << m_minPt);
+      return StatusCode::FAILURE;
+    }
+    if (m_maxPt < 0 || !std::isfinite (m_maxPt))
+    {
+      ATH_MSG_ERROR ("invalid value of m_maxPt: " << m_maxPt);
       return StatusCode::FAILURE;
     }
     if (m_maxEta < 0 || !std::isfinite (m_maxEta))
@@ -71,12 +78,17 @@ namespace CP
     }
 
     if (m_minPt > 0) {
-       ATH_MSG_DEBUG( "Performing pt > " << m_minPt << " MeV selection" );
+       ATH_MSG_DEBUG( "Performing pt >= " << m_minPt << " MeV selection" );
        m_minPtCutIndex = m_accept.addCut ("minPt", "minimum pt cut");
+    }
+    if (m_maxPt > 0) {
+       ATH_MSG_DEBUG( "Performing pt < " << m_maxPt << " MeV selection" );
+       m_maxPtCutIndex = m_accept.addCut ("maxPt", "maximum pt cut");
     }
     if (m_useClusterEta) {
        ATH_MSG_DEBUG( "Performing eta cut on the e/gamma cluster" );
        m_egammaCastCutIndex = m_accept.addCut ("castEgamma", "cast to egamma");
+       m_egammaClusterCutIndex = m_accept.addCut ("caloCluster", "egamma object has cluster");
     }
     if (m_maxEta > 0) {
        ATH_MSG_DEBUG( "Performing |eta| < " << m_maxEta << " selection" );
@@ -88,6 +100,7 @@ namespace CP
        m_etaGapCutIndex = m_accept.addCut ("etaGap", "eta gap cut");
     }
     m_shouldPrintCastWarning = m_printCastWarning;
+    m_shouldPrintClusterWarning = m_printClusterWarning;
 
     return StatusCode::SUCCESS;
   }
@@ -107,9 +120,12 @@ namespace CP
   {
     m_accept.clear();
 
-    // Perform the tranverse momentum cut.
+    // Perform the tranverse momentum cuts.
     if (m_minPtCutIndex >= 0) {
        m_accept.setCutResult (m_minPtCutIndex, particle->pt() >= m_minPt);
+    }
+    if (m_maxPtCutIndex >= 0) {
+       m_accept.setCutResult (m_maxPtCutIndex, particle->pt() < m_maxPt);
     }
 
     // Perform the eta cut(s).
@@ -129,7 +145,16 @@ namespace CP
           return m_accept;
         }
         m_accept.setCutResult (m_egammaCastCutIndex, true);
-        absEta = std::abs (egamma->caloCluster()->etaBE(2));
+        const xAOD::CaloCluster *const caloCluster {egamma->caloCluster()};
+        if (!caloCluster)
+        {
+          if (m_shouldPrintClusterWarning)
+            ANA_MSG_ERROR ("no calo-cluster associated with e-gamma object");
+          m_shouldPrintClusterWarning = false;
+          return m_accept;
+        }
+        m_accept.setCutResult (m_egammaClusterCutIndex, true);
+        absEta = std::abs (caloCluster->etaBE(2));
       } else
       {
         absEta = std::abs (particle->eta());

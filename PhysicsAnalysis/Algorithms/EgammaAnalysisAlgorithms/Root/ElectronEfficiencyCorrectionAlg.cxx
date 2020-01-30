@@ -25,7 +25,6 @@ namespace CP
     , m_efficiencyCorrectionTool ("AsgElectronEfficiencyCorrectionTool", this)
   {
     declareProperty ("efficiencyCorrectionTool", m_efficiencyCorrectionTool, "the calibration and smearing tool we apply");
-    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the electron scale factor");
   }
 
 
@@ -38,7 +37,6 @@ namespace CP
       ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
     m_systematicsList.addHandle (m_electronHandle);
@@ -46,6 +44,7 @@ namespace CP
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -54,6 +53,8 @@ namespace CP
   StatusCode ElectronEfficiencyCorrectionAlg ::
   execute ()
   {
+    ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
+
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
         xAOD::ElectronContainer *electrons = nullptr;
@@ -64,7 +65,9 @@ namespace CP
           {
             double sf = 0;
             ANA_CHECK_CORRECTION (m_outOfValidity, *electron, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*electron, sf));
-            (*m_scaleFactorAccessor) (*electron) = sf;
+            m_scaleFactorDecoration.set (*electron, sf, sys);
+          } else {
+            m_scaleFactorDecoration.set (*electron, invalidScaleFactor(), sys);
           }
         }
         return StatusCode::SUCCESS;

@@ -219,12 +219,12 @@ if not "HIGG5D1Jets" in OutputJets:
     OutputJets["HIGG5D1Jets"] = []
 
     # TCC JETS reconstruction
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
     # Set up geometry and BField
     import AthenaCommon.AtlasUnixStandardJob
 
     include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(higg5d1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    runTCCReconstruction(higg5d1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
     reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
     if jetFlags.useTruth:
@@ -318,7 +318,7 @@ HIGG5D1SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollec
 HIGG5D1SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D1SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 HIGG5D1SlimmingHelper.AllVariables = ExtraContainers
-# HIGG5D1SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
+# HIGG5D1SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"]
 if DerivationFrameworkIsMonteCarlo :
     HIGG5D1SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D1SlimmingHelper.AllVariables += ExtraContainersTruth

@@ -9,6 +9,8 @@
 #include "PATInterfaces/SystematicsTool.h"
 #include "AsgTools/AsgTool.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include <TH2.h>
 #include <string>
 #include <memory>
@@ -20,7 +22,9 @@ enum SystApplied {
   JVT_EFFICIENCY_DOWN,
   JVT_EFFICIENCY_UP,
   FJVT_EFFICIENCY_DOWN,
-  FJVT_EFFICIENCY_UP
+  FJVT_EFFICIENCY_UP,
+  MVFJVT_EFFICIENCY_DOWN,
+  MVFJVT_EFFICIENCY_UP
 };
 
 class JetJvtEfficiency: public asg::AsgTool, public CP::SystematicsTool, virtual public CP::IJetJvtEfficiency {
@@ -30,7 +34,6 @@ public:
     JetJvtEfficiency( const std::string& name);
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize();
 
     StatusCode histInitialize();
 
@@ -72,12 +75,15 @@ private:
     float m_jvtCutBorder;
     std::string m_jetJvtMomentName;
     std::string m_jetfJvtMomentName;
+    std::string m_jetMVfJvtMomentName;
     std::string m_jetEtaName;
     float m_maxPtForJvt;
     bool m_dofJVT;
+    bool m_doMVfJVT;
     bool m_doTruthRequirement;
     std::string m_ORdec;
     bool m_doOR;
+    bool m_useMuBinsSF;
 };
 
 } /* namespace CP */

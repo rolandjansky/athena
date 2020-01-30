@@ -14,6 +14,8 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from BTagging.BTaggingFlags import BTaggingFlags
 
+#BTaggingFlags.Do2019Retraining = False 
+
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
@@ -42,20 +44,36 @@ from DerivationFrameworkSUSY.SUSY1TriggerList import SUSY1ThinTriggers
 SUSY1ThinningHelper.TriggerChains = '|'.join(SUSY1ThinTriggers)
 SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 
+SUSY1ThinningHelper.Actions = ['DropFeatures', 'Reload', 'SyncThinning', 'Save', 'Restore']
+
 
 #====================================================================
 # THINNING TOOL
 #====================================================================\
 
-# TrackParticles associated with Vertices from soft tagging
+# TrackParticles associated with Vertices from soft tagging x3 OPs
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
 
-SUSY1VertexTPThinningTool = DerivationFramework__VertexParticleThinning(name			 = "SUSY1VertexTPThinningTool",
+SUSY1VertexTPThinningToolTight = DerivationFramework__VertexParticleThinning(name		 = "SUSY1VertexTPThinningToolTight",
 									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
-									 VertexKey		 = "SoftBVrtClusterTool_Vertices",
+									 VertexKey		 = "SoftBVrtClusterTool_Tight_Vertices",
 									 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY1VertexTPThinningTool
-thinningTools.append(SUSY1VertexTPThinningTool)
+ToolSvc += SUSY1VertexTPThinningToolTight
+thinningTools.append(SUSY1VertexTPThinningToolTight)
+
+SUSY1VertexTPThinningToolMedium = DerivationFramework__VertexParticleThinning(name		 = "SUSY1VertexTPThinningToolMedium",
+									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+									 VertexKey		 = "SoftBVrtClusterTool_Medium_Vertices",
+									 InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY1VertexTPThinningToolMedium
+thinningTools.append(SUSY1VertexTPThinningToolMedium)
+
+SUSY1VertexTPThinningToolLoose = DerivationFramework__VertexParticleThinning(name		 = "SUSY1VertexTPThinningToolLoose",
+									 ThinningService	 = SUSY1ThinningHelper.ThinningSvc(),
+									 VertexKey		 = "SoftBVrtClusterTool_Loose_Vertices",
+									 InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY1VertexTPThinningToolLoose
+thinningTools.append(SUSY1VertexTPThinningToolLoose)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -291,7 +309,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY1)
 OutputJets["SUSY1"] = []
 
 #reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets"]
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets","AntiKt4TruthDressedWZJets"]
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
 #  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
@@ -309,19 +327,48 @@ from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
 
 SeqSUSY1 += CfgMgr.BTagVertexAugmenter()
 
-BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
-ToolSvc += BJetSVFinderTool
-BJetSVFinderTool.ConeForTag = 0.6
+# used by Loose and Medium
+SoftBJetSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetSVFinder")
+ToolSvc += SoftBJetSVFinderTool
+SoftBJetSVFinderTool.ConeForTag = 0.75
 
-softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
+softTagAlgLoose = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolLoose",
                            OutputLevel=INFO, #DEBUG                                                                                          
                            )
 
-softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
-softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgLoose.SVFinderName = 'SoftBJetSVFinder'
+softTagAlgLoose.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgLoose.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgLoose.OperatingPoint = 'Loose'
 
-SeqSUSY1 += softTagAlg
+SeqSUSY1 += softTagAlgLoose
 
+softTagAlgMedium = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolMedium",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlgMedium.SVFinderName = 'SoftBJetSVFinder'
+softTagAlgMedium.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgMedium.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgMedium.OperatingPoint = 'Medium'
+
+SeqSUSY1 += softTagAlgMedium
+
+# used by Tight
+SoftBJetSVFinderToolTight      = InDetVKalVxInJetFinder("SoftBJetSVFinderTight")
+ToolSvc += SoftBJetSVFinderToolTight
+SoftBJetSVFinderToolTight.ConeForTag = 0.6
+
+softTagAlgTight = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolTight",
+                           OutputLevel=INFO, #DEBUG                                                                                          
+                           )
+
+softTagAlgTight.SVFinderName = 'SoftBJetSVFinderTight'
+softTagAlgTight.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+softTagAlgTight.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlgTight.OperatingPoint = 'Tight'
+
+SeqSUSY1 += softTagAlgTight
 
 #==============================================================================
 # Augment after skim
@@ -350,21 +397,24 @@ SUSY1SlimmingHelper = SlimmingHelper("SUSY1SlimmingHelper")
 SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "AntiKt4EMTopoJets",
                                         "AntiKt4EMPFlowJets",
-
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
-
                                         "Muons",
                                         "TauJets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt4EMPFlow",
-
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
-                                        "BTagging_AntiKt2Track",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        #"BTagging_AntiKt4EMTopo",
+                                        #"BTagging_AntiKt4EMPFlow",
+                                        # "BTagging_AntiKt2Track",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
-  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKtVR30Rmax4Rmin02TrackJets",
+  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
   #"AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets",
   "MET_Track"
 ]
@@ -373,7 +423,7 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				                              "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD", #xbb variables
-                                      "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1rmu_pu.DL1rmu_pc.DL1rmu_pb.DL1r_pu.DL1r_pc.DL1r_pb",
+                                      "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1rmu_pu.DL1rmu_pc.DL1rmu_pb.DL1r_pu.DL1r_pc.DL1r_pb",
                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.GhostBHadronsFinalCount",
                                       # TODO: .DFCommonJets_Jvt",
 				                              "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
@@ -383,7 +433,8 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				                              "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
 				                              "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                                       "InDetTrackParticles.TrkIsoPt1000_ptcone20.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone40.TrkIsoPt500_ptcone20.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone40",
-                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB",
+                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB.BTagBtagToJetAssociator",
+#                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB",
                                       "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
                                     ]
 
@@ -398,8 +449,12 @@ SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 StaticContent = []
-StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
-StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Medium_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Medium_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Loose_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Loose_VerticesAux." + excludedVertexAuxData]
 
 SUSY1SlimmingHelper.StaticContent = StaticContent
 

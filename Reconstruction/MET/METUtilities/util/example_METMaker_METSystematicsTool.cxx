@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //Author: Russell Smith
@@ -92,7 +92,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   }
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.
-  std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
+  std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   assert( ifile.get() );
 
   // Create a TEvent object to read from file and a transient store in which to place items

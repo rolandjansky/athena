@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopCorrections/GlobalLeptonTriggerCalculator.h"
 #include "TopConfiguration/TopConfig.h"
@@ -18,38 +18,34 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include <vector>
 
 
-namespace top{
+namespace top {
+  GlobalLeptonTriggerCalculator::GlobalLeptonTriggerCalculator(const std::string& name) :
+    asg::AsgTool(name),
+    m_config(nullptr),
 
-  GlobalLeptonTriggerCalculator::GlobalLeptonTriggerCalculator( const std::string& name ) :
-  asg::AsgTool( name ),
-  m_config(nullptr),
+    m_globalTriggerSF("TrigGlobalEfficiencyCorrectionTool::TrigGlobal"),
+    m_globalTriggerSFLoose("TrigGlobalEfficiencyCorrectionTool::TrigGlobalLoose"),
 
-  m_globalTriggerSF("TrigGlobalEfficiencyCorrectionTool::TrigGlobal"),
-  m_globalTriggerSFLoose("TrigGlobalEfficiencyCorrectionTool::TrigGlobalLoose"),
-
-  m_decor_triggerSF("AnalysisTop_Trigger_SF")
-
-  {
-    declareProperty( "config" , m_config );
+    m_decor_triggerSF("AnalysisTop_Trigger_SF") {
+    declareProperty("config", m_config);
   }
 
-  StatusCode GlobalLeptonTriggerCalculator::initialize()
-  {
-    ATH_MSG_INFO(" top::GlobalLeptonTriggerCalculator initialize" );
-    
-    if(m_config->doTightEvents())
-      top::check( m_globalTriggerSF.retrieve(),      "Failed to retrieve global trigger SF tool");
-    if(m_config->doLooseEvents())
-      top::check( m_globalTriggerSFLoose.retrieve(), "Failed to retrieve global trigger SF tool (loose)");
+  StatusCode GlobalLeptonTriggerCalculator::initialize() {
+    ATH_MSG_INFO(" top::GlobalLeptonTriggerCalculator initialize");
+
+    if (m_config->doTightEvents()) top::check(m_globalTriggerSF.retrieve(),
+                                              "Failed to retrieve global trigger SF tool");
+    if (m_config->doLooseEvents()) top::check(
+        m_globalTriggerSFLoose.retrieve(), "Failed to retrieve global trigger SF tool (loose)");
 
     // Retrieve the systematic names we stored
-    for(auto& s : m_config->getGlobalTriggerElectronSystematics()) ATH_MSG_DEBUG(" - Electron systematics : " << s);
-    for(auto& s : m_config->getGlobalTriggerMuonSystematics())     ATH_MSG_DEBUG(" - Muon systematics : " << s);
+    for (auto& s : m_config->getGlobalTriggerElectronSystematics()) ATH_MSG_DEBUG(" - Electron systematics : " << s);
+    for (auto& s : m_config->getGlobalTriggerMuonSystematics()) ATH_MSG_DEBUG(" - Muon systematics : " << s);
 
     {
-      std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool>> tools;
+      std::vector<ToolHandle<IAsgElectronEfficiencyCorrectionTool> > tools;
       tools.reserve(m_config->getGlobalTriggerElectronTools().size());
-      for (auto const & s : m_config->getGlobalTriggerElectronTools()) {
+      for (auto const& s : m_config->getGlobalTriggerElectronTools()) {
         ATH_MSG_DEBUG(" - Electron tools : " << s);
         tools.emplace_back(s);
         top::check(tools.back().retrieve(), "Failed to retrieve electron tool");
@@ -57,9 +53,9 @@ namespace top{
       m_electronTools.swap(tools);
     }
     {
-      std::vector<ToolHandle<CP::IMuonTriggerScaleFactors>> tools;
+      std::vector<ToolHandle<CP::IMuonTriggerScaleFactors> > tools;
       tools.reserve(m_config->getGlobalTriggerMuonTools().size());
-      for (auto const & s : m_config->getGlobalTriggerMuonTools()) {
+      for (auto const& s : m_config->getGlobalTriggerMuonTools()) {
         ATH_MSG_DEBUG(" - Muon tools : " << s);
         tools.emplace_back(s);
         top::check(tools.back().retrieve(), "Failed to retrieve muon tool");
@@ -70,24 +66,26 @@ namespace top{
     return StatusCode::SUCCESS;
   }
 
-
-  StatusCode GlobalLeptonTriggerCalculator::execute()
-  {
+  StatusCode GlobalLeptonTriggerCalculator::execute() {
     ATH_MSG_DEBUG("Entered GlobalLeptonTriggerCalculator::execute");
 
-    auto const & nominalHash = m_config->nominalHashValue();
+    auto const& nominalHash = m_config->nominalHashValue();
     if (m_config->doTightEvents()) {
-      xAOD::SystematicEventContainer const * systEvents = nullptr;
-      top::check( evtStore()->retrieve(systEvents, m_config->sgKeyTopSystematicEvents()) , "Failed to get xAOD::SystematicEventContainer");
-      for (xAOD::SystematicEvent * systEvent : *systEvents) {
+      xAOD::SystematicEventContainer const* systEvents = nullptr;
+      top::check(evtStore()->retrieve(systEvents,
+                                      m_config->sgKeyTopSystematicEvents()),
+                 "Failed to get xAOD::SystematicEventContainer");
+      for (xAOD::SystematicEvent* systEvent : *systEvents) {
         bool withScaleFactorVariations = (systEvent->hashValue() == nominalHash);
         processEvent(systEvent, withScaleFactorVariations);
       }
     }
     if (m_config->doLooseEvents()) {
-      xAOD::SystematicEventContainer const * systEvents = nullptr;
-      top::check( evtStore()->retrieve(systEvents, m_config->sgKeyTopSystematicEventsLoose()) , "Failed to get xAOD::SystematicEventContainer");
-      for (xAOD::SystematicEvent * systEvent : *systEvents) {
+      xAOD::SystematicEventContainer const* systEvents = nullptr;
+      top::check(evtStore()->retrieve(systEvents,
+                                      m_config->sgKeyTopSystematicEventsLoose()),
+                 "Failed to get xAOD::SystematicEventContainer");
+      for (xAOD::SystematicEvent* systEvent : *systEvents) {
         bool withScaleFactorVariations = (systEvent->hashValue() == nominalHash);
         processEvent(systEvent, withScaleFactorVariations);
       }
@@ -97,11 +95,11 @@ namespace top{
     return StatusCode::SUCCESS;
   }
 
-
-  void GlobalLeptonTriggerCalculator::processEvent(xAOD::SystematicEvent * systEvent, bool withScaleFactorVariations) {
-    auto const & hash = systEvent->hashValue();
+  void GlobalLeptonTriggerCalculator::processEvent(xAOD::SystematicEvent* systEvent, bool withScaleFactorVariations) {
+    auto const& hash = systEvent->hashValue();
     bool isLoose = systEvent->isLooseEvent();
-    std::string const & systname = m_config->systematicName(hash);
+
+    std::string const& systname = m_config->systematicName(hash);
     ATH_MSG_DEBUG("Calculating trigger SF for variation " << systname << " (" << hash << ") with isLoose=" << isLoose);
 
     // Retrieve nominal muons, retrieve nominal electrons
@@ -109,63 +107,69 @@ namespace top{
     const xAOD::ElectronContainer* electrons(nullptr);
     std::vector<const xAOD::Muon*> selectedMuons;
     std::vector<const xAOD::Electron*> selectedElectrons;
-
-    top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons(hash)), "Failed to retrieve muons");
+    
+    if (m_config->useMuons()) top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons(hash)), "Failed to retrieve muons");
+    
     // Put into a vector
     for (size_t index : systEvent->goodMuons()) {
       selectedMuons.push_back(muons->at(index));
     }
 
-    top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons(hash)), "Failed to retrieve electrons");
+    if (m_config->useElectrons()) top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons(hash)), "Failed to retrieve electrons");
     // Put into a vector
     for (size_t index : systEvent->goodElectrons()) {
       selectedElectrons.push_back(electrons->at(index));
     }
-    
+
     // manage current electron trigger SF variation
     CP::SystematicSet electronSystSet;
-    auto setCurrentElectronVariation = [this,&electronSystSet](std::string const & parameterName, int value) {
-      electronSystSet.clear();
-      if (!parameterName.empty())
-        electronSystSet.insert(CP::SystematicVariation(parameterName, value));
-      for (auto&& tool : m_electronTools) {
-        top::check( tool->applySystematicVariation(electronSystSet), "Failed to apply systematic");
-      }
-    };
+    auto setCurrentElectronVariation = [this, &electronSystSet](std::string const& parameterName, int value) {
+                                         electronSystSet.clear();
+                                         if (!parameterName.empty()) electronSystSet.insert(CP::SystematicVariation(
+                                                                                              parameterName, value));
+                                         for (auto&& tool : m_electronTools) {
+                                           top::check(tool->applySystematicVariation(
+                                                        electronSystSet), "Failed to apply systematic");
+                                         }
+                                       };
 
     // manage current muon trigger SF variation
     CP::SystematicSet muonSystSet;
-    auto setCurrentMuonVariation = [this,&muonSystSet](std::string const & parameterName, int value) {
-      muonSystSet.clear();
-      if (!parameterName.empty())
-        muonSystSet.insert(CP::SystematicVariation(parameterName, value));
-      for (auto&& tool : m_muonTools) {
-        top::check( tool->applySystematicVariation(muonSystSet), "Failed to apply systematic");
-      }
-    };
+    auto setCurrentMuonVariation = [this, &muonSystSet](std::string const& parameterName, int value) {
+                                     muonSystSet.clear();
+                                     if (!parameterName.empty()) muonSystSet.insert(CP::SystematicVariation(
+                                                                                      parameterName, value));
+                                     for (auto&& tool : m_muonTools) {
+                                       top::check(tool->applySystematicVariation(
+                                                    muonSystSet), "Failed to apply systematic");
+                                     }
+                                   };
 
     // compute and store trigger SF for current variation
     auto&& globalTriggerTool = (isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
     auto decorateEventForCurrentVariation = [&]() {
-      double sf;
-      if (selectedElectrons.empty() && selectedMuons.empty()) {
-        sf = 1.;
-      }
-      else {
-        sf = NAN;
-        top::check( globalTriggerTool->getEfficiencyScaleFactor(selectedElectrons, selectedMuons, sf) , "Failed to get global trigger SF");
-      }
-      std::string auxname(m_decor_triggerSF);
-      auxname += "_";
-      if (!(electronSystSet.empty() && muonSystSet.empty())) {
-        CP::SystematicSet systSet;
-        systSet.insert(electronSystSet);
-        systSet.insert(muonSystSet);
-        auxname += systSet.name();
-      }
-      ATH_MSG_DEBUG("Adding decoration " << auxname << " = " << sf);
-      systEvent->auxdecor<float>(auxname) = sf;
-    };
+                                              double sf;
+
+                                              if (selectedElectrons.empty() && selectedMuons.empty()) {
+                                                sf = 1.;
+                                              } else {
+                                                sf = NAN;
+                                                top::check(globalTriggerTool->getEfficiencyScaleFactor(
+                                                             selectedElectrons,
+                                                             selectedMuons,
+                                                             sf), "Failed to get global trigger SF");
+                                              }
+                                              std::string auxname(m_decor_triggerSF);
+                                              auxname += "_";
+                                              if (!(electronSystSet.empty() && muonSystSet.empty())) {
+                                                CP::SystematicSet systSet;
+                                                systSet.insert(electronSystSet);
+                                                systSet.insert(muonSystSet);
+                                                auxname += systSet.name();
+                                              }
+                                              ATH_MSG_DEBUG("Adding decoration " << auxname << " = " << sf);
+                                              systEvent->auxdecor<float>(auxname) = sf;
+                                            };
 
     ///-- Set the nominal --///
     setCurrentElectronVariation("", 0);
@@ -177,7 +181,7 @@ namespace top{
       ATH_MSG_DEBUG("Calculating trigger SF variations");
       std::unordered_set<std::string> variations;
       ///-- Set nominal muon for electron systematic --///
-      for(auto& s : m_config->getGlobalTriggerElectronSystematics()){
+      for (auto& s : m_config->getGlobalTriggerElectronSystematics()) {
         for (int val : {1, -1}) {
           setCurrentElectronVariation(s, val);
           decorateEventForCurrentVariation();
@@ -185,7 +189,7 @@ namespace top{
       }
       ///-- Set nominal electron for muon systematic --///
       setCurrentElectronVariation("", 0);
-      for(auto& s : m_config->getGlobalTriggerMuonSystematics()){
+      for (auto& s : m_config->getGlobalTriggerMuonSystematics()) {
         for (int val : {1, -1}) {
           setCurrentMuonVariation(s, val);
           decorateEventForCurrentVariation();
@@ -194,6 +198,4 @@ namespace top{
       setCurrentMuonVariation("", 0);
     }
   }
-
-
 }

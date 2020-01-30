@@ -32,6 +32,8 @@ class IJetSelector;
 class IBTaggingEfficiencyTool;
 class IBTaggingSelectionTool;
 class IJetUpdateJvt;
+class IJetModifier;
+class IJetModifier;
 
 namespace CP {
   class IJetJvtEfficiency;
@@ -98,12 +100,10 @@ namespace ana
 
     /// description: the b-tagged jet selection tool
     asg::AnaToolHandle<IBTaggingSelectionTool> m_bsel_tool;
-    std::map< int, asg::AnaToolHandle<IBTaggingSelectionTool>> m_bsel_tools;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_bsel_OR_tool;
 
     /// description: the cleaning tool
     asg::AnaToolHandle<IJetSelector> m_cleaning_tool;
-
     /// @}
 
   private:
@@ -242,7 +242,9 @@ namespace ana
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagging_eff_tool;
 
     /// The JVT efficiency tool
+    asg::AnaToolHandle<IJetModifier>  m_fjvt_tool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jvtEffTool;
+    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_fjvtEffTool;
 
     /// @}
 

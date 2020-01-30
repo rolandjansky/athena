@@ -6,6 +6,8 @@
 # this probably won't work without IP3D also turned on.  We'll need an
 # expter to figure out how to make taggers independant.
 from BTagging.BTaggingFlags import BTaggingFlags
+from BTagging.JetCollectionToTrainingMaps import preTagDL2JetToTrainingMap
+from BTagging.JetCollectionToTrainingMaps import blacklistedJetCollections
 
 def buildRNNIP(basename, special_config=False, calibration=None):
     cal_dir = calibration or basename
@@ -79,6 +81,9 @@ def buildRNNIP(basename, special_config=False, calibration=None):
             for option in defaults:
                 options.setdefault(option, defaults[option])
         options['name'] = name
+        vetoed = preTagDL2JetToTrainingMap.keys() + blacklistedJetCollections
+        if BTaggingFlags.Do2019Retraining:
+            options['vetoCollections'] = vetoed
         from JetTagTools.JetTagToolsConf import Analysis__RNNIPTag
         return Analysis__RNNIPTag(**options)
 

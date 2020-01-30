@@ -25,6 +25,9 @@ namespace CP {
     const static SystematicVariation nchargedexp_down("JET_QG_nchargedExp__1down");
     const static SystematicVariation nchargedme_down("JET_QG_nchargedME__1down");
     const static SystematicVariation nchargedpdf_down("JET_QG_nchargedPDF__1down");
+    const static SystematicVariation trackeff("JET_QG_trackeff");
+    const static SystematicVariation fake("JET_QG_fake");
+
   } //namespace QGntrackSyst
 
   class IJetQGTagger : public virtual CP::ISystematicsTool, public virtual IJetSelectorTool {
@@ -35,9 +38,10 @@ namespace CP {
 
     virtual ~IJetQGTagger() {}
 
-    virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
-    virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex* pv) const = 0;
+    virtual Root::TAccept& tag(const xAOD::Jet& jet) const = 0;
+    virtual Root::TAccept& tag(const xAOD::Jet& jet, const xAOD::Vertex* pv) const = 0;
 
+    virtual SystematicCode sysApplySystematicVariation(const SystematicSet&) = 0;
   };
 
 } // namespace CP

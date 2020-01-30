@@ -163,10 +163,6 @@ class AnaAlgSequence( AlgSequence ):
                           '%s%s_tmp%i' % ( hiddenLayerPrefix, outputLabel,
                                            tmpIndex[ outputLabel ] )
                         pass
-                    if currentInputs[ outputLabel ].find( '%SYS%' ) == -1:
-                        currentInputs[ outputLabel ] = \
-                          '%s_%%SYS%%' % currentInputs[ outputLabel ]
-                        pass
 
                     tmpIndex[ outputLabel ] += 1
                     setattr( alg, outputPropName, currentInputs[ outputLabel ] )
@@ -216,17 +212,6 @@ class AnaAlgSequence( AlgSequence ):
                 systematicsUsed = True
                 pass
 
-            pass
-
-        # Add a '_%SYS%' postfix to the output name(s) if the user didn't put
-        # this string into the name somewhere. In case the sequence uses
-        # systematic variations...
-        if systematicsUsed:
-            for outputKey in outputNameDict.keys():
-                if not '%SYS%' in outputNameDict[ outputKey ]:
-                    outputNameDict[ outputKey ] += '_%SYS%'
-                    pass
-                pass
             pass
 
         # Set the output name(s) of the last algorithm (that provides output)
@@ -316,7 +301,7 @@ class AnaAlgSequence( AlgSequence ):
         self._algorithmMeta.insert( index, meta )
         return self
 
-    def addPublicTool( self, tool ):
+    def addPublicTool( self, tool, stageName = 'undefined' ):
         """Add a public tool to the job
 
         This function is here to provide a uniform interface with which
@@ -335,7 +320,7 @@ class AnaAlgSequence( AlgSequence ):
         except ImportError:
 
             # We're not, so let's remember this as a "normal" algorithm:
-            self.append( tool, inputPropName = None )
+            self.append( tool, inputPropName = None, stageName = stageName )
             pass
         return
 
@@ -380,7 +365,7 @@ class AnaAlgSequence( AlgSequence ):
         """
 
         if not stageName in self.allowedStageNames() :
-            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + self.allowedStageNames().join (', '))
+            raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
 
         # safety check that we actually know the stages of all
         # algorithms

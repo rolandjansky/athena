@@ -17,6 +17,7 @@
 #include "xAODTruth/xAODTruthHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include <string>
+#include <vector>
 
 // Constructor
 DerivationFramework::TruthLinkRepointTool::TruthLinkRepointTool(const std::string& t,
@@ -28,7 +29,7 @@ DerivationFramework::TruthLinkRepointTool::TruthLinkRepointTool(const std::strin
 
   declareProperty ("RecoCollection", m_recoKey = "Muons", "Name of reco collection for decoration");
   declareProperty ("OutputDecoration", m_decOutput = "TruthLink", "Name of the output decoration on the reco object");
-  declareProperty ("TargetCollection", m_targetKey = "TruthMuons", "Name of target truth collection");
+  declareProperty ("TargetCollections", m_targetKeys = {"TruthMuons","TruthPhotons","TruthElectrons"}, "Name of target truth collections");
 }
 
 // Destructor
@@ -39,8 +40,8 @@ DerivationFramework::TruthLinkRepointTool::~TruthLinkRepointTool() {
 StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
 {
   // Retrieve the truth collections
-  const DataHandle<xAOD::TruthParticleContainer> target(nullptr);
-  ATH_CHECK(evtStore()->retrieve(target, m_targetKey));
+  const std::vector<DataHandle<xAOD::TruthParticleContainer> > target(m_targetKeys.size(),nullptr);
+  for (size_t i=0;i<m_targetKeys.size();++i) ATH_CHECK(evtStore()->retrieve(target[i], m_targetKeys[i]));
 
   SG::AuxElement::Decorator< ElementLink<xAOD::TruthParticleContainer> > output_decorator(m_decOutput);
 
@@ -50,24 +51,57 @@ StatusCode DerivationFramework::TruthLinkRepointTool::addBranches() const
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input); 
-      int index = find_match(truthPart,target);
-      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
+      int index = -1;
+      for (size_t i=0;i<m_targetKeys.size() && index<0 && truthPart;++i){
+        index = find_match(truthPart,target[i]);
+        if (index>=0) output_decorator(*input) = ElementLink<xAOD::TruthParticleContainer>(*(target[i]),index);
+      }
+      if (index<0){
+        if (truthPart){
+          ATH_MSG_DEBUG("No particle with barcode " << truthPart->barcode() << " PDG ID " << truthPart->pdgId() 
+                       << " pT=" << truthPart->pt()*0.001 << " GeV and status " << truthPart->status() 
+                       << " found in " << m_targetKeys.size() << " target containers");
+        }
+        output_decorator(*input) = ElementLink<xAOD::TruthParticleContainer>();
+      }
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Photon")){
     const DataHandle<xAOD::PhotonContainer> inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
-      int index = find_match(truthPart,target);
-      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
+      int index = -1;
+      for (size_t i=0;i<m_targetKeys.size() && index<0 && truthPart;++i){
+        index = find_match(truthPart,target[i]);
+        if (index>=0) output_decorator(*input) = ElementLink<xAOD::TruthParticleContainer>(*(target[i]),index);
+      }
+      if (index<0){
+        if (truthPart){
+          ATH_MSG_DEBUG("No particle with barcode " << truthPart->barcode() << " PDG ID " << truthPart->pdgId()
+                       << " pT=" << truthPart->pt()*0.001 << " GeV and status " << truthPart->status()
+                       << " found in " << m_targetKeys.size() << " target containers");
+        }
+        output_decorator(*input) = ElementLink<xAOD::TruthParticleContainer>();
+      }
     } // Loop over input particles
   } else if (std::string::npos!=m_recoKey.find("Muon")){
     const DataHandle<xAOD::MuonContainer> inputCont(nullptr);
     ATH_CHECK(evtStore()->retrieve(inputCont, m_recoKey));
     for (auto input : *inputCont){
       const xAOD::TruthParticle* truthPart = xAOD::TruthHelpers::getTruthParticle(*input);
-      int index = find_match(truthPart,target);
-      output_decorator(*input) = index>=0?ElementLink<xAOD::TruthParticleContainer>(target,index):ElementLink<xAOD::TruthParticleContainer>();
+      int index = -1;
+      for (size_t i=0;i<m_targetKeys.size() && index<0 && truthPart;++i){
+        index = find_match(truthPart,target[i]);
+        if (index>=0) output_decorator(*input) = ElementLink<xAOD::TruthParticleContainer>(*(target[i]),index);
+      }
+      if (index<0){
+        if (truthPart){
+          ATH_MSG_DEBUG("No particle with barcode " << truthPart->barcode() << " PDG ID " << truthPart->pdgId()
+                       << " pT=" << truthPart->pt()*0.001 << " GeV and status " << truthPart->status()
+                       << " found in " << m_targetKeys.size() << " target containers");
+        }
+        output_decorator(*input) = ElementLink<xAOD::TruthParticleContainer>();
+      }
     } // Loop over input particles
   }
 
@@ -83,7 +117,6 @@ int DerivationFramework::TruthLinkRepointTool::find_match(const xAOD::TruthParti
   for (int i=0;i<int(c->size());++i){
     if (c->at(i) && p->barcode()==c->at(i)->barcode()) return i;
   }
-  // Warn if it wasn't in the mini-collection
-  ATH_MSG_WARNING("No particle with barcode " << p->barcode() << " found in target container " << m_targetKey);
+  // Note: just fine if it wasn't in the mini-collection
   return -1;
 }

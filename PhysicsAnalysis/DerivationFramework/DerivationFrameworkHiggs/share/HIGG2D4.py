@@ -90,6 +90,7 @@ metTriggerRequirement=[]
 # add MET trigger to recover muon trigger efficiency at high pt
 if True :
     triglist=[]
+    triglist.append("HLT_xe70") #added on Nov 2019
     triglist.append("HLT_xe80_tc_lcw_L1XE50") # added on Apr 2016
     triglist.append("HLT_xe90_tc_lcw_L1XE50")
     triglist.append("HLT_xe100_tc_lcw_L1XE50")
@@ -279,12 +280,12 @@ if not "HIGG2D4Jets" in OutputJets:
     OutputJets["HIGG2D4Jets"] = []
 
     # have to run tcc reconstruction prior to jet finding
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
     # Set up geometry and BField
     import AthenaCommon.AtlasUnixStandardJob
 
     include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(higg2d4Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    runTCCReconstruction(higg2d4Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
     reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
     if jetFlags.useTruth:

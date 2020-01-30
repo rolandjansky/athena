@@ -26,7 +26,7 @@ namespace CP
     //
 
   public:
-    SelectionAccessorNull ();
+    SelectionAccessorNull (bool value = true);
 
   public:
     virtual SelectionType
@@ -44,11 +44,15 @@ namespace CP
     virtual void setBool (SG::AuxElement& element,
                           bool selection) const override;
 
+  public:
+    virtual std::string label () const override;
 
 
     //
     // private interface
     //
+  private:
+    bool m_value;
   };
 }
 

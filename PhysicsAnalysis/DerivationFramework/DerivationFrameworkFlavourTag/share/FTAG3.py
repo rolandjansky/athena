@@ -134,13 +134,10 @@ FTAG3SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
                                         "MET_Reference_AntiKt4EMTopo",]
 
-FTAG3SlimmingHelper.AllVariables =  ["AntiKt4EMTopoJets",
-                                     "AntiKt10TruthWZJets",
-                                     "BTagging_AntiKt4EMTopo",
-                                     "BTagging_AntiKt4EMTopoJFVtx",
+FTAG3SlimmingHelper.AllVariables =  ["AntiKt10TruthWZJets",
                                      "BTagging_AntiKt2Track",
                                      "BTagging_AntiKt2TrackJFVtx", 
                                      "BTagging_AntiKt10TruthWZ",
@@ -159,9 +156,26 @@ FTAG3SlimmingHelper.AllVariables =  ["AntiKt4EMTopoJets",
                                      "HLT_xAOD__MuonContainer_MuonEFInfo"
                                       ]
 
-FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
-                                       "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
+FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10TruthSecVtx.-vxTrackAtVertex"]
+
+
+if BTaggingFlags.Do2019Retraining:
+    FTAG3SlimmingHelper.SmartCollections += \
+            ["AntiKt4EMTopoJets_BTagging201810"]
+
+    FTAG3SlimmingHelper.AllVariables += \
+            ["BTagging_AntiKt4EMTopo_201810",
+                    "AntiKt4EMTopoJets_BTagging201810"]
+    FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex"]
+else:
+    FTAG3SlimmingHelper.SmartCollections += \
+            ["AntiKt4EMTopoJets"]
+    FTAG3SlimmingHelper.AllVariables += \
+            ["BTagging_AntiKt4EMTopo",
+             "AntiKt4EMTopoJets"]
+    FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
+
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
@@ -176,6 +190,8 @@ FTAG3SlimmingHelper.AppendToDictionary = {
   "TruthParticlesAux"                          :   "xAOD::TruthParticleAuxContainer", 
   "TruthMuons"                                 :   "xAOD::TruthParticleContainer",
   "TruthMuonsAux"                              :   "xAOD::TruthParticleAuxContainer",
+  "BTagging_AntiKt4EMTopo_201810SecVtx"        :   "xAOD::VertexContainer",
+  "BTagging_AntiKt4EMTopo_201810SecVtxAux"     :   "xAOD::VertexAuxContainer",
   "BTagging_AntiKt2Track"                      :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt2TrackAux"                   :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt2TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,

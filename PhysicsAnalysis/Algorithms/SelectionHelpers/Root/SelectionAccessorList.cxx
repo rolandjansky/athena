@@ -20,7 +20,17 @@ namespace CP
   SelectionAccessorList ::
   SelectionAccessorList (std::vector<std::unique_ptr<ISelectionAccessor> > val_list)
     : m_list (std::move (val_list))
-  {}
+  {
+    for (const std::unique_ptr<ISelectionAccessor> &acc : m_list)
+    {
+      if (!m_label.empty())
+        m_label.append(" && ");
+      
+      m_label.append(acc->label());
+    }
+
+    m_label = "( " + m_label + " )";
+  }
 
 
 
@@ -85,5 +95,12 @@ namespace CP
     // components, but I can't think of a situation in which that
     // would be a good idea
     throw std::runtime_error ("setting not supported for CP::SelectionAccessorList");
+  }
+
+
+  std::string SelectionAccessorList ::
+  label () const
+  {
+    return m_label;
   }
 }

@@ -21,11 +21,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
+                          Event/xAOD/xAODJet
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           PhysicsAnalysis/AnalysisCommon/ParticleJetTools
                           PhysicsAnalysis/JetTagging/JetTagEvent
                           PhysicsAnalysis/JetTagging/JetTagInfo
                           PhysicsAnalysis/JetTagging/JetTagTools
+                          PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkLinks
                           Tracking/TrkEvent/VxJetVertex
@@ -44,9 +46,10 @@ atlas_add_library( BTaggingLib
                    src/StandAloneJetBTaggerAlg.cxx
                    src/BTagJetPtScaling.cxx
                    src/BTagTrackAugmenterAlg.cxx
+                   src/BTagNNAlg.cxx
                    PUBLIC_HEADERS BTagging
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex ParticleJetToolsLib JetTagToolsLib
+                   LINK_LIBRARIES AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex ParticleJetToolsLib JetTagToolsLib FlavorTagDiscriminants
                    PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives xAODBase xAODCore xAODMuon xAODTracking InDetRecToolInterfaces JetTagEvent JetTagInfo Particle TrkLinks VxJetVertex VxSecVertex )
 
 atlas_add_component( BTagging

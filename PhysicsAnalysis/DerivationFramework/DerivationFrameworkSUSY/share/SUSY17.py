@@ -267,19 +267,22 @@ SUSY17SlimmingHelper.SmartCollections = ["Electrons",
                                         "Muons",
                                         "TauJets",
                                         "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
-
- #K.Onogi removed 15/11/16              "AntiKt4LCTopoJets",
-                                        "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-
-                                        "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
-
-                                        "InDetTrackParticles",
-                                        "PrimaryVertices"]
+                                         "AntiKt4EMPFlowJets",
+                                         #K.Onogi removed 15/11/16              "AntiKt4LCTopoJets",
+                                         "MET_Reference_AntiKt4EMTopo",
+                                         "MET_Reference_AntiKt4EMPFlow",
+                                         #"BTagging_AntiKt4EMTopo",
+                                         #"BTagging_AntiKt4EMPFlow",
+                                         "AntiKt4EMPFlowJets_BTagging201810",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "BTagging_AntiKt4EMPFlow_201810",
+                                         "BTagging_AntiKt4EMPFlow_201903",
+                                         "AntiKt4EMTopoJets_BTagging201810",
+                                         "BTagging_AntiKt4EMTopo_201810",
+                                         "InDetTrackParticles",
+                                         "PrimaryVertices"]
 SUSY17SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
-SUSY17SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
+SUSY17SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                       "Photons.author.Loose.Tight",
                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
@@ -294,8 +297,8 @@ SUSY17SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.
                                       "Electrons.bkgTruthType.bkgTruthOrigin",
  #P. Pani removed 20/06/16                                     "AntiKt3PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
  #P. Pani removed 20/06/16                                     "BTagging_AntiKt3Track.MV2c20_discriminant",
-                                      "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
-                                      "BTagging_AntiKt2Track.MV2c10_discriminant"]
+                                      "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink"]
+                                      #"BTagging_AntiKt2Track.MV2c10_discriminant"]
 
 # Saves BDT and input variables for light lepton algorithms.
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.

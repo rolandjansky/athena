@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011 - 2012.
@@ -312,7 +312,7 @@ namespace SH
   void MetaObject ::
   addReplace (TNamed *meta_swallow)
   {
-    std::auto_ptr<TNamed> meta (meta_swallow);
+    std::unique_ptr<TNamed> meta (meta_swallow);
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (meta_swallow != 0);
 
@@ -461,7 +461,7 @@ namespace SH
   void MetaObject ::
   Add (TObject *meta_swallow)
   {
-    std::auto_ptr<TObject> meta (meta_swallow);
+    std::unique_ptr<TObject> meta (meta_swallow);
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (meta_swallow != 0);
     m_dataList->Add (meta.release());
@@ -507,7 +507,7 @@ namespace SH
   {
     RCU_READ_INVARIANT (this);
 
-    std::auto_ptr<TIterator> result (m_dataList->MakeIterator (dir));
+    std::unique_ptr<TIterator> result (m_dataList->MakeIterator (dir));
 
     RCU_PROVIDE2 (result.get() != 0, "result != 0");
     return result.release();

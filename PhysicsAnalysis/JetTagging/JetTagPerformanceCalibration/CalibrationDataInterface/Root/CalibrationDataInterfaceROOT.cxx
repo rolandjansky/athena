@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -622,6 +622,12 @@ Analysis::CalibrationDataInterfaceROOT::~CalibrationDataInterfaceROOT()
       if (m_runEigenVectorMethod && m_eigenVariationsMap[*it]) { delete m_eigenVariationsMap[*it]; m_eigenVariationsMap[*it] = 0;}
       delete *it; *it = 0;
     }
+  }
+
+  for (std::map<std::string, HadronisationReferenceHelper*>::iterator it = m_refMap.begin();
+       it != m_refMap.end(); ++it) {
+    if(it->second)
+      { delete it->second; it->second=nullptr; }
   }
 
   // Print summary output on out-of-bounds issues
@@ -1599,7 +1605,7 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
       return Analysis::kError;
     }
     // the 'extrapolation' uncertainty (always a named one) needs a somewhat special treatment
-    bool extrapolate = SFNamed ? eigenVariation->isExtrapolationVariation(numVariation) : false;
+    bool extrapolate = ( unc == SFNamed ) ? eigenVariation->isExtrapolationVariation(numVariation) : false;
     
     double valueUp;
     double valueDown;

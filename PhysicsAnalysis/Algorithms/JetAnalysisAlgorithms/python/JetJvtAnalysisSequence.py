@@ -2,21 +2,26 @@
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
+                                preselection = '',
+                                disableFJvt = False,
                                 globalSF = True,
-                                runSelection = True ):
+                                runSelection = True,
+                                enableCutflow = False ):
     """Create a jet JVT analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       jetCollection -- The jet container to run on
-      globalSF -- Wether to calculate per event scale factors
-      runSelection -- Wether to run selection
+      disableFJvt -- Whether to disable forward JVT calculations
+      globalSF -- Whether to calculate per event scale factors
+      runSelection -- Whether to run selection
+      enableCutflow -- Whether or not to dump the cutflow
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     if runSelection and not globalSF :
@@ -32,40 +37,46 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
+        from JetAnalysisSequence import jvtSysts, fjvtSysts
+
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
-        alg.scaleFactorDecoration = 'jvt_effSF'
-        alg.preselection = 'no_jvt'
+        alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
+        alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
+        alg.scaleFactorInputDecorationRegex = jvtSysts
+        alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
 
         seq.append( alg,
+                    affectingSystematics = jvtSysts,
                     inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' },
-                    outputPropName = { 'jets' : 'particlesOut',
-                                       'eventInfo' : 'eventInfoOut' } )
+                                      'eventInfo' : 'eventInfo' } )
 
-        alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
-        alg.scaleFactorDecoration = 'fjvt_effSF'
-        alg.preselection= 'no_fjvt'
+        if not disableFJvt:
+            alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
+            alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
+            alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
+            alg.scaleFactorInputDecorationRegex = fjvtSysts
+            alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 
-        seq.append( alg,
-                    inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' },
-                    outputPropName = { 'jets' : 'particlesOut',
-                                       'eventInfo' : 'eventInfoOut' } )
-
+            seq.append( alg,
+                        affectingSystematics = fjvtSysts,
+                        inputPropName = { 'jets' : 'particles',
+                                          'eventInfo' : 'eventInfo' } )
 
     if runSelection:
         cutlist.append('jvt_selection')
         cutlength.append(1)
-        
-        cutlist.append('fjvt_selection')
-        cutlength.append(1)
 
-        # Set up an algorithm used for debugging the jet selection:
-        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetJvtCutFlowDumperAlg' )
-        alg.histPattern = 'jet_cflow_jvt_%SYS%'
-        alg.selection = cutlist
-        alg.selectionNCuts = cutlength
-        seq.append( alg, inputPropName = { 'jets' : 'input' })
+        if not disableFJvt:
+            cutlist.append('fjvt_selection')
+            cutlength.append(1)
+
+        # Set up an algorithm used to create jet JVT selection cutflow:
+        if enableCutflow:
+            alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetJvtCutFlowDumperAlg' )
+            alg.histPattern = 'jet_cflow_jvt_%SYS%'
+            alg.selection = cutlist
+            alg.selectionNCuts = cutlength
+            seq.append( alg, inputPropName = { 'jets' : 'input' })
 
         # Set up an algorithm that makes a view container using the selections
         # performed previously:

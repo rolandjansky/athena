@@ -158,9 +158,11 @@ namespace CP {
        private:
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
 
-            float m_coreCone; //The core of the topoEt variables. Clusters within the core shall not be
-                              //added to the isolation of the object itself. They are defined to be associated with it.
-
+            float m_coreConeEl;     //The core of the topoEt variables. Clusters within the core shall not be
+                                    //added to the isolation of the object itself. They are defined to be associated with it.
+            
+            float m_coreConeMu;     //  Muons have half of the cone-size compared to electrons
+                                    // (c.f. https://gitlab.cern.ch/atlas/athena/blob/21.2/Reconstruction/RecoTools/IsolationTool/Root/CaloIsolationTool.cxx#L82)
             float m_ptvarconeRadius; //Reference value to calculate the size of the mini-iso variables
                                      // dR = min (fixed , m_ptvarcone / particle->pt())
 

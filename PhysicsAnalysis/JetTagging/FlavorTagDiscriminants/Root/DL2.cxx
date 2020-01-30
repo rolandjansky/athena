@@ -7,20 +7,6 @@
 #include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/NanReplacer.hh"
 
-// functions that are used internally
-namespace {
-  template <typename T>
-  T match_first(const std::vector<std::pair<std::regex, T> >& regexes,
-                const std::string var_name) {
-    for (const auto& pair: regexes) {
-      if (std::regex_match(var_name, pair.first)) {
-        return pair.second;
-      }
-    }
-    throw std::logic_error(
-      "no regex match found for input variable '" + var_name + "'");
-  }
-}
 
 namespace FlavorTagDiscriminants {
 
@@ -30,7 +16,9 @@ namespace FlavorTagDiscriminants {
   DL2::DL2(const lwt::GraphConfig& graph_config,
            const std::vector<DL2InputConfig>& inputs,
            const std::vector<DL2TrackSequenceConfig>& track_sequences,
-           EDMSchema schema):
+           FlipTagConfig flipConfig,
+           std::map<std::string, std::string> out_remap,
+           OutputType output_type):
     m_input_node_name(""),
     m_graph(new lwt::LightweightGraph(graph_config)),
     m_variable_cleaner(nullptr)
@@ -55,12 +43,12 @@ namespace FlavorTagDiscriminants {
     // set up sequence inputs
     for (const DL2TrackSequenceConfig& track_cfg: track_sequences) {
       TrackSequenceBuilder track_getter(track_cfg.order,
-                                       track_cfg.selection,
-                                       schema);
+                                        track_cfg.selection,
+                                        flipConfig);
       track_getter.name = track_cfg.name;
       for (const DL2TrackInputConfig& input_cfg: track_cfg.inputs) {
         track_getter.sequencesFromTracks.push_back(
-          get::seqFromTracks(input_cfg, schema));
+          get::seqFromTracks(input_cfg));
       }
       m_trackSequenceBuilders.push_back(track_getter);
     }
@@ -68,23 +56,44 @@ namespace FlavorTagDiscriminants {
     // set up outputs
     for (const auto& out_node: graph_config.outputs) {
       std::string node_name = out_node.first;
+
       OutNode node;
       for (const std::string& element: out_node.second.labels) {
         std::string name = node_name + "_" + element;
+
+        // let user rename the output
+        auto replacement_itr = out_remap.find(name);
+        if (replacement_itr != out_remap.end()) {
+          name = replacement_itr->second;
+          out_remap.erase(replacement_itr);
+        }
+
         // for the spring 2019 retraining campaign we're stuck with
         // doubles. Hopefully at some point we can move to using
         // floats.
-        if (schema == EDMSchema::FEB_2019) {
+        if (output_type == OutputType::DOUBLE) {
           SG::AuxElement::Decorator<double> d(name);
           node.emplace_back(
             element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
-        } else {
-          SG::AuxElement::Decorator<float> d(name);
+        } else if (output_type == OutputType::FLOAT) {
+          SG::AuxElement::Decorator<float> f(name);
           node.emplace_back(
-            element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
+            element, [f](const SG::AuxElement& e, double v){ f(e) = v;});
+        } else {
+          throw std::logic_error("Unknown output type");
         }
       }
       m_decorators[node_name] = node;
+    }
+
+    // we want to make sure every remapping was used
+    if (out_remap.size() > 0) {
+      std::string outputs;
+      for (const auto& item: out_remap) {
+        outputs.append(item.first);
+        if (item != *out_remap.rbegin()) outputs.append(", ");
+      }
+      throw std::logic_error("found unused output remapping(s): " + outputs);
     }
   }
   void DL2::decorate(const xAOD::Jet& jet) const {
@@ -100,7 +109,7 @@ namespace FlavorTagDiscriminants {
 
       // Note, you can hack in more variables to `cleaned` here.
 
-    // put the cleaned inputs into the node structure
+      // put the cleaned inputs into the node structure
       nodes[m_input_node_name] =  cleaned;
     }
 
@@ -108,8 +117,9 @@ namespace FlavorTagDiscriminants {
     std::map<std::string,std::map<std::string, std::vector<double>>> seqs;
     for (const auto& builder: m_trackSequenceBuilders) {
       Tracks sorted_tracks = builder.tracksFromJet(jet);
+      Tracks flipped_tracks = builder.flipFilter(sorted_tracks, jet);
       for (const auto& seq_builder: builder.sequencesFromTracks) {
-        seqs[builder.name].insert(seq_builder(jet, sorted_tracks));
+        seqs[builder.name].insert(seq_builder(jet, flipped_tracks));
       }
     }
 
@@ -126,51 +136,12 @@ namespace FlavorTagDiscriminants {
 
   DL2::TrackSequenceBuilder::TrackSequenceBuilder(SortOrder order,
                                                   TrackSelection selection,
-                                                  EDMSchema schema):
-    tracksFromJet(order, selection, schema)
+                                                  FlipTagConfig flipcfg):
+    tracksFromJet(order, selection),
+    flipFilter(internal::get::flipFilter(flipcfg))
   {
   }
 
-
-  // ______________________________________________________________________
-  // High level configuration functions
-  //
-  std::vector<DL2InputConfig> get_input_config(
-    const std::vector<std::string>& variable_names,
-    const TypeRegexes& type_regexes,
-    const StringRegexes& default_flag_regexes)
-  {
-    std::vector<DL2InputConfig> inputs;
-    for (const auto& var: variable_names) {
-      DL2InputConfig input;
-      input.name = var;
-      input.type = match_first(type_regexes, var);
-      input.default_flag = match_first(default_flag_regexes, var);
-      inputs.push_back(input);
-    }
-    return inputs;
-  }
-  std::vector<DL2TrackSequenceConfig> get_track_input_config(
-    const std::vector<std::pair<std::string, std::vector<std::string>>>& names,
-    const TypeRegexes& type_regexes,
-    const SortRegexes& sort_regexes,
-    const TrkSelRegexes& select_regexes) {
-    std::vector<DL2TrackSequenceConfig> nodes;
-    for (const auto& name_node: names) {
-      DL2TrackSequenceConfig node;
-      node.name = name_node.first;
-      node.order = match_first(sort_regexes, name_node.first);
-      node.selection = match_first(select_regexes, name_node.first);
-      for (const auto& varname: name_node.second) {
-        DL2TrackInputConfig input;
-        input.name = varname;
-        input.type = match_first(type_regexes, varname);
-        node.inputs.push_back(input);
-      }
-      nodes.push_back(node);
-    }
-    return nodes;
-  }
 
 
   // ________________________________________________________________________
@@ -178,11 +149,10 @@ namespace FlavorTagDiscriminants {
   namespace internal {
 
     // Track Getter Class
-    TracksFromJet::TracksFromJet(SortOrder order, TrackSelection selection,
-                             EDMSchema schema):
+    TracksFromJet::TracksFromJet(SortOrder order, TrackSelection selection):
       m_trackAssociator("BTagTrackToJetAssociator"),
-      m_trackSortVar(get::trackSortVar(order, schema)),
-      m_trackFilter(get::trackFilter(selection, schema))
+      m_trackSortVar(get::trackSortVar(order)),
+      m_trackFilter(get::trackFilter(selection))
     {
     }
     Tracks TracksFromJet::operator()(const xAOD::Jet& jet) const {
@@ -208,7 +178,12 @@ namespace FlavorTagDiscriminants {
     // ______________________________________________________________________
     // Internal utility functions
     //
+
+    // The 'get' namespace is for factories that build std::function
+    // objects
     namespace get {
+      // factory for functions that get variables out of the b-tagging
+      // object
       VarFromJet varFromJet(const std::string& name, EDMType type,
                             const std::string& default_flag) {
         if(default_flag.size() == 0 || name==default_flag)
@@ -237,11 +212,13 @@ namespace FlavorTagDiscriminants {
           }
         }
       }
-      TrackSortVar trackSortVar(SortOrder order, EDMSchema schema) {
+
+      // factory for functions which return the sort variable we
+      // use to order tracks
+      TrackSortVar trackSortVar(SortOrder order) {
         typedef xAOD::TrackParticle Tp;
         typedef xAOD::Jet Jet;
-        typedef SG::AuxElement AE;
-        BTagTrackAugmenter aug(schema);
+        BTagTrackAugmenter aug;
         switch(order) {
         case SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING:
           return [aug](const Tp* tp, const Jet&) {
@@ -258,11 +235,13 @@ namespace FlavorTagDiscriminants {
         }
         }
       } // end of track sort getter
-      TrackFilter trackFilter(TrackSelection selection,
-                              EDMSchema schema) {
+
+      // factory for functions that return true for tracks we want to
+      // use, false for those we don't want
+      TrackFilter trackFilter(TrackSelection selection) {
         typedef xAOD::TrackParticle Tp;
         typedef SG::AuxElement AE;
-        BTagTrackAugmenter aug(schema);
+        BTagTrackAugmenter aug;
         AE::ConstAccessor<unsigned char> pix_hits("numberOfPixelHits");
         AE::ConstAccessor<unsigned char> pix_holes("numberOfPixelHoles");
         AE::ConstAccessor<unsigned char> pix_shared("numberOfPixelSharedHits");
@@ -301,14 +280,55 @@ namespace FlavorTagDiscriminants {
         }
       }
 
-      SeqFromTracks seqFromTracks(const DL2TrackInputConfig& cfg,
-                                  EDMSchema s) {
+      // factory for functions that build std::vector objects from
+      // track sequences
+      SeqFromTracks seqFromTracks(const DL2TrackInputConfig& cfg) {
         switch (cfg.type) {
         case EDMType::FLOAT: return SequenceGetter<float>(cfg.name);
         case EDMType::UCHAR: return SequenceGetter<unsigned char>(cfg.name);
-        case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name, s);
+        case EDMType::CUSTOM_GETTER: return customNamedSeqGetter(cfg.name);
         default: {
           throw std::logic_error("Unknown EDM type");
+        }
+        }
+      }
+
+      // here we define filters for the "flip" taggers
+      //
+      // start by defining the raw functions, there's a factory
+      // function below to convert the configuration enums to a
+      // std::function
+      Tracks negativeIpOnly(BTagTrackAugmenter& aug,
+                            const Tracks& tracks,
+                            const xAOD::Jet& j) {
+        Tracks filtered;
+        // we want to reverse the order of the tracks as part of the
+        // flipping
+        for (auto ti = tracks.crbegin(); ti != tracks.crend(); ti++) {
+          const xAOD::TrackParticle* tp = *ti;
+          double sip = aug.get_signed_ip(*tp, j).ip3d_signed_d0_significance;
+          if (sip < 0) filtered.push_back(tp);
+        }
+        return filtered;
+      }
+
+      // factory function
+      TrackSequenceFilter flipFilter(FlipTagConfig cfg) {
+        namespace ph = std::placeholders;  // for _1, _2, _3
+        BTagTrackAugmenter aug;
+        switch(cfg) {
+        case FlipTagConfig::NEGATIVE_IP_ONLY:
+          // flips order and removes tracks with negative IP
+          return std::bind(&negativeIpOnly, aug, ph::_1, ph::_2);
+        case FlipTagConfig::FLIP_SIGN:
+          // Just flips the order
+          return [](const Tracks& tr, const xAOD::Jet& ) {
+                   return Tracks(tr.crbegin(), tr.crend());
+                 };
+        case FlipTagConfig::STANDARD:
+          return [](const Tracks& tr, const xAOD::Jet& ) { return tr; };
+        default: {
+          throw std::logic_error("Unknown flip config");
         }
         }
       }

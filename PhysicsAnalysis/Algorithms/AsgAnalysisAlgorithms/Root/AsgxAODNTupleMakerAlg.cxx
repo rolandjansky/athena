@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 // Local include(s):
 #include "AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h"
@@ -286,6 +286,18 @@ namespace {
       }
    }
 
+   /// Check if an aux item exists in the aux store
+   ///
+   /// @param key The name of the container in the event store
+   /// @return True if branch exists, false if not
+   ///
+   bool auxItemExists( const std::string& key ) {
+      // Get a pointer to the vector factory.
+      const SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
+
+      // Try to find the aux item
+      return reg.findAuxID( key ) != SG::null_auxid;
+   }
 } // private namespace
 
 namespace CP {
@@ -297,8 +309,6 @@ namespace CP {
       // Declare the algorithm's properties.
       declareProperty( "TreeName", m_treeName = "physics",
                        "Name of the tree to write" );
-      declareProperty( "TreeAutoFlush", m_treeAutoFlush = 200,
-                       "AutoFlush value for the output tree" );
       declareProperty( "Branches", m_branches,
                        "Branches to write to the output tree" );
    }
@@ -310,17 +320,6 @@ namespace CP {
          ATH_MSG_ERROR( "No branches set up for writing" );
          return StatusCode::FAILURE;
       }
-
-      // Create the output tree.
-      ATH_CHECK( book( TTree( m_treeName.c_str(), "xAOD->NTuple tree" ) ) );
-      m_tree = tree( m_treeName );
-      if( ! m_tree ) {
-         ATH_MSG_ERROR( "Could not create output tree \"" << m_treeName
-                        << "\"" );
-         return StatusCode::FAILURE;
-      }
-      m_tree->SetAutoFlush( m_treeAutoFlush );
-      ATH_MSG_INFO( "Created xAOD->NTuple tree: " << m_treeName );
 
       // Set up the systematics list.
       ATH_CHECK( m_systematicsList.initialize() );
@@ -336,6 +335,13 @@ namespace CP {
 
       // Initialise the processor objects on the first event.
       if( ! m_isInitialized ) {
+         // Initialise the output tree.
+         m_tree = tree( m_treeName );
+         if( ! m_tree ) {
+            ATH_MSG_ERROR( "Could not find output tree \"" << m_treeName
+                           << "\"" );
+            return StatusCode::FAILURE;
+         }
          // Call the setup function.
          ATH_CHECK( setupTree() );
          // The processor objects are now set up.
@@ -374,12 +380,6 @@ namespace CP {
          ATH_CHECK( container_itr.second.process( *vec ) );
       }
 
-      // Fill the tree.
-      if( m_tree->Fill() < 0 ) {
-         ATH_MSG_ERROR( "Error while filling TTree" );
-         return StatusCode::FAILURE;
-      }
-
       // Return gracefully.
       return StatusCode::SUCCESS;
    }
@@ -392,99 +392,138 @@ namespace CP {
 
    StatusCode AsgxAODNTupleMakerAlg::setupTree() {
 
-      // Iterate over the branch specifications.
+      // First process nominal
+      CP::SystematicSet nominal{};
       for( const std::string& branchDecl : m_branches ) {
+         ATH_CHECK( setupBranch( branchDecl, nominal ) );
+      }
 
-         // The regular expression used to extract the needed info. The logic
-         // is supposed to be:
-         //
-         // (match[1]).(match[2])<any whitespace>-><any whitespace>(match[3])
-         //
-         // Like:
-         //    "Electrons.eta  -> el_eta"
-         //
-         // , where we would pick up "Electrons", "eta" and "el_eta" as the
-         // three words using this regexp.
-         static const std::regex
-            re( "\\s*([\\w%]+)\\.([\\w%]+)\\s*->\\s*([\\w%]+)" );
-
-         // Interpret this branch declaration.
-         std::smatch match;
-         if( ! std::regex_match( branchDecl, match, re ) ) {
-            ATH_MSG_ERROR( "Expression \"" << branchDecl
-                           << "\" doesn't match \"<object>.<variable> ->"
-                           " <branch>\"" );
-            return StatusCode::FAILURE;
+      // Consider all systematics but skip the nominal one
+      for( const auto& sys : m_systematicsList.systematicsVector() ) {
+         // Nominal already processed
+         if( sys.empty() ) {
+            continue;
          }
 
-         // Flag keeping track whether any branch was set up for this rule.
-         bool branchCreated = false;
-
-         // Consider all systematics. Not usin CP::SysListHandle::foreach, to
-         // be able to exit the for-loop early if necessary.
-         auto sysVector = m_systematicsList.systematicsVector();
-         for( const auto& sys : sysVector ) {
-
-            // Event store key for the object under consideration.
-            const std::string key = makeSystematicsName( match[ 1 ], sys );
-            // Auxiliary variable name for the object under consideration.
-            const std::string auxName = makeSystematicsName( match[ 2 ],
-                                                             sys );
-            // Branch name for the variable.
-            const std::string brName = makeSystematicsName( match[ 3 ],
-                                                            sys );
-
-            // Check that we use the %SYS% pattern reasonably in the names.
-            if( ( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
-                  ( brName != match[ 3 ] ) ) ||
-                ( ( ( key != match[ 1 ] ) || ( auxName != match[ 2 ] ) ) &&
-                  ( brName == match[ 3 ] ) ) ) {
-                  ATH_MSG_ERROR( "The systematic variation pattern is used "
-                                 "inconsistently in: \"" << branchDecl
-                                 << "\"" );
-                  return StatusCode::FAILURE;
-               }
-
-            // Decide whether the specified key belongs to a container or
-            // a standalone object.
-            static const bool ALLOW_MISSING = true;
-            if( getVector( key, *( evtStore() ), ALLOW_MISSING,
-                           msg() ) ) {
-               ATH_CHECK( m_containers[ key ].addBranch( *m_tree,
-                                                         auxName,
-                                                         brName ) );
-               ATH_MSG_DEBUG( "Writing branch \"" << brName
-                              << "\" from container/variable \"" << key
-                              << "." << auxName << "\"" );
-               branchCreated = true;
-            } else if( getElement( key, *( evtStore() ),
-                                   ALLOW_MISSING, msg() ) ) {
-               ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
-                                                       auxName,
-                                                       brName ) );
-               ATH_MSG_DEBUG( "Writing branch \"" << brName
-                              << "\" from object/variable \"" << key
-                              << "." << auxName << "\"" );
-               branchCreated = true;
-            } else {
-               ATH_MSG_DEBUG( "Container \"" << key
-                              << "\" not readable for expression: \""
-                              << branchDecl << "\"" );
-            }
-
-            // If the %SYS% pattern was not used in this setup, then stop
-            // after the first iteration.
-            if( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
-                ( brName == match[ 3 ] ) ) {
-               break;
-            }
+         // Iterate over the branch specifications.
+         for( const std::string& branchDecl : m_branches ) {
+            ATH_CHECK( setupBranch( branchDecl, sys ) );
          }
+      }
 
-         // Check if the rule was meaningful or not:
-         if( ! branchCreated ) {
-            ATH_MSG_WARNING( "No branch was created for rule: \""
-                             << branchDecl << "\"" );
+      // Return gracefully.
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode AsgxAODNTupleMakerAlg::setupBranch( const std::string &branchDecl,
+                                                  const CP::SystematicSet &sys ) {
+
+      // The regular expression used to extract the needed info. The logic
+      // is supposed to be:
+      //
+      // (match[1]).(match[2])<any whitespace>-><any whitespace>(match[3])
+      //
+      // Like:
+      //    "Electrons.eta  -> el_eta"
+      //
+      // , where we would pick up "Electrons", "eta" and "el_eta" as the
+      // three words using this regexp.
+      static const std::regex
+         re( "\\s*([\\w%]+)\\.([\\w%]+)\\s*->\\s*([\\w%]+)" );
+
+      // Interpret this branch declaration.
+      std::smatch match;
+      if( ! std::regex_match( branchDecl, match, re ) ) {
+         ATH_MSG_ERROR( "Expression \"" << branchDecl
+                        << "\" doesn't match \"<object>.<variable> ->"
+                        " <branch>\"" );
+         return StatusCode::FAILURE;
+      }
+
+      // Check if we are running nominal
+      bool nominal = sys.empty();
+
+      // Event store key for the object under consideration.
+      const std::string key = makeSystematicsName( match[ 1 ], sys );
+      // Auxiliary variable name for the object under consideration.
+      const std::string auxName = makeSystematicsName( match[ 2 ],
+                                                         sys );
+      // Branch name for the variable.
+      const std::string brName = makeSystematicsName( match[ 3 ],
+                                                      sys );
+
+      // If the %SYS% pattern was not used in this setup, then stop
+      // on non-nominal systematic.
+      if( ! nominal &&
+          ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
+          ( brName == match[ 3 ] ) ) {
+         return StatusCode::SUCCESS;
+      }
+
+      // Check that we use the %SYS% pattern reasonably in the names.
+      if( ( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
+            ( brName != match[ 3 ] ) ) ||
+            ( ( ( key != match[ 1 ] ) || ( auxName != match[ 2 ] ) ) &&
+            ( brName == match[ 3 ] ) ) ) {
+         ATH_MSG_ERROR( "The systematic variation pattern is used "
+                        "inconsistently in: \"" << branchDecl
+                        << "\"" );
+         return StatusCode::FAILURE;
+      }
+
+      // Flag keeping track whether any branch was set up for this rule.
+      bool branchCreated = false;
+
+      // Decide whether the specified key belongs to a container or
+      // a standalone object.
+      static const bool ALLOW_MISSING = true;
+      if( getVector( key, *( evtStore() ), ALLOW_MISSING,
+                     msg() ) ) {
+         bool created = false;
+         ATH_CHECK( m_containers[ key ].addBranch( *m_tree,
+                                                   auxName,
+                                                   brName,
+                                                   ALLOW_MISSING,
+                                                   created ) );
+         if( created ) {
+            ATH_MSG_DEBUG( "Writing branch \"" << brName
+                           << "\" from container/variable \"" << key
+                           << "." << auxName << "\"" );
+            branchCreated = true;
+         } else {
+            ATH_MSG_DEBUG( "Skipping branch \"" << brName
+                           << "\" from container/variable \"" << key
+                           << "." << auxName << "\"" );
          }
+      } else if( getElement( key, *( evtStore() ),
+                              ALLOW_MISSING, msg() ) ) {
+         bool created = false;
+         ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
+                                                   auxName,
+                                                   brName,
+                                                   ALLOW_MISSING,
+                                                   created ) );
+         if( created ) {
+            ATH_MSG_DEBUG( "Writing branch \"" << brName
+                           << "\" from object/variable \"" << key
+                           << "." << auxName << "\"" );
+            branchCreated = true;
+         } else {
+            ATH_MSG_DEBUG( "Skipping branch \"" << brName
+                        << "\" from object/variable \"" << key
+                        << "." << auxName << "\"" );
+         }
+      } else {
+         ATH_MSG_DEBUG( "Container \"" << key
+                        << "\" not readable for expression: \""
+                        << branchDecl << "\"" );
+      }
+
+      // Check if the rule was meaningful or not:
+      if( nominal && ! branchCreated && key == match[ 1 ] ) {
+         ATH_MSG_ERROR( "No branch was created for rule: \""
+                        << branchDecl << "\"" );
+         return StatusCode::FAILURE;
       }
 
       // Return gracefully.
@@ -510,7 +549,9 @@ namespace CP {
 
    StatusCode AsgxAODNTupleMakerAlg::ElementProcessor::
    addBranch( TTree& tree, const std::string& auxName,
-              const std::string& branchName ) {
+              const std::string& branchName,
+              bool allowMissing,
+              bool &created ) {
 
       /// Helper class for finding an already existing branch processor.
       class BranchFinder {
@@ -527,13 +568,33 @@ namespace CP {
          std::string m_name; ///< Name of the branch
       }; // class BranchFinder
 
+      // Check if the corresponding aux item exists
+      bool validAuxItem = auxItemExists( auxName );
+      if( ! validAuxItem ) {
+         if( allowMissing ) {
+            // Return gracefully.
+            ATH_MSG_DEBUG( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::SUCCESS;
+         } else {
+            // Return gracefully.
+            ATH_MSG_ERROR( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::FAILURE;
+         }
+      }
+
       // Check whether this branch is already set up:
       auto itr = std::find_if( m_branches.begin(), m_branches.end(),
                                BranchFinder( branchName ) );
       if( itr != m_branches.end() ) {
-         ATH_MSG_ERROR( "Duplicate setup received for branch: " << branchName );
-         return StatusCode::FAILURE;
+         ATH_MSG_WARNING( "Duplicate setup received for branch: " << branchName );
+         return StatusCode::SUCCESS;
       }
+
+      created = true;
 
       // Set up the new branch.
       m_branches.emplace_back();
@@ -735,7 +796,9 @@ namespace CP {
 
    StatusCode AsgxAODNTupleMakerAlg::ContainerProcessor::
    addBranch( TTree& tree, const std::string& auxName,
-              const std::string& branchName ) {
+              const std::string& branchName,
+              bool allowMissing,
+              bool &created ) {
 
       /// Helper class for finding an already existing branch processor.
       class BranchFinder {
@@ -752,12 +815,33 @@ namespace CP {
          std::string m_name; ///< Name of the branch
       }; // class BranchFinder
 
+      // Check if the corresponding aux item exists
+      bool validAuxItem = auxItemExists( auxName );
+      if( ! validAuxItem ) {
+         if( allowMissing ) {
+            // Return gracefully.
+            ATH_MSG_DEBUG( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::SUCCESS;
+         } else {
+            // Return gracefully.
+            ATH_MSG_ERROR( "Aux item \"" << auxName
+                           << "\" not readable for branch \""
+                           << branchName << "\"" );
+            return StatusCode::FAILURE;
+         }
+      }
+
       // Check whether this branch is already set up:
       auto itr = std::find_if( m_branches.begin(), m_branches.end(),
                                BranchFinder( branchName ) );
       if( itr != m_branches.end() ) {
-         ATH_MSG_ERROR( "Duplicate setup received for branch: " << branchName );
+         ATH_MSG_WARNING( "Duplicate setup received for branch: " << branchName );
+         return StatusCode::SUCCESS;
       }
+
+      created = true;
 
       // Set up the new branch.
       m_branches.emplace_back();

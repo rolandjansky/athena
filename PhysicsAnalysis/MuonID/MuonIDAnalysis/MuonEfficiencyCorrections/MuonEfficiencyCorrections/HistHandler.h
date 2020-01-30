@@ -15,7 +15,7 @@
 #include <TH2Poly.h>
 
 #include "PATInterfaces/CorrectionCode.h"
-#include <MuonEfficiencyCorrections/UtilFunctions.h>
+
 // further ROOT includes
 #include <TFile.h>
 #include <TDirectory.h>

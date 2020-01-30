@@ -17,8 +17,8 @@ class TH3F;
 namespace CP {
     class IsolationConditionFormula: public IsolationCondition {
         public:
-            IsolationConditionFormula(std::string name, xAOD::Iso::IsolationType isoType, const std::string& cutFunction);
-            IsolationConditionFormula(std::string name, std::string isoType, const std::string& cutFunction);
+            IsolationConditionFormula(std::string name, xAOD::Iso::IsolationType isoType, const std::string& cutFunction, bool invertCut = false);
+            IsolationConditionFormula(std::string name, std::string isoType, const std::string& cutFunction, bool invertCut = false);
             virtual ~IsolationConditionFormula() {
             }
 
@@ -31,6 +31,7 @@ namespace CP {
 
         private:
             std::shared_ptr<TF1> m_cutFunction;
+            bool m_invertCut;
     };
 }
 #endif

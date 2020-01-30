@@ -4,111 +4,16 @@
 # Common file used by TOPQCommonSlimming.py
 # Access variables with:
 #   from DerivationFrameworkTop.TOPQCommonExtraContent import *
-# Available variables (arrays):
-#   TOPQSmartSlimmingCollections
-#   TOPQExtraVariables_Photons
-#   TOPQExtraVariables_Electrons
-#   TOPQExtraVariables_ForwardElectrons
-#   TOPQExtraVariables_Muons
-#   TOPQExtraVariables_Taus
-#   TOPQExtraVariables_TauJets
-#   TOPQExtraVariables_CaloCalTopoClusters
-#   TOPQExtraVariables_egammaClusters
-#   TOPQExtraVariables_AntiKt4EMTopoJets
-#   TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
-#   TOPQExtraVariables_AntiKt4EMPFlowJets
-#   TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-#   TOPQExtraVariables_AntiKt2PV0TrackJets
-#   TOPQExtraVariables_BTagging_AntiKt4EMPFlow
-#   TOPQExtraVariables_BTagging_AntiKt4EMTopo
-#   TOPQExtraVariables_CombinedMuonTrackParticles
-#   TOPQExtraVariables_ExtrapolatedMuonTrackParticles
-#   TOPQExtraVariables_InDetTrackParticles
-#   TOPQExtraVariables_PrimaryVertices
-#   TOPQExtraVariables_InDetForwardTrackParticles
-#   TOPQExtraVariables_MET_Track
-#
-#   TOPQExtraVariables_BTag_HLT
-#   TOPQExtraVariables_HLT_EFJet
-#   TOPQExtraVariables_HLT_GSCJet
-#   TOPQExtraVariables_HLT_SplitJet
-#   TOPQExtraVariables_HLT_TrigEFMissingET
-#   TOPQExtraVariables_HLT_TrigEFMissingET_mht
-#   TOPQExtraVariables_HLT_TrigEFMissingET_topocl_PUC
-#   TOPQExtraVariables_HLT_a10r_tcemsubjesFS
-#   TOPQExtraVariables_HLT_a10r_tcemsubjesISFS
-#   TOPQExtraVariables_HLT_a10tclcwsubjesFS
-#   TOPQExtraVariables_HLT_a10ttclcwjesFS
-#   TOPQExtraVariables_HLT_a4tcemsubjesFS
-#   TOPQExtraVariables_HLT_a4tcemsubjesISFS
-#   TOPQExtraVariables_LVL1EnergySumRoI
-#
-#   TOPQExtraVariables_Photons_Truth
-#   TOPQExtraVariables_Electrons_Truth
-#   TOPQExtraVariables_ForwardElectrons_Truth
-#   TOPQExtraVariables_Muons_Truth
-#   TOPQExtraVariables_CombinedMuonTrackParticles_Truth
-#   TOPQExtraVariables_MuonSpectrometerTrackParticles_Truth
-#   TOPQExtraVariables_ExtrapolatedMuonTrackParticles_Truth
-#   TOPQExtraVariables_InDetForwardTrackParticles_Truth
-#   TOPQExtraVariables_Taus_Truth
-#   TOPQExtraVariables_AntiKt4EMTopoJets_Truth
-#   TOPQExtraVariables_AntiKt4EMPFlowJets_Truth
-#   TOPQExtraVariables_AntiKt2PV0TrackJets_Truth
-#   TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth
-#
-#   TOPQExtraVariables_AntiKt4TruthJets
-#   TOPQExtraVariables_AntiKt4TruthWZJets
-#   TOPQExtraVariables_AntiKt10TruthJets
-#   TOPQExtraVariables_TruthEvents
-#   TOPQExtraVariables_TruthParticles
-#   TOPQExtraVariables_TruthVertices
-#   TOPQExtraVariables_MET_Truth
-#   TOPQExtraVariables_MET_TruthRegions
-#
-#   TOPQStaticContent
-#   TOPQStaticContentV0
-#   TOPQStaticContentTruth
 #====================================================================
-
-#================================
-# SMART SLIMMING COLLECTIONS 
-#================================
-# list of existing containers with a smart list is available here :
-# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore/python/FullListOfSmartContainers.py
-TOPQSmartSlimmingCollections = ["HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
-                                "HLT_xAOD__JetContainer_a4tcemsubjesFS",
-                                "PrimaryVertices",
-                                "InDetTrackParticles",
-                                "Electrons",
-                                "Photons",
-                                "Muons",
-                                "TauJets",
-                                "MET_Reference_AntiKt4EMTopo",
-                                "MET_Reference_AntiKt4EMPFlow",
-                                "AntiKt4EMPFlowJets",
-                                "AntiKt4EMTopoJets",
-                                "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-                                "BTagging_AntiKt2Track",
-                                "BTagging_AntiKt4EMTopo",
-                                "BTagging_AntiKt4EMPFlow",
-                                "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                "AntiKt4TruthJets",
-                                "AntiKt4TruthWZJets",
-                                "AntiKt4TruthDressedWZJets"]
 
 #================================
 # EXTRA VARIABLES - Data & MC
 #================================
-# default list for Photons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/PhotonsCPContent.py
-TOPQExtraVariables_Photons    = ["Photons."
-                                 ]
-
-# default list for Electrons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py
+# Full list: DerivationFrameworkEGamma/python/ElectronsCPContent.py
 TOPQExtraVariables_Electrons  = ["Electrons."
                                  + "etcone30."
-                                 + "etcone40"]
+                                 + "etcone40."
+                                 ]
 
 TOPQExtraVariables_ForwardElectrons  = ["ForwardElectrons."
                                         + "DeltaE."
@@ -155,107 +60,32 @@ TOPQExtraVariables_ForwardElectrons  = ["ForwardElectrons."
                                         + "trackParticleLinks."
                                         + "weta1."
                                         + "weta2."
-                                        + "wtots1"]
+                                        + "wtots1."
+                                        ]
 
-# default list for Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
-TOPQExtraVariables_Muons      = ["Muons."
-                                 + "DFCommonMuonsLoose."
-                                 + "DFCommonMuonsMedium."
-                                 + "DFCommonMuonsTight."
-                                 + "etcone20."
-                                 + "etcone30."
-                                 + "etcone40."
-                                 + "EnergyLoss."
-                                 + "PromptLeptonInput_DL1r."
-                                 + "PromptLeptonInput_DRlj."
-                                 + "PromptLeptonInput_LepJetPtFrac."
-                                 + "PromptLeptonInput_PtFrac."
-                                 + "PromptLeptonInput_PtRel."
-                                 + "PromptLeptonInput_TrackJetNTrack."
-                                 + "PromptLeptonInput_ip2."
-                                 + "PromptLeptonInput_ip3."
-                                 + "PromptLeptonInput_rnnip."
-                                 + "PromptLeptonInput_sv1_jf_ntrkv."
-                                 + "PromptLeptonIso."
-                                 + "PromptLeptonVeto."
-                                 + "energyLossType"]
+# Full list: DerivationFrameworkMuons/python/MuonsCPContent.py
+TOPQExtraVariables_Muons = ["Muons."
+                            + "etcone20."
+                            + "etcone30."
+                            + "etcone40."
+                            ]
 
-TOPQExtraVariables_Taus   = []
+# Full list: DerivationFrameworkTau/python/TauJetsCPContent.py
+TOPQExtraVariables_TauTracks = ["TauTracks.bdtScores"]
 
-TOPQExtraVariables_TauJets   = ["TauJets."
-                                + "BDTEleScore."
-                                + "BDTEleScoreSigTrans."
-                                + "BDTJetScore."
-                                + "BDTJetScoreSigTrans."
-                                + "EleMatchLikelihoodScore."
-                                + "PanTau_DecayMode."
-                                + "PromptTauInput_DRlj."
-                                + "PromptTauInput_JetF."
-                                + "PromptTauInput_LepJetPtFrac."
-                                + "PromptTauInput_MV2rmu."
-                                + "PromptTauInput_SV1."
-                                + "PromptTauInput_TrackJetNTrack."
-                                + "PromptTauInput_ip2."
-                                + "PromptTauInput_ip3."
-                                + "PromptTauInput_rnnip."
-                                + "PromptTauVeto."
-                                + "charge."
-                                + "chargedPFOLinks."
-                                + "electronLink."
-                                + "eta."
-                                + "etaFinalCalib."
-                                + "eta_combined."
-                                + "hadronicPFOLinks."
-                                + "isTauFlags."
-                                + "jetLink."
-                                + "m."
-                                + "mFinalCalib."
-                                + "m_combined."
-                                + "neutralPFOLinks."
-                                + "RNNJetScore."
-                                + "RNNJetScoreSigTrans."
-                                + "phi."
-                                + "phiFinalCalib."
-                                + "phi_combined."
-                                + "pi0PFOLinks."
-                                + "protoChargedPFOLinks."
-                                + "protoNeutralPFOLinks."
-                                + "protoPi0PFOLinks."
-                                + "pt."
-                                + "ptFinalCalib."
-                                + "pt_combined."
-                                + "secondaryVertexLink."
-                                + "shotPFOLinks."
-                                + "tauTrackLinks."
-                                + "vertexLink"]
+# Full list:
+TOPQExtraVariables_CaloCalTopoClusters = ["CaloCalTopoClusters.CENTER_MAG"]
 
-TOPQExtraVariables_TauTracks   = ["TauTracks."
-                                  + "bdtScores."
-                                  + "eta."
-                                  + "flagSet."
-                                  + "phi."
-                                  + "pt."
-                                  + "trackLinks"]
-
-
-# additional variables for clusters
-# default list for CaloCalTopoClusters : #https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/ExtendedJetCommon.py#L412
-TOPQExtraVariables_CaloCalTopoClusters = ["CaloCalTopoClusters."
-                                          + "CENTER_MAG"]
-
-# default list for egammaclusters through Electrons and Photons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py, https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/PhotonsCPContent.py
+# Full list: DerivationFrameworkEGamma/python/ElectronsCPContent.py
+# Full list: DerivationFrameworkEGamma/python/PhotonsCPContent.py
 TOPQExtraVariables_egammaClusters = ["egammaClusters."
                                      + "BadChannelList."
                                      + "CellLink."
                                      + "ETA1CALOFRAME."
                                      + "PHI1CALOFRAME."
-                                     + "PHICALOFRAME."
-                                     + "altE."
                                      + "altEta."
                                      + "altM."
                                      + "altPhi."
-                                     + "calM."
-                                     + "clusterSize."
                                      + "emax_sampl."
                                      + "eta0."
                                      + "etamax_sampl."
@@ -266,16 +96,11 @@ TOPQExtraVariables_egammaClusters = ["egammaClusters."
                                      + "rawEta."
                                      + "rawM."
                                      + "rawPhi."
-                                     + "time"]
+                                     + "time."
+                                     ]
 
-
-# additional variables for jets
-# list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
+# Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
-                                         + "DFCommonJets_Calib_pt."
-                                         + "DFCommonJets_Calib_eta."
-                                         + "DFCommonJets_Calib_phi."
-                                         + "DFCommonJets_Calib_m."
                                          + "ActiveArea."
                                          + "AlgorithmType."
                                          + "BchCorrCell."
@@ -286,23 +111,13 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "DFCommonJets_Calib_m."
                                          + "DFCommonJets_Calib_phi."
                                          + "DFCommonJets_Calib_pt."
-                                         + "DFCommonJets_FixedCutBEff_60_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_60_DL1."
-                                         + "DFCommonJets_FixedCutBEff_70_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_70_DL1."
-                                         + "DFCommonJets_FixedCutBEff_77_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_77_DL1."
-                                         + "DFCommonJets_FixedCutBEff_85_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_85_DL1."
-                                         + "DFCommonJets_HybBEff_60_MV2c10."
-                                         + "DFCommonJets_HybBEff_60_DL1."
-                                         + "DFCommonJets_HybBEff_70_MV2c10."
-                                         + "DFCommonJets_HybBEff_70_DL1."
-                                         + "DFCommonJets_HybBEff_77_MV2c10."
-                                         + "DFCommonJets_HybBEff_77_DL1."
-                                         + "DFCommonJets_HybBEff_85_MV2c10."
-                                         + "DFCommonJets_HybBEff_85_DL1."
                                          + "DFCommonJets_Jvt."
+                                         + "DFCommonJets_QGTagger_NTracks."
+                                         + "DFCommonJets_QGTagger_TracksC1."
+                                         + "DFCommonJets_QGTagger_TracksWidth."
+                                         + "DFCommonJets_QGTagger_truthjet_eta."
+                                         + "DFCommonJets_QGTagger_truthjet_nCharged."
+                                         + "DFCommonJets_QGTagger_truthjet_pt."
                                          + "DFCommonJets_passJvt."
                                          + "DFCommonJets_passOR."
                                          + "DetectorPhi."
@@ -347,103 +162,87 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "TrackSumMass."
                                          + "TrackSumPt."
                                          + "TrackWidthPt500."
-                                         + "Width."
                                          + "WidthPhi."
                                          + "btaggingLink."
-                                         + "isBJet."
-                                         + "selected"]
+                                         + "selected."
+                                         ]
 
-# for TOPQDERIV-62
-TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1 =  ["AntiKt4EMTopoJets."
-                                                  + "DoubleTagBDTOutput."
-                                                  + "LargeJetLabel."
-                                                  + "ExKtbb_MaxMV2c10."
-                                                  + "ExKtbb_MaxMV2r."
-                                                  + "ExKtbb_MaxDL1_pb."
-                                                  + "ExKtbb_MaxDL1_pc."
-                                                  + "ExKtbb_MaxDL1_pu."
-                                                  + "ExKtbb_MaxDL1r_pb."
-                                                  + "ExKtbb_MaxDL1r_pc."
-                                                  + "ExKtbb_MaxDL1r_pu."
-                                                  + "ExKtbb_MinMV2c10."
-                                                  + "ExKtbb_MinMV2r."
-                                                  + "ExKtbb_MinDL1_pb."
-                                                  + "ExKtbb_MinDL1_pc."
-                                                  + "ExKtbb_MinDL1_pu."
-                                                  + "ExKtbb_MinDL1r_pb."
-                                                  + "ExKtbb_MinDL1r_pc."
-                                                  + "ExKtbb_MinDL1r_pu."
-                                                  + "ExKtbb_SubjetDR."
-                                                  + "ExKtbb_SubjetPtAsym."
-                                                  + "ExKt3bb_MaxMV2c10."
-                                                  + "ExKt3bb_MinMV2c10."
-                                                  + "ExKt3bb_j1_MV2r."
-                                                  + "ExKt3bb_j1_DL1_pb."
-                                                  + "ExKt3bb_j1_DL1_pc."
-                                                  + "ExKt3bb_j1_DL1_pu."
-                                                  + "ExKt3bb_j1_DL1r_pb."
-                                                  + "ExKt3bb_j1_DL1r_pc."
-                                                  + "ExKt3bb_j1_DL1r_pu."
-                                                  + "ExKt3bb_j2_MV2r."
-                                                  + "ExKt3bb_j2_DL1_pb."
-                                                  + "ExKt3bb_j2_DL1_pc."
-                                                  + "ExKt3bb_j2_DL1_pu."
-                                                  + "ExKt3bb_j2_DL1r_pb."
-                                                  + "ExKt3bb_j2_DL1r_pc."
-                                                  + "ExKt3bb_j2_DL1r_pu."
-                                                  + "ExKt3bb_j3_MV2r."
-                                                  + "ExKt3bb_j3_DL1_pb."
-                                                  + "ExKt3bb_j3_DL1_pc."
-                                                  + "ExKt3bb_j3_DL1_pu."
-                                                  + "ExKt3bb_j3_DL1r_pb."
-                                                  + "ExKt3bb_j3_DL1r_pc."
-                                                  + "ExKt3bb_j3_DL1r_pu."
-                                                  + "ExKt3bb_SubjetDR."
-                                                  + "ExKt3bb_SubjetPtAsym."
-                                                  + "ExKtbb_leadingPtNBHadrons."
-                                                  + "ExKtbb_leadingPtNCHadrons."
-                                                  + "ExKtbb_subleadingPtNBHadrons."
-                                                  + "ExKtbb_subleadingPtNCHadrons."
-                                                  + "ExKt3bb_leadingMV2c10NBHadrons."
-                                                  + "ExKt3bb_leadingMV2c10NCHadrons."
-                                                  + "ExKt3bb_subleadingMV2c10NBHadrons."
-                                                  + "ExKt3bb_subleadingMV2c10NCHadrons"
-                                                  ]
+# Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
+TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1 =  ["AntiKt4EMPFlowJets."
+                                                   + "ExKt3bb_MaxMV2c10."
+                                                   + "ExKt3bb_MinMV2c10."
+                                                   + "ExKt3bb_SubjetDR."
+                                                   + "ExKt3bb_SubjetPtAsym."
+                                                   + "ExKt3bb_j1_DL1_pb."
+                                                   + "ExKt3bb_j1_DL1_pc."
+                                                   + "ExKt3bb_j1_DL1_pu."
+                                                   + "ExKt3bb_j1_DL1r_pb."
+                                                   + "ExKt3bb_j1_DL1r_pc."
+                                                   + "ExKt3bb_j1_DL1r_pu."
+                                                   + "ExKt3bb_j1_MV2r."
+                                                   + "ExKt3bb_j2_DL1_pb."
+                                                   + "ExKt3bb_j2_DL1_pc."
+                                                   + "ExKt3bb_j2_DL1_pu."
+                                                   + "ExKt3bb_j2_DL1r_pb."
+                                                   + "ExKt3bb_j2_DL1r_pc."
+                                                   + "ExKt3bb_j2_DL1r_pu."
+                                                   + "ExKt3bb_j2_MV2r."
+                                                   + "ExKt3bb_j3_DL1_pb."
+                                                   + "ExKt3bb_j3_DL1_pc."
+                                                   + "ExKt3bb_j3_DL1_pu."
+                                                   + "ExKt3bb_j3_DL1r_pb."
+                                                   + "ExKt3bb_j3_DL1r_pc."
+                                                   + "ExKt3bb_j3_DL1r_pu."
+                                                   + "ExKt3bb_j3_MV2r."
+                                                   + "ExKt3bb_leadingMV2c10NBHadrons."
+                                                   + "ExKt3bb_leadingMV2c10NCHadrons."
+                                                   + "ExKt3bb_subleadingMV2c10NBHadrons."
+                                                   + "ExKt3bb_subleadingMV2c10NCHadrons."
+                                                   + "ExKtbb_MaxDL1_pb."
+                                                   + "ExKtbb_MaxDL1_pc."
+                                                   + "ExKtbb_MaxDL1_pu."
+                                                   + "ExKtbb_MaxDL1r_pb."
+                                                   + "ExKtbb_MaxDL1r_pc."
+                                                   + "ExKtbb_MaxDL1r_pu."
+                                                   + "ExKtbb_MaxMV2c10."
+                                                   + "ExKtbb_MaxMV2r."
+                                                   + "ExKtbb_MinDL1_pb."
+                                                   + "ExKtbb_MinDL1_pc."
+                                                   + "ExKtbb_MinDL1_pu."
+                                                   + "ExKtbb_MinDL1r_pb."
+                                                   + "ExKtbb_MinDL1r_pc."
+                                                   + "ExKtbb_MinDL1r_pu."
+                                                   + "ExKtbb_MinMV2c10."
+                                                   + "ExKtbb_MinMV2r."
+                                                   + "ExKtbb_SubjetDR."
+                                                   + "ExKtbb_SubjetPtAsym."
+                                                   + "ExKtbb_leadingPtNBHadrons."
+                                                   + "ExKtbb_leadingPtNCHadrons."
+                                                   + "ExKtbb_subleadingPtNBHadrons."
+                                                   + "ExKtbb_subleadingPtNCHadrons."
+                                                   + "LargeJetLabel."
+                                                   ]
 
-
-# list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
+# Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
-                                         + "AntiKt2TrackJet."
-                                         + "AverageLArQF."
-                                         + "BchCorrCell."
-                                         + "btagging."
-                                         + "btaggingLink."
-                                         + "constituentLinks."
-                                         + "GhostAntiKt2TrackJet."
-                                         + "GhostAntiKt3TrackJet."
-                                         + "GhostAntiKt4TrackJet."
-                                         + "GhostMuonSegment."
-                                         + "GhostTrackCount."
-                                         + "GhostTrackPt."
-                                         + "HighestJVFLooseVtx."
-                                         + "HighestJVFVtx."
-                                         + "HighestJVFVtxGhost."
-                                         + "JetLCScaleMomentum_eta."
-                                         + "JetLCScaleMomentum_m."
-                                         + "JetLCScaleMomentum_phi."
-                                         + "JetLCScaleMomentum_pt."
-                                         + "NegativeE."
-                                         + "originalObjectLink."
-                                         + "OriginVertex."
                                          + "ActiveArea."
                                          + "AlgorithmType."
+                                         + "AverageLArQF."
                                          + "BchCorrCell."
                                          + "CentroidR."
                                          + "Charge."
-                                         + "ChargedPFOWidthPt1000."
                                          + "ChargedPFOWidthPt500."
                                          + "ConstituentScale."
+                                         + "DFCommonJets_QGTagger_NTracks."
+                                         + "DFCommonJets_QGTagger_TracksC1."
+                                         + "DFCommonJets_QGTagger_TracksWidth."
+                                         + "DFCommonJets_QGTagger_truthjet_eta."
+                                         + "DFCommonJets_QGTagger_truthjet_nCharged."
+                                         + "DFCommonJets_QGTagger_truthjet_pt."
                                          + "DetectorPhi."
+                                         + "GhostAntiKt2TrackJet."
+                                         + "GhostAntiKt4TrackJet."
+                                         + "GhostMuonSegment."
                                          + "GhostTrackCount."
                                          + "GhostTrackPt."
                                          + "HighestJVFVtx."
@@ -462,8 +261,6 @@ TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          + "JetPileupScaleMomentum_m."
                                          + "JetPileupScaleMomentum_phi."
                                          + "JetPileupScaleMomentum_pt."
-                                         + "Jvt."
-                                         + "JvtRpt."
                                          + "LArBadHVEnergyFrac."
                                          + "LArBadHVNCell."
                                          + "LArQuality."
@@ -476,24 +273,17 @@ TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          + "PileupCorrected."
                                          + "SizeParameter."
                                          + "SumPtChargedPFOPt1000."
-                                         + "SumPtChargedPFOPt500."
                                          + "SumPtTrkPt1000."
-                                         + "SumPtTrkPt500."
                                          + "TrackSumMass."
                                          + "TrackSumPt."
-                                         + "TrackWidthPt1000."
                                          + "TrackWidthPt500."
-                                         + "Width."
                                          + "WidthPhi."
-                                         + "btaggingLink"]
+                                         + "btaggingLink."
+                                         ]
 
-
-# additional variables for jets (TOPQDERIV70)
-# list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
-TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02TrackJets."
+# Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
+TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810."
                                                       + "AlgorithmType."
-                                                      + "ConeExclBHadronsFinal."
-                                                      + "ConeExclCHadronsFinal."
                                                       + "ConeExclTausFinal."
                                                       + "ConstituentScale."
                                                       + "GhostBHadronsFinal."
@@ -538,8 +328,6 @@ TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02Trac
                                                       + "GhostZBosons."
                                                       + "GhostZBosonsCount."
                                                       + "GhostZBosonsPt."
-                                                      + "HadronConeExclExtendedTruthLabelID."
-                                                      + "HadronConeExclTruthLabelID."
                                                       + "InputType."
                                                       + "JetConstitScaleMomentum_eta."
                                                       + "JetConstitScaleMomentum_m."
@@ -556,79 +344,62 @@ TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02Trac
                                                       + "SizeParameter."
                                                       + "VariableRMassScale."
                                                       + "VariableRMinRadius."
-                                                      + "btaggingLink"]
+                                                      ]
 
-TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30Rmax4Rmin02Track."
-                                                           + "DL1_pb."
-                                                           + "DL1_pu."
-                                                           + "DL1_pc."
-                                                           + "DL1rmu_pb."
-                                                           + "DL1rmu_pu."
-                                                           + "DL1rmu_pc."
-                                                           + "DL1r_pb."
-                                                           + "DL1r_pu."
-                                                           + "DL1r_pc."
-                                                           + "SV1_pb."
-                                                           + "SV1_pu."
+# Full list: DerivationFrameworkFlavourTag/python/BTaggingContent.py
+TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30Rmax4Rmin02Track_201810."
                                                            + "IP3D_pb."
                                                            + "IP3D_pu."
-                                                           + "MV2c10_discriminant."
-                                                           + "MV2c100_discriminant"]
-                                                           #+ "SV1_badTracksIP."
-                                                           #+ "SV1_vertices"]
-                                                           #+ "BTagTrackToJetAssociator.MSV_vertices",
-                                                           #+ "BTagTrackToJetAssociatorBB.JetFitter_JFvertices."
-                                                           #+ "JetFitter_tracksAtPVlinks.MSV_badTracksIP"
-                                                           #]
+                                                           + "SV1_pb."
+                                                           + "SV1_pu."
+                                                           ]
 
-# heavy flavour tagging
-# default variables are in : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkFlavourTag/python/BTaggingContent.py
-TOPQExtraVariables_BTagging_AntiKt4EMPFlow = ["BTagging_AntiKt4EMPFlow."
-                                              + "BTagTrackToJetAssociator."
-                                              + "BTagTrackToJetAssociatorBB."
-                                              + "IP3D_pb."
-                                              + "IP3D_pu."
-                                              + "JetFitter_JFvertices."
-                                              + "JetFitter_tracksAtPVlinks."
-                                              + "MSV_badTracksIP."
-                                              + "MSV_vertices."
-                                              + "SV1_badTracksIP."
-                                              + "SV1_pb."
-                                              + "SV1_pu."
-                                              + "SV1_vertices"]
+# Full list: DerivationFrameworkFlavourTag/python/BTaggingContent.py
+TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201810 = ["BTagging_AntiKt4EMPFlow_201810."
+                                                     + "BTagTrackToJetAssociator."
+                                                     + "BTagTrackToJetAssociatorBB."
+                                                     + "IP3D_pb."
+                                                     + "IP3D_pu."
+                                                     + "JetFitter_JFvertices."
+                                                     + "JetFitter_tracksAtPVlinks."
+                                                     + "MSV_badTracksIP."
+                                                     + "MSV_vertices."
+                                                     + "SV1_badTracksIP."
+                                                     + "SV1_pb."
+                                                     + "SV1_pu."
+                                                     + "SV1_vertices."
+                                                     ]
 
-TOPQExtraVariables_BTagging_AntiKt4EMTopo = ["BTagging_AntiKt4EMTopo."
-                                             + "JetVertexCharge_discriminant."
-                                             + "MSV_N2Tpair."
-                                             + "MSV_energyTrkInJet."
-                                             + "MSV_nvsec."
-                                             + "MSV_vtxmass."
-                                             + "MSV_vtxpt."
-                                             + "MSV_vtxeta."
-                                             + "MSV_vtxphi."
-                                             + "MSV_vtxefrac."
-                                             + "MSV_vtxx."
-                                             + "MSV_vtxy."
-                                             + "MSV_vtxz."
-                                             + "MSV_vtxdls."
-                                             + "MSV_vtxntrk."
-                                             + "MultiSVbb1_discriminant."
-                                             + "MultiSVbb2_discriminant."
-                                             + "SV1_TrackParticleLinks"]
+# Full list: DerivationFrameworkFlavourTag/python/BTaggingContent.py
+TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201903 = ["BTagging_AntiKt4EMPFlow_201903."
+                                                     + "BTagTrackToJetAssociator."
+                                                     + "BTagTrackToJetAssociatorBB."
+                                                     + "IP3D_pb."
+                                                     + "IP3D_pu."
+                                                     + "JetFitter_JFvertices."
+                                                     + "JetFitter_tracksAtPVlinks."
+                                                     + "MSV_badTracksIP."
+                                                     + "MSV_vertices."
+                                                     + "SV1_badTracksIP."
+                                                     + "SV1_pb."
+                                                     + "SV1_pu."
+                                                     + "SV1_vertices."
+                                                     ]
 
-# https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent.py
+# Full list: DerivationFrameworkFlavourTag/python/BTaggingContent.py
+TOPQExtraVariables_BTagging_AntiKt4EMTopo_201810 = ["BTagging_AntiKt4EMTopo_201810."
+                                                    + "JetVertexCharge_discriminant."
+                                                    + "SV1_TrackParticleLinks."
+                                                    ]
+
+# Full list: DerivationFrameworkJetEtMiss/python/AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent.py
 TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets."
-                                                               + "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux."
                                                                + "ActiveArea."
                                                                + "ActiveArea4vec_eta."
                                                                + "ActiveArea4vec_m."
                                                                + "ActiveArea4vec_phi."
                                                                + "ActiveArea4vec_pt."
-                                                               + "AlgorithmType."
-                                                               + "Angularity."
-                                                               + "Aplanarity."
                                                                + "Charge."
-                                                               + "ConstituentScale."
                                                                + "DFCommonJets_Calib_eta."
                                                                + "DFCommonJets_Calib_m."
                                                                + "DFCommonJets_Calib_phi."
@@ -639,9 +410,7 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "Dip23."
                                                                + "DipExcl12."
                                                                + "EMFrac."
-                                                               + "FoxWolfram0."
                                                                + "FoxWolfram1."
-                                                               + "FoxWolfram2."
                                                                + "FoxWolfram3."
                                                                + "FoxWolfram4."
                                                                + "GhostAntiKt2TrackJetCount."
@@ -654,631 +423,62 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "GhostTrack."
                                                                + "GhostTrackCount."
                                                                + "GhostTrackPt."
-                                                               + "InputType."
                                                                + "JetEMScaleMomentum_eta."
                                                                + "JetEMScaleMomentum_m."
                                                                + "JetEMScaleMomentum_phi."
                                                                + "JetEMScaleMomentum_pt."
                                                                + "JetGhostArea."
-                                                               + "KtDR."
                                                                + "Mu12."
-                                                               + "Parent."
-                                                               + "PlanarFlow."
                                                                + "PullMag."
                                                                + "PullPhi."
                                                                + "Pull_C00."
                                                                + "Pull_C01."
                                                                + "Pull_C10."
                                                                + "Pull_C11."
-                                                               + "SizeParam."
                                                                + "Sphericity."
-                                                               + "Split12."
-                                                               + "Split23."
                                                                + "Split34."
                                                                + "Tau1."
                                                                + "Tau2."
                                                                + "Tau3."
                                                                + "ThrustMaj."
                                                                + "ThrustMin."
-                                                               + "TransformType."
                                                                + "Width."
                                                                + "WidthPhi."
-                                                               + "ZCut12."
                                                                + "ZCut23."
-                                                               + "ZCut34"
-                                                               + "L1"
-                                                               + "L2"
-                                                               + "L3"
-                                                               + "L4"
-                                                               + "L5"]
+                                                               ]
 
-
-TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
-                                                               + "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux."
-                                                               + "ActiveArea."
-                                                               + "ActiveArea4vec_eta."
-                                                               + "ActiveArea4vec_m."
-                                                               + "ActiveArea4vec_phi."
-                                                               + "ActiveArea4vec_pt."
-                                                               + "AlgorithmType."
-                                                               + "Angularity."
-                                                               + "Aplanarity."
-                                                               + "Charge."
-                                                               + "ConstituentScale."
-                                                               + "DetectorPhi."
-                                                               + "Dip12."
-                                                               + "Dip13."
-                                                               + "Dip23."
-                                                               + "DipExcl12."
-                                                               + "EMFrac."
-                                                               + "FoxWolfram0."
-                                                               + "FoxWolfram1."
-                                                               + "FoxWolfram2."
-                                                               + "FoxWolfram3."
-                                                               + "FoxWolfram4."
-                                                               + "GhostAntiKt2TrackJetCount."
-                                                               + "GhostAntiKt2TrackJetPt."
-                                                               + "GhostAntiKt4TrackJet."
-                                                               + "GhostAntiKt4TrackJetCount."
-                                                               + "GhostAntiKt4TrackJetPt."
-                                                               + "GhostMuonSegment."
-                                                               + "GhostMuonSegmentCount."
-                                                               + "GhostTrack."
-                                                               + "GhostTrackCount."
-                                                               + "GhostTrackPt."
-                                                               + "InputType."
-                                                               + "JetEMScaleMomentum_eta."
-                                                               + "JetEMScaleMomentum_m."
-                                                               + "JetEMScaleMomentum_phi."
-                                                               + "JetEMScaleMomentum_pt."
-                                                               + "JetGhostArea."
-                                                               + "KtDR."
-                                                               + "Mu12."
-                                                               + "Parent."
-                                                               + "PlanarFlow."
-                                                               + "PullMag."
-                                                               + "PullPhi."
-                                                               + "Pull_C00."
-                                                               + "Pull_C01."
-                                                               + "Pull_C10."
-                                                               + "Pull_C11."
-                                                               + "SizeParam."
-                                                               + "Sphericity."
-                                                               + "Split12."
-                                                               + "Split23."
-                                                               + "Split34."
-                                                               + "Tau1."
-                                                               + "Tau2."
-                                                               + "Tau3."
-                                                               + "ThrustMaj."
-                                                               + "ThrustMin."
-                                                               + "TransformType."
-                                                               + "Width."
-                                                               + "WidthPhi."
-                                                               + "ZCut12."
-                                                               + "ZCut23."
-                                                               + "ZCut34."
-                                                               + "L1."
-                                                               + "L2."
-                                                               + "L3."
-                                                               + "L4."
-                                                               + "L5"]
-
-
-#TOPQExtraVariables_AntiKt2PV0TrackJets = ["AntiKt2PV0TrackJets."
-#                                          + "pt."
-#                                          + "eta."
-#                                          + "phi."
-#                                          + "m.constituentLinks."
-#                                          + "btaggingLink."
-#                                          + "OriginVertex."
-#                                          + "GhostAntiKt3TrackJet."
-#                                          + "GhostAntiKt4TrackJet."
-#                                          + "GhostTrack."
-#+ additional variables (which seem to be filled by default)
-#                                          + "ActiveArea."
-#                                          + "ActiveArea4vec_eta."
-#                                          + "ActiveArea4vec_m."
-#                                          + "ActiveArea4vec_phi."
-#                                          + "ActiveArea4vec_pt."
-#                                          + "AlgorithmType."
-#                                          + "ConstituentScale."
-#                                          + "InputType."
-#                                          + "JetConstitScaleMomentum_eta."
-#                                          + "JetConstitScaleMomentum_m."
-#                                          + "JetConstitScaleMomentum_phi."
-#                                          + "JetConstitScaleMomentum_pt."
-#                                          + "JetGhostArea."
-#                                          + "OriginVertex."
-#                                          + "SizeParameter."
-#                                          + "Width."
-#                                          + "WidthPhi."
-#                                          + "btaggingLink"]
-
-# default list for CombinedMuonTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
-TOPQExtraVariables_CombinedMuonTrackParticles = ["CombinedMuonTrackParticles."
-                                                 + "pt."
-                                                 + "eta."
-                                                 + "truthParticleLink."
-                                                 + "msInnerMatchChi2."
-                                                 + "TRTTrackOccupancy."
-                                                 + "TRTdEdx."
-                                                 + "TRTdEdxUsedHits."
-                                                 + "alignEffectSigmaDeltaTrans."
-                                                 + "beamlineTiltX."
-                                                 + "beamlineTiltY."
-                                                 + "deltaphi_0."
-                                                 + "deltaphi_1."
-                                                 + "deltatheta_0."
-                                                 + "deltatheta_1."
-                                                 + "eProbabilityComb."
-                                                 + "eProbabilityHT."
-                                                 + "expectInnermostPixelLayerHit."
-                                                 + "expectNextToInnermostPixelLayerHit."
-                                                 + "hitPattern."
-                                                 + "identifierOfFirstHit."
-                                                 + "numberOfContribPixelLayers."
-                                                 + "numberOfDBMHits."
-                                                 + "numberOfGangedFlaggedFakes."
-                                                 + "numberOfGangedPixels."
-                                                 + "numberOfIBLOverflowsdEdx."
-                                                 + "numberOfInnermostPixelLayerOutliers."
-                                                 + "numberOfInnermostPixelLayerSharedHits."
-                                                 + "numberOfInnermostPixelLayerSplitHits."
-                                                 + "numberOfNextToInnermostPixelLayerHits."
-                                                 + "numberOfNextToInnermostPixelLayerOutliers."
-                                                 + "numberOfNextToInnermostPixelLayerSharedHits."
-                                                 + "numberOfNextToInnermostPixelLayerSplitHits."
-                                                 + "numberOfOutliersOnTrack."
-                                                 + "numberOfPixelOutliers."
-                                                 + "numberOfPixelSharedHits."
-                                                 + "numberOfPixelSplitHits."
-                                                 + "numberOfPixelSpoiltHits."
-                                                 + "numberOfSCTDoubleHoles."
-                                                 + "numberOfSCTOutliers."
-                                                 + "numberOfSCTSharedHits."
-                                                 + "numberOfSCTSpoiltHits."
-                                                 + "numberOfTRTDeadStraws."
-                                                 + "numberOfTRTHighThresholdHits."
-                                                 + "numberOfTRTHighThresholdHitsTotal."
-                                                 + "numberOfTRTHighThresholdOutliers."
-                                                 + "numberOfTRTHoles."
-                                                 + "numberOfTRTSharedHits."
-                                                 + "numberOfTRTTubeHits."
-                                                 + "numberOfTRTXenonHits."
-                                                 + "numberOfTriggerEtaHoleLayers."
-                                                 + "numberOfTriggerEtaLayers."
-                                                 + "numberOfUsedHitsdEdx."
-                                                 + "parameterPX."
-                                                 + "parameterPY."
-                                                 + "parameterPZ."
-                                                 + "parameterPosition."
-                                                 + "parameterX."
-                                                 + "parameterY."
-                                                 + "parameterZ."
-                                                 + "particleHypothesis."
-                                                 + "patternRecoInfo."
-                                                 + "pixeldEdx."
-                                                 + "radiusOfFirstHit."
-                                                 + "sigmadeltaphi_0."
-                                                 + "sigmadeltaphi_1."
-                                                 + "sigmadeltatheta_0."
-                                                 + "sigmadeltatheta_1."
-                                                 + "standardDeviationOfChi2OS."
-                                                 + "trackFitter."
-                                                 + "trackLink."
-                                                 + "trackParameterCovarianceMatrices."
-                                                 + "trackProperties."
-                                                 + "vx."
-                                                 + "vy"]
-
-# default list for ExtrapolatedMuonTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
-TOPQExtraVariables_ExtrapolatedMuonTrackParticles = ["ExtrapolatedMuonTrackParticles."
-                                                     + "pt."
-                                                     + "eta."
-                                                     + "d0."
-                                                     + "z0."
-                                                     + "vz."
-                                                     + "vertexLink."
-                                                     + "truthParticleLink."
-                                                     + "chiSquared."
-                                                     + "numberDoF."
-                                                     + "numberOfPhiLayers."
-                                                     + "numberOfPhiHoleLayers."
-                                                     + "TRTTrackOccupancy."
-                                                     + "TRTdEdx."
-                                                     + "TRTdEdxUsedHits."
-                                                     + "beamlineTiltX."
-                                                     + "beamlineTiltY."
-                                                     + "caloExt_Decorated."
-                                                     + "caloExt_eta."
-                                                     + "caloExt_phi."
-                                                     + "deltaphi_0."
-                                                     + "deltaphi_1."
-                                                     + "deltatheta_0."
-                                                     + "deltatheta_1."
-                                                     + "eProbabilityComb."
-                                                     + "eProbabilityHT."
-                                                     + "expectInnermostPixelLayerHit."
-                                                     + "expectNextToInnermostPixelLayerHit."
-                                                     + "hitPattern."
-                                                     + "identifierOfFirstHit."
-                                                     + "numberOfContribPixelLayers."
-                                                     + "numberOfDBMHits."
-                                                     + "numberOfGangedFlaggedFakes."
-                                                     + "numberOfGangedPixels."
-                                                     + "numberOfIBLOverflowsdEdx."
-                                                     + "numberOfInnermostPixelLayerHits."
-                                                     + "numberOfInnermostPixelLayerOutliers."
-                                                     + "numberOfInnermostPixelLayerSharedHits."
-                                                     + "numberOfInnermostPixelLayerSplitHits."
-                                                     + "numberOfNextToInnermostPixelLayerHits."
-                                                     + "numberOfNextToInnermostPixelLayerOutliers."
-                                                     + "numberOfNextToInnermostPixelLayerSharedHits."
-                                                     + "numberOfNextToInnermostPixelLayerSplitHits."
-                                                     + "numberOfOutliersOnTrack."
-                                                     + "numberOfPixelOutliers."
-                                                     + "numberOfPixelSharedHits."
-                                                     + "numberOfPixelSplitHits."
-                                                     + "numberOfPixelSpoiltHits."
-                                                     + "numberOfSCTDoubleHoles."
-                                                     + "numberOfSCTOutliers."
-                                                     + "numberOfSCTSharedHits."
-                                                     + "numberOfSCTSpoiltHits."
-                                                     + "numberOfTRTDeadStraws."
-                                                     + "numberOfTRTHighThresholdHits."
-                                                     + "numberOfTRTHighThresholdHitsTotal."
-                                                     + "numberOfTRTHighThresholdOutliers."
-                                                     + "numberOfTRTHoles."
-                                                     + "numberOfTRTSharedHits."
-                                                     + "numberOfTRTTubeHits."
-                                                     + "numberOfTRTXenonHits."
-                                                     + "numberOfTriggerEtaHoleLayers."
-                                                     + "numberOfTriggerEtaLayers."
-                                                     + "numberOfUsedHitsdEdx."
-                                                     + "parameterPX."
-                                                     + "parameterPY."
-                                                     + "parameterPZ."
-                                                     + "parameterPosition."
-                                                     + "parameterX."
-                                                     + "parameterY."
-                                                     + "parameterZ."
-                                                     + "particleHypothesis."
-                                                     + "patternRecoInfo."
-                                                     + "pixeldEdx."
-                                                     + "radiusOfFirstHit."
-                                                     + "sigmadeltaphi_0."
-                                                     + "sigmadeltaphi_1."
-                                                     + "sigmadeltatheta_0."
-                                                     + "sigmadeltatheta_1."
-                                                     + "standardDeviationOfChi2OS."
-                                                     + "trackFitter."
-                                                     + "trackLink."
-                                                     + "trackParameterCovarianceMatrices."
-                                                     + "trackProperties."
-                                                     + "vx."
-                                                     + "vy"]
-
-# default list for MuonSpectrometerTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
-TOPQExtraVariables_MuonSpectrometerTrackParticles = ["MuonSpectrometerTrackParticles."
-                                                     + "pt."
-                                                     + "eta."
-                                                     + "numberOfPixelHits."
-                                                     + "numberOfPixelDeadSensors."
-                                                     + "numberOfPrecisionLayers."
-                                                     + "truthParticleLink."
-                                                     + "chiSquared."
-                                                     + "numberDoF."
-                                                     + "numberOfPhiLayers."
-                                                     + "numberOfPhiHoleLayers."
-                                                     + "numberOfPixelHoles."
-                                                     + "numberOfPrecisionHoleLayers."
-                                                     + "numberOfSCTDeadSensors."
-                                                     + "numberOfSCTHits."
-                                                     + "numberOfSCTHoles."
-                                                     + "numberOfTRTHits."
-                                                     + "numberOfTRTOutliers."
-                                                     + "TRTTrackOccupancy."
-                                                     + "TRTdEdx."
-                                                     + "TRTdEdxUsedHits."
-                                                     + "alignEffectSigmaDeltaTrans."
-                                                     + "beamlineTiltX."
-                                                     + "beamlineTiltY."
-                                                     + "deltaphi_0."
-                                                     + "deltaphi_1."
-                                                     + "deltatheta_0."
-                                                     + "deltatheta_1."
-                                                     + "eProbabilityComb."
-                                                     + "eProbabilityHT."
-                                                     + "expectInnermostPixelLayerHit."
-                                                     + "expectNextToInnermostPixelLayerHit."
-                                                     + "hitPattern."
-                                                     + "identifierOfFirstHit."
-                                                     + "numberOfContribPixelLayers."
-                                                     + "numberOfDBMHits."
-                                                     + "numberOfGangedFlaggedFakes."
-                                                     + "numberOfGangedPixels."
-                                                     + "numberOfIBLOverflowsdEdx."
-                                                     + "numberOfInnermostPixelLayerHits."
-                                                     + "numberOfInnermostPixelLayerOutliers."
-                                                     + "numberOfInnermostPixelLayerSharedHits."
-                                                     + "numberOfInnermostPixelLayerSplitHits."
-                                                     + "numberOfNextToInnermostPixelLayerHits."
-                                                     + "numberOfNextToInnermostPixelLayerOutliers."
-                                                     + "numberOfNextToInnermostPixelLayerSharedHits."
-                                                     + "numberOfNextToInnermostPixelLayerSplitHits."
-                                                     + "numberOfOutliersOnTrack."
-                                                     + "numberOfPixelOutliers."
-                                                     + "numberOfPixelSharedHits."
-                                                     + "numberOfPixelSplitHits."
-                                                     + "numberOfPixelSpoiltHits."
-                                                     + "numberOfSCTDoubleHoles."
-                                                     + "numberOfSCTOutliers."
-                                                     + "numberOfSCTSharedHits."
-                                                     + "numberOfSCTSpoiltHits."
-                                                     + "numberOfTRTDeadStraws."
-                                                     + "numberOfTRTHighThresholdHits."
-                                                     + "numberOfTRTHighThresholdHitsTotal."
-                                                     + "numberOfTRTHighThresholdOutliers."
-                                                     + "numberOfTRTHoles."
-                                                     + "numberOfTRTSharedHits."
-                                                     + "numberOfTRTTubeHits."
-                                                     + "numberOfTRTXenonHits."
-                                                     + "numberOfTriggerEtaHoleLayers."
-                                                     + "numberOfTriggerEtaLayers."
-                                                     + "numberOfUsedHitsdEdx."
-                                                     + "parameterPX."
-                                                     + "parameterPY."
-                                                     + "parameterPZ."
-                                                     + "parameterPosition."
-                                                     + "parameterX."
-                                                     + "parameterY."
-                                                     + "parameterZ."
-                                                     + "particleHypothesis."
-                                                     + "patternRecoInfo."
-                                                     + "pixeldEdx."
-                                                     + "radiusOfFirstHit."
-                                                     + "rpcHitIdentifier."
-                                                     + "rpcHitPositionX."
-                                                     + "rpcHitPositionY."
-                                                     + "rpcHitPositionZ."
-                                                     + "rpcHitTime."
-                                                     + "sigmadeltaphi_0."
-                                                     + "sigmadeltaphi_1."
-                                                     + "sigmadeltatheta_0."
-                                                     + "sigmadeltatheta_1."
-                                                     + "standardDeviationOfChi2OS."
-                                                     + "trackFitter."
-                                                     + "trackLink."
-                                                     + "trackParameterCovarianceMatrices."
-                                                     + "trackProperties."
-                                                     + "vx."
-                                                     + "vy"]
-
-# default list for InDetTrackParticles : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/InDetTrackParticlesCPContent.py
+# Full list: DerivationFrameworkInDet/python/InDetTrackParticlesCPContent.py
 TOPQExtraVariables_InDetTrackParticles = ["InDetTrackParticles."
+                                          + "TRTdEdx."
+                                          + "particleHypothesis."
+                                          + "pixeldEdx."
+                                          + "radiusOfFirstHit."
                                           + "vx."
                                           + "vy."
-                                          + "vz."
-                                          + "truthMatchProbability."
-                                          + "TRTdEdx."
-                                          + "pixeldEdx."
-                                          + "particleHypothesis."
-                                          + "radiusOfFirstHit"]
-
-
-# default list for PrimaryVertices : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/PrimaryVerticesCPContent.py
-TOPQExtraVariables_PrimaryVertices = ["PrimaryVertices"
-                                      + "x."
-                                      + "y"]
-
-# default list for InDetForwardTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
-TOPQExtraVariables_InDetForwardTrackParticles = ["InDetForwardTrackParticles."
-                                                 + "pt."
-                                                 + "eta."
-                                                 + "vertexLink."
-                                                 + "truthParticleLink."
-                                                 + "chiSquared."
-                                                 + "numberDoF."
-                                                 + "numberOfPhiLayers."
-                                                 + "numberOfPhiHoleLayers."
-                                                 + "numberOfPrecisionHoleLayers."
-                                                 + "numberOfSCTDeadSensors."
-                                                 + "numberOfSCTHits."
-                                                 + "TRTTrackOccupancy."
-                                                 + "TRTdEdx."
-                                                 + "TRTdEdxUsedHits."
-                                                 + "alignEffectSigmaDeltaTrans."
-                                                 + "beamlineTiltX."
-                                                 + "beamlineTiltY."
-                                                 + "caloExt_Decorated."
-                                                 + "caloExt_eta."
-                                                 + "caloExt_phi."
-                                                 + "deltaphi_0."
-                                                 + "deltaphi_1."
-                                                 + "deltatheta_0."
-                                                 + "deltatheta_1."
-                                                 + "eProbabilityComb."
-                                                 + "eProbabilityHT."
-                                                 + "expectInnermostPixelLayerHit."
-                                                 + "expectNextToInnermostPixelLayerHit."
-                                                 + "hitPattern."
-                                                 + "identifierOfFirstHit."
-                                                 + "nBC_meas."
-                                                 + "numberOfContribPixelLayers."
-                                                 + "numberOfDBMHits."
-                                                 + "numberOfGangedFlaggedFakes."
-                                                 + "numberOfGangedPixels."
-                                                 + "numberOfIBLOverflowsdEdx."
-                                                 + "numberOfInnermostPixelLayerHits."
-                                                 + "numberOfInnermostPixelLayerOutliers."
-                                                 + "numberOfInnermostPixelLayerSharedHits."
-                                                 + "numberOfInnermostPixelLayerSplitHits."
-                                                 + "numberOfNextToInnermostPixelLayerHits."
-                                                 + "numberOfNextToInnermostPixelLayerOutliers."
-                                                 + "numberOfNextToInnermostPixelLayerSharedHits."
-                                                 + "numberOfNextToInnermostPixelLayerSplitHits."
-                                                 + "numberOfOutliersOnTrack."
-                                                 + "numberOfPixelOutliers."
-                                                 + "numberOfPixelSharedHits."
-                                                 + "numberOfPixelSplitHits."
-                                                 + "numberOfPixelSpoiltHits."
-                                                 + "numberOfSCTDoubleHoles."
-                                                 + "numberOfSCTOutliers."
-                                                 + "numberOfSCTSharedHits."
-                                                 + "numberOfSCTSpoiltHits."
-                                                 + "numberOfTRTDeadStraws."
-                                                 + "numberOfTRTHighThresholdHits."
-                                                 + "numberOfTRTHighThresholdHitsTotal."
-                                                 + "numberOfTRTHighThresholdOutliers."
-                                                 + "numberOfTRTHoles."
-                                                 + "numberOfTRTSharedHits."
-                                                 + "numberOfTRTTubeHits."
-                                                 + "numberOfTRTXenonHits."
-                                                 + "numberOfTriggerEtaHoleLayers."
-                                                 + "numberOfTriggerEtaLayers."
-                                                 + "numberOfUsedHitsdEdx."
-                                                 + "parameterPX."
-                                                 + "parameterPY."
-                                                 + "parameterPZ."
-                                                 + "parameterPosition."
-                                                 + "parameterX."
-                                                 + "parameterY."
-                                                 + "parameterZ."
-                                                 + "particleHypothesis."
-                                                 + "patternRecoInfo."
-                                                 + "pixeldEdx."
-                                                 + "radiusOfFirstHit."
-                                                 + "sigmadeltaphi_0."
-                                                 + "sigmadeltaphi_1."
-                                                 + "sigmadeltatheta_0."
-                                                 + "sigmadeltatheta_1."
-                                                 + "standardDeviationOfChi2OS."
-                                                 + "trackFitter."
-                                                 + "trackLink."
-                                                 + "trackParameterCovarianceMatrices."
-                                                 + "trackProperties."
-                                                 + "vx."
-                                                 + "vy"]
-
-
-# default list for GSFTrackParticles and GSFConversionVertices through Electrons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/python/ElectronsCPContent.py and Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
-
-# TOPQExtraVariables_GSFTrackParticles = ["GSFTrackParticles."]
-# TOPQExtraVariables_GSFConversionVertices = ["GSFConversionVertices."]
+                                          ]
 
 TOPQExtraVariables_MET_Track = ["MET_Track."
                                 + "source."
-                                + "sumet"]
+                                + "sumet."
+                                ]
 
 ############################
 # Extra variables HLT
 ############################
-TOPQExtraVariables_BTag_HLT = ["HLT_xAOD__BTaggingContainer_HLTBjetFex."
-                               + "MV2c00_discriminant."
-                               + "MV2c10_discriminant."
-                               + "MV2c20_discriminant."
-                               + "BTagBtagToJetAssociator"]
+TOPQExtraVariables_BTag_HLT = ["HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.BTagBtagToJetAssociator"]
 
-TOPQExtraVariables_HLT_EFJet = ["HLT_xAOD__JetContainer_EFJet."
-                                + "eta."
-                                + "m."
-                                + "pt."
-                                + "phi"]
+TOPQExtraVariables_HLT_EFJet = ["HLT_xAOD__JetContainer_EFJet.eta.m.pt.phi"]
 
-TOPQExtraVariables_HLT_GSCJet = ["HLT_xAOD__JetContainer_GSCJet."
-                                 + "eta."
-                                 + "m."
-                                 + "pt."
-                                 + "phi"]
+TOPQExtraVariables_HLT_SplitJet = ["HLT_xAOD__JetContainer_SplitJet.eta.m.pt.phi"]
 
-TOPQExtraVariables_HLT_SplitJet = ["HLT_xAOD__JetContainer_SplitJet."
-                                   + "eta."
-                                   + "m."
-                                   + "pt."
-                                   + "phi"]
-
-# following ones could certainly be automatized ?
-TOPQExtraVariables_HLT_a10r_tcemsubjesFS = ["HLT_xAOD__JetContainer_a10r_tcemsubjesFS."
-                                            + "eta."
-                                            + "m."
-                                            + "pt."
-                                            + "phi"]
-
-TOPQExtraVariables_HLT_a10r_tcemsubjesISFS = ["HLT_xAOD__JetContainer_a10r_tcemsubjesISFS."
-                                              + "eta."
-                                              + "m."
-                                              + "pt."
-                                              + "phi"]
-
-TOPQExtraVariables_HLT_a10tclcwsubjesFS = ["HLT_xAOD__JetContainer_a10tclcwsubjesFS."
-                                           + "eta."
-                                           + "m."
-                                           + "pt."
-                                           + "phi"]
-
-TOPQExtraVariables_HLT_a10ttclcwjesFS = ["HLT_xAOD__JetContainer_a10ttclcwjesFS."
-                                         + "eta."
-                                         + "m."
-                                         + "pt."
-                                         + "phi"]
-
-TOPQExtraVariables_HLT_a4tcemsubjesISFS = ["HLT_xAOD__JetContainer_a4tcemsubjesISFS."
-                                           + "eta."
-                                           + "m."
-                                           + "pt."
-                                           + "phi"]
-
-TOPQExtraVariables_LVL1EnergySumRoI = ["LVL1EnergySumRoI."
-                                       ]
 #================================
 # MC Only
 #================================
-TOPQExtraVariables_Photons_Truth   = ["Photons."
-                                     + "truthOrigin."
-                                     + "truthParticleLink."
-                                     + "truthType"]
+TOPQExtraVariables_Muons_Truth = ["MuonTruthParticles.truthOrigin.truthType"]
 
-TOPQExtraVariables_Electrons_Truth = ["Electrons."
-                                     + "bkgTruthType."
-                                     + "bkgTruthOrigin."
-                                     + "bkgTruthParticleLink."
-                                     + "bkgMotherPdgId"
-                                     + "truthOrigin."
-                                     + "truthType."
-                                     + "truthParticleLink"]
+TOPQExtraVariables_ForwardElectrons_Truth = ["ForwardElectrons.truthOrigin.truthType.truthParticleLink"]
 
-TOPQExtraVariables_ForwardElectrons_Truth = ["ForwardElectrons."
-                                            + "truthOrigin."
-                                            + "truthType."
-                                            + "truthParticleLink"]
-
-TOPQExtraVariables_Muons_Truth = ["MuonTruthParticles."
-                                  + "truthOrigin."
-                                  + "truthType"]
-
-TOPQExtraVariables_CombinedMuonTrackParticles_Truth = ["CombinedMuonTrackParticles."
-                                                       + "truthOrigin."
-                                                       + "truthType"]
-
-TOPQExtraVariables_MuonSpectrometerTrackParticles_Truth = ["MuonSpectrometerTrackParticles."
-                                                           + "truthOrigin."
-                                                           + "truthType"]
-
-TOPQExtraVariables_ExtrapolatedMuonTrackParticles_Truth = ["ExtrapolatedMuonTrackParticles."
-                                                           + "truthOrigin."
-                                                           + "truthType"]
-
-TOPQExtraVariables_IndetForwardTrackParticles_Truth = ["InDetForwardTrackParticles."
-                                                       + "truthMatchProbability."
-                                                       + "truthOrigin."
-                                                       + "truthType"]
-
-
-TOPQExtraVariables_Taus_Truth = ["TauJets."
-                                 + "IsTruthMatched."
-                                 + "truthJetLink."
-                                 + "truthParticleLink"]
+TOPQExtraVariables_Taus_Truth = ["TauJets.IsTruthMatched.truthJetLink.truthParticleLink"]
 
 TOPQExtraVariables_AntiKt4EMTopoJets_Truth =  ["AntiKt4EMTopoJets."
                                                + "ConeExclTausFinal."
@@ -1306,16 +506,16 @@ TOPQExtraVariables_AntiKt4EMTopoJets_Truth =  ["AntiKt4EMTopoJets."
                                                + "GhostPartons."
                                                + "GhostPartonsCount."
                                                + "GhostPartonsPt."
-                                               + "GhostTausFinal."
-                                               + "GhostTausFinalCount."
-                                               + "GhostTausFinalPt."
                                                + "GhostTQuarksFinal."
                                                + "GhostTQuarksFinalCount."
                                                + "GhostTQuarksFinalPt."
+                                               + "GhostTausFinal."
+                                               + "GhostTausFinalCount."
+                                               + "GhostTausFinalPt."
                                                + "GhostTruth."
+                                               + "GhostTruthAssociationLink."
                                                + "GhostTruthCount."
                                                + "GhostTruthPt."
-                                               + "GhostTruthAssociationLink."
                                                + "GhostWBosons."
                                                + "GhostWBosonsCount."
                                                + "GhostWBosonsPt."
@@ -1324,10 +524,11 @@ TOPQExtraVariables_AntiKt4EMTopoJets_Truth =  ["AntiKt4EMTopoJets."
                                                + "GhostZBosonsPt."
                                                + "HadronConeExclTruthLabelID."
                                                + "PartonTruthLabelID."
-                                               + "TruthLabelID."
                                                + "TruthLabelDeltaR_B."
                                                + "TruthLabelDeltaR_C."
-                                               + "TruthLabelDeltaR_T"]
+                                               + "TruthLabelDeltaR_T."
+                                               + "TruthLabelID."
+                                               ]
 
 TOPQExtraVariables_AntiKt4EMPFlowJets_Truth = ["AntiKt4EMPFlowJets."
                                                + "ConeExclBHadronsFinal."
@@ -1358,16 +559,16 @@ TOPQExtraVariables_AntiKt4EMPFlowJets_Truth = ["AntiKt4EMPFlowJets."
                                                + "GhostPartons."
                                                + "GhostPartonsCount."
                                                + "GhostPartonsPt."
-                                               + "GhostTausFinal."
-                                               + "GhostTausFinalCount."
-                                               + "GhostTausFinalPt."
                                                + "GhostTQuarksFinal."
                                                + "GhostTQuarksFinalCount."
                                                + "GhostTQuarksFinalPt."
+                                               + "GhostTausFinal."
+                                               + "GhostTausFinalCount."
+                                               + "GhostTausFinalPt."
                                                + "GhostTruth."
+                                               + "GhostTruthAssociationLink."
                                                + "GhostTruthCount."
                                                + "GhostTruthPt."
-                                               + "GhostTruthAssociationLink."
                                                + "GhostWBosons."
                                                + "GhostWBosonsCount."
                                                + "GhostWBosonsPt."
@@ -1376,56 +577,11 @@ TOPQExtraVariables_AntiKt4EMPFlowJets_Truth = ["AntiKt4EMPFlowJets."
                                                + "GhostZBosonsPt."
                                                + "HadronConeExclTruthLabelID."
                                                + "PartonTruthLabelID."
-                                               + "TruthLabelID."
                                                + "TruthLabelDeltaR_B."
                                                + "TruthLabelDeltaR_C."
-                                               + "TruthLabelDeltaR_T"]
-
-TOPQExtraVariables_AntiKt2PV0TrackJets_Truth = ["AntiKt2PV0TrackJets."
-                                                + "GhostBHadronsFinal."
-                                                + "GhostBHadronsFinalCount."
-                                                + "GhostBHadronsFinalPt."
-                                                + "GhostBHadronsInitial."
-                                                + "GhostBHadronsInitialCount."
-                                                + "GhostBHadronsInitialPt."
-                                                + "GhostBQuarksFinal."
-                                                + "GhostBQuarksFinalCount."
-                                                + "GhostBQuarksFinalPt."
-                                                + "GhostCHadronsFinal."
-                                                + "GhostCHadronsFinalCount."
-                                                + "GhostCHadronsFinalPt."
-                                                + "GhostCHadronsInitial."
-                                                + "GhostCHadronsInitialCount."
-                                                + "GhostCHadronsInitialPt."
-                                                + "GhostCQuarksFinal."
-                                                + "GhostCQuarksFinalCount."
-                                                + "GhostCQuarksFinalPt."
-                                                + "GhostHBosons."
-                                                + "GhostHBosonsCount."
-                                                + "GhostHBosonsPt."
-                                                + "GhostMuonSegment."
-                                                + "GhostMuonSegmentCount."
-                                                + "GhostPartons."
-                                                + "GhostPartonsCount."
-                                                + "GhostPartonsPt."
-                                                + "GhostTQuarksFinal."
-                                                + "GhostTQuarksFinalCount."
-                                                + "GhostTQuarksFinalPt."
-                                                + "GhostTausFinal."
-                                                + "GhostTausFinalCount."
-                                                + "GhostTausFinalPt."
-                                                + "GhostTruth."
-                                                + "GhostTruthCount."
-                                                + "GhostTruthPt."
-                                                + "GhostWBosons."
-                                                + "GhostWBosonsCount."
-                                                + "GhostWBosonsPt."
-                                                + "GhostZBosons."
-                                                + "GhostZBosonsCount."
-                                                + "GhostZBosonsPt."
-                                                + "TruthLabelDeltaR_B."
-                                                + "TruthLabelDeltaR_C."
-                                                + "TruthLabelDeltaR_T"]
+                                               + "TruthLabelDeltaR_T."
+                                               + "TruthLabelID."
+                                               ]
 
 TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets."
                                                                      + "GhostBHadronsFinal."
@@ -1471,76 +627,12 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LC
                                                                      + "GhostZBosonsPt."
                                                                      + "TruthLabelDeltaR_B."
                                                                      + "TruthLabelDeltaR_C."
-                                                                     + "TruthLabelDeltaR_T"
-                                                                     + "L1"
-                                                                     + "L2"
-                                                                     + "L3"
-                                                                     + "L4"
-                                                                     + "L5"]
-
-TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets_Truth = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
-                                                                     + "GhostBHadronsFinal."
-                                                                     + "GhostBHadronsFinalCount."
-                                                                     + "GhostBHadronsFinalPt."
-                                                                     + "GhostBHadronsInitial."
-                                                                     + "GhostBHadronsInitialCount."
-                                                                     + "GhostBHadronsInitialPt."
-                                                                     + "GhostBQuarksFinal."
-                                                                     + "GhostBQuarksFinalCount."
-                                                                     + "GhostBQuarksFinalPt."
-                                                                     + "GhostCHadronsFinal."
-                                                                     + "GhostCHadronsFinalCount."
-                                                                     + "GhostCHadronsFinalPt."
-                                                                     + "GhostCHadronsInitial."
-                                                                     + "GhostCHadronsInitialCount."
-                                                                     + "GhostCHadronsInitialPt."
-                                                                     + "GhostCQuarksFinal."
-                                                                     + "GhostCQuarksFinalCount."
-                                                                     + "GhostCQuarksFinalPt."
-                                                                     + "GhostHBosons."
-                                                                     + "GhostHBosonsCount."
-                                                                     + "GhostHBosonsPt."
-                                                                     + "GhostMuonSegment."
-                                                                     + "GhostMuonSegmentCount."
-                                                                     + "GhostPartons."
-                                                                     + "GhostPartonsCount."
-                                                                     + "GhostPartonsPt."
-                                                                     + "GhostTQuarksFinal."
-                                                                     + "GhostTQuarksFinalCount."
-                                                                     + "GhostTQuarksFinalPt."
-                                                                     + "GhostTausFinal."
-                                                                     + "GhostTausFinalCount."
-                                                                     + "GhostTausFinalPt."
-                                                                     + "GhostTruth."
-                                                                     + "GhostTruthCount."
-                                                                     + "GhostTruthPt."
-                                                                     + "GhostWBosons."
-                                                                     + "GhostWBosonsCount."
-                                                                     + "GhostWBosonsPt."
-                                                                     + "GhostZBosons."
-                                                                     + "GhostZBosonsCount."
-                                                                     + "GhostZBosonsPt."
-                                                                     + "TruthLabelDeltaR_B."
-                                                                     + "TruthLabelDeltaR_C."
                                                                      + "TruthLabelDeltaR_T."
-                                                                     + "L1."
-                                                                     + "L2."
-                                                                     + "L3."
-                                                                     + "L4."
-                                                                     + "L5"]
+                                                                     ]
 
 #===========================================
 # COLLECTIONS AT TRUTH LEVEL
 #===========================================
-#TOPQExtraContainersTruth = ["AntiKt10TruthJets",
-#                            "AntiKt4TruthJets",
-#                            "AntiKt4TruthWZJets",
-#                            "MET_Truth",
-#                            "MET_TruthRegions","
-#                            "TruthEvents",
-#                            "TruthParticles",
-#                            "TruthVertices"]
-
 TOPQExtraVariables_AntiKt4TruthJets = ["AntiKt4TruthJets."
                                        + "ActiveArea."
                                        + "ActiveArea4vec_eta."
@@ -1599,7 +691,8 @@ TOPQExtraVariables_AntiKt4TruthJets = ["AntiKt4TruthJets."
                                        + "TruthLabelDeltaR_C."
                                        + "TruthLabelDeltaR_T."
                                        + "Width."
-                                       + "WidthPhi"]
+                                       + "WidthPhi."
+                                       ]
 
 TOPQExtraVariables_AntiKt4TruthDressedWZJets = ["AntiKt4TruthDressedWZJets."
                                                 + "ActiveArea."
@@ -1612,8 +705,6 @@ TOPQExtraVariables_AntiKt4TruthDressedWZJets = ["AntiKt4TruthDressedWZJets."
                                                 + "ConeExclCHadronsFinal."
                                                 + "ConeExclTausFinal."
                                                 + "ConstituentScale."
-                                                + "GhostBHadronsFinal."
-                                                + "GhostBHadronsFinalCount."
                                                 + "GhostBHadronsFinalPt."
                                                 + "GhostBHadronsInitial."
                                                 + "GhostBHadronsInitialCount."
@@ -1659,7 +750,8 @@ TOPQExtraVariables_AntiKt4TruthDressedWZJets = ["AntiKt4TruthDressedWZJets."
                                                 + "TruthLabelDeltaR_C."
                                                 + "TruthLabelDeltaR_T."
                                                 + "Width."
-                                                + "WidthPhi"]
+                                                + "WidthPhi."
+                                                ]
 
 TOPQExtraVariables_AntiKt4TruthWZJets = ["AntiKt4TruthWZJets."
                                          + "ActiveArea."
@@ -1672,8 +764,6 @@ TOPQExtraVariables_AntiKt4TruthWZJets = ["AntiKt4TruthWZJets."
                                          + "ConeExclCHadronsFinal."
                                          + "ConeExclTausFinal."
                                          + "ConstituentScale."
-                                         + "GhostBHadronsFinal."
-                                         + "GhostBHadronsFinalCount."
                                          + "GhostBHadronsFinalPt."
                                          + "GhostBHadronsInitial."
                                          + "GhostBHadronsInitialCount."
@@ -1719,71 +809,8 @@ TOPQExtraVariables_AntiKt4TruthWZJets = ["AntiKt4TruthWZJets."
                                          + "TruthLabelDeltaR_C."
                                          + "TruthLabelDeltaR_T."
                                          + "Width."
-                                         + "WidthPhi"]
-
-TOPQExtraVariables_AntiKt10TruthJets = ["AntiKt10TruthJets."
-                                        + "ActiveArea."
-                                        + "ActiveArea4vec_eta."
-                                        + "ActiveArea4vec_m."
-                                        + "ActiveArea4vec_phi."
-                                        + "ActiveArea4vec_pt."
-                                        + "AlgorithmType."
-                                        + "ConeExclBHadronsFinal."
-                                        + "ConeExclCHadronsFinal."
-                                        + "ConeExclTausFinal."
-                                        + "ConeTruthLabelID."
-                                        + "ConstituentScale."
-                                        + "GhostBHadronsFinal."
-                                        + "GhostBHadronsFinalCount."
-                                        + "GhostBHadronsFinalPt."
-                                        + "GhostBHadronsInitial."
-                                        + "GhostBHadronsInitialCount."
-                                        + "GhostBHadronsInitialPt."
-                                        + "GhostBQuarksFinal."
-                                        + "GhostBQuarksFinalCount."
-                                        + "GhostBQuarksFinalPt."
-                                        + "GhostCHadronsFinal."
-                                        + "GhostCHadronsFinalCount."
-                                        + "GhostCHadronsFinalPt."
-                                        + "GhostCHadronsInitial."
-                                        + "GhostCHadronsInitialCount."
-                                        + "GhostCHadronsInitialPt."
-                                        + "GhostCQuarksFinal."
-                                        + "GhostCQuarksFinalCount."
-                                        + "GhostCQuarksFinalPt."
-                                        + "GhostHBosons."
-                                        + "GhostHBosonsCount."
-                                        + "GhostHBosonsPt."
-                                        + "GhostPartons."
-                                        + "GhostPartonsCount."
-                                        + "GhostPartonsPt."
-                                        + "GhostTQuarksFinal."
-                                        + "GhostTQuarksFinalCount."
-                                        + "GhostTQuarksFinalPt."
-                                        + "GhostTausFinal."
-                                        + "GhostTausFinalCount."
-                                        + "GhostTausFinalPt."
-                                        + "GhostWBosons."
-                                        + "GhostWBosonsCount."
-                                        + "GhostWBosonsPt."
-                                        + "GhostZBosons."
-                                        + "GhostZBosonsCount."
-                                        + "GhostZBosonsPt."
-                                        + "HadronConeExclExtendedTruthLabelID."
-                                        + "HadronConeExclTruthLabelID."
-                                        + "InputType."
-                                        + "JetConstitScaleMomentum_eta."
-                                        + "JetConstitScaleMomentum_m."
-                                        + "JetConstitScaleMomentum_phi."
-                                        + "JetConstitScaleMomentum_pt."
-                                        + "JetGhostArea."
-                                        + "PartonTruthLabelID."
-                                        + "SizeParameter."
-                                        + "TruthLabelDeltaR_B."
-                                        + "TruthLabelDeltaR_C."
-                                        + "TruthLabelDeltaR_T."
-                                        + "Width."
-                                        + "WidthPhi"]
+                                         + "WidthPhi."
+                                         ]
 
 TOPQExtraVariables_TruthEvents = ["TruthEvents."
                                   + "PDFID1."
@@ -1802,7 +829,8 @@ TOPQExtraVariables_TruthEvents = ["TruthEvents."
                                   + "signalProcessVertexLink."
                                   + "truthParticleLinks."
                                   + "truthVertexLinks."
-                                  + "weights"]
+                                  + "weights."
+                                  ]
 
 TOPQExtraVariables_TruthParticles = ["TruthParticles."
                                      + "TopHadronOriginFlag."
@@ -1810,26 +838,19 @@ TOPQExtraVariables_TruthParticles = ["TruthParticles."
                                      + "classifierParticleOrigin."
                                      + "classifierParticleOutCome."
                                      + "classifierParticleType."
-                                     + "d0."
                                      + "decayVtxLink."
                                      + "dressedPhoton."
                                      + "e."
                                      + "m."
                                      + "pdgId."
-                                     + "phi."
                                      + "polarizationPhi."
                                      + "polarizationTheta."
-                                     + "prodR."
                                      + "prodVtxLink."
-                                     + "prodZ."
                                      + "px."
                                      + "py."
                                      + "pz."
-                                     + "qOverP."
                                      + "status."
-                                     + "theta."
-                                     + "z0."
-                                     + "z0st"]
+                                     ]
 
 TOPQExtraVariables_TruthVertices = ["TruthVertices."
                                     + "barcode."
@@ -1839,60 +860,13 @@ TOPQExtraVariables_TruthVertices = ["TruthVertices."
                                     + "t."
                                     + "x."
                                     + "y."
-                                    + "z"]
-
-TOPQExtraVariables_MET_Truth = ["MET_Truth."
-                                + "mpx."
-                                + "mpy."
-                                + "name."
-                                + "source."
-                                + "sumet"]
+                                    + "z."
+                                    ]
 
 TOPQExtraVariables_MET_TruthRegions = ["MET_TruthRegions."
                                        + "mpx."
                                        + "mpy."
                                        + "name."
                                        + "source."
-                                       + "sumet"]
-
-#===========================================
-# COLLECTIONS WITH All VARIABLES
-#===========================================
-#TOPQExtraContainersStandard = ["CombinedMuonTrackParticles",
-#                               "egammaClusters",
-#                               "ExtrapolatedMuonTrackParticles",
-#                               "ForwardElectrons",
-#                               # "GSFTrackParticles",
-#                               "InDetForwardTrackParticles",
-#                               "MuonSpectrometerTrackParticles",
-#                               "MET_Track"]
-
-#TOPQExtraContainersTrigger = []
-
-#================================
-# CREATED ON-THE-FLY COLLECTIONS
-#================================
-TOPQStaticContent      = ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
-                          'xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.',
-                          'xAOD::JetContainer#AntiKt10TruthTrimmedPtFrac5SmallR20Jets',
-                          'xAOD::JetAuxContainer#AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.',
-                          'xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets',
-                          'xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.',
-                          'xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets',
-                          'xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.']
-
-# For TOPQDERIV-69
-TOPQStaticContentV0	 = ['xAOD::VertexContainer#TOPQ1RecoV0Candidates',
-                            'xAOD::VertexAuxContainer#TOPQ1RecoV0CandidatesAux.-vxTrackAtVertex.-vertexType.-neutralParticleLinks.-neutralWeights.-KshortLink.-LambdaLink.-LambdabarLink.-gamma_fit.-gamma_mass.-gamma_massError.-gamma_probability']
-
-
-TOPQStaticContentTruth = ['xAOD::TruthParticleContainer#TruthElectrons',
-                          'xAOD::TruthParticleAuxContainer#TruthElectronsAux.',
-                          'xAOD::TruthParticleContainer#TruthMuons',
-                          'xAOD::TruthParticleAuxContainer#TruthMuonsAux.',
-                          'xAOD::TruthParticleContainer#TruthPhotons',
-                          'xAOD::TruthParticleAuxContainer#TruthPhotonsAux.',
-                          'xAOD::TruthParticleContainer#TruthTaus',
-                          'xAOD::TruthParticleAuxContainer#TruthTausAux.',
-                          'xAOD::TruthParticleContainer#TruthNeutrinos',
-                          'xAOD::TruthParticleAuxContainer#TruthNeutrinosAux.']
+                                       + "sumet."
+                                       ]

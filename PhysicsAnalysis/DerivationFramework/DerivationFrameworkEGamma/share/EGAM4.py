@@ -18,6 +18,7 @@ from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
 DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
+DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightingVariations
 #override if needed (do at your own risk..)
 #DoCellReweighting = False
 #DoCellReweighting = True
@@ -27,7 +28,7 @@ from AthenaCommon.GlobalFlags import globalflags
 print "EGAM4 globalflags.DataSource(): ", globalflags.DataSource()
 if globalflags.DataSource()!='geant4':
     DoCellReweighting = False
-
+    DoCellReweightingVariations = False
 
 #====================================================================
 # SET UP STREAM (to be done early in the game to set up thinning Svc
@@ -93,12 +94,19 @@ print "EGAM4 skimming tool: ", EGAM4_SkimmingTool
 #====================================================================
 # Gain and cluster energies per layer decoration tool
 #====================================================================
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
+# GM: do we really need new, different tools: getClusterEnergyPerLayerDecoratorNew, getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar?
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations, getClusterEnergyPerLayerDecoratorNew, getClusterEnergyPerLayerDecoratorMaxVar, getClusterEnergyPerLayerDecoratorMinVar
 EGAM4_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM4_GainDecoratorTool
 
-cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+cluster_sizes = (3,7), (5,5), (7,11)
 EGAM4_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+if DoCellReweighting:
+    EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorNew(neta, nphi)() for neta, nphi in cluster_sizes]
+    if DoCellReweightingVariations:
+        EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMaxVar(neta, nphi)() for neta, nphi in cluster_sizes]
+        EGAM4_ClusterEnergyPerLayerDecorators += [getClusterEnergyPerLayerDecoratorMinVar(neta, nphi)() for neta, nphi in cluster_sizes]
+
 
 
 #====================================================================
@@ -107,8 +115,7 @@ EGAM4_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta,
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
 EGAM4_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM4_MaxCellDecoratorTool",
                                                                     SGKey_electrons         = "Electrons",
-                                                                    SGKey_photons           = "Photons",
-                                                                    )
+                                                                    SGKey_photons           = "Photons")
 ToolSvc += EGAM4_MaxCellDecoratorTool
 
 
@@ -119,21 +126,24 @@ if DoCellReweighting:
     from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import NewCellTool, ClusterDecoratorWithNewCells, EGammaReweightTool
 
     # first, create the container with the new cells (after reweighting)
-    EGAM4_NewCellTool = NewCellTool("EGAM4_NewCellTool")
-    #                                OutputLevel = DEBUG)
-    #                                ReweightCellContainerName="NewCellContainer",
-    #                                SGKey_electrons = "Electrons", 
-    #                                SGKey_photons = "Photons")
+    EGAM4_NewCellTool = NewCellTool("EGAM4_NewCellTool",
+                                    #OutputLevel = DEBUG
+                                    CellContainerName = "AODCellContainer",
+                                    ReweightCellContainerName="NewCellContainer",
+                                    SGKey_electrons = "Electrons",
+                                    SGKey_photons = "Photons",
+                                    ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs10.root" )
     print EGAM4_NewCellTool
     ToolSvc += EGAM4_NewCellTool
 
     # second, run a tool that creates the clusters and objects from these new cells
-    EGAM4_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM4_ClusterDecoratorTool")
-    #                                                          OutputClusterSGKey="EGammaSwClusterWithNewCells",
-    #                                                          OutputClusterLink="NewSwClusterLink",
-    #                                                          SGKey_caloCells = "NewCellContainer",
-    #                                                          SGKey_electrons = "Electrons", 
-    #                                                          SGKey_photons = "Photons")
+    EGAM4_ClusterDecoratorTool = ClusterDecoratorWithNewCells("EGAM4_ClusterDecoratorTool",
+                                                              #OutputLevel=DEBUG,
+                                                              OutputClusterSGKey = "EGammaSwClusterWithNewCells",
+                                                              OutputClusterLink = "NewSwClusterLink",
+                                                              SGKey_caloCells = "NewCellContainer",
+                                                              SGKey_electrons = "Electrons",
+                                                              SGKey_photons = "Photons")
     print EGAM4_ClusterDecoratorTool
     ToolSvc += EGAM4_ClusterDecoratorTool
 
@@ -146,17 +156,129 @@ if DoCellReweighting:
 
     # fourth, decorate the new objects with their shower shapes computed from the new clusters
     EGAM4_EGammaReweightTool = EGammaReweightTool("EGAM4_EGammaReweightTool",
+                                                  #OutputLevel=DEBUG,
                                                   SGKey_electrons = "Electrons",
                                                   SGKey_photons="Photons",
                                                   NewCellContainerName="NewCellContainer",
-                                                  NewElectronContainer = "NewSwElectrons",
+                                                  #NewElectronContainer = "", # no container for electrons
+                                                  #NewElectronContainer = "NewSwElectrons",
                                                   NewPhotonContainer = "NewSwPhotons",
                                                   EMShowerBuilderTool = EGAM4_EMShowerBuilderTool,
                                                   ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
-                                                  CaloClusterLinkName="NewSwClusterLink")
-    #                                             OutputLevel=DEBUG)
+                                                  CaloClusterLinkName="NewSwClusterLink",
+                                                  DecorateEGammaObjects = False,
+                                                  DecorationPrefix = "RW_",
+                                                  SaveReweightedContainer = True)
+
     print EGAM4_EGammaReweightTool
     ToolSvc += EGAM4_EGammaReweightTool
+
+    if DoCellReweightingVariations:
+        
+        ###########################################  REWEIGHTING VARIATIONS - MAX ######################################################
+      
+        from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import MaxVarCellTool, ClusterDecoratorWithMaxVarCells, EGammaMaxVarReweightTool
+        
+        # first, create the container with the new cells (after reweighting)      
+        EGAM4_MaxVarCellTool = MaxVarCellTool ("EGAM4_MaxVarCellTool",
+                                               #OutputLevel = DEBUG,
+                                               CellContainerName="AODCellContainer",
+                                               ReweightCellContainerName="MaxVarCellContainer",
+                                               SGKey_electrons = "Electrons",
+                                               SGKey_photons = "Photons", 
+                                               ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs11.root")
+        
+        print EGAM4_MaxVarCellTool
+        ToolSvc += EGAM4_MaxVarCellTool
+        
+        # second, run a tool that creates the clusters and objects from these new cells
+        EGAM4_MaxVarClusterDecoratorTool = ClusterDecoratorWithMaxVarCells("EGAM4_MaxVarClusterDecoratorTool",
+                                                                           OutputClusterSGKey="EGammaSwClusterWithMaxVarCells",
+                                                                           OutputClusterLink="MaxVarSwClusterLink",
+                                                                           SGKey_caloCells = "MaxVarCellContainer", 
+                                                                           SGKey_electrons = "Electrons",
+                                                                           SGKey_photons = "Photons")
+        print EGAM4_MaxVarClusterDecoratorTool
+        ToolSvc += EGAM4_MaxVarClusterDecoratorTool
+
+        # third, schedule a tool that will be invoked by the EGammaReweightTool to create on-the-fly the shower shapes with the new cells
+        EGAM4_EMMaxVarShowerBuilderTool = EMShowerBuilder("EGAM4_EMMaxVarShowerBuilderTool", 
+                                                          CellsName="MaxVarCellContainer")
+        print EGAM4_EMMaxVarShowerBuilderTool
+        ToolSvc += EGAM4_EMMaxVarShowerBuilderTool
+        
+        # fourth, decorate the new objects with their shower shapes computed from the new clusters
+        EGAM4_EGammaMaxVarReweightTool = EGammaReweightTool("EGAM4_EGammaMaxVarReweightTool",
+                                                            #OutputLevel = DEBUG,
+                                                            SGKey_electrons = "Electrons",
+                                                            SGKey_photons="Photons",
+                                                            NewCellContainerName="MaxVarCellContainer",
+                                                            #NewElectronContainer = "MaxVarSwElectrons",
+                                                            NewElectronContainer = "",
+                                                            NewPhotonContainer = "MaxVarSwPhotons",
+                                                            #NewPhotonContainer = "",
+                                                            EMShowerBuilderTool = EGAM4_EMMaxVarShowerBuilderTool,
+                                                            ClusterCorrectionToolName = "DFEgammaSWToolWithMaxVarCells",
+                                                            CaloClusterLinkName="MaxVarSwClusterLink",
+                                                            DecorateEGammaObjects = False,
+                                                            DecorationPrefix = "Max_",
+                                                            SaveReweightedContainer = True)
+        print EGAM4_EGammaMaxVarReweightTool
+        ToolSvc += EGAM4_EGammaMaxVarReweightTool
+
+
+        ###########################################  REWEIGHTING VARIATIONS - MIN ######################################################
+        
+        from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import MinVarCellTool, ClusterDecoratorWithMinVarCells, EGammaMinVarReweightTool
+
+        # first, create the container with the new cells (after reweighting)            
+        EGAM4_MinVarCellTool = MinVarCellTool ("EGAM4_MinVarCellTol",
+                                               #OutputLevel = DEBUG,
+                                               CellContainerName="AODCellContainer",
+                                               ReweightCellContainerName="MinVarCellContainer",
+                                               SGKey_electrons = "Electrons",
+                                               SGKey_photons = "Photons",
+                                               ReweightCoefficients2DPath = "DerivationFrameworkCalo/CellReweight_v2d/rewCoeffs00.root")
+
+      
+        print EGAM4_MinVarCellTool
+        ToolSvc += EGAM4_MinVarCellTool
+
+        # second, run a tool that creates the clusters and objects from these new cells
+        EGAM4_MinVarClusterDecoratorTool = ClusterDecoratorWithMinVarCells("EGAM4_MinVarClusterDecoratorTool",
+                                                                           OutputClusterSGKey="EGammaSwClusterWithMinVarCells",
+                                                                           OutputClusterLink="MinVarSwClusterLink",
+                                                                           SGKey_caloCells = "MinVarCellContainer", 
+                                                                           SGKey_electrons = "Electrons",
+                                                                           SGKey_photons = "Photons")
+        print EGAM4_MinVarClusterDecoratorTool
+        ToolSvc += EGAM4_MinVarClusterDecoratorTool
+
+        # third, schedule a tool that will be invoked by the EGammaReweightTool to create on-the-fly the shower shapes with the new cells      
+        EGAM4_EMMinVarShowerBuilderTool = EMShowerBuilder("EGAM4_EMMinVarShowerBuilderTool", 
+                                                          CellsName="MinVarCellContainer")
+        print EGAM4_EMMinVarShowerBuilderTool
+        ToolSvc += EGAM4_EMMinVarShowerBuilderTool
+
+        # fourth, decorate the new objects with their shower shapes computed from the new clusters
+        EGAM4_EGammaMinVarReweightTool = EGammaReweightTool("EGAM4_EGammaMinVarReweightTool",
+                                                            #OutputLevel = DEBUG,
+                                                            SGKey_electrons = "Electrons",
+                                                            SGKey_photons="Photons",
+                                                            NewCellContainerName="MinVarCellContainer",
+                                                            NewElectronContainer = "",
+                                                            #NewElectronContainer = "MinVarSwElectrons",
+                                                            NewPhotonContainer = "MinVarSwPhotons",
+                                                            #NewPhotonContainer = "",
+                                                            EMShowerBuilderTool = EGAM4_EMMinVarShowerBuilderTool,
+                                                            ClusterCorrectionToolName = "DFEgammaSWToolWithMinVarCells",
+                                                            CaloClusterLinkName="MinVarSwClusterLink",
+                                                            DecorateEGammaObjects = False,
+                                                            DecorationPrefix = "Min_",
+                                                            SaveReweightedContainer = True)
+
+        print EGAM4_EGammaMinVarReweightTool
+        ToolSvc += EGAM4_EGammaMinVarReweightTool
 
 
 #====================================================================
@@ -288,12 +410,15 @@ DerivationFrameworkJob += egam4Seq
 
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 augmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool,EGAM4_MaxCellDecoratorTool]
 if DoCellReweighting:
     augmentationTools += [EGAM4_NewCellTool, EGAM4_ClusterDecoratorTool, EGAM4_EGammaReweightTool]
+    if DoCellReweightingVariations:
+        augmentationTools += [EGAM4_MaxVarCellTool, EGAM4_MaxVarClusterDecoratorTool, EGAM4_EGammaMaxVarReweightTool, EGAM4_MinVarCellTool, EGAM4_MinVarClusterDecoratorTool, EGAM4_EGammaMinVarReweightTool]
+
 augmentationTools += EGAM4_ClusterEnergyPerLayerDecorators
 egam4Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
                                                          AugmentationTools = augmentationTools,
@@ -311,7 +436,7 @@ replaceAODReducedJets(reducedJetList,egam4Seq,"EGAM4")
 
 
 #====================================================================
-# SET UP STREAM SELECTION   
+# SET UP STREAM SELECTION
 #====================================================================
 # Only events that pass the filters listed below are written out.
 # Name must match that of the kernel above
@@ -324,7 +449,6 @@ EGAM4Stream.AcceptAlgs(["EGAM4Kernel"])
 # SET UP SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-
 EGAM4SlimmingHelper = SlimmingHelper("EGAM4SlimmingHelper")
 EGAM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
@@ -332,7 +456,8 @@ EGAM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -343,6 +468,8 @@ EGAM4SlimmingHelper.IncludeMuonTriggerContent = True
 # Append cell-reweighted collections to dictionary
 if DoCellReweighting:
     EGAM4SlimmingHelper.AppendToDictionary = {"NewSwPhotons": "xAOD::PhotonContainer", "NewSwPhotonsAux": "xAOD::PhotonAuxContainer" }
+    if DoCellReweightingVariations:
+        EGAM4SlimmingHelper.AppendToDictionary.update({ "MaxVarSwPhotons": "xAOD::PhotonContainer", "MaxVarSwPhotonsAux": "xAOD::PhotonAuxContainer", "MinVarSwPhotons": "xAOD::PhotonContainer", "MinVarSwPhotonsAux": "xAOD::PhotonAuxContainer" })
 
 # Extra variables
 EGAM4SlimmingHelper.ExtraVariables = ExtraContentAll

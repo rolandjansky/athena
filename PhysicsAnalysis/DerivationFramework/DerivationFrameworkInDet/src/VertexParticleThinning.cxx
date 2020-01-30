@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "DerivationFrameworkInDet/VertexParticleThinning.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
@@ -21,21 +22,27 @@
 DerivationFramework::VertexParticleThinning::VertexParticleThinning(const std::string& t,
                                                                         const std::string& n,
                                                                         const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_thinningSvc("ThinningSvc",n),
-m_ntot(0),
-m_npass(0),
-m_vertexSGKey(""),
-m_inDetSGKey("InDetTrackParticles"),
-m_selectionString(""),
-m_and(false),
-m_parser(0)
+  AthAlgTool(t,n,p),
+  m_thinningSvc("ThinningSvc",n),
+  m_ntot(0),
+  m_npass(0),
+  m_nVtxTot(0),
+  m_nVtxPass(0),
+  m_vertexSGKey(""),
+  m_inDetSGKey("InDetTrackParticles"),
+  m_selectionString(""),
+  m_trkSelTool("",this),
+  m_minGoodTracks(0),
+  m_and(false),
+  m_parser(0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService", m_thinningSvc);
     declareProperty("VertexKey", m_vertexSGKey);
     declareProperty("InDetTrackParticlesKey", m_inDetSGKey);
     declareProperty("SelectionString", m_selectionString);
+    declareProperty("TrackSelectionTool", m_trkSelTool);
+    declareProperty("MinGoodTracks",m_minGoodTracks);
     declareProperty("ApplyAnd", m_and);
 }
 
@@ -65,6 +72,12 @@ StatusCode DerivationFramework::VertexParticleThinning::initialize()
 	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
 	    m_parser->loadExpression(m_selectionString);
     }
+
+    // Track selection tool
+    if( !m_trkSelTool.empty() ){
+      ATH_CHECK(m_trkSelTool.retrieve());
+    }
+
     return StatusCode::SUCCESS;
 }
 
@@ -72,6 +85,7 @@ StatusCode DerivationFramework::VertexParticleThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
+    ATH_MSG_INFO("Processed "<< m_nVtxTot <<" vertices "<< m_nVtxPass<< " were retained ");
     if (m_selectionString!="") {
         delete m_parser;
         m_parser = 0;
@@ -88,6 +102,17 @@ StatusCode DerivationFramework::VertexParticleThinning::doThinning() const
     if (evtStore()->retrieve(importedTrackParticles,m_inDetSGKey).isFailure()) {
         ATH_MSG_ERROR("No TrackParticle collection with name " << m_inDetSGKey << " found in StoreGate!");
         return StatusCode::FAILURE;
+    }
+
+    const xAOD::VertexContainer* primaryVertices { nullptr };
+    ATH_CHECK( evtStore()->retrieve( primaryVertices, "PrimaryVertices" ) );
+
+    const xAOD::Vertex* priVtx { nullptr };
+    for( const auto* vtx : *primaryVertices ) {
+      if( vtx->vertexType() == xAOD::VxType::PriVtx ) {
+        priVtx = vtx;
+        break;
+      }
     }
     
     // Check the event contains tracks
@@ -108,6 +133,9 @@ StatusCode DerivationFramework::VertexParticleThinning::doThinning() const
     }
     unsigned int nVertices(importedVertices->size());
     std::vector<const xAOD::Vertex*> vertexToCheck; vertexToCheck.clear();
+    std::vector<bool> vtxMask;
+    vtxMask.assign(nVertices,false); // default: don't keep any vertices 
+    m_nVtxTot += nVertices;
     
     // Execute the text parser if requested
     if (m_selectionString!="") {
@@ -127,30 +155,78 @@ StatusCode DerivationFramework::VertexParticleThinning::doThinning() const
     // ... vertexs
     if (m_selectionString=="") { // check all vertices as user didn't provide a selection string
         for (xAOD::VertexContainer::const_iterator vtxIt=importedVertices->begin(); vtxIt!=importedVertices->end(); ++vtxIt) {
-	  	  
+       
+          // Check whether vertex has good tracks
+          if( !m_trkSelTool.empty() ){
+            unsigned int nGoodTracks=0;
+            for (size_t i = 0; i<(*vtxIt)->nTrackParticles(); i++) {
+              const xAOD::TrackParticle *trk = (*vtxIt)->trackParticle(i);
+              if( !priVtx ) continue;
+              if( m_trkSelTool->accept(*trk,priVtx) ) nGoodTracks++;
+            }
+            // User requests only a minimum number of tracks to pass track selection
+            if( m_minGoodTracks>0 && nGoodTracks<m_minGoodTracks                     ) continue; 
+            // Default, all tracks from vertex pass track selection
+            else if ( m_minGoodTracks==0 && nGoodTracks!=(*vtxIt)->nTrackParticles() ) continue; 
+ 
+            // Keep vertice passing this selection
+            int vtxIdx = (*vtxIt)->index();
+            vtxMask[vtxIdx] = true;
+
+          }
+
 	  for (size_t i = 0; i<(*vtxIt)->nTrackParticles(); i++) {
-	    
 	    const xAOD::TrackParticle *trk = (*vtxIt)->trackParticle(i);
-	    
+            // Ensure track is from the container we are thinning
+            if(std::find(importedTrackParticles->begin(), importedTrackParticles->end(), trk) == importedTrackParticles->end() ) continue;
 	    int index = trk->index();
 	    mask[index] = true;
 	  }
 	 
 	}
     }   
+
+    for( bool bit : mask ) {
+      if( bit ) {
+        ++m_npass;
+      }
+    }
+    for( bool bit : vtxMask ) {
+      if( bit ) {
+        ++m_nVtxPass;
+      }
+    }
     
+
     // Execute the thinning service based on the mask. Finish.
     if (m_and) {
         if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::And).isFailure()) {
                 ATH_MSG_ERROR("Application of thinning service failed! ");
                 return StatusCode::FAILURE;
         }
+
+        if( !m_trkSelTool.empty() ){
+          if (m_thinningSvc->filter(*importedVertices, vtxMask, IThinningSvc::Operator::And).isFailure()) {
+                  ATH_MSG_ERROR("Application of thinning service failed! ");
+                  return StatusCode::FAILURE;
+          }
+        }
+
     }
     if (!m_and) {
         if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::Or).isFailure()) {
                 ATH_MSG_ERROR("Application of thinning service failed! ");
                 return StatusCode::FAILURE;
         }
+
+        if( !m_trkSelTool.empty() ){
+          if (m_thinningSvc->filter(*importedVertices, vtxMask, IThinningSvc::Operator::Or).isFailure()) {
+                  ATH_MSG_ERROR("Application of thinning service failed! ");
+                  return StatusCode::FAILURE;
+          }
+        }
+
+
     }
 
     return StatusCode::SUCCESS;

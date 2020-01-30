@@ -15,6 +15,10 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
@@ -201,6 +205,12 @@ svcMgr += createThinningSvc( svcName="STDM2ThinningSvc", outStreams=[evtStream] 
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM2Sequence)
 
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM2Sequence, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM2Sequence, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -212,9 +222,13 @@ STDM2SlimmingHelper = SlimmingHelper("STDM2SlimmingHelper")
 STDM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "AntiKt4EMTopoJets_BTagging201810",
                                         "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMPFlowJets_BTagging201810", 
+                                        "AntiKt4EMPFlowJets_BTagging201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -228,7 +242,8 @@ STDM2SlimmingHelper.ExtraVariables += [
   "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
   "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"]
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
-STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
+STDM2SlimmingHelper.AllVariables = [ "AFPSiHitContainer", "AFPToFHitContainer"]
+STDM2SlimmingHelper.AllVariables += ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 
 # add photon shower shape variables
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *

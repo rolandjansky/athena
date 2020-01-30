@@ -71,6 +71,7 @@
     std::string m_outLabel;
     std::string m_outLabelFjvt;
     std::string m_outLabelTiming;
+    std::string m_verticesName;
     double m_etaThresh;
     double m_timingCut;
     double m_forwardMinPt;
@@ -86,6 +87,7 @@
     bool m_tightOP;
     mutable std::vector<TVector2> m_pileupMomenta;
     mutable size_t m_pvind;
+    bool m_useFirstVertex;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;

@@ -11,7 +11,7 @@
 //
 
 #include <AsgTools/AnaToolHandle.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <AsgExampleTools/UnitTestTool1.h>
 #include <AsgExampleTools/UnitTestTool2.h>
@@ -1038,8 +1038,9 @@ namespace asg
       ADD_FAILURE () << "unknown parameter " << std::get<1>(GetParam());
       return;
     }
-    if (std::get<1>(GetParam()) == "public")
+    if (std::get<1>(GetParam()) == "public") {
       ASSERT_SUCCESS (th3.setProperty ("usePublic", true));
+    }
 
     ASSERT_SUCCESS (th3.initialize ());
     if (value == -1)

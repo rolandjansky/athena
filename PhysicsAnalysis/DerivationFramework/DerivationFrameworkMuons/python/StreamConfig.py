@@ -41,8 +41,8 @@ class MuonsDxAODStreamConfigurer:
     MUON0OnlyItems += ['xAOD::TrigNavigation#*','xAOD::TrigNavigationAuxInfo#*'] ## be careful, they could go to smart slimming...
 
     ### samrt slimming containers
-    comSmSlList = ["Muons", "PrimaryVertices", "InDetTrackParticles"]
-    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON2':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON3':['AntiKt4EMTopoJets','Electrons']}
+    comSmSlList = ["Muons", "PrimaryVertices", "InDetTrackParticles","AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "BTagging_AntiKt4EMPFlow_201810",  "BTagging_AntiKt4EMPFlow_201903"]
+    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets','Electrons','MET_Reference_AntiKt4EMTopo','MET_Reference_AntiKt4EMPFlow'], 'MUON2':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], 'MUON3':['AntiKt4EMTopoJets','Electrons']}
 
     ### all varaible containers
 #     commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
@@ -55,7 +55,7 @@ class MuonsDxAODStreamConfigurer:
 
 #     if globalflags.DataSource()=='geant4':
     if DerivationFrameworkIsMonteCarlo:
-        MUON1OnlyAllVar += ['AntiKt4TruthJets']
+        MUON1OnlyAllVar += ['AntiKt4TruthJets',"TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth"]
 
 #     useSmartSlimmingIfSupported(getMUON0TriggerContainers(), MUON0OnlyAllVar, MUON0OnlyItems)
     allVarContainer = {'MUON0':MUON0OnlyAllVar, 'MUON1':MUON1OnlyAllVar, 'MUON2':[], 'MUON3':MUON3OnlyAllVar}
@@ -69,6 +69,12 @@ class MuonsDxAODStreamConfigurer:
     smSlContainer['MUON4'] = []
     allVarContainer['MUON4'] = []
     UseTriggerContent['MUON4'] = False
+
+    ### MUON6
+    Items['MUON6'] = []
+    smSlContainer['MUON6'] = []
+    allVarContainer['MUON6'] = []
+    UseTriggerContent['MUON6'] = True 
 
     checkContainers = {'MUON0':getMUON0TriggerContainers(), 'MUON1':getMUON0TriggerContainers(), 'MUON2':getMUON0TriggerContainers()}
 

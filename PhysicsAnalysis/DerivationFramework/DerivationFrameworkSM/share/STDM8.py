@@ -17,6 +17,10 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 #====================================================================                                               
 # SET UP STREAM 
 #====================================================================                                               
@@ -188,6 +192,12 @@ DerivationFrameworkJob += STDM8Sequence
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM8Sequence)
 
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM8Sequence, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM8Sequence, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -202,10 +212,14 @@ STDM8SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "AntiKt4EMTopoJets_BTagging201810",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMPFlowJets_BTagging201810", 
+                                        "AntiKt4EMPFlowJets_BTagging201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 

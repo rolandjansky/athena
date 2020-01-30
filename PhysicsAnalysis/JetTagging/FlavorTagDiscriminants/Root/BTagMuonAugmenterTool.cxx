@@ -3,6 +3,7 @@
 */
 
 #include "FlavorTagDiscriminants/BTagMuonAugmenterTool.h"
+#include "FlavorTagDiscriminants/BTagMuonAugmenter.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -10,21 +11,22 @@ namespace FlavorTagDiscriminants {
     asg::AsgTool(name),
     m_aug(nullptr)
   {
-    // you'll probably have to initialize some accessors here (or above)
     declareProperty("MuonAssociationName", m_muonAssociationName="Muons");
-    declareProperty("MuonMinDR", m_muonMinDR=0.4);
-    declareProperty("MuonMinpT", m_muonMinpT=4*1e3);
-
-
-
+    declareProperty("MuonMinDR", m_muonMinDR=defaults::MUON_MIN_DR);
+    declareProperty("MuonMinpT", m_muonMinpT=defaults::MUON_MIN_PT);
+    declareProperty("flipTagConfig", m_flipTagConfig = "STANDARD");
   }
   BTagMuonAugmenterTool::~BTagMuonAugmenterTool() {}
 
   StatusCode BTagMuonAugmenterTool::initialize() {
-    m_aug.reset(new BTagMuonAugmenter(m_muonAssociationName, m_muonMinDR, m_muonMinpT));
+    m_aug.reset(new BTagMuonAugmenter(
+                  m_muonAssociationName,
+                  m_muonMinDR,
+                  m_muonMinpT,
+                  flipTagConfigFromString(m_flipTagConfig)));
     return StatusCode::SUCCESS;
   }
-  
+
   int BTagMuonAugmenterTool::modifyJet(xAOD::Jet& jet) const {
     m_aug->augment(jet);
     return 0; // 0 means success

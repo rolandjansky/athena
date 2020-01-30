@@ -120,7 +120,7 @@ namespace Analysis {
     m_MuonsUsedInJpsi("NONE"),
     m_excludeJpsiMuonsOnly(true),
     m_excludeCrossJpsiTracks(false),
-    m_iVertexFitter("Trk::TrkVKalVrtFitter"),
+    m_iVertexFitter("Trk::TrkVKalVrtFitter", this),
     m_trkSelector("InDet::TrackSelectorTool"),
     m_vertexEstimator("InDet::VertexPointEstimator"),
     m_useMassConst(true),
@@ -335,9 +335,9 @@ namespace Analysis {
 
             // Loop over ID tracks, call vertexing
             for (TrackBag::iterator trkItr1=theIDTracksAfterSelection.begin(); trkItr1<theIDTracksAfterSelection.end(); ++trkItr1) { // outer loop
-                if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
-                int linkedMuonTrk1 = 0;
-                if (m_excludeJpsiMuonsOnly) {
+               if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+               int linkedMuonTrk1 = 0;
+               if (m_excludeJpsiMuonsOnly) {
                   linkedMuonTrk1 = JpsiUpsilonCommon::isContainedIn(*trkItr1, muonTracks);
                   if (linkedMuonTrk1) ATH_MSG_DEBUG("This id track 1 is muon track!");
    
@@ -346,20 +346,19 @@ namespace Analysis {
                     continue; // remove tracks which were used to build J/psi
                   }
                 }
-                
                 // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                 if(m_trkDeltaZ>0 &&
                    std::abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
                 
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
-                    if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+                  if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
 
                     if (m_excludeJpsiMuonsOnly) {
                       int linkedMuonTrk2 = JpsiUpsilonCommon::isContainedIn(*trkItr2, muonTracks);
                       if (linkedMuonTrk2) ATH_MSG_DEBUG("This id track 2 is muon track!"); 
                       if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) {
-                        if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
+                         if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
                         continue; // remove tracks which were used to build J/psi
                       }
                       if( (linkedMuonTrk1+ linkedMuonTrk2) < m_requiredNMuons) {
@@ -447,6 +446,7 @@ namespace Analysis {
                     theJpsiPreceding.push_back(*jpsiItr);
                     if(m_vertexFittingWithPV){
                         const xAOD::Vertex* closestPV = JpsiUpsilonCommon::ClosestPV(bHelper, importedPVerticesCollection);
+		        if (!closestPV) continue;
                         std::unique_ptr<xAOD::Vertex> bVertexPV (fit(QuadletTracks, importedTrackCollection, closestPV, importedGSFTrackCollection));
                         if(!bVertexPV) continue;
                         double bChi2DOFPV = bVertexPV->chiSquared()/bVertexPV->numberDoF();
@@ -462,7 +462,6 @@ namespace Analysis {
                     }
                     bHelper.setPrecedingVertices(theJpsiPreceding, importedJpsiCollection);
                     bContainer->push_back(bVertex.release());//ptr is released preventing deletion
-
                 } // End of inner loop over tracks
             } // End of outer loop over tracks
         } // End of loop over J/spi
@@ -561,12 +560,12 @@ namespace Analysis {
     // ---------------------------------------------------------------------------------
     
     double JpsiPlus2Tracks::getInvariantMass(const xAOD::TrackParticle* trk1, double mass1, const xAOD::TrackParticle* trk2, double mass2){
-        const auto trk1V = trk1->p4();
+        const auto &trk1V = trk1->p4();
         double px1 = trk1V.Px();
         double py1 = trk1V.Py();
         double pz1 = trk1V.Pz();
         double e1 = sqrt(px1*px1+py1*py1+pz1*pz1+mass1*mass1);
-        const auto trk2V = trk2->p4();
+        const auto &trk2V = trk2->p4();
         double px2 = trk2V.Px();
         double py2 = trk2V.Py();
         double pz2 = trk2V.Pz();
@@ -585,25 +584,25 @@ namespace Analysis {
                                              const std::vector<double> &masses)
     {
         assert(trk.size() == masses.size() && trk.size()==4);
-        const auto trk1V = trk[0]->p4();
+        const auto &trk1V = trk[0]->p4();
         double px1 = trk1V.Px();
         double py1 = trk1V.Py();
         double pz1 = trk1V.Pz();
         double e1 = sqrt(px1*px1+py1*py1+pz1*pz1+masses[0]*masses[0]);
 
-        const auto trk2V = trk[1]->p4();
+        const auto &trk2V = trk[1]->p4();
         double px2 = trk2V.Px();
         double py2 = trk2V.Py();
         double pz2 = trk2V.Pz();
         double e2 = sqrt(px2*px2+py2*py2+pz2*pz2+masses[1]*masses[1]);
         
-        const auto trk3V = trk[2]->p4();
+        const auto &trk3V = trk[2]->p4();
         double px3 = trk3V.Px();
         double py3 = trk3V.Py();
         double pz3 = trk3V.Pz();
         double e3 = sqrt(px3*px3+py3*py3+pz3*pz3+masses[2]*masses[2]);
         
-        const auto trk4V = trk[3]->p4();
+        const auto &trk4V = trk[3]->p4();
         double px4 = trk4V.Px();
         double py4 = trk4V.Py();
         double pz4 = trk4V.Pz();

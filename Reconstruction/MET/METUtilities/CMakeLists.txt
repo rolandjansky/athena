@@ -31,6 +31,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
    Event/xAOD/xAODTracking
+   Event/xAOD/xAODTruth
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
@@ -88,7 +89,7 @@ endif()
 # Executable(s) in the package:
 # only compiled in analysis releases
 if( XAOD_ANALYSIS )
-  foreach( utility example_METMaker_METSystematicsTool
+  foreach( utility example_METMaker_METSystematicsTool example_METSignificance_truth
           example_METMaker_advanced example_rebuildTrackMET example_METSignificance )
     atlas_add_executable( ${utility}
           util/${utility}.cxx

@@ -9,7 +9,7 @@
 #define SYSTEMATICS_HANDLES__SYS_WRITE_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/MsgStream.h>
+#include <AsgTools/AsgMessagingForward.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <memory>
@@ -24,7 +24,8 @@ namespace CP
 
   /// \brief a data handle for writing systematics varied input data
 
-  template<typename T,typename Aux = void> class SysWriteHandle final : public ISysHandleBase
+  template<typename T,typename Aux = void> class SysWriteHandle final
+    : public ISysHandleBase, public asg::AsgMessagingForward
   {
     //
     // public interface
@@ -85,24 +86,12 @@ namespace CP
     /// algorithm instead.
   private:
     std::function<StoreType*()> m_evtStoreGetter;
-
-
-    /// \brief the message stream we use
-  private:
-    MsgStream *m_msg {nullptr};
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( ) const;
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( const MSG::Level lvl ) const;
   };
 
 
 
-  template<typename T> class SysWriteHandle<T,void> final : public ISysHandleBase
+  template<typename T> class SysWriteHandle<T,void> final
+    : public ISysHandleBase, public asg::AsgMessagingForward
   {
     //
     // public interface
@@ -167,19 +156,6 @@ namespace CP
     /// algorithm instead.
   private:
     std::function<StoreType*()> m_evtStoreGetter;
-
-
-    /// \brief the message stream we use
-  private:
-    MsgStream *m_msg {nullptr};
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( ) const;
-
-    /// \brief helper for message macros
-  private:
-    MsgStream& msg( const MSG::Level lvl ) const;
   };
 }
 

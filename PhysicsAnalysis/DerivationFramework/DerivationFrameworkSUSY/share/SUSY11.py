@@ -8,9 +8,12 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkTau.TauCommon import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addPVCollection
   addStandardTruthContents()
+  addMiniTruthCollectionLinks()
+  addPVCollection()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
@@ -64,14 +67,27 @@ SUSY11ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
 ToolSvc += SUSY11ElectronTPThinningTool
 thinningTools.append(SUSY11ElectronTPThinningTool)
 
-# TrackParticles associated with taus
+# TrackParticles associated with taus, only keep charged tau tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-SUSY11TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "SUSY11TauTPThinningTool",
-                                                                        ThinningService	 = SUSY11ThinningHelper.ThinningSvc(),
-                                                                        TauKey          = "TauJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+SUSY11TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "SUSY11TauTPThinningTool",
+                                                                        ThinningService        = SUSY11ThinningHelper.ThinningSvc(),
+                                                                        TauKey                 = "TauJets",
+                                                                        InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                        SelectionString        = "(TauJets.ptFinalCalib >= 15.*GeV) && (TauJets.nTracks==1 || TauJets.nTracks==3)",
+                                                                        ApplyAnd               = False,
+                                                                        DoTauTracksThinning    = True,
+                                                                        TauTracksKey           = "TauTracks")
 ToolSvc += SUSY11TauTPThinningTool
 thinningTools.append(SUSY11TauTPThinningTool)
+
+# TauJets thinning
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+SUSY11TauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "SUSY11TauJetsThinningTool",
+                                                                       ThinningService = SUSY11ThinningHelper.ThinningSvc(),
+                                                                       ContainerName   = "TauJets",
+                                                                       SelectionString = "(TauJets.ptFinalCalib >= 15.*GeV) && (TauJets.nTracks==1 || TauJets.nTracks==3)")
+ToolSvc += SUSY11TauJetsThinningTool
+thinningTools.append(SUSY11TauJetsThinningTool)
 
 
 #====================================================================
@@ -79,19 +95,14 @@ thinningTools.append(SUSY11TauTPThinningTool)
 #====================================================================
 
 if DerivationFrameworkIsMonteCarlo:
-  truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))"		# Leptons
 
-  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-  SUSY11TruthThinningTool = DerivationFramework__GenericTruthThinning(
-                      name                         = "SUSY11TruthThinningTool",
-                      ThinningService	             = SUSY11ThinningHelper.ThinningSvc(),
-                      ParticleSelectionString      = truth_cond_Lepton,
-                      PreserveDescendants          = True,
-                      PreserveGeneratorDescendants = False,
-                      SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset
-                      )
-  ToolSvc += SUSY11TruthThinningTool
-  thinningTools.append(SUSY11TruthThinningTool)
+  # Decorate Electron with bkg electron type/origin
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier
+  from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification
+  BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool",MCTruthClassifierTool = BkgElectronMCTruthClassifier)
+  ToolSvc += BkgElectronClassificationTool
+  AugmentationTools.append(BkgElectronClassificationTool)
+
 
 #====================================================================
 # TRIGGER SKIMMING
@@ -168,22 +179,29 @@ SeqSUSY11 += CfgMgr.DerivationFramework__DerivationKernel(
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY11SlimmingHelper = SlimmingHelper("SUSY11SlimmingHelper")
 SUSY11SlimmingHelper.SmartCollections = ["Electrons", "Photons", "MET_Reference_AntiKt4EMTopo", "MET_Reference_AntiKt4EMPFlow",
-                                         "Muons", "AntiKt4EMTopoJets", "AntiKt4EMPFlowJets", "BTagging_AntiKt4EMTopo",
-                                         "BTagging_AntiKt4EMPFlow", "PrimaryVertices", "TauJets",
+                                         "Muons", "AntiKt4EMTopoJets", "AntiKt4EMPFlowJets", 
+                                         "AntiKt4EMPFlowJets_BTagging201810",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "BTagging_AntiKt4EMPFlow_201810",
+                                         "BTagging_AntiKt4EMPFlow_201903",
+                                         "AntiKt4EMTopoJets_BTagging201810",
+                                         "BTagging_AntiKt4EMTopo_201810","PrimaryVertices", "TauJets",
                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-SUSY11SlimmingHelper.AllVariables = [ "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track", "AntiKtVR30Rmax4Rmin02TrackJets" ]
-SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
+SUSY11SlimmingHelper.AllVariables = [ "MET_Truth", "MET_Track", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810" ]
+SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
+                                       "Electrons.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.TruthLink",
+                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.TruthLink",
+                                       "Photons.TruthLink",                                       
                                        "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
                                        "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
                                        "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                        "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                        "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
                                        "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.DL1_pu.DL1_pc.DL1_pb",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant.DL1_pu.DL1_pc.DL1_pb",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
                                        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
-                                       "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink"
+                                       "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.seedTrackWidthPt500.seedTrackWidthPt1000"
                                        # Run2 tau reco - updated for R21 EDM
                                        + ".PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased"
                                        + ".PanTau_BDTValue_1p0n_vs_1p1n.PanTau_BDTValue_1p1n_vs_1pXn.PanTau_BDTValue_3p0n_vs_3pXn"
@@ -205,9 +223,10 @@ if DerivationFrameworkIsMonteCarlo:
 
   SUSY11SlimmingHelper.AppendToDictionary = { 'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                               'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                              'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer' }
 
-  SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+  SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson", "TruthPrimaryVertices"]
 
 #SUSY11Stream.RemoveItem("xAOD::TrigNavigation#*")
 #SUSY11Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")

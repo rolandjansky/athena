@@ -165,9 +165,10 @@ HIGG1D2SkimmingTool = DerivationFramework__SkimmingToolHIGG1(
                                  IncludeDoubleMuonPreselection = True,
                                  IncludePhotonMergedElectronPreselection = True,
                                  IncludeHighPtPhotonElectronPreselection = True,
-                                 MinimumPhotonPt = 7.5*GeV,
-                                 MinimumElectronPt = 7.5*GeV,
-                                 MinimumMuonPt = 7.5*GeV,
+                                 MinimumPhotonPt = 9.9*GeV,
+                                 MinimumElectronPt = 4.4*GeV,
+                                 MinimumMergedElectronPt = 18*GeV,
+                                 MinimumMuonPt = 2.9*GeV,
                                  MaxMuonEta = 2.7,
                                  RemoveCrack = False,
                                  MaxEta = 2.5,
@@ -336,6 +337,21 @@ reducedJetList = [
                   "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG1D2Seq)
+
+# Augment AntiKt4 jets with QG tagging variables
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D2Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG1D2Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg)
+
+# Decorate PFlow jets with FJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=HIGG1D2Seq, algname='JetForwardPFlowJvtToolAlg')
+
 DerivationFrameworkJob += HIGG1D2Seq
 
 #====================================================================
@@ -370,10 +386,14 @@ HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
-                                          "BTagging_AntiKt4EMTopo",
                                           "MET_Reference_AntiKt4EMPFlow",
                                           "AntiKt4EMPFlowJets",
-                                          "BTagging_AntiKt4EMPFlow",
+                                          "AntiKt4EMTopoJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "BTagging_AntiKt4EMTopo_201810",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
@@ -389,7 +409,11 @@ HIGG1D2SlimmingHelper.ExtraVariables = ["PhotonsAux.DFCommonPhotonsIsEMTightPtIn
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "BTagging_AntiKt4EMTopo.MV1_discriminant",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
-                                        "MuonTruthParticles.truthOrigin.truthType"]
+                                        "DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta",
+                                        "DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+                                        "NumTrkPt500PV.PartonTruthLabelID",
+                                        "MuonTruthParticles.truthOrigin.truthType",
+                                        "HLT_xAOD__PhotonContainer_egamma_Iso_Photons.eta.phi.pt"]
 
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 HIGG1D2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
@@ -397,7 +421,7 @@ HIGG1D2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG1D2SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 HIGG1D2SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
-
+HIGG1D2SlimmingHelper.ExtraVariables += ["GSFTrackParticles.numberOfInnermostPixelLayerSharedHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSplitHits"]
 
 # Add AODCellContainer (have to find how to keep only cells belonging to e/gamma objects)
 # Usage of AddItem is forbidden

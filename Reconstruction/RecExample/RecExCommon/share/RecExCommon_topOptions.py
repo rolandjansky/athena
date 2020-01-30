@@ -196,9 +196,9 @@ if rec.oldFlagCompatibility:
         for o in RecExCommonFlags.keys():
             exec 'print "%s =",%s ' % (o,o)
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot delete"
+        logRecExCommon_topOptions.warning("WARNING RecExCommonFlags not available, cannot delete")
 else:
-    print "Old flags have been deleted"
+    logRecExCommon_topOptions.info("Old flags have been deleted")
 
 # end flag settings section
 ##########################################################################
@@ -426,7 +426,7 @@ elif rec.readAOD():
 
 
 if rec.OutputLevel() <= DEBUG:
-    print " Initial content of objKeyStore "
+    logRecExCommon_topOptions.debug(" Initial content of objKeyStore ")
     print objKeyStore
 
 # typical objKeyStore usage
@@ -773,7 +773,7 @@ if globalflags.InputFormat.is_bytestream() and disableRPC:
    newList=[]
    for i in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
       if i.startswith("Rpc"):
-         print "removing from ByteStreamAddressProviderSvc ",i
+         logRecExCommon_topOptions.info("removing from ByteStreamAddressProviderSvc "+str(i))
       else:
          newList+=[i]
 
@@ -959,7 +959,12 @@ else: # minimal TAG to be written into AOD
         GlobalEventTagTool.IncludeVertexFlag    = False
         GlobalEventTagTool.UseMC                = False
     except Exception:
-        print "WARNING Could not include EventTagAlgs/GlobalEventTagBuilder_jobOptions.py, OK for ATN."
+        # If we aren't writing any of these files, it shouldn't be a warning
+        if rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteRDO() or rec.doWriteTAG():
+            logRecExCommon_topOptions.warning("Could not include EventTagAlgs/GlobalEventTagBuilder_jobOptions.py, OK for ATN.")
+        else:
+            logRecExCommon_topOptions.info("Could not include EventTagAlgs/GlobalEventTagBuilder_jobOptions.py")
+
 
 if rec.doWriteRDO():
     #Create output StreamRDO
@@ -1234,7 +1239,7 @@ if rec.doWriteESD():
 
     # consistency check : make sure oks streamESD==CILMergeESD and included in transient
     #FIXME many problem. #* to remove, datavector to be removed plus basic thing missing
-    print "DRDR now consistency checks with three list"
+    logRecExCommon_topOptions.info("DRDR now consistency checks with three list")
     streamesd=objKeyStore['streamESD']()
     transient=objKeyStore['transient']()
     mergeesd=CILMergeESD()
@@ -1364,7 +1369,9 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
 
             from RecExConfig.InputFilePeeker import inputFileSummary
             #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
+            #Include translation of name from persistent format to transient format
+            from xAODRootAccess.ClassNameManips import pers_to_trans_name
+            MSMgr.AddMetaDataItemToAllStreams([pers_to_trans_name(x) for x in inputFileSummary['metadata_itemsList']])
             MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass
@@ -1683,7 +1690,7 @@ if not rec.oldFlagCompatibility:
             if i in varInit:
                 logRecExCommon_topOptions.warning("Variable %s has been re-declared, forbidden !" % i)
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot check"
+        logRecExCommon_topOptions.warning("RecExCommonFlags not available, cannot check")
 
 
 

@@ -64,7 +64,10 @@ triggers_jet = [
 triggers_lep = [
                 "HLT_mu60_0eta105_msonly",
                 "HLT_mu80_msonly_3layersEC",
-                "HLT_mu26_ivarmedium"
+                "HLT_mu26_ivarmedium",
+                "HLT_e26_lhtight_nod0_ivarloose",
+                "HLT_e60_lhmedium_nod0",
+                "HLT_e140_lhloose_nod0"
 ]
 
 triggers_photon = [

@@ -1,37 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopEventReconstructionTools/Chi2LJets.h"
 
 #include "TMinuit.h"
 
 namespace top {
+  const double Chi2LJets::input_topmass = 172500;
+  const double Chi2LJets::input_wmass = 80300;
 
-const double Chi2LJets::input_topmass = 172500;
-const double Chi2LJets::input_wmass = 80300;
+  const double Chi2LJets::input_topsigma = 13000;
+  const double Chi2LJets::input_wsigma = 7000;
 
-const double Chi2LJets::input_topsigma = 13000;
-const double Chi2LJets::input_wsigma = 7000;
-
-Chi2LJets::Chi2LJets() {
+  Chi2LJets::Chi2LJets() {
     min = new TMinuit(2);
     min->SetPrintLevel(-1);
     min->SetObjectFit(&params);
     min->SetFCN(fcn);
-}
+  }
 
-Chi2LJets::~Chi2LJets() {
+  Chi2LJets::~Chi2LJets() {
     delete min;
-}
+  }
 
-bool Chi2LJets::apply(const top::Event& event) const {
+  bool Chi2LJets::apply(const top::Event& event) const {
     //set lepton
-    if (event.m_electrons.size() == 1)
-        params.lepton = event.m_electrons.at(0)->p4();
+    if (event.m_electrons.size() == 1) params.lepton = event.m_electrons.at(0)->p4();
 
-    if (event.m_muons.size() == 1)
-        params.lepton = event.m_muons.at(0)->p4();
+    if (event.m_muons.size() == 1) params.lepton = event.m_muons.at(0)->p4();
 
     //and met
     params.neutrino_px = event.m_met->mpx();
@@ -44,52 +41,49 @@ bool Chi2LJets::apply(const top::Event& event) const {
 
     //First loop is for the leptonic b quark
     for (xAOD::JetContainer::const_iterator j1 = event.m_jets.begin(); j1 != event.m_jets.end(); ++j1) {
-        params.leptonic_b = (*j1)->p4();
+      params.leptonic_b = (*j1)->p4();
 
-        //Second loop is for one of the jets that makes a W
-        for (xAOD::JetContainer::const_iterator j2 = event.m_jets.begin(); j2 != event.m_jets.end(); ++j2) {
-            if (j1 == j2)
-                continue;
+      //Second loop is for one of the jets that makes a W
+      for (xAOD::JetContainer::const_iterator j2 = event.m_jets.begin(); j2 != event.m_jets.end(); ++j2) {
+        if (j1 == j2) continue;
 
-            ///The other jet in the W
-            for (xAOD::JetContainer::const_iterator j3 = event.m_jets.begin(); j3 != event.m_jets.end(); ++j3) {
-                if (j1 == j3 || j2 == j3)
-                    continue;
+        ///The other jet in the W
+        for (xAOD::JetContainer::const_iterator j3 = event.m_jets.begin(); j3 != event.m_jets.end(); ++j3) {
+          if (j1 == j3 || j2 == j3) continue;
 
-                params.hadronic_w_mass = ((*j2)->p4() + (*j3)->p4()).M();
+          params.hadronic_w_mass = ((*j2)->p4() + (*j3)->p4()).M();
 
-                ///The hadronic b quark
-                for (xAOD::JetContainer::const_iterator j4 = event.m_jets.begin(); j4 != event.m_jets.end(); ++j4) {
-                    if (j1 == j4 || j2 == j4 || j3 == j4)
-                        continue;
+          ///The hadronic b quark
+          for (xAOD::JetContainer::const_iterator j4 = event.m_jets.begin(); j4 != event.m_jets.end(); ++j4) {
+            if (j1 == j4 || j2 == j4 || j3 == j4) continue;
 
-                    params.hadronic_t_mass = ((*j1)->p4() + (*j2)->p4() + (*j3)->p4()).M();
+            params.hadronic_t_mass = ((*j1)->p4() + (*j2)->p4() + (*j3)->p4()).M();
 
-                    //Set input parameters to something reasonable (a guess)
-                    min->DefineParameter(0, "top_mass", 172500., 10000., 0, 500000);         //starting guess, step, min, max
-                    min->DefineParameter(1, "neutrino_pz", 10000, 10000, -1000000, 1000000);
+            //Set input parameters to something reasonable (a guess)
+            min->DefineParameter(0, "top_mass", 172500., 10000., 0, 500000);         //starting guess, step, min, max
+            min->DefineParameter(1, "neutrino_pz", 10000, 10000, -1000000, 1000000);
 
-                    //Perform the minimisation
-                    int status = min->Migrad();
+            //Perform the minimisation
+            int status = min->Migrad();
 
-                    double chi2 = 0;
-                    double edm = 0;
-                    double errdef = 0;
-                    int nvpar = 0;
-                    int nparx = 0;
-                    int icstat = 0;
+            double chi2 = 0;
+            double edm = 0;
+            double errdef = 0;
+            int nvpar = 0;
+            int nparx = 0;
+            int icstat = 0;
 
-                    min->mnstat(chi2, edm, errdef, nvpar, nparx, icstat);
+            min->mnstat(chi2, edm, errdef, nvpar, nparx, icstat);
 
-                    if (status == 0 && chi2 < chi2min) {
-                        double error = 0;
-                        chi2min = chi2;
-                        min->GetParameter(0, topmass, error);
-                        //wmass = params.hadronic_w_mass;
-                    } //min chi2
-                } //j4 = hadronic b
-            } //j3 = j3 + j2 = hadronic W
-        } //j2
+            if (status == 0 && chi2 < chi2min) {
+              double error = 0;
+              chi2min = chi2;
+              min->GetParameter(0, topmass, error);
+              //wmass = params.hadronic_w_mass;
+            } //min chi2
+          } //j4 = hadronic b
+        } //j3 = j3 + j2 = hadronic W
+      } //j2
     } //j1 = leptonic b
 
 
@@ -98,7 +92,8 @@ bool Chi2LJets::apply(const top::Event& event) const {
     //
     //  577     MiniElectronContainer electrons = event.electrons();
     //  578     if (electrons.size() == 1)
-    //  579         params.lepton.SetPtEtaPhiE(electrons[0]->pt(), electrons[0]->eta(), electrons[0]->phi(), electrons[0]->E());
+    //  579         params.lepton.SetPtEtaPhiE(electrons[0]->pt(), electrons[0]->eta(), electrons[0]->phi(),
+    // electrons[0]->E());
     //  580
     //  581     MiniMuonContainer muons = event.muons();
     //  582     if (muons.size() == 1)
@@ -157,7 +152,8 @@ bool Chi2LJets::apply(const top::Event& event) const {
     //  635                     params.hadronic_t_mass = (a + b + c).M();
     //  636
     //  637                     //Set input parameters to something reasonable (a guess)
-    //  638                     min->DefineParameter(0, "top_mass", 172500., 10000., 0, 500000);         //starting guess, step, min, max
+    //  638                     min->DefineParameter(0, "top_mass", 172500., 10000., 0, 500000);         //starting
+    // guess, step, min, max
     //  639                     min->DefineParameter(1, "neutrino_pz", 10000, 10000, -1000000, 1000000);
     //  640
     //  641                     //Perform the minimisation
@@ -177,32 +173,35 @@ bool Chi2LJets::apply(const top::Event& event) const {
     //  655     } //j1 = leptonic b
 
     return true;
+  }
 }
 
-}
 
-
- /**
-  * @brief this is where we write out chi2
-  */
+/**
+ * @brief this is where we write out chi2
+ */
 void fcn(int& /*npar*/, double* /*deriv*/, double& result, double par[], int /*flag*/) {
-    const top::FitInfo* params = (top::FitInfo*) gMinuit->GetObjectFit();
+  const top::FitInfo* params = (top::FitInfo*) gMinuit->GetObjectFit();
 
-    double mytopmass = par[0];
-    double pz = par[1];
+  double mytopmass = par[0];
+  double pz = par[1];
 
-    TLorentzVector neutrino(params->neutrino_px, params->neutrino_py, pz, sqrt(params->neutrino_px * params->neutrino_px + params->neutrino_py * params->neutrino_py + pz * pz));
-    double w_lep_term = ((params->lepton + neutrino).M() - top::Chi2LJets::input_wmass)  / top::Chi2LJets::input_wsigma;
-    double t_lep_term = ((params->lepton + neutrino + params->leptonic_b).M() - mytopmass) / top::Chi2LJets::input_topsigma;
+  TLorentzVector neutrino(params->neutrino_px, params->neutrino_py, pz, sqrt(
+                            params->neutrino_px* params->neutrino_px + params->neutrino_py* params->neutrino_py +
+                            pz* pz));
+  double w_lep_term = ((params->lepton + neutrino).M() - top::Chi2LJets::input_wmass) / top::Chi2LJets::input_wsigma;
+  double t_lep_term = ((params->lepton + neutrino + params->leptonic_b).M() - mytopmass) /
+                      top::Chi2LJets::input_topsigma;
 
-    double w_term = (params->hadronic_w_mass - top::Chi2LJets::input_wmass) / top::Chi2LJets::input_wsigma;
-    double t_term = (params->hadronic_t_mass - mytopmass) / top::Chi2LJets::input_topsigma;
+  double w_term = (params->hadronic_w_mass - top::Chi2LJets::input_wmass) / top::Chi2LJets::input_wsigma;
+  double t_term = (params->hadronic_t_mass - mytopmass) / top::Chi2LJets::input_topsigma;
 
-    result = w_lep_term * w_lep_term +
-            t_lep_term * t_lep_term +
-            w_term * w_term +
-            t_term * t_term;
+  result = w_lep_term * w_lep_term +
+           t_lep_term * t_lep_term +
+           w_term * w_term +
+           t_term * t_term;
 
-    //  cout << "SJH     fcn hadw " << fit->hadronicW << " " << TopWidth::input_wmass << " " << TopWidth::input_wsigma << endl;
-    //  cout << "SJH     fcn hadt " << fit->hadronicTop << " " << mytopmass << " " << TopWidth::input_topsigma << endl;
+  //  cout << "SJH     fcn hadw " << fit->hadronicW << " " << TopWidth::input_wmass << " " << TopWidth::input_wsigma <<
+  // endl;
+  //  cout << "SJH     fcn hadt " << fit->hadronicTop << " " << mytopmass << " " << TopWidth::input_topsigma << endl;
 }

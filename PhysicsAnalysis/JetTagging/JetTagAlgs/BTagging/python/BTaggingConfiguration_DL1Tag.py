@@ -3,6 +3,8 @@
 # Configuration functions for DL1Tag
 # Author: Marie Lanfermann (September 2015)
 from BTagging.BTaggingFlags import BTaggingFlags
+from BTagging.JetCollectionToTrainingMaps import postTagDL2JetToTrainingMap
+from BTagging.JetCollectionToTrainingMaps import blacklistedJetCollections
 
 
 
@@ -47,6 +49,9 @@ def buildDL1(basename, calibrationName=''):
     options['name'] = name
     options['LocalNNConfigurationFile'] = BTaggingFlags.DL1LocalNNConfig
     from JetTagTools.JetTagToolsConf import Analysis__DL1Tag
+    vetoed = postTagDL2JetToTrainingMap.keys() + blacklistedJetCollections
+    if BTaggingFlags.Do2019Retraining:
+        options['vetoCollections'] = vetoed
     return Analysis__DL1Tag(**options)
 
   return DL1Instance, metaInstance

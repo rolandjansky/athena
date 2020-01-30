@@ -732,6 +732,8 @@ namespace VKalVrtAthena {
     declareProperty("CutTRTHits",                      m_jp.CutTRTHits                      = 0                             );
     declareProperty("CutTightSCTHits",                 m_jp.CutTightSCTHits                 = 7                             );
     declareProperty("CutTightTRTHits",                 m_jp.CutTightTRTHits                 = 20                            );
+ 
+    declareProperty("TrkExtrapolator",                 m_jp.trkExtrapolator                 = 2                             );
     
     declareProperty("doReassembleVertices",            m_jp.doReassembleVertices            = false                         );
     declareProperty("doMergeByShuffling",              m_jp.doMergeByShuffling              = false                         );
@@ -1091,30 +1093,34 @@ namespace VKalVrtAthena {
         enum { Pixel = 1, SCT = 2 };
         
         const auto& id = detElement->identify();
-        Flag active = false;
+        //Flag active = false;
+	Flag good = false;
         
         if( m_atlasId->is_pixel(id) ) {
           
           auto idHash = m_pixelId->wafer_hash( id );
-          active = m_pixelCondSummarySvc->isActive( idHash );
+          //active = m_pixelCondSummarySvc->isActive( idHash );
+	  good = m_pixelCondSummarySvc->isGood( idHash );
           
-          pattern->emplace_back( std::make_tuple( position, Pixel, m_pixelId->barrel_ec(id), m_pixelId->layer_disk(id), active ) );
+          pattern->emplace_back( std::make_tuple( position, Pixel, m_pixelId->barrel_ec(id), m_pixelId->layer_disk(id), /*active,*/ good ) );
           
         } else if( m_atlasId->is_sct(id) ) {
           
           auto idHash = m_sctId->wafer_hash( id );
-          active = m_sctCondSummarySvc->isActive( idHash );
+          //active = m_sctCondSummarySvc->isActive( idHash );
+	  good = m_sctCondSummarySvc->isGood( idHash );
           
-          pattern->emplace_back( std::make_tuple( position, SCT, m_sctId->barrel_ec(id), m_sctId->layer_disk(id), active ) );
+          pattern->emplace_back( std::make_tuple( position, SCT, m_sctId->barrel_ec(id), m_sctId->layer_disk(id), /*active,*/ good ) );
           
         }
         
         if( pattern->size() > 0 ) {
           
-          ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.Perp() << ", " << position.z() << ", " << position.Phi() << "), detElement ID = " << id << ", active = " << active
+          ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.Perp() << ", " << position.z() << ", " << position.Phi() << "), detElement ID = " << id << /*", active = " << active*/ ", good = " << good
                           << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
           
-          if( !active ) nDisabled++;
+          //if( !active ) nDisabled++;
+	  if( !good ) nDisabled++;
         }
         
       }
@@ -1191,7 +1197,7 @@ namespace VKalVrtAthena {
       layerMap[ { 2,-2, 8 } ] = Trk::sctEndCap8;
     }
     
-    enum { position=0, detector=1, bec=2, layer=3, isActive=4 };
+    enum { position=0, detector=1, bec=2, layer=3, /*isActive=4,*/ isGood=4 };
     
     // Labmda!
     auto getDetectorType = [&]( const ExtrapolatedPoint& point ) -> unsigned {
@@ -1221,7 +1227,8 @@ namespace VKalVrtAthena {
       const auto& point      = *itr;
       const auto& nextPoint  = *( std::next( itr ) );
       
-      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
+      //ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isGood = " << std::get<isGood>( point ) );
       
       auto& thisPos = std::get<position>( point );
       auto& nextPos = std::get<position>( nextPoint );
@@ -1245,7 +1252,8 @@ namespace VKalVrtAthena {
       
       // if the front-end module is not active, then the hit is not expected,
       // which means the hit may be present
-      if( false == std::get<isActive>( point ) ) {
+      //if( false == std::get<isActive>( point ) ) {
+      if( false == std::get<isGood>( point ) ) {
         expectedHitPattern.at( detectorType ) = kMayHaveHit;
         continue;
       }
@@ -2226,9 +2234,9 @@ namespace VKalVrtAthena {
       layerMap[ { 2,-2, 8 } ] = Trk::sctEndCap8;
     }
     
-    enum { position=0, detector=1, bec=2, layer=3, isActive=4 };
+    enum { position=0, detector=1, bec=2, layer=3, /*isActive=4,*/ isGood=4 };
     
-    // Labmda!
+    // Lambda!
     auto getDetectorType = [&]( const ExtrapolatedPoint& point ) -> unsigned {
       
       const LayerCombination comb { std::get<detector>( point ), std::get<bec>( point ), std::get<layer>( point ) };
@@ -2252,9 +2260,9 @@ namespace VKalVrtAthena {
       
       const auto& point = *itr;
       
-      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << /*": isActive = " << std::get<isActive>( point ) <<*/ ": isGood = " << std::get<isGood>( point ) );
       
-      if( !std::get<isActive>( point ) ) {
+      if( !std::get<isGood>( point ) ) {
         const auto& detectorType = getDetectorType( point );
         disabledPattern += (1 << detectorType);
       }
@@ -2267,7 +2275,11 @@ namespace VKalVrtAthena {
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( disabledPattern >> i ) & 1 );
     }
-    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg ); 
+    // CO: temporary for debugging, should be removed
+    if (disabledPattern != 0) {
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": " << msg ); 
+    }
     
     msg = "Recorded hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {

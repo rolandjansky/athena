@@ -20,7 +20,7 @@ def makeEventSelectionAnalysisSequence( dataType,
       userGRLFiles -- a list of GRL files to select data from
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     # Create the analysis algorithm sequence object:

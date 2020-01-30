@@ -19,9 +19,11 @@
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
 #include "DerivationFrameworkInDet/TCCTrackParticleThinning.h"
+#include "DerivationFrameworkInDet/UFOTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/VsiTrackThinningTool.h"
 #include "DerivationFrameworkInDet/PixeldEdxTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/VertexParticleThinning.h"
+#include "../VertexThinning.h"
 
 using namespace DerivationFramework;
 
@@ -45,10 +47,11 @@ DECLARE_TOOL_FACTORY( EGammaPrepRawDataThinning )
 DECLARE_TOOL_FACTORY( TrackMeasurementThinning )
 DECLARE_TOOL_FACTORY( EventInfoPixelDecorator )
 DECLARE_TOOL_FACTORY( TCCTrackParticleThinning )
+DECLARE_TOOL_FACTORY( UFOTrackParticleThinning )
 DECLARE_TOOL_FACTORY( VsiTrackThinningTool )
 DECLARE_TOOL_FACTORY( PixeldEdxTrackParticleThinning )
 DECLARE_TOOL_FACTORY( VertexParticleThinning )
-
+DECLARE_TOOL_FACTORY( VertexThinning )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( InDetTrackSelectionToolWrapper )
@@ -71,8 +74,10 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackMeasurementThinning )
    DECLARE_TOOL( EventInfoPixelDecorator )
    DECLARE_TOOL( TCCTrackParticleThinning )
+   DECLARE_TOOL( UFOTrackParticleThinning )
    DECLARE_TOOL( VsiTrackThinningTool )
    DECLARE_TOOL( PixeldEdxTrackParticleThinning )
    DECLARE_TOOL( VertexParticleThinning )
+   DECLARE_TOOL( VertexThinning )
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Source file for the JetConstituentModifierBase.h
@@ -78,9 +78,9 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
   case xAOD::Type::ParticleFlow:
     {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(obj);
-      if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
-	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
-	if(weightAcc) (*weightAcc)(*pfo) = pt / pfo->pt();
+      if( (m_applyToChargedPFO && pfo->isCharged()) || 
+	  (m_applyToNeutralPFO && !pfo->isCharged()) ) {
+	if(weightAcc) (*weightAcc)(*pfo) = pfo->pt() > FLT_MIN ? pt / pfo->pt() : 0.;
 	// KTJ: Temporary fix
 	// Defeats the purpose, but we need to use this to reset the 4-vec cache
 	pfo->setP4(pt, pfo->eta(), pfo->phi());
@@ -91,7 +91,7 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
     {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(obj);
       if( tcc->taste() != 0) {
-        if(weightAcc) (*weightAcc)(*tcc) = pt / tcc->pt();
+        if(weightAcc) (*weightAcc)(*tcc) = tcc->pt() > FLT_MIN ? pt / tcc->pt() : 0.;
         tcc->setParameters(pt, tcc->eta(), tcc->phi(), tcc->m(), xAOD::TrackCaloCluster::Taste(tcc->taste()), tcc->trackParticleLink(), tcc->iparticleLinks());
       }
     }
@@ -121,8 +121,8 @@ StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::J
     {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(obj);
       // The PFO setter defaults to m=0
-      if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
-	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
+      if( (m_applyToChargedPFO && pfo->isCharged()) || 
+	  (m_applyToNeutralPFO && !pfo->isCharged()) ) {
 	if(weightAcc) (*weightAcc)(*pfo) = pfo->pt() > FLT_MIN ? p4.pt() / pfo->pt() : 0.;
 	pfo->setP4(p4.pt(),p4.eta(),p4.phi(),p4.mass());
       }

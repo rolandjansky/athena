@@ -12,10 +12,11 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODRootAccess
                           TopEvent
                           TopConfiguration
-			  TruthUtils
+                          TruthUtils
                           MCTruthClassifier
                           JetReclustering
                           JetSubStructureUtils
+                          AsgTools
 
 			  )
 
@@ -42,9 +43,10 @@ atlas_add_library( TopParticleLevel Root/*.cxx Root/*.h Root/*.icc
                                   TopEvent
                                   TopConfiguration
                                   MCTruthClassifierLib
-				  TruthUtils
-				  JetReclusteringLib
-				  JetSubStructureUtils
+                                  TruthUtils
+                                  JetReclusteringLib
+                                  JetSubStructureUtils
+                                  AsgTools
                                   ${ROOT_LIBRARIES}		  
                                   ${FASTJET_LIBRARIES}
                                   ${FASTJETCONTRIB_LIBRARIES}

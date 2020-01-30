@@ -44,3 +44,4 @@ atlas_add_component( TrackCaloClusterRecTools
                      AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODPFlow xAODAssociations 
                      TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationToolLib TrackCaloClusterRecInterfacesLib
                      TrackCaloClusterRecToolsLib )
+atlas_install_python_modules( python/*.py )

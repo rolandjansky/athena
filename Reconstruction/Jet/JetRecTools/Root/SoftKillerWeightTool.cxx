@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRecTools/SoftKillerWeightTool.h"
@@ -29,7 +29,7 @@ SoftKillerWeightTool::SoftKillerWeightTool(const std::string& name) : JetConstit
                                                                     , m_rapmax(2.5)
                                                                     , m_rapminApplied(0)
                                                                     , m_rapmaxApplied(10)
-								    , m_ignoreChargedPFOs(false)
+								    , m_ignoreChargedPFOs(true)
                                                                       
 {
 
@@ -43,7 +43,7 @@ SoftKillerWeightTool::SoftKillerWeightTool(const std::string& name) : JetConstit
   declareProperty("HCalGridSize", m_hCalGrid);
 
   // Option to disregard cPFOs in the weight calculation
-  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs);
 }
 
 
@@ -99,6 +99,7 @@ StatusCode SoftKillerWeightTool::process_impl(xAOD::IParticleContainer* cont) co
 // The partSK collection contains all particles that aren't cut, so particles below 
 // its min pT are cut
 double SoftKillerWeightTool::findMinPt(const vector<fastjet::PseudoJet> &partSK) const {
+  if (partSK.empty()) {return 0.;}
   double minPt = 999999999999;
 
   for(unsigned int i=0; i < partSK.size(); i++){
@@ -124,7 +125,7 @@ double SoftKillerWeightTool::getSoftKillerMinPt(xAOD::IParticleContainer& cont) 
     // However, we might still want to use the cPFOs for the min pt calculation
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
-      accept = fabs(pfo->charge())>1e-9;
+      accept = !pfo->isCharged();
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster ) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
@@ -157,7 +158,7 @@ std::pair<double,double> SoftKillerWeightTool::getSoftKillerMinPtSplit(xAOD::IPa
     // However, we might still want to use the cPFOs for the min pt calculation
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
-      accept = fabs(pfo->charge())>1e-9;
+      accept = !pfo->isCharged();
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);

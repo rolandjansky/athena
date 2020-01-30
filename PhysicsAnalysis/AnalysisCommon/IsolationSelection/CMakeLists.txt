@@ -35,7 +35,7 @@ atlas_depends_on_subdirs(
   ${extra_dep} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist Tree )
+find_package( ROOT COMPONENTS Core Hist Tree TMVA )
 
 set(extra_libs)
 if ( NOT XAOD_ANALYSIS )

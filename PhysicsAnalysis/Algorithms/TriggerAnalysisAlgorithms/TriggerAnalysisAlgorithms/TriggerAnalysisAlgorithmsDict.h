@@ -9,5 +9,6 @@
 #define TRIGGER_ANALYSIS_ALGORITHMS__TRIGGER_ANALYSIS_ALGORITHMS_DICT_H
 
 #include <TriggerAnalysisAlgorithms/TrigEventSelectionAlg.h>
+#include <TriggerAnalysisAlgorithms/TrigPrescalesAlg.h>
 
 #endif

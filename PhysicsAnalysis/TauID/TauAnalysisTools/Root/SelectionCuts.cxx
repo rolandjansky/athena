@@ -448,12 +448,18 @@ SelectionCutBDTEleScore::SelectionCutBDTEleScore(TauSelectionTool* tTST)
 {
   m_hHistCutPre = CreateControlPlot("hEleBDT_pre","EleBDT_pre;BDTEleScore; events",100,0,1);
   m_hHistCut = CreateControlPlot("hEleBDT_cut","EleBDT_cut;BDTEleScore; events",100,0,1);
-  m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
+  m_sEleBDTDecorationName = "BDTEleScoreSigTrans_retuned";
 }
 
 //______________________________________________________________________________
 void SelectionCutBDTEleScore::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
+  if (!xTau.isAvailable< float >(m_sEleBDTDecorationName))
+  {
+    throw std::runtime_error(("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
+      "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
+      "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst\n").c_str() );
+  }
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   hHist.Fill(accEleBDT(xTau));
 }
@@ -464,7 +470,14 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
   // check EleBDTscore, if tau has a EleBDT score in one of the regions requiered then return true; false otherwise
   m_tTST->m_aAccept.addCut( "EleBDTScore",
                             "Selection of taus according to their EleBDTScore" );
+  if (!xTau.isAvailable< float >(m_sEleBDTDecorationName))
+  {
+    throw std::runtime_error (("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
+      "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
+      "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst\n").c_str());
+  }
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
+
   float fEleBDTScore = accEleBDT(xTau);
   unsigned int iNumEleBDTRegion = m_tTST->m_vEleBDTRegion.size()/2;
   // apply EleBDTscore cut only to 1-prong taus
@@ -490,7 +503,14 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
   : SelectionCut("CutEleBDTWP", tTST)
 {
-  m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
+  m_sEleBDTDecorationName = "BDTEleScoreSigTrans_retuned";
+
+  if (m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDLOOSE) ||
+     m_tTST->m_iEleBDTWP == int(ELEIDBDTOLDMEDIUM))
+  {
+    m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
+  }
+
   m_hHistCutPre = CreateControlPlot("hEleBDTWP_pre","EleBDTWP_pre;; events",6,-.5,5.5);
   m_hHistCut = CreateControlPlot("hEleBDTWP_cut","EleBDTWP_cut;; events",6,-.5,5.5);
   // only proceed if histograms are defined
@@ -513,6 +533,13 @@ SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
 //______________________________________________________________________________
 void SelectionCutEleBDTWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
+  if (!xTau.isAvailable< float >(m_sEleBDTDecorationName))
+  {
+    throw std::runtime_error(("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
+      "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
+      "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst\n").c_str());
+  }
+
   SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
   float fEleBDTScore = accEleBDT(xTau);
 
@@ -527,8 +554,21 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
   m_tTST->m_aAccept.addCut( "EleBDTWP",
                             "Selection of taus according to their EleBDTScore" );
 
-  SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
-  float fEleBDTScore = accEleBDT(xTau);
+  float fEleBDTScore = 0.;
+  if (!(m_tTST->m_iEleBDTWP == ELEIDNONE || m_tTST->m_iEleBDTWP == ELEIDNONEUNCONFIGURED))
+  {
+    if (!xTau.isAvailable< float >(m_sEleBDTDecorationName))
+    {
+      throw std::runtime_error(("Decoration " + m_sEleBDTDecorationName + " is not available in input sample. " +
+        "\nThis may be due to an old p-tag. Please consider using a different eleBDT working point, e.g. ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM" + 
+        "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst").c_str());
+    }
+    else
+    {
+      SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
+      fEleBDTScore = accEleBDT(xTau);
+    }
+  }
 
   bool bPass = false;
   switch (m_tTST->m_iEleBDTWP)
@@ -543,6 +583,15 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
     if (fEleBDTScore > 0.05) bPass = true;
     break;
   case ELEIDBDTMEDIUM:
+    if (fEleBDTScore > 0.15) bPass = true;
+    break;
+  case ELEIDBDTTIGHT:
+    if (fEleBDTScore > 0.25) bPass = true;
+    break;
+  case ELEIDBDTOLDLOOSE:
+    if (fEleBDTScore > 0.05) bPass = true;
+    break;
+  case ELEIDBDTOLDMEDIUM:
     if (fEleBDTScore > 0.15) bPass = true;
     break;
   default:

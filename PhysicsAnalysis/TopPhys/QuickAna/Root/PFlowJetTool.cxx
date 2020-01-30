@@ -37,9 +37,9 @@ namespace
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root";
-  const char *jesFile_pflow = "JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config";
-  const char *jesFile_pflow_AFII = "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config";
-  const std::string uncertConfigFile = "rel21/Fall2018/R4_SR_Scenario1.config";
+  const char *jesFile_pflow = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
+  const char *jesFile_pflow_AFII = "JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config";
+  const std::string uncertConfigFile = "rel21/Summer2018/R4_CategoryReduction_SimpleJER.config";
   const char *mcType = "MC16";
 }
 
@@ -144,10 +144,8 @@ namespace ana
     registerTool( &*m_smearing_tool );
 
     // JVT tool
-    const std::string jvtFile = "JetMomentTools/JVTlikelihood_20140805.root";
     // @TODO: update AnaToolHandle tool creation mechanism
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_jvt_tool, JetVertexTaggerTool) );
-    ATH_CHECK( m_jvt_tool.setProperty("JVTFileName", jvtFile) );
     ATH_CHECK( m_jvt_tool.initialize() );
 
     // JVT efficiency SF
@@ -369,8 +367,10 @@ namespace ana
     switch (ret) {
     case CP::CorrectionCode::Error:
       ATH_MSG_ERROR( "Failed to retrieve SF for jet in SUSYTools_xAOD::JVT_SF" );
+      break;
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
+      break;
     default:
       ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
     }

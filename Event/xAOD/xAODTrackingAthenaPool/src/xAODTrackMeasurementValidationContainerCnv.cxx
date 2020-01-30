@@ -37,10 +37,6 @@ createPersistent( xAOD::TrackMeasurementValidationContainer* trans ) {
       new xAOD::TrackMeasurementValidationContainer( trans->begin(), trans->end(),
                                       SG::VIEW_ELEMENTS );
 
-   // Prepare the objects to be written out:
-   xAOD::TrackMeasurementValidationContainer::iterator itr = result->begin();
-   xAOD::TrackMeasurementValidationContainer::iterator end = result->end();
-
    // Return the new container:
    return result;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -38,7 +38,7 @@ bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part) const {
       if(origin != MCTruthPartClassifier::PhotonConv) return false;
       if(originbkg == MCTruthPartClassifier::FSRPhot || originbkg == MCTruthPartClassifier::BremPhot) return true;
       origin = originbkg;
-      // [[fallthrough]]
+      /* FALLTHRU */
     case MCTruthPartClassifier::IsoElectron:
       return (origin == MCTruthPartClassifier::top
 	      || origin == MCTruthPartClassifier::WBoson
@@ -135,7 +135,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   if (!truthP || truthP->empty()) {
     return false;
   }
-  for (const auto& tp : *truthP) {
+  for (const xAOD::TruthParticle* tp : *truthP) {
 
     //check ifSUSY particle
     if ((abs(tp->pdgId()) > 1000000 && abs(tp->pdgId()) < 1000007) || // squarkL
@@ -175,7 +175,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   if (!firstsp && !secondsp) return true; // should find none or two
 
   if (firstsp->nChildren() == 1) {
-    for (const auto& tp : *truthP) {
+    for (const xAOD::TruthParticle* tp : *truthP) {
       if (tp->barcode() == firstsp->child(0)->barcode() && tp->pdgId() != firstsp->pdgId()) {
         firstsp = tp;
         break;
@@ -184,7 +184,7 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   }
 
   if (secondsp->nChildren() == 1) {
-    for (const auto& tp : *truthP) {
+    for (const xAOD::TruthParticle* tp : *truthP) {
       if (tp->barcode() == secondsp->child(0)->barcode() && tp->pdgId() != secondsp->pdgId()) {
         secondsp = tp;
         break;

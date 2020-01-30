@@ -4,6 +4,7 @@
 
 /// @author Tadej Novak
 
+#include <RootCoreUtils/StringUtil.h>
 #include <TriggerAnalysisAlgorithms/TrigEventSelectionAlg.h>
 #include <xAODEventInfo/EventInfo.h>
 
@@ -28,7 +29,7 @@ StatusCode CP::TrigEventSelectionAlg::initialize()
 
   if (!m_selectionDecoration.empty()) {
     for (const std::string &chain : m_trigList) {
-      m_selectionAccessors.emplace_back(m_selectionDecoration + "_" + chain);
+      m_selectionAccessors.emplace_back(m_selectionDecoration + "_" + RCU::substitute (chain, "-", "_"));
     }
   }
 

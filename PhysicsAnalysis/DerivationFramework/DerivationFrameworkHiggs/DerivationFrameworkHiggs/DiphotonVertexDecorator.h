@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -28,6 +28,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/Photon.h"
+#include "PFlowUtils/RetrievePFOTool.h"
 
 
 namespace CP { 
@@ -63,6 +64,7 @@ namespace DerivationFramework {
       ///// TOOLS 
       ToolHandle<CP::IPhotonVertexSelectionTool> m_photonVertexSelectionTool;
       ToolHandle<CP::IPhotonPointingTool> m_photonPointingTool;
+      ToolHandle<CP::RetrievePFOTool> m_pfotool;
       
       ///////////////
       ///// SETTINGS
@@ -74,8 +76,19 @@ namespace DerivationFramework {
       double m_minPhotonPt;
       bool   m_removeCrack;
       double m_maxEta;
+      bool   m_ignoreConv;
+      std::string m_pfoToolName;
+      double m_tcMatch_dR;
+      double m_tcMatch_maxRat;
 
       bool  PhotonPreselect(const xAOD::Photon *ph) const;
+      StatusCode matchPFO(const xAOD::Photon* eg,const xAOD::PFOContainer *pfoCont) const;
+      static inline bool greaterPtPFO(const xAOD::PFO* part1, const xAOD::PFO* part2) {
+        if (part1->charge()==0 && part2->charge()!=0) return false;
+        if (part1->charge()!=0 && part2->charge()==0) return true;
+        if (part1->charge()==0 && part2->charge()==0) return part1->ptEM()>part2->ptEM();
+        return part1->pt()>part2->pt();
+    }
 
   }; 
 

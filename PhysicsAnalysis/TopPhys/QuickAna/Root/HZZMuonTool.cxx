@@ -256,7 +256,7 @@ namespace ana
   QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_loose", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "FCLoose_FixedRad"))
   QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_medium", makeHZZMuonTool (args, xAOD::Muon::Medium, WPType::_ZHinv, "FCLoose_FixedRad"))
   QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_loose_isoPF", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "FixedCutPflowLoose"))
-  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_medium_isoPF", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_ZHinv, "FixedCutPflowLoose"))
-  QUICK_ANA_MUON_DEFINITION_MAKER ("hmumu", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_Hmumu, "LooseTrackOnly"))
+  QUICK_ANA_MUON_DEFINITION_MAKER ("hzhinv_medium_isoPF", makeHZZMuonTool (args, xAOD::Muon::Medium, WPType::_ZHinv, "FixedCutPflowLoose"))
+  QUICK_ANA_MUON_DEFINITION_MAKER ("hmumu", makeHZZMuonTool (args, xAOD::Muon::Loose, WPType::_Hmumu, "FixedCutPflowLoose"))
 
 }

@@ -9,15 +9,17 @@ namespace FlavorTagDiscriminants {
 
   BTagAugmenterTool::BTagAugmenterTool(const std::string& name):
     asg::AsgTool(name),
-    m_schema(""),
+    m_flipTagConfig("STANDARD"),
     m_aug(nullptr)
   {
-    declareProperty("schema", m_schema);
+    declareProperty("flipTagConfig", m_flipTagConfig);
   }
   BTagAugmenterTool::~BTagAugmenterTool() {}
 
   StatusCode BTagAugmenterTool::initialize() {
-    m_aug.reset(new BTagJetAugmenter(enumFromString(m_schema)));
+    m_aug.reset(
+      new BTagJetAugmenter(
+        flipTagConfigFromString(m_flipTagConfig)));
     return StatusCode::SUCCESS;
   }
   StatusCode BTagAugmenterTool::finalize() {

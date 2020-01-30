@@ -1,7 +1,7 @@
 #********************************************************************
 # HIGG6D1.py (for H+ -> tau-jet)
 # reductionConf flag HIGG6D1 in Reco_tf.py
-# author: sina.bahrasemani@cern.ch
+# author: sina.bahrasemani@cern.ch, elliot.wesley.parrish@cern.ch
 #********************************************************************
 
 # Set up common services and job object. 
@@ -34,7 +34,6 @@ if is_MC:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
   from DerivationFrameworkCore.LHE3WeightMetadata import *
-
 
 #====================================================================
 # jet selection - jets with pt>20 and |eta|<2.5
@@ -295,6 +294,12 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   ThinningTools=thinningTools
 )
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
+higg6d1Seq = CfgMgr.AthSequencer("HIGG6D1Sequence")
+DerivationFrameworkJob += higg6d1Seq 
+
+FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets' ], Sequencer =higg6d1Seq)
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -326,8 +331,12 @@ HIGG6D1SlimmingHelper.SmartCollections = [
   "AntiKt4LCTopoJets",
   "AntiKt4EMTopoJets",
   "TauMVATESJets",
-  "BTagging_AntiKt4LCTopo",
-  "BTagging_AntiKt4EMTopo",
+  "AntiKt4EMPFlowJets_BTagging201810",
+  "AntiKt4EMPFlowJets_BTagging201903",
+  "AntiKt4EMTopoJets_BTagging201810", 
+  "BTagging_AntiKt4EMTopo_201810", 
+  "BTagging_AntiKt4EMPFlow_201810",  
+  "BTagging_AntiKt4EMPFlow_201903",
   "InDetTrackParticles",
   "PrimaryVertices"
 ]
@@ -340,7 +349,7 @@ HIGG6D1SlimmingHelper.ExtraVariables += [
   "AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta"]
 
 HIGG6D1SlimmingHelper.ExtraVariables += [
-  "BTagging_AntiKt4EMTopo.MV2cl100_discriminant.MV2c10rnn_discriminant.MV2c10_discriminant.MV2c10mu_discriminant"\
+  "AntiKt4EMPFlowJets_BTagging201903.MV2cl100_discriminant.MV2c10rnn_discriminant.MV2c10_discriminant.MV2c10mu_discriminant"\
   ".DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.DL1rnn_pb.DL1rnn_pc.DL1rnn_pu"\
   ]
 
@@ -387,8 +396,8 @@ if is_MC:
     "TauChargedParticleFlowObjects"
   ]
   
-  HIGG6D1SlimmingHelper.ExtraVariables += [
-    "AntiKt4LCTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
+  #HIGG6D1SlimmingHelper.ExtraVariables += [
+  #  "AntiKt4LCTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
   
   HIGG6D1SlimmingHelper.ExtraVariables += [
     "AntiKt4EMTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]

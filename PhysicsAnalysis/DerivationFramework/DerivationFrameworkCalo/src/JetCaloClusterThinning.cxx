@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -134,7 +134,17 @@ namespace DerivationFramework {
 
       // Finish early if possible:
       if( nJets == 0 ) {
-         return StatusCode::SUCCESS;
+        // Tell the thinning service what to do:
+        const IThinningSvc::Operator::Type opType =
+           ( m_and ? IThinningSvc::Operator::And : IThinningSvc::Operator::Or );
+        ATH_CHECK( m_thinningSvc->filter( *importedTopoCaloCluster, topomask,
+                                        opType ) );
+        for( const xAOD::CaloClusterContainer* ccc : additionalTopoCaloCluster ) {
+           ATH_CHECK( m_thinningSvc->filter( *ccc, topomask, opType ) );
+        }
+
+        // Return gracefully:
+        return StatusCode::SUCCESS;
       }
 
       // Select which jets to use:
@@ -213,3 +223,4 @@ namespace DerivationFramework {
    }
 
 } // namespace DerivationFramework
+

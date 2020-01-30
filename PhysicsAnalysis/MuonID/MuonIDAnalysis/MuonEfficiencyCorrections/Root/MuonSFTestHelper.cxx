@@ -1,8 +1,10 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
+#include "MuonEfficiencyCorrections/UtilFunctions.h"
+
 #include "PATInterfaces/SystematicsUtil.h"
 #include <TH1D.h>
 #define CHECK_CPCorr(Arg) \
@@ -12,16 +14,15 @@
     } 
 
 namespace TestMuonSF {
-
-    void WriteHistogram(TFile* File, TH1* &Histo) {
-        if (!Histo) {
-            return;
-        }
-        File->cd();
-        Histo->Write();
-        delete Histo;
-        Histo = nullptr;
+        template<typename T> T getProperty(const asg::IAsgTool* interface_tool, const std::string& prop_name) {
+        const asg::AsgTool* asg_tool = dynamic_cast<const asg::AsgTool*>(interface_tool);
+        T prop;
+        const T* HandlePtr = asg_tool->getProperty < T > (prop_name);
+        if (!HandlePtr) Error("getProperty()", "Failed to retrieve property %s ", prop_name.c_str());
+        else prop = (*HandlePtr);
+        return prop;
     }
+
     //###########################################################
     //                       SFBranches
     //###########################################################
@@ -95,16 +96,30 @@ namespace TestMuonSF {
     CP::CorrectionCode MuonSFBranches::fill(const xAOD::Muon& muon) {
         for (auto& Syst_SF : m_SFs) {
             if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
+                Error("MuonSFBranches()", "Failed to apply variation %s for %s", Syst_SF.first.name().c_str(), name().c_str());
                 return CP::CorrectionCode::Error;
             }
             CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactor(muon, Syst_SF.second.scale_factor);
-            if (cc != CP::CorrectionCode::Ok) return CP::CorrectionCode::Error;
-
+            if (cc == CP::CorrectionCode::Error) {
+                Error("MuonSFBranches()", "Failed to retrieve %s scale-factor for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+                return CP::CorrectionCode::Error;
+            }          
+            /// No data-mc efficiencies provided for eta beyond 2.5
+            if (std::fabs(muon.eta()) > 2.5) {
+                Syst_SF.second.data_eff = -1;
+                Syst_SF.second.mc_eff = -1;
+                continue;
+            }
             cc = m_handle->getDataEfficiency(muon, Syst_SF.second.data_eff);
-            if (cc != CP::CorrectionCode::Ok) return CP::CorrectionCode::Error;
-
+            if (cc == CP::CorrectionCode::Error) {
+                 Error("MuonSFBranches()", "Failed to retrieve %s data efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+                return CP::CorrectionCode::Error;
+            }
             cc = m_handle->getMCEfficiency(muon, Syst_SF.second.mc_eff);
-            if (cc != CP::CorrectionCode::Ok) return CP::CorrectionCode::Error;
+            if (cc == CP::CorrectionCode::Error) {
+                Error("MuonSFBranches()", "Failed to retrieve %s mc efficiency for variation %s", name().c_str(), Syst_SF.first.name().c_str());
+                return CP::CorrectionCode::Error;
+            }
         }
         return CP::CorrectionCode::Ok;
     }
@@ -176,7 +191,8 @@ namespace TestMuonSF {
                 m_author(-1),
                 m_type(-1),
                 m_passLowPt(false),
-                m_passHighPt(false) {
+                m_passHighPt(false),
+                m_precLayers(0){
     }
     MuonInfoBranches::~MuonInfoBranches() {
     }
@@ -189,6 +205,8 @@ namespace TestMuonSF {
         if (!m_selection_tool.isSet()) return true;
         if (!initBranch(m_passLowPt, "isLowPt")) return false;
         if (!initBranch(m_passHighPt, "isHighPt")) return false;
+        if (!initBranch(m_precLayers, "PrecisionLayers")) return false;
+        
        
         return true;
     }
@@ -201,6 +219,10 @@ namespace TestMuonSF {
         m_phi = muon.phi();
         m_author = muon.author();
         m_type = muon.type();
+        if (!muon.summaryValue(m_precLayers, xAOD::SummaryType::numberOfPrecisionLayers)){
+            Error("MuonInfoBranches()", "Failed to retrieve the precision layers");
+            return CP::CorrectionCode::Error;
+        }
         if (m_selection_tool.isSet()){
             m_quality = m_selection_tool->getQuality(muon);
             m_passLowPt = m_selection_tool->passedLowPtEfficiencyCuts(muon);

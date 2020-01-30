@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
-std::ostream& operator<<(std::ostream& os, const top::ParticleLevelEvent& plEvent) {
-
+std::ostream & operator << (std::ostream& os, const top::ParticleLevelEvent& plEvent) {
   if (plEvent.m_electrons) {
     os << "Number of electrons: " << plEvent.m_electrons->size() << "\n";
     for (const auto& elPtr : *plEvent.m_electrons) {
@@ -47,7 +46,19 @@ std::ostream& operator<<(std::ostream& os, const top::ParticleLevelEvent& plEven
       }
     }
   } else {
-    os << "ParticleLevelEvent: Cannot find large R jets truth collection. Did you set the truth collection correctly?\n";
+    os <<
+    "ParticleLevelEvent: Cannot find large R jets truth collection. Did you set the truth collection correctly?\n";
+  }
+
+  if (plEvent.m_taus) {
+    os << "Number of taus: " << plEvent.m_taus->size() << "\n";
+    for (const auto& tauPtr : *plEvent.m_taus) {
+      if (tauPtr) {
+        os << " " << *tauPtr << "\n";
+      }
+    }
+  } else {
+    os << "ParticleLevelEvent: Cannot find tau truth collection. Did you set the truth collection correctly?\n";
   }
 
   if (plEvent.m_photons) {
@@ -61,10 +72,11 @@ std::ostream& operator<<(std::ostream& os, const top::ParticleLevelEvent& plEven
     os << "ParticleLevelEvent: Cannot find photon truth collection. Did you set the truth collection correctly?\n";
   }
 
-  if (plEvent.m_met){
+  if (plEvent.m_met) {
     os << *plEvent.m_met;
   } else {
-    os << "ParticleLevelEvent: Cannot find MET (neutrino) truth collection. Did you set the truth collection correctly?\n";
+    os <<
+    "ParticleLevelEvent: Cannot find MET (neutrino) truth collection. Did you set the truth collection correctly?\n";
   }
 
   return os;

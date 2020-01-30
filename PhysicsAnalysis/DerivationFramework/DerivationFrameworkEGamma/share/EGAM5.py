@@ -143,6 +143,13 @@ triggers += ['HLT_xe90_mht_wEFMu_L1XE50']
 triggers += ['HLT_xe110_mht_L1XE50']
 triggers += ['HLT_xe110_pufit_L1XE50']
 
+#added for low-mu data analysis, 2017 and 2018 data
+triggers += ['HLT_e15_lhloose_nod0_L1EM12']
+#added for low-mu data analysis, 2018 data
+triggers += ['HLT_xe35']
+triggers += ['HLT_e15_etcut_trkcut_xe30noL1']
+
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EGAM5_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                   = "EGAM5_TriggerSkimmingTool",
                                                                         TriggerListOR          = triggers)
@@ -376,7 +383,8 @@ EGAM5SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 

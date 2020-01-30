@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef ANALYSISTOOLS_H
 #define ANALYSISTOOLS_H
@@ -25,9 +25,8 @@ namespace EL {
  */
 
 namespace top {
-
 ///Sometimes you want things in GeV, no.  Do by multiplication.
-const double toGeV = 0.001;
+  const double toGeV = 0.001;
 
 /**
  * @brief Load one of the three analyses in a factory like way.
@@ -42,7 +41,7 @@ const double toGeV = 0.001;
  * @return a unique ptr (these things are magic, they delete themselves when they
  * are no longer needed) to the analysis code.
  */
-std::unique_ptr<top::AnalysisBase> loadAnalysis(const std::string& name, TFile* outputFile, EL::Worker* wk=nullptr);
+  std::unique_ptr<top::AnalysisBase> loadAnalysis(const std::string& name, TFile* outputFile, EL::Worker* wk = nullptr);
 
 /**
  * @brief Open an xAOD and return the sample number as a string.
@@ -58,7 +57,7 @@ std::unique_ptr<top::AnalysisBase> loadAnalysis(const std::string& name, TFile* 
  *
  * @return run number for data, MC channel number for MC simulation.
  */
-const std::string getSampleNumberAsString(const std::string& filename, const std::string& infoContainerName);
+  const std::string getSampleNumberAsString(const std::string& filename, const std::string& infoContainerName);
 
 /**
  * @brief Calculate a scale factor to one inverse fb given the sum of weights
@@ -71,7 +70,7 @@ const std::string getSampleNumberAsString(const std::string& filename, const std
  * section using TopDataPreparation
  * @param mcWeightsInSample The sum of the MC weights in the MC sample
  */
-double sfToOneInversefb(unsigned int mcChannelNumber, double mcWeightsInSample);
+  double sfToOneInversefb(unsigned int mcChannelNumber, double mcWeightsInSample);
 
 /**
  * @brief We want to add a histogram with name "name" from file "inputFile" to
@@ -85,7 +84,7 @@ double sfToOneInversefb(unsigned int mcChannelNumber, double mcWeightsInSample);
  * modified by this function!
  * @param inputFile The inputFile to read the histogram from.
  */
-void updateCutflow(const std::string& name, TH1D*& histogram, TFile* inputFile);
+  void updateCutflow(const std::string& name, TH1D*& histogram, TFile* inputFile);
 
 /**
  * @brief Messy.
@@ -98,7 +97,7 @@ void updateCutflow(const std::string& name, TH1D*& histogram, TFile* inputFile);
  * @param inputFile A path with a specific naming convention for the last directory.
  * @return The e<blah>_s<blah>_r<blah> or equivalent.
  */
-std::string gridTagFromDirectoryName(const std::string inputFile);
+  std::string gridTagFromDirectoryName(const std::string inputFile);
 
 /**
  * @brief The top-xaod code is decorating events with a integer (not bool!)
@@ -111,8 +110,7 @@ std::string gridTagFromDirectoryName(const std::string inputFile);
  * @param name The channel we're interested in. e.g. ee
  * @return True if the event passed the grid selection, false otherwise.
  */
-bool passesPreSelection(const top::Event& topEvent, const std::string& name);
-
+  bool passesPreSelection(const top::Event& topEvent, const std::string& name);
 }
 
 #endif

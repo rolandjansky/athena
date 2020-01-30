@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -70,8 +70,6 @@ void throw_dv_test_err (const char* file, int line, const char* what)
 #include <vector>
 #include <iostream>
 
-
-Athena_test::RNG stlrand;
 
 
 //*************************************************************************
@@ -890,7 +888,8 @@ void test_resort_aux1()
 {
   //typedef typename CONT::base_type BASE;
   typedef T BASE;
-  stlrand.seed = 1;
+  Athena_test::URNG stlurand;
+  stlurand.seed = 1;
 
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
   SG::auxid_t ftyp = SG::AuxTypeRegistry::instance().getAuxID<float> ("aFloat");
@@ -909,12 +908,12 @@ void test_resort_aux1()
   }
 
   for (int jj=0; jj<10; jj++) {
-    std::random_shuffle (v.begin(), v.end(), stlrand);
+    std::shuffle (v.begin(), v.end(), stlurand);
     b.resortAux (0, v.begin(), v.end());
     test_resort_aux_check<T,BASE> (b, v);
   }
   for (int jj=0; jj<10; jj++) {
-    std::random_shuffle (v.begin()+2, v.end()-2, stlrand);
+    std::shuffle (v.begin()+2, v.end()-2, stlurand);
     b.resortAux (2, v.begin()+2, v.end()-2);
     test_resort_aux_check<T,BASE> (b, v);
   }
@@ -923,14 +922,14 @@ void test_resort_aux1()
   SG::AuxVectorBase_test b2;
   b2.initAuxVectorBase<T> (SG::VIEW_ELEMENTS, SG::DEFAULT_TRACK_INDICES);
   for (int jj=0; jj<10; jj++) {
-    std::random_shuffle (v2.begin(), v2.end(), stlrand);
+    std::shuffle (v2.begin(), v2.end(), stlurand);
     b2.resortAux (0, v.begin(), v.end());
     test_resort_aux_check<T,BASE> (b, v);
   }
 
   b.setStore((SG::IAuxStore*)0);
   for (int jj=0; jj<10; jj++) {
-    std::random_shuffle (v.begin(), v.end(), stlrand);
+    std::shuffle (v.begin(), v.end(), stlurand);
     b.resortAux (0, v.begin(), v.end());
     test_resort_aux_check<T,BASE> (b, v, false);
   }

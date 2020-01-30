@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -192,7 +192,7 @@ namespace CP {
         m_sagittaRelease1516("sagittaBiasDataAll_03_02_19_Data16"),
         m_sagittaRelease17("sagittaBiasDataAll_03_02_19_Data17"),
         m_sagittaRelease18("sagittaBiasDataAll_03_02_19_Data18"),
-        m_release("Recs2018_05_20"),
+        m_release("Recs2019_05_30"),
         m_calib_mode(CalibMode::additionalMCsys),
         m_StatComb1516(false),
         m_SagittaCorr1516(true),

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_CONFIGHELPER_H
 #define JETUNCERTAINTIES_CONFIGHELPER_H
 
 #include "JetUncertainties/UncertaintyEnum.h"
+#include "BoostedJetTaggers/FatjetLabelEnum.h"
 
 #include "AsgTools/AsgMessaging.h"
 
@@ -45,6 +46,10 @@ class ComponentHelper
         TString caloMassDef;
         TString TAMassDef;
         TString truthLabelStr;
+        TString FatjetTruthLabelStr;
+        TString FatjetTruthLabelsForSFstr;
+        TString RegionForSFstr;
+	TString ResultName;
 
         // Derived values to parse from the raw values
         CompParametrization::TypeEnum parametrization;
@@ -59,6 +64,11 @@ class ComponentHelper
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
         std::vector<int> truthLabels;
+        std::vector<TString> FatjetTruthLabelStrs;
+        std::vector<FatjetTruthLabel::TypeEnum> FatjetTruthLabels;
+        std::vector<TString> FatjetTruthLabelsForSFstrs;
+	std::vector<CompFlavorLabelVar::TypeEnum> FatjetTruthLabelsForSF;
+	CompTaggerRegionVar::TypeEnum RegionForSF;
 };
 
 class GroupHelper

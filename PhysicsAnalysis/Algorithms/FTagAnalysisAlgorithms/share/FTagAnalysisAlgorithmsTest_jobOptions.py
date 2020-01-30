@@ -1,16 +1,25 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
-# Ideally we'd run over all of them, but we don't have a mechanism to
-# configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
+# User options, which can be set from command line after a "-" character
+# athena EgammaAlgorithmsTest_jobOptions.py - --myOption ...
+from AthenaCommon.AthArgumentParser import AthArgumentParser
+athArgsParser = AthArgumentParser()
+athArgsParser.add_argument("--data-type", action = "store", dest = "data_type",
+                           default = "data",
+                           help = "Type of input to run over. Valid options are 'data', 'mc', 'afii'")
+athArgs = athArgsParser.parse_args()
+
+dataType = athArgs.data_type
+if not dataType in ["data", "mc", "afii"] :
+    raise Exception ("invalid data type: " + dataType)
+
+print("Running on data type: " + dataType)
+
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
-jetContainer = "AntiKt4EMTopoJets"
 
 # Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
@@ -18,30 +27,17 @@ theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
-# Access the main algorithm sequence of the job:
-from AthenaCommon.AlgSequence import AlgSequence
-algSeq = AlgSequence()
+from FTagAnalysisAlgorithms.FTagAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
 
-# Set up the systematics loader/handler algorithm:
-sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
-sysLoader.sigmaRecommended = 1
-algSeq += sysLoader
-
-# Include, and then set up the jet analysis algorithm sequence:
-from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
-jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
-from FTagAnalysisAlgorithms.FTagAnalysisSequence import makeFTagAnalysisSequence
-makeFTagAnalysisSequence( jetSequence, dataType, jetContainer, noEfficiency = True )
-jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
-print( jetSequence ) # For debugging
-
-# Add the sequence to the job:
-algSeq += jetSequence
+# Add all algorithms from the sequence to the job.
+athAlgSeq += algSeq
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "ANALYSIS DATAFILE='JetAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='JetAnalysisAlgorithmsTest." + dataType + ".hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:

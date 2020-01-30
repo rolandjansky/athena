@@ -20,6 +20,9 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+# Add Truth MetaData
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 #====================================================================
 # SET UP STREAM
@@ -239,6 +242,20 @@ DerivationFrameworkJob += STDM3Sequence
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM3Sequence)
 
+#q/g tagging
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=STDM3Sequence,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=STDM3Sequence,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
+
+#improved fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT
+# MVfJvt #
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM3Sequence, algname='JetForwardJvtToolBDTAlg')
+# PFlow fJvt #
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM3Sequence, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -253,10 +270,14 @@ STDM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "AntiKt4EMTopoJets_BTagging201810",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMPFlowJets_BTagging201810", 
+                                        "AntiKt4EMPFlowJets_BTagging201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -269,6 +290,13 @@ STDM3SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.
 STDM3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 STDM3SlimmingHelper.AllVariables = ExtraContainersAll
+
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+STDM3SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
+
+#QGTagger
+STDM3SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
+STDM3SlimmingHelper.ExtraVariables += ["AntiKt4EMPFlowJets.NumTrkPt500.PartonTruthLabelID.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_eta"]
 
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *

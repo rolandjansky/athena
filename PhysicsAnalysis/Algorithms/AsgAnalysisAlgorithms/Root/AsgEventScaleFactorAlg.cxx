@@ -24,7 +24,6 @@ namespace CP
                           ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
   {
-    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the scale factor");
   }
 
 
@@ -32,18 +31,15 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   initialize ()
   {
-    if (m_scaleFactorDecoration.empty())
+    if (m_scaleFactorInputDecoration.empty() || m_scaleFactorOutputDecoration.empty())
     {
       ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
 
-    m_systematicsList.addHandle (m_eventInfoHandle);
     m_systematicsList.addHandle (m_particleHandle);
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
-
-    m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     return StatusCode::SUCCESS;
   }
@@ -53,6 +49,8 @@ namespace CP
   StatusCode AsgEventScaleFactorAlg ::
   execute ()
   {
+    ANA_CHECK (m_scaleFactorOutputDecoration.preExecute (m_systematicsList));
+
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
       xAOD::EventInfo *eventInfo = nullptr;
       ANA_CHECK (m_eventInfoHandle.getCopy (eventInfo, sys));
@@ -65,11 +63,11 @@ namespace CP
       {
         if (m_preselection.getBool (*particle))
         {
-          scaleFactor *= (*m_scaleFactorAccessor) (*particle);
+          scaleFactor *= m_scaleFactorInputDecoration.get (*particle, sys);
         }
       }
 
-      (*m_scaleFactorAccessor) (*eventInfo) = scaleFactor;
+      m_scaleFactorOutputDecoration.set (*eventInfo, scaleFactor, sys);
 
       return StatusCode::SUCCESS;
     });

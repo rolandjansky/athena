@@ -5,13 +5,14 @@
 #ifndef DL2_HIGH_LEVEL_HH
 #define DL2_HIGH_LEVEL_HH
 
-#include "FlavorTagDiscriminants/EDMSchemaEnums.h"
+#include "FlavorTagDiscriminants/FlipTagEnums.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
 
 #include <memory>
 #include <string>
+#include <map>
 
 namespace FlavorTagDiscriminants {
 
@@ -21,7 +22,8 @@ namespace FlavorTagDiscriminants {
   {
   public:
     DL2HighLevel(const std::string& nn_file_name,
-                 EDMSchema = EDMSchema::WINTER_2018);
+                 FlipTagConfig = FlipTagConfig::STANDARD,
+                 std::map<std::string, std::string> var_remap = {});
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::Jet& jet) const;

@@ -21,12 +21,19 @@
 
 namespace CP
 {
+  std::string nominalSystematicsName ()
+  {
+    return "NOSYS";
+  }
+
+
+
   std::string makeSystematicsName (const std::string& name,
                                    const CP::SystematicSet& sys)
   {
     std::string sysName = sys.name();
     if (sysName.empty())
-      sysName = "NOSYS";
+      sysName = nominalSystematicsName();
     return RCU::substitute (name, "%SYS%", sysName);
   }
 

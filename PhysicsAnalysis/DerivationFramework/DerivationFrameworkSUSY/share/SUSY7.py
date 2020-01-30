@@ -104,7 +104,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 SUSY7VertexTPThinningTool = DerivationFramework__VertexParticleThinning(name			 = "SUSY7VertexTPThinningTool",
 									 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
-									 VertexKey		 = "SoftBVrtClusterTool_Vertices",
+									 VertexKey		 = "SoftBVrtClusterTool_Tight_Vertices",
 									 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY7VertexTPThinningTool
 thinningTools.append(SUSY7VertexTPThinningTool)
@@ -236,16 +236,36 @@ electronsRequirements = '(Electrons.pt > 7.*GeV) && (abs(Electrons.eta) < 2.6) &
 diLepExpr = '(count(%s) + count (%s)) > 1' % (muonsRequirements, electronsRequirements)
 
 #btagging selection 
-softb='SoftBVrtClusterTool_Vertices.x'
-bfix77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
-bfix85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
-bhyb77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
-bhyb85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_85_MV2c10'
-bfix77_DL1='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_DL1'
-bfix85_DL1='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_DL1'
-bhyb77_DL1='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_DL1'
-bhyb85_DL1='AntiKt4EMTopoJets.DFCommonJets_HybBEff_85_DL1'
-jetpt='AntiKt4EMTopoJets.DFCommonJets_Calib_pt'
+softb='SoftBVrtClusterTool_Tight_Vertices.x'
+bfix77_MV2c10='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_77_MV2c10'
+bfix85_MV2c10='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_85_MV2c10'
+bhyb77_MV2c10='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_HybBEff_77_MV2c10'
+bhyb85_MV2c10='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_HybBEff_85_MV2c10'
+bfix77_DL1='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_77_DL1'
+bfix85_DL1='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_85_DL1'
+bhyb77_DL1='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_HybBEff_77_DL1'
+bhyb85_DL1='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_HybBEff_85_DL1'
+jetpt='AntiKt4EMTopoJets_BTagging201810.DFCommonJets_Calib_pt'
+
+#bfix77_MV2c10='(BTagging_AntiKt4EMTopo_201810.MV2c10_discriminant>0.64)'
+#bfix85_MV2c10='(BTagging_AntiKt4EMTopo_201810.MV2c10_discriminant>0.11)'
+#bhyb77_MV2c10='(BTagging_AntiKt4EMTopo_201810.MV2c10_discriminant>0.64)'
+#bhyb85_MV2c10='(BTagging_AntiKt4EMTopo_201810.MV2c10_discriminant>0.11)'
+#bfix77_DL1='(math.log(BTagging_AntiKt4EMTopo_201810.DL1_pb/(0.080*BTagging_AntiKt4EMTopo_201810.DL1_pc+(1-0.080)*BTagging_AntiKt4EMTopo_201810.DL1_pu))>1.45)'
+#bfix85_DL1='(math.log(BTagging_AntiKt4EMTopo_201810.DL1_pb/(0.080*BTagging_AntiKt4EMTopo_201810.DL1_pc+(1-0.080)*BTagging_AntiKt4EMTopo_201810.DL1_pu))>0.46)'
+#bhyb77_DL1='(math.log(BTagging_AntiKt4EMTopo_201810.DL1_pb/(0.080*BTagging_AntiKt4EMTopo_201810.DL1_pc+(1-0.080)*BTagging_AntiKt4EMTopo_201810.DL1_pu))>1.45)'
+#bhyb85_DL1='(math.log(BTagging_AntiKt4EMTopo_201810.DL1_pb/(0.080*BTagging_AntiKt4EMTopo_201810.DL1_pc+(1-0.080)*BTagging_AntiKt4EMTopo_201810.DL1_pu))>0.46)'
+
+
+bfix77_MV2c10='(1==1)'
+bfix85_MV2c10='(1==1)'
+bhyb77_MV2c10='(1==1)'
+bhyb85_MV2c10='(1==1)'
+bfix77_DL1='(1==1)'
+bfix85_DL1='(1==1)'
+bhyb77_DL1='(1==1)'
+bhyb85_DL1='(1==1)'
+
 
 bfix77='(%s || %s)' % (bfix77_MV2c10, bfix77_DL1)
 bhyb77='(%s || %s)' % (bhyb77_MV2c10, bhyb77_DL1)
@@ -357,7 +377,7 @@ from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
 
 SeqSUSY7 += CfgMgr.BTagVertexAugmenter()
 
-BJetSVFinderTool      = InDetVKalVxInJetFinder("BJetSVFinder")
+BJetSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetSVFinder")
 ToolSvc += BJetSVFinderTool
 BJetSVFinderTool.ConeForTag = 0.6
 
@@ -365,8 +385,10 @@ softTagAlg = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterTool",
                            OutputLevel=INFO, #DEBUG                                                                                          
                            )
 
+softTagAlg.SVFinderName = 'SoftBJetSVFinder'
 softTagAlg.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
 softTagAlg.TrackSelectionTool.CutLevel = "LoosePrimary"
+softTagAlg.OperatingPoint = 'Tight'
 
 SeqSUSY7 += softTagAlg
 
@@ -394,12 +416,24 @@ SeqSUSY7 += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY7SlimmingHelper = SlimmingHelper("SUSY7SlimmingHelper")
-SUSY7SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_AntiKt4EMTopo","Muons","TauJets","AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "InDetTrackParticles", "PrimaryVertices","AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+SUSY7SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_AntiKt4EMTopo","Muons","TauJets","AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        #"BTagging_AntiKt4EMTopo",
+                                        "InDetTrackParticles",
+                                        "PrimaryVertices",
+                                        #"AntiKt4EMPFlowJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY7SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track","METAssoc_AntiKt4EMPFlow","MET_Core_AntiKt4EMPFlow"]
-SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
+SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
 				      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
 				      "Photons.author.Loose.Tight",
-              "AntiKt4EMTopoJets.DFCommonJets_Calib_pt",
+                                      "AntiKt4EMTopoJets.DFCommonJets_Calib_pt",
 				      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
 				      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 				      "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
@@ -411,13 +445,14 @@ SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 #P. Pani removed 20/06/16                                      "AntiKt3PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
 #P. Pani removed 20/06/16                                      "BTagging_AntiKt3Track.MV2c20_discriminant","BTagging_AntiKt3Track.MV2c10_discriminant",
               "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
-              "BTagging_AntiKt2Track.MV2c20_discriminant.MV2c10_discriminant",
+                                      #"BTagging_AntiKt2Track.MV2c20_discriminant.MV2c10_discriminant",
 				      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection",
 				      "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
 				      "MuonClusterCollection.eta_sampl.phi_sampl",
               "AntiKt4EMPFlowJets.btagging.btaggingLink.TruthLabelID.constituentLinks.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.GhostTruthAssociationLink.HighestJVFVtx.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.HighestJVFLooseVtx.GhostAntiKt2TrackJet.JvtJvfcorr.SumPtTrkPt1000.TrackWidthPt500.NegativeE",
-				      "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb",
-                                      "SoftBVrtClusterTool_Vertices",
+				      "BTagging_AntiKt4EMPFlow_201810.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb",
+				      "BTagging_AntiKt4EMPFlow_201903.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb",
+                                      "SoftBVrtClusterTool_Tight_Vertices",
 ]
 
 SUSY7SlimmingHelper.IncludeMuonTriggerContent = True
@@ -433,8 +468,8 @@ SUSY7SlimmingHelper.IncludeEtMissTriggerContent = True
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 StaticContent = []
-StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Vertices"]
-StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_VerticesAux." + excludedVertexAuxData]
+StaticContent += ["xAOD::VertexContainer#SoftBVrtClusterTool_Tight_Vertices"]
+StaticContent += ["xAOD::VertexAuxContainer#SoftBVrtClusterTool_Tight_VerticesAux." + excludedVertexAuxData]
 
 SUSY7SlimmingHelper.StaticContent = StaticContent
 

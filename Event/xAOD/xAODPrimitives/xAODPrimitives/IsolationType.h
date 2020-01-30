@@ -91,8 +91,32 @@ namespace xAOD {
          ptcone40_TightTTVA_pt1000 = 86,
 
          /// @}
+
+         /// Mini-Isolation http://arxiv.org/abs/1007.2221 for high mu
+         /// @{
+
+         ptvarcone20_TightTTVALooseCone_pt500 = 92,
+         ptvarcone30_TightTTVALooseCone_pt500 = 94,
+         ptvarcone40_TightTTVALooseCone_pt500 = 96,
+         ptvarcone20_TightTTVALooseCone_pt1000 = 102,
+         ptvarcone30_TightTTVALooseCone_pt1000 = 104,
+         ptvarcone40_TightTTVALooseCone_pt1000 = 106,
+
+         /// @}
+
+         /// Ptcone http://arxiv.org/abs/1007.2221 for high mu
+         /// @{
+
+         ptcone20_TightTTVALooseCone_pt500 = 112,
+         ptcone30_TightTTVALooseCone_pt500 = 114,
+         ptcone40_TightTTVALooseCone_pt500 = 116,
+         ptcone20_TightTTVALooseCone_pt1000 = 122,
+         ptcone30_TightTTVALooseCone_pt1000 = 124,
+         ptcone40_TightTTVALooseCone_pt1000 = 126,
+
+         /// @}
          
-         numIsolationTypes=87
+         numIsolationTypes=127
 
       }; // enum IsolationType
       
@@ -128,6 +152,22 @@ namespace xAOD {
               case ptvarcone20_TightTTVA_pt1000:    return "ptvarcone20_TightTTVA_pt1000";
               case ptvarcone30_TightTTVA_pt1000:    return "ptvarcone30_TightTTVA_pt1000";
               case ptvarcone40_TightTTVA_pt1000:    return "ptvarcone40_TightTTVA_pt1000";
+
+              case ptcone20_TightTTVALooseCone_pt500:    return "ptcone20_TightTTVALooseCone_pt500";
+              case ptcone30_TightTTVALooseCone_pt500:    return "ptcone30_TightTTVALooseCone_pt500";
+              case ptcone40_TightTTVALooseCone_pt500:    return "ptcone40_TightTTVALooseCone_pt500";
+
+              case ptcone20_TightTTVALooseCone_pt1000:    return "ptcone20_TightTTVALooseCone_pt1000";
+              case ptcone30_TightTTVALooseCone_pt1000:    return "ptcone30_TightTTVALooseCone_pt1000";
+              case ptcone40_TightTTVALooseCone_pt1000:    return "ptcone40_TightTTVALooseCone_pt1000";
+
+              case ptvarcone20_TightTTVALooseCone_pt500:    return "ptvarcone20_TightTTVALooseCone_pt500";
+              case ptvarcone30_TightTTVALooseCone_pt500:    return "ptvarcone30_TightTTVALooseCone_pt500";
+              case ptvarcone40_TightTTVALooseCone_pt500:    return "ptvarcone40_TightTTVALooseCone_pt500";
+
+              case ptvarcone20_TightTTVALooseCone_pt1000:    return "ptvarcone20_TightTTVALooseCone_pt1000";
+              case ptvarcone30_TightTTVALooseCone_pt1000:    return "ptvarcone30_TightTTVALooseCone_pt1000";
+              case ptvarcone40_TightTTVALooseCone_pt1000:    return "ptvarcone40_TightTTVALooseCone_pt1000";
 
               case topoetcone20:    return "topoetcone20";
               case topoetcone30:    return "topoetcone30";

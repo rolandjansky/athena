@@ -76,6 +76,8 @@ BTaggingTruthTaggingTool::BTaggingTruthTaggingTool( const std::string & name)
   declareProperty("OldConeFlavourLabel",             m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
   declareProperty("CutBenchmark",                    m_cutBenchmark = "FixedCutBEff_70", "if you want to run in continuous you need to fix a benchmark - it does something only if running in Continuous OP");
   declareProperty("ExcludeSpecificEigens",            m_excludeEV = "" ,    "(semicolon-separated) names of Eigens you want to exclude. in case of continuous some eigenvectors can be ignored to make the computation faster");
+  declareProperty("StoreOnlyUpVariations",            m_doOnlyUpVariations = false ,    "If set to true it processes only the __1up b-tagging variations. It speeds up the computation in case of symmetric variations.");
+  declareProperty("doDirectTagging",                  m_doDirectTag = false ,    "If set to true it also computes and stores the direct tagging choice and the related SFs for each jet"); 
 }
 
 StatusCode BTaggingTruthTaggingTool::setEffMapIndex(const std::string& flavour, unsigned int index){
@@ -178,11 +180,11 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if(m_useQuntile){
-    if(m_continuous){
-      m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_cutBenchmark) - m_availableOP.begin();
-    }
-    else{
+  if(m_continuous){
+    m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_cutBenchmark) - m_availableOP.begin();
+  }
+  else{
+    if(m_useQuntile){
       m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_OP) - m_availableOP.begin();
       if(m_OperatingPoint_index >= m_availableOP.size()) {
 	ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
@@ -204,14 +206,20 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
     CP::SystematicSet systs = m_effTool->affectingSystematics();
     for (const auto & syst : systs) {
       CP::SystematicSet myset;
-      if(m_excludeEV_vector.size() != 0 && find(m_excludeEV_vector.begin(), m_excludeEV_vector.end(), syst.name()) != m_excludeEV_vector.end()) continue; //if the systematics is in the list of excluded EV we just ignore it.
+      string s = syst.name();
+      if(m_doOnlyUpVariations && s.find("__1down") !=string::npos) continue;
+      if(std::any_of(m_excludeEV_vector.begin(), m_excludeEV_vector.end(), [&s](const std::string& str) { return str.find(s) != std::string::npos; })) continue;
+      //      if(m_excludeEV_vector.size() != 0 && find(m_excludeEV_vector.begin(), m_excludeEV_vector.end(), syst.name()) != m_excludeEV_vector.end()) continue; //if the systematics is in the list of excluded EV we just ignore it.
       myset.insert(syst);
-      ATH_MSG_DEBUG("Adding systematic " << syst.name() << "to the list ");
+      if(m_excludeEV != "")
+	ATH_MSG_INFO("Adding systematic " << syst.name() << "to the list ");
+      else
+	ATH_MSG_DEBUG("Adding systematic " << syst.name() << "to the list ");
       m_eff_syst.push_back(myset);
       m_sys_name.push_back(syst.name());
     }
   }
-  if(m_useQuntile){
+  if(m_useQuntile == true || m_continuous == true){
     ATH_MSG_INFO("m_useQuntile true");
 
     //open the CDI file to get the cutvalues for all working points.
@@ -452,9 +460,11 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(TRFinfo &trfinf,Analysis::
     results.map_trf_weight_in[m_sys_name.at(i)].resize(trfinf.trfwsys_in.at(i).size());
 
     //direct tagged SF
-    results.map_SF[m_sys_name.at(i)]=getEvtSF(trfinf,i);
+    if(m_doDirectTag)
+      results.map_SF[m_sys_name.at(i)]=getEvtSF(trfinf,i);
+    
     results.syst_names.push_back(m_sys_name.at(i));
-
+    
     for(unsigned int j=0; j< trfinf.trfwsys_ex.at(i).size(); j++){
       results.map_trf_weight_ex[m_sys_name.at(i)].at(j) = trfinf.trfwsys_ex.at(i).at(j);
       results.map_trf_weight_in[m_sys_name.at(i)].at(j) = trfinf.trfwsys_in.at(i).at(j);
@@ -470,7 +480,9 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(TRFinfo &trfinf,Analysis::
   ANA_CHECK(generateRandomTaggerScores(results.trf_bin_ex, results.trf_bin_score_ex));
   ANA_CHECK(generateRandomTaggerScores(results.trf_bin_in, results.trf_bin_score_in));
   }
-  ANA_CHECK(getDirectTaggedJets(trfinf,results.is_tagged));
+  if(m_doDirectTag)
+    ANA_CHECK(getDirectTaggedJets(trfinf,results.is_tagged));
+  
   return StatusCode::SUCCESS;
 
 }
@@ -503,7 +515,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(TRFinfo &trfinf){
   float eff =1.;
   float eff_all =1.;
   trfinf.effMC.clear();
-  if(m_useQuntile){
+  if(m_useQuntile == true || m_continuous == true){
     for(auto op_appo: m_availableOP)
       trfinf.effMC_allOP[op_appo].clear();
   }
@@ -583,20 +595,17 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
   }
   else{
     trfinf.eff.resize(trfinf.effMC_allOP[m_cutBenchmark].size());
-    if(m_useQuntile){
-      for(const auto & op_appo: m_availableOP){
-        trfinf.eff_allOP[op_appo].clear();
-        trfinf.eff_allOP[op_appo].resize(trfinf.effMC_allOP[op_appo].size());
-      }
+    for(const auto & op_appo: m_availableOP){
+      trfinf.eff_allOP[op_appo].clear();
+      trfinf.eff_allOP[op_appo].resize(trfinf.effMC_allOP[op_appo].size());
     }
   }
-    
+  
   if(m_ignoreSF && sys==0){
     if(m_continuous){
       for(int iop = (int) m_availableOP.size()-1; iop >= 0; iop--) { // loop on the tighter OPs
 	string op_appo = m_availableOP.at(iop);
-	if(!m_useQuntile && op_appo != m_cutBenchmark) continue;  
-	
+	if(!m_useQuntile &&  iop < (int) m_OperatingPoint_index) continue;
 	for(size_t ieff =0; ieff< trfinf.eff_allOP[op_appo].size(); ieff++){ //jets
 	  trfinf.eff_allOP[op_appo].at(ieff)= 0;   
 	  for(unsigned int p = iop; p<m_availableOP.size(); p++){ //add all the eff above the WP	   
@@ -642,7 +651,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
   if(m_continuous){
     for(int iop = (int) m_availableOP.size()-1; iop >= 0; iop--) {
       std::string op_appo = m_availableOP.at(iop);
-      if(!m_useQuntile && op_appo != m_cutBenchmark) continue;
+      if(!m_useQuntile &&  iop < (int) m_OperatingPoint_index) continue;
       for(size_t i=0; i<trfinf.jets.size(); i++){
 	SF=1.;
 	//set a dumb value of the truth tag weight to get the different efficiency maps for each bin. to be improved..
@@ -660,7 +669,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
 	}
 
 	trfinf.eff_allOP[op_appo].at(i)=trfinf.effMC_allOP[op_appo].at(i)*SF;
-      
+
       //now sum all the corrected MC Eff together
 	if(iop+1 < (int) m_availableOP.size()){
 	    trfinf.eff_allOP[op_appo].at(i)+=trfinf.eff_allOP[m_availableOP.at(iop+1)].at(i); //they are already corrected for SF

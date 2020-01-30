@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
@@ -31,6 +32,10 @@ TAUP3seq += JetTagConfig.GetDecoratePromptTauAlgs()
 
 # Add private sequence to the DerivationFrameworkJob
 DerivationFrameworkJob += TAUP3seq
+
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = TAUP3seq)
 
 # =============================================
 # Set up stream
@@ -123,38 +128,14 @@ TAUP3TauTPThinningTool     = DerivationFramework__TauTrackParticleThinning(
 ToolSvc += TAUP3TauTPThinningTool
 thinningTools.append(TAUP3TauTPThinningTool)
 
-# ------------------------------------------------------------------------------------------------------------------------------------------
-# For tau trigger performance studies
-
-# no TrackParticleThinning can be applied to HLT taus, we need all tau tracks for RNN ID, not only core tracks
-
-# TauTracks thinning
-from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__TauTracksThinning
-TAUP3HLTTauTracksThinningTool = DerivationFramework__TauTracksThinning(name            = "TAUP3HLTTauTracksThinningTool",
-                                                                       ThinningService = "TAUP3ThinningSvc",
-                                                                       TauKey          = "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
-                                                                       TauTracksKey    = "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks",
-                                                                       IDTracksKey     = "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig")
-ToolSvc += TAUP3HLTTauTracksThinningTool
-thinningTools.append(TAUP3HLTTauTracksThinningTool)
-
-# Jet Calo Cluster thinning, need all clusters from HLT tau seed jet for RNN ID
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-TAUP3HLTTauCCThinningTool = DerivationFramework__JetCaloClusterThinning( name                    = "TAUP3HLTTauCCThinningTool",
-                                                                         ThinningService         = "TAUP3ThinningSvc",
-                                                                         SGKey                   = "HLT_xAOD__JetContainer_TrigTauJet",
-                                                                         TopoClCollectionSGKey   = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker")
-ToolSvc += TAUP3HLTTauCCThinningTool
-thinningTools.append(TAUP3HLTTauCCThinningTool)
-
-# ------------------------------------------------------------------------------------------------------------------------------------------
-
 # truth thinning here:
 import DerivationFrameworkTau.TAUPThinningHelper 
 TAUP3TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP3",
                                                                      "TAUP3ThinningSvc",
                                                                      ToolSvc)
+
 thinningTools += TAUP3TruthThinningTools
+
 
 # =============================================
 # Skimming tool
@@ -170,16 +151,6 @@ TAUP3SkimmingTool    = DerivationFramework__xAODStringSkimmingTool(
   expression                = expression)
 
 ToolSvc   += TAUP3SkimmingTool
-
-# =============================================
-# Standard jets
-# =============================================
-if globalflags.DataSource() == "geant4":
-  print 'Adding AntiKt4TruthJets here'
-  #addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=DerivationFrameworkJob, outputGroup="TAUP3")
-  reducedJetList = ["AntiKt4TruthJets"]
-  replaceAODReducedJets(reducedJetList,TAUP3seq, "TAUP3")
-  from DerivationFrameworkTau.TauTruthCommon import *
 
 # =============================================
 # Create derivation Kernel
@@ -205,12 +176,14 @@ TAUP3SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4LCTopo",
-                                        "AntiKt4EMTopoJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4LCTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt4LCTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 
@@ -240,16 +213,6 @@ TAUP3SlimmingHelper.AllVariables                 = ExtraContainersTAUP3
 TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 TAUP3SlimmingHelper.ExtraVariables += ["Muons.PromptLeptonIso.PromptLeptonVeto"]
 TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(name="Muons")
-
-# ------------------------------------------------------------------------------------------------------------------------------------------
-# For tau trigger performance studies
-TAUP3SlimmingHelper.ExtraVariables += [ "HLT_xAOD__JetContainer_TrigTauJet.pt.eta.phi.m.constituentLinks",
-                                        "HLT_xAOD__TauJetContainer_TrigTauRecMerged.pt.eta.phi.m.tauTrackLinks.jetLink.vertexLink.charge.isTauFlags.BDTJetScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.BDTJetScoreSigTrans.RNNJetScore.RNNJetScoreSigTrans.isolFrac.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis.ptJetSeed.leadTrkPt.massTrkSys.trFlightPathSig.centFrac.ChPiEMEOverCaloEME.dRmax.etOverPtLeadTrk.EMPOverTrkSysP.innerTrkAvgDist.ipSigLeadTrk.mEflowApprox.ptRatioEflowApprox.SumPtTrkFrac.PSSFraction.etEMAtEMScale.etHadAtEMScale.sumEMCellEtOverLeadTrkPt.hadLeakEt.secMaxStripEt",
-                                        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig.phi.theta.qOverP.z0.d0.vertexLink.vz.chiSquared.numberDoF.expectInnermostPixelLayerHit.expectNextToInnermostPixelLayerHit.numberOfInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerHits.numberOfPixelHits.numberOfPixelHoles.numberOfPixelSharedHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTSharedHits.numberOfSCTDeadSensors",
-                                        "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker.CENTER_LAMBDA.FIRST_ENG_DENS.EM_PROBABILITY.SECOND_LAMBDA.SECOND_R.e_sampl.eta0.phi0.rawE.rawEta.rawPhi.rawM.altE.altEta.altPhi.altM.calE.calEta.calPhi.calM",
-                                        "HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks.pt.eta.phi.flagSet.trackLinks",
-                                        "HLT_xAOD__VertexContainer_xPrimVx.z" ]
-# ------------------------------------------------------------------------------------------------------------------------------------------
 
 if globalflags.DataSource() == "geant4":
   #TAUP3SlimmingHelper.AppendToDictionary = {'AntiKt4TruthJets':'xAOD::JetContainer','AntiKt4TruthJetsAux':'xAOD::JetAuxContainer'}

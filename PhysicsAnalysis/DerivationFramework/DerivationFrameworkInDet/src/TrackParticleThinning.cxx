@@ -6,17 +6,21 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 // Local include(s):
 #include "DerivationFrameworkInDet/TrackParticleThinning.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 namespace DerivationFramework {
 
    TrackParticleThinning::TrackParticleThinning( const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent )
-      : AthAlgTool( type, name, parent ),
-        m_thinningSvc( "ThinningSvc", name ) {
+
+      : AthAlgTool      ( type, name, parent    ),
+        m_thinningSvc   ( "ThinningSvc", name   ),
+        m_trkSelTool    ("",this                ){
 
       // Declare the tool's interface to the framework:
       declareInterface< DerivationFramework::IThinningTool >( this );
@@ -24,6 +28,8 @@ namespace DerivationFramework {
       // Set up the tool's properties:
       declareProperty( "ThinningService", m_thinningSvc,
                        "The thinning service to use" );
+      declareProperty("TrackSelectionTool", m_trkSelTool,
+                      "TrackSelectionTool, used instead of parser if provided");
       declareProperty( "SelectionString", m_selectionString,
                        "Selection string for the track particles" );
       declareProperty( "ApplyAnd", m_and,
@@ -44,19 +50,26 @@ namespace DerivationFramework {
    StatusCode TrackParticleThinning::initialize() {
 
       ATH_MSG_VERBOSE( "initialize() ..." );
-      if( m_selectionString == "" ) {
-         ATH_MSG_FATAL( "No inner detector track selection string provided!" );
+      if( m_selectionString == ""  && m_trkSelTool.empty() ) {
+         ATH_MSG_FATAL( "No inner detector track selection string or track selection tool provided!" );
          return StatusCode::FAILURE;
       }
       ATH_MSG_INFO( "Track thinning selection string: " << m_selectionString );
 
       // Set up the text-parsing machinery for thinning the tracks directly
       // according to user cuts
-      m_parser.reset( new ExpressionParserHelper( evtStore() ) );
-      if( ! m_parser->parser().loadExpression( m_selectionString ) ) {
-         ATH_MSG_FATAL( "Failed to interpret expression: "
-                        << m_selectionString );
-         return StatusCode::FAILURE;
+      if( m_selectionString!="" ){
+        m_parser.reset( new ExpressionParserHelper( evtStore() ) );
+        if( ! m_parser->parser().loadExpression( m_selectionString ) ) {
+           ATH_MSG_FATAL( "Failed to interpret expression: "
+                          << m_selectionString );
+           return StatusCode::FAILURE;
+        }
+      }
+
+      // Track selection tool
+      if( !m_trkSelTool.empty() ){
+        ATH_CHECK(m_trkSelTool.retrieve());
       }
 
       // check xAOD::InDetTrackParticle collection
@@ -175,21 +188,47 @@ namespace DerivationFramework {
       std::vector< bool > mask( nTracks, false );
       m_ntot += nTracks;
 
-      // Execute the text parser and update the mask
-      const std::vector< int > entries = m_parser->parser().evaluateAsVector();
-      const size_t nEntries = entries.size();
-      // check the sizes are compatible
-      if( nTracks != nEntries ) {
-         ATH_MSG_ERROR( "Sizes incompatible! Are you sure your selection "
-                        "string used ID TrackParticles?" );
-         return StatusCode::FAILURE;
-      }
-      // set mask
-      for( size_t i = 0; i < nTracks; ++i ) {
-         if( entries.at( i ) == 1 ) {
+      if( !m_trkSelTool.empty() ){
+
+        const xAOD::VertexContainer* primaryVertices { nullptr };
+        ATH_CHECK( evtStore()->retrieve( primaryVertices, "PrimaryVertices" ) );
+
+        const xAOD::Vertex* priVtx { nullptr };
+        for( const auto* vtx : *primaryVertices ) {
+          if( vtx->vertexType() == xAOD::VxType::PriVtx ) {
+            priVtx = vtx;
+            break;
+          }
+        }
+
+        // Measure relative to PV
+        // Thin tracks if there is no PV in the event
+        if( priVtx ){
+          for (const auto& trk : *importedTrackParticles ) {
+            if( m_trkSelTool->accept(*trk,priVtx) ){
+              int index = trk->index();
+              mask[index] = true;
+            }
+          }
+        }
+      } // Track selection tool
+      else{
+        // Execute the text parser and update the mask
+        const std::vector< int > entries = m_parser->parser().evaluateAsVector();
+        const size_t nEntries = entries.size();
+        // check the sizes are compatible
+        if( nTracks != nEntries ) {
+           ATH_MSG_ERROR( "Sizes incompatible! Are you sure your selection "
+                          "string used ID TrackParticles?" );
+           return StatusCode::FAILURE;
+        }
+        // set mask
+        for( size_t i = 0; i < nTracks; ++i ) {
+          if( entries.at( i ) == 1 ) {
             mask.at( i ) = true;
-         }
-      }
+          }
+        }
+      } // Text parser
 
       // Count the mask
       for( bool bit : mask ) {

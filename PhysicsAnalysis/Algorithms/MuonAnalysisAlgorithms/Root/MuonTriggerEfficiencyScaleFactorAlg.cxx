@@ -27,9 +27,6 @@ namespace CP
     , m_efficiencyScaleFactorTool ("CP::MuonTriggerScaleFactors", this)
   {
     declareProperty ("efficiencyScaleFactorTool", m_efficiencyScaleFactorTool, "the trigger efficiency scale factor tool we apply");
-    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the muon trigger efficiency scale factor");
-    declareProperty ("mcEfficiencyDecoration", m_mcEfficiencyDecoration, "the decoration for the muon trigger MC efficiency");
-    declareProperty ("dataEfficiencyDecoration", m_dataEfficiencyDecoration, "the decoration for the muon trigger data efficiency");
     declareProperty ("trigger", m_trigger, "trigger or trigger leg to calculate efficiency for");
     declareProperty ("minRunNumber", m_minRunNumber = 0, "trigger or trigger leg to calculate efficiency for");
     declareProperty ("maxRunNumber", m_maxRunNumber = 999999, "trigger or trigger leg to calculate efficiency for");
@@ -52,26 +49,13 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    if (!m_scaleFactorDecoration.empty())
-    {
-      m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
-    }
-
-    if (!m_mcEfficiencyDecoration.empty())
-    {
-      m_mcEfficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_mcEfficiencyDecoration);
-    }
-    if (!m_dataEfficiencyDecoration.empty())
-    {
-      m_dataEfficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_dataEfficiencyDecoration);
-    }
-
     ANA_CHECK (m_efficiencyScaleFactorTool.retrieve());
     m_systematicsList.addHandle (m_muonHandle);
     ANA_CHECK (m_systematicsList.addAffectingSystematics (m_efficiencyScaleFactorTool->affectingSystematics()));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -80,6 +64,16 @@ namespace CP
   StatusCode MuonTriggerEfficiencyScaleFactorAlg ::
   execute ()
   {
+    if (m_scaleFactorDecoration) {
+      ANA_CHECK (m_scaleFactorDecoration.preExecute (m_systematicsList));
+    }
+    if (m_mcEfficiencyDecoration) {
+      ANA_CHECK (m_mcEfficiencyDecoration.preExecute (m_systematicsList));
+    }
+    if (m_dataEfficiencyDecoration) {
+      ANA_CHECK (m_dataEfficiencyDecoration.preExecute (m_systematicsList));
+    }
+
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         ANA_CHECK (m_efficiencyScaleFactorTool->applySystematicVariation (sys));
         xAOD::MuonContainer *muons = nullptr;
@@ -94,36 +88,36 @@ namespace CP
         {
           if (validEvent && m_preselection.getBool (*muon))
           {
-            if (m_scaleFactorAccessor) {
+            if (m_scaleFactorDecoration) {
               double sf = 0;
               ConstDataVector<xAOD::MuonContainer> singleMuonContainer(SG::VIEW_ELEMENTS);
               singleMuonContainer.push_back(muon);
               ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getTriggerScaleFactor (*singleMuonContainer.asDataVector(), sf, m_trigger));
-              (*m_scaleFactorAccessor) (*muon) = sf;
+              m_scaleFactorDecoration.set (*muon, sf, sys);
             }
 
-            if (m_mcEfficiencyAccessor) {
+            if (m_mcEfficiencyDecoration) {
               double eff = 0;
               ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getTriggerEfficiency (*muon, eff, m_trigger, false));
-              (*m_mcEfficiencyAccessor) (*muon) = eff;
+              m_mcEfficiencyDecoration.set (*muon, eff, sys);
             }
 
-            if (m_dataEfficiencyAccessor) {
+            if (m_dataEfficiencyDecoration) {
               double eff = 0;
               ANA_CHECK_CORRECTION (m_outOfValidity, *muon, m_efficiencyScaleFactorTool->getTriggerEfficiency (*muon, eff, m_trigger, true));
-              (*m_dataEfficiencyAccessor) (*muon) = eff;
+              m_dataEfficiencyDecoration.set (*muon, eff, sys);
             }
           } else {
-            if (m_scaleFactorAccessor) {
-              (*m_scaleFactorAccessor) (*muon) = -1;
+            if (m_scaleFactorDecoration) {
+              m_scaleFactorDecoration.set (*muon, invalidScaleFactor(), sys);
             }
 
-            if (m_mcEfficiencyAccessor) {
-              (*m_mcEfficiencyAccessor) (*muon) = -1;
+            if (m_mcEfficiencyDecoration) {
+              m_mcEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
             }
 
-            if (m_dataEfficiencyAccessor) {
-              (*m_dataEfficiencyAccessor) (*muon) = -1;
+            if (m_dataEfficiencyDecoration) {
+              m_dataEfficiencyDecoration.set (*muon, invalidEfficiency(), sys);
             }
           }
         }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /// a simple testing macro for the MuonEfficiencyScaleFactors class
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
 
     // Open the input file:
     Info(APP_NAME, "Opening file: %s", InFile.c_str());
-    std::auto_ptr<TFile> ifile(TFile::Open(InFile.c_str(), "READ"));
+    std::unique_ptr<TFile> ifile(TFile::Open(InFile.c_str(), "READ"));
     if (!ifile.get()) {
         Error(APP_NAME, " Unable to load xAOD input file");
     }

@@ -284,7 +284,8 @@ if is_MC:
 # CREATE PRIVATE SEQUENCE  
 #=======================================
 BPHY9Seq = CfgMgr.AthSequencer('BPHY9Sequence')
-
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=BPHY9Seq)
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
@@ -317,10 +318,11 @@ BPHY9SlimmingHelper = SlimmingHelper('BPHY9SlimmingHelper')
 # Slimming for recontruction content
 BPHY9SlimmingHelper.AllVariables = []
 
-BPHY9SlimmingHelper.SmartCollections = ['AntiKt4EMPFlowJets',
-                                        'AntiKt4EMTopoJets',
-                                        'BTagging_AntiKt4EMPFlow',
-                                        'BTagging_AntiKt4EMTopo',
+
+BPHY9SlimmingHelper.SmartCollections = ['AntiKt4EMPFlowJets_BTagging201810', 'AntiKt4EMPFlowJets_BTagging201903',
+                                        'AntiKt4EMTopoJets_BTagging201810',
+                                        'BTagging_AntiKt4EMPFlow_201810', 'BTagging_AntiKt4EMPFlow_201903',
+                                        'BTagging_AntiKt4EMTopo_201810',
                                         'Electrons',
                                         'InDetTrackParticles',
                                         'MET_Reference_AntiKt4EMPFlow',
@@ -328,7 +330,7 @@ BPHY9SlimmingHelper.SmartCollections = ['AntiKt4EMPFlowJets',
                                         'Muons',
                                         'PrimaryVertices']
 
-BPHY9SlimmingHelper.ExtraVariables = ['AntiKt4EMPFlowJets'+'.JetEMScaleMomentum_pt'
+BPHY9SlimmingHelper.ExtraVariables = ['AntiKt4EMPFlowJets_BTagging201810'+'.JetEMScaleMomentum_pt'
                                                           +'.JetEMScaleMomentum_eta'
                                                           +'.JetEMScaleMomentum_phi'
                                                           +'.JetEMScaleMomentum_m'
@@ -336,7 +338,15 @@ BPHY9SlimmingHelper.ExtraVariables = ['AntiKt4EMPFlowJets'+'.JetEMScaleMomentum_
                                                           +'.PartonTruthLabelID'
                                                           +'.SumPtTrkPt1000'
                                                           +'.Jvt.JvtJvfcorr.JvtRpt',
-                                      'AntiKt4EMTopoJets'+'.JetEMScaleMomentum_pt'
+                                      'AntiKt4EMPFlowJets_BTagging201903'+'.JetEMScaleMomentum_pt'
+                                                          +'.JetEMScaleMomentum_eta'
+                                                          +'.JetEMScaleMomentum_phi'
+                                                          +'.JetEMScaleMomentum_m'
+                                                          +'.ConeTruthLabelID'
+                                                          +'.PartonTruthLabelID'
+                                                          +'.SumPtTrkPt1000'
+                                                          +'.Jvt.JvtJvfcorr.JvtRpt',
+                                      'AntiKt4EMTopoJets_BTagging201810'+'.JetEMScaleMomentum_pt'
                                                          +'.JetEMScaleMomentum_eta'
                                                          +'.JetEMScaleMomentum_phi'
                                                          +'.JetEMScaleMomentum_m'

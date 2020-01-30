@@ -257,7 +257,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
 
 
 
-Root::TAccept JSSWTopTaggerBDT::tag(const xAOD::Jet& jet) const {
+Root::TAccept& JSSWTopTaggerBDT::tag(const xAOD::Jet& jet) const {
   // helpful execute message
   ATH_MSG_DEBUG("Obtaining BDT result" );
 

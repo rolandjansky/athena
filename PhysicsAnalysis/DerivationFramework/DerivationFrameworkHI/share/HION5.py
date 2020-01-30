@@ -20,7 +20,10 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 #HI derivation tools
 from DerivationFrameworkHI.HIJetDerivationTools import *
 from DerivationFrameworkHI.HISkimmingTools import *
+from DerivationFrameworkHI.HIAugmentationTools import *
 from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from HIRecExample.HIRecExampleFlags import jobproperties
+from HIJetRec.HIJetRecUtils import HasCollection
 
 
 #====================================================================
@@ -115,8 +118,11 @@ HION5Stream.AcceptAlgs(["HION5Kernel"])
 # Plug in the required triggers
 
 thinningTools = []
-#Jet constituents for SEB
-thinningTools.append(addJetClusterThinningTool('DFAntiKt4HIJets','HION5',20))
+#Jet constituents for SEB only for main collection
+BookDFJetCollection = (jobproperties.HIRecExampleFlags.doHIAODFix or HasCollection("DFAntiKt4HI"))
+MainJetCollection = ""
+if BookDFJetCollection : MainJetCollection = "DF"
+thinningTools.append(addJetClusterThinningTool(MainJetCollection+'AntiKt4HIJets','HION5',20))
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 HION5ThinningHelper = ThinningHelper( "HION5ThinningHelper" )
@@ -175,12 +181,15 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(HION5TruthGenTool)
 
 
-JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'AntiKt2HIJets_Seed1']
+JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'DFAntiKt8HIJets', 'AntiKt10HIJets','DFAntiKt10HIJets', 'AntiKt2HIJets_Seed1']
 
+###############Augmentation#############
+HIGlobalAugmentationTool = addHIGlobalAugmentationTool('HION5',3,500)
+augToolList=[HIGlobalAugmentationTool]
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HION5Kernel",
-                                                                           AugmentationTools = [],
+                                                                           AugmentationTools = augToolList,
                                                                            SkimmingTools = [HION5SkimmingLeptonsAndPhotonsTool],
                                                                            ThinningTools = thinningTools
                                                                       )
@@ -239,7 +248,7 @@ addMETOutputs(HION5SlimmingHelper,met_ptCutList)
 HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets"]
 HION5SlimmingHelper.AllVariables += HIGlobalVars
 if HIDerivationFlags.isPPb(): HION5SlimmingHelper.AllVariables += ["HIEventShape", "ForwardElectrons", "ForwardElectronClusters"]
-if HIDerivationFlags.isSimulation() : HION5SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","egammaTruthParticles","TruthEvents","TruthVertices","TruthParticles"]
+if HIDerivationFlags.isSimulation() : HION5SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","AntiKt8TruthJets","AntiKt10TruthJets","egammaTruthParticles","TruthEvents","TruthVertices","TruthParticles"]
 
 
 HION5SlimmingHelper.IncludeEGammaTriggerContent = True

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TFile.h>
@@ -34,7 +34,7 @@ int main() {
 #endif
 
   ANA_MSG_INFO("ASG_TEST_FILE_MC = " << std::getenv("ASG_TEST_FILE_MC"));
-  std::auto_ptr<TFile> ifile(TFile::Open(std::getenv("ASG_TEST_FILE_MC"), "READ"));
+  std::unique_ptr<TFile> ifile(TFile::Open(std::getenv("ASG_TEST_FILE_MC"), "READ"));
   ANA_CHECK(ifile.get());
 
   ANA_CHECK(evt.readFrom(ifile.get()));
@@ -50,8 +50,8 @@ int main() {
   ANA_CHECK(myTool.setProperty("VariableRMassScale", -1.0));
   ANA_CHECK(myTool.setProperty("InputJetPtMin",      25.0)); //GeV
   ANA_CHECK(myTool.setProperty("RCJetPtMin",         50.0)); //GeV
-  ANA_CHECK(myTool.setProperty("RCJetPtFrac",        0.05));
-  ANA_CHECK(myTool.setProperty("RCJetSubjetRadius",  0.4));
+  ANA_CHECK(myTool.setProperty("TrimPtFrac",         0.05));
+  ANA_CHECK(myTool.setProperty("TrimSubjetRadius",   0.4));
   ANA_CHECK(myTool.setProperty("DoArea",             false));
   ANA_CHECK(myTool.setProperty("AreaAttributes",     ""));
   ANA_CHECK(myTool.initialize());

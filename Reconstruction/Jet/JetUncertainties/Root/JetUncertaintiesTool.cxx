@@ -20,6 +20,7 @@
 #include "JetUncertainties/UncertaintySet.h"
 #include "JetUncertainties/PtUncertaintyComponent.h"
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
+#include "JetUncertainties/PtLogPtMassForTagSFUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/ELogMassUncertaintyComponent.h"
@@ -30,6 +31,7 @@
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
 #include "JetUncertainties/ClosebyUncertaintyComponent.h"
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
+#include "JetUncertainties/LargeRTopologyUncertaintyComponent.h"
 
 // xAOD includes
 #include "xAODCore/ShallowCopy.h"
@@ -67,7 +69,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
-    , m_calibArea("CalibArea-07")
+    , m_calibArea("CalibArea-08")
     , m_path("")
     , m_analysisFile("")
     , m_analysisHistPattern("")
@@ -95,6 +97,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_isData(true)
     , m_resHelper(NULL)
     , m_namePrefix("JET_")
+    , m_accTagScaleFactor("temp_SF")
 {
     declareProperty("JetDefinition",m_jetDef);
     declareProperty("MCType",m_mcType);
@@ -151,6 +154,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_isData(toCopy.m_isData)
     , m_resHelper(new ResolutionHelper(*toCopy.m_resHelper))
     , m_namePrefix(toCopy.m_namePrefix)
+    , m_accTagScaleFactor(toCopy.m_accTagScaleFactor)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
 
@@ -444,7 +448,13 @@ StatusCode JetUncertaintiesTool::initialize()
         return StatusCode::FAILURE;
     }
 
-    
+    // Get name of accessor to SF value
+    m_name_TagScaleFactor  = TString(settings.GetValue("FileValidSFName","temp_SF"));
+    if ( m_name_TagScaleFactor != "temp_SF") {
+      ATH_MSG_INFO("   accessor of SF is " << m_name_TagScaleFactor);
+    }
+    m_accTagScaleFactor = SG::AuxElement::Accessor<float>(m_name_TagScaleFactor);
+
     // Get the NPV/mu reference values
     // These may not be set - only needed if a pileup component is requested
     TString refNPV = settings.GetValue("Pileup.NPVRef","");
@@ -1124,6 +1134,27 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             // Done, return the component
             return cmuc;
         }
+        // Next check large-R topology
+        else if (component.name.Contains("Large",TString::kIgnoreCase) && component.name.Contains("Topology",TString::kIgnoreCase))
+        {
+            if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
+            {
+                if (component.FatjetTruthLabels.size() > 0)
+                {
+                    return new LargeRTopologyUncertaintyComponent(component);
+                }
+                else
+                {
+                    ATH_MSG_ERROR(Form("No FatjetTruthLabels specified for Large-R jet topology component %s",component.name.Data()));
+                    return NULL;
+                }
+            }
+            else
+            {
+                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
+                return NULL;
+            }
+        }
         else
         {
             ATH_MSG_ERROR("Unexpected special component: " << component.name.Data());
@@ -1143,6 +1174,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return new PtEtaUncertaintyComponent(component);
             case CompParametrization::PtMass:
                 return new PtMassUncertaintyComponent(component);
+            case CompParametrization::PtLOGPtMassForTagSF:
+                return new PtLogPtMassForTagSFUncertaintyComponent(component);
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
@@ -1548,6 +1581,11 @@ bool JetUncertaintiesTool::getComponentScalesQw(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Qw);
 }
+bool JetUncertaintiesTool::getComponentScalesTagScaleFactor(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::TagScaleFactor);
+}
 bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
@@ -1767,6 +1805,10 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const Unce
         return readHistoFromParam(jet.jetP4(),histo,param);
     
     // Complex case (need to check the mass type to use)
+    // Simple four-vector case
+    if (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass)
+        return readHistoFromParam(jet.jetP4(),histo,param);
+    // Special scale case
     JetFourMomAccessor massScaleAccessor(CompMassDef::getJetScaleString(massDef).Data());
     return readHistoFromParam(massScaleAccessor(jet),histo,param);
 }
@@ -1787,6 +1829,9 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4ve
             break;
         case CompParametrization::PtMass:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
+            break;
+        case CompParametrization::PtLOGPtMassForTagSF:
+	    value = histo.getValue(jet4vec.Pt()*m_energyScale,log(jet4vec.M()/jet4vec.Pt()));
             break;
         case CompParametrization::PtMassEta:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
@@ -1991,9 +2036,9 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     }
     
     // Check for a global validity histogram
-    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet)){
         return CP::CorrectionCode::OutOfValidityRange;
-    
+    }
 
     // Scale the jet and/or its moments by the uncertainty/uncertainties
     // Note that uncertainties may be either positive or negative
@@ -2058,7 +2103,6 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         }
     }
 
-
     // Handle each case as needed
     for (size_t iVar = 0; iVar < uncSet.size(); ++iVar)
     {
@@ -2066,7 +2110,6 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
         const double smear = uncSet.at(iVar).second;
-        
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
@@ -2116,6 +2159,10 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                 break;
             case CompScaleVar::Qw:
                 if (updateQw(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::TagScaleFactor:
+	        if (updateTagScaleFactor(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
@@ -2808,6 +2855,30 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
 
     ATH_MSG_ERROR("Qw moment is not available on the jet, please make sure to set Qw before calling the tool");
     return StatusCode::FAILURE;       
+}
+
+StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const double shift) const
+{
+    const bool TagScaleFactorwasAvailable  = m_accTagScaleFactor.isAvailable(jet);    
+    const xAOD::Jet& constJet = jet;
+    if (TagScaleFactorwasAvailable)
+    {
+        if (!m_accTagScaleFactor.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("TagScaleFactor was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = m_accTagScaleFactor(constJet);
+	if ( shift*value < 0.0 ){
+	  m_accTagScaleFactor(jet) = 0.0;
+	} else {
+	  m_accTagScaleFactor(jet) = shift*value;
+	}
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("TagScaleFactor is not available on the jet, please make sure you called BoostedJetTaggers tag() function before calling this function.");
+    return StatusCode::FAILURE;
 }
 
 

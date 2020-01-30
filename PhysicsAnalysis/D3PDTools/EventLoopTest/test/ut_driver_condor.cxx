@@ -38,6 +38,6 @@ int main ()
   driver.shellInit = "source " + HOME + "/local-base/setup.sh || exit $? ; source " + HOME + "/local-root/setup.sh || exit $?";
   UnitTest ut ("condor");
   ut.cleanup = false;
-  ut.location = "$HOME/unit-test.$$";
+  ut.location = "$HOME/unit-test";
   return ut.run (driver);
 }

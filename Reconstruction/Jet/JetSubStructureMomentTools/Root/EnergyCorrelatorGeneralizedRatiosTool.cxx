@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------------------------
@@ -14,17 +14,16 @@
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorGeneralizedRatiosTool::EnergyCorrelatorGeneralizedRatiosTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
   declareProperty("BetaList", m_betaVals = {});
+  declareProperty("DoN3", m_doN3 = false);
+  declareProperty("DoLSeries", m_doLSeries = false);
+  declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorGeneralizedRatiosTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
-
   // Add beta = 1.0 by default
   betaVals.push_back(1.0);
 
@@ -53,67 +52,125 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
       return 1;
     }
 
-    if (!jet.isAvailable<float>(m_prefix+"ECFG_3_1"+suffix)) {
-      ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_3_1" << suffix << "' is not available. Exiting..");
-      return 1;
-    }
-
     if (!jet.isAvailable<float>(m_prefix+"ECFG_3_2"+suffix)) {
       ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_3_2" << suffix << "' is not available. Exiting..");
       return 1;
     }
 
-    if (!jet.isAvailable<float>(m_prefix+"ECFG_4_2"+suffix)) {
-      ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_4_2" << suffix << "' is not available. Exiting..");
-      return 1;
+    if(m_doN3) {
+      if (!jet.isAvailable<float>(m_prefix+"ECFG_3_1"+suffix)) {
+        ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_3_1" << suffix << "' is not available. Exiting..");
+        return 1;
+      }
+
+      if (!jet.isAvailable<float>(m_prefix+"ECFG_4_2"+suffix)) {
+        ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_4_2" << suffix << "' is not available. Exiting..");
+        return 1;
+      }
+    }
+
+    if (m_doDichroic) {
+      if (!jet.isAvailable<float>(m_prefix+"ECFG_2_1_ungroomed"+suffix)) {
+        ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_2_1_ungroomed" << suffix << "' is not available. Exiting..");
+        return 1;
+      }
+
+      if (!jet.isAvailable<float>(m_prefix+"ECFG_3_1_ungroomed"+suffix)) {
+        ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_3_1_ungroomed" << suffix << "' is not available. Exiting..");
+        return 1;
+      }
+
+      if(m_doN3) {
+        if (!jet.isAvailable<float>(m_prefix+"ECFG_3_2_ungroomed"+suffix)) {
+          ATH_MSG_WARNING("Energy correlation function " << m_prefix << "ECFG_3_2_ungroomed" << suffix << "' is not available. Exiting..");
+          return 1;
+        }
+      }
     }
 
     float ecfg_2_1 = jet.getAttribute<float>(m_prefix+"ECFG_2_1"+suffix);
-    float ecfg_3_2 = jet.getAttribute<float>(m_prefix+"ECFG_3_2"+suffix);
-
-    float ecfg_4_2 = jet.getAttribute<float>(m_prefix+"ECFG_4_2"+suffix);
     float ecfg_3_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_1"+suffix);
+    float ecfg_3_2 = jet.getAttribute<float>(m_prefix+"ECFG_3_2"+suffix);
+    float ecfg_4_2 = jet.getAttribute<float>(m_prefix+"ECFG_4_2"+suffix);
+
+    float ecfg_2_1_ungroomed = -999.0;
+    float ecfg_3_1_ungroomed = -999.0;
+    float ecfg_3_2_ungroomed = -999.0;
+
+    if (m_doDichroic) {
+      ecfg_2_1_ungroomed = jet.getAttribute<float>(m_prefix+"ECFG_2_1_ungroomed"+suffix);
+      ecfg_3_1_ungroomed = jet.getAttribute<float>(m_prefix+"ECFG_3_1_ungroomed"+suffix);
+      ecfg_3_2_ungroomed = jet.getAttribute<float>(m_prefix+"ECFG_3_2_ungroomed"+suffix);
+    }
 
     // N2
 
-    if(ecfg_2_1 > 1e-8) // Prevent div-0
-      jet.setAttribute(m_prefix+"N2"+suffix, ecfg_3_2  / (pow(ecfg_2_1, 2.0)));
-    else
+    if(ecfg_2_1 > 1e-8) { // Prevent div-0
+      jet.setAttribute(m_prefix+"N2"+suffix, ecfg_3_2 / (pow(ecfg_2_1, 2.0)));
+
+      if(ecfg_3_2_ungroomed > 1e-8 && ecfg_2_1_ungroomed > 1e-8)
+        jet.setAttribute(m_prefix+"N2_dichroic"+suffix, ecfg_3_2_ungroomed / (ecfg_2_1_ungroomed * ecfg_2_1));
+      else
+        jet.setAttribute(m_prefix+"N2_dichroic"+suffix, -999.0);
+    }
+    else {
       jet.setAttribute(m_prefix+"N2"+suffix, -999.0);
+      jet.setAttribute(m_prefix+"N2_dichroic"+suffix, -999.0);
+    }
 
     // N3
     if(ecfg_3_1 > 1e-8) // Prevent div-0
-      jet.setAttribute(m_prefix+"N3"+suffix, ecfg_4_2  / (pow(ecfg_3_1, 2.0)));
+      jet.setAttribute(m_prefix+"N3"+suffix, ecfg_4_2 / (pow(ecfg_3_1, 2.0)));
     else
       jet.setAttribute(m_prefix+"N3"+suffix, -999.0);
 
     // M2
-    if(ecfg_2_1 > 1e-8) // Prevent div-0
-      jet.setAttribute(m_prefix+"M2"+suffix, ecfg_3_2  / ecfg_2_1);
-    else
+    if(ecfg_2_1 > 1e-8) { // Prevent div-0
+      jet.setAttribute(m_prefix+"M2"+suffix, ecfg_3_1 / ecfg_2_1);
+
+      if(ecfg_3_1_ungroomed > 1e-8)
+        jet.setAttribute(m_prefix+"M2_dichroic"+suffix, ecfg_3_1_ungroomed / ecfg_2_1);
+      else
+        jet.setAttribute(m_prefix+"M2_dichroic"+suffix, -999.0);
+    }
+    else {
       jet.setAttribute(m_prefix+"M2"+suffix, -999.0);
+      jet.setAttribute(m_prefix+"M2_dichroic"+suffix, -999.0);
+    }
 
   }
 
-  // These are for t/H discrimination
-  if (!jet.isAvailable<float>(m_prefix+"ECFG_2_1_2") ||
-      !jet.isAvailable<float>(m_prefix+"ECFG_3_1_1") ||
-      !jet.isAvailable<float>(m_prefix+"ECFG_3_2_1") ||
-      !jet.isAvailable<float>(m_prefix+"ECFG_3_2_2") ||
-      !jet.isAvailable<float>(m_prefix+"ECFG_4_2_2") ||
-      !jet.isAvailable<float>(m_prefix+"ECFG_3_3_1") ||
-      !jet.isAvailable<float>(m_prefix+"ECFG_4_4_1")) {
-    ATH_MSG_WARNING("L series energy correlation functions with prefix '" << m_prefix << "' are not all available. Exiting..");
-    return 1;
+  if (m_doLSeries) {
+    // These are for t/H discrimination
+    if (!jet.isAvailable<float>(m_prefix+"ECFG_2_1_2") ||
+        !jet.isAvailable<float>(m_prefix+"ECFG_3_1_1") ||
+        !jet.isAvailable<float>(m_prefix+"ECFG_3_2_1") ||
+        !jet.isAvailable<float>(m_prefix+"ECFG_3_2_2") ||
+        !jet.isAvailable<float>(m_prefix+"ECFG_4_2_2") ||
+        !jet.isAvailable<float>(m_prefix+"ECFG_3_3_1") ||
+        !jet.isAvailable<float>(m_prefix+"ECFG_4_4_1")) {
+      ATH_MSG_WARNING("L series energy correlation functions with prefix '" << m_prefix << "' are not all available. Exiting..");
+      return 1;
+    }
   }
 
-  float ecfg_2_1_2 = jet.getAttribute<float>(m_prefix+"ECFG_2_1_2");
-  float ecfg_3_1_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_1_1");
-  float ecfg_3_2_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_2_1");  
-  float ecfg_3_2_2 = jet.getAttribute<float>(m_prefix+"ECFG_3_2_2");
-  float ecfg_4_2_2 = jet.getAttribute<float>(m_prefix+"ECFG_4_2_2");
-  float ecfg_3_3_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_3_1");
-  float ecfg_4_4_1 = jet.getAttribute<float>(m_prefix+"ECFG_4_4_1");
+  float ecfg_2_1_2 = -999.0;
+  float ecfg_3_1_1 = -999.0;
+  float ecfg_3_2_1 = -999.0;
+  float ecfg_3_2_2 = -999.0;
+  float ecfg_4_2_2 = -999.0;
+  float ecfg_3_3_1 = -999.0;
+  float ecfg_4_4_1 = -999.0;
+
+  if (m_doLSeries) {
+    ecfg_2_1_2 = jet.getAttribute<float>(m_prefix+"ECFG_2_1_2");
+    ecfg_3_1_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_1_1");
+    ecfg_3_2_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_2_1");  
+    ecfg_3_2_2 = jet.getAttribute<float>(m_prefix+"ECFG_3_2_2");
+    ecfg_4_2_2 = jet.getAttribute<float>(m_prefix+"ECFG_4_2_2");
+    ecfg_3_3_1 = jet.getAttribute<float>(m_prefix+"ECFG_3_3_1");
+    ecfg_4_4_1 = jet.getAttribute<float>(m_prefix+"ECFG_4_4_1");
+  }
 
   // L-series variables
   // (experimental for ttH t/H discrimination)

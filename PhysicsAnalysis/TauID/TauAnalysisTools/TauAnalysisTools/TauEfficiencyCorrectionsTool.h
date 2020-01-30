@@ -29,11 +29,8 @@
 #include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 
-#if __has_include("PileupReweighting/IPileupReweightingTool.h")
 // Tool include(s)
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
-#define TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
-#endif
 
 namespace TauAnalysisTools
 {
@@ -57,6 +54,8 @@ public:
 
   /// Function initialising the tool
   virtual StatusCode initialize();
+
+  virtual StatusCode beginInputFile();
 
   /// Print tool configuration
   virtual void printConfig(bool bAlways = true);
@@ -95,6 +94,7 @@ private:
 
   StatusCode initializeWithTauSelectionTool();
 
+  StatusCode initializeTools_2019_summer();
   StatusCode initializeTools_2018_summer();
   StatusCode initializeTools_mc16_prerec();
   StatusCode initializeTools_2017_moriond();
@@ -102,7 +102,8 @@ private:
   StatusCode initializeTools_2016_ichep();
   StatusCode initializeTools_mc15_moriond();
   StatusCode initializeTools_mc15_pre_recommendations();
-  StatusCode initializeTools_mc12_final();
+
+  StatusCode readRandomRunNumber();
 
 private:
 
@@ -116,12 +117,14 @@ private:
   std::string m_sInputFilePathJetIDHadTau;
   std::string m_sInputFilePathContJetIDHadTau;
   std::string m_sInputFilePathEleIDHadTau;
+  std::string m_sInputFilePathDecayModeHadTau;
   std::string m_sInputFilePathTriggerHadTau;
   std::string m_sVarNameBase;
   std::string m_sVarNameRecoHadTau;
   std::string m_sVarNameEleOLRHadTau;
   std::string m_sVarNameEleOLRElectron;
   std::string m_sVarNameJetIDHadTau;
+  std::string m_sVarNameDecayModeHadTau;
   std::string m_sVarNameContJetIDHadTau;
   std::string m_sVarNameEleIDHadTau;
   std::string m_sVarNameTriggerHadTau;
@@ -131,6 +134,7 @@ private:
   std::string m_sTriggerSFMeasurement;
   bool m_bSkipTruthMatchCheck;
   //bool m_bNoMultiprong;
+  bool m_bUseTauSubstructure;
   bool m_bUseIDExclusiveSF;
   bool m_bUseInclusiveEta;
   bool m_bUseTriggerInclusiveEta;
@@ -138,20 +142,20 @@ private:
   bool m_bUseHighPtUncert;
   bool m_bIsData;
   bool m_bIsConfigured;
+  bool m_bReadRandomRunNumber;
   int m_iIDLevel;
   int m_iEVLevel;
   int m_iOLRLevel;
   int m_iContSysType;
   int m_iTriggerPeriodBinning;
   std::string m_sMCCampaign;
+  bool m_sAFII;
 
   unsigned int m_iRunNumber;
   unsigned int m_iMu;
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tTauSelectionToolHandle;
-#ifdef TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   ToolHandle<CP::IPileupReweightingTool> m_tPRWTool;
-#endif // TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
   TauSelectionTool* m_tTauSelectionTool;
 
   std::string m_sEventInfoName;

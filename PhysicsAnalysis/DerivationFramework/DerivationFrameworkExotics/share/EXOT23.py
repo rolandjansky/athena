@@ -230,17 +230,25 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EXOT23SlimmingHelper = SlimmingHelper("EXOT23SlimmingHelper")
 
 EXOT23SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
+                                         "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4LCTopoJets",
                                          "AntiKt4EMPFlowJets",
-                                         "BTagging_AntiKt4EMTopo",
-                                         "BTagging_AntiKt4EMPFlow",
+                                         "AntiKt4EMPFlowJets_BTagging201810",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "BTagging_AntiKt4EMTopo_201810",
+                                         "BTagging_AntiKt4EMPFlow_201810",
+                                         "BTagging_AntiKt4EMPFlow_201903",
                                          "InDetTrackParticles",
                                          "PrimaryVertices"]
 EXOT23SlimmingHelper.AllVariables = [ "AntiKt4EMTopoJets",
+                                      "AntiKt4EMTopoJets_BTagging201810",
                                       "AntiKt4LCTopoJets",
                                       "AntiKt4EMPFlowJets",
-                                      "BTagging_AntiKt4EMTopo",
-                                      "BTagging_AntiKt4EMPFlow",
+                                      "AntiKt4EMPFlowJets_BTagging201810",
+                                      "AntiKt4EMPFlowJets_BTagging201903",
+                                      "BTagging_AntiKt4EMTopo_201810",
+                                      "BTagging_AntiKt4EMPFlow_201810",
+                                      "BTagging_AntiKt4EMPFlow_201903",
                                       "InDetTrackParticles",
                                       "PrimaryVertices",
                                       "VrtSecInclusive_SecondaryVertices",
@@ -259,8 +267,13 @@ EXOT23SlimmingHelper.IncludeJetTriggerContent = True
 addOriginCorrectedClusters(EXOT23SlimmingHelper, writeLC=True, writeEM=True)
 
 # Add B-tagging collections to dictionary
-EXOT23SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
-                                           'BTagging_AntiKt4EMPFlowAux':'xAOD:BTaggingAuxContainer'}
+EXOT23SlimmingHelper.AppendToDictionary = {
+    'BTagging_AntiKt4EMTopo_201810':'xAOD::BTaggingContainer',
+    'BTagging_AntiKt4EMPFlow_201810':'xAOD::BTaggingContainer',
+    'BTagging_AntiKt4EMPFlow_201903':'xAOD::BTaggingContainer',
+    'BTagging_AntiKt4EMTopoAux_201810':'xAOD:BTaggingAuxContainer',
+    'BTagging_AntiKt4EMPFlowAux_201810':'xAOD:BTaggingAuxContainer',
+    'BTagging_AntiKt4EMPFlowAux_201903':'xAOD:BTaggingAuxContainer'}
 
 # Add the jet containers to the stream
 addJetOutputs(EXOT23SlimmingHelper, ["EXOT23"])

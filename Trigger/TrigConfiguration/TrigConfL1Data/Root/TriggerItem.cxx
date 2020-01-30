@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfL1Data/DiffStruct.h"
@@ -165,7 +165,7 @@ TriggerItem::setCondition(const string& logic,
    try {
       m_TopNode = TrigConf::parse(logic, conditions, thrs);
    }
-   catch(exception e) {
+   catch(const exception& e) {
       cout << "WARNING: Could not set condition of triggeritem " << name() << " because: " << e.what() << endl;
    }
 }

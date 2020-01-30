@@ -1,17 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/VariableRPseudoJetCalTool.h"
 #include "JetCalibTools/JetCalibrationTool.h"
 #include "JetRec/JetFromPseudojet.h"
 
-#include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
-#include <algorithm>
 
-#include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 
 // ====================================================================================

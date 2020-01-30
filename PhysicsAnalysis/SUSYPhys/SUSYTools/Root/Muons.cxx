@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -106,10 +106,11 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   ATH_MSG_VERBOSE( "MUON eta  = " << input.eta() );
   ATH_MSG_VERBOSE( "MUON type = " << input.muonType() );
   ATH_MSG_VERBOSE( "MUON author = " << input.author() );
-  
-  if (m_muonCalibrationAndSmearingTool->applyCorrection( input ) == CP::CorrectionCode::OutOfValidityRange)
+
+  if (m_muonCalibrationAndSmearingTool->applyCorrection( input ) == CP::CorrectionCode::OutOfValidityRange){
     ATH_MSG_VERBOSE("FillMuon: applyCorrection out of validity range");
-  
+  }
+
   ATH_MSG_VERBOSE( "MUON pt after calibration " << input.pt() );
 
   const xAOD::EventInfo* evtInfo = 0;
@@ -128,37 +129,45 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   }
 
   //impact parameters (after applyCorrection() so to have the primaryTrack links restored in old buggy samples)
-  dec_z0sinTheta(input) = (track->z0() + track->vz() - primvertex_z) * TMath::Sin(input.p4().Theta());
+  if (track){
+    dec_z0sinTheta(input) = (track->z0() + track->vz() - primvertex_z) * TMath::Sin(input.p4().Theta());
+  } else {
+    ATH_MSG_WARNING("FillMuon: Muon of pT and eta " << input.pt() << " MeV " << input.eta() << " has no associated track");
+  }
   //protect against exception thrown for null or negative d0sig
   try {
-    dec_d0sig(input) = xAOD::TrackingHelpers::d0significance( track , evtInfo->beamPosSigmaX(), evtInfo->beamPosSigmaY(), evtInfo->beamPosSigmaXY() );
+    if (track)
+      dec_d0sig(input) = xAOD::TrackingHelpers::d0significance( track , evtInfo->beamPosSigmaX(), evtInfo->beamPosSigmaY(), evtInfo->beamPosSigmaXY() );
+    else
+      dec_d0sig(input) = -99.;
   }
   catch (...) {
     float d0sigError = -99.; 
-    ATH_MSG_WARNING("FillMuon : Exception catched from d0significance() calculation. Setting dummy decoration d0sig=" << d0sigError );
+    ATH_MSG_WARNING("FillMuon : Exception caught from d0significance() calculation. Setting dummy decoration d0sig=" << d0sigError );
     dec_d0sig(input) = d0sigError;
   }
   
   if (m_debug) {
     // Summary variables in
     // /cvmfs/atlas.cern.ch/repo/sw/ASG/AnalysisBase/2.0.3/xAODTracking/Root/TrackSummaryAccessors_v1.cxx
-    
+
     unsigned char nBLHits(0), nPixHits(0), nPixelDeadSensors(0), nPixHoles(0),
       nSCTHits(0), nSCTDeadSensors(0), nSCTHoles(0), nTRTHits(0), nTRTOutliers(0);
-    
-    const xAOD::TrackParticle* track =  input.primaryTrackParticle();
-    track->summaryValue( nBLHits, xAOD::numberOfBLayerHits);
-    track->summaryValue( nPixHits, xAOD::numberOfPixelHits);
-    track->summaryValue( nPixelDeadSensors, xAOD::numberOfPixelDeadSensors);
-    track->summaryValue( nPixHoles, xAOD::numberOfPixelHoles);
-    
-    track->summaryValue( nSCTHits, xAOD::numberOfSCTHits);
-    track->summaryValue( nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
-    track->summaryValue( nSCTHoles, xAOD::numberOfSCTHoles);
-    
-    track->summaryValue( nTRTHits, xAOD::numberOfTRTHits);
-    track->summaryValue( nTRTOutliers, xAOD::numberOfTRTOutliers);
-    
+
+    if (track){
+      track->summaryValue( nBLHits, xAOD::numberOfBLayerHits);
+      track->summaryValue( nPixHits, xAOD::numberOfPixelHits);
+      track->summaryValue( nPixelDeadSensors, xAOD::numberOfPixelDeadSensors);
+      track->summaryValue( nPixHoles, xAOD::numberOfPixelHoles);
+
+      track->summaryValue( nSCTHits, xAOD::numberOfSCTHits);
+      track->summaryValue( nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
+      track->summaryValue( nSCTHoles, xAOD::numberOfSCTHoles);
+
+      track->summaryValue( nTRTHits, xAOD::numberOfTRTHits);
+      track->summaryValue( nTRTOutliers, xAOD::numberOfTRTOutliers);
+    }
+
     ATH_MSG_INFO( "MUON pt: " << input.pt() );
     ATH_MSG_INFO( "MUON eta: " << input.eta() );
     ATH_MSG_INFO( "MUON phi: " << input.phi() );
@@ -280,10 +289,14 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
   const xAOD::TrackParticle* track;
   if (input.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) {
     track = input.trackParticle(xAOD::Muon::CombinedTrackParticle);
-    if (!track) return StatusCode::SUCCESS; // don't treat SAF muons without CB track further  
+    if (!track) return false; // don't treat SAF muons without CB track further
   }
   else{
     track = input.primaryTrackParticle();
+    if (!track){
+      ATH_MSG_WARNING("Non-SAF muon without a track; cannot test IsBadMuon criteria");
+      return false;
+    }
   }
 
   float Rerr = Amg::error(track->definingParametersCovMatrix(), 4) / fabs(track->qOverP());
@@ -309,7 +322,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
   const static SG::AuxElement::Decorator<char> dec_cosmic("cosmic");
   dec_cosmic(input) = false;
 
-  const xAOD::TrackParticle* track;
+  const xAOD::TrackParticle* track(nullptr);
   if (input.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) {
     track = input.trackParticle(xAOD::Muon::CombinedTrackParticle);
     if (!track){
@@ -319,6 +332,10 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
   }
   else {
     track = input.primaryTrackParticle();
+    if (!track){
+      ATH_MSG_WARNING("Non-SAF muon without primary track particle found. Not possible to check cosmic muon criteria");
+      return false;
+    }
   }
 
   double mu_d0 = track->d0();
@@ -346,7 +363,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
     if (m_muonEfficiencySFTool->getEfficiencyScaleFactor( mu, sf_reco ) == CP::CorrectionCode::OutOfValidityRange) {
       if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: Reco getEfficiencyScaleFactor out of validity range");
     }
-    ATH_MSG_VERBOSE( " MuonReco ScaleFactor " << sf_reco );
+    ATH_MSG_VERBOSE( "MuonReco ScaleFactor " << sf_reco );
     sf *= sf_reco;
 
     float sf_ttva(1.);
@@ -354,7 +371,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
       if (m_muonTTVAEfficiencySFTool->getEfficiencyScaleFactor( mu, sf_ttva ) == CP::CorrectionCode::OutOfValidityRange) {
 	if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: TTVA getEfficiencyScaleFactor out of validity range");
       }
-      ATH_MSG_VERBOSE( " MuonTTVA ScaleFactor " << sf_ttva );
+      ATH_MSG_VERBOSE( "MuonTTVA ScaleFactor " << sf_ttva );
       sf *= sf_ttva;
     }
 
@@ -363,7 +380,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
       if (m_muonEfficiencyBMHighPtSFTool->getEfficiencyScaleFactor( mu, sf_badHighPt ) == CP::CorrectionCode::OutOfValidityRange) {
 	if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: BadMuonHighPt getEfficiencyScaleFactor out of validity range");
       }
-      ATH_MSG_VERBOSE( " MuonTTVA ScaleFactor " << sf_badHighPt );
+      ATH_MSG_VERBOSE( "MuonTTVA ScaleFactor " << sf_badHighPt );
       sf *= sf_badHighPt;
     }
   }
@@ -379,7 +396,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
         if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: Iso getEfficiencyScaleFactor out of validity range");
       } 
     }
-    ATH_MSG_VERBOSE( " MuonIso ScaleFactor " << sf_iso );
+    ATH_MSG_VERBOSE( "MuonIso ScaleFactor " << sf_iso );
     sf *= sf_iso;
   }
 
@@ -420,14 +437,14 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   
   if((!isdimuon && mulegs<2) || (isdimuon && sfmuons.size()==2) || (mulegs>=2 && isOR)){   //Case 1: the tool takes easy care of the single, standard-dimuon and OR-of-single chains
     if (m_muonTriggerSFTool->getTriggerScaleFactor( sfmuons, trig_sf, trigExpr ) == CP::CorrectionCode::Ok) {
-      ATH_MSG_DEBUG( " MuonTrig ScaleFactor " << trig_sf );
+      ATH_MSG_DEBUG( "MuonTrig ScaleFactor " << trig_sf );
     }
     else{
-      ATH_MSG_DEBUG( " MuonTrig FAILED SOMEHOW");
+      ATH_MSG_DEBUG( "MuonTrig FAILED SOMEHOW");
     }
   }
   else if(mulegs!=2 && isOR){ //Case 2: not supported. Not efficiency defined for (at least) one leg. Sorry...
-    ATH_MSG_WARNING( " SF for " << trigExpr << " are only supported for two muon events!");
+    ATH_MSG_WARNING( "SF for " << trigExpr << " are only supported for two muon events!");
   }
   else{ //Case 3: let's go the hard way...
         //Following https://twiki.cern.ch/twiki/bin/view/Atlas/TrigMuonEfficiency
@@ -442,7 +459,7 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
       double dataFactor = 1.;
       double mcFactor   = 1.;
       
-      for (const auto& mu : sfmuons) {
+      for (const xAOD::Muon* mu : sfmuons) {
         // No need for additional trigger matching
         dataFactor *= (1 - GetMuonTriggerEfficiency(*mu, "HLT_"+mutrig, true));
         mcFactor   *= (1 - GetMuonTriggerEfficiency(*mu, "HLT_"+mutrig, false));
@@ -461,7 +478,7 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   double sf(1.);
 
   ConstDataVector<xAOD::MuonContainer> sfmuons(SG::VIEW_ELEMENTS);
-  for (const auto& muon : muons) {
+  for (const xAOD::Muon* muon : muons) {
     if( !acc_passOR(*muon) ) continue;
     if (acc_signal(*muon)) {
       sfmuons.push_back(muon);

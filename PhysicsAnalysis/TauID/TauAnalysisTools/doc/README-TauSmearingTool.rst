@@ -74,19 +74,14 @@ The tool can be configured to use a specific set of systematic variations callin
 MVA TES and Combined TES
 ------------------------
 
-The MVA TES calibration can be applied as well with TauSmearingTool. In addition
-to your standard configuration set the option::
+By default TauSmearingTool applies MVA TES. This is applied on data and simulation. 
+First a quality check is performed to veto unreasonably low resolution values. If this check, 
+was successful the tau 4-momentum values are overwritten with the values from MVA TES. 
 
-  TauSmeTool.setProperty("ApplyMVATES", true );
+The MVA TES and the quality check can be disabled by the following options (meant only for testing purposes)::
 
-The MVA calibration will be applied to your taus, replacing the default
-four-momentum, when correcting your tau candidates via the standard
-``applyCorrection(xTau)`` and ``correctedCopy(xTauOrig, xTauCopy)``.
-
-Note: You must have at least tauRecTools-00-00-12-09. This package is only
-available in ABR since AnalysisBase-2.4.11. If you want to test the MVA
-calibration please update to that release or checkout and compile the package on
-your own.
+  TauSmeTool.setProperty("ApplyMVATES", false );
+  TauSmeTool.setProperty("ApplyMVATESQualityCheck", false );
 
 The combined TES can be applied with the following option::
 
@@ -130,7 +125,7 @@ The following table lists other properties for further configurations:
 
    * - ``ApplyMVATES``
      - ``bool``
-     - ``false``
+     - ``true``
      - apply new MVA based TES, see section `MVA TES and Combined TES`_
 
    * - ``ApplyCombinedTES``
@@ -218,9 +213,7 @@ FAQ
 #. **Question:** I try to apply systematic variation running on derived samples,
    but I get an error like::
      
-     TauAnalysisTools::CommonSmearingTool::checkTruthMatch(const TauJet&) const): No truth match information available. Please run TauTruthMatchingTool first.
-     terminate called after throwing an instance of 'SG::ExcBadAuxVar'
-     what():  SG::ExcBadAuxVar: Attempt to retrieve nonexistent aux data item `::truthParticleLink' (894).
+     TauAnalysisTools::getTruthParticleType: No truth match information available. Please run TauTruthMatchingTool first.
 
    **Answer:** Did you follow instructions for adding truth information in
    derivations as described in `TauPreRecommendations2015 TWiki
@@ -238,9 +231,7 @@ FAQ
 #. **Question:** I try to apply systematic variation running on xAOD samples,
    but I get an error like::
      
-     TauAnalysisTools::CommonSmearingTool::checkTruthMatch(const TauJet&) const): No truth match information available. Please run TauTruthMatchingTool first.
-     terminate called after throwing an instance of 'SG::ExcBadAuxVar'
-     what():  SG::ExcBadAuxVar: Attempt to retrieve nonexistent aux data item `::truthParticleLink' (894).
+     TauAnalysisTools::getTruthParticleType: No truth match information available. Please run TauTruthMatchingTool first.
 
    **Answer:** If you have full access to the TruthParticle container, you can
    create a TruthTau container and the link to the matched truth taus by setting

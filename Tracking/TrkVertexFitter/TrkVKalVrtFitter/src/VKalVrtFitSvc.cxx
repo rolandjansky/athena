@@ -5,6 +5,9 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include  "xAODTracking/TrackParticleAuxContainer.h" 
+#include  "xAODTracking/NeutralParticleAuxContainer.h" 
+#include  "AthContainers/AuxStoreInternal.h"
 //-------------------------------------------------
 // Other stuff
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -93,52 +96,81 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
     }else{                                               // needed for reenterability
        Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
     }
+    bool fullxAOD=false;
+    if(InpTrkC[0]->isAvailable<float>("vy"))fullxAOD=true;
 //
-//------  extract information about selected tracks
+//------  extract information from selected tracks
 //
+//  In DxAOD track (d0,z0) are defined wrt (Xv,Yv,Zv) if assoc. vertex is present,
+//     or (Xbeam,Ybeam,0.) if vertex is absent. Therefore - no d0 bias due to beam displacement.
+//     To allow simultaneous use of TrackParticles with/without assoc.vertex 
+//      - global position is defined as (0,0,Zv)/(0,0,0).
+//     Difference with the real ATLAS global system is then neglected for DxAOD (it's tiny in any case). 
+    std::unique_ptr< SG::AuxStoreInternal > pAux;
+    std::unique_ptr< SG::AuxStoreInternal > nAux;
+    xAOD::TrackParticleContainer   TPC;
+    xAOD::NeutralParticleContainer NPC;
+    std::vector<const xAOD::TrackParticle*>     wrkTrkC(InpTrkC.size());
+    std::vector<const xAOD::NeutralParticle*>   wrkTrkN(InpTrkN.size());
+    if(fullxAOD){
+      std::copy(InpTrkC.begin(),InpTrkC.end(),wrkTrkC.begin());
+      std::copy(InpTrkN.begin(),InpTrkN.end(),wrkTrkN.begin());
+    }else{
+      pAux = std::make_unique< SG::AuxStoreInternal >();
+      TPC.setStore( pAux.get() );
+      TPC.reserve( InpTrkC.size() );
+      for(int i=0; i<(int)InpTrkC.size(); i++){
+        TPC.push_back(new xAOD::TrackParticle(*InpTrkC[i]));
+	if(!TPC[i])return StatusCode::FAILURE;
+        if(InpTrkC[i]->isAvailable< ElementLink< xAOD::VertexContainer> >( "vertexLink") ) {
+          const ElementLink<xAOD::VertexContainer>& vlink = 
+                   InpTrkC[i]->auxdata< ElementLink< xAOD::VertexContainer > >("vertexLink");
+          if( vlink.isValid() ) {
+            ATH_MSG_DEBUG("Associated vertex (x,y,z)="<<(*vlink)->x()<<","<<(*vlink)->y()<<","<<(*vlink)->z());
+            TPC[i]->setParametersOrigin( 0., 0., (*vlink)->z());
+          } else {
+            ATH_MSG_DEBUG("TrackParticle has no associated vertex!");
+            TPC[i]->setParametersOrigin(0.,0.,0.);
+          }
+        }
+        wrkTrkC[i]=TPC[i];
+      }
+      //--Only if NeutralParticles are present - very rare
+      if(InpTrkN.size()){
+        nAux = std::make_unique< SG::AuxStoreInternal >();
+        NPC.setStore( nAux.get() );
+        NPC.reserve( InpTrkN.size() );
+        for(int i=0; i<(int)InpTrkN.size(); i++){
+          NPC.push_back(new xAOD::NeutralParticle(*InpTrkN[i]));
+	  if(!NPC[i])return StatusCode::FAILURE;
+          if(InpTrkN[i]->isAvailable< ElementLink< xAOD::VertexContainer> >( "vertexLink") ) {
+            const ElementLink<xAOD::VertexContainer>& vlink = 
+                   InpTrkN[i]->auxdata< ElementLink< xAOD::VertexContainer > >("vertexLink");
+            if( vlink.isValid() ) {
+              ATH_MSG_DEBUG("Associated vertex (x,y,z)="<<(*vlink)->x()<<","<<(*vlink)->y()<<","<<(*vlink)->z());
+              NPC[i]->setParametersOrigin(0.,0.,(*vlink)->z());
+            } else {
+              ATH_MSG_DEBUG("NeutralParticle has no associated vertex!");
+              NPC[i]->setParametersOrigin(0.,0.,0.);
+            }
+          }
+          wrkTrkN[i]=NPC[i];
+        }
+      }
+    }
     long int ntrk=0;
-    std::vector<const TrackParameters*>   tmpInputC(0);
     StatusCode sc; sc.setChecked(); 
     double closestHitR=1.e6;   //VK needed for FirstMeasuredPointLimit if this hit itself is absent
     if(m_firstMeasuredPoint){               //First measured point strategy
        //------
-       if(InpTrkC.size()){
-          if( m_InDetExtrapolator == 0 && m_PropagatorType != 3 ){
-            if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given."<<
-	                                 "Can't use FirstMeasuredPoint with xAOD::TrackParticle!!!" << endmsg;
-            return StatusCode::FAILURE;        
-          }
-          std::vector<const xAOD::TrackParticle*>::const_iterator     i_ntrk;
-          if(msgLvl(MSG::DEBUG))msg()<< "Start FirstMeasuredPoint handling"<<'\n';
-          unsigned int indexFMP;
-          for (i_ntrk = InpTrkC.begin(); i_ntrk < InpTrkC.end(); ++i_ntrk) {
-	    if ((*i_ntrk)->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)){
-              if(msgLvl(MSG::DEBUG))msg()<< "FirstMeasuredPoint on track is discovered. Use it."<<'\n';
-	      tmpInputC.push_back(new CurvilinearParameters((*i_ntrk)->curvilinearParameters(indexFMP)));
-	    }else{
-              if(msgLvl(MSG::DEBUG))msg()<< "FirstMeasuredPoint on track is absent."<<
-	                                    "Try extrapolation from Perigee to FisrtMeasuredPoint radius"<<'\n';
-              tmpInputC.push_back(m_fitPropagator->myxAODFstPntOnTrk((*i_ntrk))); 
-              if( (*i_ntrk)->radiusOfFirstHit() < closestHitR ) closestHitR=(*i_ntrk)->radiusOfFirstHit();
-              if(tmpInputC[tmpInputC.size()-1]==0){  //Extrapolation failure 
-              if(msgLvl(MSG::WARNING))msg()<< "InDetExtrapolator can't etrapolate xAOD::TrackParticle Perigee "<<
-                                              "to FirstMeasuredPoint radius! Stop vertex fit!" << endmsg;
-                for(unsigned int i=0; i<tmpInputC.size()-1; i++) delete tmpInputC[i]; 
-                return StatusCode::FAILURE;
-	      }
-            }
-          }
-          sc=CvtTrackParameters(tmpInputC,ntrk);
-          if(sc.isFailure()){
-            for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
-            return StatusCode::FAILURE;
-          }
-       }
-    }else{
-       if(InpTrkC.size()) sc=CvtTrackParticle(InpTrkC,ntrk);
+      ATH_MSG_WARNING(" NO First Measured Point in xAOD! Extrapolation to the radiusOfFirstHit is pointless!");
+      ATH_MSG_WARNING(" Please don't use FirstMeasuredPoint=TRUE jobO with xAOD.");
     }
-    if(sc.isFailure())return StatusCode::FAILURE;
-    if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk); if(sc.isFailure())return StatusCode::FAILURE;}
+    if(wrkTrkC.size()) sc=CvtTrackParticle(wrkTrkC,ntrk);
+    if(sc.isFailure()) return StatusCode::FAILURE;
+
+    if(wrkTrkN.size()) sc=CvtNeutralParticle(wrkTrkN,ntrk);
+    if(sc.isFailure()) return StatusCode::FAILURE;
 //--
     long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
@@ -179,7 +211,6 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
        }
     }
 //--
-    for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
 }

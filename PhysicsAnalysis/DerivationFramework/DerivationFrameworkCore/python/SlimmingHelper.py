@@ -40,6 +40,7 @@ from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansio
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
 from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
 from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
+from DerivationFrameworkCore.PreliminarySmartContainers import PreliminarySmartContainers
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
@@ -90,6 +91,8 @@ class SlimmingHelper:
                 self.AppendToDictionary = {}
                 self.NamesAndTypes = buildNamesAndTypes()
                 self.theHandler = ContentHandler(self.name+"Handler",self.NamesAndTypes)
+                self.IncludeTriggerNavigation = True
+                self.IncludeAdditionalTriggerContent = False
                 self.IncludeMuonTriggerContent = False
                 self.IncludeEGammaTriggerContent = False
                 self.IncludeJetTauEtMissTriggerContent = False
@@ -138,6 +141,10 @@ class SlimmingHelper:
                         for item in self.AllVariables:
                                 # Block AllVariables for containers with smart slimming lists, for those formats for which it is disallowed
                                 if (formatName in AllVariablesDisallowed) and (item in FullListOfSmartContainers):
+                                    # We have a preliminary list of smart collections as a way to roll out new ones
+                                    if item in PreliminarySmartContainers:
+                                        msg.warning("Using AllVariables for a container with a smart slimming list ("+item+") will soon be disabled for format "+formatName+" - please use smart slimming and/or ExtraVariables, this will be promoted to an exception soon!")
+                                    else:
                                         msg.error("Using AllVariables for a container with a smart slimming list ("+item+") is not permitted for the format "+formatName+" - please use smart slimming and/or ExtraVariables")
                                         raise RuntimeError("AllVariables not permitted for requested DAOD format")
                                 masterItemList.extend(self.GetWholeContentItems(item))
@@ -147,6 +154,10 @@ class SlimmingHelper:
 
                 # Trigger objects: add them by hand to the smart collection list (to keep the previous interface)
                 triggerContent = False
+
+                if (self.IncludeAdditionalTriggerContent == True):
+                        triggerContent = True
+
                 if (self.IncludeMuonTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__MuonContainer_MuonEFInfo")
@@ -261,27 +272,13 @@ class SlimmingHelper:
                         for item in JetTauEtMissTriggerContent:
                                 Stream.AddItem(item)
 
-                # JetTrigger: not slimmed for now because of CLID issue
-                #if (self.IncludeJetTriggerContent == True):
-                #       triggerContent = True
-                #       from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent
-                #       for item in JetTriggerContent:
-                #               Stream.AddItem(item)
-
-                # Same issue for BJetTrigger
-                #if (self.IncludeBJetTriggerContent == True):
-                #       triggerContent = True
-                #       from DerivationFrameworkFlavourTag.BJetTriggerContent import BJetTriggerContent
-                #       for item in BJetTriggerContent:
-                #       Stream.AddItem(item)
-
                 # non xAOD collections for MinBias
                 if (self.IncludeMinBiasTriggerContent == True):
                         from DerivationFrameworkCore.MinBiasTrigger_nonxAOD_Content import MinBiasTrigger_nonxAOD_Content
                         for item in MinBiasTrigger_nonxAOD_Content:
                                 Stream.AddItem(item)
 
-                if (triggerContent):
+                if (triggerContent and self.IncludeTriggerNavigation):
                         for item in CompulsoryTriggerNavigation:
                                 Stream.AddItem(item)
 
@@ -341,6 +338,12 @@ class SlimmingHelper:
                 elif collectionName=="TauMVATESJets":
                         from DerivationFrameworkTau.TauMVATESContent import TauMVATESContent
                         items.extend(TauMVATESContent)
+                elif collectionName=="DiTauJets":
+                        from DerivationFrameworkTau.DiTauJetsCPContent import DiTauJetsCPContent
+                        items.extend(DiTauJetsCPContent)
+                elif collectionName=="DiTauJetsLowPt":
+                        from DerivationFrameworkTau.DiTauJetsLowPtCPContent import DiTauJetsLowPtCPContent
+                        items.extend(DiTauJetsLowPtCPContent)
                 elif collectionName=="MET_Reference_AntiKt4LCTopo":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
                         #from DerivationFrameworkCore.MET_Reference_AntiKt4LCTopoCPContent import MET_Reference_AntiKt4LCTopoCPContent
@@ -352,6 +355,12 @@ class SlimmingHelper:
                 elif collectionName=="MET_Reference_AntiKt4EMPFlow":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMPFlowCPContent import MET_Reference_AntiKt4EMPFlowCPContent
                         items.extend(MET_Reference_AntiKt4EMPFlowCPContent)
+		elif collectionName=="MET_Baseline_AntiKt4EMTopo":
+                        from DerivationFrameworkJetEtMiss.MET_Baseline_AntiKt4EMTopoCPContent import MET_Baseline_AntiKt4EMTopoCPContent
+			items.extend(MET_Baseline_AntiKt4EMTopoCPContent)
+		elif collectionName=="MET_Baseline_AntiKt4EMPFlow":
+			from DerivationFrameworkJetEtMiss.MET_Baseline_AntiKt4EMPFlowCPContent import MET_Baseline_AntiKt4EMPFlowCPContent
+			items.extend(MET_Baseline_AntiKt4EMPFlowCPContent)
                 elif collectionName=="AntiKt4TruthJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4TruthJetsCPContent import AntiKt4TruthJetsCPContent
                         items.extend(AntiKt4TruthJetsCPContent)
@@ -363,23 +372,46 @@ class SlimmingHelper:
                         items.extend(AntiKt4TruthDressedWZJetsCPContent)
                 elif collectionName=="AntiKt2LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
-                        #from DerivationFrameworkCore.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
                         items.extend(AntiKt2LCTopoJetsCPContent)
                 elif collectionName=="AntiKt4LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
-                        #from DerivationFrameworkCore.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
                         items.extend(AntiKt4LCTopoJetsCPContent)
                 elif collectionName=="AntiKt6LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt6LCTopoJetsCPContent import AntiKt6LCTopoJetsCPContent
-                        #from DerivationFrameworkCore.AntiKt6LCTopoJetsCPContent import AntiKt6LCTopoJetsCPContent
                         items.extend(AntiKt6LCTopoJetsCPContent)
                 elif collectionName=="AntiKt4EMTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
-                        #from DerivationFrameworkCore.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
                         items.extend(AntiKt4EMTopoJetsCPContent)
+                elif collectionName=="AntiKt4EMTopoJets_BTagging201810":
+                        if not self.AppendToDictionary.has_key("AntiKt4EMTopoJets_BTagging201810"):
+                                self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt4EMTopoJets_BTagging201810Aux"]='xAOD::ShallowAuxContainer'
+                elif collectionName=="AntiKt10TruthJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthJetsCPContent import AntiKt10TruthJetsCPContent
+                        items.extend(AntiKt10TruthJetsCPContent)
+                elif collectionName=="AntiKt10TruthWZJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthWZJetsCPContent import AntiKt10TruthWZJetsCPContent
+                        items.extend(AntiKt10TruthWZJetsCPContent)
+                elif collectionName=="AntiKt10LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10LCTopoJetsCPContent import AntiKt10LCTopoJetsCPContent
+                        items.extend(AntiKt10LCTopoJetsCPContent)
+                elif collectionName=="AntiKt10TrackCaloClusterJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TrackCaloClusterJetsCPContent import AntiKt10TrackCaloClusterJetsCPContent
+                        items.extend(AntiKt10TrackCaloClusterJetsCPContent)
+                elif collectionName=="AntiKt10UFOCSSKJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKJetsCPContent import AntiKt10UFOCSSKJetsCPContent
+                        items.extend(AntiKt10UFOCSSKJetsCPContent)
+                elif collectionName=="AntiKt10UFOCHSJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCHSJetsCPContent import AntiKt10UFOCHSJetsCPContent
+                        items.extend(AntiKt10UFOCHSJetsCPContent)
+                elif collectionName=="AntiKt10TruthTrimmedPtFrac5SmallR20Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+                                self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent)
                 elif collectionName=="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
-                        #from DerivationFrameworkCore.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
                         if not self.AppendToDictionary.has_key("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"):
                                 self.AppendToDictionary["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]='xAOD::JetContainer'
                                 self.AppendToDictionary["AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
@@ -396,13 +428,87 @@ class SlimmingHelper:
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
                         items.extend(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20JetsCPContent)
+                elif collectionName=="AntiKt10EMPFlowTrimmedPtFrac5SmallR20Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10EMPFlowTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10EMPFlowTrimmedPtFrac5SmallR20JetsCPContent
+                        items.extend(AntiKt10EMPFlowTrimmedPtFrac5SmallR20JetsCPContent)
+                elif collectionName=="AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCHSTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10UFOCHSTrimmedPtFrac5SmallR20JetsCPContent
+                        items.extend(AntiKt10UFOCHSTrimmedPtFrac5SmallR20JetsCPContent)
+                elif collectionName=="AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10UFOCSSKTrimmedPtFrac5SmallR20JetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets"):
+                                self.AppendToDictionary["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt10UFOCSSKTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+                                self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10UFOCSSKTrimmedPtFrac5SmallR20JetsCPContent)
+                elif collectionName=="AntiKt10TruthSoftDropBeta100Zcut10Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthSoftDropBeta100Zcut10JetsCPContent import AntiKt10TruthSoftDropBeta100Zcut10JetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthSoftDropBeta100Zcut10Jets"):
+                                self.AppendToDictionary["AntiKt10TruthSoftDropBeta100Zcut10Jets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthSoftDropBeta100Zcut10JetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10TruthSoftDropBeta100Zcut10JetsCPContent)
                 elif collectionName=="AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent import AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent
                         items.extend(AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsCPContent)
+                elif collectionName=="AntiKt10UFOCHSSoftDropBeta100Zcut10Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCHSSoftDropBeta100Zcut10JetsCPContent import AntiKt10UFOCHSSoftDropBeta100Zcut10JetsCPContent
+                        items.extend(AntiKt10UFOCHSSoftDropBeta100Zcut10JetsCPContent)
+                elif collectionName=="AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsCPContent import AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"):
+                                self.AppendToDictionary["AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsAux"]='xAOD::JetAuxContainer'
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthSoftDropBeta100Zcut10Jets"):
+                                self.AppendToDictionary["AntiKt10TruthSoftDropBeta100Zcut10Jets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthSoftDropBeta100Zcut10JetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsCPContent)
+                elif collectionName=="AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsCPContent import AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets"):
+                                self.AppendToDictionary["AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsCPContent)
+                elif collectionName=="AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5JetsCPContent import AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5JetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets"):
+                                self.AppendToDictionary["AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5JetsAux"]='xAOD::JetAuxContainer'
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets"):
+                                self.AppendToDictionary["AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthBottomUpSoftDropBeta100Zcut5JetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5JetsCPContent)
+                elif collectionName=="AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsCPContent import AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets"):
+                                self.AppendToDictionary["AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsCPContent)
+                elif collectionName=="AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent import AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets"):
+                                self.AppendToDictionary["AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsAux"]='xAOD::JetAuxContainer'
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets"):
+                                self.AppendToDictionary["AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJetsAux"]='xAOD::JetAuxContainer'
+                        items.extend(AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent)
                 elif collectionName=="AntiKt4EMPFlowJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         items.extend(AntiKt4EMPFlowJetsCPContent)
+                elif collectionName=="AntiKt4EMPFlowJets_BTagging201810":
+                        if not self.AppendToDictionary.has_key("AntiKt4EMPFlowJets_BTagging201810"):
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201810"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201810Aux"]='xAOD::ShallowAuxContainer'
+                elif collectionName=="AntiKt4EMPFlowJets_BTagging201903":
+                        if not self.AppendToDictionary.has_key("AntiKt4EMPFlowJets_BTagging201903"):
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt4EMPFlowJets_BTagging201903Aux"]='xAOD::ShallowAuxContainer'
+                elif collectionName=="AntiKt2TruthJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt2TruthJetsCPContent import AntiKt2TruthJetsCPContent
+                        items.extend(AntiKt2TruthJetsCPContent)
                 elif collectionName=="AntiKt2LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
                         items.extend(AntiKt2LCTopoJetsCPContent)
@@ -420,7 +526,7 @@ class SlimmingHelper:
                         items.extend(AntiKt7LCTopoJetsCPContent)
                 elif collectionName=="AntiKt8LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8LCTopoJetsCPContent import AntiKt8LCTopoJetsCPContent
-                        items.extend(AntiKt8LCTopoJetsCPContent)  
+                        items.extend(AntiKt8LCTopoJetsCPContent)
                 elif collectionName=="AntiKt8EMTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMTopoJetsCPContent import AntiKt8EMTopoJetsCPContent
                         items.extend(AntiKt8EMTopoJetsCPContent)
@@ -433,15 +539,42 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt8EMTopoExCoM2SubJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMTopoExCoM2SubJetsCPContent import AntiKt8EMTopoExCoM2SubJetsCPContent
                         items.extend(AntiKt8EMTopoExCoM2SubJetsCPContent)
-                elif collectionName=="BTagging_AntiKt4LCTopo":
+                elif collectionName=="AntiKt8EMPFlowJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowJetsCPContent import AntiKt8EMPFlowJetsCPContent
+                        items.extend(AntiKt8EMPFlowJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt2SubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt2SubJetsCPContent import AntiKt8EMPFlowExKt2SubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt2SubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt3SubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3SubJetsCPContent import AntiKt8EMPFlowExKt3SubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt3SubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt2GASubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt2GASubJetsCPContent import AntiKt8EMPFlowExKt2GASubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt2GASubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt3GASubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3GASubJetsCPContent import AntiKt8EMPFlowExKt3GASubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt3GASubJetsCPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
+                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent import AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810":
+                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag":
+                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903":
+                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent)
+                elif collectionName=="BTagging_AntiKt4EMTopo_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4LCTopoJets"))
-                elif collectionName=="BTagging_AntiKt4EMTopo":
+                        items.extend(BTaggingStandardContent("AntiKt4EMTopoJets_BTagging201810"))
+                elif collectionName=="BTagging_AntiKt4EMPFlow_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4EMTopoJets"))
-                elif collectionName=="BTagging_AntiKt4EMPFlow":
+                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201810"))
+                elif collectionName=="BTagging_AntiKt4EMPFlow_201903":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))
+                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201903"))
                 elif collectionName=="BTagging_AntiKt2Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt2PV0TrackJets"))
@@ -451,22 +584,27 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4PV0TrackJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track":
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        # note that for other track jet collections,
-                        # "PV0" appears in the name. unfortunately
-                        # all the derivations I see using VR track
-                        # jets leave out the "PV0".
-                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag":
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_expert":
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
                 elif collectionName=="BTagging_AntiKt8EMTopoExKt2Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt8EMTopoExKt2SubJets"))
@@ -476,6 +614,18 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt8EMTopoExCoM2Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt8EMTopoExCoM2SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt2Sub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt2SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt3Sub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt3SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt2GASub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt2GASubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt3GASub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt3GASubJets"))
                 elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"))
@@ -503,6 +653,10 @@ class SlimmingHelper:
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
+                elif self.IncludeAdditionalTriggerContent == True:
+                        from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
+                        items.extend(AdditionalTriggerContent)
+
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)

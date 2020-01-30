@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header file
@@ -28,6 +28,7 @@ namespace DerivationFramework {
 
   static SG::AuxElement::Decorator<float> dec_genFiltHT("GenFiltHT");
   static SG::AuxElement::Decorator<float> dec_genFiltMET("GenFiltMET");
+  static SG::AuxElement::Decorator<float> dec_genFiltPTZ("GenFiltPTZ");
   static SG::AuxElement::Decorator<int> dec_HFOR("HFORDecision");
 
   GenFilterTool::GenFilterTool(const std::string& t, const std::string& n, const IInterface* p)
@@ -35,13 +36,13 @@ namespace DerivationFramework {
     , m_classif("MCTruthClassifier/DFCommonTruthClassifier")
     , m_hforTool("HFORSelectionTool/HFORSelectionTool")
   {
-    
+
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    
+
     declareProperty("EventInfoName",m_eventInfoName="EventInfo");
     declareProperty("MCCollectionName",m_mcName="TruthParticles");
     declareProperty("TruthJetCollectionName",m_truthJetsName="AntiKt4TruthWZJets");
-    declareProperty("MinJetPt",m_MinJetPt = 35e3);  
+    declareProperty("MinJetPt",m_MinJetPt = 35e3);
     declareProperty("MaxJetEta",m_MaxJetEta = 2.5);
     declareProperty("MinLeptonPt",m_MinLepPt = 25e3);
     declareProperty("MaxLeptonEta",m_MaxLepEta = 2.5);
@@ -70,10 +71,10 @@ namespace DerivationFramework {
     case BottomMeson:
     case CCbarMeson:
     case JPsi:
-    case BBbarMeson: 
+    case BBbarMeson:
     case LightBaryon:
     case StrangeBaryon:
-    case CharmedBaryon: 
+    case CharmedBaryon:
     case BottomBaryon:
     case PionDecay:
     case KaonDecay:
@@ -93,16 +94,16 @@ namespace DerivationFramework {
     return m_originMap[tp];
   }
 
-  
+
   StatusCode GenFilterTool::addBranches() const{
     ATH_MSG_VERBOSE("GenFilterTool::addBranches()");
-    
+
     const xAOD::EventInfo* eventInfo;
     if (evtStore()->retrieve(eventInfo,m_eventInfoName).isFailure()) {
       ATH_MSG_ERROR("could not retrieve event info " <<m_eventInfoName);
       return StatusCode::FAILURE;
     }
-    
+
     const xAOD::TruthParticleContainer* truthPC = 0;
     if (evtStore()->retrieve(truthPC,m_mcName).isFailure()) {
       ATH_MSG_ERROR("WARNING could not retrieve TruthParticleContainer " <<m_mcName);
@@ -111,26 +112,27 @@ namespace DerivationFramework {
 
     m_originMap.clear();
 
-    float genFiltHT(0.), genFiltMET(0.);
-    ATH_CHECK( getGenFiltVars(truthPC, genFiltHT, genFiltMET) );
+    float genFiltHT(0.), genFiltMET(0.), genFiltPTZ(0.);
+    ATH_CHECK( getGenFiltVars(truthPC, genFiltHT, genFiltMET, genFiltPTZ) );
 
-    ATH_MSG_DEBUG("Computed generator filter quantities: HT " << genFiltHT/1e3 << ", MET " << genFiltMET/1e3 );
+    ATH_MSG_DEBUG("Computed generator filter quantities: HT " << genFiltHT/1e3 << ", MET " << genFiltMET/1e3 << ", PTZ " << genFiltPTZ/1e3 );
 
     dec_genFiltHT(*eventInfo) = genFiltHT;
     dec_genFiltMET(*eventInfo) = genFiltMET;
+    dec_genFiltPTZ(*eventInfo) = genFiltPTZ;
 
-    if (m_hforTool->getSampleType()!=noType){
-      dec_HFOR(*eventInfo) = m_hforTool->getDecisionType();
+    if (m_hforTool->getSampleType()!=HFORType::noType){
+      dec_HFOR(*eventInfo) = static_cast< int >( m_hforTool->getDecisionType() );
     }
 
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET) const {
+  StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET, float& genFiltPTZ) const {
     // Get jet container out
     const xAOD::JetContainer* truthjets = 0;
     if ( evtStore()->retrieve( truthjets, m_truthJetsName).isFailure() || !truthjets ){
-      ATH_MSG_ERROR( "No xAOD::JetContainer found in StoreGate with key " << m_truthJetsName ); 
+      ATH_MSG_ERROR( "No xAOD::JetContainer found in StoreGate with key " << m_truthJetsName );
       return StatusCode::FAILURE;
     }
 
@@ -146,6 +148,7 @@ namespace DerivationFramework {
       }
     }
 
+    // Get MET and add leptons to HT
     float MEx(0.), MEy(0.);
     for (const auto& tp : *tpc){
       int pdgid = tp->pdgId();
@@ -169,12 +172,49 @@ namespace DerivationFramework {
                         << ", eta " << tp->eta()
                         << ", phi " << tp->phi()
                         << ", status " << tp->status()
-                          << ", pdgId " << pdgid);
+                        << ", pdgId " << pdgid);
         MEx += tp->px();
         MEy += tp->py();
       }
     }
     genFiltMET = sqrt(MEx*MEx+MEy*MEy);
+
+    // Get PTZ
+    float PtZ(.0);
+    float MinPt_PTZ(5000.), MaxEta_PTZ(5.0), MinMass_PTZ(20000.), MaxMass_PTZ(14000000.);
+    bool AllowElecMu_PTZ = false;
+    bool AllowSameCharge_PTZ = false;
+    for (const xAOD::TruthParticle* pitr1 : *tpc){
+      int pdgId1 = pitr1->pdgId();
+      if (pitr1->barcode() >= m_SimBarcodeOffset) continue;
+      if (pitr1->status()!=1) continue;
+      // Pick electrons or muons with Pt > MinPt_PTZ and |eta| < m_maxEta
+      if (abs(pdgId1) == 11 || abs(pdgId1) == 13) {
+        if (pitr1->pt() >= MinPt_PTZ && fabs(pitr1->eta()) <= MaxEta_PTZ){
+          for (const xAOD::TruthParticle* pitr2 : *tpc){
+            if (pitr2==pitr1) continue;
+            if (pitr2->barcode() >= m_SimBarcodeOffset) continue;
+            if (pitr2->status()!=1) continue;
+            int pdgId2 = pitr2->pdgId();
+            // Pick electrons or muons with Pt > MinPt_PTZ and |eta| < MaxEta_PTZ
+            // If AllowSameCharge_PTZ is not true only pick those with opposite charge to the first particle
+            // If AllowElecMu_PTZ is true allow also Z -> emu compinations (with charge requirements as above)
+            if ((AllowSameCharge_PTZ  && (abs(pdgId2) == abs(pdgId1) || (AllowElecMu_PTZ && (abs(pdgId2) == 11 || abs(pdgId2) == 13) ) ) ) ||
+                (!AllowSameCharge_PTZ && (pdgId2 == -1*pdgId1 || (AllowElecMu_PTZ && (pdgId2 == (pdgId1 < 0 ? 1 : -1) * 11 || (pdgId1 < 0 ? 1 : -1) * pdgId2 == 13) ) ) ) ) {
+              if (pitr2->pt() >= MinPt_PTZ && fabs(pitr2->eta()) <= MaxEta_PTZ){
+                double invMass = (pitr1->p4()+pitr2->p4()).M();
+                double dilepPt = (pitr1->p4()+pitr2->p4()).Pt();
+                // Only consider pair that fall in the mass window
+                if (MinMass_PTZ < invMass && invMass < MaxMass_PTZ) {
+                  if (dilepPt > PtZ) PtZ = dilepPt;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    genFiltPTZ = PtZ;
 
     return StatusCode::SUCCESS;
   }

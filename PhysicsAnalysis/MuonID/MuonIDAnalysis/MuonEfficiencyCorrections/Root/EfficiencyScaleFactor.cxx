@@ -24,7 +24,7 @@ namespace CP {
             m_sf(),
             m_eff(),
             m_mc_eff(),
-            
+                        
             m_sf_decor(std::make_unique<FloatDecorator>(ref_tool.sf_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
             m_eff_decor(std::make_unique<FloatDecorator>(ref_tool.data_effi_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),          
             m_mc_eff_decor(std::make_unique<FloatDecorator>(ref_tool.mc_effi_decoration()+ (m_syst_name.empty()? "" :"_"+ m_syst_name + (m_is_up? "_1UP": "_1DN")))),
@@ -75,7 +75,7 @@ namespace CP {
             if (sys) {
                 for (int i = 1; i <= nominal->NBins(); ++i) {
                     double content = nominal->GetBinContent(i);
-                    double variation = (m_is_up ? 1. : -1.)*sys->GetBinContent(i);
+                    double variation = (IsUpVariation() ? 1. : -1.)*sys->GetBinContent(i);
                     nominal->SetBinContent(i,content + variation);
                 }
                 return;
@@ -90,6 +90,7 @@ namespace CP {
                     nominal.reset();
                     return;
                 }
+                
                 for (int i = 1; i<= nominal->NBins(); ++i) {
                      nominal->SetBinContent(i, nominal->GetBinContent(i) + (IsUpVariation() ? 1. : -1.)*old_sys->GetBinContent(i));
                 }
@@ -115,8 +116,8 @@ namespace CP {
         /// Apply the systematic variations
         syst_loader(m_sf,"SF");
         syst_loader(m_eff,"Eff");
-        syst_loader(m_mc_eff,"MC_Eff");
-        
+        syst_loader(m_mc_eff,"MC_Eff");        
+       
         /// Thus far there're no kinematic dependent systematics for low-pt
         if (m_is_lowpt || (file == ref_tool.filename_HighEta() && ref_tool.filename_HighEta() != ref_tool.filename_Central()) ||
         (file == ref_tool.filename_Calo() && ref_tool.filename_Calo() != ref_tool.filename_Central())) m_respond_to_kineDepSyst =false;
@@ -125,18 +126,31 @@ namespace CP {
         /// Load the pt_dependent systematics if needed
         if (!m_respond_to_kineDepSyst){
              return;
-        }
+        }      
         // Load the systematic of the bad veto
         if (m_measurement == CP::MuonEfficiencyType::BadMuonVeto) {
             TDirectory* SystDir = nullptr;
             f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
-            m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
+            /// Old format of the pt-dependent systematic loaded
+            if (SystDir) {
+                m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir);
+            } else {
+                /// Now it comes to the new format
+                f->GetObject("BadMuonVetoSyst_3Stations", SystDir);
+                TDirectory* SystDir_2Stat = nullptr;
+                f->GetObject("BadMuonVetoSyst_2Stations", SystDir_2Stat);
+                m_sf_KineDepsys = std::make_unique<BadMuonVetoSystHandler>(SystDir, SystDir_2Stat);
+            }           
             m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
             if (!m_sf_KineDepsys->initialize()){
                 Error("EfficiencyScaleFactor()", "Pt dependent systematic could not be loaded");
                 m_sf_KineDepsys.reset();
-            }
+            }           
             return;
+        } else if (m_measurement == CP::MuonEfficiencyType::TTVA){
+            m_sf_KineDepsys = std::make_unique<TTVAClosureSysHandler>(ReadHistFromFile("SF_NonClosure_sys",f.get(),time_unit));
+            m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
+        
         }
         /// That one needs to be named properly in the future
         
@@ -179,7 +193,7 @@ namespace CP {
     bool EfficiencyScaleFactor::CheckConsistency()  {
         //Check whether  the SFs could be successfully loaded
         if (!m_sf) {
-            Error("EfficiencyScaleFactor()", "Could not load the SF for and systematic %s", sysname().c_str());
+            Error("EfficiencyScaleFactor()", "Could not load the SF for  measurement %s and systematic %s",EfficiencyTypeName(m_measurement).c_str(), sysname().c_str());
             return false;
         }
         if (m_respond_to_kineDepSyst && !m_sf_KineDepsys->initialize()) {
@@ -218,7 +232,7 @@ namespace CP {
             return false;
         }
         if (!consistent_histo(m_eff)){
-            Error("EfficiencyScaleFactor()", "Data-efficiency in %s", sysname().c_str());
+            Error("EfficiencyScaleFactor()", "Invalid data-efficiency in %s", sysname().c_str());
             return false;
         }
         if (!consistent_histo(m_mc_eff)){
@@ -271,7 +285,7 @@ namespace CP {
             if (bin != m_SystematicBin) {
                 return m_NominalFallBack->ScaleFactor(mu, SF);
             }
-        }
+        }       
         CorrectionCode cc = GetContentFromHist(m_sf.get(), mu, SF, true);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the scale factor");
         return cc;
@@ -325,11 +339,12 @@ namespace CP {
             Eff = m_default_eff_ttva;
             return CorrectionCode::Ok;
         }
-        int bin = -1;
+        int bin = -1;       
         CorrectionCode cc = Hist->FindBin(mu, bin);
         if (cc != CorrectionCode::Ok) return cc;
         else Eff = Hist->GetBinContent(bin);
-        if (add_kine_syst && m_respond_to_kineDepSyst) {
+       
+        if (add_kine_syst && m_respond_to_kineDepSyst) {           
             return m_sf_KineDepsys->GetKineDependent(mu, Eff);
         }
         return CorrectionCode::Ok;

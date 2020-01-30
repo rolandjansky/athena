@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
-                                       createPublicTool
+from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 import re
 
 # These algorithms set up the jet recommendations as-of 04/02/2019.
@@ -43,8 +44,13 @@ jvtSysts = "|".join([
 fjvtSysts = "|".join([
     "(^JET_fJvtEfficiency$)"])
 
-def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutput = False,
-                             shallowViewOutput = True, runGhostMuonAssociation = True, **kwargs):
+def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
+                             deepCopyOutput = False,
+                             shallowViewOutput = True,
+                             runGhostMuonAssociation = True,
+                             enableCutflow = False,
+                             enableKinematicHistograms = False,
+                             **kwargs):
     """Create a jet analysis algorithm sequence
       The jet collection is interpreted and selects the correct function to call, 
       makeSmallRJetAnalysisSequence, makeRScanJetAnalysisSequence or 
@@ -56,9 +62,11 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
         postfix -- String to be added to the end of all public names.
         deepCopyOutput -- Whether or not to deep copy the output
         shallowViewOutput -- Whether or not to output a shallow view as the output
+        enableCutflow -- Whether or not to dump the cutflow
+        enableKinematicHistograms -- Whether or not to dump the kinematic histograms
         Other keyword arguments are forwarded to the other functions.
     """
-    if not dataType in ["data", "mc", "afii"]:
+    if dataType not in ["data", "mc", "afii"]:
         raise ValueError ("invalid data type: " + dataType )
 
     # Setup the postfix
@@ -68,6 +76,11 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     # Make sure selection options make sense
     if deepCopyOutput and shallowViewOutput:
         raise ValueError ("deepCopyOutput and shallowViewOutput can't both be true!")
+
+    # Remove b-tagging calibration from the container name
+    btIndex = jetCollection.find('_BTagging')
+    if btIndex != -1:
+        jetCollection = jetCollection[:btIndex]
 
     # interpret the jet collection
     collection_pattern = re.compile(
@@ -83,6 +96,13 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
 
     # Create the analysis algorithm sequence object.
     seq = AnaAlgSequence( "JetAnalysisSequence"+postfix )
+    # Relink original jets in case of b-tagging calibration
+    if btIndex != -1:
+        alg = createAlgorithm( 'CP::AsgOriginalObjectLinkAlg',
+            'JetOriginalObjectLinkAlg'+postfix )
+        alg.baseContainerName = jetCollection
+        seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut', stageName = 'calibration' )
+
     # Set up the jet ghost muon association algorithm:
     if runGhostMuonAssociation:
         alg = createAlgorithm( 'CP::JetGhostMuonAssociationAlg', 
@@ -107,17 +127,20 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
         makeLargeRJetAnalysisSequence(seq, cutlist, cutlength,
             dataType, jetCollection, jetInput=jetInput, postfix=postfix, **kwargs)
 
-    # Set up an algorithm used for debugging the jet selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg'+postfix )
-    alg.histPattern = 'jet_cflow_%SYS%'+postfix
-    alg.selection = cutlist
-    alg.selectionNCuts = cutlength
-    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+    # Set up an algorithm used to create jet selection cutflow:
+    if enableCutflow:
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg'+postfix )
+        alg.histPattern = 'jet_cflow_%SYS%'+postfix
+        alg.selection = cutlist
+        alg.selectionNCuts = cutlength
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
-    # Set up an algorithm dumping the properties of the jets, for debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
-    alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
-    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+    # Set up an algorithm dumping the kinematic properties of the jets:
+    if enableKinematicHistograms:
+        alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
+        alg.preselection = "&&".join (cutlist)
+        alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     if shallowViewOutput:
       # Set up an algorithm that makes a view container using the selections
@@ -137,8 +160,10 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     return seq
 
 def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
-                                   jetInput, postfix = '', runJvtUpdate = True,
-                                   runJvtEfficiency = True,
+                                   jetInput, postfix = '', 
+                                   runJvtUpdate = True, runFJvtUpdate = True,
+                                   runJvtSelection = True, runFJvtSelection = True,
+                                   runJvtEfficiency = True, runFJvtEfficiency = True,
                                    reduction = "Global", JEROption = "Simple"):
     """Add algorithms for the R=0.4 jets.
 
@@ -151,8 +176,11 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         jetInput -- The type of input used, read from the collection name.
         postfix -- String to be added to the end of all public names.
         runJvtUpdate -- Determines whether or not to update JVT on the jets
-        runJvtEfficiency -- Determines whether or not to recalculate the JVT
-                            efficiency
+        runFJvtUpdate -- Determines whether or not to update forward JVT on the jets
+        runJvtSelection -- Determines whether or not to run JVT selection on the jets
+        runFJvtSelection -- Determines whether or not to run forward JVT selection on the jets
+        runJvtEfficiency -- Determines whether or not to calculate the JVT efficiency
+        runFJvtEfficiency -- Determines whether or not to calculate the forward JVT efficiency
         reduction -- Which NP reduction scheme should be used (All, Global, Category, Scenario)
         JEROption -- Which variant of the reduction should be used (All, Full, Simple). Note that not all combinations of reduction and JEROption are valid!
     """
@@ -166,9 +194,9 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.calibrationTool.JetCollection = jetCollection[:-4]
     # Get the correct string to use in the config file name
     if dataType == 'afii':
-        configFile = "JES_MC16Recommendation_AFII_{0}_April2018_rel21.config"
+        configFile = "JES_MC16Recommendation_AFII_{0}_Apr2019_Rel21.config"
     else:
-        configFile = "JES_data2017_2016_2015_Consolidated_{0}_2018_Rel21.config"
+        configFile = "JES_MC16Recommendation_Consolidated_{0}_Apr2019_Rel21.config"
     if jetInput == "EMPFlow":
         configFile = configFile.format("PFlow")
     else:
@@ -176,8 +204,6 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     alg.calibrationTool.ConfigFile = configFile
     if dataType == 'data':
         alg.calibrationTool.CalibSequence = 'JetArea_Residual_EtaJES_GSC_Insitu'
-    elif dataType == 'afii':
-        alg.calibrationTool.CalibSequence = 'JetArea_Residual_EtaJES_GSC'
     else:
         alg.calibrationTool.CalibSequence = 'JetArea_Residual_EtaJES_GSC_Smear'
     alg.calibrationTool.IsData = (dataType == 'data')
@@ -216,6 +242,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'selection' )
 
+    if runFJvtUpdate :
         alg = createAlgorithm( 'CP::JetModifierAlg', 'JetModifierAlg'+postfix )
         addPrivateTool( alg, 'modifierTool', 'JetForwardJvtTool')
         alg.modifierTool.OutputDec = "passFJVT" #Output decoration
@@ -229,24 +256,31 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
 
     # Set up the jet efficiency scale factor calculation algorithm
     # Change the truthJetCollection property to AntiKt4TruthWZJets if preferred
-    if runJvtEfficiency:
+    if runJvtSelection :
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg'+postfix )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-        alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
-        alg.efficiencyTool.WorkingPoint = 'Medium'
+        if jetInput == 'EMPFlow':
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root'
+            alg.efficiencyTool.MaxPtForJvt = 60e3
+        else:
+            alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
+            alg.efficiencyTool.MaxPtForJvt = 120e3
+        alg.efficiencyTool.WorkingPoint = 'Tight' if jetInput == 'EMPFlow' else 'Medium'
         alg.selection = 'jvt_selection'
-        alg.scaleFactorDecoration = 'jvt_effSF'
+        alg.scaleFactorDecoration = 'jvt_effSF_%SYS%'
+        alg.scaleFactorDecorationRegex = jvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
-        if dataType == 'data':
+        if not runJvtEfficiency or dataType == 'data':
             alg.scaleFactorDecoration = ''
             alg.truthJetCollection = ''
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+        seq.append( alg, inputPropName = 'jets',
                     affectingSystematics = jvtSysts, stageName = 'selection' )
-            
+
+    if runFJvtSelection :
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'ForwardJvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
         alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/fJvtSFFile.root'
@@ -254,18 +288,18 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         alg.dofJVT = True
         alg.fJVTStatus = 'passFJVT,as_char'
         alg.selection = 'fjvt_selection'
-        alg.scaleFactorDecoration = 'fjvt_effSF'
+        alg.scaleFactorDecoration = 'fjvt_effSF_%SYS%'
+        alg.scaleFactorDecorationRegex = fjvtSysts
         # Disable scale factor decorations if running on data
         # We still want to run the JVT selection
-        if dataType == 'data':
+        if not runFJvtEfficiency or dataType == 'data':
             alg.scaleFactorDecoration = ''
             alg.truthJetCollection = ''
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_fjvt'
         alg.skipBadEfficiency = 0
-        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+        seq.append( alg, inputPropName = 'jets',
                     affectingSystematics = fjvtSysts, stageName = 'selection')
-        pass
 
     # Return the sequence:
     return seq, cutlist, cutlength
@@ -292,12 +326,15 @@ def makeRScanJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollecti
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
     alg.calibrationTool.JetCollection = jetCollection[:-4]
     alg.calibrationTool.ConfigFile = \
-        "JES_MC16Recommendation_Rscan{0}LC_22Feb2018_rel21.config".format(radius)
-    alg.calibrationTool.CalibSequence = "JetArea_Residual_EtaJES_GSC"
+        "JES_MC16Recommendation_Rscan{0}LC_18Dec2018_R21.config".format(radius)
+    if dataType == 'data':
+        alg.calibrationTool.CalibSequence = "JetArea_Residual_EtaJES_GSC_Insitu"
+    else:
+        alg.calibrationTool.CalibSequence = "JetArea_Residual_EtaJES_GSC"
     alg.calibrationTool.IsData = (dataType == 'data')
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
     # Logging would be good
-    print "WARNING: uncertainties for R-Scan jets are not yet released!"
+    print("WARNING: uncertainties for R-Scan jets are not yet released!")
 
 def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
                                    jetInput, postfix = '', largeRMass = "Comb"):
@@ -311,10 +348,10 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         jetCollection -- The jet container to run on.
         jetInput -- The type of input used, read from the collection name.
         postfix -- String to be added to the end of all public names.
-        largeRMass -- Which large-R mass definition to use. Ignored if not running on large-R jets ("Comb", "Calo", "TA")
+        largeRMass -- Which large-R mass definition to use. Ignored if not running on large-R jets ("Comb", "Calo", "TCC", "TA")
     """
 
-    if largeRMass not in ["Comb", "Calo", "TA"]:
+    if largeRMass not in ["Comb", "Calo", "TCC", "TA"]:
         raise ValueError ("Invalid large-R mass defintion {0}!".format(largeRMass) )
 
     if jetInput not in ["LCTopo", "TrackCaloCluster"]:
@@ -331,6 +368,8 @@ def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
             configFile = "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config"
         elif largeRMass == "Calo":
             configFile = "JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config"
+        elif largeRMass == "TCC":
+            configFile = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config"
         else:
             configFile = "JES_MC16recommendation_FatJet_Trimmed_JMS_TA_12Oct2018.config"
     # Prepare the jet calibration algorithm

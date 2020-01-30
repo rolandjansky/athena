@@ -22,7 +22,6 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 
 # Set up (Py)ROOT.
 import ROOT
-import os
 ROOT.xAOD.Init().ignore()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
@@ -34,7 +33,7 @@ inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
 
-if not dataType in ["data", "mc", "afii"] :
+if dataType not in ["data", "mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)
 
 # Set up the sample handler object. See comments from the C++ macro
@@ -52,41 +51,9 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Config:
-GRLFiles = ['GoodRunsLists/data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml']
-
-# Import(s) needed for the job configuration.
-from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
-
-# Set up the main analysis algorithm sequence.
-algSeq = AlgSequence( 'AnalysisSequence' )
-
-# Set up the systematics loader/handler algorithm:
-algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-algSeq.SysLoaderAlg.sigmaRecommended = 1
-
-# Include, and then set up the pileup analysis sequence:
-from AsgAnalysisAlgorithms.EventSelectionAnalysisSequence import \
-    makeEventSelectionAnalysisSequence
-eventSelectionSequence = \
-    makeEventSelectionAnalysisSequence( dataType, userGRLFiles=GRLFiles )
-algSeq += eventSelectionSequence
-
-# Set up an ntuple to check the job with:
-ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
-ntupleMaker.TreeName = 'events'
-ntupleMaker.Branches = [
-    'EventInfo.runNumber   -> runNumber',
-    'EventInfo.eventNumber -> eventNumber',
-]
-ntupleMaker.systematicsRegex = '.*'
-algSeq += ntupleMaker
-
-# For debugging.
-print( algSeq )
-
-# Add all algorithms from the sequence to the job.
+from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makeEventAlgorithmsSequence
+algSeq = makeEventAlgorithmsSequence (dataType)
+print algSeq # For debugging
 for alg in algSeq:
     job.algsAdd( alg )
     pass

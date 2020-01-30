@@ -105,6 +105,7 @@ private:
   bool m_originCorrectedClusters;
   std::string m_rhoKey;
   bool m_useNjetInResidual;
+  bool m_saveAreaCorrectedScaleMomentum;
   float m_nJetPtThreshold;
   std::string m_nJetContainerName;
   std::string m_dir;
@@ -112,7 +113,8 @@ private:
   std::vector<TString> m_timeDependentInsituConfigs;
   std::vector<double>  m_runBins;
   bool m_doSetDetectorEta;
-  bool m_doOnlyResidual;
+  // this member is unused, please remove if not needed:
+  //   bool m_doOnlyResidual;
   std::string m_vertexContainerName;
   bool m_insituCombMassCalib;
   std::vector<TString> m_insituCombMassConfig;

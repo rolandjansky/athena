@@ -31,6 +31,29 @@ DAOD_Input_Key = [ k for k in dir(runArgs) if k.startswith("inputDAOD") and k.en
 if len(DAOD_Input_Key) is 1:
     runArgs.inputAODFile = getattr(runArgs, DAOD_Input_Key[0])
 
+# Check if we are merging only truth derivations
+truthDerivations = ['inputDAOD_TRUTH0File','inputDAOD_TRUTH1File','inputDAOD_TRUTH2File','inputDAOD_TRUTH3File','inputDAOD_TRUTH4File','inputDAOD_TRUTH5File']
+mergingTruth = False
+if hasattr(runArgs,'reductionConf'):
+    mergingTruth = len([ x for x in runArgs.reductionConf if 'TRUTH' in x ])==len(runArgs.reductionConf)
+else:
+    mergingTruth = len( [ k for k in dir(runArgs) if 'inputDAOD_TRUTH' in k and 'File' in k ] )==len( [ k for k in dir(runArgs) if 'input' in k and 'File' in k ] )
+if mergingTruth:
+    rec.AutoConfiguration.set_Value_and_Lock(['ProjectName','BeamType','RealOrSim','DoTruth','InputType'])
+    rec.doInDet.set_Value_and_Lock(False)
+    rec.doCalo.set_Value_and_Lock(False)
+    rec.doMuon.set_Value_and_Lock(False)
+    rec.doForwardDet.set_Value_and_Lock(False)
+    rec.doFileMetaData.set_Value_and_Lock(False)
+    rec.doTruth.set_Value_and_Lock( True )
+    rec.doTrigger.set_Value_and_Lock( False )
+    rec.doWriteTAG.set_Value_and_Lock( False )
+    rec.doApplyAODFix.set_Value_and_Lock( False )
+    from AthenaCommon.DetFlags import DetFlags
+    DetFlags.detdescr.BField_setOff()
+    globalflags.ConditionsTag = ''
+    # Leave the remainder for the internal setup
+
 DAOD_Output_Key = [ k for k in dir(runArgs) if k.startswith("outputDAOD") and k.endswith("_MRGFile") ]
 if len(DAOD_Output_Key) is 1:
     runArgs.outputAOD_MRGFile = getattr(runArgs, DAOD_Output_Key[0])

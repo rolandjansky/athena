@@ -2,11 +2,21 @@
 #
 # @author Tadej Novak
 
-# Ideally we'd run over all of them, but we don't have a mechanism to
-# configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
+# User options, which can be set from command line after a "-" character
+# athena EgammaAlgorithmsTest_jobOptions.py - --myOption ...
+from AthenaCommon.AthArgumentParser import AthArgumentParser
+athArgsParser = AthArgumentParser()
+athArgsParser.add_argument("--data-type", action = "store", dest = "data_type",
+                           default = "data",
+                           help = "Type of input to run over. Valid options are 'data', 'mc', 'afii'")
+athArgs = athArgsParser.parse_args()
+
+dataType = athArgs.data_type
+if not dataType in ["data", "mc", "afii"] :
+    raise Exception ("invalid data type: " + dataType)
+
+print("Running on data type: " + dataType)
+
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
@@ -17,43 +27,9 @@ theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
-# Config:
-triggerChains = [
-    'HLT_2mu14',
-    'HLT_mu20_mu8noL1',
-    'HLT_2e17_lhvloose_nod0'
-]
-
-# Import(s) needed for the job configuration.
-from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
-
-# Set up the main analysis algorithm sequence.
-algSeq = AlgSequence( 'AnalysisSequence' )
-
-# Set up the systematics loader/handler algorithm:
-algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-algSeq.SysLoaderAlg.sigmaRecommended = 1
-
-# Include, and then set up the pileup analysis sequence:
-from TriggerAnalysisAlgorithms.TriggerAnalysisSequence import \
-    makeTriggerAnalysisSequence
-triggerSequence = makeTriggerAnalysisSequence( dataType, triggerChains=triggerChains )
-algSeq += triggerSequence
-
-# Set up an ntuple to check the job with:
-ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
-ntupleMaker.TreeName = 'events'
-ntupleMaker.Branches = [
-    'EventInfo.runNumber   -> runNumber',
-    'EventInfo.eventNumber -> eventNumber',
-]
-ntupleMaker.Branches += ['EventInfo.trigPassed_' + t + ' -> trigPassed_' + t for t in triggerChains]
-ntupleMaker.systematicsRegex = '.*'
-algSeq += ntupleMaker
-
-# For debugging.
-print( algSeq )
+from TriggerAnalysisAlgorithms.TriggerAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
 
 # Add all algorithms from the sequence to the job.
 athAlgSeq += algSeq
@@ -61,7 +37,7 @@ athAlgSeq += algSeq
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "ANALYSIS DATAFILE='TriggerAlgorithmsTest.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='TriggerAlgorithmsTest." + dataType + ".hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:

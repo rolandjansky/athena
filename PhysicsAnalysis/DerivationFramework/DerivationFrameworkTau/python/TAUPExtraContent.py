@@ -82,6 +82,8 @@ ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTa
                                        + "phiPanTauCellBasedProto."
                                        + "mPanTauCellBased."
                                        + "mPanTauCellBasedProto."
+                                       + "seedTrackWidthPt500."
+                                       + "seedTrackWidthPt1000."
                                        + "PanTau_isPanTauCandidate.PanTau_DecayModeProto.PanTau_BDTValue_1p0n_vs_1p1n.PanTau_BDTValue_1p1n_vs_1pXn.PanTau_BDTValue_3p0n_vs_3pXn.PanTau_BDTVar_Basic_NNeutralConsts.PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt.PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts.PanTau_BDTVar_Neutral_HLV_SumM.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1.PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2.PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts.PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts.PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed.PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged.PanTau_DecayModeExtended",
                                        "TauChargedParticleFlowObjects",
                                        "TauNeutralParticleFlowObjects",
@@ -109,6 +111,10 @@ ExtraContentTAUP3              =   ExtraContentPhotons                  \
 #                                  + ExtraContentMuons
 #                                  + ExtraContentTaus
 
+ExtraContentTAUP5              =   ExtraContentPhotons                  \
+                                 + ExtraContentElectrons                \
+                                 + ExtraContentMuons                    
+
 ExtraContentTruthTAUP1         =   ExtraContentPhotonsTruth             \
                                  + ExtraContentElectronsTruth           \
                                  + ExtraContentMuonsTruth               \
@@ -130,6 +136,12 @@ ExtraContentTruthTAUP3         =   ExtraContentPhotonsTruth             \
 #                                + ExtraContentElectronsTruth           \
 #                                + ExtraContentMuonsTruth               \
 #                                + ExtraContentTausTruth
+
+ExtraContentTruthTAUP5         =   ExtraContentPhotonsTruth             \
+                                 + ExtraContentElectronsTruth           \
+                                 + ExtraContentMuonsTruth               \
+                                 + ExtraContentTausTruth                \
+                                 + ExtraContentJetsTruth
 
 # ==========================================================================================================================
 # Extra containers
@@ -212,6 +224,8 @@ ExtraContainersTAUP4            =   ExtraContainersTrigger      \
                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit",
                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig"]
 
+ExtraContainersTAUP5            =   ExtraContainersElectrons   
+
 ExtraContainersTruthTAUP1      = ["TruthEvents",
                                   "TruthParticles",
                                   "TruthVertices"
@@ -241,3 +255,10 @@ ExtraContainersTruthTAUP3      = ["TruthEvents",
 #                                 "AntiKt4TruthJets",
 #                                #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
 #                                 "AntiKt4TruthWZJets"]
+ExtraContainersTruthTAUP5      = ["TruthEvents",
+                                  "TruthParticles",
+                                  "TruthVertices",
+                                  "AntiKt4TruthJets",
+                                 #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
+                                  "AntiKt4TruthWZJets"
+                                 ]

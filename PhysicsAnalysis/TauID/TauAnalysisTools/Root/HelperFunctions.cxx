@@ -6,6 +6,7 @@
 
 // local include(s)
 #include "TauAnalysisTools/HelperFunctions.h"
+#include "TruthUtils/PIDHelpers.h"
 #include "TF1.h"
 
 #ifdef XAODTAU_VERSIONS_TAUJET_V3_H
@@ -13,6 +14,16 @@ xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::P
 #else
 xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode;
 #endif
+
+
+#ifdef ASGTOOL_ATHENA
+#include "CLHEP/Units/SystemOfUnits.h"
+using CLHEP::GeV;
+#else
+#define GeV 1000
+#endif
+
+
 
 using namespace TauAnalysisTools;
 
@@ -132,6 +143,34 @@ double TauAnalysisTools::tauAbsEta(const xAOD::TauJet& xTau)
 }
 
 //______________________________________________________________________________
+double TauAnalysisTools::finalTauPt(const xAOD::TauJet& xTau)
+{
+  // return MVA based tau pt in GeV
+  return xTau.ptFinalCalib()/GeV;
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauEta(const xAOD::TauJet& xTau)
+{
+  // return MVA based tau eta
+  return xTau.etaFinalCalib();
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauAbsEta(const xAOD::TauJet& xTau)
+{
+  // return MVA based absolute tau eta
+  return std::abs(xTau.etaFinalCalib());
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::finalTauP(const xAOD::TauJet& xTau)
+{
+  // return tau P in GeV
+  return xTau.p4(xAOD::TauJetParameters::FinalCalib).P()/GeV;
+}
+
+//______________________________________________________________________________
 double TauAnalysisTools::tauLeadTrackEta(const xAOD::TauJet& xTau)
 {
   // return lead tau track eta
@@ -146,6 +185,97 @@ double TauAnalysisTools::tauLeadTrackEta(const xAOD::TauJet& xTau)
     }
   }
   return dTrackEta;
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::truthDecayMode(const xAOD::TauJet& xTau)
+{
+  // return truth tau decay mode.
+  int iDecayMode = getTruthDecayMode(xTau);
+  return static_cast<double>(iDecayMode);
+}
+
+//______________________________________________________________________________
+const xAOD::TruthParticle* TauAnalysisTools::getTruth(const xAOD::TauJet& xTau)
+{
+  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
+  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
+  {
+    Error("TauAnalysisTools::getTruth", "No truth match information available. Please run TauTruthMatchingTool first");
+  }
+
+  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
+  const Link_t xTruthTauLink = accTruthParticleLink(xTau);
+  const xAOD::TruthParticle* xTruthTau = xTruthTauLink.cachedElement();
+
+  return xTruthTau;
+}
+
+
+//______________________________________________________________________________
+xAOD::TauJetParameters::DecayMode TauAnalysisTools::getTruthDecayMode(const xAOD::TauJet& xTau)
+{
+  const xAOD::TruthParticle* xTruthTau = getTruth(xTau);
+
+  if (xTruthTau!=nullptr && xTruthTau->auxdata<char>("IsHadronicTau"))
+    return getTruthDecayMode(*xTruthTau);
+  else
+    return xAOD::TauJetParameters::Mode_Error;
+}
+
+//______________________________________________________________________________
+xAOD::TauJetParameters::DecayMode TauAnalysisTools::getTruthDecayMode(const xAOD::TruthParticle& xTruthTau)
+{
+  if (!(xTruthTau.isAvailable<size_t>("numCharged")))
+  {
+    Warning("TauAnalysisTools::getTruthDecayMode", "passed truth particle is not a truth tau, return Mode_Error");
+    return xAOD::TauJetParameters::Mode_Error;
+  }
+
+  int iCharged = getNTauDecayParticles(xTruthTau,MC::PID::PIPLUS, true) + getNTauDecayParticles(xTruthTau,MC::PID::KPLUS, true);
+  int iNeutral = getNTauDecayParticles(xTruthTau,MC::PID::PI0, true);
+  if (iCharged == 1)
+  {
+    if (iNeutral == 0) return xAOD::TauJetParameters::DecayMode::Mode_1p0n;
+    if (iNeutral == 1) return xAOD::TauJetParameters::DecayMode::Mode_1p1n;
+    if (iNeutral >= 2) return xAOD::TauJetParameters::DecayMode::Mode_1pXn;
+  }
+  else if (iCharged == 3)
+  {
+    if (iNeutral == 0) return xAOD::TauJetParameters::DecayMode::Mode_3p0n;
+    if (iNeutral >= 1) return xAOD::TauJetParameters::DecayMode::Mode_3pXn;
+  }
+
+  if (iCharged == 2 or iCharged == 4 or iCharged == 5)
+    return xAOD::TauJetParameters::DecayMode::Mode_Other;
+  if (iCharged == 0 or iCharged >=6)
+    return xAOD::TauJetParameters::DecayMode::Mode_NotSet;
+
+  // if you got here, something should have gone wrong
+  return xAOD::TauJetParameters::DecayMode::Mode_Error;
+}
+
+//______________________________________________________________________________
+int TauAnalysisTools::getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues)
+{
+  int iNum = 0;
+  if (!xTruthTau.isAvailable<std::vector<int>>("DecayModeVector"))
+  {
+    Warning("TauAnalysisTools::getNTauDecayParticles", "passed truth particle is not a truth tau, return 0");
+    return 0;
+  }
+
+  static SG::AuxElement::ConstAccessor<std::vector<int> > accDecayModeVector("DecayModeVector");
+  for(auto iPdgId2 : accDecayModeVector(xTruthTau))
+    if (!bCompareAbsoluteValues)
+    {
+      if (iPdgId2 == iPdgId) iNum++;
+    }
+    else
+    {
+      if (std::abs(iPdgId2) == std::abs(iPdgId)) iNum++;
+    }
+  return iNum;
 }
 
 //______________________________________________________________________________
@@ -453,4 +583,53 @@ void TauAnalysisTools::truthHadrons(const xAOD::TauJet* xTau, std::vector<const 
   }
 
   return;  
+}
+
+//______________________________________________________________________________
+e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::TauJet& xTau)
+{
+  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
+  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
+    Error("TauAnalysisTools::getTruthParticleType", "No truth match information available. Please run TauTruthMatchingTool first.");
+
+  const xAOD::TruthParticle* xTruthParticle = xAOD::TauHelpers::getTruthParticle(&xTau);
+  if (xTruthParticle)
+  {
+    if (xTruthParticle->isTau())
+    {
+      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
+      if ((bool)accIsHadronicTau(*xTruthParticle))
+        return TruthHadronicTau;
+      else
+        return TruthLeptonicTau;
+    }
+    if (xTruthParticle->isMuon())
+      return TruthMuon;
+    if (xTruthParticle->isElectron())
+      return TruthElectron;
+  }
+  
+  // TODO: use const xAOD::Jet* xTruthJet = xAOD::TauHelpers::getLink<xAOD::Jet>(&xTau, "truthJetLink");
+  // currently it is unavailable as templated class is not in icc file
+  static SG::AuxElement::ConstAccessor< ElementLink< xAOD::JetContainer > > accTruthJetLink("truthJetLink");
+  const ElementLink< xAOD::JetContainer > lTruthParticleLink = accTruthJetLink(xTau);
+  if (lTruthParticleLink.isValid())
+    return TruthJet;
+
+  return Unknown;
+}
+
+//______________________________________________________________________________
+e_TruthMatchedParticleType TauAnalysisTools::getTruthParticleType(const xAOD::DiTauJet& xDiTau)
+{
+  if (!xDiTau.isAvailable<char>("IsTruthHadronic"))
+    Error("TauAnalysisTools::getTruthParticleType", "No truth match information available. Please run DiTauTruthMatchingTool first");
+  static SG::AuxElement::Accessor<char> accIsTruthHadronic("IsTruthHadronic");
+
+  e_TruthMatchedParticleType eTruthMatchedParticleType = Unknown;
+
+  if (accIsTruthHadronic(xDiTau))
+    eTruthMatchedParticleType = TruthHadronicDiTau;
+
+  return eTruthMatchedParticleType;
 }

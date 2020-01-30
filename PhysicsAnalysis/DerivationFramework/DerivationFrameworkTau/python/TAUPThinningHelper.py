@@ -24,7 +24,7 @@ def setup(TAUPxName, TAUPxThinningSvc, ToolSvc):
         return thinningTools
 
     # do nothing for TAUP2 because it is a data only derivation
-    if (TAUPxName != "TAUP1") and (TAUPxName != "TAUP3") and (TAUPxName != "TAUP4"):
+    if (TAUPxName != "TAUP1") and (TAUPxName != "TAUP3") and (TAUPxName != "TAUP4") and (TAUPxName != "TAUP5"):
         return thinningTools
 
     truth_cond_tau = "((abs(TruthParticles.pdgId) == 15 || abs(TruthParticles.pdgId) == 16) && (TruthParticles.pt > 0.01*GeV) && (TruthParticles.barcode<200000))"

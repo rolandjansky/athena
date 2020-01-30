@@ -10,12 +10,17 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Algorithms/SelectionHelpers
    PhysicsAnalysis/Algorithms/SystematicsHandles
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   Trigger/TrigEvent/TrigDecisionInterface )
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   Trigger/TrigEvent/TrigDecisionInterface
+   PRIVATE
+   PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 atlas_add_library( TriggerAnalysisAlgorithmsLib
    TriggerAnalysisAlgorithms/*.h TriggerAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS TriggerAnalysisAlgorithms
-   LINK_LIBRARIES xAODEventInfo SelectionHelpersLib SystematicsHandlesLib AnaAlgorithmLib )
+   LINK_LIBRARIES xAODEventInfo SelectionHelpersLib SystematicsHandlesLib
+      AnaAlgorithmLib AsgAnalysisInterfaces
+   PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 atlas_add_dictionary( TriggerAnalysisAlgorithmsDict
    TriggerAnalysisAlgorithms/TriggerAnalysisAlgorithmsDict.h
@@ -35,16 +40,24 @@ atlas_install_scripts( share/*_eljob.py )
 if( XAOD_STANDALONE )
   atlas_add_test( TriggerAlgorithmsTestJobData
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type data --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( TriggerAlgorithmsTestJobFullSim
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type mc --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
   atlas_add_test( TriggerAlgorithmsTestJobFastSim
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type afii --unit-test
-     PROPERTIES TIMEOUT 300 )
+     PROPERTIES TIMEOUT 600 )
 else()
-   atlas_add_test( TriggerAlgorithmsTestJob
+   atlas_add_test( TriggerAlgorithmsTestJobData
       SCRIPT athena.py
-             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py
-      PROPERTIES TIMEOUT 300 )
+             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type data
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( TriggerAlgorithmsTestJobFullSim
+      SCRIPT athena.py
+             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type mc
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( TriggerAlgorithmsTestJobFastSim
+      SCRIPT athena.py
+             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type afii
+      PROPERTIES TIMEOUT 600 )
 endif()

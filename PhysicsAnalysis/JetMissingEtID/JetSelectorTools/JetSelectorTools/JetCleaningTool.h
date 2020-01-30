@@ -37,7 +37,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
 
   public: 
     /** Levels of cut */
-    enum CleaningLevel{ VeryLooseBadLLP , LooseBad , LooseBadLLP, LooseBadTrigger, TightBad , UnknownCut };
+  enum CleaningLevel{ SuperLooseBadLLP, VeryLooseBadLLP , LooseBad , LooseBadLLP, LooseBadTrigger, TightBad , UnknownCut };
 
     /** Standard constructor */
     JetCleaningTool(const std::string& name="JetCleaningTool");

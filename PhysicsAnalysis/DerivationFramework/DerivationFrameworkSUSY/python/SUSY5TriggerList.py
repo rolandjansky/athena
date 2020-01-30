@@ -228,6 +228,8 @@ PrescaledHighPtTriggers = [
 'HLT_e26_lhvloose_nod0',
 'HLT_e26_lhvloose_nod0_L1EM20VH',
 'HLT_e26_lhvloose_nod0_L1EM22VHIM',
+'HLT_e26_lhmedium_nod0_L1EM20VH',
+'HLT_e26_lhmedium_nod0_L1EM22VH',
 'HLT_e28_lhvloose_nod0_L1EM20VH',
 'HLT_e30_lhvloose_nod0_L1EM15',
 'HLT_e30_etcut_L1EM15',

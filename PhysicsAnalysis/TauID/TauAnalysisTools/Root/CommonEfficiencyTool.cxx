@@ -69,8 +69,8 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   : asg::AsgTool( sName )
   , m_mSF(nullptr)
   , m_sSystematicSet(0)
-  , m_fX(&caloTauPt)
-  , m_fY(&caloTauEta)
+  , m_fX(&finalTauPt)
+  , m_fY(&finalTauEta)
   , m_sSFHistName("sf")
   , m_bNoMultiprong(false)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
@@ -94,6 +94,7 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
   declareProperty( "SplitMu",             m_bSplitMu             = false );
   declareProperty( "SplitMCCampaign",     m_bSplitMCCampaign     = false );
   declareProperty( "MCCampaign",          m_sMCCampaign          = "");
+  declareProperty( "UseTauSubstructure",  m_bUseTauSubstructure  = false);
 }
 
 /*
@@ -173,7 +174,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   }
 
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
+  if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;
@@ -186,14 +187,30 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     return CP::CorrectionCode::Ok;
   }
 
-  // get prong extension for histogram name
-  std::string sProng = ConvertProngToString(xTau.nTracks());
+  // get decay mode or prong extension for histogram name
+  std::string sMode;
+  if (m_bUseTauSubstructure)
+  {
+    int iDecayMode = -1;
+    xTau.panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, iDecayMode);
+    sMode = ConvertDecayModeToString(iDecayMode);
+    if (sMode == "")
+    {
+      ATH_MSG_WARNING("Found tau with unknown decay mode. Skip efficiency correction.");
+      return CP::CorrectionCode::OutOfValidityRange;
+    }
+  }
+  else
+  {
+    sMode = ConvertProngToString(xTau.nTracks());
+  }
+
   std::string sMu = "";
   std::string sMCCampaign = "";
 
   if (m_bSplitMu) sMu = ConvertMuToString(iMu);
   if (m_bSplitMCCampaign) sMCCampaign = GetMcCampaignString(iRunNumber);
-  std::string sHistName = m_sSFHistName + sProng + sMu + sMCCampaign;
+  std::string sHistName = m_sSFHistName + sMode + sMu + sMCCampaign;
 
   // get standard scale factor
   CP::CorrectionCode tmpCorrectionCode = getValue(sHistName,
@@ -226,7 +243,7 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
     if (dDirection>0)   sHistName+="_up";
     else                sHistName+="_down";
     if (!m_sWP.empty()) sHistName+="_"+m_sWP;
-    sHistName += sProng + sMu + sMCCampaign;
+    sHistName += sMode + sMu + sMCCampaign;
 
     // get the uncertainty from the histogram
     tmpCorrectionCode = getValue(sHistName,
@@ -442,6 +459,29 @@ std::string CommonEfficiencyTool::GetMcCampaignString(const int& iRunNumber)
 }
 
 /*
+  decay mode converter
+*/
+//______________________________________________________________________________
+std::string CommonEfficiencyTool::ConvertDecayModeToString(const int& iDecayMode)
+{
+  switch(iDecayMode)
+  {
+    case xAOD::TauJetParameters::DecayMode::Mode_1p0n:
+      return "_r1p0n";
+    case xAOD::TauJetParameters::DecayMode::Mode_1p1n:
+      return "_r1p1n";
+    case xAOD::TauJetParameters::DecayMode::Mode_1pXn:
+      return "_r1pXn";
+    case xAOD::TauJetParameters::DecayMode::Mode_3p0n:
+      return "_r3p0n";
+    case xAOD::TauJetParameters::DecayMode::Mode_3pXn:
+      return "_r3pXn";
+    default:
+      return "";
+  }
+}
+
+/*
   Read in a root file and store all objects to a map of this type:
   std::map<std::string, tTupleObjectFunc > (see header) It's basically a map of
   the histogram name and a function pointer based on the TObject type (TH1F,
@@ -456,8 +496,8 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
   m_mSF->clear();
 
   // initialize function pointer
-  m_fX = &caloTauPt;
-  m_fY = &caloTauEta;
+  m_fX = &finalTauPt;
+  m_fY = &finalTauEta;
 
   TKey *kKey;
   TIter itNext(fFile.GetListOfKeys());
@@ -471,11 +511,17 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
       TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
-      if (sTitle == "P")
+      if (sTitle == "P" || sTitle == "PFinalCalib")
       {
-        m_fX = &caloTauP;
+        m_fX = &finalTauP;
         ATH_MSG_DEBUG("using full momentum for x-axis");
       }
+      if (sTitle == "TruthDecayMode")
+      {
+        m_fX = &truthDecayMode;
+        ATH_MSG_DEBUG("using truth decay mode for x-axis");
+      }
+
       continue;
     }
     else if (sKeyName == "Yaxis")
@@ -490,7 +536,7 @@ void CommonEfficiencyTool::ReadInputs(TFile& fFile)
       }
       else if (sTitle == "|eta|")
       {
-        m_fY = &caloTauAbsEta;
+        m_fY = &finalTauAbsEta;
         ATH_MSG_DEBUG("using absolute tau eta for y-axis");
       }
       continue;
@@ -747,46 +793,4 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTF1(const TObject* oObject,
   // evaluate TFunction and set scale factor
   dEfficiencyScaleFactor = fFunc->Eval(dPt, dEta);
   return CP::CorrectionCode::Ok;
-}
-
-/*
-  Check the type of truth particle, previously matched with the
-  TauTruthMatchingTool. The type to match was parsed from the input file in
-  CommonEfficiencyTool::generateSystematicSets()
-*/
-//______________________________________________________________________________
-e_TruthMatchedParticleType CommonEfficiencyTool::checkTruthMatch(const xAOD::TauJet& xTau) const
-{
-
-  // check if reco tau is a truth hadronic tau
-  typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-  if (!xTau.isAvailable< Link_t >("truthParticleLink"))
-    ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first");
-
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
-  const Link_t xTruthParticleLink = accTruthParticleLink(xTau);
-
-  // if there is no link, then it is a truth jet
-  e_TruthMatchedParticleType eTruthMatchedParticleType = TauAnalysisTools::TruthJet;
-
-  if (xTruthParticleLink.isValid())
-  {
-    const xAOD::TruthParticle* xTruthParticle = *xTruthParticleLink;
-    if (xTruthParticle->isTau())
-    {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
-      if ((bool)accIsHadronicTau(*xTruthParticle))
-      {
-        eTruthMatchedParticleType = TruthHadronicTau;
-      }
-    }
-    else if (xTruthParticle->isElectron())
-      eTruthMatchedParticleType = TruthElectron;
-    else if (xTruthParticle->isMuon())
-      eTruthMatchedParticleType = TruthMuon;
-  }
-  else
-    ATH_MSG_VERBOSE("Truth particle link is not valid");
-
-  return eTruthMatchedParticleType;
 }

@@ -23,6 +23,8 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
       Reconstruction/Jet/JetUtils
+      Reconstruction/Jet/JetCalibTools
+      Reconstruction/PFlow/PFlowUtils
       PRIVATE
       Calorimeter/CaloGeoHelpers
       Event/xAOD/xAODEventInfo
@@ -30,6 +32,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Tools/PathResolver
       Control/AthToolSupport/AsgTools
       Control/xAODRootAccess
+      Event/xAOD/xAODMetaData
       ${extra_deps} )
 else()
    atlas_depends_on_subdirs(
@@ -43,7 +46,9 @@ else()
       Reconstruction/Jet/JetEDM
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
+      Reconstruction/Jet/JetCalibTools
       Reconstruction/Jet/JetRecCalo
+      Reconstruction/PFlow/PFlowUtils
       Reconstruction/Jet/JetUtils
       PRIVATE
       Calorimeter/CaloDetDescr
@@ -53,12 +58,13 @@ else()
       Event/xAOD/xAODEventInfo
       Event/xAOD/xAODPFlow
       Tools/PathResolver
+      Event/xAOD/xAODMetaData
       GaudiKernel )
 endif()
 
 # External dependencies:
 find_package( Boost )
-find_package( ROOT COMPONENTS Core Hist RIO )
+find_package( ROOT COMPONENTS Core Hist RIO TMVA)
 
 # Component(s) in the package:
 atlas_add_library( JetMomentToolsLib
@@ -67,7 +73,8 @@ atlas_add_library( JetMomentToolsLib
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
    AsgTools xAODCaloEvent xAODJet xAODMissingET xAODTracking JetEDM JetInterface
-   JetRecLib JetUtils
+   JetRecLib JetUtils PFlowUtilsLib JetCalibToolsLib
+   xAODMetaData
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -78,8 +85,8 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( JetMomentTools
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent xAODJet
-      GaudiKernel JetRecLib JetUtils PathResolver JetMomentToolsLib
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent xAODJet xAODMetaData
+      GaudiKernel JetRecLib JetUtils PathResolver JetMomentToolsLib PFlowUtilsLib JetCalibToolsLib
       ${extra_libs} )
 endif()
 
@@ -94,11 +101,11 @@ if( XAOD_ANALYSIS )
 	 		  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
 			  LINK_LIBRARIES ${ROOT_LIBRARIES}
 			  AsgTools xAODJet JetMomentToolsLib
-			  xAODRootAccess xAODCore
+			  xAODRootAccess xAODCore xAODMetaData
 			  )
 endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/*.root )
-atlas_install_data( share/*.root )
+atlas_install_data( share/* )

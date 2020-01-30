@@ -21,12 +21,14 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools 
    Event/xAOD/xAODBase
    Event/xAOD/xAODJet 
+   Event/xAOD/xAODTruth 
    PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections 
    PhysicsAnalysis/AnalysisCommon/PATCore 
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    Reconstruction/Jet/JetInterface
    Reconstruction/Jet/JetCalibTools
+   Reconstruction/Jet/JetUncertainties
    Reconstruction/Jet/JetRec
    PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
@@ -51,12 +53,14 @@ atlas_add_library( BoostedJetTaggersLib
   BoostedJetTaggers/*.h
   Root/BoostedXbbTagger.cxx
   Root/HbbTaggerDNN.cxx
+  Root/MassDecoXbbTagger.cxx
   Root/HEPTopTagger.cxx
   Root/JetQGTagger.cxx
   Root/JSSTaggerBase.cxx
   Root/JSSWTopTaggerBDT.cxx
   Root/JetQGTaggerBDT.cxx
   Root/JSSWTopTaggerDNN.cxx
+  Root/JSSWTopTaggerANN.cxx
   Root/SmoothedTopTagger.cxx
   Root/SmoothedWZTagger.cxx
   Root/TopoclusterTopTagger.cxx
@@ -66,7 +70,7 @@ atlas_add_library( BoostedJetTaggersLib
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES}
    ${LWTNN_LIBRARIES}
    AsgTools 
-   xAODBase xAODJet JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib 
+   xAODBase xAODJet xAODTruth JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib  JetUncertaintiesLib
    MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces 
    JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib 
    MuonAnalysisInterfacesLib ${extra_libs} 
@@ -90,7 +94,7 @@ if( XAOD_STANDALONE )
       util/test_SmoothedWZTagger.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
-      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
+      xAODEventInfo xAODJet xAODTruth xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
    )   
    atlas_add_executable( test_SmoothedTopTagger
@@ -121,6 +125,13 @@ if( XAOD_STANDALONE )
       xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
    )
+   atlas_add_executable( test_MassDecoXbbTagger
+      util/test_MassDecoXbbTagger.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
    atlas_add_executable( test_JSSWTopTaggerBDT
       util/test_JSSWTopTaggerBDT.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -132,7 +143,14 @@ if( XAOD_STANDALONE )
       util/test_JSSWTopTaggerDNN.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
-      xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
+      xAODEventInfo xAODJet xAODTruth xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
+   atlas_add_executable( test_JSSWTopTaggerANN
+      util/test_JSSWTopTaggerANN.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODTruth xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
    )
    atlas_add_executable( test_JetQGTaggerBDT

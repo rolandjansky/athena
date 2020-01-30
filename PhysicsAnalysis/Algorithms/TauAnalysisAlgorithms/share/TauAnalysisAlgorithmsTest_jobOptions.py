@@ -1,51 +1,43 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
+
+# User options, which can be set from command line after a "-" character
+# athena EgammaAlgorithmsTest_jobOptions.py - --myOption ...
+from AthenaCommon.AthArgumentParser import AthArgumentParser
+athArgsParser = AthArgumentParser()
+athArgsParser.add_argument("--data-type", action = "store", dest = "data_type",
+                           default = "data",
+                           help = "Type of input to run over. Valid options are 'data', 'mc', 'afii'")
+athArgs = athArgsParser.parse_args()
+
+dataType = athArgs.data_type
+if not dataType in ["data", "mc", "afii"] :
+    raise Exception ("invalid data type: " + dataType)
+
+print("Running on data type: " + dataType)
+
+inputfile = {"data": 'ASG_TEST_FILE_DATA',
+             "mc":   'ASG_TEST_FILE_MC',
+             "afii": 'ASG_TEST_FILE_MC_AFII'}
 
 # Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
 theApp.EvtMax = 500
-testFile = os.getenv ('ASG_TEST_FILE_DATA')
+testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
-# Access the main algorithm sequence of the job:
-from AthenaCommon.AlgSequence import AlgSequence
-algSeq = AlgSequence()
+from TauAnalysisAlgorithms.TauAnalysisAlgorithmsTest import makeSequence
+algSeq = makeSequence (dataType)
+print algSeq # For debugging
 
-# ideally we'd run over all of them, but we don't have a mechanism to
-# configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
-
-# Set up the systematics loader/handler algorithm:
-sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
-sysLoader.sigmaRecommended = 1
-algSeq += sysLoader
-
-# Include, and then set up the tau analysis algorithm sequence:
-from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-tauSequence = makeTauAnalysisSequence( dataType, 'Tight', postfix = 'tight' )
-tauSequence.configure( inputName = 'TauJets', outputName = 'AnalysisTauJets' )
-print( tauSequence ) # For debugging
-
-# Add the sequence to the job:
-algSeq += tauSequence
-
-# Include, and then set up the tau analysis algorithm sequence:
-from TauAnalysisAlgorithms.DiTauAnalysisSequence import makeDiTauAnalysisSequence
-diTauSequence = makeDiTauAnalysisSequence( dataType, 'Tight', postfix = 'tight' )
-diTauSequence.configure( inputName = 'DiTauJets', outputName = 'AnalysisDiTauJets' )
-print( diTauSequence ) # For debugging
-
-# Add the sequence to the job:
-# disabling this, the standard test files don't have DiTauJets
-# algSeq += diTauSequence
+# Add all algorithms from the sequence to the job.
+athAlgSeq += algSeq
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "ANALYSIS DATAFILE='TauAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='TauAnalysisAlgorithmsTest." + dataType + ".hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:

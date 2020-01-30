@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: testIsolationSelectionTool.cxx 800557 2017-03-14 12:59:06Z jpoveda $
@@ -66,7 +66,7 @@ int main( int argc, char* argv[] ) {
   // Open the input file:
   const TString fileName = argv[ 1 ];
   Info( APP_NAME, "Opening file: %s", fileName.Data() );
-  std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
+  std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   SCHECK( ifile.get() );
 
   // Create a TEvent object:

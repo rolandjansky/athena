@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef ASGANALYSISALGORITHMS_ASGXAODNTUPLEMAKERALG_H
 #define ASGANALYSISALGORITHMS_ASGXAODNTUPLEMAKERALG_H
@@ -77,13 +77,15 @@ namespace CP {
       /// Function setting up the internal data structures on the first event
       StatusCode setupTree();
 
+      /// Function setting up an individual branch on the first event
+      StatusCode setupBranch( const std::string &branchDecl,
+                              const CP::SystematicSet &sys );
+
       /// @name Algorithm properties
       /// @{
 
       /// The name of the output tree to write
       std::string m_treeName;
-      /// Flust setting for the output tree
-      int m_treeAutoFlush;
       /// The branches to write into this output tree
       std::vector< std::string > m_branches;
 
@@ -128,10 +130,15 @@ namespace CP {
          /// @param auxName Name of the auxiliary variable to create the branch
          ///                from
          /// @param branchName The name of the branch to create in the tree
+         /// @param allowMissing Set to @c true to print an error message in case
+         ///                     of a failure
+         /// @param created Used to store if the branch was actually created
          /// @return The usual @c StatusCode values
          ///
          StatusCode addBranch( TTree& tree, const std::string& auxName,
-                               const std::string& branchName );
+                               const std::string& branchName,
+                               bool allowMissing,
+                               bool &created );
 
       private:
          /// Class writing one variable from an xAOD object into a branch
@@ -255,10 +262,15 @@ namespace CP {
          /// @param auxName Name of the auxiliary variable to create the branch
          ///                from
          /// @param branchName The name of the branch to create in the tree
+         /// @param allowMissing Set to @c true to print an error message in case
+         ///                     of a failure
+         /// @param created Used to store if the branch was actually created
          /// @return The usual @c StatusCode values
          ///
          StatusCode addBranch( TTree& tree, const std::string& auxName,
-                               const std::string& branchName );
+                               const std::string& branchName,
+                               bool allowMissing,
+                               bool &created );
 
       private:
          /// Class writing one variable from an xAOD object into a branch

@@ -7,3 +7,5 @@ ElectronsCPDetailedContent = ExtraElectronShowerShapes + ExtraElectronTruthInfo
 ExtraElectronGSFVar = ["GSFTrackParticles.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdOutliers.numberOfTRTXenonHits.eProbabilityComb.eProbabilityHT"]  
 GSFTracksCPDetailedContent = ExtraElectronGSFVar
 
+ElectronsAddAmbiguityContent = ["Electrons.DFCommonSimpleConvRadius.DFCommonSimpleConvPhi.DFCommonSimpleMee.DFCommonSimpleMeeAtVtx.DFCommonSimpleSeparation.DFCommonProdTrueRadius.DFCommonProdTruePhi.DFCommonProdTrueZ"]
+

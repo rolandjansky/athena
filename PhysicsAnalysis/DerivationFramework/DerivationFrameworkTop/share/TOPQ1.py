@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 #====================================================================
 # TOPQ1
 # SINGLE TOP SELECTION
@@ -21,8 +23,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -37,7 +39,7 @@ TOPQ1Stream.AcceptAlgs(["TOPQ1Kernel"])
 # PDF Weight Metadata
 #====================================================================
 if DFisMC:
-  from DerivationFrameworkCore.WeightMetadata import *
+    from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
 # TRIGGER NAVIGATION THINNING
@@ -66,9 +68,9 @@ thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ1',TOPQ1Thi
 #====================================================================
 doSimpleV0Finder = False
 if doSimpleV0Finder:
-  include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
+    include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
 else:
-  include("DerivationFrameworkBPhys/configureV0Finder.py")
+    include("DerivationFrameworkBPhys/configureV0Finder.py")
 
 TOPQ1_V0FinderTools = BPHYV0FinderTools("TOPQ1")
 print TOPQ1_V0FinderTools
@@ -99,38 +101,54 @@ TOPQ1Sequence = CfgMgr.AthSequencer("TOPQ1Sequence")
 # First skim on leptons
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-#============
-# add Jets
-#============
 #====================================================================
 # Special jets
 #====================================================================
 # Create TCC objects (see JETM1.py)
-from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(TOPQ1Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+runTCCReconstruction(TOPQ1Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addTCCTrimmedJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
-from DerivationFrameworkTop.TOPQCommonJets import addXbbTaggerInformation
-from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
-from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
-from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
-# add fat/trimmed jets
-addStandardJetsForTop(TOPQ1Sequence,'TOPQ1')
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["TOPQ1"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoJets",
+                  "AntiKt10TrackCaloClusterJets"]
+replaceAODReducedJets(reducedJetList, TOPQ1Sequence, "TOPQ1")
+
+# If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
+# *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(TOPQ1Sequence, "TOPQ1")
+
 # add SoftDrop jets
+from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
 addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
+
 # add TTC jets
+from DerivationFrameworkTop.TOPQCommonJets import addTCCTrimmedJetsForTop
 addTCCTrimmedJetsForTop(TOPQ1Sequence, "TOPQ1")
+
 # add VR jets
+from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
 addVRJetsForTop(TOPQ1Sequence)
+
 # add Xbb tagger information
+from DerivationFrameworkTop.TOPQCommonJets import addXbbTaggerInformation
 addXbbTaggerInformation(TOPQ1Sequence, ToolSvc)
+
 # apply jet calibration
+from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)
 
@@ -140,24 +158,34 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-# for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 TaggerList = BTaggingFlags.StandardTaggers
-from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
-ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ1Sequence)
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ1Sequence)
+
+# Quark-gluon tagging
+truthjetalg='AntiKt4TruthJets'
+if not DFisMC:
+    truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  TOPQ1Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    TOPQ1Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
+from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
 addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
+
 # add ExKtDoubleTagVariables (TOPQDERIV-62)
+from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
 addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
 
-# Then apply thinning 
+# Then apply thinning
 #AugmentationTool for TOPQDERIV-69
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools, AugmentationTools = [TOPQ1_Reco_V0Finder])
 

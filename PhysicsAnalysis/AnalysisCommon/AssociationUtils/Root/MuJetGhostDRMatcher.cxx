@@ -3,7 +3,7 @@
 */
 
 // Infrastructure
-#include "CxxUtils/make_unique.h"
+
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
@@ -24,7 +24,7 @@ namespace ORUtils
   MuJetGhostDRMatcher::MuJetGhostDRMatcher(double dR, bool useRapidity)
     : asg::AsgMessaging("MuJetGhostDRMatcher")
   {
-    m_drMatcher = CxxUtils::make_unique<DeltaRMatcher>(dR, useRapidity);
+    m_drMatcher = std::make_unique<DeltaRMatcher>(dR, useRapidity);
   }
 
   //---------------------------------------------------------------------------
