@@ -11,11 +11,11 @@ reco_campaigns = {
 def getCampaign(ami_tag = None, project = None):
     # Attempt auto-configuration
     if ami_tag is None or project is None:
-        # either is not set, get all from InputFilePeeker
+        # either is not set, get unset from InputFilePeeker
         from RecExConfig.InputFilePeeker import inputFileSummary
         if inputFileSummary is not None:
-            ami_tag = inputFileSummary['tag_info']['AMITag']
-        project = inputFileSummary['tag_info']['project_name']
+            ami_tag = inputFileSummary['tag_info']['AMITag'] if ami_tag is None else ami_tag
+        project = inputFileSummary['tag_info']['project_name'] if projcet is None else project
 
     assert ami_tag is not None
     assert project is not None
@@ -50,13 +50,13 @@ def getMCMuFiles(data_type = None, campaign = None, dsid = None):
     defaultDirectory = 'dev/PileupReweighting/share'
 
     if data_type is None or campaign is None or dsid is None:
-        # one is not set, get all from InputFilePeeker
+        # one is not set, get unset from InputFilePeeker
         from RecExConfig.InputFilePeeker import inputFileSummary
         if inputFileSummary is not None and 'IS_SIMULATION' in inputFileSummary['evt_type']:
             # We are in an MC file - get the AMI tag
-            ami_tag = inputFileSummary['tag_info']['AMITag']
-            campaign = getCampaign()
-            dsid = str(inputFileSummary['mc_channel_number'][0])
+            ami_tag = inputFileSummary['tag_info']['AMITag'] if ami_tag is None else ami_tag
+            campaign = getCampaign(ami_tag=ami_tag)
+            dsid = str(inputFileSummary['mc_channel_number'][0]) if dsid is None else dsid
             sim_flavor = inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour']
             sim_type = 'FS' if sim_flavor in ['FullG4'] else 'AFII'
             inputFile = defaultDirectory+'/DSID'+dsid[:3]+'xxx/pileup_'+campaign+'_dsid'+dsid+'_'+sim_type+'.root'
