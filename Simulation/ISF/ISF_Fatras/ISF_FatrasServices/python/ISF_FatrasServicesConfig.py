@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Serivce and Tool configurations for ISF for ISF_FatrasServicesConfig
@@ -30,8 +30,8 @@ from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collecti
 
 def initialiseCoolDataBaseFolder():
     if TrkDetFlags.ConfigurationOutputLevel() < 3 :
-      print '[ Configuration : start ] *** FatrasTrackingGeometry ********************************'
-      print '[ TrackingGeometrySvc ]'
+      print ('[ Configuration : start ] *** FatrasTrackingGeometry ********************************')
+      print ('[ TrackingGeometrySvc ]')
 
     # check whether the material retrieval is ment to be from COOL
     if TrkDetFlags.MaterialSource() is 'COOL' :
@@ -40,8 +40,8 @@ def initialiseCoolDataBaseFolder():
         AtlasMaterialTag = TrkDetFlags.MaterialTagBase()+str(TrkDetFlags.MaterialVersion())+'_'
 
         if TrkDetFlags.ConfigurationOutputLevel() < 3 :
-           print '[ TrackingGeometrySvc ] Associating DB folder : ',CoolDataBaseFolder
-           print '[ TrackingGeometrySvc ]     base material tag : ',AtlasMaterialTag
+           print ('[ TrackingGeometrySvc ] Associating DB folder : ',CoolDataBaseFolder)
+           print ('[ TrackingGeometrySvc ]     base material tag : ',AtlasMaterialTag)
 
         # we need the conditions interface
         from IOVDbSvc.CondDB import conddb
@@ -55,7 +55,7 @@ def initialiseCoolDataBaseFolder():
             conddb.blockFolder('/GLOBAL/TrackingGeo/LayerMaterial')
             conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True)
             if TrkDetFlags.ConfigurationOutputLevel() < 3 :
-                print '[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection
+                print ('[ TrackingGeometrySvc ] Using Local Database: '+DataBaseConnection)
             # make sure that the pool files are in the catalog
             #from PoolSvc.PoolSvcConf import PoolSvc
             #PoolSvc.ReadCatalog += [ DataBasePath+'PoolFileCatalog.xml' ]
