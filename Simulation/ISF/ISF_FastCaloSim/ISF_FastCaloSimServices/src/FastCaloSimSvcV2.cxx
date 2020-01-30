@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -187,21 +187,18 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     return StatusCode::SUCCESS;
   }
 
+  TFCSTruthState truth;
+  truth.SetPtEtaPhiM(particle_direction.perp(), particle_direction.eta(), particle_direction.phi(), isfp.mass());
+  truth.set_pdgid(isfp.pdgCode());
+  truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   /// for anti protons and anti neutrons the kinetic energy should be
   /// calculated as Ekin = E() + M() instead of E() - M()
-  /// this is achieved by constructing the TFCSTruthState with negative mass
-  float isfp_mass = isfp.mass();
-  if(isfp.pdgCode() == -2212 or isfp.pdgCode() == -2112) {
-    isfp_mass = - isfp_mass;
-    ATH_MSG_VERBOSE("Found anti-proton/neutron, negative mass is used for TFCSTruthState ");
+  /// this is achieved by setting an Ekin offset of 2*M() to the truth state
+  if(isfp.pdgCode() == -2212 || isfp.pdgCode() == -2112) {
+    truth.set_Ekin_off(2*isfp.mass());
+    ATH_MSG_VERBOSE("Found anti-proton/neutron, setting Ekin offset in TFCSTruthState.");
   }
-
-
-  TFCSTruthState truth;
-  truth.SetPtEtaPhiM(particle_direction.perp(), particle_direction.eta(), particle_direction.phi(), isfp_mass);
-  truth.set_pdgid(isfp.pdgCode());
-  truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
   TFCSExtrapolationState extrapol;
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
