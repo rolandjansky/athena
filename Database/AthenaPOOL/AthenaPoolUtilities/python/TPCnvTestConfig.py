@@ -19,6 +19,11 @@ from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 Configurable.configurableRun3Behavior = True
 
 def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=False, doSCT=False, doTRT=False, doLAr=False, doTile=False, doMuon=False, doTracks=False, configOnly=False):
+
+    # Needed to prevent spurious root errors about streams in CreateRealData.
+    import ROOT
+    ROOT.GaudiPython.CallbackStreamBuf
+
     # Make sure we don't have a stale file catalog.
     if os.path.exists ('PoolFileCatalog.xml'):
         os.remove ('PoolFileCatalog.xml')
