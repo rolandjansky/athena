@@ -22,10 +22,13 @@ class IIntersector;
 class TrackSurfaceIntersection;
     
 class IntersectorWrapper: public AthAlgTool,
-			  virtual public IPropagator
-{
-    
-public:
+  virtual public IPropagator
+  {
+
+  public:
+    using IPropagator::propagate;
+    using IPropagator::propagateT;
+
     IntersectorWrapper	(const std::string& type, 
 			 const std::string& name,
 			 const IInterface* parent);
@@ -167,6 +170,12 @@ public:
 			 ParticleHypothesis particle=pion,
 			 const TrackingVolume* tVol=0) const;
 
+    //placeholder for compatibility with new interface                                                                                                                        
+    virtual const TrackSurfaceIntersection* intersectSurface(const Surface&,
+                                                     const TrackSurfaceIntersection*,
+                                                     const double,
+                                                     const MagneticFieldProperties&,
+                                                     ParticleHypothesis) const {return 0;}
 
     /** Validation Action:
 	Can be implemented optionally, outside access to internal validation steps */

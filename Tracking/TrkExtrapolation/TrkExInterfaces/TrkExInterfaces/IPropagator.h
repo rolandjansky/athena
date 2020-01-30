@@ -18,6 +18,7 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "ITimedExtrapolator.h"
+#include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 #include "TrkExUtils/TargetSurfaces.h"
 
@@ -67,7 +68,7 @@ namespace Trk {
                                                   const Surface& sf,
                                                   PropDirection dir,
                                                   BoundaryCheck bcheck,
-						                          bool returnCurv = false) const = 0;
+                                                  bool returnCurv = false) const = 0;
 
        /** N 0) <b>Neutral parameters method </b> 
            - symmetric interface for new Extrapolation engine
@@ -99,8 +100,8 @@ namespace Trk {
                                                   BoundaryCheck bcheck,
                                                   const MagneticFieldProperties& mprop,
                                                   ParticleHypothesis particle=pion,
-						                          bool returnCurv = false,
-						                          const TrackingVolume* tVol=0) const = 0;
+                                                  bool returnCurv = false,
+                                                  const TrackingVolume* tVol=0) const = 0;
        
 
        /** Propagation interface:
@@ -116,8 +117,8 @@ namespace Trk {
                                                  std::vector<unsigned int>& solutions,
                                                  double& path,
                                                  bool usePathLim = false,
-						 bool returnCurv = false,
-						 const TrackingVolume* tVol=0) const = 0;
+                                                 bool returnCurv = false,
+                                                 const TrackingVolume* tVol=0) const = 0;
        
        /** Propagation interface:
          
@@ -125,15 +126,15 @@ namespace Trk {
          finds the closest surface. Timing included.
          */
        virtual const TrackParameters* propagateT( const TrackParameters& parm,
-						  std::vector<DestSurf>& sfs,
-						  PropDirection dir,
-						  const MagneticFieldProperties& mprop,
-						  ParticleHypothesis particle,
-						  std::vector<unsigned int>& solutions,
-						  PathLimit& pathLim, TimeLimit& timeLim,
-						  bool returnCurv ,
-						  const TrackingVolume* tVol,
-						  std::vector<Trk::HitInfo>*& hitVector) const;
+                                                  std::vector<DestSurf>& sfs,
+                                                  PropDirection dir,
+                                                  const MagneticFieldProperties& mprop,
+                                                  ParticleHypothesis particle,
+                                                  std::vector<unsigned int>& solutions,
+                                                  PathLimit& pathLim, TimeLimit& timeLim,
+                                                  bool returnCurv ,
+                                                  const TrackingVolume* tVol,
+                                                  std::vector<Trk::HitInfo>*& hitVector) const;
          
        /** Propagation interface:
          
@@ -141,14 +142,14 @@ namespace Trk {
          finds the closest surface. Timing included.
          */
        virtual const TrackParameters* propagateT( const TrackParameters& parm,
-						  TargetSurfaces& sfs,
-						  PropDirection dir,
-						  const MagneticFieldProperties& mprop,
-						  ParticleHypothesis particle,
-						  TargetSurfaceVector& solutions,
-						  PathLimit& pathLim, TimeLimit& timeLim,
-						  bool returnCurv ,
-						  std::vector<Trk::HitInfo>*& hitVector) const;
+                                                  TargetSurfaces& sfs,
+                                                  PropDirection dir,
+                                                  const MagneticFieldProperties& mprop,
+                                                  ParticleHypothesis particle,
+                                                  TargetSurfaceVector& solutions,
+                                                  PathLimit& pathLim, TimeLimit& timeLim,
+                                                  bool returnCurv ,
+                                                  std::vector<Trk::HitInfo>*& hitVector) const;
          
 
        /** Propagation interface:
@@ -156,25 +157,25 @@ namespace Trk {
          The propagation method called by the TrkExEngine. All options included.
          */
        virtual Trk::ExtrapolationCode propagate( Trk::ExCellCharged& eCell,
-						 Trk::TargetSurfaces& sfs,
-						 Trk::TargetSurfaceVector& solutions) const;         
+                                                 Trk::TargetSurfaces& sfs,
+                                                 Trk::TargetSurfaceVector& solutions) const;         
        /** Propagation interface:
          
          The propagation method with internal material collection. The propagator
          finds the closest surface. 
          */
        virtual const TrackParameters* propagateM( const TrackParameters& parm,
-						  std::vector<DestSurf>& sfs,
-						  PropDirection dir,
+                                                  std::vector<DestSurf>& sfs,
+                                                  PropDirection dir,
                                                   const MagneticFieldProperties& mprop,
-						  ParticleHypothesis particle,
-						  std::vector<unsigned int>& solutions,
-						  std::vector<const Trk::TrackStateOnSurface*>*& matstates,
-						  std::vector<std::pair<const Trk::TrackParameters*,int> >*& intersections, 
-						  double& path,
-						  bool usePathLim = false,
-						  bool returnCurv = false,
-						  const TrackingVolume* tVol = 0,
+                                                  ParticleHypothesis particle,
+                                                  std::vector<unsigned int>& solutions,
+                                                  std::vector<const Trk::TrackStateOnSurface*>*& matstates,
+                                                  std::vector<std::pair<const Trk::TrackParameters*,int> >*& intersections, 
+                                                  double& path,
+                                                  bool usePathLim = false,
+                                                  bool returnCurv = false,
+                                                  const TrackingVolume* tVol = 0,
                                                   Trk::ExtrapolationCache* cache = 0) const;
          
 
@@ -191,8 +192,8 @@ namespace Trk {
                                                       TransportJacobian*&,
                                                       double& pathLength,
                                                       ParticleHypothesis particle=pion,
-						                              bool returnCurv = false,
-						                              const TrackingVolume* tVol=0) const = 0;
+                                                      bool returnCurv = false,
+                                                      const TrackingVolume* tVol=0) const = 0;
        
 
        /** Propagation interface without Covariance matrix propagation
@@ -205,18 +206,18 @@ namespace Trk {
                                                                 BoundaryCheck bcheck,
                                                                 const MagneticFieldProperties& mprop,
                                                                 ParticleHypothesis particle=pion,
-								                                bool returnCurv = false,
-								                                const TrackingVolume* tVol=0) const = 0;
+                                                                bool returnCurv = false,
+                                                                const TrackingVolume* tVol=0) const = 0;
        
        virtual const TrackParameters*      propagateParameters( const TrackParameters& parm,
                                                                 const Surface& sf,
                                                                 PropDirection dir,
                                                                 BoundaryCheck bcheck,
                                                                 const MagneticFieldProperties& mprop,
-								                                TransportJacobian*&,
+                                                                TransportJacobian*&,
                                                                 ParticleHypothesis particle=pion,
-								                                bool returnCurv = false,
-								                                const TrackingVolume* tVol=0) const = 0;
+                                                                bool returnCurv = false,
+                                                                const TrackingVolume* tVol=0) const = 0;
        
 
        /** Intersection interface:
@@ -228,8 +229,18 @@ namespace Trk {
                                                       const Surface& sf,
                                                       const MagneticFieldProperties& mprop,
                                                       ParticleHypothesis particle=pion,
-						      const TrackingVolume* tVol=0) const = 0;
-                                                      
+                                                      const TrackingVolume* tVol=0) const = 0;
+
+      /** Intersection and Intersector interface: 
+        */
+
+       virtual const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
+                                                     const TrackSurfaceIntersection*    trackIntersection,
+                                                     const double               qOverP,
+                                                     const MagneticFieldProperties& mft,
+                                                     ParticleHypothesis       particle) const = 0;                        
+ 
+
       /** GlobalPositions list interface:
          This is used mostly in pattern recognition in the road finder, the propagation direction is intrinsically given
          by the sign of the stepSize.
@@ -244,7 +255,7 @@ namespace Trk {
                                     const CylinderBounds& cylbo,
                                     double stepSize,
                                     ParticleHypothesis particle=pion,
-				                    const TrackingVolume* tVol=0) const = 0;
+                                    const TrackingVolume* tVol=0) const = 0;
 
      /** a very simple propagation along a given path length */
      virtual void propagateStep(const Amg::Vector3D& inputPosition, 
@@ -265,64 +276,76 @@ namespace Trk {
 } // end of namespace
 
 inline const Trk::TrackParameters* Trk::IPropagator::propagate( const TrackParameters&,
-								std::vector<DestSurf>&,
-								PropDirection ,
-								const MagneticFieldProperties&,
-								ParticleHypothesis,
-								std::vector<unsigned int>&,
-								double&,
-								bool,
-								bool,
-								const Trk::TrackingVolume*) const
+                                                                const Surface&,
+                                                                PropDirection,
+                                                                BoundaryCheck,
+                                                                const MagneticFieldProperties&,
+                                                                ParticleHypothesis,
+                                                                bool,
+                                                                const TrackingVolume*) const
+{                  
+  return 0;
+}
+
+inline const Trk::TrackParameters* Trk::IPropagator::propagate( const TrackParameters&,
+                                                                std::vector<DestSurf>&,
+                                                                PropDirection ,
+                                                                const MagneticFieldProperties&,
+                                                                ParticleHypothesis,
+                                                                std::vector<unsigned int>&,
+                                                                double&,
+                                                                bool,
+                                                                bool,
+                                                                const Trk::TrackingVolume*) const
 {                  
   return 0;
 }
 
 inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters&,
-								 std::vector<DestSurf>&,
-								 PropDirection ,
-								 const MagneticFieldProperties&,
-								 ParticleHypothesis,
-								 std::vector<unsigned int>&,
-								 PathLimit&, TimeLimit&,
-								 bool,const Trk::TrackingVolume*,
-								 std::vector<Trk::HitInfo>*&) const
+                                                                 std::vector<DestSurf>&,
+                                                                 PropDirection ,
+                                                                 const MagneticFieldProperties&,
+                                                                 ParticleHypothesis,
+                                                                 std::vector<unsigned int>&,
+                                                                 PathLimit&, TimeLimit&,
+                                                                 bool,const Trk::TrackingVolume*,
+                                                                 std::vector<Trk::HitInfo>*&) const
 {                  
   return 0;
 }
 
 inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters& ,
-								 Trk::TargetSurfaces& ,
-								 PropDirection ,
-								 const MagneticFieldProperties& ,
-								 ParticleHypothesis ,
-								 Trk::TargetSurfaceVector& ,
-								 PathLimit& , TimeLimit& ,
-								 bool,std::vector<Trk::HitInfo>*& ) const
+                                                                 Trk::TargetSurfaces& ,
+                                                                 PropDirection ,
+                                                                 const MagneticFieldProperties& ,
+                                                                 ParticleHypothesis ,
+                                                                 Trk::TargetSurfaceVector& ,
+                                                                 PathLimit& , TimeLimit& ,
+                                                                 bool,std::vector<Trk::HitInfo>*& ) const
 {
   return 0;
 }
 
 inline Trk::ExtrapolationCode Trk::IPropagator::propagate( Trk::ExCellCharged& ,
-							   Trk::TargetSurfaces&,
-							   Trk::TargetSurfaceVector& ) const
+                                                           Trk::TargetSurfaces&,
+                                                           Trk::TargetSurfaceVector& ) const
 {
   return Trk::ExtrapolationCode::FailureConfiguration;
 }         
 
 inline const Trk::TrackParameters* Trk::IPropagator::propagateM( const TrackParameters&,
-								 std::vector<DestSurf>&,
-								 PropDirection ,
-								 const MagneticFieldProperties&,
-								 ParticleHypothesis,
-								 std::vector<unsigned int>&,
-								 std::vector<const Trk::TrackStateOnSurface*>*&,
-								 std::vector<std::pair<const Trk::TrackParameters*,int> >*& , 
-								 double&,
-								 bool,
-								 bool,
-								 const Trk::TrackingVolume*,							      
-								 Trk::ExtrapolationCache*) const
+                                                                 std::vector<DestSurf>&,
+                                                                 PropDirection ,
+                                                                 const MagneticFieldProperties&,
+                                                                 ParticleHypothesis,
+                                                                 std::vector<unsigned int>&,
+                                                                 std::vector<const Trk::TrackStateOnSurface*>*&,
+                                                                 std::vector<std::pair<const Trk::TrackParameters*,int> >*& , 
+                                                                 double&,
+                                                                 bool,
+                                                                 bool,
+                                                                 const Trk::TrackingVolume*,
+                                                                 Trk::ExtrapolationCache*) const
 {                  
   return 0;
 }
