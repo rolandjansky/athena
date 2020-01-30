@@ -9,6 +9,7 @@ from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCf
 from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
 from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
+from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     result=ComponentAccumulator()
@@ -194,6 +195,9 @@ def BTagCfg(inputFlags,**kwargs):
             result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
 
         if splitAlg:
+            #Track Augmenter
+            result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
+
             #Track Association
             TrackToJetAssociators = ['BTagTrackToJetAssociator', 'BTagTrackToJetAssociatorBB']
 
