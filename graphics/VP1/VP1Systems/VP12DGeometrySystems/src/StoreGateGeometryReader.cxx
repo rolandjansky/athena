@@ -14,7 +14,7 @@
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include "GeoModelKernel/GeoTrd.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"

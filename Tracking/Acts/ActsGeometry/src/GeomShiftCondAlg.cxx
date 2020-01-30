@@ -11,7 +11,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"

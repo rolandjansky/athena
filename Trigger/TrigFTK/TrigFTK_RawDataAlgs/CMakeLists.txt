@@ -26,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDecr/PixelReadoutGeometry
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary 
                           Trigger/TrigFTK/FTK_RecToolInterfaces
@@ -40,12 +41,12 @@ atlas_add_library( TrigFTK_RawDataAlgsLib
                    PUBLIC_HEADERS TrigFTK_RawDataAlgs
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives FTK_DataProviderInterfaces TrigFTKPool TrigFTK_RawData PileUpToolsLib TrigFTKSimLib InDetRIO_OnTrack 
-                   PRIVATE_LINK_LIBRARIES AtlasDetDescr EventInfo xAODTracking xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary TrkToolInterfaces VxVertex PixelConditionsData )
+                   PRIVATE_LINK_LIBRARIES AtlasDetDescr EventInfo xAODTracking xAODTruth InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry TrkTrack TrkTrackSummary TrkToolInterfaces VxVertex PixelConditionsData )
 
 atlas_add_component( TrigFTK_RawDataAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives  FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib InDetRIO_OnTrack TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib PixelConditionsData TrkToolInterfaces)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives  FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib InDetRIO_OnTrack TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib PixelConditionsData TrkToolInterfaces)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

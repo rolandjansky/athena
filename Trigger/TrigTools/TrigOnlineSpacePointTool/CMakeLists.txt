@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PRIVATE
                           InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/PixelCabling
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           InnerDetector/InDetEventCnv/PixelRawDataByteStreamCnv
@@ -44,7 +45,7 @@ atlas_add_component( TrigOnlineSpacePointTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector InDetByteStreamErrors ByteStreamData ByteStreamData_test GaudiKernel InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib SCT_ConditionsData TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector InDetByteStreamErrors ByteStreamData ByteStreamData_test GaudiKernel InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib SCT_ConditionsData TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

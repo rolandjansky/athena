@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
@@ -30,5 +31,5 @@ atlas_add_library( VP12DGeometrySystems
                    PUBLIC_HEADERS VP12DGeometrySystems
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives VP1Base StoreGateLib SGtests CaloDetDescrLib MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} IdDictDetDescr InDetIdentifier InDetReadoutGeometry LArReadoutGeometry MuonReadoutGeometry TileDetDescr )
+                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry LArReadoutGeometry MuonReadoutGeometry TileDetDescr )
 

@@ -22,7 +22,7 @@
 
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 //#include "InDetServMatGeoModel/InDetServMatManager.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
