@@ -1,4 +1,4 @@
-print "Reading alignment constants from DB"
+printfunc ("Reading alignment constants from DB")
 from IOVDbSvc.CondDB import conddb
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')

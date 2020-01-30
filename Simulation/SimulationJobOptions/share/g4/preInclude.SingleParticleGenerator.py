@@ -1,4 +1,4 @@
-print 'SINGLE PARTICLE GENERATOR'
+printfunc ('SINGLE PARTICLE GENERATOR')
 
 ## Run ParticleGun
 import AthenaCommon.AtlasUnixGeneratorJob
