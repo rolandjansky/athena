@@ -362,7 +362,7 @@ if dumpTrtInfo:
     # to store dEdx info
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
-    from InDetRecExample.TrackinCommon import getInDetTRT_LocalOccupancy
+    from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
     TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 

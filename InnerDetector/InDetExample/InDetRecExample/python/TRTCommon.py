@@ -40,7 +40,7 @@ def getInDetTRT_dEdxTool(**kwargs) :
                                                  TRT_dEdx_useZeroRHitCut=True,
                                                  TRT_dEdx_isData=globalflags.DataSource != 'geant4')  # default is True
                                          )
-        from InDetRecExample.TrackinCommon import getInDetTRT_LocalOccupancy
+        from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
         InDetTRT_dEdxTool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
         ToolSvc += InDetTRT_dEdxTool
 
