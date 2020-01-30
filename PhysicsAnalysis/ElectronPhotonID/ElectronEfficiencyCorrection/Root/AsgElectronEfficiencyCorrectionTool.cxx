@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -41,17 +41,17 @@ namespace correlationModel{
         SYST=5
     };
 }
-AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::string myname) :
+AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(const std::string& myname) :
     asg::AsgMetadataTool(myname),
-    m_rootTool(0),
+    m_rootTool(nullptr),
     m_affectedSys(),
-    m_appliedSystematics(0),
+    m_appliedSystematics(nullptr),
     m_correlation_model(correlationModel::SIMPLIFIED),
     m_sysSubstring(""),
     m_dataType(PATCore::ParticleDataType::Full),
     m_nCorrSyst(0),
     m_nUncorrSyst(0),
-    m_UncorrRegions(0),
+    m_UncorrRegions(nullptr),
     m_nSimpleUncorrSyst(0) {
         // Create an instance of the underlying ROOT tool
         m_rootTool = new Root::TElectronEfficiencyCorrectionTool(("T" + (this->name())).c_str());
@@ -94,7 +94,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     // Forward the message level
     m_rootTool->msg().setLevel(this->msg().level());
 
-    if (m_corrFileNameList.empty() &&  m_recoKey == ""  &&  m_idKey == "" && m_trigKey == "" && m_isoKey== "" ) {
+    if (m_corrFileNameList.empty() &&  m_recoKey.empty()  &&  m_idKey.empty() && m_trigKey.empty() && m_isoKey.empty() ) {
         ATH_MSG_ERROR("CorrectionFileNameList as well as SFKeys are empty! Please configure it properly...");
         return StatusCode::FAILURE;
     }
@@ -118,7 +118,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     //Find the relevant input files
     //Fill the vector with filename using keys if the user
     //has not passed the full filename as a property
-    if (m_corrFileNameList.size() == 0) {
+    if (m_corrFileNameList.empty()) {
         if(getFile(m_recoKey, m_idKey, m_isoKey, m_trigKey).isFailure()){
             ATH_MSG_ERROR("No Root file input specified, and not available map file");
             return StatusCode::FAILURE;
@@ -161,7 +161,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         if (m_corrFileNameList.at(i).find("efficiencySF.ChargeID") != std::string::npos) {
             m_sysSubstring = "ChargeIDSel_";
         }
-        if (m_sysSubstring == "") {
+        if (m_sysSubstring.empty()) {
             ATH_MSG_ERROR("Could NOT find systematics Substring file name " << m_sysSubstring);
             return StatusCode::FAILURE;
         }
@@ -198,7 +198,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         static const std::vector<float> eta{0.0,1.37,2.47};
         static const std::vector<float> pt {4500,7000,10000,15000,20000,25000,30000,60000,80000,13000000};
         m_UncorrRegions = new TH2F("UncorrRegions", "UncorrRegions", pt.size() - 1, &(pt[0]), eta.size() - 1, &(eta[0]));
-        m_UncorrRegions->SetDirectory(0);
+        m_UncorrRegions->SetDirectory(nullptr);
         // bins not entries here
         m_nSimpleUncorrSyst = (eta.size() - 1) * (pt.size() - 1);
     }
@@ -505,7 +505,7 @@ AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::Systemat
             return CP::SystematicCode::Unsupported;
         }
 
-        if (filteredSys.size() == 0 && systConfig.size() > 0) {
+        if (filteredSys.empty() && !systConfig.empty()) {
             ATH_MSG_DEBUG("systematics : ");
             for (auto &syst : systConfig) {
                 ATH_MSG_DEBUG(syst.name());
@@ -652,7 +652,7 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
 #endif
     //Here's how things will work dual use, when file metadata is available in files
     if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
-        const xAOD::FileMetaData* fmd = 0;
+        const xAOD::FileMetaData* fmd = nullptr;
         ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
 
         std::string simType("");
@@ -772,10 +772,10 @@ AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const s
     std::string mapFileName = PathResolverFindCalibFile(m_mapFile);
     std::string value = getValueByKey(mapFileName, key);
 
-    if (value != "") {
+    if (!value.empty()) {
         m_corrFileNameList.push_back(value);
     } else {
-        if (mapFileName == "") {
+        if (mapFileName.empty()) {
             ATH_MSG_ERROR("Map file does not exist, Please set the path and version properly..");
         }
         else {
@@ -796,15 +796,15 @@ AsgElectronEfficiencyCorrectionTool::convertToOneKey(const std::string& recokey,
 
     std::string key;
     // Reconstruction Key
-    if (recokey != ""){ key = recokey; }
+    if (!recokey.empty()){ key = recokey; }
     // Identification Key
-    if (idkey != "" && (recokey == "" && isokey == "" && trigkey == "")){ key = idkey; }
+    if (!idkey.empty() && (recokey.empty() && isokey.empty() && trigkey.empty())){ key = idkey; }
     // Isolation Key
-    if ((idkey != "" && isokey != "") && recokey == "" && trigkey == ""){ key = std::string(idkey + "_" + isokey); }
+    if ((!idkey.empty() && !isokey.empty()) && recokey.empty() && trigkey.empty()){ key = std::string(idkey + "_" + isokey); }
     // Trigger Key
-    if (trigkey != "" && idkey != "") {
+    if (!trigkey.empty() && !idkey.empty()) {
         // Trigger SF file with isolation
-        if (isokey != "") {
+        if (!isokey.empty()) {
             key = std::string (trigkey + "_" + idkey + "_" + isokey);
         } else {
             // Trigger SF file without isolation
@@ -825,7 +825,7 @@ AsgElectronEfficiencyCorrectionTool::getValueByKey(const std::string& mapFile, c
         ATH_MSG_ERROR("Couldn't read Map File" + mapFile);
         return "" ;
     }
-    if (getValue(key, value) == "") {
+    if (getValue(key, value).empty()) {
         ATH_MSG_DEBUG("Error(" + key + ") not found ");
         return "";
     } else {
