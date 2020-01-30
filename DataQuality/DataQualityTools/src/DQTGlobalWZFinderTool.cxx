@@ -154,6 +154,7 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
   updateTriggersForGroups(m_Jpsi_mm_trigger);
   updateTriggersForGroups(m_Z_mm_trigger);
   updateTriggersForGroups(m_Z_ee_trigger);
+
   ATH_MSG_DEBUG("Trigger information for WZFinder");
   ATH_MSG_DEBUG("For Z->mm:");
 
@@ -930,9 +931,9 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        Float_t mt = sqrt(2*(et*metMet-px*metx-py*mety));     
 
        if (mt > mtCut){
-     m_W_pt_v_met_ele->Fill(leadingEle->pt(), metMet, m_evtWeight);
-     m_W_mt_ele->Fill(mt, m_evtWeight);
-     ATH_MSG_DEBUG("Found a W to enu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and ele_pt = " << leadingEle->pt());
+        m_W_pt_v_met_ele->Fill(leadingEle->pt(), metMet, m_evtWeight);
+        m_W_mt_ele->Fill(mt, m_evtWeight);
+        ATH_MSG_DEBUG("Found a W to enu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and ele_pt = " << leadingEle->pt());
        }
      }
 
@@ -945,12 +946,11 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        Float_t et = leadingMuZ->e()*leadingMuZ->pt()/p;
        Float_t mt = sqrt(2*(et*metMet-px*metx-py*mety));
        
-       if (mt > mtCut)
-     {
+       if (mt > mtCut) {
        m_W_pt_v_met_mu->Fill(leadingMuZ->pt(), metMet, m_evtWeight);
        m_W_mt_mu->Fill(mt, m_evtWeight);
        ATH_MSG_DEBUG("Found a W to munu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and mu_pt = " << leadingMuZ->pt());
-     }
+       }
      }
 
 
@@ -1636,7 +1636,6 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
         m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 0 : 1;
         if (!m_isSimulation){
           (opp_sign) ? m_muloosetp_match_os->Fill(mass)   : m_muloosetp_match_ss->Fill(mass);
-          //(opp_sign) ? m_muloosetp_match_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_match_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
           (opp_sign) ? fillBCIDHistos(mass, m_muloosetp_match_os_BCID_pileup, m_muloosetp_match_os_BCID_2t47_pileup, m_muloosetp_match_os_BCID_indiv_pileup) 
                      : fillBCIDHistos(mass, m_muloosetp_match_ss_BCID_pileup, m_muloosetp_match_ss_BCID_2t47_pileup, m_muloosetp_match_ss_BCID_indiv_pileup);
         }
@@ -1648,7 +1647,6 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
         m_muon_reco_tptree_mtype = (trk->charge() != tagmu->charge()) ? 2 : 3;
         if (!m_isSimulation){
           (opp_sign) ? m_muloosetp_nomatch_os->Fill(mass) : m_muloosetp_nomatch_ss->Fill(mass);
-          //(opp_sign) ? m_muloosetp_nomatch_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight) : m_muloosetp_nomatch_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
           (opp_sign) ? fillBCIDHistos(mass, m_muloosetp_nomatch_os_BCID_pileup, m_muloosetp_nomatch_os_BCID_2t47_pileup, m_muloosetp_nomatch_os_BCID_indiv_pileup) 
                      : fillBCIDHistos(mass, m_muloosetp_nomatch_ss_BCID_pileup, m_muloosetp_nomatch_ss_BCID_2t47_pileup, m_muloosetp_nomatch_ss_BCID_indiv_pileup);
         }
@@ -1933,17 +1931,14 @@ void DQTGlobalWZFinderTool::fillEleEffHistos(bool tag_good, bool probe_good, boo
   if(os){
     if(probe_good){
       m_ele_tight_good_os->Fill(mass);  
-      //m_ele_tight_good_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
       fillBCIDHistos(mass, m_ele_tight_good_os_BCID_pileup, m_ele_tight_good_os_BCID_2t47_pileup, m_ele_tight_good_os_BCID_indiv_pileup);
     }
     else{
       m_ele_tight_bad_os->Fill(mass);
-      //m_ele_tight_bad_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
       fillBCIDHistos(mass, m_ele_tight_bad_os_BCID_pileup, m_ele_tight_bad_os_BCID_2t47_pileup, m_ele_tight_bad_os_BCID_indiv_pileup);
     }    
     if(probe_anti_good){
       m_ele_template_os->Fill(mass);  
-      //m_ele_template_os_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight); 
       fillBCIDHistos(mass, m_ele_template_os_BCID_pileup, m_ele_template_os_BCID_2t47_pileup, m_ele_template_os_BCID_indiv_pileup);
     }
   }
@@ -1951,17 +1946,14 @@ void DQTGlobalWZFinderTool::fillEleEffHistos(bool tag_good, bool probe_good, boo
   if (!os){
     if(probe_good){
       m_ele_tight_good_ss->Fill(mass);
-      //m_ele_tight_good_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
       fillBCIDHistos(mass, m_ele_tight_good_ss_BCID_pileup, m_ele_tight_good_ss_BCID_2t47_pileup, m_ele_tight_good_ss_BCID_indiv_pileup);
     }
     else{
       m_ele_tight_bad_ss->Fill(mass);
-      //m_ele_tight_bad_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
       fillBCIDHistos(mass, m_ele_tight_bad_ss_BCID_pileup, m_ele_tight_bad_ss_BCID_2t47_pileup, m_ele_tight_bad_ss_BCID_indiv_pileup);
     }
     if(probe_anti_good){
       m_ele_template_ss->Fill(mass);   
-      //m_ele_template_ss_BCID_pileup->Fill(mass, m_distance_from_front, m_pileup_per_lb, m_evtWeight);
       fillBCIDHistos(mass, m_ele_template_ss_BCID_pileup, m_ele_template_ss_BCID_2t47_pileup, m_ele_template_ss_BCID_indiv_pileup);
     }
   }
