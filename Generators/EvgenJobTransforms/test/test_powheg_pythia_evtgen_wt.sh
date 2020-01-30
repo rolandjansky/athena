@@ -1,6 +1,6 @@
 #!/bin/bash
 # art-description: Generation test PowhegPythia Wt (inclusive top) 
-# art-include: 21.6/AthGeneration
+# art-include: master/Athena
 # art-type: build
 # art-output: *.root
 # art-output: log.generate
