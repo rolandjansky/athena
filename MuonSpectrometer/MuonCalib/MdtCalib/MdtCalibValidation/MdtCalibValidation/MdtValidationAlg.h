@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _MDTVALIDATIONALG_H
@@ -25,19 +25,19 @@
 
 //athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h" 
+#include "GaudiKernel/ServiceHandle.h" 
 
 //MdtCalibData
 #include "MdtCalibData/MdtTubeFitContainer.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonCalibStandAloneBase/NtupleStationId.h"
 
 class RegionSelectionSvc;
 
 namespace MuonCalib {
 
-  class NtupleStationId;
   class SamplePoint;
   class CalibDbConnection;
   class RtFullInfo;
@@ -51,7 +51,7 @@ namespace MuonCalib {
     /** Algorithm Constructor */
     MdtValidationAlg(const std::string& name, ISvcLocator* pSvcLocator);
     /** Algorithm destrucrtor*/
-    ~MdtValidationAlg();
+    ~MdtValidationAlg()=default;
     /** Is called at the beginning of the analysis */
     StatusCode initialize();
     /** execute function NOTE: This will read all events at once*/
@@ -108,8 +108,7 @@ namespace MuonCalib {
     // helpers //
     std::string m_MDT_ID_helper; // name of the MDT ID helper
     
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
     // MuonDetectorManager from the conditions store
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 

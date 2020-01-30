@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
 #include "RPC_CondCabling/RDOindex.h"
 #include "MuonCablingTools/RPCdecoder.h"
-
-using namespace std;
-
 
 RDOindex::RDOindex(unsigned int PAD,unsigned int code) : m_ROBid(0),
                                                          m_RODid(0),
@@ -141,17 +138,10 @@ RDOindex::set_hash(unsigned int h) {
 
 const RpcIdHelper* RDOindex::s_rpcIdHelper = nullptr;
 
-
 void
 RDOindex::setRpcIdHelper(const RpcIdHelper* helper) {
     s_rpcIdHelper = helper;
 }
-
-void
-RDOindex::setMuonIdHelperTool(const Muon::MuonIdHelperTool* muonIdHelperTool) {
-    s_rpcIdHelper = std::addressof(muonIdHelperTool->rpcIdHelper());
-}
-
 
 void 
 RDOindex::offline_indexes(int& name, int& eta, int& phi,
@@ -205,7 +195,7 @@ RDOindex::pad_identifier(Identifier& id ) const
 
 #endif
 
-ostream& operator<<(ostream& stream,const RDOindex& rdo)
+std::ostream& operator<<(std::ostream& stream,const RDOindex& rdo)
 {
     std::stringstream tmp_stream;
 #ifndef LVL1_STANDALONE
@@ -223,18 +213,18 @@ ostream& operator<<(ostream& stream,const RDOindex& rdo)
     rdo.offline_indexes(name,eta,phi,doublet_r,doublet_z,doublet_phi,
                         gas_gap,measures_phi,strip);   
     
-    tmp_stream << "RPC PAD /" << hex << showbase << rdo.side() << "/"
+    tmp_stream << "RPC PAD /" << std::hex << std::showbase << rdo.side() << "/"
                << rdo.SLid() << "/" << rdo.PADid() << "   mapped on offline Id /"
-	       << dec << name << "/" << eta << "/" << phi << "/" << doublet_r
+	       << std::dec << name << "/" << eta << "/" << phi << "/" << doublet_r
 	       << "/" << doublet_z << "/" << doublet_phi << "/" << gas_gap
 	       << "/" << measures_phi << "/" << strip 
-	       << " .... hashId = " << rdo.hash() << endl;
+	       << " .... hashId = " << rdo.hash() << std::endl;
 
 #else    
     std::string side = (rdo.side() == 0x66)? "Negative" : "Positive";
     tmp_stream << "/side=" << side << "/ROB=ROD=" << setw(2) << rdo.ROBid() 
                << "/SL=RX=" << setw(2) << rdo.SLid()
-               << "/PAD="  << setw(2) << rdo.PADid() << "/" << endl;
+               << "/PAD="  << setw(2) << rdo.PADid() << "/" << std::endl;
 #endif
 
     stream << tmp_stream.str();
