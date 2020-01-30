@@ -61,7 +61,7 @@ atlas_add_library( FTK_DataProviderSvcLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkTrack FTK_DataProviderInterfaces TrigFTK_RawData StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AtlasDetDescr GeoPrimitives IRegionSelector RoiDescriptor EventInfo GeneratorObjects InDetIdentifier InDetReadoutGeometry PixelReadoutGeometrt InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkVertexFitterInterfaces  TrkFitterUtils TrkToolInterfaces PixelConditionsData)
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AtlasDetDescr GeoPrimitives IRegionSelector RoiDescriptor EventInfo GeneratorObjects InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkVertexFitterInterfaces  TrkFitterUtils TrkToolInterfaces PixelConditionsData)
 
 atlas_add_component( FTK_DataProviderSvc
                      src/components/*.cxx
