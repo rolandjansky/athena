@@ -72,7 +72,7 @@ class ToolHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         for bTool in b:
             try:
                 #If a tool with that name exists in a, we'll merge it 
-                a.__getitem__(bTool).merge(bTool)
+                a.__getitem__(bTool.name).merge(bTool)
             except IndexError:
                 #Tool does not exists in a, append it
                 a.append(bTool)
