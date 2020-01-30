@@ -71,7 +71,7 @@ NeutralParameters*
 IntersectorWrapper::propagate (const NeutralParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
-                               BoundaryCheck			boundsCheck,
+                               const BoundaryCheck& 			boundsCheck,
                                bool				curvilinear) const
 {
   return m_linePropagator->propagate(parameters,surface,dir,boundsCheck,curvilinear);
@@ -81,7 +81,7 @@ TrackParameters*
 IntersectorWrapper::propagate (const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
-                               BoundaryCheck			boundsCheck,
+                               const BoundaryCheck& 			boundsCheck,
                                const MagneticFieldProperties&	/*magProperties*/,
                                ParticleHypothesis		/*particle*/,
                                bool				curvilinear,
@@ -97,7 +97,7 @@ TrackParameters*
 IntersectorWrapper::propagate (const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
-                               BoundaryCheck			boundsCheck,
+                               const BoundaryCheck& 			boundsCheck,
                                const MagneticFieldProperties&	/*magProperties*/,
                                TransportJacobian*&		/*transportJac*/,
                                double&,
@@ -115,7 +115,7 @@ TrackParameters*
 IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
-                                         BoundaryCheck			boundsCheck,
+                                         const BoundaryCheck& 			boundsCheck,
                                          const MagneticFieldProperties&	/*magProperties*/,
                                          ParticleHypothesis		/*particle*/,
                                          bool				curvilinear,
@@ -132,7 +132,7 @@ TrackParameters*
 IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
-                                         BoundaryCheck			boundsCheck,
+                                         const BoundaryCheck& 			boundsCheck,
                                          const MagneticFieldProperties& /*magProperties*/,
                                          TransportJacobian*&		/*transportJac*/,
                                          ParticleHypothesis		/*particle*/,
@@ -179,7 +179,7 @@ IntersectorWrapper::globalPositions (std::list<Amg::Vector3D>&,
 void
 IntersectorWrapper::createParameters (Cache& cache, 
                                       const Surface&	surface,
-                                      BoundaryCheck	/*boundsCheck*/,
+                                      const BoundaryCheck& 	/*boundsCheck*/,
                                       bool		curvilinear) const
 {
   cache.m_parameters	= nullptr;
