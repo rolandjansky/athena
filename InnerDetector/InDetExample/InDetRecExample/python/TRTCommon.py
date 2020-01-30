@@ -28,7 +28,7 @@ def getInDetTRT_dEdxTool(**kwargs) :
         if hasattr(ToolSvc,the_name) :
             return getattr(ToolSvc,the_name)
 
-        from TRT_ToT_Tools.TRT_ToT_ToolsConf import  TRT_ToT_dEdx
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import  TRT_ToT_dEdx
         InDetTRT_dEdxTool = TRT_ToT_dEdx(name=the_name,
                                          **_args(kwargs,
                                                  TRT_dEdx_whichToTEstimatorAlgo=2,  # default is 2
@@ -40,6 +40,8 @@ def getInDetTRT_dEdxTool(**kwargs) :
                                                  TRT_dEdx_useZeroRHitCut=True,
                                                  TRT_dEdx_isData=globalflags.DataSource != 'geant4')  # default is True
                                          )
+        from InDetRecExample.TrackinCommon import getInDetTRT_LocalOccupancy
+        InDetTRT_dEdxTool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
         ToolSvc += InDetTRT_dEdxTool
 
     return InDetTRT_dEdxTool
