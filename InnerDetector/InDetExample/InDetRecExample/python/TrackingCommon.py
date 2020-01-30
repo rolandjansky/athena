@@ -1172,6 +1172,6 @@ def getInDetTRT_ExtensionTool(TrackingCuts=None, **kwargs) :
 
 
 def getTRT_DetElementsRoadCondAlg(**kwargs):
-    the_name=kwargs.pop("name","TRT_DetElementsRoadCondAlg")
+    the_name=kwargs.pop("name","InDet__TRT_DetElementsRoadCondAlg_xk")
     from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
     return InDet__TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs)
