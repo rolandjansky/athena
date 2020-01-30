@@ -57,7 +57,6 @@ muNamesFS = muonNames().getNames('FS')
 def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   from AthenaCommon.CFElements import parOR
-  from AthenaCommon.Constants import DEBUG, INFO
   
   muDecodeRecoSequence = parOR("decodeMuViewNode_"+RoIs)
 
@@ -83,7 +82,6 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
   CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool",
                                                             CscStripPrdContainerCacheKey = MuonPrdCacheNames.CscStripCache)
-  CscRdoToCscPrepDataTool.OutputLevel = DEBUG
   
   ToolSvc += CscRdoToCscPrepDataTool
 
@@ -130,7 +128,6 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
   MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name                     = "MdtRdoToPrepDataTool",
                                                          MdtPrdContainerCacheKey = MuonPrdCacheNames.MdtCache)
-  MdtRdoToMdtPrepDataTool.OutputLevel = DEBUG
 
   ToolSvc += MdtRdoToMdtPrepDataTool
 
