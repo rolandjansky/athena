@@ -12,73 +12,6 @@
 
 #include <iostream>
 
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::PanTau_DecayMode;
-#else
-xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode;
-#endif
-
-//______________________________________________________________________________
-void tauRecTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s)
-{
-  // reset the pi0s
-  vPi0s.clear();
-
-  // Since the PFO links as they come out of reconstruction, only correspond to
-  // calorimeter clusters, whereas we want the consts_pi0 vectors to correspond
-  // to real pi0s, we need to be careful to collect the PFOs correctly to pi0s
-  // for the cases where number of pi0s does not match to the decay mode:
-  size_t iNumPi0PFO = xTau->nPi0PFOs();
-
-  int iDecayMode = -1;
-  if (!(xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode)))
-  {
-    std::cerr << "Failed to retrieve panTauDetail decay mode\n";
-    return;
-  }
-  
-  if (iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1p1n && iNumPi0PFO > 1)
-  {
-    // TODO: find out if the pi0 mass is defined elsewhere in atlas code!
-    // float fMassPi0 = 134.98;
-    float fMassPi0Squared = 18219.6004;
-
-    // combine both photons (with 0 mass from Pantau) to one pi0 vector:
-    const xAOD::PFO* xPfo1 = xTau->pi0PFO(0);
-    const xAOD::PFO* xPfo2 = xTau->pi0PFO(1);
-    vPi0s.push_back(xPfo1->p4() + xPfo2->p4());
-
-    // re-set the mass to one pi0:
-    double dNewMomentum = std::sqrt(vPi0s[0].E() * vPi0s[0].E() - fMassPi0Squared);
-    vPi0s[0].SetPxPyPzE(vPi0s[0].Vect().Unit().Px() * dNewMomentum,
-                        vPi0s[0].Vect().Unit().Py() * dNewMomentum,
-                        vPi0s[0].Vect().Unit().Pz() * dNewMomentum,
-                        vPi0s[0].E());
-  }
-  else if (iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1pXn && iNumPi0PFO == 1)
-  {
-    // make a single pi0 from a PFO that contains two pi0s:
-    const xAOD::PFO* xPfo = xTau->pi0PFO(0);
-    // add the 2-pi0 vector preliminarily to the pi0vector:
-    vPi0s.push_back(xPfo->p4());
-
-    // re-set the mass back to one pi0:
-    double dNewMomentum = std::sqrt(vPi0s[0].E() * vPi0s[0].E() - vPi0s[0].M() / 2. * vPi0s[0].M() / 2.);
-    vPi0s[0].SetVectM(vPi0s[0].Vect() * (dNewMomentum / vPi0s[0].P()), vPi0s[0].M() / 2.);
-
-    // create another pi0 from the same vector:
-    vPi0s.push_back(vPi0s[0]);
-  }
-  else
-  {
-    // if it's not any of the special cases above then just collect the PFOs:
-    for (size_t iPFO = 0; iPFO < iNumPi0PFO; iPFO++)
-    {
-      vPi0s.push_back(xTau->pi0PFO(iPFO)->p4());
-    }
-  }
-}
-
 xAOD::TauTrack::TrackFlagType tauRecTools::isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag){
   const int flagsize=sizeof(flag)*8;
   flag=flag<<(flagsize-xAOD::TauJetParameters::classifiedFake-1);
@@ -86,7 +19,6 @@ xAOD::TauTrack::TrackFlagType tauRecTools::isolateClassifiedBits(xAOD::TauTrack:
   return flag;
 }
 
-//bool sortTracks(xAOD::TauTrack* xTrack1, xAOD::TauTrack* xTrack2)
 bool tauRecTools::sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2)
 {
   //should we be safe and ask if the links are available?
@@ -100,12 +32,6 @@ bool tauRecTools::sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, con
   if(f1==f2)
     return xTrack1->pt()>xTrack2->pt();
   return f1<f2;
-  
-  //this somehow causes a crash
-  /* static uint16_t flag1 = xTrack1->flagSet() >> (xAOD::TauJetParameters::classifiedCharged - 1); */
-  /* static uint16_t flag2 = xTrack2->flagSet() >> (uint16_t(xAOD::TauJetParameters::classifiedCharged) - 1); */
-  /* return (flag1<flag2) ||                            // sort by type, true tracks first */
-  /*   ((flag1==flag2) && (xTrack1->pt()>xTrack2->pt())); // sort by pt if equal types */
 }
 
 //________________________________________________________________________________

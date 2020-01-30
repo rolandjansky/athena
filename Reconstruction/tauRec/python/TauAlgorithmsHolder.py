@@ -450,9 +450,6 @@ def getPi0Selector():
     cached_instances[_name] = TauPi0Selector
     return TauPi0Selector
 
-
-
-
 #########################################################################
 # Photon Shot Finder algo
 def getTauShotFinder():    
@@ -465,29 +462,16 @@ def getTauShotFinder():
     shotPtCut_1Photon = jobproperties.tauRecFlags.shotPtCut_1Photon()
     shotPtCut_2Photons = jobproperties.tauRecFlags.shotPtCut_2Photons()
 
-    #from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    #TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name=sPrefix+'tauShotCellContainerFinalizer')
-    #from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += TauCellContainerFinalizer
-    
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
                                   CaloWeightTool = getCellWeightTool(),
-                                  #BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
                                   NCellsInEta           = 5,
                                   MinPtCut              = shotPtCut_1Photon,
                                   AutoDoubleShotCut     = shotPtCut_2Photons,
-                                  MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
                                   Key_caloCellInputContainer="AllCalo"
                                   )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder
-
-
-
-
 
 
 #########################################################################

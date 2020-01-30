@@ -14,20 +14,6 @@ class CaloDetDescrManager;
 class CaloCell_ID;
 class IHadronicCalibrationTool;
 
-/*
-namespace TMVA{
-    class Reader;
-}
-*/
-
-/**
- * @brief Find photon shots in the EM1 strip layer.
- * 
- * @author Will Davey <will.davey@cern.ch> 
- * @author Benedict Winter <benedict.tobias.winter@cern.ch>
- * @author Stephanie Yuen <stephanie.yuen@cern.ch> 
- */
-
 class TauShotFinder : public TauRecToolBase {
 public:
     TauShotFinder(const std::string& name);
@@ -46,20 +32,6 @@ private:
     /** @brief new shot PFO container and name */
     /** @brief calo cell navigation */
     const CaloCell_ID* m_calo_id;
-
-    /** @brief readers */
-    /*
-    std::string m_readerOption;
-
-    TMVA::Reader *m_tmvaReader_barrel;
-    std::string m_weightfile_barrel;
-
-    TMVA::Reader *m_tmvaReader_endcap1;
-    std::string m_weightfile_endcap1;
-
-    TMVA::Reader *m_tmvaReader_endcap2;
-    std::string m_weightfile_endcap2;
-    */
 
     /** @brief Thanks C++ for ruining my day */
     struct ptSort
@@ -84,22 +56,9 @@ private:
     /** @brief get eta bin */
     float getEtaBin(float /*seedEta*/);
   
-    /** @brief get merged BDTscore */
-    // float getMergedBDTScore(int /*etaBin*/);
-
     /** @brief get NPhotons in shot */
     float getNPhotons(int /*etaBin*/, 
-                      float /*mergedBDTScore*/, 
                       float /*seedEnergy*/);
-
-    
-    /** @brief Book TMVA methods. */
-    /*
-    StatusCode bookMethod(TMVA::Reader *reader_barrel, 
-                          TMVA::Reader *reader_endcap1, 
-                          TMVA::Reader *reader_endcap2, 
-                          const std::string &methodName) const;
-    */
 
     // number of cells in eta
     int m_nCellsInEta;
@@ -129,13 +88,6 @@ private:
     float m_pt3OverPt5;
     */
 
-    /*
-    // FIXME: same variable names as in Stephanie's private code atm
-    float G_PTFRAC;
-    float G_STDPT_5;
-    float G_STDETA_5;
-    float G_DELTAPT_MIN;
-    */
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
     SG::WriteHandleKey<xAOD::PFOContainer> m_tauPFOOutputContainer{this,"Key_tauPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
     
