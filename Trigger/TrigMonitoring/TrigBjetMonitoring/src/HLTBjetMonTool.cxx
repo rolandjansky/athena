@@ -1027,15 +1027,20 @@ StatusCode HLTBjetMonTool::book(){
 
 	// online PV from SG
 
+	int iPV = 0;
 	SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey);
 	for (const xAOD::Vertex* vtx : *vtxContainer) {
 	  if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-	    ATH_MSG_DEBUG("        PVz_jet from SG: " << vtx->z());
+	    ATH_MSG_DEBUG("        PVx,PVy,PVz from SG: " << vtx->x() << " " << vtx->y() << " " << vtx->z() );
+	    if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->x());
+	    if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->y());
 	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
+	    iPV++;
 	  } // if vtx type
 	} // loop on vtxContainer
+	ATH_MSG_DEBUG("        Number of vertices from SG: " << iPV );
+	if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(iPV);
 
-	
 	  // Jets and PV through jet link
 	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
 	int ijet = 0;
@@ -1044,16 +1049,20 @@ StatusCode HLTBjetMonTool::book(){
 	  const xAOD::Jet* jet = *(jetLinkInfo.link);
 	  ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
 	  if(HistJet) hist("jetPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((jet->pt())*1.e-3);
+	  if(HistJet) hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(jet->eta(),jet->phi());
 	  // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	  if (ijet == 0) {
-	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
+	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "EFHistoPrmVtx"); // CV 200120
+	    ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	    ATH_MSG_DEBUG("        PVz_jet from jet link info: " << vtx->z());
 	    // if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
 	  }
 	  ijet++;
 	} // onlinejets
-	
+	ATH_MSG_DEBUG("                 -   nJet: " << ijet);
+	if(HistJet) hist("nJet"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(ijet);	
+
       } // else Run3 access
       
     } // ichain
