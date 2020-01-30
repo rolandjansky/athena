@@ -3,11 +3,15 @@
 
 namespace ZDCMsg {
 
-    typedef bool (*MessageFunctionPtr)(unsigned int, std::string);
+// typedef bool (*MessageFunctionPtr)(unsigned int, std::string);
+
+    typedef std::function<bool(int, std::string)> MessageFunction;
+
+    typedef std::shared_ptr<MessageFunction> MessageFunctionPtr;
 
     enum MSGLevels {
 
-        Verbose=1,
+        Verbose = 1,
         Debug,
         Info,
         Warn,

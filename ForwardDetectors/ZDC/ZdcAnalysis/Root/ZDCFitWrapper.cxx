@@ -540,7 +540,8 @@ void ZDCFitGeneralPulse::DoInitialize(float initialAmp, float initialT0)
   GetWrapperTF1()->SetParameter(1, initialT0);
   // GetWrapperTF1()->SetParameter(2,   5);
   // GetWrapperTF1()->SetParameter(3,  10);
-  GetWrapperTF1()->FixParameter(4,   0);
+  // GetWrapperTF1()->FixParameter(4,   0);
+  GetWrapperTF1()->SetParameter(4,   0);
   GetWrapperTF1()->SetParameter(5,   0);
   // GetWrapperTF1()->SetParameter(6,   1);
   GetWrapperTF1()->SetParameter(7,   5);

@@ -610,6 +610,8 @@ bool ZDCPulseAnalyzer::LoadAndAnalyzeData(std::vector<float> ADCSamplesHG, std::
       m_fitTMin = std::max(m_fitTMin, m_deltaTSample - m_deltaTSample / 2);
       m_adjTimeRangeEvent = true;
       m_ExcludeEarly = true;
+
+      m_fixPrePulse = true; // new 2020/01/27
     }
   }
   if (m_firstHGOverFlowSample > 11 && m_firstHGOverFlowSample < 14) {
@@ -756,7 +758,10 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
 
   // Find maximum and minimum values
   //
-  std::pair<SampleCIter, SampleCIter> minMaxIters = std::minmax_element(m_samplesSub.begin(), m_samplesSub.end());
+  // std::pair<SampleCIter, SampleCIter> minMaxIters = std::minmax_element(m_samplesSub.begin(), m_samplesSub.end());
+  int nSkipedSample = 0;
+  if (m_useDelayed) nSkipedSample = 4;
+  std::pair<SampleCIter, SampleCIter> minMaxIters = std::minmax_element(m_samplesSub.begin() + nSkipedSample, m_samplesSub.end() - nSkipedSample);
   SampleCIter minIter = minMaxIters.first;
   SampleCIter maxIter = minMaxIters.second;
 
@@ -867,7 +872,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
       m_initialPrePulseAmp = 0.1;
     }
 
-    if (!m_prePulse) m_fixPrePulse = true;
+    // if (!m_prePulse) m_fixPrePulse = true;
   }
 
   if (m_prePulse) {
