@@ -12,7 +12,9 @@
 
 PixelITkOfflineCalibCondAlg::PixelITkOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name)
+  m_condSvc("CondSvc", name),
+  // For 21.9 only, to be removed in master
+  m_detStore(nullptr)
 {
   declareProperty("InputSource",m_inputSource=2,"Source of data: 0 (none), 1 (text file), 2 (database)");
   declareProperty("PixelClusterErrorDataFile", m_textFileName="PixelITkClusterErrorData.txt","Read constants from this file");  
@@ -25,6 +27,9 @@ StatusCode PixelITkOfflineCalibCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelITkOfflineCalibCondAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
+
+  // For 21.9 only, to be removed in master
+  ATH_CHECK(service("DetectorStore", m_detStore));
 
   if (m_inputSource==2){
     if(m_readKey.key().empty()) {
@@ -54,6 +59,13 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
+  }
+
+  // For 21.9 only, to be removed in master
+  bool inDetectorStore = m_detStore->contains<PixelCalib::PixelITkOfflineCalibData>(writeHandle.key());
+  if(inDetectorStore) {
+    ATH_MSG_DEBUG(writeHandle.fullKey() << " already in DetectorStore");
+    return StatusCode::SUCCESS;
   }
 
 
@@ -100,6 +112,14 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
     }
 
     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+
+
+    // For 21.9 only, to be removed in master
+
+    if(m_detStore->record(writeCdo,writeHandle.key()).isFailure()) {
+      ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << "into StoreGate");
+      return StatusCode::FAILURE;
+    }
 
     if (m_dump!=0) {
       ATH_MSG_DEBUG("Dump the constants to file");
@@ -157,9 +177,14 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
     }
     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
-  }
+    // For 21.9 only, to be removed in master
 
-  delete writeCdo;
+    if(m_detStore->record(writeCdo,writeHandle.key()).isFailure()) {
+      ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << "into StoreGate");
+      return StatusCode::FAILURE;
+    }
+
+  }
 
   return StatusCode::SUCCESS;
 }

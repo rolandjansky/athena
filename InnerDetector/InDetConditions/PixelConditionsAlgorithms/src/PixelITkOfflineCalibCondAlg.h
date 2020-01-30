@@ -17,6 +17,9 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
+//For 21.9 only, to be removed in master
+#include "StoreGate/StoreGateSvc.h"
+
 class PixelITkOfflineCalibCondAlg : public AthReentrantAlgorithm {
   public:
     PixelITkOfflineCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -35,6 +38,10 @@ class PixelITkOfflineCalibCondAlg : public AthReentrantAlgorithm {
     SG::WriteCondHandleKey<PixelCalib::PixelITkOfflineCalibData> m_writeKey{this, "WriteKey", "PixelITkOfflineCalibData", "Output key of pixel module data"};
 
     ServiceHandle<ICondSvc> m_condSvc;
+
+    //For 21.9 only, to be removed in master
+    StoreGateSvc* m_detStore;
+
 };
 
 

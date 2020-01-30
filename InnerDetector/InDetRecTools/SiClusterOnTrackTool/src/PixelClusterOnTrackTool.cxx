@@ -71,6 +71,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
   m_calibSvc("PixelOfflineCalibSvc",n),
   m_detStore(nullptr),
+  m_offlineITkCalibData(nullptr),
   m_scalePixelCov{},
   m_disableDistortions(false),
   m_rel13like(false),
@@ -434,13 +435,32 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
       localphi = centroid.xPhi()+shift;
       localeta = centroid.xEta();
 
+
+      //Phase 2
+
       if(m_itkAnalogueClustering){
-	SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibData(m_clusterITkErrorKey);
-	std::pair<double,double> delta = offlineITkCalibData->getPixelITkClusterErrorData()->getDelta(&element_id);
+
+	SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibDataHandle(m_clusterITkErrorKey);
+
+	// To be used in master
+	//std::pair<double,double> delta = m_offlineITkCalibDataHandle->getPixelITkClusterErrorData()->getDelta(&element_id);
+
+	// For 21.9 only, to be removed in master
+	if (!m_offlineITkCalibData) {
+	  StatusCode sc = m_detStore->retrieve(m_offlineITkCalibData, offlineITkCalibDataHandle.key());
+	  if (sc.isFailure()) {
+	    ATH_MSG_FATAL("Could not retrieve "<<offlineITkCalibDataHandle.key());
+	    return 0;
+	  }
+	}
+
+	std::pair<double,double> delta = m_offlineITkCalibData->getPixelITkClusterErrorData()->getDelta(&element_id);
+
 	double delta_phi = nrows != 1 ? delta.first : 0.;
 	double delta_eta = nrows != 1 ? delta.second : 0.;
 	localphi += delta_phi*(omegaphi-0.5);
 	localeta += delta_eta*(omegaeta-0.5);
+
       }
 
 
@@ -557,9 +577,25 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     }
     else if( m_errorStrategy == 2 ){
      
+      // Phase 2
       if(m_itkAnalogueClustering){
-	SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibData(m_clusterITkErrorKey);
-	std::pair<double,double> delta_err = offlineITkCalibData->getPixelITkClusterErrorData()->getDeltaError(&element_id);
+
+	SG::ReadCondHandle<PixelCalib::PixelITkOfflineCalibData> offlineITkCalibDataHandle(m_clusterITkErrorKey);
+
+	// To be used in master
+	//std::pair<double,double> delta_err = m_offlineITkCalibDataHandle->getPixelITkClusterErrorData()->getDeltaError(&element_id);
+
+	// For 21.9 only, to be removed in master
+	if (!m_offlineITkCalibData) {
+	  StatusCode sc = m_detStore->retrieve(m_offlineITkCalibData, offlineITkCalibDataHandle.key());
+	  if (sc.isFailure()) {
+	    ATH_MSG_DEBUG("Could not retrieve "<<offlineITkCalibDataHandle.key());
+	    return 0;
+	  }
+	}
+
+	std::pair<double,double> delta_err = m_offlineITkCalibData->getPixelITkClusterErrorData()->getDeltaError(&element_id);
+
 	errphi = nrows != 1 ? delta_err.first : (width.phiR()/nrows)*TOPHAT_SIGMA;
 	erreta = nrows != 1 ? delta_err.second : (width.z()/ncol)*TOPHAT_SIGMA;
       }

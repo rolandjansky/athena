@@ -154,6 +154,10 @@ public:
   StoreGateSvc*                                 m_detStore        ;
   SG::ReadCondHandleKey<PixelCalib::PixelITkOfflineCalibData> m_clusterITkErrorKey{this, "PixelITkOfflineCalibData", "PixelITkOfflineCalibData", "Output key of ITk pixel cluster"};
 
+  // For 21.9 only, to be removed in master
+  mutable const PixelCalib::PixelITkOfflineCalibData*   m_offlineITkCalibData;
+
+
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
     IHistogram1D* m_h_Resy;

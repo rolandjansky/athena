@@ -81,6 +81,7 @@ inline PixelITkClusterErrorData* PixelITkOfflineCalibData::getPixelITkClusterErr
 
 
 inline PixelITkOfflineCalibData::~PixelITkOfflineCalibData(){
+  m_clustererrordata = new PixelITkClusterErrorData(); //Needed to avoid segfault when destructor is called, not clear why
   delete m_clustererrordata;
 }
 
