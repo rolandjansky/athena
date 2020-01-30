@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_rz.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughTransformer_rz::MuonHoughTransformer_rz(int nbins, int nbins_angle, double detectorsize, double detectorsize_angle, double threshold_histo, int number_of_sectors):MuonHoughTransformer(nbins, nbins_angle, detectorsize, detectorsize_angle, threshold_histo, number_of_sectors), m_use_residu_grad(false)
 {
@@ -11,14 +13,8 @@ MuonHoughTransformer_rz::MuonHoughTransformer_rz(int nbins, int nbins_angle, dou
   m_add_weight_angle=false;
 }
 
-MuonHoughTransformer_rz::~MuonHoughTransformer_rz()
-{
-}
-
 void MuonHoughTransformer_rz::fillHit(MuonHoughHit* hit, double weight)
 {
-  //  std::cout << "MuonHoughTransformer_rz::WEIGHT " << weight << "ip_settting: " << m_ip_setting << std::endl;
-  
   const double hitz = hit->getHitz();
 
   if (m_ip_setting == true) // niels and peter alg, butterfly to be added, and to be looked into the method
@@ -38,8 +34,6 @@ void MuonHoughTransformer_rz::fillHit(MuonHoughHit* hit, double weight)
 	  double theta_in_grad = (theta/M_PI)*180.;
 
 	  dotprod = perp * std::sin(theta) + hitz * std::cos(theta);
-	  // 	  std::cout << " rz0 " << rz0 << " theta " << theta_in_grad << " dotprod " << dotprod  
-	  //                << " hitz: " << hitz << std::endl;
 
 	  if( theta_in_grad > 180. ) continue; // to keep the angle physical
 	  if( theta_in_grad < 0. ) continue; // idem
@@ -50,16 +44,15 @@ void MuonHoughTransformer_rz::fillHit(MuonHoughHit* hit, double weight)
 	    }
 	}
     }
-  else // (m_ip_setting == false)
+  else
     {
-      int sectorhit = 0; // for ip == false always sector ==0
+      int sectorhit = 0;
       const double radius = hit->getRadius();
 
       for (double theta=m_stepsize_per_angle/2.; theta<m_detectorsize_angle; theta+=m_stepsize_per_angle)
 	{
 	  double theta_in_rad = M_PI*theta/180.;
 	  double rz0 = hitz*std::sin(theta_in_rad) - radius*std::cos(theta_in_rad);
-	  //	  double rz0 = hitz*sinus(theta_in_rad) - radius*cosinus(theta_in_rad);
 	  double dotprod = 0;
       
 	  dotprod = radius * std::sin(theta_in_rad) + hitz * std::cos(theta_in_rad);
@@ -95,7 +88,7 @@ int MuonHoughTransformer_rz::fillHisto(double rz0, double theta_in_grad, double 
 	  m_histos.getHisto(sector+1)->fill(rz0,theta_in_grad,third_weight);
 	  m_histos.getHisto(m_number_of_sectors-1)->fill(rz0,theta_in_grad,third_weight);
 	}
-      else // sector == m_number_of_sectors - 1
+      else
 	{
 	  m_histos.getHisto(sector-1)->fill(rz0,theta_in_grad,third_weight);
 	  m_histos.getHisto(0)->fill(rz0,theta_in_grad,third_weight);
@@ -107,7 +100,6 @@ int MuonHoughTransformer_rz::fillHisto(double rz0, double theta_in_grad, double 
   if (theta_in_grad - binwidthy < 0)
     {
       histo->fill(rz0+binwidthx,theta_in_grad+binwidthy,half_weight);
-      //histo->fill(rz0-binwidthx,theta_in_grad-binwidthy + 180.,half_weight); // no cyclic angle here
       if (m_use_negative_weights)
 	{
 	  histo->fill(rz0-binwidthx,theta_in_grad+binwidthy,-half_weight);
@@ -116,7 +108,6 @@ int MuonHoughTransformer_rz::fillHisto(double rz0, double theta_in_grad, double 
     }
   else if (theta_in_grad + binwidthy > 180.)
     {
-      //histo->fill(rz0+binwidthx,theta_in_grad+binwidthy - 180.,half_weight);
       histo->fill(rz0-binwidthx,theta_in_grad-binwidthy,half_weight);
       if (m_use_negative_weights)
 	{
@@ -152,6 +143,7 @@ double MuonHoughTransformer_rz::calculateAngle(double hitx, double hity, double 
 
 MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const MuonHoughHitContainer* event, std::pair <double,double> coordsmaximum,double maximum_residu_mm, double maximum_residu_angle, int maxsector, bool /*which_segment*/, int printlevel)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformer_rz::hookAssociateHitsToMaximum");
   MuonHoughPattern* houghpattern = new MuonHoughPattern(MuonHough::hough_rz);
 
   double theta=0.,residu_distance=0.,maximum_residu=0.;
@@ -159,12 +151,12 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
   double coordsmaximumsecondinrad = m_muonhoughmathutils.angleFromGradToRadial(coordsmaximum.second);
   double rz0 = coordsmaximum.first;
 
-  if (printlevel>=4)
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
     {
-      std::cout << "sector: " << maxsector << std::endl;
-      std::cout << "coordsmaximumfirst: " << rz0 << std::endl;
-      std::cout << "coordsmaximumsecond: " << coordsmaximum.second << " coordsmaximumsecondinrad: " << coordsmaximumsecondinrad << std::endl;
-      std::cout << "MuonHoughTransformer_rz::size of event: " << event->size() << std::endl;
+      log << MSG::VERBOSE << "sector: " << maxsector << endmsg;
+      log << MSG::VERBOSE << "coordsmaximumfirst: " << rz0 << endmsg;
+      log << MSG::VERBOSE << "coordsmaximumsecond: " << coordsmaximum.second << " coordsmaximumsecondinrad: " << coordsmaximumsecondinrad << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rz::size of event: " << event->size() << endmsg;
     }
 
   for (unsigned int i=0; i<event->size(); i++)
@@ -189,7 +181,6 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 	    {
 	      double residu_distance_mm = m_muonhoughmathutils.signedDistanceToLine(hitz,radius,rz0,coordsmaximumsecondinrad);
 	      
-//	      theta = calculateAngle(hitx,hity,hitz,coordsmaximum.first/std::sin(coordsmaximumsecondinrad)); // used for estimating the angle
 // Use this code for rz scan and theta 
 //
               double radius3 = sqrt(hitx*hitx+hity*hity+hitz*hitz);
@@ -199,9 +190,8 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 
 	      theta = std::atan2(radius,hitz)+std::atan2(rz0,heigth);
   	      
-              if (printlevel>=4) { std::cout << "theta: " << theta << " heigth: " << heigth << " radius3: " << radius3 << "  std::atan2(radius,hitz): " <<  std::atan2(radius,hitz) << " +std::atan2(rz0,heigth): " << std::atan2(rz0,heigth) << " rz0: " << rz0 << std::endl; }
-//              std::cout << " check rz0  estimate " << hitz*sin(theta) - radius*cos(theta) << " rz0 " << rz0 <<std::endl;   
-              if (printlevel>=4 && std::abs(rz0) > radius3) {std::cout << "rz0 > radius3" << std::endl;}
+              if (printlevel>=4 || log.level()<=MSG::VERBOSE) { log << MSG::VERBOSE << "theta: " << theta << " heigth: " << heigth << " radius3: " << radius3 << "  std::atan2(radius,hitz): " <<  std::atan2(radius,hitz) << " +std::atan2(rz0,heigth): " << std::atan2(rz0,heigth) << " rz0: " << rz0 << endmsg; }
+              if ((printlevel>=4 || log.level()<=MSG::VERBOSE) && std::abs(rz0) > radius3) {log << MSG::VERBOSE << "rz0 > radius3" << endmsg;}
 	      if (m_use_residu_grad==1) {
 		double residu_distance_grad = std::abs(std::sin(theta-coordsmaximumsecondinrad));
 		residu_distance=residu_distance_grad;
@@ -212,21 +202,21 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 		maximum_residu=maximum_residu_mm;  
 	      }
 	      
-	      if (printlevel>=4) {
-		std::cout << "MuonHoughTransformer_rz::hitx: " << hitx << " hity: " << hity << " hitz: " << hitz << std::endl;
-		std::cout << "MuonHoughTransformer_rz::residu_distance: " << residu_distance << std::endl;
+	      if (printlevel>=4 || log.level()<=MSG::VERBOSE) {
+		log << MSG::VERBOSE << "MuonHoughTransformer_rz::hitx: " << hitx << " hity: " << hity << " hitz: " << hitz << endmsg;
+		log << MSG::VERBOSE << "MuonHoughTransformer_rz::residu_distance: " << residu_distance << endmsg;
 	      }
 	      bool inmax = false ;  
               if ( std::abs( theta*180./M_PI - coordsmaximum.second) < 1.1 ) inmax = true ;
 
 	      if(std::abs(residu_distance)<maximum_residu) // here no circular effect
 		{
-		  if (printlevel>=4)
+		  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 		    {
-		      std::cout << "MuonHoughTransformer_rz::hit added to houghpattern!" << std::endl;
-		      std::cout << " Sector number hit " << sectorhit << " max " << maxsector << " detector: " << event->getHit(i)->getWhichDetector() << std::endl;
-                      if (inmax) std::cout << " MuonHoughTransformer_rz:: in maximum "  << std::endl;
-                      if (!inmax) std::cout << " OUTSIDE maximum theta hit "  << theta*180./M_PI << " max Hough theta " << coordsmaximum.second << std::endl;
+		      log << MSG::VERBOSE << "MuonHoughTransformer_rz::hit added to houghpattern!" << endmsg;
+		      log << MSG::VERBOSE << " Sector number hit " << sectorhit << " max " << maxsector << " detector: " << event->getHit(i)->getWhichDetector() << endmsg;
+                      if (inmax) log << MSG::VERBOSE << " MuonHoughTransformer_rz:: in maximum "  << endmsg;
+                      if (!inmax) log << MSG::VERBOSE << " OUTSIDE maximum theta hit "  << theta*180./M_PI << " max Hough theta " << coordsmaximum.second << endmsg;
 		    }
 		  houghpattern->addHit(event->getHit(i));
 		  
@@ -235,24 +225,22 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 		  double rz0hit = residu_distance_mm + rz0;
 		  eradius += rz0hit;
 		  
-		  if (printlevel>=4){std::cout << "MuonHoughTransformer_rz::calculateAngle: " << theta << " calculateradius: " << rz0hit << std::endl;
+		  if (printlevel>=4 || log.level()<=MSG::VERBOSE){
+		    log << MSG::VERBOSE << "MuonHoughTransformer_rz::calculateAngle: " << theta << " calculateradius: " << rz0hit << endmsg;
 		    double radiush = sqrt(event->getHitx(i)*event->getHitx(i)+event->getHity(i)*event->getHity(i));
-
-		    std::cout << " R Z hit added to hough pattern theta hit " << atan2(radiush,event->getHitz(i) ) << " theta all " <<  coordsmaximumsecondinrad << std::endl;
+		    log << MSG::VERBOSE << " R Z hit added to hough pattern theta hit " << atan2(radiush,event->getHitz(i) ) << " theta all " <<  coordsmaximumsecondinrad << endmsg;
 		  }
 		  
 		  sin_theta += std::sin(theta);
 		  cos_theta += std::cos(theta);
 		  
-		  //if (m_ip_setting == true)
-		  //{
 		  phi = std::atan2(hity,hitx);
 		  
 		  sin_phi += std::sin(phi);
 		  cos_phi += std::cos(phi);
 		  //}
 		} else  {
-                  if (inmax) std::cout << "LOST hit in maximum distance" << residu_distance << std::endl;
+		if (inmax) if (log.level()<=MSG::WARNING)log << MSG::WARNING << "LOST hit in maximum distance" << residu_distance << endmsg;
                 }
 
 	    }// dotprod
@@ -265,9 +253,9 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
 
   eradius=eradius/(houghpattern->size()+0.0001);
   
-  if (printlevel>=4)
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
     {
-     std::cout << "MuonHoughTransformer_rz::Etheta : " << etheta << " Size houghpattern " << houghpattern->size() << " ephi " << ephi << std::endl;
+     log << MSG::VERBOSE << "MuonHoughTransformer_rz::Etheta : " << etheta << " Size houghpattern " << houghpattern->size() << " ephi " << ephi << endmsg;
     }
   
   houghpattern->setETheta(etheta);
@@ -276,15 +264,15 @@ MuonHoughPattern* MuonHoughTransformer_rz::hookAssociateHitsToMaximum(const Muon
   
   if (houghpattern->size()==0)
     {
-      if (printlevel>=4){std::cout << "MuonHoughTransformer_rz::WARNING : no hits found on pattern" << std::endl;}
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE){log << MSG::VERBOSE << "MuonHoughTransformer_rz::WARNING : no hits found on pattern" << endmsg;}
     }
 
   else if (std::abs(eradius-rz0) > 500. || std::sin(etheta-coordsmaximumsecondinrad) > 0.05)
     {
-      if (printlevel>=4){
-	std::cout << "MuonHoughTransformer_rz::WARNING Eradius or Etheta calc. WRONG" << std::endl;
-	std::cout << "MuonHoughTransformer_rz::eradius: " << rz0 << " etheta: " << coordsmaximumsecondinrad << std::endl;
-	std::cout << "MuonHoughTransformer_rz::eradius: " << eradius << " etheta: " << etheta << std::endl;
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE){
+	log << MSG::VERBOSE << "MuonHoughTransformer_rz::WARNING Eradius or Etheta calc. WRONG" << endmsg;
+	log << MSG::VERBOSE << "MuonHoughTransformer_rz::eradius: " << rz0 << " etheta: " << coordsmaximumsecondinrad << endmsg;
+	log << MSG::VERBOSE << "MuonHoughTransformer_rz::eradius: " << eradius << " etheta: " << etheta << endmsg;
       }
       houghpattern->setETheta(coordsmaximumsecondinrad); //coordsmaximumsecondinrad
       houghpattern->setERTheta(rz0);
