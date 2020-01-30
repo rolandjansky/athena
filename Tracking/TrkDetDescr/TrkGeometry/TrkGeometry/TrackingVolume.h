@@ -105,16 +105,16 @@ namespace Trk {
       - explicitely  ======> 1 a) static confinement */
       TrackingVolume (Amg::Transform3D* htrans,
                       VolumeBounds* volbounds,
-                      const LayerArray* subLayers=0,
-                      const TrackingVolumeArray* subVolumes=0,
+                      const LayerArray* subLayers=nullptr,
+                      const TrackingVolumeArray* subVolumes=nullptr,
                       const std::string& volumeName="undefined");
       
       /** Constructor for a full equipped Tracking Volume
          - full by inheritance  ======> 2 a) static confinement */
       TrackingVolume (const Volume& volume,
                       const Material& matprop,
-                      const LayerArray* subLayers=0,
-                      const TrackingVolumeArray* subVolumes=0,
+                      const LayerArray* subLayers=nullptr,
+                      const TrackingVolumeArray* subVolumes=nullptr,
                       const std::string& volumeName="undefined");
                      
       /** Constructor for a full equipped Tracking Volume
@@ -122,8 +122,8 @@ namespace Trk {
       TrackingVolume (Amg::Transform3D* htrans,
                       VolumeBounds*   volbounds,
                       const Material& matprop,
-                      const LayerArray* subLayers=0,
-                      const TrackingVolumeArray* subVolumes=0,
+                      const LayerArray* subLayers=nullptr,
+                      const TrackingVolumeArray* subVolumes=nullptr,
                       const std::string& volumeName="undefined");
 
 
@@ -227,7 +227,7 @@ namespace Trk {
             - does not step down to eventually confined TrackingVolumes
             - navigates to the next trackign volume IF PropDirection == mappingMode
         */
-      const LayerIntersection<Amg::Vector3D>
+      LayerIntersection<Amg::Vector3D>
                             closestMaterialLayer(const Amg::Vector3D& gp, 
                                                  const Amg::Vector3D& dir, 
                                                  PropDirection pDir = alongMomentum,
@@ -524,7 +524,7 @@ namespace Trk {
       if (m_confinedLayers){
           // cache the longest path length to avoid punch-through to the other side
           Trk::Intersection     sLayerIntersection(Amg::Vector3D(0.,0.,0),0.,true,0.);
-          const Trk::Surface*   sLayerSurface  = 0;
+          const Trk::Surface*   sLayerSurface  = nullptr;
           double validPathLength = 0.;
           // start layer given or not - test layer
           const Trk::Layer* tLayer = sLayer ? sLayer : associatedLayer(gp);
@@ -552,7 +552,7 @@ namespace Trk {
                       }
                   } 
                   // move to next one or break because you reached the end layer
-                  tLayer = (tLayer == eLayer ) ? 0 :  tLayer->nextLayer(gp,dir);
+                  tLayer = (tLayer == eLayer ) ? nullptr :  tLayer->nextLayer(gp,dir);
               } while (tLayer);
           }
           

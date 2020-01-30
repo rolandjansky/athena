@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@
 
 Trk::SubtractedVolumeBounds::SubtractedVolumeBounds() :
  VolumeBounds(),
- m_outer(0),
- m_inner(0),
+ m_outer(nullptr),
+ m_inner(nullptr),
  m_objectAccessor(),
  m_boundsOrientation()
 {}
@@ -128,9 +128,9 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
         if (!volExcl) throw std::logic_error("Not a VolumeExcluder");
 	Trk::Volume* outerSub = new Trk::Volume(*volExcl->volume());
 
-	Trk::Volume* comb_sub = 0;
-        if (!shared) comb_sub = new Trk::Volume(0,new Trk::CombinedVolumeBounds(innerSub,outerSub,false));
-        else         comb_sub = new Trk::Volume(0,new Trk::SubtractedVolumeBounds(outerSub,innerSub));
+	Trk::Volume* comb_sub = nullptr;
+        if (!shared) comb_sub = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(innerSub,outerSub,false));
+        else         comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(outerSub,innerSub));
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
 	if (splo) retsf->push_back(new Trk::SubtractedPlaneSurface(*splo,volEx,shared));
 	if (sclo) retsf->push_back(new Trk::SubtractedCylinderSurface(*sclo,volEx,shared));    
@@ -191,9 +191,9 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
 	Trk::Volume* innerSub = new Trk::Volume(*volExcl->volume());
 	
         // combined volume
-	Trk::Volume* comb_sub=0;
-        if (!shared) comb_sub = new Trk::Volume(0,new Trk::SubtractedVolumeBounds(outerSub,innerSub));
-        else         comb_sub = new Trk::Volume(0,new Trk::CombinedVolumeBounds(innerSub,outerSub,true));
+	Trk::Volume* comb_sub=nullptr;
+        if (!shared) comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(outerSub,innerSub));
+        else         comb_sub = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(innerSub,outerSub,true));
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
 	if (spli) retsf->push_back(new Trk::SubtractedPlaneSurface(*spli,volEx,true));
 	if (scli) retsf->push_back(new Trk::SubtractedCylinderSurface(*scli,volEx,true));       
@@ -255,7 +255,7 @@ std::ostream& Trk::SubtractedVolumeBounds::dump( std::ostream& sl ) const
 
 Trk::Volume* Trk::SubtractedVolumeBounds::createSubtractedVolume(const Amg::Transform3D& transf, Trk::Volume* subtrVol) const
 {
-  Trk::Volume* subVol = 0;
+  Trk::Volume* subVol = nullptr;
   if (!subtrVol) return subVol;
 
   subVol = new Trk::Volume( *subtrVol, transf );

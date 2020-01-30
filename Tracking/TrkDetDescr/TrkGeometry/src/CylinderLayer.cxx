@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ Trk::CylinderLayer::CylinderLayer(Amg::Transform3D* transform,
                                   int laytyp) :
   CylinderSurface(transform, cbounds),
   Layer(laymatprop, thickness, olap, laytyp),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
   CylinderSurface::associateLayer(*this);
 }
@@ -38,7 +38,7 @@ Trk::CylinderLayer::CylinderLayer(Trk::CylinderSurface* cyl,
                                   int laytyp) :
   CylinderSurface(*cyl),
   Layer(laymatprop, thickness, olap, laytyp),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     CylinderSurface::associateLayer(*this);
 }
@@ -87,7 +87,7 @@ Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
                                   int laytyp) :
   CylinderSurface(cbounds),
   Layer(laymatprop, thickness, olap, laytyp),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     CylinderSurface::associateLayer(*this);
 }
@@ -128,7 +128,7 @@ Trk::CylinderLayer::CylinderLayer(Trk::CylinderBounds* cbounds,
 Trk::CylinderLayer::CylinderLayer(const Trk::CylinderLayer& clay):
   CylinderSurface(clay),
   Layer(clay),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     CylinderSurface::associateLayer(*this);
     delete m_approachDescriptor;
@@ -138,7 +138,7 @@ Trk::CylinderLayer::CylinderLayer(const Trk::CylinderLayer& clay):
 Trk::CylinderLayer::CylinderLayer(const Trk::CylinderLayer& clay, const Amg::Transform3D& transf):
   CylinderSurface(clay,transf),
   Layer(clay),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     if (m_surfaceArray) buildApproachDescriptor();
 }
@@ -248,7 +248,7 @@ const Trk::Surface& Trk::CylinderLayer::approachSurface(const Amg::Vector3D& pos
         if (surfacesOnApproach){
             // test the intersections and go 
             std::vector<Trk::Intersection> sfIntersections;
-            const Trk::Surface* aSurface = 0;
+            const Trk::Surface* aSurface = nullptr;
             double aPathLength           = 10e10;
             // get the surfaces
             for (auto& sfIter : (*surfacesOnApproach)){
@@ -291,7 +291,7 @@ void Trk::CylinderLayer::buildApproachDescriptor(){
     // delete the surfaces    
     Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
     // create new surfaces
-    Amg::Transform3D* asTransform = m_transform ? new Amg::Transform3D(*m_transform) : 0;
+    Amg::Transform3D* asTransform = m_transform ? new Amg::Transform3D(*m_transform) : nullptr;
     // create the new surfaces
     aSurfaces->push_back(new Trk::CylinderSurface(asTransform, m_bounds->r()-0.5*thickness(), m_bounds->halflengthZ() ));
     aSurfaces->push_back(new Trk::CylinderSurface(asTransform, m_bounds->r()+0.5*thickness(), m_bounds->halflengthZ() ));

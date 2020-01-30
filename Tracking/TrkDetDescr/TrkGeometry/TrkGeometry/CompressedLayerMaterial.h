@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -125,9 +125,9 @@ namespace Trk {
       int accessBin = bin1*(m_binUtility->max(0)+1)+bin0;
       // safety check
       if (bin0 <= (unsigned int)m_binUtility->max(0) && bin1 <= (unsigned int)m_binUtility->max(1) 
-         && m_fullMaterial.size() && accessBin < int(m_materialBins.size()))
+         && !m_fullMaterial.empty() && accessBin < int(m_materialBins.size()))
           return m_fullMaterial[m_materialBins[accessBin]];
-     return 0;
+     return nullptr;
   }
   
   inline void CompressedLayerMaterial::updateBinning(BinUtility* bu){

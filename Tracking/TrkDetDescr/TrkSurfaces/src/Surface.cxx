@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, const BoundaryCheck&
 bool
 Trk::Surface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
 {
-  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, std::move(bchk), tol1, tol2);
+  const Amg::Vector2D* posOnSurface = positionOnSurface(glopo, bchk, tol1, tol2);
   if (posOnSurface) {
     delete posOnSurface;
     return true;

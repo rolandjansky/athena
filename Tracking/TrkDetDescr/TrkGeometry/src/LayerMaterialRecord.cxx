@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 
 Trk::LayerMaterialRecord::LayerMaterialRecord()
 : m_layerThickness(0.),
-  m_binUtility(0),
+  m_binUtility(nullptr),
   m_bins0(0),
   m_bins1(0),
   m_minFraction(0.),  
@@ -44,7 +44,7 @@ Trk::LayerMaterialRecord::LayerMaterialRecord(double thickness,
                                               double minfraction,
                                               Trk::MaterialAssociationType assoc)
 : m_layerThickness(thickness),
-  m_binUtility(binutils ? binutils->clone() : 0),
+  m_binUtility(binutils ? binutils->clone() : nullptr),
   m_bins0(binutils ? (binutils->max(0) + 1) : 1),
   m_bins1(binutils && binutils->dimensions() > 1 ? (binutils->max(1) + 1) : 1),
   m_minFraction(minfraction),  
@@ -84,7 +84,7 @@ Trk::LayerMaterialRecord::LayerMaterialRecord(double thickness,
 
 Trk::LayerMaterialRecord::LayerMaterialRecord(const Trk::LayerMaterialRecord& lmr)
 : m_layerThickness(lmr.m_layerThickness),
-  m_binUtility(lmr.m_binUtility ? lmr.m_binUtility->clone() : 0),
+  m_binUtility(lmr.m_binUtility ? lmr.m_binUtility->clone() : nullptr),
   m_bins0(lmr.m_bins0),
   m_bins1(lmr.m_bins1),
   m_minFraction(lmr.m_minFraction),
@@ -118,7 +118,7 @@ Trk::LayerMaterialRecord& Trk::LayerMaterialRecord::operator=(const Trk::LayerMa
     if (this != &lmr) {
         m_layerThickness      = lmr.m_layerThickness;
         delete m_binUtility;
-        m_binUtility          = lmr.m_binUtility ? lmr.m_binUtility->clone() : 0;
+        m_binUtility          = lmr.m_binUtility ? lmr.m_binUtility->clone() : nullptr;
         m_bins0               = lmr.m_bins0;
         m_bins1               = lmr.m_bins1;
         m_minFraction         = lmr.m_minFraction;
@@ -297,7 +297,7 @@ void Trk::LayerMaterialRecord::finalizeRun(bool recordElements)
         matVector.reserve(m_bins0);
         // loop over local 1 bins
         for (int ibin0 = 0; ibin0 < m_bins0; ++ibin0) {
-            Trk::MaterialProperties* binMaterial = 0;
+            Trk::MaterialProperties* binMaterial = nullptr;
             if (m_run_events[ibin1][ibin0]) {
 
                 // The event norm
@@ -317,7 +317,7 @@ void Trk::LayerMaterialRecord::finalizeRun(bool recordElements)
                 double l0 = m_layerThickness/m_run_s_in_l0[ibin1][ibin0];
 
                 // prepare the material composition 
-                Trk::MaterialComposition* matComposition = 0;
+                Trk::MaterialComposition* matComposition = nullptr;
                 if (recordElements){
                     // pre-loop to get a sample 
                     double preTotalFraction = 0.;
@@ -343,7 +343,7 @@ void Trk::LayerMaterialRecord::finalizeRun(bool recordElements)
                     for ( auto& poEl : probabilityOrdered ){
                         double  fracEl = poEl.first/totalFraction;
                         unsigned int fracEluChar = fracEl*UCHAR_MAX;
-                        elementFractions.push_back(Trk::ElementFraction(poEl.second,fracEluChar));
+                        elementFractions.emplace_back(poEl.second,fracEluChar);
                     }
                     // reverse the order to have the one with the highest fraction first
                     std::reverse(elementFractions.begin(),elementFractions.end());
@@ -395,7 +395,7 @@ void Trk::LayerMaterialRecord::copyMaterial(const MaterialPropertiesMatrix& mate
         std::vector<const Trk::MaterialProperties*>::const_iterator matIterEnd = (*matMatrixIter).end();
         for ( ; matIter != matIterEnd; ++matIter) {
             // test it
-            matProp.push_back( ( (*matIter) ? (*matIter)->clone()  : 0 ) );
+            matProp.push_back( ( (*matIter) ? (*matIter)->clone()  : nullptr ) );
         }
         // and now push back the vector
         m_associatedLayerMaterial.push_back(matProp);

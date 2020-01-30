@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ namespace Trk {
       virtual const MaterialProperties* material(size_t ib0, size_t ib1) const override;
       
       /** Return the BinUtility */
-      const BinUtility* binUtility() const  override { return 0; }
+      const BinUtility* binUtility() const  override { return nullptr; }
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
       virtual void updateBinning(BinUtility*) override { }

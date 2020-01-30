@@ -78,20 +78,20 @@ namespace Trk {
     /**Constructor with MaterialProperties */
     Layer(const LayerMaterialProperties& laymatprop,
           double thickness = 0.,
-          OverlapDescriptor* od = 0,
+          OverlapDescriptor* od = nullptr,
           int ltype=int(passive));
                 
     /**Constructor with pointer to SurfaceArray (passing ownership) */
     Layer(SurfaceArray* surfaceArray,
           double thickness = 0.,
-          OverlapDescriptor* od = 0,
+          OverlapDescriptor* od = nullptr,
           int ltype=int(passive));
                 
     /**Constructor with MaterialProperties and pointer SurfaceArray (passing ownership) */
     Layer(SurfaceArray* surfaceArray,
           const LayerMaterialProperties& laymatprop,
           double thickness = 0.,
-          OverlapDescriptor* od = 0,
+          OverlapDescriptor* od = nullptr,
           int ltype=int(passive)); 
         
     /**Copy Constructor for Layers */     
@@ -178,7 +178,7 @@ namespace Trk {
                                              PropDirection pdir,
                                              const BoundaryCheck& bcheck,
                                              bool resolveSubSurfaces = 0,
-                                             const ICompatibilityEstimator* ice = 0) const;
+                                             const ICompatibilityEstimator* ice = nullptr) const;
 
     /** get compatible surfaces starting from charged parameters */
     virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
@@ -186,9 +186,9 @@ namespace Trk {
 			                          PropDirection pdir,
 			                          const BoundaryCheck& bcheck,
                                       bool materialSurfacesOnly = true,
-			                          const Surface* startSurface = 0,
-			                          const Surface* endSurface = 0,
-			                          const ICompatibilityEstimator* ice = 0) const;
+			                          const Surface* startSurface = nullptr,
+			                          const Surface* endSurface = nullptr,
+			                          const ICompatibilityEstimator* ice = nullptr) const;
 
     /** get compatible surfaces starting from neutral parameters */
     virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
@@ -196,9 +196,9 @@ namespace Trk {
     			                      PropDirection pdir,
     			                      const BoundaryCheck& bcheck,
                                       bool materialSurfacesOnly = true,
-    			                      const Surface* startSurface = 0,
-    			                      const Surface* endSurface = 0,
-    			                      const ICompatibilityEstimator* ice = 0) const;
+    			                      const Surface* startSurface = nullptr,
+    			                      const Surface* endSurface = nullptr,
+    			                      const ICompatibilityEstimator* ice = nullptr) const;
 
     /** Has sub-structure method: 
         - sub-structure depending on : 
@@ -271,9 +271,9 @@ namespace Trk {
                                                      PropDirection pdir,
                                                      const BoundaryCheck& bcheck,
                                                      bool materialSurfacesOnly = true,
-                                                     const Surface* startSurface = 0,
-                                                     const Surface* endSurface = 0,
-                                                     const ICompatibilityEstimator* ice = 0) const;
+                                                     const Surface* startSurface = nullptr,
+                                                     const Surface* endSurface = nullptr,
+                                                     const ICompatibilityEstimator* ice = nullptr) const;
 
     void compactify(size_t& cSurfaces, size_t& tSurfaces) const;  //!< propagate TrackingGeometry owner downstream
     
