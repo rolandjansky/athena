@@ -11,17 +11,13 @@
 
 //Athena includes
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaKernel/CondCont.h" 
-#include "Identifier/Identifier.h"
+#include "AthenaKernel/CondCont.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "Identifier/IdContext.h"
+#include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "AthenaKernel/BaseInfo.h" 
-#include "MuonIdHelpers/CscIdHelper.h"
-
 
 //forward declarations
-class Identifier;
-class IdentifierHash;
 class CscIdHelper;
 
 
@@ -88,24 +84,17 @@ public:
     StatusCode layerHashToOnlineId(const unsigned int &, unsigned int &) const;
     StatusCode offlineElementToOnlineId(const CscIdHelper*, const Identifier &, unsigned int &) const;
     StatusCode offlineToOnlineId(const CscIdHelper*, const Identifier &, unsigned int &) const;
-    StatusCode onlineToOfflineElementId(const CscIdHelper*, const unsigned int &, Identifier &) const;
-    StatusCode onlineToOfflineChannelId(const CscIdHelper*, const unsigned int &, Identifier &) const;
     StatusCode onlineToOfflineIds(const CscIdHelper*, const unsigned int &, Identifier &, Identifier &) const;
  
 private:
 
-    IdContext m_channelContext, m_moduleContext;
+    bool m_onlineOfflinePhiFlip;
 
-    unsigned int m_layerHashes[2][2][8][4][2];
+    IdContext m_channelContext;
+    IdContext m_moduleContext;
+
     std::vector<unsigned int> m_onlineChannelIdsFromLayerHash;
-    unsigned int m_chamberCoolChannels[2][2][8];
     std::vector<unsigned int> m_onlineChannelIdsFromChamberCoolChannel;
-
-    const unsigned int m_maxChanHash; 
-    const unsigned int m_maxChamberCoolChannel;
-    const unsigned int m_maxLayerHash;
-
-    bool m_onlineOfflinePhiFlip{false};
 
     std::vector<std::string> m_cachedDeadLayers;
     std::vector<std::string> m_cachedDeadStations;
@@ -131,7 +120,6 @@ private:
     const bool  m_nillbool  = false;
     const float m_nillfloat = -1;
     const int   m_nillint = -1;
-
 
 public:
 
