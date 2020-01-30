@@ -5,9 +5,49 @@
 #include "TrigConfData/LogicParser.h"
 
 #include <boost/tokenizer.hpp>
+#include <iostream>
+#include <string>
+#include <iterator>
 
 TrigConf::LogicParser::LogicParser()
 {}
+
+namespace {
+   void printSubExpr(const std::string & id, const std::vector<std::string> & tokExpr, size_t & front, const size_t back) {
+      std::cout << id << ": ";
+      for(size_t i = front; i<=back; i++) {
+         cout << tokExpr[i] << " ";
+      }
+      std::cout << endl;
+   }
+
+   size_t findMatchingClosingParenthesis(const std::vector<std::string> & tokExpr, size_t front, size_t back) {
+      if(tokExpr[front]!="(") {
+         throw TrigConf::LogicParsingException(string("Looking for closing parenthesis, but not starting with '(', but '") + tokExpr[front] + "'");
+      }
+      size_t pos(front);
+      size_t parCount = 1;
+      size_t matchingClosingPar = 0;
+      while(++pos <= back) {
+         if(tokExpr[pos]=="(") {
+            parCount++;
+         }
+         if(tokExpr[pos]==")") {
+            parCount--;
+         }
+         if(parCount==0) {
+            matchingClosingPar = pos;
+            break;
+         }
+      }
+      if( matchingClosingPar == 0 ) {
+         printSubExpr("Search for matching parenthesis", tokExpr, front, back);
+         throw TrigConf::LogicParsingException("Found no closing parenthesis, matching '('");
+      }
+      return matchingClosingPar;
+   }
+
+}
 
 std::shared_ptr<TrigConf::Logic>
 TrigConf::LogicParser::parse(const std::string & expr) {
@@ -41,8 +81,7 @@ TrigConf::LogicParser::buildTree(const std::vector<std::string> & tokExpr) const
 
    size_t front = 0;
    size_t back = tokExpr.size()-1;
-   auto logic = buildNode(tokExpr,front,back);
-   return logic;
+   return buildNode(tokExpr,front,back);
 }
 
 
@@ -102,8 +141,7 @@ TrigConf::LogicParser::findSubExpr(const std::vector<std::string> & tokExpr, siz
       }
       logic->setNegate();
    } else if(token=="(") {
-      size_t parEnd = front;
-      while(tokExpr[++parEnd] != ")");
+      size_t parEnd = findMatchingClosingParenthesis(tokExpr, front, back);
       logic = buildNode(tokExpr,front+1,parEnd-1);
       front = parEnd + 1;
    } else {

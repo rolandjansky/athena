@@ -50,6 +50,7 @@
 
 #include <map>
 #include <string>
+#include <mutex>
 
 namespace LVL1 {
    class CPRoIDecoder;
@@ -86,10 +87,10 @@ namespace LVL1CTP {
 
 
       // histogramming related 
-      StatusCode bookHists(const ConfigSource & cfgSrc);
-      StatusCode createMultiplicityHist(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt, unsigned int maxMult = 10 );
-      StatusCode hbook(const std::string & path, std::unique_ptr<TH1> hist);
-      StatusCode hbook(const std::string & path, std::unique_ptr<TH2> hist);
+      StatusCode bookHists() const;
+      StatusCode createMultiplicityHist(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt, unsigned int maxMult = 10 ) const;
+      StatusCode hbook(const std::string & path, std::unique_ptr<TH1> hist) const;
+      StatusCode hbook(const std::string & path, std::unique_ptr<TH2> hist) const;
       LockedHandle<TH1> & get1DHist(const std::string & histName) const;
       LockedHandle<TH2> & get2DHist(const std::string & histName) const;      
 
@@ -118,10 +119,11 @@ namespace LVL1CTP {
       unsigned int calculateTopoMultiplicity( const TrigConf::L1Threshold & confThr, const TrigConf::L1Menu * l1menu, const EventContext& context ) const;
 
       // member variables
+      mutable std::once_flag m_onceflag;
 
       // Needed services and tools
       ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "LVL1ConfigSvc", "Trigger configuration service" };
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger configuration service" };
       ServiceHandle<IAtRndmGenSvc> m_rndmSvc{ this, "RndmSvc", "AtRndmGenSvc", "Random Number Service used in CTP simulation" };
       ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
       ToolHandle<LVL1CTP::ResultBuilder> m_resultBuilder { this, "ResultBuilder", "LVL1CTP__ResultBuilder/ResultBuilder", "Builds the CTP result" };

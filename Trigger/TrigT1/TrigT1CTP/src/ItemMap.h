@@ -27,41 +27,44 @@ namespace TrigConf {
 
 namespace LVL1CTP {
 
-  // forward includes in namespace LVL1CTP
-  class ThresholdMap;
+   // forward includes in namespace LVL1CTP
+   class ThresholdMap;
 
-  /**
-   *   @short Map associating item name to CTPTriggerItem objects
-   */
+   /**
+    *   @short Map associating item name to CTPTriggerItem objects
+    */
 
-  class ItemMap {
+   class ItemMap {
 
-  public:
+   public:
 
-    ItemMap( const TrigConf::L1Menu * l1menu );
+      ItemMap( const TrigConf::L1Menu * l1menu );
 
-    //! constructor setting list of trigger items and associated prescales (random prescale offset if randEngine is given)
-    ItemMap( const TrigConf::ItemContainer& item_vector,
-             const TrigConf::PrescaleSet& prescales );
+      //! constructor setting list of trigger items and associated prescales (random prescale offset if randEngine is given)
+      ItemMap( const TrigConf::ItemContainer& item_vector,
+               const TrigConf::PrescaleSet& prescales );
 
-    //! default destructor
-    ~ItemMap();
+      //! default destructor
+      ~ItemMap();
 
-    const CTPTriggerItem* getItem( const std::string & itemName ) const
-    { return m_map.find( itemName )->second; }
+      const CTPTriggerItem* getItem( const std::string & itemName ) const
+      { return m_map.find( itemName )->second; }
 
-    const std::set<std::string> & itemNames() const
-    { return m_itemNames; }
+      const std::set<std::string> & itemNames() const
+      { return m_itemNames; }
 
 
-  private:
+   private:
 
-    /// map from item name to CTPTriggerItem
-    std::map< std::string, const CTPTriggerItem* > m_map;
+      // turns item definition "1&2&3" into "EM[x2]&BGRP0&BGRP1", which is needed when item configuration is read from COOL
+      std::string getDefinition( const TrigConf::TriggerItem * item ) const;
 
-    std::set<std::string> m_itemNames{};
+      /// map from item name to CTPTriggerItem
+      std::map< std::string, const CTPTriggerItem* > m_map;
 
-  };
+      std::set<std::string> m_itemNames{};
+
+   };
 
 }
 #endif

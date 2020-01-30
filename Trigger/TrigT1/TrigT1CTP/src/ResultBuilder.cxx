@@ -31,33 +31,36 @@ LVL1CTP::ResultBuilder::ResultBuilder( const std::string& type,
                                        const std::string& name, 
                                        const IInterface* parent )
    : AthAlgTool(type, name, parent)
-{}
+{
+   m_ctpDataFormat = new CTPdataformatVersion(m_ctpVersionNumber);
+}
 
 
 LVL1CTP::ResultBuilder::~ResultBuilder() {
    delete m_ctpDataFormat;
 }
 
+void
+LVL1CTP::ResultBuilder::setRandomEngine( CLHEP::HepRandomEngine* rndmEngine ) {
+   m_rndmEngine = rndmEngine;
+}
 
 StatusCode
 LVL1CTP::ResultBuilder::setConfiguration( const TrigConf::CTPConfig* ctpConfig, 
-                                          const TrigConf::L1Menu* l1menu,
-                                          CLHEP::HepRandomEngine* rndmEngine )
+                                          const TrigConf::L1Menu* l1menu ) const
 {
    ATH_MSG_DEBUG( "Set configuration with CTP version " << m_ctpVersionNumber );
-   m_ctpDataFormat = new CTPdataformatVersion(m_ctpVersionNumber);
 
    ConfigSource cfgsrc(ctpConfig, l1menu);
-   StatusCode sc = createTriggerConfigMaps(cfgsrc);
 
-   m_rndmEngine = rndmEngine;
+   StatusCode sc = createTriggerConfigMaps(cfgsrc);
 
    return sc;
 }
 
 
 StatusCode
-LVL1CTP::ResultBuilder::createTriggerConfigMaps(const ConfigSource & cfgSrc) {
+LVL1CTP::ResultBuilder::createTriggerConfigMaps(const ConfigSource & cfgSrc) const {
 
    if( cfgSrc.l1menu() != nullptr ) {
 
@@ -144,7 +147,6 @@ LVL1CTP::ResultBuilder::constructTIPVector( const std::map<std::string, unsigned
          // all other trigger threshold multiplicities
 
          const CTPTriggerThreshold & ctpTT = m_thrConfigMap->getCTPThreshold( thrName );
-
          size_t startBit = ctpTT.startBit();
          size_t nBits = ctpTT.endBit() - startBit + 1;
 

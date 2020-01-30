@@ -45,6 +45,11 @@ LVL1CTP::CTPSimulation::initialize() {
 
    ATH_MSG_DEBUG("initialize");
 
+   if( m_isData ) {
+      CHECK( m_oKeyRDO.assign(LVL1CTP::DEFAULT_RDOOutputLocation_Rerun) );
+      CHECK( m_oKeySLink.assign(LVL1CTP::DEFAULT_CTPSLinkLocation_Rerun) );
+   }
+
    // data links
    ATH_CHECK( m_iKeyTopo.initialize() );
    ATH_CHECK( m_iKeyLegacyTopo.initialize() );
@@ -70,41 +75,58 @@ LVL1CTP::CTPSimulation::initialize() {
 
    // tools
    ATH_CHECK( m_resultBuilder.retrieve() );
+   CLHEP::HepRandomEngine* rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+   m_resultBuilder->setRandomEngine( rndmEngine );
+
+   ATH_MSG_DEBUG("Registering histograms under " << m_histPath << " in " << m_histSvc);
 
    return StatusCode::SUCCESS;
 }
 
-
-
-
-
 StatusCode
 LVL1CTP::CTPSimulation::start() {
+
+   bool delayConfig = false;
 
    const TrigConf::L1Menu * l1menu = nullptr;
    if( m_useNewConfig ) {
       ATH_CHECK( m_detStore->retrieve(l1menu) ); 
       ATH_MSG_INFO( "Use L1 trigger menu from detector store" );
+      if(l1menu == nullptr) { // if no L1 configuration is available yet
+         delayConfig = true;
+      }
    } else {
       ATH_MSG_INFO( "Use L1 trigger menu from L1ConfigSvc" );
+      if( (m_configSvc->ctpConfig()==nullptr) || 
+          (m_configSvc->ctpConfig()->menu().itemVector().size() == 0) ) { // if no L1 configuration is available yet
+         delayConfig = true;
+      }
    }
 
-   // configure the CTP ResultBuilder
-   // currently both types of configuration can be given (transition period towards Run 3)
-   CLHEP::HepRandomEngine* rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-   CHECK( m_resultBuilder->setConfiguration( m_configSvc->ctpConfig(), l1menu, rndmEngine ) );
+   if( ! delayConfig ) {
+      // configure the CTP ResultBuilder
+      // currently both types of configuration can be given (transition period towards Run 3)
 
-   ConfigSource cfgsrc(m_configSvc->ctpConfig(), l1menu);
-
-   CHECK( bookHists(cfgsrc) );
+      std::call_once(m_onceflag, [this, l1menu]{ 
+            m_resultBuilder->setConfiguration( m_configSvc->ctpConfig(), l1menu ).ignore();
+            bookHists().ignore();
+         });
+   }
 
    return StatusCode::SUCCESS;
 }
 
-
 StatusCode
-
 LVL1CTP::CTPSimulation::execute( const EventContext& context ) const {
+
+   std::call_once(m_onceflag, [this]{
+         const TrigConf::L1Menu * l1menu = nullptr;
+         if( m_useNewConfig ) {
+            m_detStore->retrieve(l1menu).ignore(); 
+         }
+         m_resultBuilder->setConfiguration( m_configSvc->ctpConfig(), l1menu ).ignore();
+         bookHists().ignore();
+      });
 
    fillInputHistograms(context).ignore();
 
@@ -120,7 +142,7 @@ LVL1CTP::CTPSimulation::execute( const EventContext& context ) const {
 
 
 StatusCode
-LVL1CTP::CTPSimulation::createMultiplicityHist(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt, unsigned int maxMult ) {
+LVL1CTP::CTPSimulation::createMultiplicityHist(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt, unsigned int maxMult ) const {
 
    StatusCode sc;
    const TrigConf::CTPConfig* ctpConfig = cfgSrc.ctpConfig();
@@ -160,7 +182,7 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const ConfigSource & cfgSrc, cons
 
 
 StatusCode
-LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> hist) {
+LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> hist) const {
    const std::string & hname(hist->GetName());
 
    std::string key(path);
@@ -184,7 +206,7 @@ LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> his
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH2> hist) {
+LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH2> hist) const {
    const std::string & hname(hist->GetName());
 
    std::string key(path);
@@ -223,12 +245,17 @@ LVL1CTP::CTPSimulation::get2DHist(const std::string & histName) const {
    return  m_hist2D[histName];
 }
 
-
 StatusCode
-LVL1CTP::CTPSimulation::bookHists(const ConfigSource & cfgSrc) {
+LVL1CTP::CTPSimulation::bookHists() const {
 
-   const TrigConf::CTPConfig* ctpConfig = cfgSrc.ctpConfig();
-   const TrigConf::L1Menu* l1menu = cfgSrc.l1menu();
+   const TrigConf::L1Menu * l1menu = nullptr;
+   if( m_useNewConfig ) {
+      ATH_CHECK( m_detStore->retrieve(l1menu) ); 
+      ATH_MSG_DEBUG("Calling ::bookHists(). L1 menu " << l1menu->size() << " items" );
+   } else {
+      ATH_MSG_DEBUG("Calling ::bookHists(). ConfigSvc with " << m_configSvc->ctpConfig()->menu().itemVector().size() << " items");
+   }
+   ConfigSource cfgSrc(m_configSvc->ctpConfig(), l1menu);
 
    // jets
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("jJetPt","Jet p_{T} - jJ", 40, 0, 80) ));
@@ -286,7 +313,7 @@ LVL1CTP::CTPSimulation::bookHists(const ConfigSource & cfgSrc) {
    if ( l1menu ) {
       // to be implemented
    } else {
-      for(const TIP * tip : ctpConfig->menu().tipVector() ) {
+      for(const TIP * tip : m_configSvc->ctpConfig()->menu().tipVector() ) {
          if ( tip->tipNumber() < 384 )
             continue;
          unsigned int tipNumber = (unsigned int) ( tip->tipNumber() - 384 );
@@ -322,8 +349,8 @@ LVL1CTP::CTPSimulation::bookHists(const ConfigSource & cfgSrc) {
          orderedItemnames.emplace_back(item.name());
       }
    } else {
-      orderedItemnames.reserve(ctpConfig->menu().items().size());
-      for( const auto & item : ctpConfig->menu().items() ) {
+      orderedItemnames.reserve(m_configSvc->ctpConfig()->menu().items().size());
+      for( const auto & item : m_configSvc->ctpConfig()->menu().items() ) {
          orderedItemnames.emplace_back(item->name());
       }
    }
@@ -336,7 +363,7 @@ LVL1CTP::CTPSimulation::bookHists(const ConfigSource & cfgSrc) {
          TrigConf::L1Item item = l1menu->item( itemname );
          ctpId = item.ctpId();
       } else {
-         const TrigConf::TriggerItem * item = ctpConfig->menu().item( itemname );
+         const TrigConf::TriggerItem * item = m_configSvc->ctpConfig()->menu().item( itemname );
          ctpId = item->ctpId();
       }
       tbpByID->GetXaxis()->SetBinLabel( ctpId+1, itemname.c_str() );

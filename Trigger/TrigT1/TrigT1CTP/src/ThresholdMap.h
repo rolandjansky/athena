@@ -41,6 +41,9 @@ namespace LVL1CTP {
       /// default destructor
       ~ThresholdMap();
       
+      // Function returning the threshold names
+      std::vector<std::string> getThresholdNames() const;
+
       // Function returning the CTPTriggerThreshold object belonging to the given TriggerThreshold object
       const CTPTriggerThreshold & getCTPThreshold( const std::string & thrName ) const;
 

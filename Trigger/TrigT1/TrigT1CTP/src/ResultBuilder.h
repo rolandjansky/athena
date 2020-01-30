@@ -47,9 +47,10 @@ namespace LVL1CTP {
       ResultBuilder( const std::string& type, const std::string& name, const IInterface* parent );
       ~ResultBuilder();
 
+      void setRandomEngine( CLHEP::HepRandomEngine* rndmEngine );
+
       StatusCode setConfiguration( const TrigConf::CTPConfig* ctpConfig, 
-                                   const TrigConf::L1Menu* l1menu,
-                                   CLHEP::HepRandomEngine* rndmEngine );
+                                   const TrigConf::L1Menu* l1menu ) const;
 
       StatusCode buildItemDecision( const std::map<std::string, unsigned int> & thrMultiMap,
                                     std::map<std::string, unsigned int> & itemDecisionMap ) const;
@@ -87,15 +88,15 @@ namespace LVL1CTP {
 
       enum WrdType { TBP = 0x01, TAP = 0x02, TAV = 0x04 };
 
-      StatusCode createTriggerConfigMaps(const ConfigSource & cfgSrc);
+      StatusCode createTriggerConfigMaps(const ConfigSource & cfgSrc) const;
 
       //! build list of fired items and dump to string
       std::vector<std::string> firedItems(const std::vector<uint32_t>& triggerWords) const;
 
       // configuration information
-      ThresholdMap*                 m_thrConfigMap { nullptr };    //!< Map between threshold objects and their CTP-internal description
-      ItemMap*                      m_itemConfigMap { nullptr };   //!< Map between item objects and their CTP-internal description
-      InternalTriggerMap            m_internalTrigger;             //!< internal triggers BGRP and RNDM
+      mutable ThresholdMap*         m_thrConfigMap ATLAS_THREAD_SAFE { nullptr };    //!< Map between threshold objects and their CTP-internal description
+      mutable ItemMap*              m_itemConfigMap ATLAS_THREAD_SAFE { nullptr };   //!< Map between item objects and their CTP-internal description
+      mutable InternalTriggerMap    m_internalTrigger ATLAS_THREAD_SAFE;             //!< internal triggers BGRP and RNDM
       unsigned int                  m_ctpVersionNumber { 4 };      //!< CTP data format version (4 in most of Run 2 and in Run 3) 
       CTPdataformatVersion*         m_ctpDataFormat { nullptr };   //!< CTP data format details
       CLHEP::HepRandomEngine*       m_rndmEngine;                  //!< for random prescaling

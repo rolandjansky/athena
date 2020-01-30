@@ -86,8 +86,18 @@ LVL1CTP::ThresholdMap::~ThresholdMap() {
    }
 }
 
+std::vector<std::string>
+LVL1CTP::ThresholdMap::getThresholdNames() const {
+   std::vector<std::string> thrNames;
+   thrNames.reserve(m_mapByName.size());
+   for( auto & entry : m_mapByName ) {
+      thrNames.emplace_back(entry.first);
+   }
+   return thrNames;
+}
+
 const LVL1CTP::CTPTriggerThreshold &
 LVL1CTP::ThresholdMap::getCTPThreshold( const std::string & thrName ) const {
-   return *(m_mapByName.find( thrName )->second);
+   return * m_mapByName.at( thrName );
 }
 
