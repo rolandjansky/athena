@@ -16,7 +16,7 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 GeoVPhysVol* DBM_ModuleCage::Build() {
 

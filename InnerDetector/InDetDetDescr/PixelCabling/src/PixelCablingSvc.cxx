@@ -9,8 +9,8 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 //#define PIXEL_DEBUG
 

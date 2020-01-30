@@ -25,7 +25,7 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"

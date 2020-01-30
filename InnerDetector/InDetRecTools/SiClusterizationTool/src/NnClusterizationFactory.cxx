@@ -33,7 +33,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"

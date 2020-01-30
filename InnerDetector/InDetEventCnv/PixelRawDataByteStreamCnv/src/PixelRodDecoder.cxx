@@ -6,7 +6,7 @@
 
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "ExtractCondensedIBLhits.h"
 #include "PixelByteStreamModuleMask.h"
 #include "eformat/SourceIdentifier.h"

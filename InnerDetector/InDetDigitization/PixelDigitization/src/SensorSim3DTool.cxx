@@ -4,7 +4,7 @@
 
 #include "SensorSim3DTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
 #include "SiDigitization/SiSurfaceCharge.h"
 #include "InDetIdentifier/PixelID.h"

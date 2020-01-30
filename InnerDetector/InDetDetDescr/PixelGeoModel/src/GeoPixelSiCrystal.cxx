@@ -19,11 +19,11 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 

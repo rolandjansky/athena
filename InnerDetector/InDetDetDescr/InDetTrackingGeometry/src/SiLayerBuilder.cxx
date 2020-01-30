@@ -11,7 +11,7 @@
 #include "InDetTrackingGeometry/SCT_OverlapDescriptor.h"
 #include "InDetTrackingGeometry/DiscOverlapDescriptor.h"
 //InDet include
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"

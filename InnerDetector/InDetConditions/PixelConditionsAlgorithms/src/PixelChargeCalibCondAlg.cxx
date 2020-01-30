@@ -5,7 +5,7 @@
 #include "PixelChargeCalibCondAlg.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "GaudiKernel/EventIDRange.h"
 #include <memory>
 #include <sstream>

@@ -20,7 +20,7 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 
 static const InterfaceID IID_ISensorSimTool("SensorSimTool", 1, 0);

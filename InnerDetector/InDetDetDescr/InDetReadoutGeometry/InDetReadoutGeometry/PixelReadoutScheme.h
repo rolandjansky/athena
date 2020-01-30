@@ -12,7 +12,7 @@
 #define INDETREADOUTGEOMETRY_PIXELREADOUTSCHEME_H
 
 // Data member classes
-#include "InDetReadoutGeometry/PixelMultipleConnection1D.h"
+#include "PixelReadoutGeometry/PixelMultipleConnection1D.h"
 
 // Input and output classes
 #include "InDetReadoutGeometry/SiReadoutCellId.h"

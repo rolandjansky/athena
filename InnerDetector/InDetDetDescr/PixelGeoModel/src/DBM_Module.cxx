@@ -13,11 +13,11 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 using namespace InDetDD;
 
 DBM_Module::DBM_Module() {

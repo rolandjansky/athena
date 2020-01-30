@@ -16,8 +16,8 @@
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 
 // Data member classes
-#include "InDetReadoutGeometry/PixelDiodeMap.h"
-#include "InDetReadoutGeometry/PixelReadoutScheme.h"
+#include "PixelReadoutGeometry/PixelDiodeMap.h"
+#include "PixelReadoutGeometry/PixelReadoutScheme.h"
 
 // Other includes
 #include "CxxUtils/CachedUniquePtr.h"

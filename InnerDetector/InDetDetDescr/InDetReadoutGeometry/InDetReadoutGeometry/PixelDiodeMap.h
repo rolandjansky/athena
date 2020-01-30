@@ -17,7 +17,7 @@
 #include <vector>
 
 // Data member classes
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
+#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 
 // Input/output classes
 #include "InDetReadoutGeometry/SiCellId.h"

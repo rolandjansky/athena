@@ -4,7 +4,7 @@
 
 #include "RD53SimTool.h"
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "SiDigitization/SiHelper.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
