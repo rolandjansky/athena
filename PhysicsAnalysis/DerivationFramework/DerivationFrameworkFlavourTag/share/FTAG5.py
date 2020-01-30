@@ -141,8 +141,9 @@ DerivationFrameworkJob += FTAG5Seq
 #put custom jet names here
 FTAG5BTaggedJets = [
     "AntiKt2PV0TrackJets",
-    "AntiKtVR30Rmax4Rmin02TrackJets",
-    "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag",
     "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
@@ -227,8 +228,9 @@ addVRJets(
 
 # Add new DL1 and RNN
 newtag_collections = [
-    'AntiKtVR30Rmax4Rmin02TrackJets',
-    'AntiKtVR30Rmax4Rmin02TrackGhostTagJets'
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810',
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903',
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag'
 ]
 rnn_remap = {'rnnip_p' + x: 'rnnipT_p' + x for x in 'bcu'}
 FTAG5Seq += BTagNNAlg(
@@ -298,8 +300,8 @@ FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert", 
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub_expert",
@@ -317,10 +319,10 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostAntiKt2TrackJet",
-    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet",
-    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
-    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
-    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
     "InDetTrackParticles.btagIp_d0.btagIp_z0SinTheta.btagIp_d0Uncertainty.btagIp_z0SinThetaUncertainty.btagIp_trackDisplacement.btagIp_trackMomentum",
     "TrackCaloClustersCombinedAndNeutral.m.pt.phi.eta.taste.trackParticleLink.DetectorEta.iparticleLinks"
 ]
@@ -351,7 +353,7 @@ ghost_particles = [
 ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
 ghost_subjets = [
-    'GhostVR30Rmax4Rmin02TrackJetGhostTag',
+    'GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag',
     'GhostVR30Rmax4Rmin02TrackJet_BTagging201903']
 for jc in ['AntiKt10LCTopoJets', 'AntiKt10TrackCaloClusterJets']:
     FTAG5SlimmingHelper.ExtraVariables.append(
@@ -359,8 +361,8 @@ for jc in ['AntiKt10LCTopoJets', 'AntiKt10TrackCaloClusterJets']:
 
 # add some extra retrained taggers
 augmented_btag_containers = [
-    'BTagging_AntiKtVR30Rmax4Rmin02Track',
-    'BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag']
+    'BTagging_AntiKtVR30Rmax4Rmin02Track_201810',
+    'BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag']
 for cont in augmented_btag_containers:
     FTAG5SlimmingHelper.ExtraVariables.append(
         '.'.join([cont] + dl1_remap.values()))

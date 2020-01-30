@@ -3,7 +3,7 @@
         "node_name": "fat_jet"
     },
     "subjet": {
-        "collection": "GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+        "collection": "GhostVR30Rmax4Rmin02TrackJet",
         "pt_threshold": 7e3,
         "node_names": ["subjet1", "subjet2", "subjet3", "subjet4"]
     },

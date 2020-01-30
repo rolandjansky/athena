@@ -246,16 +246,17 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     if logger is None:
         logger = Logging.logging.getLogger('VRLogger')
 
+    supported_trainings = ['201810', '201903']
     # Check allowed trainings
     # Is there a better way to do this with a central DB?
     if training not in ['201810', '201903']:
-      logger.warning("Using an supported training tag! This is UNDEFINED, probably will default to 201810 training.")
+      logger.warning("WARNING: Using an unsupported training tag! This is UNDEFINED and will probably break. Please choose a training tag from")
+      logger.warning(supported_trainings)
 
     from JetRec.JetRecStandard import jtm
 
-    # If using the default training, we don't yet want the label (this will be added once validation is done)
-    # So only add the _201903 (etc.) for trainings that aren't 201810
-    trainingTag = '_BTagging%s' % (training) if training != '201810' else ''
+    # Making Chris Happy: all VR track-jet b-tagging should have the training campaign label
+    trainingTag = '_BTagging%s' % (training)
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track%s" % (trainingTag)
     VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet%s" % (trainingTag)
@@ -278,7 +279,7 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     # Build VR jets
     #==========================================================
 
-    VRJetRecToolName = "%sJets" % (VRJetName) if training == '201810' else VRJetName.replace('_BTagging','Jets_BTagging')
+    VRJetRecToolName = VRJetName.replace('_BTagging','Jets_BTagging')
     VRJetAlgName = "jfind_%s" % (VRJetRecToolName)
     VRJetBTagName = "BTagging_%s" % (VRJetName.replace('BTagging',''))
 

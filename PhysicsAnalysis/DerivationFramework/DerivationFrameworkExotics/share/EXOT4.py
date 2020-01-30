@@ -789,10 +789,10 @@ EXOT4SlimmingHelper = SlimmingHelper("EXOT4SlimmingHelper")
 
 # TODO Uncomment when merging with HIGG5D2
 #EXOT4SlimmingHelper.AppendToDictionary = {
-#  "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
-#  "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
-#  "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
-#  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
+#  "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"               :   "xAOD::JetContainer"        ,
+#  "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"            :   "xAOD::JetAuxContainer"     ,
+#  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"          :   "xAOD::BTaggingContainer"   ,
+#  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"       :   "xAOD::BTaggingAuxContainer",
 #  }
 
 EXOT4SlimmingHelper.SmartCollections = EXOT4SmartCollections
@@ -833,7 +833,7 @@ for i in listJets:
   # hand picked list of variables to save -- save disk space
   EXOT4SlimmingHelper.ExtraVariables +=[i,i+'.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau1_wta.Tau2_wta.Tau3_wta.Split12.Split23.NTrimSubjets.Parent.GhostAntiKt2TrackJet"']
 
-listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track',
+listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track_201810',
             'BTagging_AntiKt4EMTopo_201810',
             'BTagging_AntiKt4EMPFlow_201810',
             'BTagging_AntiKt4EMPFlow_201903']
@@ -842,8 +842,8 @@ for i in listBtag:
 	EXOT4SlimmingHelper.AppendToDictionary[i] = 'xAOD::BTaggingContainer'
 	EXOT4SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::BTaggingAuxContainer'
 
-#EXOT4SlimmingHelper.ExtraVariables += ["AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m.-constituentLinks.-constituentWeight.-ConstituentScale"]
-#EXOT4SlimmingHelper.ExtraVariables += ["BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant"]
+#EXOT4SlimmingHelper.ExtraVariables += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m.-constituentLinks.-constituentWeight.-ConstituentScale"]
+#EXOT4SlimmingHelper.ExtraVariables += ["BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant"]
 #EXOT4SlimmingHelper.ExtraVariables += ["TauJets.IsTruthMatched.truthJetLink.truthParticleLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"]
 
 # now do the same for the version of the jets that had the electrons subtracted from them
