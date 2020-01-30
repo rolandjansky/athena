@@ -2,6 +2,8 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
+#include "AsgMessaging/MessageCheck.h"
+
 #include "TopEventSelectionTools/TopEventSelectionToolsLoader.h"
 
 
@@ -107,7 +109,15 @@ namespace top {
     else if (toolname == "MLLWIN") return new top::MLLWindow(param);
     else if (toolname == "MLL") return new top::MLLSelector(param);
     else if (toolname == "HT") return new top::HTSelector(param);
-    else if (toolname == "NOBADMUON") return new top::NoBadMuonSelector(config);
+    else if (toolname == "NOBADMUON")
+    {
+       if(!config->useMuons()) 
+       {
+         asg::msgUserCode::ATH_MSG_ERROR("NOBADMUON selection cannot be used if the muon collection is not defined");
+         return 0;
+       }
+       return new top::NoBadMuonSelector(config);
+    }
     else if (toolname == "OS") return new top::OSLeptonSelector();
     else if (toolname == "OS_TIGHT") return new top::OSLeptonTightSelector();
     else if (toolname == "SS") return new top::SSLeptonSelector();

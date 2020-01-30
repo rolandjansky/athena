@@ -42,25 +42,25 @@ JetForwardJvtToolBDT::JetForwardJvtToolBDT(const std::string& name) :
     declareProperty( "AnaToolMode",       m_isAna            = false                                        );// false: computes all input moments from scratch, true: retrieve precomputed moments
     declareProperty( "VtxContName",       m_vtxcont          = "PrimaryVertices"                            );
     declareProperty( "PVIndexHS",         m_pvind            = -1                                           );
-    declareProperty( "WPfile",            m_wpFile           = "MVfJVT_WPs.May2019.root"                    );
-    declareProperty( "configDir",         m_configDir        = "/afs/cern.ch/work/l/lportale/public/MVfJVTconfig/"); // This should ultimately be replaced by a more official calibArea
+    declareProperty( "WPfile",            m_wpFile           = "MVfJVT_WPs.Nov2019.root"                    );
+    declareProperty( "configDir",         m_configDir        = "JetPileupTag/MVfJVT/"                       );
     declareProperty( "ConfigFiles",       m_MVconfig         = {
-	  "MVfJVT_pt2030_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt2030_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaHigh_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaLow_muHigh.May2019.weights.xml",
-	  "MVfJVT_pt2030_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt2030_etaLow_muLow.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt3040_etaLow_muLow.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt4050_etaLow_muLow.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaHigh_muLow.May2019.weights.xml",
-	  "MVfJVT_pt50plus_etaLow_muLow.May2019.weights.xml"}); // pt [20,30,40,50,120] || |eta| [2.5,3.2,4.5] || mu [0,50,inf.]
+	  "weights/MVfJVT_pt2030_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt2030_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaHigh_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaLow_muHigh.May2019.weights.xml",
+	  "weights/MVfJVT_pt2030_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt2030_etaLow_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt3040_etaLow_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt4050_etaLow_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaHigh_muLow.May2019.weights.xml",
+	  "weights/MVfJVT_pt50plus_etaLow_muLow.May2019.weights.xml"}); // pt [20,30,40,50,120] || |eta| [2.5,3.2,4.5] || mu [0,50,inf.]
 }
 
 // Destructor
@@ -72,41 +72,33 @@ JetForwardJvtToolBDT::~JetForwardJvtToolBDT(){}
 StatusCode JetForwardJvtToolBDT::initialize()
 {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-
-    // -- Retrieve MVfJVT WP configFile
-    std::string filename = PathResolverFindCalibFile(m_configDir+m_wpFile);
-    if (filename.empty()){
+    
+    if(m_isAna){
+      // -- Retrieve MVfJVT WP configFile ONLY if tool used in 'Analysis mode'
+      std::string filename = PathResolverFindCalibFile(m_configDir+m_wpFile);
+      if (filename.empty()){
 	ATH_MSG_ERROR ( "Could NOT resolve file name " << m_wpFile);
 	return StatusCode::FAILURE;
-    }  else{
+      }  else{
 	ATH_MSG_INFO(" Config Files Path found = "<<filename);
-    }
+      }
 
-    // -- Retrieve WP histograms
-    m_wpFileIn = std::make_unique<TFile> (filename.c_str(),"read");
+      // -- Retrieve WP histograms
+      m_wpFileIn = std::make_unique<TFile> (filename.c_str(),"read");
 
-    if ( m_OP=="TIGHTER") {
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tighter" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tighter"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tighter"   ) ) );
-    } else if ( m_OP=="TIGHT" ) {
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_tight" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_tight"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_tight"   ) ) );
-    } else if ( m_OP=="DEFAULT" ) {
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
-    } else {
-      ATH_MSG_WARNING(m_OP << " working point doesn't exist. Using \"DEFAULT\" (loose) instead" );
-      m_mvfjvtThresh1516 = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_1516_loose" ) ) );
-      m_mvfjvtThresh17   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_17_loose"   ) ) );
-      m_mvfjvtThresh18   = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_18_loose"   ) ) );
+      if ( m_OP=="TIGHTER") {
+	m_mvfjvtThresh = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_tighter" ) ) );
+      } else if ( m_OP=="TIGHT" ) {
+	m_mvfjvtThresh = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_tight" ) ) );
+      } else if ( m_OP=="DEFAULT" || m_OP=="LOOSE" ) {
+	m_mvfjvtThresh = std::unique_ptr< TH3D >( dynamic_cast<TH3D*>( m_wpFileIn->Get( "MVfJVT_loose" ) ) );
+      } else {
+	ATH_MSG_ERROR(m_OP << " working point doesn't exist." );
+	return StatusCode::FAILURE;
+      }
+      m_mvfjvtThresh->SetDirectory(0);
+      m_wpFileIn->Close();
     }
-    m_mvfjvtThresh1516->SetDirectory(0);
-    m_mvfjvtThresh17->SetDirectory(0);
-    m_mvfjvtThresh18->SetDirectory(0);
-    m_wpFileIn->Close();
 
     // -- Setup the tagger
     m_MVreader = std::make_unique< TMVA::Reader > ( "Silent" );
@@ -145,6 +137,10 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
   // -- Retrieve PV index if not provided by user
   int pvind = (m_pvind==-1) ? getPV() : m_pvind;
   ATH_MSG_DEBUG("In JetForwardJvtToolBDT::modify: PV index = " << pvind);
+  if( pvind == -1 ){
+    ATH_MSG_WARNING( "Something went wrong with the HS primary vertex identification." );
+    return 1;
+  }
 
   std::vector<TVector2> pileupMomenta;
   for(const xAOD::Jet *jetF : jetCont) {
@@ -161,10 +157,14 @@ int JetForwardJvtToolBDT::modify(xAOD::JetContainer& jetCont) const {
     if ( forwardJet(jetF) ){
       if( pileupMomenta.size()==0 ) {
 	pileupMomenta = calculateVertexMomenta(&jetCont, pvind);
-	if(pileupMomenta.size()==0) return StatusCode::FAILURE; // This would follow error messages defined in 'calculateVertexMomenta' function.
+	if( pileupMomenta.size()==0 ) { 
+	  ATH_MSG_DEBUG( "pileupMomenta is empty, this can happen for events with no PU vertices. fJVT won't be computed for this event and will be set to 0 instead." );
+	  (*Dec_mvfjvt)(*jetF) = 0;
+	  continue;
+	}
       }
       (*Dec_mvfjvt)(*jetF) = getMVfJVT(jetF, pvind, pileupMomenta);
-      (*Dec_outMV)(*jetF) = passMVfJVT( (*Dec_mvfjvt)(*jetF), jetF->pt()/(GeV), fabs(jetF->eta()) );
+      if(m_isAna) (*Dec_outMV)(*jetF) = passMVfJVT( (*Dec_mvfjvt)(*jetF), jetF->pt()/(GeV), fabs(jetF->eta()) );
     }
   }
   return 0;
@@ -196,8 +196,8 @@ float JetForwardJvtToolBDT::getMVfJVT(const xAOD::Jet *jet, int pvind, std::vect
   const xAOD::EventInfo *eventInfo = nullptr;
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
-    ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING(" Could not retrieve EventInfo ");
+    return -2;
   }
   float mu = eventInfo->actualInteractionsPerCrossing();
 
@@ -217,22 +217,22 @@ float JetForwardJvtToolBDT::getMVfJVT(const xAOD::Jet *jet, int pvind, std::vect
   float eta = fabs(jet->eta());
 
   float score = -2.;
-  if      ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_1"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_2"  ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_3"  ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_4"  ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_5"  ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_6"  ,1.);
-  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_7"  ,1.);
-  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu>50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_8"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_9"  ,1.);
-  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_10" ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_11" ,1.);
-  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_12" ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_13" ,1.);
-  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_14" ,1.);
-  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_15" ,1.);
-  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu<50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_16" ,1.);
+  if      ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_1"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_2"  ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_3"  ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_4"  ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_5"  ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_6"  ,1.);
+  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_7"  ,1.);
+  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu>=50. ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_8"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_9"  ,1.);
+  else if ( pt < 30.  && pt >= 20. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_10" ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_11" ,1.);
+  else if ( pt < 40.  && pt >= 30. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_12" ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_13" ,1.);
+  else if ( pt < 50.  && pt >= 40. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_14" ,1.);
+  else if ( pt < 120. && pt >= 50. && eta >= 3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_15" ,1.);
+  else if ( pt < 120. && pt >= 50. && eta <  3.2 && mu<50.  ) score = m_MVreader->EvaluateMVA( MVinputs, "BDT_16" ,1.);
 
   ATH_MSG_DEBUG("pt = " << pt << " | eta = " << eta << " | mu = " << mu  << " || MVfJVT = " << score );
 
@@ -243,44 +243,19 @@ bool JetForwardJvtToolBDT::passMVfJVT( float mvfjvt, float pt, float eta ) const
 
   double mvfjvtThresh = -999.;
 
-  //-- Get year to chose correct WPreturn
-  int year = 0;
   const xAOD::EventInfo *eventInfo = nullptr;
   if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
   {
-    ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-    return StatusCode::FAILURE;
-  }
-  uint32_t runnumber = 0;
-  if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
-    runnumber = eventInfo->runNumber();
-    if (runnumber<295000) year =  2016;
-    else if (runnumber<305000) year =  2017;
-    else year =  2018;
-  } else {
-    runnumber = eventInfo->runNumber();
-    if (runnumber<290000) year =  2015;
-    else if (runnumber<320000) year =  2016;
-    else if (runnumber<342000) year =  2017;
-    else year =  2018;
+    ATH_MSG_WARNING(" Could not retrieve EventInfo ");
+    return true;
   }
 
-  float mu = eventInfo->actualInteractionsPerCrossing();
+ float mu = eventInfo->actualInteractionsPerCrossing();
 
   // -- Grab WP from histogram
-  if(year==2015 || year==2016){
-    mvfjvtThresh = m_mvfjvtThresh1516->GetBinContent(m_mvfjvtThresh1516->GetXaxis()->FindBin(pt),
-						     m_mvfjvtThresh1516->GetYaxis()->FindBin(eta),
-						     m_mvfjvtThresh1516->GetZaxis()->FindBin(mu));
-  } else if (year==2017){
-    mvfjvtThresh = m_mvfjvtThresh17->GetBinContent(m_mvfjvtThresh17->GetXaxis()->FindBin(pt),
-						   m_mvfjvtThresh17->GetYaxis()->FindBin(eta),
-						   m_mvfjvtThresh17->GetZaxis()->FindBin(mu));
-  } else if (year==2018){
-    mvfjvtThresh = m_mvfjvtThresh18->GetBinContent(m_mvfjvtThresh18->GetXaxis()->FindBin(pt),
-						   m_mvfjvtThresh18->GetYaxis()->FindBin(eta),
-						   m_mvfjvtThresh18->GetZaxis()->FindBin(mu));
-  } else mvfjvtThresh = -999;
+  mvfjvtThresh = m_mvfjvtThresh->GetBinContent(m_mvfjvtThresh->GetXaxis()->FindBin(pt),
+					       m_mvfjvtThresh->GetYaxis()->FindBin(eta),
+					       m_mvfjvtThresh->GetZaxis()->FindBin(mu));
 
   if(mvfjvt==-2 || mvfjvt>mvfjvtThresh) return true;
   else return false;
@@ -343,12 +318,12 @@ std::vector<TVector2> JetForwardJvtToolBDT::calculateVertexMomenta(const xAOD::J
 
   const xAOD::MissingETContainer* trkMet  = nullptr;
   if( evtStore()->retrieve(trkMet, "MET_Track").isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve MET_Track container");
+    ATH_MSG_WARNING("Unable to retrieve MET_Track container");
     return pileupMomenta;
   }
   const xAOD::VertexContainer *vxCont = 0;
   if( evtStore()->retrieve(vxCont, m_vtxcont).isFailure() ){
-    ATH_MSG_ERROR("Unable to retrieve primary vertex container \"" << m_vtxcont << "\"");
+    ATH_MSG_WARNING("Unable to retrieve primary vertex container \"" << m_vtxcont << "\"");
     return pileupMomenta;
   }
   ATH_MSG_DEBUG("In JetForwardJvtToolBDT::calculateVertexMomenta : Starting vertex loop  ");
@@ -418,18 +393,16 @@ int JetForwardJvtToolBDT::getPV() const{
 
   const xAOD::VertexContainer *vxCont = 0;
   if( evtStore()->retrieve(vxCont, m_vtxcont).isFailure() ) {
-    ATH_MSG_ERROR("Unable to retrieve primary vertex container");
-    return StatusCode::FAILURE;
-  } else if(vxCont->empty()) {
-    ATH_MSG_INFO("Event has no primary vertices!");
+    ATH_MSG_WARNING("Unable to retrieve primary vertex container");
+    return 0;
   } else {
     ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
     for(const xAOD::Vertex *vx : *vxCont) {
       if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
     }
   }
-  ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
-  return StatusCode::FAILURE;
+  ATH_MSG_DEBUG("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+  return 0;
 }
 
 StatusCode JetForwardJvtToolBDT::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {

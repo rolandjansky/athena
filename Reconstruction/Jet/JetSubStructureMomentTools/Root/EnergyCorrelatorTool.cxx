@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------------------------
@@ -14,12 +14,9 @@
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
 #include "JetSubStructureUtils/EnergyCorrelator.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorTool::EnergyCorrelatorTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing EnergyCorrelator tool.");
   declareProperty("Beta", m_Beta = 1.0);
   declareProperty("BetaList", m_betaVals = {});
   declareProperty("DoC3", m_doC3 = false);
@@ -27,8 +24,6 @@ EnergyCorrelatorTool::EnergyCorrelatorTool(std::string name) :
 }
 
 StatusCode EnergyCorrelatorTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
-  
   // Add beta = 1.0 by default
   betaVals.push_back(1.0);
 
@@ -52,8 +47,8 @@ StatusCode EnergyCorrelatorTool::initialize() {
 
 int EnergyCorrelatorTool::modifyJet(xAOD::Jet &injet) const {
   
-  PseudoJet jet;
-  PseudoJet jet_ungroomed;
+  fastjet::PseudoJet jet;
+  fastjet::PseudoJet jet_ungroomed;
 
   bool decorate = SetupDecoration(jet,injet);
   bool decorate_ungroomed = false;

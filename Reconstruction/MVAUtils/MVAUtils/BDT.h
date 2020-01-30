@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MVAUtils_BDT_H
@@ -22,7 +22,7 @@ namespace MVAUtils
 {
   class IForest;
 
-   /** Simplified Boosted Regression Tree, support TMVA and lgbm.
+   /** Simplified Boosted Regression Tree, support TMVA, lgbm, and xgboost.
    * Holds a forest (vector of top nodes of each decision tree) and a
    * constant offset or set of weights (not always used).
    *
@@ -40,6 +40,7 @@ namespace MVAUtils
   public:
     /** Constructor. The input tree must be created with
      *  convertLGBMToRootTree.py (for lgbm training) or with
+     *  convertXGBoostToRootTree.py (for xgboost training) or with
      *  convertXmlToRootTree (for tmva training)
      **/
     explicit BDT(TTree *tree);//ctor TTree

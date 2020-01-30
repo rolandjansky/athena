@@ -12,7 +12,8 @@ def makeOverlapAnalysisSequence( dataType,
                                  doPhotons = True, doFatJets = False,
                                  bJetLabel = '',
                                  boostedLeptons = False,
-                                 postfix = ''):
+                                 postfix = '',
+                                 enableCutflow = False ):
     """Function creating the overlap removal algorithm sequence
 
     The function sets up a multi-input/multi-output analysis algorithm sequnce,
@@ -70,9 +71,10 @@ def makeOverlapAnalysisSequence( dataType,
       bJetLabel -- Flag to select b-jets with. If left empty, no b-jets are used
                    in the overlap removal.
       boostedLeptons -- Set to True to enable boosted lepton overlap removal
+      enableCutflow -- Whether or not to dump the cutflow
     """
 
-    if not dataType in ["data", "mc", "afii"] :
+    if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
     # Create the analysis algorithm sequence object:
@@ -260,17 +262,18 @@ def makeOverlapAnalysisSequence( dataType,
             continue
 
         # Set up a cutflow alg.
-        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
-                               'OverlapRemovalCutFlowDumperAlg_%s' % container[ 0 ] + postfix )
-        alg.histPattern = container[ 0 ] + postfix + '_OR_cflow_%SYS%'
-        if inputLabel:
-            alg.selection = [ '%s,as_char' % inputLabel,
-                              '%s,as_char' % outputLabel ]
-            alg.selectionNCuts = [1, 1]
-        else:
-            alg.selection = [ '%s,as_char' % outputLabel ]
-            alg.selectionNCuts = [1]
-        seq.append( alg, inputPropName = { container[ 0 ] : 'input' } )
+        if enableCutflow:
+            alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
+                                   'OverlapRemovalCutFlowDumperAlg_%s' % container[ 0 ] + postfix )
+            alg.histPattern = container[ 0 ] + postfix + '_OR_cflow_%SYS%'
+            if inputLabel:
+                alg.selection = [ '%s,as_char' % inputLabel,
+                                  '%s,as_char' % outputLabel ]
+                alg.selectionNCuts = [1, 1]
+            else:
+                alg.selection = [ '%s,as_char' % outputLabel ]
+                alg.selectionNCuts = [1]
+            seq.append( alg, inputPropName = { container[ 0 ] : 'input' } )
 
         # Set up a view container for the type.
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',

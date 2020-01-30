@@ -1,11 +1,17 @@
 #====================================================================
 # Author: Marcin Guzik (Marcin.Guzik _at_ cern.ch)
 # Co-author: Iwona Grabowska-Bold (Iwona.Grabowska _at_ cern.ch)
+# Co-author: Prabhakar Palni (Prabhakar.Palni@cern.ch)
 # HION6 
 #  TOP ANTI-TOP SELECTION
 #   >=2 electrons(pT>15GeV) OR
 #   >=2 muons(pT>15GeV)     OR 
-#   >=2 electrons(pT>15GeV) AND >=1 muon(pT>15GeV) 
+#   >=1 electrons(pT>15GeV) AND >=1 muon(pT>15GeV) OR
+#   >=2 leptons(pT>10GeV) AND >=1 leptom(pT>20GeV)
+#  
+# Lepton + jets
+#   >=1  leptons(pT>13GeV)   AND   >= 4 akt4calibjet(pT>15GeV)
+# 
 # reductionConf flag HION6 in Reco_tf.py
 #====================================================================
 
@@ -54,48 +60,131 @@ HION6ThinningHelper.AppendToStream(HION6Stream)
 #====================================================================
 # SKIMMING TOOLS
 #====================================================================
-muonsRequirements = '( (Muons.DFCommonMuonsPreselection && Muons.DFCommonGoodMuon) && (Muons.pt > 15*GeV) && (abs(Muons.eta) < 2.6) )'
 
-electronsRequirements = '( (Electrons.pt > 15*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose) )'
+#================
+# ELECTRONS
+#================
+EL10 = "(Electrons.pt > 10*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL13 = "(Electrons.pt > 13*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL15 = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL20 = "(Electrons.pt > 20*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
 
-jetRequirements = '( (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5) )'
+#================
+# MUONS
+#================
+MU10 = "(Muons.pt > 10*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU13 = "(Muons.pt > 13*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU15 = "(Muons.pt > 15*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU20 = "(Muons.pt > 20*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
 
-muonOnlySelection = '( count('+muonsRequirements+') >= 2 )'
-electronOnlySelection = '( count('+electronsRequirements+') >= 2 )'
-muonElectronSelection = '( ( count('+electronsRequirements+') >= 1 ) && ( count('+muonsRequirements+') >=1 ) )'
-#muonElectronSelection = '( count('+electronsRequirements+') +  count('+muonsRequirements+') >=2 )'
 
-jetOnlySelection = 'count('+jetRequirements+') >= 1'
+#================
+# JETS
+#================
 
-hion6expression_lep = " || ".join([muonOnlySelection,electronOnlySelection,muonElectronSelection])
+akt4EMcalib_15 = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5)"
+akt10LCtrimmedcalib_200 = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.5)"
+
+#================
+#LargeR jets
+#================
+
+largeR_200="("+akt10LCtrimmedcalib_200+")"
+
+#=============================================
+# Single LEPTON EVENT SELECTION
+#=============================================
+skimmingTools_lep=[]
+
+HION6_Selection_lep = "( (count("+MU13+") >= 1) || (count("+EL13+") >= 1) )"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HION6StringSkimmingTool_lep = DerivationFramework__xAODStringSkimmingTool(
   name       = "HION6StringSkimmingTool_lep",
-  expression = hion6expression_lep)
+  expression = HION6_Selection_lep)
 
 ToolSvc += HION6StringSkimmingTool_lep
+skimmingTools_lep.append(HION6StringSkimmingTool_lep)
 
-print "hion6expression_lep: ", hion6expression_lep
-print "StringSkimmingTool_lep: ", HION6StringSkimmingTool_lep
+print "HION6_Selection_lep: ", HION6_Selection_lep
+print "HION6StringSkimmingTool_lep: ", HION6StringSkimmingTool_lep
 
+#=============================================
+# Di-LEPTON EVENT SELECTION
+#=============================================
 
+HION6_LEP10 = "( (count("+EL10+") >= 2) || (count("+MU10+") >= 2) || (count("+EL10+")>= 1 && count("+MU10+") >= 1) )"
+HION6_LEP15 = "( (count("+EL15+") >= 2) || (count("+MU15+") >= 2) || (count("+EL15+")>= 1 && count("+MU15+") >= 1) )"
+HION6_LEP20 = "( (count("+EL20+") >= 1) || (count("+MU20+") >= 1) )"
+
+HION6_Selection_dilep = "( ("+HION6_LEP15+") || (("+HION6_LEP10+") && ("+HION6_LEP20+")) )"
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+HION6StringSkimmingTool_dilep = DerivationFramework__xAODStringSkimmingTool(
+  name       = "HION6StringSkimmingTool_dilep",
+  expression = HION6_Selection_dilep)
+
+ToolSvc += HION6StringSkimmingTool_dilep
+skimmingTools_lep.append(HION6StringSkimmingTool_dilep)
+
+print "HION6_Selection_dilep: ", HION6_Selection_dilep
+print "StringSkimmingTool_lep: ", HION6StringSkimmingTool_dilep
+
+#=============================================
+# JET EVENT SELECTION
+#=============================================
 skimmingTools_jet=[]
 
-hion6expression_jet = '('+jetOnlySelection+')'
+HION6_Selection_jet = "( (count("+akt4EMcalib_15+") >= 1) )"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HION6StringSkimmingTool_jet = DerivationFramework__xAODStringSkimmingTool(
   name       = "HION6StringSkimmingTool_jet",
-  expression = hion6expression_jet)
+  expression = HION6_Selection_jet)
 
 ToolSvc += HION6StringSkimmingTool_jet
 
 skimmingTools_jet.append(HION6StringSkimmingTool_jet)
 
-print "hion6expression_jet: ", hion6expression_jet
+print "HION6_Selection_jet: ", HION6_Selection_jet
 print "StringSkimmingTool_jet: ", HION6StringSkimmingTool_jet
 
+#=============================================
+# 4 JET EVENT SELECTION
+#=============================================
+
+#HION6_Selection_4jet = "( (count("+akt4EMcalib_15+") >= 4) || (count("+largeR_200+") >= 1) )"
+HION6_Selection_4jet = "( (count("+akt4EMcalib_15+") >= 4) )"
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+HION6StringSkimmingTool_4jet = DerivationFramework__xAODStringSkimmingTool(
+  name       = "HION6StringSkimmingTool_4jet",
+  expression = HION6_Selection_4jet)
+
+ToolSvc += HION6StringSkimmingTool_4jet
+
+skimmingTools_jet.append(HION6StringSkimmingTool_4jet)
+
+print "HION6_Selection_4jet: ", HION6_Selection_4jet
+print "StringSkimmingTool_4jet: ", HION6StringSkimmingTool_4jet
+
+#====== Di-Leptons AND Jet selection  ============
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+DiLeptonsANDJets=DerivationFramework__FilterCombinationAND(name="DiLeptonsANDJets",FilterList=[HION6StringSkimmingTool_dilep,HION6StringSkimmingTool_jet])
+
+ToolSvc+=DiLeptonsANDJets
+
+#====== Single-Leptons AND 4 Jets selection  ============
+SingleLeptonsANDJets=DerivationFramework__FilterCombinationAND(name = "SingleLeptonsANDJets",FilterList=[HION6StringSkimmingTool_lep,HION6StringSkimmingTool_4jet])
+
+ToolSvc+=SingleLeptonsANDJets
+
+#====== An OR of Both Channels (Single-Leptons AND 4 Jets selection) OR (Di-leptons AND Jet) ============
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+SingleORDileptons=DerivationFramework__FilterCombinationOR(name = "SingleORDileptons",FilterList=[DiLeptonsANDJets,SingleLeptonsANDJets])
+
+ToolSvc+=SingleORDileptons
+print "SingleORDileptons : ", SingleORDileptons
 
 #====================================================================
 # THINNING TOOLS
@@ -111,12 +200,28 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 # Create the private sequence
 HION6Sequence = CfgMgr.AthSequencer("HION6Sequence")
 
-# First skim on leptons
-HION6Sequence += CfgMgr.DerivationFramework__DerivationKernel("HION6SkimmingKernel_lep", SkimmingTools = [HION6StringSkimmingTool_lep])
+#  Skim on Single Leptons and 4 jets, DiLeptons and jets, or both the channels by selecting different kernels below
+HION6Sequence +=CfgMgr.DerivationFramework__DerivationKernel("SingleORDileptonsKernel", SkimmingTools=[SingleORDileptons])
+#HION6Sequence +=CfgMgr.DerivationFramework__DerivationKernel("SingleLeptonsANDJetsKernel", SkimmingTools=[SingleLeptonsANDJets])
+#HION6Sequence +=CfgMgr.DerivationFramework__DerivationKernel("DiLeptonsANDJetsKernel", SkimmingTools=[DiLeptonsANDJets])
 
-# add fat/trimmed jets
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-addStandardJetsForTop(HION6Sequence,'HION6')
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["HION6"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoJets"]
+replaceAODReducedJets(reducedJetList, HION6Sequence, "HION6")
+
+# If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(HION6Sequence, "HION6")
 
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
@@ -131,13 +236,14 @@ from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
 
 TaggerList = BTaggingFlags.StandardTaggers
-from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
-ReTag(TaggerList,['AntiKt4EMPFlowJets'],HION6Sequence)
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = HION6Sequence)
 
-# Then apply truth tools in the form of augmentation
+
+# Then apply truth tools in the form of aumentation
 if DFisMC:
-  from DerivationFrameworkTop.TOPQCommonTruthTools import *
-  HION6Sequence += TOPQCommonTruthKernel
+    from DerivationFrameworkTop.TOPQCommonTruthTools import *
+    HION6Sequence += TOPQCommonTruthKernel
 
 # add MSV variables
 from DerivationFrameworkTop.TOPQCommonJets import addMSVVariables
@@ -171,6 +277,7 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HION6SlimmingHelper = SlimmingHelper("HION6SlimmingHelper")
 HION6SlimmingHelper.AllVariables = ["AntiKt2HIJets","AntiKt3HIJets","AntiKt4HIJets","AntiKt4HITrackJets","CaloSums","HIEventShape","ZdcModules","ZdcTriggerTowers","ZdcSums","MBTSForwardEventInfo", "MBTSModules"]
 HION6SlimmingHelper.AppendContentToStream(HION6Stream)
+
 
 #This enables L1EnergySums
 OtherContent = [

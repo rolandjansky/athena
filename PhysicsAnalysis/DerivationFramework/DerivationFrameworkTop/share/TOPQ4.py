@@ -47,7 +47,8 @@ if DFisMC:
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 import DerivationFrameworkTop.TOPQCommonThinning
 TOPQ4ThinningHelper = ThinningHelper("TOPQ4ThinningHelper")
-TOPQ4ThinningHelper.TriggerChains =  DerivationFrameworkTop.TOPQCommonThinning.TOPQTriggerChains('hadronicTriggers' if globalflags.DataSource()!='geant4' else 'jetTriggers')
+#TOPQ4ThinningHelper.TriggerChains =  DerivationFrameworkTop.TOPQCommonThinning.TOPQTriggerChains('hadronicTriggers' if globalflags.DataSource()!='geant4' else 'jetTriggers')
+TOPQ4ThinningHelper.TriggerChains = "" # temporarily disable trigger thinning for TOPQ4; this will only affect data derivation
 TOPQ4ThinningHelper.AppendToStream(TOPQ4Stream)
 
 #====================================================================
@@ -70,6 +71,9 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 
 # Create the private sequence
 TOPQ4Sequence = CfgMgr.AthSequencer("TOPQ4Sequence")
+
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ4Sequence)
 
 # First skim on leptons
 TOPQ4Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ4SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
@@ -115,26 +119,25 @@ addVRJetsForTop(TOPQ4Sequence)
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt4EMPFlow",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ4Sequence)
 
 # Tag jets
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import updateJVT_xAODColl
 updateJVT_xAODColl('AntiKt4EMTopo', DerivationFrameworkJob)
+updateJVT_xAODColl('AntiKt4EMPFlow', DerivationFrameworkJob)	
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 applyJetCalibration_xAODColl("AntiKt4EMTopo_BTagging201810", DerivationFrameworkJob)
+applyJetCalibration_xAODColl("AntiKt4EMPFlow_BTagging201810", TOPQ4Sequence)
 updateJVT_xAODColl('AntiKt4EMTopo_BTagging201810', DerivationFrameworkJob)
+updateJVT_xAODColl('AntiKt4EMPFlow_BTagging201810', TOPQ4Sequence)
 applyBTagging_xAODColl('AntiKt4EMTopo_BTagging201810', DerivationFrameworkJob)
+applyBTagging_xAODColl('AntiKt4EMPFlow_BTagging201810', TOPQ4Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ4Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ4SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
-# Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from BTagging.BTaggingFlags import BTaggingFlags
-BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-
 TaggerList = BTaggingFlags.StandardTaggers
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ4Sequence)
 
 # Quark-gluon tagging
 truthjetalg='AntiKt4TruthJets'

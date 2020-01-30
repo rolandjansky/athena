@@ -355,6 +355,12 @@ class SlimmingHelper:
                 elif collectionName=="MET_Reference_AntiKt4EMPFlow":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMPFlowCPContent import MET_Reference_AntiKt4EMPFlowCPContent
                         items.extend(MET_Reference_AntiKt4EMPFlowCPContent)
+		elif collectionName=="MET_Baseline_AntiKt4EMTopo":
+                        from DerivationFrameworkJetEtMiss.MET_Baseline_AntiKt4EMTopoCPContent import MET_Baseline_AntiKt4EMTopoCPContent
+			items.extend(MET_Baseline_AntiKt4EMTopoCPContent)
+		elif collectionName=="MET_Baseline_AntiKt4EMPFlow":
+			from DerivationFrameworkJetEtMiss.MET_Baseline_AntiKt4EMPFlowCPContent import MET_Baseline_AntiKt4EMPFlowCPContent
+			items.extend(MET_Baseline_AntiKt4EMPFlowCPContent)
                 elif collectionName=="AntiKt4TruthJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4TruthJetsCPContent import AntiKt4TruthJetsCPContent
                         items.extend(AntiKt4TruthJetsCPContent)
@@ -395,6 +401,9 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt10UFOCSSKJets":
                         from DerivationFrameworkJetEtMiss.AntiKt10UFOCSSKJetsCPContent import AntiKt10UFOCSSKJetsCPContent
                         items.extend(AntiKt10UFOCSSKJetsCPContent)
+                elif collectionName=="AntiKt10UFOCHSJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt10UFOCHSJetsCPContent import AntiKt10UFOCHSJetsCPContent
+                        items.extend(AntiKt10UFOCHSJetsCPContent)
                 elif collectionName=="AntiKt10TruthTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10TruthTrimmedPtFrac5SmallR20JetsCPContent
                         if not self.AppendToDictionary.has_key("AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
@@ -548,9 +557,12 @@ class SlimmingHelper:
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
                         from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent import AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent
                         items.extend(AntiKtVR30Rmax4Rmin02TrackGhostTagJetsCPContent)
-                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets":
-                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJetsCPContent import AntiKtVR30Rmax4Rmin02TrackJetsCPContent
-                        items.extend(AntiKtVR30Rmax4Rmin02TrackJetsCPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810":
+                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810CPContent)
+                elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag":
+                        from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent
+                        items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903":
                         from DerivationFrameworkFlavourTag.AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent import AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent
                         items.extend(AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903CPContent)
@@ -572,28 +584,27 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4PV0TrackJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track":
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        # note that for other track jet collections,
-                        # "PV0" appears in the name. unfortunately
-                        # all the derivations I see using VR track
-                        # jets leave out the "PV0".
-                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets"))
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag":
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert":
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingXbbContent
-                        items.extend(BTaggingXbbContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
-                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
                 elif collectionName=="BTagging_AntiKt8EMTopoExKt2Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt8EMTopoExKt2SubJets"))

@@ -5,6 +5,7 @@
 // $Id: EgammaObjectCollectionMaker.cxx 811374 2017-10-24 13:04:52Z iconnell $
 #include "TopSystematicObjectMaker/EgammaObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "AthContainers/AuxElement.h"
@@ -45,6 +46,7 @@ namespace top {
     m_isolationTool_FixedCutTight("CP::IsolationTool_FixedCutTight"),
     m_isolationTool_FixedCutTightTrackOnly("CP::IsolationTool_FixedCutTightTrackOnly"),
     m_isolationTool_TightTrackOnly("CP::IsolationTool_TightTrackOnly"),
+    m_isolationTool_TightTrackOnly_FixedRad("CP::IsolationTool_TightTrackOnly_FixedRad"),
     m_isolationTool_FixedCutTightCaloOnly("CP::IsolationTool_FixedCutTightCaloOnly"),
     m_isolationTool_TightCaloOnly("CP::IsolationTool_TightCaloOnly"),
     m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
@@ -71,6 +73,7 @@ namespace top {
     declareProperty("IsolationTool_FixedCutTight", m_isolationTool_FixedCutTight);
     declareProperty("IsolationTool_FixedCutTightTrackOnly", m_isolationTool_FixedCutTightTrackOnly);
     declareProperty("IsolationTool_TightTrackOnly", m_isolationTool_TightTrackOnly);
+    declareProperty("IsolationTool_TightTrackOnly_FixedRad", m_isolationTool_TightTrackOnly_FixedRad);
     declareProperty("IsolationTool_FixedCutTightCaloOnly", m_isolationTool_FixedCutTightCaloOnly);
     declareProperty("IsolationTool_TightCaloOnly", m_isolationTool_TightCaloOnly);
     declareProperty("IsolationTool_FixedCutLoose", m_isolationTool_FixedCutLoose);
@@ -121,6 +124,7 @@ namespace top {
       top::check(m_isolationTool_Loose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_Tight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_TightTrackOnly.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_TightTrackOnly_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowLoose.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
@@ -283,6 +287,7 @@ namespace top {
   }
 
   StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal) {
+    static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVALooseCone_pt1000("ptcone20_TightTTVALooseCone_pt1000");
     static const SG::AuxElement::ConstAccessor<float> ptvarcone20_TightTTVA_pt1000("ptvarcone20_TightTTVA_pt1000");
     static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
     static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt500("ptvarcone30_TightTTVALooseCone_pt500");
@@ -297,6 +302,7 @@ namespace top {
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Loose("AnalysisTop_Isol_Loose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly("AnalysisTop_Isol_TightTrackOnly");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_TightTrackOnly_FixedRad("AnalysisTop_Isol_TightTrackOnly_FixedRad");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowTight("AnalysisTop_Isol_PflowTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVTight("AnalysisTop_Isol_PLVTight");
@@ -377,7 +383,10 @@ namespace top {
         if (ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron)) {
           AnalysisTop_Isol_Tight(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_Loose(*electron) = (m_isolationTool_Loose->accept(*electron) ? 1 : 0);
-          AnalysisTop_Isol_TightTrackOnly(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_TightTrackOnly(*electron) = (m_isolationTool_TightTrackOnly->accept(*electron) ? 1 : 0);
+	  if (ptcone20_TightTTVALooseCone_pt1000.isAvailable(*electron)) {
+	    AnalysisTop_Isol_TightTrackOnly_FixedRad(*electron) = (m_isolationTool_TightTrackOnly_FixedRad->accept(*electron) ? 1 : 0);
+	  }
         }
         if (ptvarcone30_TightTTVALooseCone_pt500.isAvailable(*electron) && neflowisol20.isAvailable(*electron)) {
           AnalysisTop_Isol_PflowTight(*electron) = (m_isolationTool_PflowTight->accept(*electron) ? 1 : 0);
@@ -546,6 +555,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsPhotons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsPhotons.push_back(s);
@@ -560,7 +571,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematicsPhotons.push_back(s);
               }
             }
@@ -580,6 +592,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsElectrons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsElectrons.push_back(s);
@@ -594,7 +608,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematicsElectrons.push_back(s);
               }
             }
@@ -615,6 +630,8 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsFwdElectrons.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematicsFwdElectrons.push_back(s);
@@ -629,7 +646,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematicsFwdElectrons.push_back(s);
               }
             }

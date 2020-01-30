@@ -5,12 +5,14 @@
 // EDM include(s):
 #include "PATInterfaces/SystematicRegistry.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODMetaData/FileMetaData.h"
 
 // Local include(s):
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
 
+#include <boost/algorithm/string.hpp>
 
 namespace TauAnalysisTools
 {
@@ -42,7 +44,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "VarNameEleOLRHadTau",          m_sVarNameEleOLRHadTau          = "" );
   declareProperty( "VarNameEleOLRElectron",        m_sVarNameEleOLRElectron        = "" );
   declareProperty( "VarNameJetIDHadTau",           m_sVarNameJetIDHadTau           = "" );
-  declareProperty( "VarNameRecoHadTau",            m_sVarNameDecayModeHadTau       = "" );
+  declareProperty( "VarNameDecayModeHadTau",       m_sVarNameDecayModeHadTau       = "" );
   declareProperty( "VarNameContJetIDHadTau",       m_sVarNameContJetIDHadTau       = "" );
   declareProperty( "VarNameEleIDHadTau",           m_sVarNameEleIDHadTau           = "" );
   declareProperty( "VarNameTriggerHadTau",         m_sVarNameTriggerHadTau         = "" );
@@ -63,6 +65,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "ContSysType",                  m_iContSysType                  = (int)TOTAL );
   declareProperty( "TriggerPeriodBinning",         m_iTriggerPeriodBinning         = (int)PeriodBinningAll );
   declareProperty( "MCCampaign",                   m_sMCCampaign                   = "" ); // MC16a, MC16d or MC16e
+  declareProperty( "isAFII",	                   m_sAFII	                   = false );
 
   declareProperty( "SkipTruthMatchCheck",          m_bSkipTruthMatchCheck          = false );
 
@@ -116,8 +119,8 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       }
     }
 
-    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
-        and !(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)) // re-tuned eleBDT working points
+    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE))
+        and !(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // re-tuned eleBDT working points
     {
       ATH_MSG_DEBUG("EleBDT");
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTLOOSE)
@@ -131,14 +134,14 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
           " are not supported in recommendations tag " << m_sRecommendationTag <<
           "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
     }
-    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
-             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)) // old LLH based eVeto
+    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && !(m_tTauSelectionTool->m_iEleBDTWP == ELEIDNONE))
+             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // old LLH based eVeto
     {
       ATH_MSG_DEBUG("EleVeto");
       m_iOLRLevel = TAUELEOLR;
     }
-    else if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
-             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)) // old BDT+LLH based eVeto
+    else if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE))
+             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // old BDT+LLH based eVeto
     {
       ATH_MSG_DEBUG("EleBDTPLUSVeto");
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDLOOSE)
@@ -416,6 +419,7 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_ALWAYS( "  ContSysType " << m_iContSysType );
     ATH_MSG_ALWAYS( "  TriggerPeriodBinning " << m_iTriggerPeriodBinning );
     ATH_MSG_ALWAYS( "  MCCampaign " << m_sMCCampaign );
+    ATH_MSG_ALWAYS( "  isAFII " << m_sAFII );
   }
   else
   {
@@ -454,6 +458,7 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
     ATH_MSG_DEBUG( "  ContSysType " << m_iContSysType );
     ATH_MSG_DEBUG( "  TriggerPeriodBinning " << m_iTriggerPeriodBinning );
     ATH_MSG_DEBUG( "  MCCampaign " << m_sMCCampaign );
+    ATH_MSG_DEBUG( "  isAFII " << m_sAFII );
   }
 }
 
@@ -583,11 +588,13 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
           if (m_bUseTauSubstructure)
             m_sInputFilePathJetIDHadTau = sDirectory+"JetIDSubstructure_TrueHadTau_2019-summer.root";
           else
-            m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer.root";
+            if (m_sAFII) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer_AFII.root";
+            else m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer.root";
         }
         else if (m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT)
         {
-          m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer.root";
+          if (m_sAFII) m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer_AFII.root";
+          else m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer.root";
         }
         else 
         {
@@ -630,7 +637,13 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
     {
       // only set vars if they differ from "", which means they have been configured by the user
       if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2019-summer.root";
-      if (m_sInputFilePathEleBDTElectron.empty()) m_sInputFilePathEleBDTElectron = sDirectory+"EleBDT_TrueElectron_2019-summer.root";
+      if (m_sInputFilePathEleBDTElectron.empty())
+      {
+        m_sInputFilePathEleBDTElectron = sDirectory+"EleBDT_TrueElectron_2019-summer.root";
+	// sets input file for AFII recommendations if tool is configured to do so.
+	// configuration is cross-checked in beginInputFile() using meta data
+        if (m_sAFII) m_sInputFilePathEleBDTElectron = sDirectory+"EleBDT_TrueElectron_2019-summer_AFII.root";
+      }
       if (m_sVarNameEleOLRElectron.length() == 0) m_sVarNameEleOLRElectron = "TauScaleFactorEleOLRElectron";
 
       asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("TauAnalysisTools::CommonEfficiencyTool/EleOLRElectronTool", this);
@@ -1832,6 +1845,32 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_mc15_pre_recommendation
     {
       ATH_MSG_WARNING("unsupported EfficiencyCorrectionsType with enum "<<iEfficiencyCorrectionType);
     }
+  }
+  return StatusCode::SUCCESS;
+}
+
+// auto detection of simulation flavour, used to cross check configuration of tool
+//______________________________________________________________________________
+StatusCode TauEfficiencyCorrectionsTool::beginInputFile()
+{
+  bool setup_tau_id = false;
+  if (m_iIDLevel == JETIDBDTLOOSE || m_iIDLevel == JETIDBDTMEDIUM || m_iIDLevel == JETIDBDTTIGHT || m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT) setup_tau_id = true;
+  bool setup_eveto = false;
+  if (m_iOLRLevel != OLRNONE && (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM)) setup_eveto = true;
+  if (m_sRecommendationTag == "2019-summer" && (setup_tau_id || setup_eveto) )
+  {
+    std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/EfficiencyCorrections/";
+    std::string simType("");
+    if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData"))
+    {
+      const xAOD::FileMetaData* fmd = 0;
+      ATH_CHECK( inputMetaStore()->retrieve( fmd, "FileMetaData" ) );
+      bool result = fmd->value( xAOD::FileMetaData::simFlavour , simType );
+      // if no result -> no simFlavor metadata, so must be data
+      if(result) boost::to_upper(simType);
+    }
+    if (simType.find("ATLFASTII")!=std::string::npos && !m_sAFII) ATH_MSG_WARNING("Input file is fast simulation but you are _not_ using AFII corrections and uncertainties, you should set \"isAFII\" to \"true\"");
+    else if (simType.find("FULLG4")!=std::string::npos && m_sAFII) ATH_MSG_WARNING("Input file is full simulation but you are using AFII corrections and uncertainties, you should set \"isAFII\" to \"false\"");
   }
   return StatusCode::SUCCESS;
 }

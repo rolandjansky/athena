@@ -24,8 +24,7 @@ using namespace tauRecTools;
 //______________________________________________________________________________
 BuildTruthTaus::BuildTruthTaus( const std::string& name )
   : AsgMetadataTool(name)
-  , m_bIsData(false)
-  , m_bIsConfigured(false)
+  , m_bIsData(-1) // Unknown
   , m_bTruthTauAvailable(true)
   , m_xTruthTauContainerConst(0)
   , m_xTruthMuonContainerConst(0)
@@ -87,28 +86,28 @@ StatusCode BuildTruthTaus::initialize()
 //______________________________________________________________________________
 xAOD::TruthParticleContainer* BuildTruthTaus::getTruthTauContainer()
 {
-  if (m_bIsData)
-    return 0;
+  if (isData())
+    return nullptr;
   if (!m_bTruthTauAvailable)
     return m_xTruthTauContainer;
   else
   {
     ATH_MSG_WARNING("TruthTau container was available from the event store and not rebuilt. Please get it from the event store");
-    return 0;
+    return nullptr;
   }
 }
 
 //______________________________________________________________________________
 xAOD::TruthParticleAuxContainer* BuildTruthTaus::getTruthTauAuxContainer()
 {
-  if (m_bIsData)
-    return 0;
+  if (isData())
+    return nullptr;
   if (!m_bTruthTauAvailable)
     return m_xTruthTauAuxContainer;
   else
   {
     ATH_MSG_WARNING("TruthTau auxiliary container was available from the event store and not rebuilt. Please get it from the event store");
-    return 0;
+    return nullptr;
   }
 }
 
@@ -116,21 +115,27 @@ xAOD::TruthParticleAuxContainer* BuildTruthTaus::getTruthTauAuxContainer()
 StatusCode BuildTruthTaus::beginEvent()
 {
   m_bNewEvent = true;
-  if (m_bIsConfigured)
-    return StatusCode::SUCCESS;
-
-  const xAOD::EventInfo* xEventInfo = 0;
-  ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
-  m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
-  m_bIsConfigured=true;
-
   return StatusCode::SUCCESS;
+}
+
+bool BuildTruthTaus::isData()
+{
+  if (m_bIsData<0){
+    const xAOD::EventInfo* xEventInfo(nullptr);
+    if (evtStore()->retrieve(xEventInfo,"EventInfo").isFailure()){
+      ATH_MSG_ERROR("Could not retrieve EventInfo for setting metadata; assuming not data");
+      return false;
+    }
+    m_bIsData = xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION)?0:1;
+  }
+  return m_bIsData>0;
 }
 
 StatusCode BuildTruthTaus::retrieveTruthTaus()
 {
-  if (m_bIsData)
+  if (isData()){
     return StatusCode::SUCCESS;
+  }
 
   if (m_bNewEvent)
     m_bNewEvent = false;

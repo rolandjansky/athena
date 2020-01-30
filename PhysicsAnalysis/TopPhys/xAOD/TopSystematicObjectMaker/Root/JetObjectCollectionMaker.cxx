@@ -5,6 +5,7 @@
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "xAODJet/JetContainer.h"
@@ -266,13 +267,17 @@ namespace top {
     m_btagSelToolsDL1Decor["DL1"] = "BTaggingSelectionTool_forEventSaver_DL1_" + m_config->sgKeyJets();
     m_btagSelToolsDL1Decor["DL1r"] = "BTaggingSelectionTool_forEventSaver_DL1r_" + m_config->sgKeyJets();
     m_btagSelToolsDL1Decor["DL1rmu"] = "BTaggingSelectionTool_forEventSaver_DL1rmu_" + m_config->sgKeyJets();
-    top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    top::check(m_btagSelToolsDL1Decor["DL1r"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    top::check(m_btagSelToolsDL1Decor["DL1rmu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    // Store a lightweight flag to limit error messages if the DL1 weights are not present
-    m_DL1Possible = true;
-    m_DL1rPossible = true;
-    m_DL1rmuPossible = true;
+    top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyJets());
+    top::check(m_btagSelToolsDL1Decor["DL1r"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyJets());
+    top::check(m_btagSelToolsDL1Decor["DL1rmu"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyJets());
+    if (m_config->useTrackJets()) {
+      m_btagSelToolsDL1Decor["DL1_trkjet"] = "BTaggingSelectionTool_forEventSaver_DL1_" + m_config->sgKeyTrackJets();
+      m_btagSelToolsDL1Decor["DL1r_trkjet"] = "BTaggingSelectionTool_forEventSaver_DL1r_" + m_config->sgKeyTrackJets();
+      m_btagSelToolsDL1Decor["DL1rmu_trkjet"] = "BTaggingSelectionTool_forEventSaver_DL1rmu_" + m_config->sgKeyTrackJets();
+      top::check(m_btagSelToolsDL1Decor["DL1_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
+      top::check(m_btagSelToolsDL1Decor["DL1r_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
+      top::check(m_btagSelToolsDL1Decor["DL1rmu_trkjet"].retrieve(), "Failed to retrieve eventsaver btagging selector for " + m_config->sgKeyTrackJets());
+    }
 
     // initialize boosted jet taggers -- we have to do it here instead pf TopObjectSelectionTools
     // because we have to apply tagger inbetween JES uncertainty tool and the tagging SF tool
@@ -661,10 +666,12 @@ namespace top {
                                                 const std::string& modName, bool isLargeR, bool onlyJER) {
     ///-- Get the recommended systematics from the tool, in std::vector format --///
     const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector(recommendedSysts);
+    
 
     for (const CP::SystematicSet& s : systList) {
       if (s.size() == 1) {
         CP::SystematicSet::const_iterator ss = s.begin();
+	if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
 
         if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
 
@@ -678,7 +685,8 @@ namespace top {
             map.insert(std::make_pair(modSet, s));
           } else if (specifiedSystematics.size() > 0) {
             for (std::string i : specifiedSystematics) {
-              if (i == modSet.name()) {
+	      TreeFilter filter(i);
+              if (!filter.filterTree(modSet.name())) {
                 if (!isLargeR) m_specifiedSystematics.push_back(modSet);
                 else m_specifiedSystematicsLargeR.push_back(modSet);
                 map.insert(std::make_pair(modSet, s));
@@ -786,25 +794,61 @@ namespace top {
 
     for (const auto& jet : *jets) {
       // Default value
-      double DL1_weight, DL1r_weight, DL1rmu_weight = -999;
+      double DL1_weight = -999., DL1r_weight = -999., DL1rmu_weight = -999.;
 
-      // Suppress warnings if the DL1 weights do not exist and avoid repeated failed computation
-      if (m_DL1Possible) {
-        if (!m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight)) {
-          DL1_weight = -999;
-          m_DL1Possible = false;
+      // Check if probabilities are stored. If not, assign -100 as error message
+      if(!trackJets)
+      {
+        double dl1_pb = -10., dl1_pc = -10., dl1_pu = -10.;
+        if( jet->btagging()->pb("DL1", dl1_pb ) && jet->btagging()->pc("DL1", dl1_pc ) && jet->btagging()->pu("DL1", dl1_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)){ //checking requied by CP tools
+            DL1_weight = -999.; //value for errors from retrieving wieghts
+          }
+        }else{
+          DL1_weight = -100.; //value for nonexistence of probabilities
+        }
+        double dl1r_pb = -10., dl1r_pc = -10., dl1r_pu = -10.;
+        if( jet->btagging()->pb("DL1r", dl1r_pb ) && jet->btagging()->pc("DL1r", dl1r_pc ) && jet->btagging()->pu("DL1r", dl1r_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(dl1r_pb, dl1r_pc, dl1r_pu, DL1r_weight)){
+            DL1r_weight = -999.; //value for errors from retrieving wieghts
+          }
+        }else{
+          DL1r_weight = -100.; //value for nonexistence of probabilities
+        }
+        double dl1rmu_pb = -10., dl1rmu_pc = -10., dl1rmu_pu = -10.;
+        if( jet->btagging()->pb("DL1rmu", dl1rmu_pb ) && jet->btagging()->pc("DL1rmu", dl1rmu_pc ) && jet->btagging()->pu("DL1rmu", dl1rmu_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(dl1rmu_pb, dl1rmu_pc, dl1rmu_pu, DL1rmu_weight)){
+            DL1rmu_weight = -999.; //value for errors from retrieving wieghts
+          }
+        }else{
+          DL1rmu_weight = -100.; //value for nonexistence of probabilities
         }
       }
-      if (m_DL1rPossible) {
-        if (!m_btagSelToolsDL1Decor["DL1r"]->getTaggerWeight(*jet, DL1r_weight)) {
-          DL1r_weight = -999;
-          m_DL1rPossible = false;
+      else
+      {
+        double dl1_pb = -10., dl1_pc = -10., dl1_pu = -10.;
+        if( jet->btagging()->pb("DL1", dl1_pb ) && jet->btagging()->pc("DL1", dl1_pc ) && jet->btagging()->pu("DL1", dl1_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1_trkjet"]->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)){
+            DL1_weight = -999.; //value for errors from retrieving wieghts
+          }
+        }else{
+          DL1_weight = -100.; //value for nonexistence of probabilities
         }
-      }
-      if (m_DL1rmuPossible) {
-        if (!m_btagSelToolsDL1Decor["DL1rmu"]->getTaggerWeight(*jet, DL1rmu_weight)) {
-          DL1rmu_weight = -999;
-          m_DL1rmuPossible = false;
+        double dl1r_pb = -10., dl1r_pc = -10., dl1r_pu = -10.;
+        if( jet->btagging()->pb("DL1r", dl1r_pb ) && jet->btagging()->pc("DL1r", dl1r_pc ) && jet->btagging()->pu("DL1r", dl1r_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1r_trkjet"]->getTaggerWeight(dl1r_pb, dl1r_pc, dl1r_pu, DL1r_weight)){
+            DL1r_weight = -999.; //value for errors from retrieving wieghts
+          }
+        }else{
+          DL1r_weight = -100.; //value for nonexistence of probabilities
+        }
+        double dl1rmu_pb = -10., dl1rmu_pc = -10., dl1rmu_pu = -10.;
+        if( jet->btagging()->pb("DL1rmu", dl1rmu_pb ) && jet->btagging()->pc("DL1rmu", dl1rmu_pc ) && jet->btagging()->pu("DL1rmu", dl1rmu_pu ) ){
+          if(!m_btagSelToolsDL1Decor["DL1rmu_trkjet"]->getTaggerWeight(dl1rmu_pb, dl1rmu_pc, dl1rmu_pu, DL1rmu_weight)){
+            DL1rmu_weight = -999.; //value for errors from retrieving wieghts
+          }
+        }else{
+          DL1rmu_weight = -100.; //value for nonexistence of probabilities
         }
       }
       DL1(*jet) = DL1_weight;

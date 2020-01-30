@@ -31,8 +31,6 @@ PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_2
 #PRWActualMu_AF GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
 #PRWLumiCalcFiles GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
 
-BTagCDIPath xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root
-
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
@@ -105,8 +103,8 @@ MuonIsolationLoose None
 TauPt 25000
 TauJetIDWP Medium
 TauJetIDWPLoose Medium
-TauEleBDTWP OldLoose
-TauEleBDTWPLoose OldLoose
+TauEleBDTWP Loose
+TauEleBDTWPLoose Loose
 TauEleOLR False
 TauEleOLRLoose False
 
@@ -123,7 +121,7 @@ UseAodMetaData True
 BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80
 
 ### B-tagging configuration
-BTaggingWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous
+BTaggingWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous DL1r:FixedCutBEff_77
 # Example of how to remove systematics from b-tag EV
 #BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
 
@@ -313,6 +311,30 @@ SELECTION ejets_MV2c10_2018
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
+SELECTION ejets_DL1r_2015
+. EL_2015
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2016
+. EL_2016
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2017
+. EL_2017
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_DL1r_2018
+. EL_2018
+. ejets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
 ########################################################################
 # For testing whether track jet b-tag selection works
 # ONLY FOR TESTING, DOES NOT MAKE SENSE TO USE THIS FOR PHYSICS ANALYSIS
@@ -413,6 +435,30 @@ SELECTION mujets_MV2c10_2018
 . MU_2018
 . mujets_basic
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2015
+. MU_2015
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2016
+. MU_2016
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2017
+. MU_2017
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_DL1r_2018
+. MU_2018
+. mujets_basic
+JET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
 ########################################################################

@@ -107,14 +107,15 @@ namespace top {
     const xAOD::ElectronContainer* electrons(nullptr);
     std::vector<const xAOD::Muon*> selectedMuons;
     std::vector<const xAOD::Electron*> selectedElectrons;
-
-    top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons(hash)), "Failed to retrieve muons");
+    
+    if (m_config->useMuons()) top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons(hash)), "Failed to retrieve muons");
+    
     // Put into a vector
     for (size_t index : systEvent->goodMuons()) {
       selectedMuons.push_back(muons->at(index));
     }
 
-    top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons(hash)), "Failed to retrieve electrons");
+    if (m_config->useElectrons()) top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectrons(hash)), "Failed to retrieve electrons");
     // Put into a vector
     for (size_t index : systEvent->goodElectrons()) {
       selectedElectrons.push_back(electrons->at(index));

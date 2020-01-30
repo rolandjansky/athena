@@ -23,7 +23,7 @@ def makeOverlapSequence (dataType) :
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
     pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
     algSeq += pileupSequence
 
     # Include, and then set up the electron analysis sequence:
@@ -68,7 +68,7 @@ def makeOverlapSequence (dataType) :
     # Include, and then set up the overlap analysis algorithm sequence:
     from AsgAnalysisAlgorithms.OverlapAnalysisSequence import \
         makeOverlapAnalysisSequence
-    overlapSequence = makeOverlapAnalysisSequence( dataType, doMuPFJetOR=True )
+    overlapSequence = makeOverlapAnalysisSequence( dataType, doMuPFJetOR=True, enableCutflow=True )
     overlapSequence.configure(
         inputName = {
             'electrons' : 'AnalysisElectrons_%SYS%',

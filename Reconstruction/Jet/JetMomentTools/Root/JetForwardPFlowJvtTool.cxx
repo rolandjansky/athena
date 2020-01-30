@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardPFlowJvtTool.cxx
@@ -83,26 +83,34 @@
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
 
     m_pfotool.setTypeAndName("CP::RetrievePFOTool/"+ m_pfoToolName );
-    m_pfotool.retrieve();
+    ATH_CHECK( m_pfotool.retrieve() );
 
     m_wpfotool.setTypeAndName("CP::WeightPFOTool/"+ m_wpfoToolName );
-    m_wpfotool.retrieve();
-  
-    m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName    );
-    m_pfoJES.setProperty("JetCollection",m_jetAlgo                 );
-    m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig              );
-    m_pfoJES.setProperty("CalibSequence",m_calibSeq                );
-    m_pfoJES.setProperty("CalibArea"    ,m_calibArea               );
-    m_pfoJES.setProperty("IsData"       ,m_isdata                  );
-    m_pfoJES.retrieve();
-  
+    ATH_CHECK( m_wpfotool.retrieve() );
+
+    m_pfoJES.setTypeAndName("JetCalibrationTool/"+ m_pfoJESName   );
+    ATH_CHECK( m_pfoJES.setProperty("JetCollection",m_jetAlgo                ) );
+    ATH_CHECK( m_pfoJES.setProperty("ConfigFile"   ,m_caliconfig             ) );
+    ATH_CHECK( m_pfoJES.setProperty("CalibSequence",m_calibSeq               ) );
+    ATH_CHECK( m_pfoJES.setProperty("CalibArea"    ,m_calibArea              ) );
+    ATH_CHECK( m_pfoJES.setProperty("IsData"       ,m_isdata                 ) );
+    ATH_CHECK( m_pfoJES.retrieve() ) ;
+
     return StatusCode::SUCCESS;
   }
 
   int JetForwardPFlowJvtTool::modify(xAOD::JetContainer& jetCont) const {
     std::vector<TVector2> pileupMomenta;
     pileupMomenta=calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
-    if(pileupMomenta.size()==0) return StatusCode::FAILURE;
+
+    if(pileupMomenta.size()==0) {
+      ATH_MSG_DEBUG( "pileupMomenta is empty, this can happen for events with no PU vertices. fJVT won't be computed for this event and will be set to 0 instead." );
+      for(const xAOD::Jet* jetF : jetCont) {
+	(*Dec_outFjvt)(*jetF) = 1;
+	fjvt_dec(*jetF) = 0;
+      }
+      return 0;
+    }
 
     for(const xAOD::Jet* jetF : jetCont) {
       (*Dec_outFjvt)(*jetF) = 1;
@@ -129,18 +137,17 @@
 
   std::vector<TVector2> JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *pjets, int pvind, int vertices) const {
     std::vector<TVector2> pileupMomenta;
-
     // -- Retrieve PV index if not provided by user
     const std::size_t pv_index = (pvind==-1) ? getPV() : std::size_t(pvind);
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
       return pileupMomenta;
     }
     const xAOD::PFOContainer *pfos = m_pfotool->retrievePFO(CP::EM,CP::all);
     if(pfos == NULL ){
-      ATH_MSG_ERROR("PFO container is empty!");
+      ATH_MSG_WARNING("PFO container is empty!");
       return pileupMomenta;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved PFO objects");
@@ -148,14 +155,25 @@
 
     for(const xAOD::Vertex* vx: *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
-      if(vx->index()==pv_index) continue;
-      // Build and retrieve PU jets
-      buildPFlowPUjets(*vx,*pfos);
+      if(vx->index()==(size_t)pv_index) continue;
+
       TString jname = m_jetsName;
       jname += vx->index();
       const xAOD::JetContainer* vertex_jets  = nullptr;
+
+      // Check if pflow pileup jet container exists
+      if( !evtStore()->contains<xAOD::JetContainer>(jname.Data()) ){
+	// if not, build it
+	if( buildPFlowPUjets(*vx,*pfos).isFailure() ){
+	  ATH_MSG_WARNING(" Some issue appeared while building the pflow pileup jets for vertex "<< vx->index() << " (vxType = " << vx->vertexType()<<" )!" );
+	  return pileupMomenta;
+	}
+      } else {
+	ATH_MSG_WARNING( jname.Data() << " already exists. Existing container will be used.");
+      }
+      
       if(evtStore()->retrieve(vertex_jets,jname.Data()).isFailure()){
-        ATH_MSG_ERROR("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
+        ATH_MSG_WARNING("Unable to retrieve built PU jets with name \"" << m_jetsName << "\"");
         return pileupMomenta;
       }
 
@@ -189,16 +207,17 @@
     return false;
   }
 
-  void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
+  StatusCode JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
     
     const std::size_t pv_index = (m_pvind==-1) ? getPV() : std::size_t (m_pvind);
 
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
+      if (Dec_OR && !(*Dec_OR)(*pfo)) continue;
       if (pfo->isCharged()) { 
         if (vx.index()==pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
-        if (vx.index()!=pv_index && &vx!=pfo->track(0)->vertex()) continue;
+        if (vx.index()!=pv_index && (!pfo->track(0)->vertex() || vx.index()!=pfo->track(0)->vertex()->index())) continue;
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
@@ -216,7 +235,7 @@
     fastjet::JetDefinition jet_def(fastjet::antikt_algorithm,0.4);
     fastjet::AreaDefinition area_def(fastjet::active_area_explicit_ghosts,fastjet::GhostedAreaSpec(fastjet::SelectorAbsRapMax(m_maxRap)));
     fastjet::ClusterSequenceArea clust_pfo(input_pfo,jet_def,area_def);
-    std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(0));
+    std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(5000.));
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet=  new xAOD::Jet();
@@ -237,10 +256,15 @@
       }
       xAOD::JetFourMom_t chargejetp4(chargedpart,inclusive_jets[i].eta(),inclusive_jets[i].phi(),inclusive_jets[i].m());
       jet->setJetP4(m_jetchargedp4,chargejetp4);
-    }   
-    m_pfoJES->modify(*vertjets);
-    evtStore()->record(vertjets.release(),newname.Data());
-    evtStore()->record(vertjetsAux.release(),(newname+"Aux.").Data());
+    }
+
+    if( m_pfoJES->modify(*vertjets) ){
+      ATH_MSG_ERROR(" Failed to calibrate PU jet container ");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( evtStore()->record(vertjets.release(),newname.Data())    );
+    ATH_CHECK( evtStore()->record(vertjetsAux.release(),newname.Data()) );
+    return StatusCode::SUCCESS;
   }
 
   fastjet::PseudoJet JetForwardPFlowJvtTool::pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const {
@@ -248,9 +272,10 @@
     TLorentzVector pfo_p4;
     if (CP::charged == theCharge){
       float pweight = m_weight;
-      m_wpfotool->fillWeight(*pfo,pweight);
-      // Create a PSeudojet with the momentum of the selected IParticle
-      pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
+      if( (m_wpfotool->fillWeight(*pfo,pweight)).isSuccess() ){
+	// Create a PSeudojet with the momentum of the selected IParticle
+	pfo_p4= TLorentzVector(pfo->p4().Px()*pweight,pfo->p4().Py()*pweight,pfo->p4().Pz()*pweight,pfo->e()*pweight);
+      }
     } else if (CP::neutral == theCharge){ 
       pfo_p4= pfo->GetVertexCorrectedEMFourVec(*vx);
     }
@@ -287,7 +312,7 @@
 
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve primary vertex container");
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container");
       // this almost certainly isn't what we should do here, the
       // caller doesn't check this for errors
       return 0;
@@ -297,7 +322,7 @@
         if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
       }
     }
-    ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+    ATH_MSG_WARNING("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
     // this almost certainly isn't what we should do here, the
     // caller doesn't check this for errors
     return 0;

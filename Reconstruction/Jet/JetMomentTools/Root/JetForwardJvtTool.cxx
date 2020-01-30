@@ -18,9 +18,10 @@
 // Shallow copy
 //#include "xAODCore/ShallowCopy.h"
 
-    static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
-    static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
-    static SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
+    static const SG::AuxElement::Decorator<char>  isHS("isJvtHS");
+    static const SG::AuxElement::Decorator<char>  isPU("isJvtPU");
+    static const SG::AuxElement::Decorator<float>  fjvt_dec("fJvt");
+    static const SG::AuxElement::ConstAccessor<float> acc_fjvt_der("DFCommonJets_fJvt");
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -78,15 +79,26 @@
   }
 
   int JetForwardJvtTool::modify(xAOD::JetContainer& jetCont) const {
+    // First test to see if the derivation did the work for us
+    if (jetCont.size()>0 && acc_fjvt_der.isAvailable(*jetCont[0])){
+      // We did all the work upstream. Add decorations as requested and get out
+      for (const auto& jetF : jetCont) {
+        double fjvt = acc_fjvt_der(*jetF);
+        (*Dec_outTiming)(*jetF) = fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+        (*Dec_out)(*jetF) = fjvt<=m_fjvtThresh && fabs(jetF->auxdata<float>("Timing"))<=m_timingCut;
+        (*Dec_outFjvt)(*jetF) = fjvt;
+      }
+      return StatusCode::SUCCESS;
+    }
+    // Did not have it in advance, now do the extra work
     getPV();
-    m_pileupMomenta.clear();
+    if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
     for(const auto& jetF : jetCont) {
       (*Dec_out)(*jetF) = 1;
       (*Dec_outFjvt)(*jetF) = 1;
       (*Dec_outTiming)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
-      if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
       double fjvt = getFJVT(jetF)/jetF->pt();
       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
       if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;

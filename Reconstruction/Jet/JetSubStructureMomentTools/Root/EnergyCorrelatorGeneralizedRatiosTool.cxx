@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ----------------------------------------------------------------
@@ -14,8 +14,6 @@
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h" 
 
-using fastjet::PseudoJet;
-
 EnergyCorrelatorGeneralizedRatiosTool::EnergyCorrelatorGeneralizedRatiosTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
@@ -26,8 +24,6 @@ EnergyCorrelatorGeneralizedRatiosTool::EnergyCorrelatorGeneralizedRatiosTool(std
 }
 
 StatusCode EnergyCorrelatorGeneralizedRatiosTool::initialize() {
-  ATH_MSG_INFO("Initializing EnergyCorrelatorTool");
-
   // Add beta = 1.0 by default
   betaVals.push_back(1.0);
 

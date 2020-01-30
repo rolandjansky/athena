@@ -27,6 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/PFlow/PFlowUtils
                           Tools/PathResolver 
 			  InnerDetector/InDetRecTools/InDetTrackSelectionTool # QGTaggerTool for nTracks ###
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
 			  Reconstruction/Jet/JetMomentTools
 			  )
 

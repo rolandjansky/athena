@@ -31,12 +31,12 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import (
-    buildVRJets, linkPseudoJetGettersToExistingJetCollection, addVRJets,
-    addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
+    addVRJets, addExKtCoM, addRecommendedXbbTaggers, xbbTaggerExtraVariables)
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkMCTruth.MCTruthCommon import (
     addTruth3ContentToSlimmerTool)
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
+from BTagging.BTaggingConf import Analysis__BTagNNAlg as BTagNNAlg
 
 from FlavorTagDiscriminants.discriminants import complex_jet_discriminants
 
@@ -141,8 +141,9 @@ DerivationFrameworkJob += FTAG5Seq
 #put custom jet names here
 FTAG5BTaggedJets = [
     "AntiKt2PV0TrackJets",
-    "AntiKtVR30Rmax4Rmin02TrackJets",
-    "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag",
     "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
@@ -202,32 +203,50 @@ if globalflags.DataSource()!='data':
 # Variable Radius (VR) Jets
 #===================================================================
 
-# Create variable-R trackjets (with cone and ghost-association for FTAG tracks)
-vrTrackJets, vrTrackJetGhosts = buildVRJets(sequence = FTAG5Seq, do_ghost = False, logger = ftag5_log)
-vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = buildVRJets(sequence = FTAG5Seq, do_ghost = True, logger = ftag5_log)
-
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo",
                                             "AntiKtVR30Rmax4Rmin02TrackGhostTag->AntiKtVR30Rmax4Rmin02TrackGhostTag,AntiKt4EMTopo",]
 
 addVRJets(
     sequence=FTAG5Seq,
+    largeRColls=fatJetCollections,
+    do_ghost=False,
+    logger=ftag5_log)
+
+addVRJets(
+    sequence=FTAG5Seq,
+    largeRColls=fatJetCollections,
+    do_ghost=True,
+    logger=ftag5_log)
+
+addVRJets(
+    sequence=FTAG5Seq,
+    largeRColls=fatJetCollections,
     do_ghost=False,
     training='201903',
     logger=ftag5_log)
 
+# Add new DL1 and RNN
+newtag_collections = [
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810',
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903',
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag'
+]
+rnn_remap = {'rnnip_p' + x: 'rnnipT_p' + x for x in 'bcu'}
+FTAG5Seq += BTagNNAlg(
+    "BTagRNNForTrackJets",
+    nnPath='BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json',
+    jetCollections=newtag_collections,
+    variableRemapping=rnn_remap)
+dl1_remap = {'DL1r_p' + x: 'DL1Tr_p' + x for x in 'bcu'}
+dl1_remap.update(rnn_remap)
+FTAG5Seq += BTagNNAlg(
+    "BTagDL1rForTrackJets",
+    nnPath='BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
+    jetCollections=newtag_collections,
+    variableRemapping=dl1_remap)
 
-#===================================================================
-# Link VR jets to large-R jets 
-#===================================================================
-toAssociate = {
-    vrTrackJetGhosts : vrTrackJetGhosts.lower(),
-    vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower(),
-}
-for collection in fatJetCollections:
-  ungroomed, labels = linkPseudoJetGettersToExistingJetCollection(
-      FTAG5Seq, collection, toAssociate)
-    
+
 #===================================================================
 # ExKt subjets for each trimmed large-R jet
 #===================================================================
@@ -281,8 +300,8 @@ FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert", 
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub_expert",
@@ -300,10 +319,10 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostAntiKt2TrackJet",
-    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet",
-    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
-    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
-    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+    "AntiKt10TrackCaloClusterJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
     "InDetTrackParticles.btagIp_d0.btagIp_z0SinTheta.btagIp_d0Uncertainty.btagIp_z0SinThetaUncertainty.btagIp_trackDisplacement.btagIp_trackMomentum",
     "TrackCaloClustersCombinedAndNeutral.m.pt.phi.eta.taste.trackParticleLink.DetectorEta.iparticleLinks"
 ]
@@ -334,11 +353,19 @@ ghost_particles = [
 ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
 ghost_subjets = [
-    'GhostVR30Rmax4Rmin02TrackJetGhostTag',
+    'GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag',
     'GhostVR30Rmax4Rmin02TrackJet_BTagging201903']
 for jc in ['AntiKt10LCTopoJets', 'AntiKt10TrackCaloClusterJets']:
     FTAG5SlimmingHelper.ExtraVariables.append(
         '.'.join([jc] + ghost_counts + ghost_pts + ghost_subjets))
+
+# add some extra retrained taggers
+augmented_btag_containers = [
+    'BTagging_AntiKtVR30Rmax4Rmin02Track_201810',
+    'BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag']
+for cont in augmented_btag_containers:
+    FTAG5SlimmingHelper.ExtraVariables.append(
+        '.'.join([cont] + dl1_remap.values()))
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False

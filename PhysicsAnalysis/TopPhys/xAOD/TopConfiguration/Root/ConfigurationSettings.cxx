@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -67,10 +67,10 @@ namespace top {
                       "Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)",
                       "default");
     registerParameter("ElectronIsolation",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "Gradient");
     registerParameter("ElectronIsolationLoose",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -79,7 +79,7 @@ namespace top {
     registerParameter("UseElectronChargeIDSelection",
                       "True/False. Switch on/off electron charge ID selection (Default False).", "False");
     registerParameter("UseEgammaLeakageCorrection",
-                      "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default False).", "False");
+                      "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default True).", "True");
 
     registerParameter("FwdElectronID", "Type of fwd electron. Loose, Medium, Tight (default)", "Tight");
     registerParameter("FwdElectronIDLoose", "Type of fwd loose electrons. Loose, Medium, Tight (default)", "Tight");
@@ -132,6 +132,15 @@ namespace top {
     registerParameter("SoftMuonDRJet",
                       "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4",
                       "0.4");
+    registerParameter("SoftMuonAdditionalTruthInfo",
+                      "Decide if you want to store additional truth information on the particle-level origin for soft muons (see TopParticleLevel/TruthTools.h): True or False (default)",
+                      "False");
+    registerParameter("SoftMuonAdditionalTruthInfoCheckPartonOrigin",
+                      "Decide if you want to store additional truth information on the parton-level origin for soft muons (see TopParticleLevel/TruthTools.h, this makes sense only if also SoftMuonAdditionalTruthInfo is True) : True or False (default)",
+                      "False");
+    registerParameter("SoftMuonAdditionalTruthInfoDoVerbose",
+                      "Debug output for soft muon addition information: True or False (default)",
+                      "False");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
@@ -225,13 +234,13 @@ namespace top {
                       "Default 25 GeV.",
                       "25000");
     registerParameter("TauJetIDWP",
-                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default Medium.",
+                      "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
+                      "Default RNNMedium.",
                       "RNNMedium");
     registerParameter("TauJetIDWPLoose",
                       "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
-                      "Default None.",
-                      "RNNMedium");
+                      "Default RNNLoose.",
+                      "RNNLoose");
     registerParameter("TauEleBDTWP",
                       "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
@@ -318,6 +327,8 @@ namespace top {
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
+    registerParameter("FilterTrees",
+                      "Comma separated list of names of the trees that will be removed from the output", " ");
 
     registerParameter("FakesMMWeightsIFF",
                       "Calculate matrix-method weights for fake leptons estimate using FakeBkgTools from IFF: True (calculate weights), False (does nothing)",
@@ -343,7 +354,7 @@ namespace top {
 
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, False (default)", "False");
+    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHqtautau, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
@@ -356,6 +367,10 @@ namespace top {
     registerParameter("MCGeneratorWeights",
                       "Do you want the OTF-computed MC generator weights (if available)? True (in truth tree), Nominal (save to the nominal tree if passes selection) or False (nothing, default)",
                       "False");
+    registerParameter("NominalWeightNames",
+                      "List of nominal weight names to attempt to retrieve. Attempts are made in the order as specified. If none of the names can be found, we will crash with error message. Use index instead in such case.",
+                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \"");
+
     registerParameter("TruthBlockInfo", "Do you want to dump the full Truth block info? True or False", "False");
 
     registerParameter("TruthElectronPt",
@@ -544,7 +559,10 @@ namespace top {
     registerParameter("MuonTriggers", "Deprecated, use GlobalTriggers instead.", "None");
     registerParameter("MuonTriggersLoose", "Deprecated, use GlobalTriggersLoose instead.", "None");
 
+    registerParameter("DemandPrimaryVertex", "Wether at least one primary vertex in event is required. Default True. For debugging purposes only!", "True");
+
     registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
+    registerParameter("RedifineMCMCMap", "Dictionary for translating the shower names from TopDataPreparation. Format: \"shower1:shower2,shower3:shower4\".", " ");
   }
 
   ConfigurationSettings* ConfigurationSettings::get() {

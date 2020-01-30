@@ -63,18 +63,37 @@ namespace ST {
       return StatusCode::FAILURE;
     }
 
-    std::string jetkey_tmp = jetkey;
-    if (jetkey.empty()) {
-      jetkey_tmp = m_defaultJets;
+    ATH_MSG_DEBUG("Default jetkey:           " << m_defaultJets);
+    ATH_MSG_DEBUG("Function argument jetkey: " << jetkey);
+    ATH_MSG_DEBUG("Config Btag.TimeStamp:    " << m_BtagTimeStamp);
+    ATH_MSG_DEBUG("Config Btag.KeyOverride:  " << m_BtagKeyOverride);
+
+    // load default regular & btag jet keys
+    std::string jetkey_tmp = m_defaultJets;                                           // use default for regular jetkey_tmp
+    std::string jetkey_tmp_btag = jetkey_tmp;                                         // as well as btag jetkey_tmp_btag
+    if (!m_BtagTimeStamp.empty()) jetkey_tmp_btag += "_BTagging"+m_BtagTimeStamp;     // add default Btag.TimeStamp for jetkey_tmp_btag if given
+
+    // override default if user is passing a jetkey
+    if (!jetkey.empty()) {
+      jetkey_tmp = jetkey;
+      jetkey_tmp_btag = "";
+      if (jetkey_tmp.find("_BTagging")!=std::string::npos) {
+        ATH_MSG_WARNING("Time-stamped container key " << jetkey_tmp << " is given. These containers only contain b-tagging information and cannot be used for calibration. " <<
+        "Will remove the time stamp and use the key to attach the b-tagging information to the actual container");
+        if (m_BtagTimeStamp.empty()) jetkey_tmp_btag = jetkey_tmp;                              // copy time-stamped jetkey to jetkey_tmp_btag if no Btag.TimeStamp given
+        jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging"));                        // remove time stamp from regular jetkey_tmp
+        if (jetkey_tmp_btag.empty()) jetkey_tmp_btag = jetkey_tmp+"_BTagging"+m_BtagTimeStamp;  // use default Btag.TimeStamp for jetkey_tmp_btag if given
+      }
+    }
+    // override if user has set a Btag.KeyOverride
+    if (!m_BtagKeyOverride.empty()) {
+       jetkey_tmp_btag = m_BtagKeyOverride;
+       ATH_MSG_DEBUG("B-tagging jetkey override active: " << m_BtagKeyOverride);
     }
 
-    // Need a timestamped key to copy btagging links
-    bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
-    if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }      // jetkey = untimestamped
-    std::string jetkey_btag = (m_BtagTimeStamp.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp;                  // jetkey_btag = timestamped if necessary
-    ATH_MSG_DEBUG("Central timestamp: m_BtagTimeStamp = " << m_BtagTimeStamp);
-    ATH_MSG_DEBUG("Key for retrieving jet collection:        jetkey      = " << jetkey_tmp);
-    ATH_MSG_DEBUG("Key for retrieving jet collection (bjet): jetkey_btag = " << jetkey_btag);
+    // final settings
+    ATH_MSG_DEBUG("Key for retrieving jet collection:             jetkey      = " << jetkey_tmp);
+    ATH_MSG_DEBUG("Key for retrieving jet collection (bjet info): jetkey_btag = " << jetkey_tmp_btag);
 
     const xAOD::JetContainer* jets(0);
     if (copy==NULL) { // empty container provided
@@ -97,12 +116,13 @@ namespace ST {
       jets = copy;
     }
     // Copy btagging links
-    if(jetkey_tmp.compare(jetkey_btag)!=0){
-      ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
+    if(!jetkey_tmp_btag.empty()){
+      ATH_CHECK(BendBTaggingLinks(copy, jetkey_tmp_btag));
     }
     // Update the jets
     for (const auto& jet : *copy) {
-      ATH_CHECK( this->FillJet(*jet, true) );
+      // Note that for PHYSLITE jets we don't need the nominal calibration
+      ATH_CHECK( this->FillJet(*jet, jetkey!="AnalysisJets") );
     }
     // Tool requires a loop over all jets
     if (m_doFwdJVT || m_treatPUJets){
@@ -141,18 +161,37 @@ namespace ST {
       return StatusCode::FAILURE;
     }
 
-    std::string jetkey_tmp = jetkey;
-    if (jetkey.empty()) {
-      jetkey_tmp = m_defaultTrackJets;
+    ATH_MSG_DEBUG("Default jetkey (trkjet):           " << m_defaultTrackJets);
+    ATH_MSG_DEBUG("Function argument jetkey (trkjet): " << jetkey);
+    ATH_MSG_DEBUG("Config Btag.TimeStamp (trkjet):    " << m_BtagTimeStamp_trkJet);
+    ATH_MSG_DEBUG("Config Btag.KeyOverride (trkjet):  " << m_BtagKeyOverride);
+
+    // load default regular & btag jet keys
+    std::string jetkey_tmp = m_defaultTrackJets;                                                  // use default for regular jetkey_tmp
+    std::string jetkey_tmp_btag = jetkey_tmp;                                                     // as well as btag jetkey_tmp_btag
+    if (!m_BtagTimeStamp_trkJet.empty()) jetkey_tmp_btag += "_BTagging"+m_BtagTimeStamp_trkJet;   // add default Btag.TimeStamp for jetkey_tmp_btag if given
+
+    // override default if user is passing a jetkey
+    if (!jetkey.empty()) {
+      jetkey_tmp = jetkey;
+      jetkey_tmp_btag = "";
+      if (jetkey_tmp.find("_BTagging")!=std::string::npos) {
+        ATH_MSG_WARNING("Time-stamped container key " << jetkey_tmp << " is given. These containers only contain b-tagging information and cannot be used for calibration. " <<
+        "Will remove the time stamp and use the key to attach the b-tagging information to the actual container");
+        if (m_BtagTimeStamp_trkJet.empty()) jetkey_tmp_btag = jetkey_tmp;                              // copy time-stamped jetkey to jetkey_tmp_btag if no Btag.TimeStamp given
+        jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging"));                               // remove time stamp from regular jetkey_tmp
+        if (jetkey_tmp_btag.empty()) jetkey_tmp_btag = jetkey_tmp+"_BTagging"+m_BtagTimeStamp_trkJet;  // use default Btag.TimeStamp for jetkey_tmp_btag if given
+      }
+    }
+    // override if user has set a Btag.KeyOverride
+    if (!m_BtagKeyOverride.empty()) {
+       jetkey_tmp_btag = m_BtagKeyOverride;
+       ATH_MSG_DEBUG("B-tagging jetkey override active: " << m_BtagKeyOverride);
     }
 
-    // Need a timestamped key to copy btagging link
-    bool jetkeyhastimestamp = jetkey_tmp.find("_BTagging")!=std::string::npos;
-    if (jetkeyhastimestamp) { jetkey_tmp = jetkey_tmp.substr(0, jetkey_tmp.find("_BTagging")); jetkeyhastimestamp=false; }        // jetkey = untimestamped
-    std::string jetkey_btag = (m_BtagTimeStamp_trkJet.empty()) ? jetkey_tmp : jetkey_tmp+"_BTagging"+m_BtagTimeStamp_trkJet;      // jetkey_btag = timestamped if necessary
-    ATH_MSG_DEBUG("Central timestamp trkjet: m_BtagTimeStamp_trkJet = " << m_BtagTimeStamp_trkJet);
-    ATH_MSG_DEBUG("Key for retrieving trkjet collection:        jetkey      = " << jetkey_tmp);
-    ATH_MSG_DEBUG("Key for retrieving trkjet collection (bjet): jetkey_btag = " << jetkey_btag);
+    // final settings
+    ATH_MSG_DEBUG("Key for retrieving trkjet collection:             jetkey      = " << jetkey_tmp);
+    ATH_MSG_DEBUG("Key for retrieving trkjet collection (bjet info): jetkey_btag = " << jetkey_tmp_btag);
 
     const xAOD::JetContainer* jets(0);
     if (copy==NULL) { // empty container provided
@@ -176,8 +215,8 @@ namespace ST {
     }
 
     // Copy btagging links
-    if(jetkey_tmp.compare(jetkey_btag)!=0){
-      ATH_CHECK(BendBTaggingLinks(copy, jetkey_btag));
+    if(!jetkey_tmp_btag.empty()){
+      ATH_CHECK(BendBTaggingLinks(copy, jetkey_tmp_btag));
     }
 
     // Update the jets
@@ -300,7 +339,12 @@ namespace ST {
     // ghost associate the muons to the jets (needed by MET muon-jet OR later)
     ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
     const xAOD::MuonContainer* muons(0);
-    ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
+    // Do a little guessing
+    if (jetkey!="AnalysisJets"){
+      ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
+    } else {
+      ATH_CHECK( evtStore()->retrieve(muons, "AnalysisMuons") );
+    }
     met::addGhostMuonsToJets(*muons, *copy);
 
     // Update the jets

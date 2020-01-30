@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -58,6 +58,10 @@ namespace xAOD {
     for ( auto it = mi.begin(); it != mi.end(); ++it ) {
       str += Form("%-30s :I : %d\n", it->first.c_str(), it->second);
     }
+    std::map<std::string, long> ml = valuesL();
+    for ( auto it = ml.begin(); it != ml.end(); ++it ) {
+      str += Form("%-30s :L : %ld\n", it->first.c_str(), it->second);
+    }
     std::map<std::string, float> mf = valuesF();
     for ( auto it = mf.begin(); it != mf.end(); ++it ) {
       str += Form("%-30s :F : %f\n", it->first.c_str(), it->second);
@@ -79,6 +83,15 @@ namespace xAOD {
       }
       strv.Remove(TString::kTrailing, ',');
       str += Form("%-30s :VI: [%s]\n", it->first.c_str(), strv.Data());
+    }
+    std::map<std::string, std::vector<long> > mvl = valuesVL();
+    for ( auto it = mvl.begin(); it != mvl.end(); ++it ) {
+      TString strv;
+      for (auto &ent : it->second) {
+        strv += Form("%ld,", ent);
+      }
+      strv.Remove(TString::kTrailing, ',');
+      str += Form("%-30s :VL: [%s]\n", it->first.c_str(), strv.Data());
     }
     std::map<std::string, std::vector<float> > mvf = valuesVF();
     for ( auto it = mvf.begin(); it != mvf.end(); ++it ) {
@@ -161,11 +174,13 @@ namespace xAOD {
   }
 
   GET_VALUE_IMP( int         )
+  GET_VALUE_IMP( long        )
   GET_VALUE_IMP( float       )
   GET_VALUE_IMP( double      )
   GET_VALUE_IMP( bool        )
   GET_VALUE_IMP( std::string )
   GET_VALUE_IMP( std::vector<int>         )
+  GET_VALUE_IMP( std::vector<long>        )
   GET_VALUE_IMP( std::vector<float>       )
   GET_VALUE_IMP( std::vector<double>      )
   GET_VALUE_IMP( std::vector<bool>        )
@@ -193,11 +208,13 @@ namespace xAOD {
   }
   
   GET_VALUES_IMP( I , int         )
+  GET_VALUES_IMP( L , long        )
   GET_VALUES_IMP( F , float       )
   GET_VALUES_IMP( D , double      )
   GET_VALUES_IMP( B , bool        )
   GET_VALUES_IMP( S , std::string )
   GET_VALUES_IMP( VI, std::vector<int>         )
+  GET_VALUES_IMP( VL, std::vector<long>         )
   GET_VALUES_IMP( VF, std::vector<float>       )
   GET_VALUES_IMP( VD, std::vector<double>      )
   GET_VALUES_IMP( VB, std::vector<bool>        )

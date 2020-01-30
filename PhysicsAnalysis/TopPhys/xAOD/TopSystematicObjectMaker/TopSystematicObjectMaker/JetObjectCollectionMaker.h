@@ -170,9 +170,6 @@ namespace top {
 
     // DL1 decoration
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelToolsDL1Decor;
-    bool m_DL1Possible;
-    bool m_DL1rPossible;
-    bool m_DL1rmuPossible;
     StatusCode decorateDL1(bool trackJets = false);
   };
 } // namespace

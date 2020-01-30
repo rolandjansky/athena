@@ -165,9 +165,10 @@ HIGG1D2SkimmingTool = DerivationFramework__SkimmingToolHIGG1(
                                  IncludeDoubleMuonPreselection = True,
                                  IncludePhotonMergedElectronPreselection = True,
                                  IncludeHighPtPhotonElectronPreselection = True,
-                                 MinimumPhotonPt = 7.5*GeV,
-                                 MinimumElectronPt = 7.5*GeV,
-                                 MinimumMuonPt = 7.5*GeV,
+                                 MinimumPhotonPt = 9.9*GeV,
+                                 MinimumElectronPt = 4.4*GeV,
+                                 MinimumMergedElectronPt = 18*GeV,
+                                 MinimumMuonPt = 2.9*GeV,
                                  MaxMuonEta = 2.7,
                                  RemoveCrack = False,
                                  MaxEta = 2.5,
@@ -346,6 +347,10 @@ if not DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D2Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG1D2Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg)
+
+# Decorate PFlow jets with FJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=HIGG1D2Seq, algname='JetForwardPFlowJvtToolAlg')
 
 DerivationFrameworkJob += HIGG1D2Seq
 

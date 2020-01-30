@@ -50,7 +50,7 @@ if __name__ == "__main__":
         "Jet"      : ["^CamKt", "^AntiKt", "^Jet","^LCOriginTopoClusters","^EMOriginTopoClusters"],
         "CaloTopo" : ["CaloCalTopoCluster"],
         "Calo"     : ["^LAr", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
-        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"],
+        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection", "^HardScatter", "BornLeptons"],
       "AnalysisElectrons" : ["^AnalysisElectrons" ],
       "AnalysisTauJets" : ["^AnalysisTauJets" ],
       "AnalysisPhotons" : ["^AnalysisPhotons" ],

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_variablerpseudojetcaltool_header
@@ -10,10 +10,6 @@
 #include "JetSubStructureMomentTools/IVariableRPseudoJetCalTool.h"
 
 #include "JetInterface/IJetFromPseudojet.h"
-
-
-#include <string>
-#include <map>
 
 class JetContainer;
 

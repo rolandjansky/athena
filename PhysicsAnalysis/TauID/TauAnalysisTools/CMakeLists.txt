@@ -45,6 +45,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
+find_package( Boost )
 
 # Libraries in the package:
 atlas_add_library( TauAnalysisToolsLib

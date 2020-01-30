@@ -213,7 +213,7 @@ higg3d1PreSeq = CfgMgr.AthSequencer("HIGG3d1PreSelectionSequence")
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
 OutputJets["HIGG3D1"] = ["AntiKt4EMPFlowJets",
-                         "AntiKtVR30Rmax4Rmin02TrackJets"]
+                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -302,7 +302,7 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "BTagging_AntiKt4EMTopo_201810",
                                           "BTagging_AntiKt4EMPFlow_201810",
                                           "BTagging_AntiKt4EMPFlow_201903",
-                                          "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                          "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 

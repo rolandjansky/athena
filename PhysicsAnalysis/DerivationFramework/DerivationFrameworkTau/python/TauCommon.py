@@ -29,6 +29,7 @@ DFCommonTauWrapperTools = []
 DFCommonTausSelectorLoose = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorLoose")
 DFCommonTausSelectorLoose.JetIDWP = 2
 DFCommonTausSelectorLoose.SelectionCuts = 1<<6
+DFCommonTausSelectorLoose.ConfigPath = ''
 #TauAnalysisTools::CutJetIDWP should be used but issue with the dictionnary
 ToolSvc += DFCommonTausSelectorLoose
 DFCommonTausLooseWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonTausLooseWrapper",
@@ -36,34 +37,37 @@ DFCommonTausLooseWrapper = DerivationFramework__AsgSelectionToolWrapper( name = 
                                                                          StoreGateEntryName   = "DFCommonTausLoose",
                                                                          ContainerName        = "TauJets")
 ToolSvc += DFCommonTausLooseWrapper
-print DFCommonTausLooseWrapper
+dftaulog.info(DFCommonTausLooseWrapper)
 DFCommonTauWrapperTools.append(DFCommonTausLooseWrapper)
 
 # Medium
 DFCommonTausSelectorMedium = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorMedium")
 DFCommonTausSelectorMedium.JetIDWP = 3
 DFCommonTausSelectorMedium.SelectionCuts = 1<<6
+DFCommonTausSelectorMedium.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorMedium
 DFCommonTausMediumWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonTausMediumWrapper",
                                                                          AsgSelectionTool = DFCommonTausSelectorMedium,
                                                                          StoreGateEntryName   = "DFCommonTausMedium",
                                                                          ContainerName        = "TauJets")
 ToolSvc += DFCommonTausMediumWrapper
-print DFCommonTausMediumWrapper
+dftaulog.info(DFCommonTausMediumWrapper)
 DFCommonTauWrapperTools.append(DFCommonTausMediumWrapper)
 
 # Tight
 DFCommonTausSelectorTight = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorTight")
 DFCommonTausSelectorTight.JetIDWP = 4
 DFCommonTausSelectorTight.SelectionCuts = 1<<6
+DFCommonTausSelectorTight.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorTight
 DFCommonTausTightWrapper = DerivationFramework__AsgSelectionToolWrapper( name = "DFCommonTausTightWrapper",
                                                                          AsgSelectionTool = DFCommonTausSelectorTight,
                                                                          StoreGateEntryName   = "DFCommonTausTight",
                                                                          ContainerName        = "TauJets")
 ToolSvc += DFCommonTausTightWrapper
-print DFCommonTausTightWrapper
+dftaulog.info(DFCommonTausTightWrapper)
 DFCommonTauWrapperTools.append(DFCommonTausTightWrapper)
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -73,6 +77,44 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauCommonKernel",
                                                                          AugmentationTools = DFCommonTauWrapperTools)
 
+#=================                                                                                                                                                                                                                           # ADD TAU THINNING                                                                                                                                                                                                                           #=================                                                                                                                                                                                                                           
+
+def ThinTau(Name=None, ThinningService=None, Seq=None, SelectionString=None):
+
+    if not Name or not ThinningService or not Seq:
+        dftaulog.info("ABORT MISSION !!")
+        return
+
+    if not SelectionString:
+        SelectionString = "(TauJets.ptFinalCalib >= 15.*GeV) && (TauJets.nTracks<4 && TauJets.nTracks>0)"
+
+    from AthenaCommon.AppMgr import ToolSvc
+
+    # TauJets thinning                                                                                                                                                                                                                        
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+    TauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = Name+"TauJetsThinningTool",
+                                                                     ThinningService = ThinningService,
+                                                                     ContainerName   = "TauJets",
+                                                                     SelectionString = SelectionString)
+    ToolSvc += TauJetsThinningTool
+    dftaulog.info(TauJetsThinningTool)
+
+    # Only keep tau tracks (and associated ID tracks) classified as charged tracks                                                                                                                                                            
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+    TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = Name+"TauTPThinningTool",
+                                                                      ThinningService        = ThinningService,
+                                                                      TauKey                 = "TauJets",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                      SelectionString        = SelectionString,
+                                                                      ApplyAnd               = False,
+                                                                      DoTauTracksThinning    = True,
+                                                                      TauTracksKey           = "TauTracks")
+    ToolSvc += TauTPThinningTool
+    dftaulog.info(TauTPThinningTool)
+
+
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+    Seq += CfgMgr.DerivationFramework__DerivationKernel(Name+"TauThinningKernel", ThinningTools = [TauJetsThinningTool,TauTPThinningTool])
 
 
 #=======================================

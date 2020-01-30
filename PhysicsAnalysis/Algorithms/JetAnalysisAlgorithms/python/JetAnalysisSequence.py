@@ -1,9 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
-                                       createPublicTool
+from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 import re
 
 # These algorithms set up the jet recommendations as-of 04/02/2019.
@@ -43,8 +44,13 @@ jvtSysts = "|".join([
 fjvtSysts = "|".join([
     "(^JET_fJvtEfficiency$)"])
 
-def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutput = False,
-                             shallowViewOutput = True, runGhostMuonAssociation = True, **kwargs):
+def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
+                             deepCopyOutput = False,
+                             shallowViewOutput = True,
+                             runGhostMuonAssociation = True,
+                             enableCutflow = False,
+                             enableKinematicHistograms = False,
+                             **kwargs):
     """Create a jet analysis algorithm sequence
       The jet collection is interpreted and selects the correct function to call, 
       makeSmallRJetAnalysisSequence, makeRScanJetAnalysisSequence or 
@@ -56,9 +62,11 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
         postfix -- String to be added to the end of all public names.
         deepCopyOutput -- Whether or not to deep copy the output
         shallowViewOutput -- Whether or not to output a shallow view as the output
+        enableCutflow -- Whether or not to dump the cutflow
+        enableKinematicHistograms -- Whether or not to dump the kinematic histograms
         Other keyword arguments are forwarded to the other functions.
     """
-    if not dataType in ["data", "mc", "afii"]:
+    if dataType not in ["data", "mc", "afii"]:
         raise ValueError ("invalid data type: " + dataType )
 
     # Setup the postfix
@@ -90,7 +98,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
     seq = AnaAlgSequence( "JetAnalysisSequence"+postfix )
     # Relink original jets in case of b-tagging calibration
     if btIndex != -1:
-        alg = createAlgorithm( 'CP::AsgOriginalObjectLinkAlg', 
+        alg = createAlgorithm( 'CP::AsgOriginalObjectLinkAlg',
             'JetOriginalObjectLinkAlg'+postfix )
         alg.baseContainerName = jetCollection
         seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut', stageName = 'calibration' )
@@ -119,17 +127,20 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '', deepCopyOutp
         makeLargeRJetAnalysisSequence(seq, cutlist, cutlength,
             dataType, jetCollection, jetInput=jetInput, postfix=postfix, **kwargs)
 
-    # Set up an algorithm used for debugging the jet selection:
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg'+postfix )
-    alg.histPattern = 'jet_cflow_%SYS%'+postfix
-    alg.selection = cutlist
-    alg.selectionNCuts = cutlength
-    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+    # Set up an algorithm used to create jet selection cutflow:
+    if enableCutflow:
+        alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg'+postfix )
+        alg.histPattern = 'jet_cflow_%SYS%'+postfix
+        alg.selection = cutlist
+        alg.selectionNCuts = cutlength
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
-    # Set up an algorithm dumping the properties of the jets, for debugging:
-    alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
-    alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
-    seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+    # Set up an algorithm dumping the kinematic properties of the jets:
+    if enableKinematicHistograms:
+        alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg'+postfix )
+        alg.preselection = "&&".join (cutlist)
+        alg.histPattern = 'jet_%VAR%_%SYS%'+postfix
+        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
 
     if shallowViewOutput:
       # Set up an algorithm that makes a view container using the selections
@@ -323,7 +334,7 @@ def makeRScanJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollecti
     alg.calibrationTool.IsData = (dataType == 'data')
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
     # Logging would be good
-    print "WARNING: uncertainties for R-Scan jets are not yet released!"
+    print("WARNING: uncertainties for R-Scan jets are not yet released!")
 
 def makeLargeRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
                                    jetInput, postfix = '', largeRMass = "Comb"):

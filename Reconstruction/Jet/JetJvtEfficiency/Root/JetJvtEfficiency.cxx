@@ -37,7 +37,7 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
     declareProperty( "DoTruthReq",                m_doTruthRequirement   = true                                   );
     declareProperty( "TruthLabel",                m_isHS_decoration_name  = "isJvtHS"                             );
     declareProperty( "TruthJetContainerName",     m_truthJetContName = "AntiKt4TruthJets"                         );
-    applySystematicVariation(CP::SystematicSet()).ignore();
+    declareProperty( "UseMuSFFormat",             m_useMuBinsSF = false , "Use (mu,pT) or (|eta|,pT) binning for fJVT SFs" );
 }
 
 StatusCode JetJvtEfficiency::initialize(){
@@ -51,6 +51,7 @@ StatusCode JetJvtEfficiency::initialize(){
 
   bool ispflow = (m_file.find("EMPFlow") != std::string::npos);
   
+  if (m_wp=="Default" && m_useMuBinsSF) m_wp = "Loose";
   if (m_wp=="Default" && !ispflow) m_wp = "Medium";
   if (m_wp=="Default" && ispflow) m_wp = "Tight";
 
@@ -69,8 +70,11 @@ StatusCode JetJvtEfficiency::initialize(){
     m_wp = "Medium";
   }
   else {
-    ATH_MSG_ERROR("Invalid jvt working point name");
-    return StatusCode::FAILURE;
+    // don't crash for fjvt WP names
+    if(!(m_dofJVT || m_doMVfJVT)){
+      ATH_MSG_ERROR("Invalid jvt working point name");
+      return StatusCode::FAILURE;
+    }
   }
 
   if (m_file.empty()) return StatusCode::SUCCESS;
@@ -87,36 +91,36 @@ StatusCode JetJvtEfficiency::initialize(){
   std::string histname = "Jvt";
 
   if (m_wp=="Loose") histname+="Loose";
-  else if (m_wp=="Medium") histname+="Default";
+  else if (m_wp=="Medium") histname+="Default";//this is a legacy working point
   else if (m_wp=="Tight")  histname+="Tight";
+  else if (m_wp=="Tighter")  histname+="Tighter";
 
-  const xAOD::EventInfo *eventInfo = nullptr;
 
-
-  if(m_doMVfJVT/* || m_dofJVT*/) // 'm_dofJVT' will be uncommented once recommendations are fixed
-  {
-      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
-      {
-	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
-	  return StatusCode::FAILURE;
-      }
-      uint32_t runnumber = eventInfo->runNumber();
-      if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
-	  if (runnumber<295000) histname += "1516";
-	  else if (runnumber<305000) histname += "17";
-	  else histname += "18";
-      } else {
-	  if (runnumber<320000) histname+= "1516";
-	  else if (runnumber<342000) histname+= "17";
-	  else histname += "18";
-      }
+  h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
+  if(!h_JvtHist){
+    ATH_MSG_ERROR("Histogram does not exist! " << histname << " If you are using Default please update to Loose");
+    return StatusCode::FAILURE;
   }
-      h_JvtHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
-      h_JvtHist->SetDirectory(0);
-      histname.replace(0,3,"Eff");
-      h_EffHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
-      h_EffHist->SetDirectory(0);
+  h_JvtHist->SetDirectory(0);
+  histname.replace(0,3,"Eff");
+  h_EffHist.reset( dynamic_cast<TH2*>(infile->Get(histname.c_str())) );
+  h_EffHist->SetDirectory(0);
 
+  // Check consistency between config file and requested SF binning
+  if ( !(m_dofJVT || m_doMVfJVT) && m_useMuBinsSF ){
+    ATH_MSG_ERROR( "Mismatch in SF format. Please set UseMuSFFormat to false for JVT.");
+    return StatusCode::FAILURE;
+  }
+  if( m_dofJVT || m_doMVfJVT ){
+    if (m_useMuBinsSF && h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())<=5. ){
+      ATH_MSG_ERROR( "Mismatch in fJVT SF format. Please set UseMuSFFormat to false to match the current configuration file.");
+      return StatusCode::FAILURE;
+    }
+    if (!m_useMuBinsSF && h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())>5. ){
+      ATH_MSG_ERROR( "Mismatch in fJVT SF format. Please set UseMuSFFormat to true to match the current configuration file");
+      return StatusCode::FAILURE;
+    }
+  }
 
   if(h_JvtHist.get()==nullptr || h_EffHist.get()==nullptr) {
     ATH_MSG_ERROR("Failed to retrieve histograms.");
@@ -142,6 +146,13 @@ StatusCode JetJvtEfficiency::initialize(){
 	  return StatusCode::FAILURE;
       }
   }
+
+  // Configure for nominal systematics
+  if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Could not configure for nominal settings");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -161,7 +172,20 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
             }
         }
     }
-    int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+
+    int jetbin = 0;
+    if( m_useMuBinsSF ){ // fJVT SFs used (pT,eta) binning, changed to (pT,mu) starting with 'Nov2019' calibration
+      const xAOD::EventInfo *eventInfo = nullptr;
+      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
+	{
+	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+	  return CorrectionCode::Error;
+	}
+      jetbin = h_JvtHist->FindBin(jet.pt(),eventInfo->actualInteractionsPerCrossing());
+    } else {
+      jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+    }
+
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
     float errorTerm  = h_JvtHist->GetBinError(jetbin);
     
@@ -192,7 +216,20 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
             }
         }
     }
-    int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+
+    int jetbin = 0;
+    if( m_useMuBinsSF ){
+      const xAOD::EventInfo *eventInfo = nullptr;
+      if ( evtStore()->retrieve(eventInfo, "EventInfo").isFailure() )
+	{
+	  ATH_MSG_ERROR(" Could not retrieve EventInfo ");
+	  return CorrectionCode::Error;
+	}
+      jetbin = h_JvtHist->FindBin(jet.pt(),eventInfo->actualInteractionsPerCrossing());
+    } else {
+      jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
+    }
+
     float baseFactor = h_JvtHist->GetBinContent(jetbin);
     float effFactor = h_EffHist->GetBinContent(jetbin);
     float errorTerm  = h_JvtHist->GetBinError(jetbin);
@@ -279,8 +316,13 @@ bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
 
 bool JetJvtEfficiency::isInRange(const xAOD::Jet& jet) {
   if (m_doOR && !jet.getAttribute<char>(m_ORdec)) return false;
-  if (fabs(jet.getAttribute<float>(m_jetEtaName))<h_JvtHist->GetYaxis()->GetBinLowEdge(1)) return false;
-  if (fabs(jet.getAttribute<float>(m_jetEtaName))>h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())) return false;
+  if ( m_useMuBinsSF ){
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))<2.5) return false;
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))>4.5) return false;
+  } else {
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))<h_JvtHist->GetYaxis()->GetBinLowEdge(1)) return false;
+    if (fabs(jet.getAttribute<float>(m_jetEtaName))>h_JvtHist->GetYaxis()->GetBinUpEdge(h_JvtHist->GetNbinsY())) return false;
+  }
   if (jet.pt()<h_JvtHist->GetXaxis()->GetBinLowEdge(1)) return false;
   if (jet.pt()>h_JvtHist->GetXaxis()->GetBinUpEdge(h_JvtHist->GetNbinsX())) return false;
   if (jet.pt()>m_maxPtForJvt) return false;

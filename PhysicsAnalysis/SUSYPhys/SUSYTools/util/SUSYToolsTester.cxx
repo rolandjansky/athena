@@ -350,7 +350,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   /// SETUP TRIGGERS TO BE CHECKED
   std::vector<std::string> el_triggers {"HLT_e24_lhmedium_L1EM20VH","HLT_e60_lhmedium","HLT_e120_lhloose", "HLT_e26_lhtight_nod0_ivarloose", "HLT_e60_lhmedium_nod0", "HLT_e140_lhloose_nod0"};
-  std::vector<std::string> mu_triggers {"HLT_mu20_iloose_L1MU15","HLT_mu50","HLT_mu18","HLT_mu8noL1","HLT_mu18_mu8noL1"};
+  std::vector<std::string> mu_triggers {"HLT_mu20_iloose_L1MU15","HLT_mu50","HLT_mu8noL1","HLT_mu18_mu8noL1"};
   std::vector<std::string> ph_triggers {"HLT_g120_loose"};
   std::vector<std::string> tau_triggers {"HLT_tau25_medium1_tracktwo", "HLT_tau35_medium1_tracktwo"};
   std::vector<std::string> emu_triggers {"HLT_2e12_lhloose_mu10", "HLT_e12_lhloose_2mu10", "HLT_e17_lhloose_mu14", "HLT_e7_lhmedium_mu24", "HLT_e17_lhloose_nod0_mu14", "HLT_e7_lhmedium_nod0_mu24", "HLT_e12_lhloose_nod0_2mu10", "HLT_2e12_lhloose_nod0_mu10"};
@@ -431,6 +431,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           xStream = TString(cbk->inputStream()).ReplaceAll("Stream","");
           ANA_MSG_INFO("xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" );
         }
+        if ( cbk->name() == "PHYSLITEKernel" && cbk->inputStream() == "StreamAOD" ){
+          xStream = "PHYSLITE";
+          ANA_MSG_INFO("xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" );
+        }
         if ( cbk->name() == "AllExecutedEvents" && cbk->inputStream() == "StreamAOD" && cbk->cycle() > maxcycle){
           maxcycle = cbk->cycle();
           allEventsCBK = cbk;
@@ -452,9 +456,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
     }
 
-
-    ANA_CHECK( objTool.ApplyPRWTool());
-
+    // Only need to PRW if we aren't running on PHYSLITE
+    if (xStream!="PHYSLITE"){
+      ANA_CHECK( objTool.ApplyPRWTool());
+    }
     //if(debug) Info( APP_NAME, "PRW Weight = %f", objTool.GetPileupWeight());
 
     // Print some event information for fun:
@@ -497,8 +502,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     else {
       // Check SUSY Proc. ID for signal MC (only for first event for now!)
       if(entry<5){
-	// --- Deprecated usage of procID
-	//        UInt_t  procID = 0;
+        // --- Deprecated usage of procID
+        //        UInt_t  procID = 0;
         int pdgid1 = 0;
         int pdgid2 = 0;
 
@@ -507,15 +512,15 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
 
         if( pdgid1!=0 && pdgid2!=0){ //(just to avoid warnings)
-	  // --- Deprecated usage of procID
-	  //          procID = SUSY::finalState(pdgid1, pdgid2); // get prospino proc ID
+          // --- Deprecated usage of procID
+          //          procID = SUSY::finalState(pdgid1, pdgid2); // get prospino proc ID
           Info(APP_NAME , "--- SIGNAL ID1     : %d", pdgid1);
           Info(APP_NAME , "    SIGNAL ID2     : %d", pdgid2);
-	  // --- Deprecated usage of procID
-	  //          Info(APP_NAME , "    SIGNAL PROC ID : %d", procID);
-	  // --- Deprecated usage of procID
-	  //	  if ( acc_susyid.isAvailable(*ei)  )
-	  //	    Info(APP_NAME , "    SIGNAL PROC ID (DECO) : %d", acc_susyid(*ei) );
+          // --- Deprecated usage of procID
+          //          Info(APP_NAME , "    SIGNAL PROC ID : %d", procID);
+          // --- Deprecated usage of procID
+          //          if ( acc_susyid.isAvailable(*ei)  )
+          //            Info(APP_NAME , "    SIGNAL PROC ID (DECO) : %d", acc_susyid(*ei) );
 
           Info(APP_NAME , "--- XSECTION DETAILS");
           Info(APP_NAME , "    Xsec (high order)    : %f", my_XsecDB->xsectTimesEff(ei->mcChannelNumber(),0));
@@ -538,7 +543,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::ElectronContainer* electrons_nominal(0);
     xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
     //if( !xStream.Contains("SUSY8") ) //SMP derivation, no electrons, no photons // Martin : TBC
-    ANA_CHECK( objTool.GetElectrons(electrons_nominal, electrons_nominal_aux) );
+    ANA_CHECK( objTool.GetElectrons(electrons_nominal, electrons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisElectrons":"Electrons") );
 
     for (const auto& electron : *electrons_nominal){
       if (debug && entry<10){
@@ -555,12 +560,12 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::PhotonContainer* photons_nominal(0);
     xAOD::ShallowAuxContainer* photons_nominal_aux(0);
     if( !xStream.Contains("SUSY12") )//&& !xStream.Contains("SUSY8") ) // Martin : TBC
-      ANA_CHECK( objTool.GetPhotons(photons_nominal,photons_nominal_aux) );
+      ANA_CHECK( objTool.GetPhotons(photons_nominal,photons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisPhotons":"Photons") );
 
     // Muons
     xAOD::MuonContainer* muons_nominal(0);
     xAOD::ShallowAuxContainer* muons_nominal_aux(0);
-    ANA_CHECK( objTool.GetMuons(muons_nominal, muons_nominal_aux) );
+    ANA_CHECK( objTool.GetMuons(muons_nominal, muons_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisMuons":"Muons") );
 
     // HighPt muons (if required)
     for (const auto& muon : *muons_nominal){
@@ -578,12 +583,12 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     // Jets
     xAOD::JetContainer* jets_nominal(0);
     xAOD::ShallowAuxContainer* jets_nominal_aux(0);
-    ANA_CHECK( objTool.GetJets(jets_nominal, jets_nominal_aux) );
+    ANA_CHECK( objTool.GetJets(jets_nominal, jets_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisJets":"") );
 
     // TrackJets
     xAOD::JetContainer* trkjets_nominal(0);
     xAOD::ShallowAuxContainer* trkjets_nominal_aux(0);
-    ANA_CHECK( objTool.GetTrackJets(trkjets_nominal, trkjets_nominal_aux) );
+    if (xStream!="PHYSLITE") ANA_CHECK( objTool.GetTrackJets(trkjets_nominal, trkjets_nominal_aux) );
 
     // FatJets
     const xAOD::JetContainer* FJC(0);
@@ -609,7 +614,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     xAOD::TauJetContainer* taus_nominal(0);
     xAOD::ShallowAuxContainer* taus_nominal_aux(0);
     if(xStream.Contains("SUSY3")){
-      ANA_CHECK( objTool.GetTaus(taus_nominal,taus_nominal_aux) );
+      ANA_CHECK( objTool.GetTaus(taus_nominal,taus_nominal_aux, true, xStream=="PHYSLITE"?"AnalysisTauJets":"TauJets") );
     }
 
 
@@ -740,38 +745,38 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         if (syst_affectsElectrons) {
           xAOD::ElectronContainer* electrons_syst(0);
           xAOD::ShallowAuxContainer* electrons_syst_aux(0);
-          ANA_CHECK( objTool.GetElectrons(electrons_syst, electrons_syst_aux) );
+          ANA_CHECK( objTool.GetElectrons(electrons_syst, electrons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisElectrons":"Electrons") );
           electrons = electrons_syst;
         }
 
         if (syst_affectsMuons) {
           xAOD::MuonContainer* muons_syst(0);
           xAOD::ShallowAuxContainer* muons_syst_aux(0);
-          ANA_CHECK( objTool.GetMuons(muons_syst, muons_syst_aux) );
+          ANA_CHECK( objTool.GetMuons(muons_syst, muons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisMuons":"Muons") );
           muons = muons_syst;
         }
 
-	if(syst_affectsTaus) {
-	  xAOD::TauJetContainer* taus_syst(0);
-	  xAOD::ShallowAuxContainer* taus_syst_aux(0);
-	  if(xStream.Contains("SUSY3")){
-	    ANA_CHECK( objTool.GetTaus(taus_syst,taus_syst_aux) );
-	  }
-	  taus = taus_syst;
-	}
+        if(syst_affectsTaus) {
+          xAOD::TauJetContainer* taus_syst(0);
+          xAOD::ShallowAuxContainer* taus_syst_aux(0);
+          if(xStream.Contains("SUSY3")){
+            ANA_CHECK( objTool.GetTaus(taus_syst,taus_syst_aux, true, xStream=="PHYSLITE"?"AnalysisTauJets":"TauJets") );
+          }
+          taus = taus_syst;
+        }
 
         if(syst_affectsPhotons) {
           xAOD::PhotonContainer* photons_syst(0);
           xAOD::ShallowAuxContainer* photons_syst_aux(0);
-          ANA_CHECK( objTool.GetPhotons(photons_syst,photons_syst_aux) );
+          ANA_CHECK( objTool.GetPhotons(photons_syst,photons_syst_aux, true, xStream=="PHYSLITE"?"AnalysisPhotons":"Photons") );
           photons = photons_syst;
         }
 
         if (syst_affectsJets) {
           xAOD::JetContainer* jets_syst(0);
           xAOD::ShallowAuxContainer* jets_syst_aux(0);
-          ANA_CHECK( objTool.GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux) );
-	  jets = jets_syst;
+          ANA_CHECK( objTool.GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux, true, xStream=="PHYSLITE"?"AnalysisJets":"") );
+          jets = jets_syst;
         }
 
         if (syst_affectsBTag) {
@@ -874,7 +879,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       if (isNominal || (sysInfo.affectsKinematics && (syst_affectsElectrons || syst_affectsMuons || syst_affectsJets))) {
         if(xStream.Contains("SUSY3")){
           ANA_CHECK( objTool.OverlapRemoval(electrons, muons, jets, 0, taus) );
-	}
+        }
         else if(xStream.Contains("SUSY10")){
           ANA_CHECK( objTool.OverlapRemoval(electrons, muons, jets, 0, 0, fatjets_nominal) );
         }
@@ -888,11 +893,12 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       for (const auto& jet : *jets) {
         if (jet->auxdata<char>("baseline") == 1  &&
             jet->auxdata<char>("passOR") == 1  &&
-	    jet->auxdata<char>("signal") == 1  &&
+            jet->auxdata<char>("signal") == 1  &&
             jet->pt() > 20000.  && ( fabs( jet->eta()) < 2.5) ) {
           goodJets->push_back(jet);
         }
-        jetInputType = jet->getInputType();
+        // PHYSLITE doesn't bother trying to keep JetInputType as a decoration
+        jetInputType = xStream=="PHYSLITE"?xAOD::JetInput::PFlow:jet->getInputType();
       }
 
       std::string jetCollection = xAOD::JetInput::typeName(jetInputType);
@@ -903,7 +909,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       if (isNominal || sysInfo.affectsKinematics) {
         if(xStream.Contains("SUSY3")){
-	  if (debug) Info(APP_NAME, "METCST?");
+          if (debug) Info(APP_NAME, "METCST?");
           ANA_CHECK( objTool.GetMET(*metcst,
                                     jets,
                                     electrons,
@@ -911,47 +917,47 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     photons,
                                     taus,
                                     false, // CST
-				    false) ); // No JVT if you use CST
+                                    false) ); // No JVT if you use CST
 
-	  if (debug) Info(APP_NAME, "METSignificance CST?");
-	  ANA_CHECK( objTool.GetMETSig(*metcst,
-				       metsig_cst,
-				       false,
-				       false) );
+          if (debug) Info(APP_NAME, "METSignificance CST?");
+          ANA_CHECK( objTool.GetMETSig(*metcst,
+                                       metsig_cst,
+                                       false,
+                                       false) );
 
-	  if (debug) Info(APP_NAME, "METTST?");
-	  ANA_CHECK( objTool.GetMET(*mettst,
-				    jets,
-				    electrons,
-				    muons,
-				    photons,
-				    taus,
-				    true,
-				    true) );
+          if (debug) Info(APP_NAME, "METTST?");
+          ANA_CHECK( objTool.GetMET(*mettst,
+                                    jets,
+                                    electrons,
+                                    muons,
+                                    photons,
+                                    taus,
+                                    true,
+                                    true) );
 
-	  if (debug) Info(APP_NAME, "METSignificance TST?");
-	  ANA_CHECK( objTool.GetMETSig(*mettst,
-				       metsig_tst,
-				       true,
-				       true) );
+          if (debug) Info(APP_NAME, "METSignificance TST?");
+          ANA_CHECK( objTool.GetMETSig(*mettst,
+                                       metsig_tst,
+                                       true,
+                                       true) );
 
-	}
-	else{
-	  if (debug) Info(APP_NAME, "METCST?");
-	  ANA_CHECK( objTool.GetMET(*metcst,
-	  			    jets,
-	  			    electrons,
-	  			    muons,
-	  			    photons,
-	  			    0, // taus
-	  			    false, // CST
-	  			    false) ); // No JVT if you use CST
+        }
+        else{
+          if (debug) Info(APP_NAME, "METCST?");
+          ANA_CHECK( objTool.GetMET(*metcst,
+                                      jets,
+                                      electrons,
+                                      muons,
+                                      photons,
+                                      0, // taus
+                                      false, // CST
+                                      false) ); // No JVT if you use CST
 
-	  if (debug) Info(APP_NAME, "METSignificance CST?");
-	  ANA_CHECK( objTool.GetMETSig(*metcst,
-				       metsig_cst,
-				       false,
-				       false) );
+          if (debug) Info(APP_NAME, "METSignificance CST?");
+          ANA_CHECK( objTool.GetMETSig(*metcst,
+                                       metsig_cst,
+                                       false,
+                                       false) );
 
           if (debug) Info(APP_NAME, "METTST?");
           ANA_CHECK( objTool.GetMET(*mettst,
@@ -961,13 +967,13 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     photons,
                                     0, // taus,
                                     true,
-				    true) );
+                                    true) );
 
-	  if (debug) Info(APP_NAME, "METSignificance TST?");
-	  ANA_CHECK( objTool.GetMETSig(*mettst,
-				       metsig_tst,
-				       true,
-				       true) );
+          if (debug) Info(APP_NAME, "METSignificance TST?");
+          ANA_CHECK( objTool.GetMETSig(*mettst,
+                                       metsig_tst,
+                                       true,
+                                       true) );
 
         }
 
@@ -990,15 +996,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
             bool passTM=false;
             for(const auto& t : el_triggers){
-              passTM |= objTool.IsTrigMatched(el, t);
-              //passTM |= objTool.IsTrigMatchedDeco(el, t);
+              passTM |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(el, t));
             }
             if(passTM)
               el_idx[trgmatch]++;
 
 
-	    //check ChID BDT
-	    //Info(APP_NAME, "electron passChID : %d ,  BDT : %.3f", el->auxdata<char>("passChID") , el->auxdata<double>("ecisBDT"));
+            //check ChID BDT
+            //Info(APP_NAME, "electron passChID : %d ,  BDT : %.3f", el->auxdata<char>("passChID") , el->auxdata<double>("ecisBDT"));
           }
         }
       }
@@ -1017,6 +1022,9 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       TString muTrig2015 = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50"; //"HLT_mu18_mu8noL1"; //"HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
       TString muTrig2016 = "HLT_mu26_ivarmedium_OR_HLT_mu50";
       TString muTrig2017 = "HLT_mu26_ivarmedium_OR_HLT_mu50";
+      std::vector<std::string> muTrigs2015 = {"HLT_mu20_iloose_L1MU15","HLT_mu50"}; //"HLT_mu18_mu8noL1"; //"HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      std::vector<std::string> muTrigs2016 = {"HLT_mu26_ivarmedium","HLT_mu50"};
+      std::vector<std::string> muTrigs2017 = {"HLT_mu26_ivarmedium","HLT_mu50"};
 
       for (const auto& mu : *muons) {
         if ( mu->auxdata<char>("passOR") == 0  ) {
@@ -1036,25 +1044,28 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
             bool passTM=false;
             for(const auto& t : mu_triggers){
-              ANA_MSG_DEBUG("Pass " << t << " : " << (int)objTool.IsTrigMatched(mu, t));
-              passTM |= objTool.IsTrigMatched(mu, t);
+              if (objTool.IsTrigPassed(t)) ANA_MSG_DEBUG("Pass " << t << " : " << (int)objTool.IsTrigMatched(mu, t));
+              else ANA_MSG_DEBUG("Pass " << t << " : " << 0);
+              passTM |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(mu, t));
             }
             if(passTM)
               mu_idx[trgmatch]++;
 
           }
 
+          std::vector<std::string> my_mu_trigs;
           if(!isData){
             if(objTool.treatAsYear()==2015)
-              passTMtest |= objTool.IsTrigMatched(mu, muTrig2015.Copy().ReplaceAll("_OR_","").Data());
+              my_mu_trigs=muTrigs2015;
             else if(objTool.treatAsYear()==2016)
-              passTMtest |= objTool.IsTrigMatched(mu, muTrig2016.Copy().ReplaceAll("_OR_","").Data());
+              my_mu_trigs=muTrigs2016;
             else
-              passTMtest |= objTool.IsTrigMatched(mu, muTrig2017.Copy().ReplaceAll("_OR_","").Data());
+              my_mu_trigs=muTrigs2017;
           }
           else{
-            passTMtest |= objTool.IsTrigMatched(mu, muTrig2016.Copy().ReplaceAll("_OR_","").Data());
+            my_mu_trigs=muTrigs2016;
           }
+          for (auto t : my_mu_trigs) passTMtest |= (objTool.IsTrigPassed(t) && objTool.IsTrigMatched(mu,t));
         }
       }
 
@@ -1232,7 +1243,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       isNominal = false;
       if(debug)
-	ANA_MSG_DEBUG(">>>> Finished with variation: \"" <<(sys.name()).c_str() << "\" <<<<<<" );
+        ANA_MSG_DEBUG(">>>> Finished with variation: \"" <<(sys.name()).c_str() << "\" <<<<<<" );
 
       ++isys;
     }

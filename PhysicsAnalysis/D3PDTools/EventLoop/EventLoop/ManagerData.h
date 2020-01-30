@@ -16,6 +16,7 @@
 #include <SampleHandler/MetaObject.h>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -153,6 +154,12 @@ namespace EL
     public:
       bool sharedFileSystem {true};
 
+      /// \brief the list of successful, failed, unknown batch segments
+    public:
+      std::set<std::size_t> batchJobSuccess;
+      std::set<std::size_t> batchJobFailure;
+      std::set<std::size_t> batchJobUnknown;
+
 
       /// \brief the current \ref ManagerStep
       ManagerStep step {ManagerStep::initial};
@@ -165,7 +172,7 @@ namespace EL
 
 
       /// \brief the list of managers to run
-      std::map<ManagerOrder,std::unique_ptr<Manager> > managers;
+      std::map<std::pair<ManagerOrder,std::string>,std::unique_ptr<Manager> > managers;
 
       /// \brief add the given manager
       /// \par Guarantee

@@ -92,6 +92,7 @@ namespace top {
                                                  "Loose",
                                                  "Tight",
                                                  "TightTrackOnly",
+						 "TightTrackOnly_FixedRad",
                                                  "PflowTight",
                                                  "PflowLoose",
 						 "PLVTight",

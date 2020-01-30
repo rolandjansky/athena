@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -273,8 +273,7 @@ class METConfig:
         if not hasattr(ToolSvc,self.trkseltool.name()):
             ToolSvc += self.trkseltool
         #
-        self.trkvxtool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool_MET")
-        #self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=3, doPV=False)
+        self.trkvxtool=CfgMgr.CP__TrackVertexAssociationTool("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
         if not hasattr(ToolSvc,self.trkvxtool.name()):
             ToolSvc += self.trkvxtool
         #

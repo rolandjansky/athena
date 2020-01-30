@@ -407,6 +407,7 @@ namespace top {
     if (type == "Loose") working_point = "FCLoose";
     if (type == "HighPtCaloOnly") working_point = "FCHighPtCaloOnly";
     if (type == "TightTrackOnly") working_point = "Gradient";
+    if (type == "TightTrackOnly_FixedRad") working_point = "Gradient";
     if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient") working_point = type;
 
     return working_point;

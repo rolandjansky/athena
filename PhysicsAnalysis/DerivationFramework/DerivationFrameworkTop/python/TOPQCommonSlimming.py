@@ -32,10 +32,10 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.AppendToDictionary = {
         "BTagging_AntiKt4EMPFlow"                    : "xAOD::BTaggingContainer",
         "BTagging_AntiKt4EMPFlowAux"                 : "xAOD::BTaggingAuxContainer",
-        "AntiKtVR30Rmax4Rmin02TrackJets"             : "xAOD::JetContainer"        ,
-        "AntiKtVR30Rmax4Rmin02TrackJetsAux"          : "xAOD::JetAuxContainer"     ,
-        "BTagging_AntiKtVR30Rmax4Rmin02Track"        : "xAOD::BTaggingContainer"   ,
-        "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     : "xAOD::BTaggingAuxContainer",
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"             : "xAOD::JetContainer"        ,
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"          : "xAOD::JetAuxContainer"     ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"        : "xAOD::BTaggingContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"     : "xAOD::BTaggingAuxContainer",
     }
 
     # list of existing containers with a smart list is available here :
@@ -54,7 +54,7 @@ def setup(TOPQname, stream):
         "BTagging_AntiKt4EMPFlow_201810",
         "BTagging_AntiKt4EMPFlow_201903",
         "BTagging_AntiKt4EMTopo_201810",
-        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
         "Electrons",
         "HLT_xAOD__JetContainer_a4tcemsubjesFS",
         "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",

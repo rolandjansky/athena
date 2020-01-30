@@ -50,8 +50,20 @@ def  EDMDecodingVersion():
         if cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_EF" ):          
             TriggerFlags.EDMDecodingVersion = 1
             log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
-        elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
+        elif cfgKeyStore.isInInputFile( "xAOD::TrigNavigation", "TrigNavigation" ):
             TriggerFlags.EDMDecodingVersion = 2
+            log.info("Decoding version set to 2, because TrigNavigation found in POOL file")
+        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTNav_Summary"):
+            TriggerFlags.EDMDecodingVersion = 3
+            log.info("Decoding version set to 3, because HLTNav_Summary found in POOL file")
+        elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
+            # Backup; was there before
+            TriggerFlags.EDMDecodingVersion = 2
+        elif rec.readRDO():
+            # If running Trigger on RDO input (without previous trigger result), choose Run-2 or Run-3 based on doMT
+            # In 21.2, guaranteed not doMT
+            TriggerFlags.EDMDecodingVersion = 2
+            log.info("Decoding version set to 2, because running Trigger with doMT=False")
         else:
             log.warning("No HLTResult found in pool file")
         pass

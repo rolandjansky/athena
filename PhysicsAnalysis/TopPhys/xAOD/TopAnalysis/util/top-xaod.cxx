@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <iostream>
@@ -159,6 +159,7 @@ int main(int argc, char** argv) {
     std::cout << "OK." << std::endl;
   }
 
+  
   //picking the first file was a bad idea because in the derivations it often
   //has no events (no CollectionTree).  Be sure to pick a file with events in
   //it...
@@ -209,39 +210,53 @@ int main(int argc, char** argv) {
     std::cout << "Derivation stream is -> " << derivationStream << std::endl;
     topConfig->setDerivationStream(derivationStream);
 
+    // first we need to read some metadata before we read the config
     if (isMC) {
       ///-- Are we using a truth derivation (no reco information)? --///
       ///-- Let's find out in the first event, this could be done better --///
       bool isTruthDxAOD = top::isTruthDxAOD(testFile.get());
       topConfig->setIsTruthDxAOD(isTruthDxAOD);
 
-      if (!isTruthDxAOD && atLeastOneFileIsValid) {
-        unsigned int DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
-        topConfig->setDSID(DSID);
-
-        // now need to get and set the parton shower generator from TopDataPrep
-        SampleXsection tdp;
-        // Package/filename - XS file we want to use (can now be configured via cutfile)
-        const std::string tdp_filename = settings->value("TDPPath");
-        // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
-        std::string fullpath = PathResolverFindCalibFile(tdp_filename);
-        if (!tdp.readFromFile(fullpath.c_str())) {
-          std::cout << "ERROR::TopDataPreparation - could not read file \n";
-          std::cout << tdp_filename << "\n";
-          exit(1);
+      if (!isTruthDxAOD) {
+        unsigned int DSID = topConfig->getDSID();
+        if (DSID == ((unsigned int)-1)) {
+          if (atLeastOneFileIsValid) {
+            DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
+            topConfig->setDSID(DSID);
+          } else {
+            std::cout << "ERROR: We could not determine DSID for this sample from either CollectionTree, or FileMetaData, or TruthMetaData. There is something seriously wrong with this sample." << std::endl;
+            exit(1);
+          }
         }
-        std::cout << "SampleXsection::Found " << fullpath << std::endl;
-
-
-        int ShowerIndex = tdp.getShoweringIndex(DSID);
-        std::cout << "DSID: " << DSID << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;
-        topConfig->setMapIndex(ShowerIndex);
       }
+    }
+
+
+    // Pass the settings file to the TopConfig
+    topConfig->setConfigSettings(settings);
+
+    if (isMC && !topConfig->isTruthDxAOD()) {
+      // now need to get and set the parton shower generator from TopDataPrep
+      SampleXsection tdp;
+      // Package/filename - XS file we want to use (can now be configured via cutfile)
+      const std::string tdp_filename = settings->value("TDPPath");
+      // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
+      const std::string fullpath = PathResolverFindCalibFile(tdp_filename);
+      if (!tdp.readFromFile(fullpath.c_str())) {
+        std::cout << "ERROR::TopDataPreparation - could not read file \n";
+        std::cout << tdp_filename << "\n";
+        exit(1);
+      }
+      std::cout << "SampleXsection::Found " << fullpath << std::endl;
+
+      tdp.setTranslator(topConfig->GetMCMCTranslator());
+
+      int ShowerIndex = tdp.getShoweringIndex(topConfig->getDSID());
+      std::cout << "DSID: " << topConfig->getDSID() << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;
+      topConfig->setMapIndex(ShowerIndex);
     }
   } //close and delete the ptr to testFile
 
-  // Pass the settings file to the TopConfig
-  topConfig->setConfigSettings(settings);
 
   //In rel 19 we had a function to guess Class or Branch Access.
   //In rel20 just use branch (quicker)
@@ -434,7 +449,7 @@ int main(int argc, char** argv) {
                                                     // of weights on the fly
   std::vector<std::string> names_LHE3;
   bool recalc_LHE3 = false;
-  int dsid = 0;
+  int dsid = topConfig->getDSID();
   int isAFII = topConfig->isAFII();
   std::string generators = topConfig->getGenerators();
   std::string AMITag = topConfig->getAMITag();
@@ -453,7 +468,7 @@ int main(int argc, char** argv) {
 
   TTree* sumPdfWeights = 0;
   std::unordered_map<std::string, std::vector<float>*> totalEventsPdfWeighted;
-  int dsidPdf = 0;
+  int dsidPdf = topConfig->getDSID();
   bool pdfMetadataExists = false;
   if (topConfig->doLHAPDF()) {
     sumPdfWeights = new TTree("PDFsumWeights", "");
@@ -497,17 +512,16 @@ int main(int argc, char** argv) {
 
     top::check(xaodEvent.readFrom(inputFile.get()), "xAOD::TEvent readFrom failed");
 
-    //Get some of event weights before derivation
-    double initialSumOfWeightsInThisFile = 0;
+    // Sum of weights and raw number of entries before skimming in current file
+    double sumW_file = 0;
     ULong64_t initialEvents = 0;
 
-    // vector of LH3 weights and teir names
-    std::vector<float> initialSumOfWeights_mc_generator_weightsInThisFile;
-    std::vector<std::string> initialSumOfWeights_mc_generator_namesInThisFile;
+    // vector of MC generator weights and their names in current file
+    std::vector<float> LHE3_sumW_file;
+    std::vector<std::string> LHE3_names_file;
 
-    // vector of PDF weights and their names
-    std::vector<float> initialSumOfWeights_pdf_weightsInThisFile;
-    std::vector<std::string> initialSumOfWeights_pdf_namesInThisFile;
+    // prefix in the bookkeeper names to remove
+    const std::string name_prefix = "AllExecutedEvents_NonNominalMCWeight_";
 
     // See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisMetadata#Event_Bookkeepers
     const xAOD::CutBookkeeperContainer* cutBookKeepers = 0;
@@ -516,57 +530,61 @@ int main(int argc, char** argv) {
     // If we can't get them and we are running on TRUTH then carry on,
     // but anything else is bad!
     if (!xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers")) {
-      top::check(topConfig->isTruthDxAOD(),
-                 "Failed to retrieve cut book keepers");
+      top::check(topConfig->isTruthDxAOD(), "Failed to retrieve cut book keepers");
     } else {
-      int maxCycle = -1;
-      std::vector<int> maxCycle_LH3;// for LHE3 weights
-      // for the sum of number of events and of mc event weights
-      for (auto cbk : *cutBookKeepers) {
-        // skip RDO and ESD numbers, which are nonsense; and
-        // skip the derivation number, which is the one after skimming
-        // we want the primary xAOD numbers
-        if ((cbk->inputStream() == "StreamAOD" || (topConfig->HLLHC() && cbk->inputStream() == "StreamDAOD_TRUTH1")) &&
-            cbk->name() == "AllExecutedEvents") {
-          double sumOfEventWeights = cbk->sumOfEventWeights();
-          ULong64_t nEvents = cbk->nAcceptedEvents();
-          if (cbk->cycle() > maxCycle) {
-            initialSumOfWeightsInThisFile = sumOfEventWeights;
-            initialEvents = nEvents;
-            maxCycle = cbk->cycle();
+      if (topConfig->isMC()) {
+        // we will need to know the MC weight names from PMGTool
+        ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
+        top::check(m_pmg_weightTool.retrieve(), "top-xaod: Failed to retrieve PMGTruthWeightTool");
+        const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
+
+        // try to retrieve CutBookKeepers for LHE3Weights first
+        top::parseCutBookkeepers(cutBookKeepers, LHE3_names_file, LHE3_sumW_file, topConfig->HLLHC());
+
+        // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
+        if (weight_names.size() > 0) {
+          if (LHE3_names_file.size() != weight_names.size()) {
+            // The number of AllExecutedEvents_ bookkeepers does not match the number of weights retrieved by PMGTool
+            // we cannot match the bookkeepers to weights by indices in this case
+            std::cout << "WARNING: The number of bookkeepers does not match the number of MC generator weights in metadata!";
+            std::cout << "We cannot match the nominal weight correctly!" << std::endl;
+            std::exit(1);
           }
-        } else if ((cbk->inputStream() == "StreamAOD" ||
-                    (topConfig->HLLHC() && cbk->inputStream() == "StreamDAOD_TRUTH1")) &&
-                   cbk->name().find("LHE3Weight_") != std::string::npos
-                   && topConfig->doMCGeneratorWeights()) {
-          double sumOfEventWeights = cbk->sumOfEventWeights();
-          std::string name = cbk->name();
-          name.erase(0, 11); // remove the "LHE3Weight_"
-          // is it a new name? If yes append it to the vector of names
-          // if not no need, but we must check the corresponding entry for the sum of weights exist
-          auto pos_name = std::find(initialSumOfWeights_mc_generator_namesInThisFile.begin(),
-                                    initialSumOfWeights_mc_generator_namesInThisFile.end(), name);
-          if (pos_name == initialSumOfWeights_mc_generator_namesInThisFile.end()) {
-            initialSumOfWeights_mc_generator_namesInThisFile.push_back(name);
-            initialSumOfWeights_mc_generator_weightsInThisFile.push_back(sumOfEventWeights);
-            maxCycle_LH3.push_back(cbk->cycle());
-          } else if (cbk->cycle() >
-                     maxCycle_LH3.at(pos_name - initialSumOfWeights_mc_generator_namesInThisFile.begin())) {
-            initialSumOfWeights_mc_generator_weightsInThisFile.at(
-              pos_name - initialSumOfWeights_mc_generator_namesInThisFile.begin()) = sumOfEventWeights;
-            maxCycle_LH3.at(pos_name - initialSumOfWeights_mc_generator_namesInThisFile.begin()) = cbk->cycle();
+
+          // rename the bookkeepers based on the weight names from PMGTool
+          // this names are then also written into the sumWeights TTree in output files
+          for (std::string &name : LHE3_names_file) {
+            if (name == "AllExecutedEvents") {
+              name = weight_names.at(0);
+            } else {
+              // erase "AllExecutedEvents_NonNominalMCWeight_" prefix
+              int index = std::stoi(name.erase(0, name_prefix.size()));
+              name = weight_names.at(index);
+            }
           }
-        } else continue;
+        }
+
+        // raw number of events taken from "AllExecutedEvents" bookkeeper, which corresponds to 0th MC weight
+        // but these are raw entries, so doesn't matter if 0th MC weight is nominal or not
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+
+        // determine the nominal sum of weight -- we already found the nominal weight in ScaleFactorCalculator
+        const size_t nominalWeightIndex = topConfig->detectedNominalWeightIndex();
+        sumW_file = LHE3_sumW_file.at(nominalWeightIndex);
+      } else {
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+        sumW_file = initialEvents; // this is data, it's the same number...
       }
     }
-    totalEventsWeighted += initialSumOfWeightsInThisFile;
+
+    totalEventsWeighted += sumW_file;
     totalEvents += initialEvents;
 
-    // now we must fill two vectors in sync
-    if (topConfig->doMCGeneratorWeights()) {
+    // now we must fill two vectors in sync for MCGeneratorWeights sum of weights
+    if (topConfig->doMCGeneratorWeights() && topConfig->isMC()) {
       if (totalEventsWeighted_LHE3.size() != 0) {
-        if (totalEventsWeighted_LHE3.size() != initialSumOfWeights_mc_generator_weightsInThisFile.size()
-            || names_LHE3.size() != initialSumOfWeights_mc_generator_namesInThisFile.size()
+        if (totalEventsWeighted_LHE3.size() != LHE3_sumW_file.size()
+            || names_LHE3.size() != LHE3_names_file.size()
             || names_LHE3.size() != totalEventsWeighted_LHE3.size()) {
           std::cout <<
             "Ouch: strange inconsistency of vector sizes in sum of LHE3 weights calculation. There is an issue somewhere."
@@ -574,9 +592,9 @@ int main(int argc, char** argv) {
           std::cout << "Exiting...." << std::endl;
           std::exit(1);
         }
-        for (unsigned int i_genweights = 0; i_genweights < initialSumOfWeights_mc_generator_namesInThisFile.size();
+        for (unsigned int i_genweights = 0; i_genweights < LHE3_names_file.size();
              i_genweights++) {
-          if (names_LHE3.at(i_genweights) != initialSumOfWeights_mc_generator_namesInThisFile.at(i_genweights)) {
+          if (names_LHE3.at(i_genweights) != LHE3_names_file.at(i_genweights)) {
             std::cout <<
               "Ouch: strange inconsistency in the vector of weight names in sum of LHE3 weights calculation. There is an issue somewhere."
                       << std::endl;
@@ -585,14 +603,14 @@ int main(int argc, char** argv) {
           } else {
             totalEventsWeighted_LHE3.at(i_genweights)
               = totalEventsWeighted_LHE3.at(i_genweights)
-                + initialSumOfWeights_mc_generator_weightsInThisFile.at(i_genweights);
+                + LHE3_sumW_file.at(i_genweights);
           }
         }
       } else {
-        for (unsigned int i_genweights = 0; i_genweights < initialSumOfWeights_mc_generator_namesInThisFile.size();
+        for (unsigned int i_genweights = 0; i_genweights < LHE3_names_file.size();
              i_genweights++) {
-          names_LHE3.push_back(initialSumOfWeights_mc_generator_namesInThisFile.at(i_genweights));
-          totalEventsWeighted_LHE3.push_back(initialSumOfWeights_mc_generator_weightsInThisFile.at(i_genweights));
+          names_LHE3.push_back(LHE3_names_file.at(i_genweights));
+          totalEventsWeighted_LHE3.push_back(LHE3_sumW_file.at(i_genweights));
         }
       }
       if (!names_LHE3.empty()) {
@@ -645,21 +663,6 @@ int main(int argc, char** argv) {
       if (topConfig->doPileupReweighting() && !topConfig->isTruthDxAOD()) {
         top::check(topScaleFactors->executePileup(), "Failed to execute pileup reweighting");
         pileupWeight = topScaleFactors->pileupWeight();
-      }
-
-
-      // get mc channel number
-      // to save the sum of weights
-      if (totalYieldSoFar == 0 && topConfig->isMC()) {
-        const xAOD::EventInfo* ei(nullptr);
-        top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
-                   "xAOD::TEvent retrieve failed to get EventInfo");
-
-        //mcChannelNumber only available in MC simulation
-        if (ei->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-          dsid = ei->mcChannelNumber();
-          dsidPdf = ei->mcChannelNumber();
-        }
       }
 
       ///-- Truth events --///

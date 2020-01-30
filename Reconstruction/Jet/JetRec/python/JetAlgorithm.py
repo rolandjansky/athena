@@ -118,7 +118,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     # only use reprocessed AODs with the bugfix
     doCHSPFO = False
     if doCHSPFO:
-      import eflowRec.ScheduleCHSPFlowMods
+      from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
+      scheduleCHSPFlowMods()
 
   # Add the algorithm. It runs the jetrec tools.
   from JetRec.JetRecConf import JetAlgorithm

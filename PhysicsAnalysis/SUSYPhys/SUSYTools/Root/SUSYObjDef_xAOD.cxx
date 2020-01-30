@@ -97,6 +97,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noMuId(false),
     m_doTTVAsf(true),
     m_doModifiedEleId(false),
+    m_upstreamTriggerMatching(false),
     m_useBtagging(false),
     m_debug(false),
     m_strictConfigCheck(false),
@@ -117,6 +118,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauTerm(""),
     m_jetTerm(""),
     m_muonTerm(""),
+    m_inputMETSuffix(""),
     m_outMETTerm(""),
     m_metRemoveOverlappingCaloTaggedMuons(true),
     m_metDoSetMuonJetEMScale(true),
@@ -160,6 +162,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleIsoHighPt_WP(""),
     m_eleIsoHighPtThresh(-99.),
     m_eleChID_WP(""),
+    m_eleChIso(true),
     m_runECIS(false),
     m_photonBaselineIso_WP(""),
     m_photonIso_WP(""),
@@ -171,6 +174,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagTimeStamp(""),
+    m_BtagKeyOverride(""),
     m_BtagSystStrategy(""),
     m_BtagWP_trkJet(""),
     m_BtagTagger_trkJet(""),
@@ -227,12 +231,14 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doFwdJVT(false),
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
-    m_fwdjetTightOp(false),
+    m_fwdjetOp(""),
     m_JMScalib(false),
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
     m_orDoEleJet(true),
+    m_orDoElEl(false),
+    m_orDoElMu(false),
     m_orDoMuonJet(true),
     m_orDoBjet(false),
     m_orDoElBjet(true),
@@ -395,6 +401,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoTauOR",       m_orDoTau );
   declareProperty( "DoPhotonOR",    m_orDoPhoton );
   declareProperty( "DoEleJetOR",    m_orDoEleJet );
+  declareProperty( "DoElElOR",    m_orDoElEl );
+  declareProperty( "DoElMuOR",    m_orDoElMu );
   declareProperty( "DoMuonJetOR",   m_orDoMuonJet );
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
@@ -422,7 +430,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
   declareProperty( "ORJetFatJetDR", m_JetFatJetDR);
-
+  declareProperty( "TriggerUpstreamMatching", m_upstreamTriggerMatching, "Use alternative trigger matching tool based on upstream (in-derivation) matching");
 
   //--- Object definitions
   //MET
@@ -431,6 +439,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METTauTerm",     m_tauTerm   );
   declareProperty( "METJetTerm",     m_jetTerm   );
   declareProperty( "METMuonTerm",    m_muonTerm  );
+  declareProperty( "METInputSuffix", m_inputMETSuffix );
   declareProperty( "METOutputTerm",  m_outMETTerm );
   declareProperty( "METDoTrkSyst",   m_trkMETsyst  );
   declareProperty( "METDoCaloSyst",  m_caloMETsyst );
@@ -455,7 +464,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "JetInputType",  m_jetInputType );
 
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
-  declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
   declareProperty( "JetLargeRcollection",  m_fatJets );
@@ -466,6 +474,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
   declareProperty( "BtagTimeStamp", m_BtagTimeStamp); /// Time stamp of the b-tagging containers introduced in p3954
+  declareProperty( "BtagKeyOverride", m_BtagKeyOverride); /// Override for the b-tagging jet collection
   declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
   declareProperty( "BtagTaggerTrkJet", m_BtagTagger_trkJet);
   declareProperty( "BtagWPTrkJet", m_BtagWP_trkJet);  //the one used in FillTrackJet() afterwards
@@ -485,6 +494,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
   declareProperty( "EleIsoHighPtThresh", m_eleIsoHighPtThresh);
   declareProperty( "EleCFT", m_eleChID_WP);
+  declareProperty( "EleCFTIso", m_eleChIso);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
   declareProperty( "EleBaselineD0sig", m_elebaselined0sig);
@@ -820,8 +830,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
-  m_defaultJets = m_inputMETSuffix + "Jets";
+  if (m_inputMETSuffix==""){
+    m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
+  }
+  m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
   ATH_MSG_INFO( "Configured for jet collection " << m_defaultJets );
 
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
@@ -1087,7 +1099,7 @@ void SUSYObjDef_xAOD::configFromFile(int& property, const std::string& propname,
 
 
 void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& propname, TEnv& rEnv,
-                                     const std::string& defaultValue)
+                                     const std::string& defaultValue, bool allowEmpty)
 {
   // ignore if already configured
   if (!property.empty()){
@@ -1096,7 +1108,7 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue.c_str());
-  if (property.empty()) {
+  if (property.empty() && !allowEmpty) {
     ATH_MSG_FATAL("Read empty string property from text file (property name: " << propname << ")");
   }
 
@@ -1130,7 +1142,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   ATH_MSG_INFO( "Config file opened" );
 
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
-    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
+    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 9));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
   }
   // Remove the item from the table
@@ -1165,9 +1177,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Photon.CrackVeto"] = "PhotonCrackVeto";
   m_conf_to_prop["Photon.AllowLate"] = "PhotonAllowLate";
 
-
   m_conf_to_prop["FwdJet.doJVT"] = "FwdJetDoJVT";
-  m_conf_to_prop["FwdJet.JvtUseTightOP"] = "FwdJetUseTightOP";
 
   m_conf_to_prop["OR.DoBoostedElectron"] = "DoBoostedElectronOR";
   m_conf_to_prop["OR.DoBoostedMuon"] = "DoBoostedMuonOR";
@@ -1175,6 +1185,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoTau"] = "DoTauOR";
   m_conf_to_prop["OR.DoPhoton"] = "DoPhotonOR";
   m_conf_to_prop["OR.DoEleJet"] = "DoEleJetOR";
+  m_conf_to_prop["OR.DoElEl"] = "DoElElOR";
+  m_conf_to_prop["OR.DoElMu"] = "DoElMuOR";
   m_conf_to_prop["OR.DoMuonJet"] = "DoMuonJetOR";
   m_conf_to_prop["OR.Bjet"] = "DoBjetOR";
   m_conf_to_prop["OR.ElBjet"] = "DoElBjetOR";
@@ -1184,6 +1196,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
+  m_conf_to_prop["Trigger.UpstreamMatching"] = "TriggerUpstreamMatching";
 
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
   m_conf_to_prop["SigEl.RequireIso"] = "SigElRequireIso";
@@ -1218,6 +1231,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_eleChIso, "Ele.CFTIso", rEnv, true); // use charge ID SFs without iso applied
   configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
@@ -1329,11 +1343,11 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false); // Tight and Tenacious MET WPs can be used with fJVT by default
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
-  configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
+  configFromFile(m_fwdjetOp, "FwdJet.JvtOp", rEnv, "Loose");
   configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
-  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
+  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "DL1");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagTimeStamp, "Btag.TimeStamp", rEnv, "201810");
   
@@ -1343,6 +1357,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "None");
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, 20e3);
+  configFromFile(m_BtagKeyOverride, "Btag.KeyOverride", rEnv, "", true);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
@@ -1356,6 +1371,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoTau, "OR.DoTau", rEnv, false);
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
   configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
+  configFromFile(m_orDoElEl, "OR.ElEl", rEnv, false);
+  configFromFile(m_orDoElMu, "OR.ElMu", rEnv, false);
   configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, false);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, false);
@@ -1374,6 +1391,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
   configFromFile(m_JetFatJetDR, "OR.JetFatJetDR", rEnv, -999.);
+  ///
+  configFromFile(m_upstreamTriggerMatching, "Trigger.UpstreamMatching", rEnv, false);
   //
   configFromFile(m_doIsoSignal, "SigLep.RequireIso", rEnv, true);
   configFromFile(m_doElIsoSignal, "SigEl.RequireIso", rEnv, m_doIsoSignal);
@@ -1388,6 +1407,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauTerm, "MET.TauTerm", rEnv, "RefTau");
   configFromFile(m_jetTerm, "MET.JetTerm", rEnv, "RefJet");
   configFromFile(m_muonTerm, "MET.MuonTerm", rEnv, "Muons");
+  configFromFile(m_inputMETSuffix, "MET.InputSuffix", rEnv, "", true); // May be empty
   configFromFile(m_outMETTerm, "MET.OutputTerm", rEnv, "Final");
   configFromFile(m_metRemoveOverlappingCaloTaggedMuons, "MET.RemoveOverlappingCaloTaggedMuons", rEnv, true);
   configFromFile(m_metDoSetMuonJetEMScale, "Met.DoSetMuonJetEMScale", rEnv, true);
@@ -2669,7 +2689,8 @@ StatusCode SUSYObjDef_xAOD::ApplyPRWTool(bool muDependentRRN) {
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  ATH_CHECK( m_prwTool->apply( *evtInfo, muDependentRRN ) );
+  if(!evtInfo->isAvailable<unsigned int>("RandomRunNumber"))
+    ATH_CHECK( m_prwTool->apply( *evtInfo, muDependentRRN ) );
   return StatusCode::SUCCESS;
 }
 
