@@ -240,9 +240,9 @@ for collection in toBeAssociatedTo:
 # Alias b-tagging container for VR track jets
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 # Schedule for output
-outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201810")
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201903")
-outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag")
 outputContainer("BTagging_AntiKt4EMPFlow_201810")
 outputContainer("BTagging_AntiKt4EMPFlow_201903")
 
@@ -435,7 +435,7 @@ ToolSvc += EleLinkThinningTool(
     LinkName = "Parent.{glink}({jets}).btaggingLink({btag})".format(
         glink="GhostVR30Rmax4Rmin02TrackJetGhostTag",
         jets="AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
-        btag="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"),
+        btag="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag"),
     ThinningService = EXOT27ThinningHelper.ThinningSvc() )
 large_r = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 # for now we only apply this above 100 GeV (same as the large-R jet

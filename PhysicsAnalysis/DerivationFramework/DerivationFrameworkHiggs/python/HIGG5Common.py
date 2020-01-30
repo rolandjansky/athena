@@ -34,7 +34,7 @@ def getHIGG5Common() :
         (getJetEMTopoName()+".TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt"
            ".JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta"
            ".DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m"),
-        # ("AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
+        # ("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
         #    ".-constituentLinks.-constituentWeight.-ConstituentScale"),
         ("AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"),
@@ -51,8 +51,8 @@ def getHIGG5Common() :
             ".Width"),
         ("AntiKt10TrackCaloClusterJets"
          ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
-        # "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2cl100_discriminant",
-        # "BTagging_AntiKtVR30Rmax4Rmin02Track.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
+        # "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant.MV2cl100_discriminant",
+        # "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
         getBTagEMTopoName()+".MV2cl100_discriminant"]
     if BTaggingFlags.Do2019Retraining:
         Common += ["BTagging_AntiKt4EMPFlow_201810.MV2cl100_discriminant", "BTagging_AntiKt4EMPFlow_201903.MV2cl100_discriminant"]
@@ -161,7 +161,7 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
     common_smart_collections+= [
                                #"BTagging_AntiKt2Track",
                                #  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                               "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                               "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                "InDetTrackParticles",
                                "PrimaryVertices"]
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo

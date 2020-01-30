@@ -194,7 +194,7 @@ HIGG3D4PreSeq = CfgMgr.AthSequencer("HIGG3D4PreSelectionSequence")
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
 OutputJets["HIGG3D4"] = ["AntiKt4EMPFlowJets",
-                         "AntiKtVR30Rmax4Rmin02TrackJets"]
+                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -275,7 +275,7 @@ HIGG3D4SlimmingHelper.SmartCollections = ["Electrons",
                                           "AntiKt4EMPFlowJets",
                                           "BTagging_AntiKt4EMTopo",
                                           "BTagging_AntiKt4EMPFlow",
-                                          "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                          "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
@@ -288,8 +288,8 @@ HIGG3D4SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTa
                                             'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
                                             'AntiKtVR30Rmax4Rmin02Track':'xAOD::JetContainer',
                                             'AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::JetAuxContainer',
-                                            'BTagging_AntiKtVR30Rmax4Rmin02Track':'xAOD::BTaggingContainer',
-                                            'BTagging_AntiKtVR30Rmax4Rmin02TrackAux':'xAOD::BTaggingAuxContainer'
+                                            'BTagging_AntiKtVR30Rmax4Rmin02Track_201810':'xAOD::BTaggingContainer',
+                                            'BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux':'xAOD::BTaggingAuxContainer'
                                            }
 
 if globalflags.DataSource()=='geant4':

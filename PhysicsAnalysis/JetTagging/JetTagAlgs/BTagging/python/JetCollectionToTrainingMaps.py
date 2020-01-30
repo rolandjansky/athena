@@ -13,6 +13,7 @@ preTagDL2JetToTrainingMap={
         'BTagging/201903/smt/antikt4empflow/network.json',
     ]
 }
+
 postTagDL2JetToTrainingMap={
     'AntiKt4EMPFlow': [
         'BTagging/201903/dl1r/antikt4empflow/network.json',

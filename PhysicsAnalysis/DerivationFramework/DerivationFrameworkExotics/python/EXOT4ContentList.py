@@ -21,7 +21,7 @@ EXOT4SmartCollections = [
     "BTagging_AntiKt4EMTopo_201810",
     "BTagging_AntiKt4EMPFlow_201810",
     "BTagging_AntiKt4EMPFlow_201903",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
     "MET_Reference_AntiKt4EMTopo",
     "MET_Reference_AntiKt4LCTopo",
 	"MET_Reference_AntiKt4EMPFlow",
