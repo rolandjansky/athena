@@ -51,14 +51,14 @@ namespace Trk {
                   DiscBounds* dbounds,
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
-                  OverlapDescriptor* od = 0,
+                  OverlapDescriptor* od = nullptr,
                   int laytyp=int(Trk::active));
 
         /**Constructor with DiscSurface and MaterialProperties */
         DiscLayer(DiscSurface* disc,
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
-                  OverlapDescriptor* od = 0,
+                  OverlapDescriptor* od = nullptr,
                   int laytyp=int(Trk::active));
                   
         /**Constructor with DiscSurface components and pointer to SurfaceArray (passing ownership) */
@@ -66,8 +66,8 @@ namespace Trk {
                   DiscBounds* dbounds,
                   SurfaceArray* surfaceArray,
                   double isontolerance = 0.,
-                  OverlapDescriptor* od = 0,
-                  IApproachDescriptor* ad = 0,
+                  OverlapDescriptor* od = nullptr,
+                  IApproachDescriptor* ad = nullptr,
                   int laytyp=int(Trk::active));
                 
         /**Constructor with DiscSurface components, 
@@ -77,8 +77,8 @@ namespace Trk {
                   SurfaceArray* surfaceArray,
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
-                  OverlapDescriptor* od = 0,
-                  IApproachDescriptor* ad = 0,
+                  OverlapDescriptor* od = nullptr,
+                  IApproachDescriptor* ad = nullptr,
                   int laytyp=int(Trk::active)); 
  
         /**Copy constructor of DiscLayer*/
@@ -102,7 +102,7 @@ namespace Trk {
                                          PropDirection pdir,
                                          const BoundaryCheck& bcheck,
                                          bool resolveSubSurfaces = 0,
-                                         const ICompatibilityEstimator* ice = 0) const override;
+                                         const ICompatibilityEstimator* ice = nullptr) const override;
       
         /** getting the MaterialProperties back - for pre-update*/ 
         double preUpdateMaterialFactor(const Trk::TrackParameters& par,

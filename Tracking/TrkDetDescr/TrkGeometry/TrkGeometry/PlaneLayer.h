@@ -47,7 +47,7 @@ class LayerMaterialProperties;
                    RectangleBounds* rbounds,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                   int laytyp=int(Trk::active));
                    
         /**Constructor with PlaneSurface 
@@ -57,7 +57,7 @@ class LayerMaterialProperties;
                    TrapezoidBounds* tbounds,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
                     
        /**Constructor with PlaneSurface 
@@ -67,7 +67,7 @@ class LayerMaterialProperties;
                    DiamondBounds* tbounds,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
                    
         /**Constructor with PlaneSurface 
@@ -77,7 +77,7 @@ class LayerMaterialProperties;
                    EllipseBounds* tbounds,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
 
         /**Constructor with PlaneSurface 
@@ -86,7 +86,7 @@ class LayerMaterialProperties;
         PlaneLayer(Trk::PlaneSurface* plane,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
 
         /**Constructor with PlaneSurface 
@@ -96,7 +96,7 @@ class LayerMaterialProperties;
 		   Trk::SharedObject<const Trk::SurfaceBounds>& tbounds,
 		   const Trk::LayerMaterialProperties& laymatprop,
 		   double thickness = 0.,
-		   Trk::OverlapDescriptor* olap = 0,
+		   Trk::OverlapDescriptor* olap = nullptr,
 		   int laytyp=int(Trk::active));
                            
         /**Constructor with PlaneSurface 
@@ -106,7 +106,7 @@ class LayerMaterialProperties;
                    RectangleBounds* rbounds,
                    SurfaceArray* surfaceArray,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
          
          /**Constructor with PlaneSurface 
@@ -116,7 +116,7 @@ class LayerMaterialProperties;
                    TrapezoidBounds* tbounds,
                    SurfaceArray* surfaceArray,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
          
          /**Constructor with PlaneSurface 
@@ -126,7 +126,7 @@ class LayerMaterialProperties;
                    DiamondBounds* tbounds,
                    SurfaceArray* surfaceArray,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
                                   
         /**Constructor with PlaneSurface components, 
@@ -137,7 +137,7 @@ class LayerMaterialProperties;
                    SurfaceArray* surfaceArray,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active)); 
         
         /**Constructor with PlaneSurface components, 
@@ -148,7 +148,7 @@ class LayerMaterialProperties;
                    SurfaceArray* surfaceArray,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active)); 
         
         /**Constructor with PlaneSurface components, 
@@ -159,7 +159,7 @@ class LayerMaterialProperties;
                    SurfaceArray* surfaceArray,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active)); 
                            
        /**Copy constructor of PlaneLayer*/

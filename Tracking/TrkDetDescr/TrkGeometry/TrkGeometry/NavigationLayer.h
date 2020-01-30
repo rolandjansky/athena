@@ -40,9 +40,9 @@ namespace Trk {
       public:                
         /**Constructor - the surface representation is given by pointer (ownership passed)*/
         NavigationLayer(Surface* surfaceRepresentation, 
-                        Layer* previous=0,
-                        Layer* next=0,
-                        BinUtility* binUtil = 0);
+                        Layer* previous=nullptr,
+                        Layer* next=nullptr,
+                        BinUtility* binUtil = nullptr);
         
         /**Constructor - the surface representation is given by pointer (ownership passed)
             - spacer layer if needed            
@@ -77,7 +77,7 @@ namespace Trk {
                                          Trk::PropDirection dir) const override;
                                                                       
         /** getting the next/overlapping Surface */
-        const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = 0) const;
+        const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = nullptr) const;
         
         /** move the Layer */
         virtual void moveLayer( Amg::Transform3D&  )  override;
@@ -114,7 +114,7 @@ namespace Trk {
 inline const Surface&            NavigationLayer::surfaceRepresentation() const { return (*m_surfaceRepresentation); }  
   
 inline const MaterialProperties* NavigationLayer::fullUpdateMaterialProperties() const 
-{ return 0; }
+{ return nullptr; }
 
 inline double NavigationLayer::preUpdateMaterialFactor(const TrackParameters&, PropDirection) const 
 { return 0; }
@@ -123,7 +123,7 @@ inline double NavigationLayer::postUpdateMaterialFactor(const TrackParameters&, 
 { return 0; }
 
 inline const Surface* NavigationLayer::overlapSurface(const TrackParameters&, const Surface*) const
-{ return 0; }
+{ return nullptr; }
 
 inline void NavigationLayer::moveLayer( Amg::Transform3D& ) 
 { }

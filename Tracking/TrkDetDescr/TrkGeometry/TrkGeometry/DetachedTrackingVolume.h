@@ -55,7 +55,7 @@ namespace Trk {
         DetachedTrackingVolume(std::string name,
                          const TrackingVolume* vol,
                          const Layer* layer,
-                         const std::vector<const Layer*>* multilayer=0 );
+                         const std::vector<const Layer*>* multilayer=nullptr );
      
         /**Destructor*/
         ~DetachedTrackingVolume();
@@ -64,13 +64,13 @@ namespace Trk {
         const TrackingVolume* trackingVolume() const;
 
         /** returns the Name */
-        const std::string  name() const;
+        std::string  name() const;
                      
         /** moving object around */
         void move ATLAS_NOT_THREAD_SAFE( Amg::Transform3D& shift) const;
 
         /** clone with transform*/
-        const DetachedTrackingVolume* clone ATLAS_NOT_THREAD_SAFE( std::string name, Amg::Transform3D& shift) const;
+        const DetachedTrackingVolume* clone ATLAS_NOT_THREAD_SAFE( const std::string& name, Amg::Transform3D& shift) const;
 
         /** returns layer representation */
         const Layer* layerRepresentation() const;
@@ -95,10 +95,10 @@ namespace Trk {
 
 	    /** alignment methods: set base transform / default argument to current transform */
 	
-	    void setBaseTransform( Amg::Transform3D* transf=0 );
-	    void setBaseTransform ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D* transf=0 ) const;
+	    void setBaseTransform( Amg::Transform3D* transf=nullptr );
+	    void setBaseTransform ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D* transf=nullptr ) const;
 	    /** alignment methods: realign  / default argument to base transform */
-	    void realign ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D* transf=0 ) const;
+	    void realign ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D* transf=nullptr ) const;
 
     private:
         /** Compactify -- set TG as owner to surfaces */
@@ -116,7 +116,7 @@ namespace Trk {
 
 inline const TrackingVolume* DetachedTrackingVolume::trackingVolume() const { return (m_trkVolume); } 
 
-inline const std::string DetachedTrackingVolume::name() const { return (m_name); }
+inline std::string DetachedTrackingVolume::name() const { return (m_name); }
 
 inline const Layer* DetachedTrackingVolume::layerRepresentation() const { return (m_layerRepresentation); }
 

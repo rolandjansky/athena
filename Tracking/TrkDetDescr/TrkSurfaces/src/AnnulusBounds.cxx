@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ Trk::AnnulusBounds::inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk
 
   EllipseCollisionTest test(4);
 
-  Amg::Vector2D locpoCar = locpo;
+  const Amg::Vector2D& locpoCar = locpo;
   AmgMatrix(2, 2) lCovarianceCar = bchk.lCovariance;
 
   // ellipse is always at (0,0), surface is moved to ellipse position and then rotated
@@ -447,7 +447,10 @@ Trk::AnnulusBounds::circleLineIntersection(double R, double k, double d) const
   // change k, d -> phi, d
   // think: which of two intersection points to chose
   std::vector<double> solution;
-  double x1, y1, x2, y2;
+  double x1;
+  double y1;
+  double x2;
+  double y2;
 
   // Intersection of a line with an arc
   // equation:   (1+k^2)*x^2 + 2kdx +d^2 - R^2 = 0
@@ -484,7 +487,8 @@ Trk::AnnulusBounds::distanceToLine(const Amg::Vector2D& locpo,
 
   double A = P2x - P1x;
   double B = P2y - P1y;
-  double P3x, P3y;
+  double P3x;
+  double P3y;
 
   double X = locpo[Trk::locX];
   double Y = locpo[Trk::locY];
@@ -547,7 +551,12 @@ Trk::AnnulusBounds::EllipseIntersectLine(const Amg::Vector2D& locpo,
   if (h == 0 && k == 0)
     return false;
 
-  double r, s, t, m, c, d;
+  double r;
+  double s;
+  double t;
+  double m;
+  double c;
+  double d;
 
   x1 = x1 - locpo[Trk::locX];
   y1 = y1 - locpo[Trk::locY];

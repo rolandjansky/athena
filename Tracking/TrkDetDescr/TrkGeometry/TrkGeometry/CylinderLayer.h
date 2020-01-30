@@ -48,14 +48,14 @@ class IApproachDescriptor;
                       CylinderBounds* cbounds,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
+                      OverlapDescriptor* od = nullptr,
                       int laytyp=int(Trk::active));
 
         /**Constructor with CylinderSurface and  MaterialProperties */
         CylinderLayer(CylinderSurface* cyl,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
+                      OverlapDescriptor* od = nullptr,
                       int laytyp=int(Trk::active));
                               
         /**Constructor with CylinderSurface components and pointer to SurfaceArray (passing ownership) 
@@ -65,8 +65,8 @@ class IApproachDescriptor;
                       CylinderBounds* cbounds,
                       SurfaceArray* surfaceArray,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                 
         /**Constructor with CylinderSurface components,
@@ -76,23 +76,23 @@ class IApproachDescriptor;
                       SurfaceArray* surfaceArray,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                       
         /**Concentric Layer: Constructor with CylinderSurface components and  MaterialProperties */
         CylinderLayer(CylinderBounds* cbounds,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
+                      OverlapDescriptor* od = nullptr,
                       int laytyp=int(Trk::active));
 
         /**Concentric Layer: Constructor with CylinderSurface components and pointer to SurfaceArray (passing ownership) */
         CylinderLayer(CylinderBounds* cbounds,
                       SurfaceArray* surfaceArray,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                 
         /**Concentric Layer: Constructor with CylinderSurface components,
@@ -101,8 +101,8 @@ class IApproachDescriptor;
                       SurfaceArray* surfaceArray,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                               
         /**Copy constructor of CylinderLayer*/
@@ -134,7 +134,7 @@ class IApproachDescriptor;
                                          PropDirection pdir,
                                          const BoundaryCheck& bcheck,
                                          bool resolveSubSurfaces = 0,
-                                         const ICompatibilityEstimator* ice = 0) const override;
+                                         const ICompatibilityEstimator* ice = nullptr) const override;
         
        /** move the Layer */
        virtual void moveLayer ( Amg::Transform3D& shift ) override;

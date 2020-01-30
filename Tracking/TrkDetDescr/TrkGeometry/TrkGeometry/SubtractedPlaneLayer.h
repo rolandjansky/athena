@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ namespace Trk {
         SubtractedPlaneLayer(const SubtractedPlaneSurface* subtrPlaneSurf,
                    const LayerMaterialProperties& laymatprop,
                    double thickness = 0.,
-                   OverlapDescriptor* od = 0,
+                   OverlapDescriptor* od = nullptr,
                    int laytyp=int(Trk::active));
                            
        /**Copy constructor of SubtractedPlaneLayer*/

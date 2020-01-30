@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
                           int laytyp) :
   DiscSurface(transform, dbounds),
   Layer(laymatprop, thickness, olap, laytyp),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     DiscSurface::associateLayer(*this);
 }
@@ -38,7 +38,7 @@ Trk::DiscLayer::DiscLayer(Trk::DiscSurface* disc,
                           int laytyp) :
   DiscSurface(*disc),
   Layer(laymatprop, thickness, olap, laytyp),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     DiscSurface::associateLayer(*this);    
 }
@@ -82,7 +82,7 @@ Trk::DiscLayer::DiscLayer(Amg::Transform3D* transform,
 Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay):
   DiscSurface(dlay),
   Layer(dlay),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     DiscSurface::associateLayer(*this);
     if (m_surfaceArray) buildApproachDescriptor();
@@ -91,7 +91,7 @@ Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay):
 Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay, const Amg::Transform3D& transf):
   DiscSurface(dlay,transf),
   Layer(dlay),
-  m_approachDescriptor(0)
+  m_approachDescriptor(nullptr)
 {
     DiscSurface::associateLayer(*this);
     if (m_surfaceArray) buildApproachDescriptor();    
@@ -197,7 +197,7 @@ const Trk::Surface& Trk::DiscLayer::approachSurface(const Amg::Vector3D& pos,
         if (surfacesOnApproach){
             // test the intersections and go
             std::vector<Trk::Intersection> sfIntersections;
-            const Trk::Surface* aSurface = 0;
+            const Trk::Surface* aSurface = nullptr;
             double aPathLength           = 10e10;
             //!< @TODO -> optimise by breaking the loop if possible
             for (auto& sfIter : (*surfacesOnApproach)){
