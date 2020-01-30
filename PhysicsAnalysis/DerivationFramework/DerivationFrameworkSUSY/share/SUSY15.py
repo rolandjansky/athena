@@ -102,16 +102,16 @@ InclusiveVxFitterTool.OutputLevel = INFO
 TrackRandomizingSuffices = [ "0p5", "1p0", "2p0", "3p0", "4p0" ]
 RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
 
-# make needed Pixel and SCT conditions available
-include ("PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py") // testing this here, was used by Dave as postInclude /CO
-include ("InDetRecExample/SCTConditionsAccess.py")
-
 
 # Temporary flag
-doDissolvedVertexing = False # turned this off /CO
+doDissolvedVertexing = True
 
 #------------------------------------------------------------------------------
 if doDissolvedVertexing:
+
+  # make needed Pixel and SCT conditions available
+  include ("PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py") # testing this here, was used by Dave as postInclude /CO
+  include ("InDetRecExample/SCTConditionsAccess.py")
 
   for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
     randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
@@ -125,7 +125,7 @@ if doDissolvedVertexing:
     vsi.AugmentingVersionString = "_Randomized" + suffix
     vsi.VertexFitterTool        = InclusiveVxFitterTool
     vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
-    #vsi.OutputLevel             = DEBUG # for debugging /CO
+    vsi.OutputLevel             = DEBUG # for debugging /CO
 
     SeqSUSY15 += randomizer
     SeqSUSY15 += vsi
