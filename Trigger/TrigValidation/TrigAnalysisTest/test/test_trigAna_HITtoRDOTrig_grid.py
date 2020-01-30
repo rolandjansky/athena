@@ -42,7 +42,7 @@ hit2rdo.args += ' --numberOfLowPtMinBias="59.3447981771"'
 hit2rdo.args += ' --pileupFinalBunch="6"'
 hit2rdo.args += ' --jobNumber="1"'
 
-hit2rdo.args += ' --preExec "HITtoRDO:userRunLumiOverride={\"run\":300000, \"startmu\":40.0, \"endmu\":70.0, \"stepmu\":1.0, \"startlb\":1, \"timestamp\": 1500000000};ScaleTaskLength=0.1"'
+hit2rdo.args += ' --preExec "HITtoRDO:userRunLumiOverride={\'run\':300000, \'startmu\':40.0, \'endmu\':70.0, \'stepmu\':1.0, \'startlb\':1, \'timestamp\': 1500000000};ScaleTaskLength=0.1"'
 hit2rdo.args += ' --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Config1.py,RunDependentSimData/configLumi_muRange.py"'
 
 rdo2rdotrig = ExecStep.ExecStep('RDOtoRDOTrigger')
