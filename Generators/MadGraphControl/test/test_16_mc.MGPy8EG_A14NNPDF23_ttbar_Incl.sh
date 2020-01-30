@@ -9,4 +9,9 @@ set -e
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=950116
 
-echo "art-result: $?"
+echo "art-result: $? generation"
+
+# Run tests on the log file
+env -u PYTHONPATH -u PYTHONHOME python3 /cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/scripts/logParser.py -s -i log.generate
+
+echo "art-result: $? log-check"

@@ -56,6 +56,20 @@ def checkSettingExists(key_,mydict_):
     return key in keys
 
 def is_version_or_newer(args):
+    # also need to find out the version (copied from generate)
+    import os
+    madpath=os.environ['MADPATH']
+    version=None
+    version_file = open(os.environ['MADPATH']+'/VERSION','r')
+
+    for line in version_file:
+        if 'version' in line:
+            version=line.split('=')[1].strip()
+    version_file.close()
+
+    if not version:
+        raise RuntimeError('Failed to find MadGraph/MadGraph5_aMC@NLO version in '+version_file)
+
     version=MadGraphUtils.getMadGraphVersion()
     vs=[int(v) for v in version.split('.')]
 
