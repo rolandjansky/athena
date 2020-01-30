@@ -182,55 +182,6 @@ DESDM_EGAMMATracksThinningTool = DerivationFramework__EGammaTracksThinning(  nam
                                                                        )
 ToolSvc += DESDM_EGAMMATracksThinningTool
 
-# ========>>> Egamma PrepRawData thinning =======================
-        
-# from RegionSelector.RegionSelectorConf import RegSelSvc
-# svcMgr += RegSelSvc("RegSelSvcInEGammaStream")
-# svcMgr.RegSelSvcInEGammaStream.enableID    = True
-# svcMgr.RegSelSvcInEGammaStream.enablePixel = True
-# svcMgr.RegSelSvcInEGammaStream.enableSCT   = True
-# svcMgr.RegSelSvcInEGammaStream.enableTRT   = True
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-# PixelRegionSelectorTable = SiRegionSelectorTable(name        = "PixRegSelectorTableForEgamma",
-#                                                  ManagerName = "Pixel",
-#                                                  DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                  OutputFile  = "RoITablePixel.txt",
-#                                                  PrintHashId = True,
-#                                                  PrintTable  = False)
-# ToolSvc += PixelRegionSelectorTable
-# print      PixelRegionSelectorTable
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-# SCT_RegionSelectorTable = SiRegionSelectorTable(name        = "SCT_RegSelectorTableForEgamma",
-#                                                 ManagerName = "SCT",
-#                                                 DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                 OutputFile  = "RoITableSCT.txt",
-#                                                 PrintHashId = True,
-#                                                 PrintTable  = False)
-# ToolSvc += SCT_RegionSelectorTable
-# print      SCT_RegionSelectorTable
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
-# TRT_RegionSelectorTable = TRT_RegionSelectorTable(name        = "TRT_RegSelectorTableForEgamma",
-#                                                   ManagerName = "TRT",
-#                                                   DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                   OutputFile  = "RoITableTRT.txt",
-#                                                   PrintHashId = True,
-#                                                   PrintTable  = False)
-# ToolSvc += TRT_RegionSelectorTable
-# print      TRT_RegionSelectorTable
-
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EGammaPrepRawDataThinning
-# DESDM_EGAMMAEGammaPrepRawDataThinningTool = DerivationFramework__EGammaPrepRawDataThinning(  name = "DESDM_EGAMMAEGammaPrepRawDataThinning",                                                                                             
-#                                                                                              ThinningService = "DESDM_EGAMMAThinningSvc",
-#                                                                                              RegSelSvc = "RegSelSvcInEGammaStream",
-#                                                                                              deltaR  = 0.5,
-#                                                                                              minEtEg = 0.
-#                                                                                              )
-# ToolSvc += DESDM_EGAMMAEGammaPrepRawDataThinningTool
-
-
 # ========>>> Trigger Tower thinning ===================================
 
 from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__TriggerTowerThinningAlg
