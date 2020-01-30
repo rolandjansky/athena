@@ -5,8 +5,8 @@ genSeq += Herwig7()
 
 ## Provide config information
 evgenConfig.generators += ["Herwig7"]
-evgenConfig.tune        = "MMHT2014"
-evgenConfig.description = "Herwig7 Zee sample with CT10 ME PDF and MMHT2014 PS and UE tune"
+evgenConfig.tune        = "H7.1-Default"
+evgenConfig.description = "Herwig7 Zee sample with CT10 ME PDF and H7.1-Default PS and UE tune"
 evgenConfig.keywords    = ["SM","Z","electron"]
 evgenConfig.contact     = ["Daniel Rauch (daniel.rauch@desy.de)"]
 
@@ -103,10 +103,8 @@ read Matchbox/FiveFlavourScheme.in
 # read Matchbox/FiveFlavourNoBMassScheme.in
 """)
 
-## CAUTION: Extremely crude sampling for testing purposes
-generator.sampler_commands("CellGridSampler", 1000, 2, 1000, 1, 100)
-# generator.sampler_commands("MonacoSampler", 1000, 2, 1000, 1, 100)
-# generator.sampler_commands("FlatBinSampler", 1000, 2, 1000, 1, 100)
+## Replicate authors NLO sampler commands in Interface
+generator.sampler_commands("MonacoSampler", 20000, 4, 50000, 1, 100)
 
 ## run generator
-generator.run(2, gridpack="Internal-Zee.tar.gz")
+generator.run(cleanup_herwig_scratch=False)

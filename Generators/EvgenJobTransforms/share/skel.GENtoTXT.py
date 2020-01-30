@@ -509,22 +509,22 @@ elif "AcerMC" in evgenConfig.generators:
 elif "CompHep" in evgenConfig.generators:
     datFile = "inparmCompHep.dat"
 
-if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
+#if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
 ## Events files
-eventsFile = outputTXTFile
-#if "Alpgen" in evgenConfig.generators:
-#    eventsFile = "alpgen.unw_events"
-#elif "Protos" in evgenConfig.generators: 
-#    eventsFile = "protos.events"
-#elif "ProtosLHEF" in evgenConfig.generators:
-#    eventsFile = "protoslhef.events"
-#elif "BeamHaloGenerator" in evgenConfig.generators:
-#    eventsFile = "beamhalogen.events"
-#elif "HepMCAscii" in evgenConfig.generators:
-#    eventsFile = "events.hepmc"
-#elif gens_lhef(evgenConfig.generators):
-#    eventsFile = outputTXTFile
-#    eventsFile = "events.lhe"
+#eventsFile = outputTXTFile
+if "Alpgen" in evgenConfig.generators:
+   eventsFile = "alpgen.unw_events"
+elif "Protos" in evgenConfig.generators:
+   eventsFile = "protos.events"
+elif "ProtosLHEF" in evgenConfig.generators:
+   eventsFile = "protoslhef.events"
+elif "BeamHaloGenerator" in evgenConfig.generators:
+   eventsFile = "beamhalogen.events"
+elif "HepMCAscii" in evgenConfig.generators:
+   eventsFile = "events.hepmc"
+elif gens_lhef(evgenConfig.generators):
+   #eventsFile = outputTXTFile
+   eventsFile = "events.lhe"
 
 
 ## Helper functions for input file handling
@@ -684,7 +684,7 @@ def _checkattr(attr, required=False):
         return False
     return True
 # counting the number of events in LHE output
-with open(outputTXTFile) as f:
+with open(eventsFile) as f:
     contents = f.read()
     count_ev = contents.count("<event>")
     

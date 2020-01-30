@@ -61,19 +61,6 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     # Just in case
     setup_path_protection()
 
-    mgexec='/bin/mg5_aMC'
-
-    # Check to allow older MadGraph versions
-    if not os.access(madpath+mgexec,os.R_OK):
-        foundOld=False
-        if os.access(madpath+'/bin/mg5',os.R_OK):
-            mglog.warning('No mg5_aMC executable found in '+madpath+'/bin, but (depreciated) mg5 executable was found, will try with this...')
-            foundOld=True
-            mgexec='/bin/mg5'
-
-        if not foundOld:
-            raise RuntimeError('No mg5_aMC or mg5 executables found in '+madpath+'/bin')
-
     # Check if we have to use MG4 proc_card.dat or MG5 proc_card.dat
     thedir = ''
     if not os.access(card_loc,os.R_OK):
@@ -98,7 +85,7 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
 
     mglog.info('Started process generation at '+str(time.asctime()))
 
-    generate = subprocess.Popen([madpath+mgexec,card_loc],stdin=subprocess.PIPE)
+    generate = subprocess.Popen([madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE)
     generate.communicate()
 
     mglog.info('Finished process generation at '+str(time.asctime()))
@@ -222,9 +209,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             mglog.info('Detected gridpack mode for generating events but asssuming old configuration (using sepatate generate_from_gridpack() call)')
             return
 
-
-    version = getMadGraphVersion() # avoiding code duplication
-
     # If we need to get the cards...
     if run_card_loc is not None and not os.access(run_card_loc,os.R_OK):
         if run_card_loc.count('/')>1:
@@ -327,29 +311,18 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         #Running in on-the-fly mode
         mglog.info('Started generating at '+str(time.asctime()))
 
-
     mglog.info('Run '+str(run_name)+' will be performed in mode '+str(mode)+' with '+str(njobs)+' jobs in parallel.')
-
 
     if param_card_loc is None: mglog.info('Will use the default parameter card')
 
-
     if madspin_card_loc:
-        if int(version.split('.')[0]) < 2:
-            mglog.error('Attempting to run MadSpin with old MadGraph version - please upgrade to MadGraph5_aMC@NLO (v2+).')
-            return 1
-
         mglog.info('Decaying with MadSpin. Moving card (%s) into place.'%(madspin_card_loc))
         shutil.copyfile(madspin_card_loc,proc_dir+'/Cards/madspin_card.dat')
 
     if reweight_card_loc:
-        if int(version.split('.')[0]) < 3 and not ( int(version.split('.')[0]) >= 2 and int(version.split('.')[1]) >= 4 ):
-            mglog.error('Attempting to run reweighting with old MadGraph version - please upgrade to MadGraph5_aMC@NLO v2.4+.')
-            return 1
         mglog.info('Running reweighting module. Moving card (%s) into place.'%(reweight_card_loc))
         shutil.copyfile(reweight_card_loc,proc_dir+'/Cards/reweight_card.dat')
         check_reweight_card(proc_dir+'/Cards/reweight_card.dat')
-
 
     # Ensure that things are set up normally
     if not os.access(run_card_loc,os.R_OK):
@@ -388,8 +361,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             mglog.warning('Condor clusters do not allow links.  Will do more copying rather than linking')
             allow_links = False
 
-    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath, allow_links=allow_links)
-
+    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, proc_dir=proc_dir, extlhapath=extlhapath, allow_links=allow_links)
 
     mglog.info('For your information, the libraries available are (should include LHAPDF):')
     mglog.info( sorted( os.listdir( proc_dir+'/lib/' ) ) )
@@ -628,8 +600,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
     isNLO=is_NLO_run(proc_dir=gridpack_dir)
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
 
-    version = getMadGraphVersion()
-    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=gridpack_dir, extlhapath=extlhapath)
+    (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, proc_dir=gridpack_dir, extlhapath=extlhapath)
 
     setupFastjet(isNLO, proc_dir=gridpack_dir)
 
@@ -685,8 +656,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info( sorted( os.listdir( currdir ) ) )
         mglog.info('For your information, ls of '+gridpack_dir+':')
         mglog.info( sorted( os.listdir( gridpack_dir ) ) )
-        if is_version_or_newer([2,6,3]):
-            modify_run_card(gridpack_dir+'/Cards/run_card.dat',gridpack_dir+'/Cards/run_card.backup',{'python_seed' : random_seed})
+        modify_run_card(gridpack_dir+'/Cards/run_card.dat',gridpack_dir+'/Cards/run_card.backup',{'python_seed' : random_seed})
         run_card_consistency_check(isNLO=isNLO,path=gridpack_dir)
         generate = subprocess.Popen([gridpack_dir+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE)
         generate.communicate()
@@ -798,9 +768,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         if not os.path.exists(gridpack_dir+'Events/GridRun_%i/'%random_seed):
             shutil.copy(gridpack_dir+'/Events/'+run_name+'/events.lhe.gz','events.lhe.gz')
 
-
-
-
     mglog.info('For your information, ls of '+currdir+':')
     mglog.info( sorted( os.listdir( currdir ) ) )
 
@@ -825,28 +792,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
     resetLHAPDF(origLHAPATH=origLHAPATH,origLHAPDF_DATA_PATH=origLHAPDF_DATA_PATH)
 
     return 0
-
-
-def getMadGraphVersion():
-
-    # also need to find out the version (copied from generate)
-    madpath=os.environ['MADPATH']
-    version=None
-    version_file = open(os.environ['MADPATH']+'/VERSION','r')
-
-    for line in version_file:
-        if 'version' in line:
-            version=line.split('=')[1].strip()
-    version_file.close()
-
-    if not version:
-        mglog.error('Failed to find MadGraph/MadGraph5_aMC@NLO version')
-        # return 1
-        sys.exit(1)
-    else:
-        mglog.info('Found MadGraph/MadGraph5_aMC@NLO version %i.%i.%i'%(int(version.split('.')[0]),int(version.split('.')[1]),int(version.split('.')[2])))
-
-    return(version)
 
 
 def setupFastjet(isNLO, proc_dir=None):
@@ -929,7 +874,7 @@ def get_lhapdf_id_and_name(pdf):
 
     return pdfid,pdfname
 
-def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links=True):
+def setupLHAPDF(isNLO, proc_dir=None, extlhapath=None, allow_links=True):
 
     origLHAPATH=os.environ['LHAPATH']
     origLHAPDF_DATA_PATH=os.environ['LHAPDF_DATA_PATH']
@@ -1030,117 +975,60 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
         mglog.error('LHAPDF path dir: %s is not accesible'%LHAPATH)
         return 1
 
-    # Dealing with LHAPDF (Only need to edit configuration file for 2.1.1 onwards)
-    if int(version.split('.')[0]) >= 2 and ( int(version.split('.')[1]) > 1 or ( int(version.split('.')[1]) == 1 and int(version.split('.')[2]) > 0) ):
-
-        if extlhapath:
-            lhapdfconfig=extlhapath
-            if not os.access(lhapdfconfig,os.X_OK):
-                mglog.error('Failed to find valid external lhapdf-config at %s'%lhapdfconfig)
-                return 1
-            LHADATAPATH=subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()
-            mglog.info('Changing LHAPDF_DATA_PATH to %s'%LHADATAPATH)
-            os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
-        else:
-            getlhaconfig = subprocess.Popen(['get_files','-data','lhapdf-config'])
-            getlhaconfig.wait()
-            #Get custom lhapdf-config
-            if not os.access(os.getcwd()+'/lhapdf-config',os.X_OK):
-                mglog.error('Failed to get lhapdf-config from MadGraphControl')
-                return 1
-            lhapdfconfig = os.getcwd()+'/lhapdf-config'
-
-        mglog.info('lhapdf-config --version:      %s'%str(subprocess.Popen([lhapdfconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
-        mglog.info('lhapdf-config --prefix:       %s'%str(subprocess.Popen([lhapdfconfig, '--prefix'],stdout = subprocess.PIPE).stdout.read().strip()))
-        mglog.info('lhapdf-config --libdir:       %s'%str(subprocess.Popen([lhapdfconfig, '--libdir'],stdout = subprocess.PIPE).stdout.read().strip()))
-        mglog.info('lhapdf-config --datadir:      %s'%str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
-        mglog.info('lhapdf-config --pdfsets-path: %s'%str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
-
-
-        if not isNLO:
-            config_card=proc_dir+'/Cards/me5_configuration.txt'
-        else:
-            config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
-
-        oldcard = open(config_card,'r')
-        newcard = open(config_card+'.tmp','w')
-
-        for line in oldcard:
-            if 'lhapdf = ' in line:
-                newcard.write('lhapdf = %s \n'%(lhapdfconfig))
-                mglog.info('Setting lhapdf = %s in %s'%(lhapdfconfig,config_card))
-            else:
-                newcard.write(line)
-        oldcard.close()
-        newcard.close()
-        shutil.move(config_card+'.tmp',config_card)
-
-        mglog.info('Creating links for LHAPDF')
-        if os.path.islink(proc_dir+'/lib/PDFsets'):
-            os.unlink(proc_dir+'/lib/PDFsets')
-        elif os.path.isdir(proc_dir+'/lib/PDFsets'):
-            shutil.rmtree(proc_dir+'/lib/PDFsets')
-        if allow_links:
-            os.symlink(LHADATAPATH,proc_dir+'/lib/PDFsets')
-        else:
-            shutil.copytree(LHADATAPATH,proc_dir+'/lib/PDFsets')
-        mglog.info('Available PDFs are:')
-        mglog.info( sorted( [ x for x in os.listdir(proc_dir+'/lib/PDFsets') if not ".tar.gz" in x ] ) )
-
+    # Dealing with LHAPDF
+    if extlhapath:
+        lhapdfconfig=extlhapath
+        if not os.access(lhapdfconfig,os.X_OK):
+            mglog.error('Failed to find valid external lhapdf-config at %s'%lhapdfconfig)
+            return 1
+        LHADATAPATH=subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()
+        mglog.info('Changing LHAPDF_DATA_PATH to %s'%LHADATAPATH)
+        os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
     else:
-        # Nasty fixes for MG5v1:
-        # Check first for external LHAPDF
-        if extlhapath:
-            mglog.info('Using external LHAPDF.')
-            # Store LHAPATH that comes with release before editing
-            releaselhapath=LHAPATH
-            # Need to fix path to be absolute before symlinking
-            if os.path.isabs(extlhapath):
-                LHAPATH=extlhapath
-            else:
-                LHAPATH=os.environ['TestArea']+'/'+extlhapath
-                mglog.info('Modifying extlhapath to be absolute - assuming installation is in '+os.environ['TestArea'])
-            mglog.info('External LHAPATH is:')
-            mglog.info('  '+LHAPATH)
-        else:
-            mglog.info('Using Athena release LHAPDF, LHAPATH is:')
-            mglog.info('  '+LHAPATH)
+        getlhaconfig = subprocess.Popen(['get_files','-data','lhapdf-config'])
+        getlhaconfig.wait()
+        #Get custom lhapdf-config
+        if not os.access(os.getcwd()+'/lhapdf-config',os.X_OK):
+            mglog.error('Failed to get lhapdf-config from MadGraphControl')
+            return 1
+        lhapdfconfig = os.getcwd()+'/lhapdf-config'
 
-        mglog.info('Creating links for LHAPDF')
-        if allow_links:
-            os.symlink(LHAPATH,proc_dir+'/lib/PDFsets')
-        else:
-            shutil.copytree(LHAPATH,proc_dir+'/lib/PDFsets')
-        mglog.info('Available PDFs are:')
-        mglog.info( sorted( os.listdir( proc_dir+'/lib/PDFsets/' ) ) )
+    mglog.info('lhapdf-config --version:      %s'%str(subprocess.Popen([lhapdfconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
+    mglog.info('lhapdf-config --prefix:       %s'%str(subprocess.Popen([lhapdfconfig, '--prefix'],stdout = subprocess.PIPE).stdout.read().strip()))
+    mglog.info('lhapdf-config --libdir:       %s'%str(subprocess.Popen([lhapdfconfig, '--libdir'],stdout = subprocess.PIPE).stdout.read().strip()))
+    mglog.info('lhapdf-config --datadir:      %s'%str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
+    mglog.info('lhapdf-config --pdfsets-path: %s'%str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
 
-        if not extlhapath:
-            mglog.info( 'Linking in libraries based on the path '+LHAPATH+' with config '+os.environ['CMTCONFIG'] )
-            lhalibpath = LHAPATH.split('share/')[0]+os.environ['CMTCONFIG']+'/lib/'
-        else:
-            useReleaseLibs=False
-            lhalibpath = LHAPATH.split('share/')[0]+'/lib/'
-            mglog.info( 'Try linking in libraries from '+lhalibpath)
-            if not os.access( lhalibpath+'libLHAPDF.a',os.R_OK):
-                mglog.warning('libLHAPDF.a not found in '+lhalibpath)
-                useReleaseLibs=True
-            if not os.access( lhalibpath+'libLHAPDF.so',os.R_OK):
-                mglog.warning('libLHAPDF.so not found in '+lhalibpath)
-                useReleaseLibs=True
 
-            if useReleaseLibs:
-                mglog.info('Resorting to Athena release LHAPDF libraries even though external LHAPATH provided.')
-                mglog.info('Try finding libraries in Athena release based on CMTCONFIG '+os.environ['CMTCONFIG']+' and path:')
-                mglog.info('  '+releaselhapath)
-                lhalibpath = releaselhapath.split(
-                    'share/')[0]+os.environ['CMTCONFIG']+'/lib/'
+    if not isNLO:
+        config_card=proc_dir+'/Cards/me5_configuration.txt'
+    else:
+        config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
 
-        if allow_links:
-            os.symlink( lhalibpath+'libLHAPDF.a',proc_dir+'/lib/libLHAPDF.a')
-            os.symlink( lhalibpath+'libLHAPDF.so',proc_dir+'/lib/libLHAPDF.so')
+    oldcard = open(config_card,'r')
+    newcard = open(config_card+'.tmp','w')
+
+    for line in oldcard:
+        if 'lhapdf = ' in line:
+            newcard.write('lhapdf = %s \n'%(lhapdfconfig))
+            mglog.info('Setting lhapdf = %s in %s'%(lhapdfconfig,config_card))
         else:
-            shutil.copy2( lhalibpath+'libLHAPDF.a',proc_dir+'/lib/libLHAPDF.a')
-            shutil.copy2( lhalibpath+'libLHAPDF.so',proc_dir+'/lib/libLHAPDF.so')
+            newcard.write(line)
+    oldcard.close()
+    newcard.close()
+    shutil.move(config_card+'.tmp',config_card)
+
+    mglog.info('Creating links for LHAPDF')
+    if os.path.islink(proc_dir+'/lib/PDFsets'):
+        os.unlink(proc_dir+'/lib/PDFsets')
+    elif os.path.isdir(proc_dir+'/lib/PDFsets'):
+        shutil.rmtree(proc_dir+'/lib/PDFsets')
+    if allow_links:
+        os.symlink(LHADATAPATH,proc_dir+'/lib/PDFsets')
+    else:
+        shutil.copytree(LHADATAPATH,proc_dir+'/lib/PDFsets')
+    mglog.info('Available PDFs are:')
+    mglog.info( sorted( [ x for x in os.listdir(proc_dir+'/lib/PDFsets') if not ".tar.gz" in x ] ) )
 
     return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
 
@@ -1209,7 +1097,10 @@ def add_lifetimes(process_dir=None,threshold=None):
             mglog.error('Process directory could not be found!')
         else:
             process_dir = glob('*PROC*')[-1]
-    me_exec=process_dir+'/bin/madevent'
+    madpath=os.environ['MADPATH']
+    if not os.access(madpath+'/bin/mg5_aMC',os.R_OK):
+        mglog.error('mg5_aMC executable not found in '+madpath)
+    me_exec=madpath+'/bin/mg5_aMC'
     if len(glob(process_dir+'/Events/*'))<1:
         mglog.error('Process dir %s does not contain events?'%process_dir)
     run = glob(process_dir+'/Events/*')[0].split('/')[-1]
@@ -1218,7 +1109,8 @@ def add_lifetimes(process_dir=None,threshold=None):
     # See : https://answers.launchpad.net/mg5amcnlo/+question/267904
 
     tof_c = open('time_of_flight_exec_card','w')
-    tof_c.write('add_time_of_flight '+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
+    tof_c.write('launch '+process_dir+''' -i
+add_time_of_flight '''+run+((' --threshold='+str(threshold)) if threshold is not None else ''))
     tof_c.close()
 
     mglog.info('Started adding time of flight info '+str(time.asctime()))
@@ -1252,7 +1144,8 @@ def run_madspin(madspin_card=None,runArgs=None,saveProcDir=False,run_name='Test'
     except:
         pass
     madpath=os.environ['MADPATH']
-    process_dir=new_process(SUSY_model()+"""
+    process_dir=new_process("""
+import model MSSM_SLHA2
 generate p p > go go
 output -f"""
         )
@@ -1553,13 +1446,6 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     return outputDS
 
 def setup_bias_module(bias_module,run_card_loc,proc_dir,grid_pack):
-    version = getMadGraphVersion()
-    if int(version.split('.')[0])<2 or int(version.split('.')[0])==2 and int(version.split('.')[1])<5:
-        mglog.error('Sorry, the bias module is available only from MG5_aMC v2.5.0')
-        return 1
-    if grid_pack and (int(version.split('.')[0])<2 or int(version.split('.')[0])==2 and int(version.split('.')[1])<6):
-        mglog.error('Sorry, the bias module works with gridpacks only from MG5_aMC v2.6.0')
-        return 1
     if isinstance(bias_module,tuple):
         mglog.info('Using bias module '+bias_module[0])
         the_run_card = open(run_card_loc,'r')
@@ -1677,7 +1563,7 @@ define susyv~ = sve~ svm~ svt~
 """
 
 def strong_process_dict( njets = 1 , gentype = 'GG' ):
-    header = SUSY_model()
+    header = "import model MSSM_SLHA2\n"
     header += helpful_definitions()
     header += """
 # Specify process(es) to run
@@ -1976,7 +1862,7 @@ def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direc
 output -f
 """
         else:
-            full_proc = SUSY_model()+helpful_definitions()+"""
+            full_proc = "import model MSSM_SLHA2\n"+helpful_definitions()+"""
 # Specify process(es) to run
 
 """+process+"""
@@ -2410,7 +2296,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
                 newcard.write(line)
     # Clean up options that weren't used
     newcard.write('\n')
-    if not python_seed_set and not isNLO and is_version_or_newer([2,6,3]):
+    if not python_seed_set and not isNLO:
         newcard.write('   %i      = python_seed   ! python seed (hidden parameter) \n'%(rand_seed))
     for ak in extras:
         if ak in used_options: continue
@@ -2553,7 +2439,7 @@ def update_param_card_blocks( process_dir , from_param_card , to_param_card ):
     proc_param_card_f.close()
 
 
-def print_cards(proc_card='proc_card_mg5.dat',run_card='run_card.dat',param_card='param_card.dat'):
+def print_cards(proc_card='proc_card_mg5.dat',run_card='run_card.dat',param_card='param_card.dat',madspin_card='madspin_card.dat'):
     if os.access(proc_card,os.R_OK):
         mglog.info("proc_card:")
         procCard = subprocess.Popen(['cat',proc_card])
@@ -2570,10 +2456,17 @@ def print_cards(proc_card='proc_card_mg5.dat',run_card='run_card.dat',param_card
 
     if os.access(param_card,os.R_OK):
         mglog.info("param_card:")
-        runCard = subprocess.Popen(['cat',param_card])
-        runCard.wait()
+        paramCard = subprocess.Popen(['cat',param_card])
+        paramCard.wait()
     else:
         mglog.warning('No param_card: '+param_card+' found')
+
+    if os.access(madspin_card,os.R_OK):
+        mglog.info("madspin_card:")
+        madspinCard = subprocess.Popen(['cat',madspin_card])
+        madspinCard.wait()
+    else:
+        mglog.warning('No madspin_card: '+madspin_card+' found')
 
 
 def is_gen_from_gridpack(grid_pack=None):
@@ -2612,18 +2505,11 @@ def run_card_consistency_check(isNLO=False,path='.'):
     for k,v in mydict.iteritems():
         mglog.info( '"%s" = %s'%(k,v) )
 
-    if is_version_or_newer([2,5,0]):
-        # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
-        if is_version_or_newer([2,6,1]):
-            if not checkSetting('event_norm','average',mydict):
-                modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'average'})
-        # Only needed for 2.5.0 to 2.6.0 to battle problem with inconsistent event weights [AGENE-1542]
-        # Will likely cause Pythia to calculate the wrong cross section [AGENE-1725]
-        else:
-            if not isNLO and checkSettingIsTrue('use_syst',mydict):
-                if not checkSetting('event_norm','sum',mydict):
-                    modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'sum'})
-                    mglog.warning("Setting 'event_norm' to 'sum' -- this will mean the cross section calculated by Pythia is most likely wrong.")
+    # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
+    if not checkSetting('event_norm','average',mydict):
+        modify_run_card(cardpath,cardpath.replace('.dat','_backup.dat'),{'event_norm':'average'})
+    # Only needed for 2.5.0 to 2.6.0 to battle problem with inconsistent event weights [AGENE-1542]
+    # Will likely cause Pythia to calculate the wrong cross section [AGENE-1725]
 
     if not isNLO:
         #Check CKKW-L setting
@@ -2633,7 +2519,7 @@ def run_card_consistency_check(isNLO=False,path='.'):
             raise RuntimeError(log)
 
         # Check if user is trying to use deprecated syscalc arguments with the other systematics script
-        if is_version_or_newer([2,6,2]) and (not 'systematics_program' in mydict or mydict['systematics_program']=='systematics'):
+        if not 'systematics_program' in mydict or mydict['systematics_program']=='systematics':
             syscalc_settings=['sys_pdf', 'sys_scalefact', 'sys_alpsfact', 'sys_matchscale']
             found_syscalc_setting=False
             for s in syscalc_settings:
@@ -2666,7 +2552,7 @@ def run_card_consistency_check(isNLO=False,path='.'):
             modify_run_card(cardpath,cardpath.replace('.dat','_before_systnamingconvetion.dat'),
                             {'systematics_arguments' : MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)})
 
-    if not isNLO and is_version_or_newer([2,6,3]):
+    if not isNLO:
         if not 'python_seed' in mydict:
             mglog.warning('No python seed set in run_card -- adding one with same value as iseed')
             modify_run_card(cardpath,cardpath+'.iseed.backup',{'python_seed' : mydict['iseed']})
@@ -2702,10 +2588,7 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
 
     systematics_program=None
     if settingIsTrue(run_card_dict['use_syst']):
-        if is_version_or_newer([2,6,2]):
-            systematics_program='systematics'
-        else:
-            systematics_program='syscalc'
+        systematics_program='systematics'
         if checkSettingExists('systematics_program',run_card_dict):
             if checkSetting('systematics_program','systematics',run_card_dict):
                 systematics_program='systematics'
@@ -2728,18 +2611,10 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
     # in older MG versions the gridpack is run with the command below
     gridrun_line_old='./bin/gridrun $num_events $seed'
     syst_line_old=''
-    if not is_version_or_newer([2,6,6]):
-        syst_line_old='./bin/madevent syscalc GridRun_${seed} -f\n'
-        if systematics_program=='systematics':
-            syst_line_old='python bin/internal/systematics.py Events/GridRun_${seed}/unweighted_events.lhe.gz Events/GridRun_${seed}/unweighted_events.lhe.gz '+systematics_arguments+'\n'
     reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
     # in new versions it is run like this
     gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
     syst_line_new=''
-    if not is_version_or_newer([2,6,6]):
-        syst_line_new='${DIR}/bin/madevent syscalc GridRun_${seed} -f\n'
-        if systematics_program=='systematics':
-            syst_line_new='python ${DIR}/bin/internal/systematics.py  ${DIR}/Events/GridRun_${seed}/unweighted_events.lhe.gz ${DIR}/Events/GridRun_${seed}/unweighted_events.lhe.gz '+systematics_arguments+'\n'
     reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
 
     for line in oldscript:
@@ -2789,18 +2664,3 @@ def hack_gridpack_script(gridpack_dir,reweight_card,madspin_card):
     shutil.move(runscript+'.tmp',runscript)
     st = os.stat(runscript)
     os.chmod(runscript, st.st_mode | stat.S_IEXEC)
-
-
-def SUSY_model():
-    if not 'MADPATH' in os.environ:
-        mglog.warning('No MADPATH in your environment - not sure what the right SUSY model is')
-        return 'import model mssm\n'
-    if os.access(os.environ['MADPATH']+'/models/mssm',os.R_OK):
-        mglog.info('Using mssm model')
-        return 'import model mssm\n'
-    if os.access(os.environ['MADPATH']+'/models/MSSM_SLHA2',os.R_OK):
-        mglog.info('Using MSSM_SLHA2 model')
-        return 'import model MSSM_SLHA2\n'
-    mglog.warning('No idea what to do - models not found!')
-    return 'import model mssm\n'
-
