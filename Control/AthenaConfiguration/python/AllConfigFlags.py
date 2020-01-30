@@ -158,6 +158,11 @@ def _createCfgFlags():
         return createMuonConfigFlags()
     _addFlagsCategory(acf, "Muon", __muon, 'MuonConfig' )
 
+    def __muoncombined():
+        from MuonCombinedConfig.MuonCombinedConfigFlags import createMuonCombinedConfigFlags
+        return createMuonCombinedConfigFlags()
+    _addFlagsCategory(acf, "MuonCombined", __muoncombined, 'MuonCombinedConfig' )
+
     def __egamma():
         from egammaConfig.egammaConfigFlags import createEgammaConfigFlags
         return createEgammaConfigFlags()
