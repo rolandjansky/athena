@@ -25,7 +25,7 @@
 + Control/AthContainersInterfaces
 + Control/AthContainersRoot
 + Control/AthLinks
-+ Control/AthToolSupport/AsgTools
++ Control/AthToolSupport/.*
 + Control/AthenaBaseComps
 + Control/AthenaConfiguration
 + Control/AthenaCommon

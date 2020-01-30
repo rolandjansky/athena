@@ -1,7 +1,9 @@
-// $Id: MsgLevel.cxx 612639 2014-08-20 12:26:10Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // Local include(s):
-#include "AsgTools/MsgLevel.h"
+#include "AsgMessaging/MsgLevel.h"
 
 /// Helper macro for constructing the function's code
 #define DECLARE_LEVEL( NAME )                   \

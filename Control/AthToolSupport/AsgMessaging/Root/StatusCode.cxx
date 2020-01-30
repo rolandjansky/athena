@@ -1,11 +1,13 @@
-// $Id: StatusCode.cxx 612654 2014-08-20 13:12:53Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <iostream>
 #include <cstdlib>
 
 // Local include(s):
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 namespace {
 

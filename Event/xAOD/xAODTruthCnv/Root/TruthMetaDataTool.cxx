@@ -17,9 +17,9 @@ namespace xAODMaker {
       declareProperty( "InputKey", m_inputKey = "TruthMetaData" );
       declareProperty( "OutputKey", m_outputKey = "TruthMetaData" );
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
    }
 
    StatusCode TruthMetaDataTool::initialize() {

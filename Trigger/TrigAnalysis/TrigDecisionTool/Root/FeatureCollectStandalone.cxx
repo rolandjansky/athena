@@ -27,7 +27,7 @@ namespace Trig{
 
       //completely disabled for now. should be reenabled once we have more recent TNS tag in Athena
       HLT::TriggerElement::FeatureAccessHelper answer;
-      #ifndef ASGTOOL_ATHENA
+      #ifndef XAOD_STANDALONE
       answer = navigation->getFeature(te,ClassID_traits<TrigPassBits>::ID(),"passbits");
       #else
       (void)te;

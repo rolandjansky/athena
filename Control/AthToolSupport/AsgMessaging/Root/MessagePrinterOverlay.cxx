@@ -10,9 +10,9 @@
 // includes
 //
 
-#include <AsgTools/MessagePrinterOverlay.h>
+#include <AsgMessaging/MessagePrinterOverlay.h>
 
-#include <AsgTools/MessagePrinter.h>
+#include <AsgMessaging/MessagePrinter.h>
 #include <cassert>
 
 //

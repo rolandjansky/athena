@@ -1,7 +1,9 @@
-// $Id: ut_asgtools_statuscode.cxx 612639 2014-08-20 12:26:10Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // Local include(s):
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 int main() {
 

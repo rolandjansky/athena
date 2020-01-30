@@ -8,7 +8,7 @@
 
 JetModifierBase::JetModifierBase(const std::string& myname)
 : asg::AsgTool(myname) {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   // Should we do this here or let the subclasses add this?
   declareInterface<IJetModifier>(this);
 #endif

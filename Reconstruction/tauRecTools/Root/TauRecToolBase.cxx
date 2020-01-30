@@ -28,7 +28,7 @@ StatusCode TauRecToolBase::readConfig() {
   // removed once all tools are updated to have a config path declared.
   // in athena getProperties returns std::vector<Property*>
   // in rc     getProperties returns std::map<std::string,Property*>
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   bool configPathDeclared = false;
   for (Property* property : getProperties())
   {
@@ -39,12 +39,12 @@ StatusCode TauRecToolBase::readConfig() {
     }
   }
   if (!configPathDeclared)
-#elif defined(ASGTOOL_STANDALONE)
+#elif defined(XAOD_STANDALONE)
   PropertyMgr::PropMap_t property_map = getPropertyMgr()->getProperties();
   if (property_map.find("ConfigPath") == property_map.end())
 #else
 #   error "What environment are we in?!?"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
   {
     ATH_MSG_INFO("No config file path property declared yet, this is not recommended");
     return StatusCode::SUCCESS;
@@ -64,7 +64,7 @@ StatusCode TauRecToolBase::readConfig() {
   {
     StatusCode sc;
     // types of properties are handled differently as well 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
     // get type of variable with the entry name
     const std::type_info* type = getProperty(lList->At( i )->GetName()).type_info();
 
@@ -103,14 +103,14 @@ StatusCode TauRecToolBase::readConfig() {
     else if (type == Property::STRING)
       sc = this->setProperty(lList->At( i )->GetName(),
         env.GetValue(lList->At( i )->GetName(),""));
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
     else
     {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type->name());
 #else
       ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type);
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
       return StatusCode::FAILURE;
     }
     if (!sc.isSuccess()) {

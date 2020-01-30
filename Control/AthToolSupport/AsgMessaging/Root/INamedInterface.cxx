@@ -10,7 +10,7 @@
 // includes
 //
 
-#include <AsgTools/INamedInterface.h>
+#include <AsgMessaging/INamedInterface.h>
 
 //
 // method implementations
