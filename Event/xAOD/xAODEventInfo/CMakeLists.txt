@@ -45,8 +45,8 @@ atlas_add_test( ut_xaodeventinfo_subevent_test
    SOURCES test/ut_xaodeventinfo_subevent_test.cxx
    LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
 
-atlas_add_test( ut_xaodeventinfo_eventauxinfo_v1_test
-   SOURCES test/ut_xaodeventinfo_eventauxinfo_v1_test.cxx
+atlas_add_test( ut_xaodeventinfo_eventauxinfo_test
+   SOURCES test/ut_xaodeventinfo_eventauxinfo_test.cxx
    LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
 
 atlas_add_test( ut_xaodeventinfo_eventinfoauxcontainer_v1_test

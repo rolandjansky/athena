@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
 /**
- * @file xAODEventInfo/test/ut_xoadeventinfo_eventauxinfo_v1_test.cxx
+ * @file xAODEventInfo/test/ut_xoadeventinfo_eventauxinfo_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2018
- * @brief Unit tests for EventAuxInfo_v1.
+ * @brief Unit tests for EventAuxInfo.
  */
 
 #undef NDEBUG
-#include "xAODEventInfo/versions/EventAuxInfo_v1.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "TestTools/expect_exception.h"
@@ -24,7 +24,7 @@ void test1()
   std::cout << "test1\n";
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-  xAOD::EventAuxInfo_v1 eai;
+  xAOD::EventAuxInfo eai;
 
   SG::auxid_t runid = r.findAuxID ("runNumber");
   SG::auxid_t pixid = r.findAuxID ("pixelFlags");
@@ -74,7 +74,7 @@ void test1()
 
 int main()
 {
-  std::cout << "ut_xaodeventinfo_eventauxinfo_v1_test\n";
+  std::cout << "ut_xaodeventinfo_eventauxinfo_test\n";
   test1();
   return 0;
 }
