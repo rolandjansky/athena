@@ -2254,9 +2254,9 @@ namespace VKalVrtAthena {
       
       const auto& point = *itr;
       
-      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) << ", isGood = " << std::get<isGood>( point ) );
       
-      if( !std::get<isActive>( point ) ) {
+      if( !std::get<isGood>( point ) ) {
         const auto& detectorType = getDetectorType( point );
         disabledPattern += (1 << detectorType);
       }
