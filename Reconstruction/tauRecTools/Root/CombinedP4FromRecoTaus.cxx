@@ -2,9 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Framework include(s)
-#include "PathResolver/PathResolver.h"
-
 // local include(s)
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 
@@ -40,11 +37,6 @@ CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) :
 //_____________________________________________________________________________
 StatusCode CombinedP4FromRecoTaus::initialize() {
 
-  /*m_resHists_tauRec = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );
-  m_resHists_CellBased2PanTau = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );   
-  m_meanHists_CellBased2PanTau = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );
-  m_meanHists_tauRec = std::vector< std::vector<TH1F*> >(m_etaBinNames.size(), std::vector<TH1F*>(0) );*/
-
   m_resTGraph_tauRec = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
   m_resTGraph_CellBased2PanTau = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );   
   m_meanTGraph_CellBased2PanTau = std::vector< std::vector<TGraph*> >(m_etaBinNames.size(), std::vector<TGraph*>(0) );
@@ -55,7 +47,6 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
     std::string calibFilePath = find_file(m_sWeightFileName);
   TFile * file = TFile::Open(calibFilePath.c_str(), "READ");
 
-  //m_Nsigma_compatibility=5;
   m_Nsigma_compatibility=std::make_unique<TF1>("Nsigma_compatibility", "pol1", 0, 500000); // needs to go beyond ~420 where it crosses y=0
   m_Nsigma_compatibility->SetParameter(0, 3.809); // derived from fit
   m_Nsigma_compatibility->SetParameter(1, -9.58/1000000.); // derived from fit
@@ -70,14 +61,11 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
     
     ATH_MSG_DEBUG("mode = " << imode);
 
-    //Get m_resHists_tauRec
-    //histname="ConstituentEt/CorrelationCoeff_ConstituentEt_" + m_modeNames[imode];
     histname="CorrelationCoeff_tauRec_" + m_modeNames[imode];
     histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
     if(histogram){
       m_correlationHists.push_back(histogram);
       ATH_MSG_DEBUG("Adding corr hist: "); 
-      //histogram->Print("all"); 
     }
   }
 
@@ -90,75 +78,42 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 
       ATH_MSG_DEBUG("eta bin = " << ietaBin << " / mode = " << imode );
       
-      //Get m_resHists_tauRec
-      /*histname = "tauRec/ResolutionEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
-      if(histogram){
-	m_resHists_tauRec[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");*/
       Graphname = "tauRec/Graph_from_ResolutionEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph){
 	m_resTGraph_tauRec[ietaBin].push_back(Graph);
 	ATH_MSG_DEBUG("Adding graph: ");
-	  //histogram->Print("all");
       } else {
-       	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
        	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
 	return StatusCode::FAILURE;
       }
-
-      //Get m_meanHists_tauRec
-      /*histname = "tauRec/MeanEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
-      if(histogram) {
-	m_meanHists_tauRec[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");*/
 
       Graphname = "tauRec/Graph_from_MeanEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph) {
 	m_meanTGraph_tauRec[ietaBin].push_back(Graph);
 	ATH_MSG_DEBUG("Adding graph: ");
-	  //histogram->Print("all"); 
       } else {
-       	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
        	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
       
-      //Get m_resHists_CellBased2PanTau
-      /*histname = "ConstituentEt/ResolutionEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
-      if(histogram){
-	m_resHists_CellBased2PanTau[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");*/
       Graphname = "ConstituentEt/Graph_from_ResolutionEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph){
 	m_resTGraph_CellBased2PanTau[ietaBin].push_back(Graph);
 	ATH_MSG_DEBUG("Adding graph: ");
-	//histogram->Print("all"); 
       } else {
-	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
 	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
       
-      //Get m_meanHists_CellBased2PanTau
-      /*histname = "ConstituentEt/MeanEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
-      if(histogram){
-	m_meanHists_CellBased2PanTau[ietaBin].push_back(histogram);
-	ATH_MSG_DEBUG("Adding hist: ");*/
       Graphname = "ConstituentEt/Graph_from_MeanEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
       Graph = dynamic_cast<TGraph*> (file->Get(Graphname.c_str()));
       if(Graph){
 	m_meanTGraph_CellBased2PanTau[ietaBin].push_back(Graph);
 	ATH_MSG_DEBUG("Adding graph: ");
-	//histogram->Print("all"); 
       } else {
-       	//ATH_MSG_FATAL("Failed to get an object with  histname " << histname);
        	ATH_MSG_FATAL("Failed to get an object with name " << Graphname);
        	return StatusCode::FAILURE;
       }
@@ -200,16 +155,6 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   decEtaCombined(xTau) = CombinedP4.Eta();
   decPhiCombined(xTau) = CombinedP4.Phi();
   decMCombined(xTau) = CombinedP4.M();  
-
-
-  // move these to another file? :
-
-  /*  m_weight = -1111.;
-  m_combined_res = -1111.;
-  m_sigma_tauRec = -1111.;
-  m_sigma_constituent = -1111.;
-  m_corrcoeff = -1111.;
-  */
 
   if (m_addUseCaloPtFlag){
     SG::AuxElement::Decorator<char> decUseCaloPtFlag("UseCaloPtFlag");
@@ -294,20 +239,13 @@ double CombinedP4FromRecoTaus::GetWeightedEt(double et_tauRec,
     ATH_MSG_WARNING( "Warning! res_tauRec or res_substruct is 0!" );
     ATH_MSG_WARNING( "bin_taurec = " << et_tauRec );
     ATH_MSG_WARNING( "bin_substruct = " << et_cb2PT );
-    //int mode=GetIndex_Mode(mode);                                                                                                                                                                                                                                           
-    //m_resHists_tauRec[etaIndex][mode]->Print("all");
     m_resTGraph_tauRec[etaIndex][mode]->Print("all");
-    //m_resHists_CellBased2PanTau[etaIndex][mode]->Print("all");
     m_resTGraph_CellBased2PanTau[etaIndex][mode]->Print("all");
     return 0.;
   }
 
-  //float invres_tauRec=pow(res_tauRec, -2);
-  //float invres_substruct=pow(res_substruct, -2);
-
   float weight=( pow(res_substruct, 2) - GetCorrelationCoefficient(etaIndex, mode )*res_tauRec*res_substruct )
     / ( pow(res_tauRec, 2) + pow(res_substruct, 2) - 2*GetCorrelationCoefficient(etaIndex, mode )*res_tauRec*res_substruct );
-  //float weighted_et = ( et_tauRec*invres_tauRec + GetCellbased2PantauEt( et_cb2PT, mode )*invres_substruct ) / ( invres_tauRec + invres_substruct );
   double weighted_et = weight*GetTauRecEt( et_tauRec, etaIndex, mode) + (1 - weight)*GetCellbased2PantauEt( et_cb2PT, etaIndex, mode );
 
   m_weight = weight;
@@ -492,11 +430,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
 
 
   TLorentzVector combinedP4;
-  // double combinedM = tauRecP4.M();
-  // //  if(tauRec momentum is NOT taken as combined){
-  // if(m_tauRecEt_takenAs_combinedEt == false){
-  //   combinedM = substructureP4.M();    
-  // }
+  
   double combinedM = 0;
 
   ATH_MSG_DEBUG( "combinedM: " << combinedM );

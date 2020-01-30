@@ -34,7 +34,6 @@ TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   m_usePantauAxis(false),
   m_isCaloOnly(false)
 {
-  declareProperty("ConfigPath", m_configPath);
   declareProperty("calibrationFile", m_calibrationFile = "EnergyCalibrationLC2012.root");
   declareProperty("doEnergyCorrection", m_doEnergyCorr);
   declareProperty("doPtResponse", m_doPtResponse);
@@ -314,17 +313,5 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 //-----------------------------------------------------------------------------
 
 StatusCode TauCalibrateLC::finalize() {
-  
-  // these are already out of scope?
-  // does it matter if they are deleted? This is at the end of the run anyway...
-  //for (int i = 0; i<s_nProngBins; i++)
-  //{
-  //ATH_MSG_INFO(i);
-  // delete m_slopeNPVHist[i];
-  //}
-
-  //delete m_etaBinHist;
-  //delete m_etaCorrectionHist;
-  
   return StatusCode::SUCCESS;
 }
