@@ -140,6 +140,22 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ["AntiKt4PV0TrackJets", "AntiKt4LCTopoJets", "AntiKtVR60Rmax4Rmin2LCTopoJets", "AntiKtVR20Rmax4Rmin0TrackJets", "AntiKtVR40Rmax4Rmin0TrackJets", "AntiKtVR60Rmax4Rmin0TrackJets", ], 
               Sequencer=exot16Seq ) ## Must re-tag Akt4LCTopo and Akt4Trk to make JetFitterNN work with corresponding VR jets (JZ)
 
+#====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT16Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT16Stream )
+EXOT16Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT16Stream.AcceptAlgs(["EXOT16Kernel"])
+
+# SPECIAL LINES FOR THINNING
+# Thinning service name must match the one passed to the thinning tools 
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="EXOT16ThinningSvc", outStreams=[evtStream] )
+
+
 #=======================================
 # SKIMMING   
 #=======================================
@@ -225,7 +241,7 @@ thinningTools.append(EXOT16ElectronTPThinningTool)
 # calo cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT16ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "EXOT16ElectronCCThinningTool",
-                                                                                     ThinningService         = "EXOT16ThinningSvc",
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Electrons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -237,7 +253,7 @@ thinningTools.append(EXOT16ElectronCCThinningTool)
 
 ##from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 ##EXOT16CA15CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT16CA15CCThinningTool",
-##                                                                       ThinningService         = "EXOT16ThinningSvc",
+##                                                                       StreamName              = streamName,
 ##                                                                       SGKey                   = "CamKt15LCTopoJets",
 ##                                                                       TopoClCollectionSGKey   = "CaloCalTopoClusters",
 ##                                                                       SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV",
@@ -247,7 +263,7 @@ thinningTools.append(EXOT16ElectronCCThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT16Ak10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT16Ak10CCThinningTool",
-                                                                       ThinningService         = "EXOT16ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV",
@@ -312,22 +328,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += exot16Seq
 exot16Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT16Kernel_skim", SkimmingTools = [EXOT16StringSkimmingTool])
 exot16Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT16Kernel", ThinningTools = thinningTools)
-
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT16Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT16Stream )
-EXOT16Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT16Stream.AcceptAlgs(["EXOT16Kernel"])
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT16ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================

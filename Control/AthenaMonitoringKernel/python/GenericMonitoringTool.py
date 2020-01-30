@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -7,6 +7,7 @@ from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 import json
+import six
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 
         return conf
 
-    def defineHistogram(self, *args, **kwargs):
+    def _coreDefine(self, deffunc, *args, **kwargs):
         if 'convention' in kwargs:
             # only if someone really knows what they're doing
             pass
@@ -40,7 +41,13 @@ class GenericMonitoringTool(_GenericMonitoringTool):
                 del kwargs['duration']
             elif hasattr(self, 'defaultDuration'):
                 kwargs['convention'] = self.convention + ':' + self.defaultDuration
-        self.Histograms.append(defineHistogram(*args, **kwargs))
+        self.Histograms.append(deffunc(*args, **kwargs))
+
+    def defineHistogram(self, *args, **kwargs):
+        self._coreDefine(defineHistogram, *args, **kwargs)
+
+    def defineTree(self, *args, **kwargs):
+        self._coreDefine(defineTree, *args, **kwargs)
 
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
@@ -106,7 +113,8 @@ class GenericMonitoringArray:
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
-#  @param opt      Histrogram options (see GenericMonitoringTool)
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
+#  @param opt      Histogram options (see GenericMonitoringTool)
 #  @param labels   Deprecated. Copies value to xlabels.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
@@ -116,15 +124,16 @@ def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
-                    zmin=None, zmax=None, zlabels=None,
-                    opt='', labels=None, convention=None):
+                    zmin=None, zmax=None, zlabels=None, 
+                    opt='', treedef=None, labels=None, convention=None,
+                    cutmask=None):
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'opt', 'convention', 'alias'] 
+    'cutMask', 'opt', 'convention', 'alias', 'treeDef'] 
     # All of these fileds default to 0
-    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zmin',
-    'zmax']
+    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
+    'zmin', 'zmax']
     # All of these fields default to an empty array
     arraySettingsKeys = ['allvars', 'xlabels', 'xarray', 'ylabels', 'yarray', 'zlabels']
     # Initialize a dictionary with all possible fields
@@ -136,7 +145,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     variableAliasSplit = varname.split(';')
     varList = variableAliasSplit[0].split(',')
     if len(variableAliasSplit)==1:
-        alias = '_vs_'.join(varList)
+        alias = '_vs_'.join(reversed(varList))
     elif len(variableAliasSplit)==2:
         alias = variableAliasSplit[1]
     else:
@@ -155,19 +164,20 @@ def defineHistogram(varname, type='TH1F', path=None,
     nVars = len(varList)
 
     # Type
-    if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
-        log.warning('Histogram %s of type %s is not supported for online running and '+\
+    if athenaCommonFlags.isOnline() and type in ['TEfficiency', 'TTree']:
+        log.warning('Object %s of type %s is not supported for online running and '+\
         'will not be added.', varname, type)
         return ''
     # Check that the histogram's dimension matches the number of monitored variables
-    hist2D = ['TH2','TProfile','TEfficiency']
-    hist3D = ['TProfile2D','TEfficiency']
+    # Add TTree to the lists, it can have any number of vars
+    hist2D = ['TH2','TProfile','TEfficiency', 'TTree']
+    hist3D = ['TProfile2D','TEfficiency', 'TTree']
     if nVars==2:
-        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two \
-        monitored variables with a non-2D histogram.'
+        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two ' \
+        'monitored variables with a non-2D histogram.'
     elif nVars==3:
-        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three \
-        monitored variables with a non-3D histogram.'
+        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three ' \
+        'monitored variables with a non-3D histogram.'
     settings['type'] = type
 
     # Path
@@ -185,20 +195,21 @@ def defineHistogram(varname, type='TH1F', path=None,
     if weight is not None:
         settings['weight'] = weight
 
+    # Cutmask
+    if cutmask is not None:
+        settings['cutMask'] = cutmask
+
     # Output path naming convention
     if convention is not None:
         settings['convention'] = convention
 
     # Bin counts and ranges
-    # Next two lines account for integer type differences between python2 and python3
-    import sys
-    integerTypes = (int, long) if sys.version_info < (3,) else (int,)
     # Possible types allowed for bin counts
-    binTypes = integerTypes + (list, tuple)
+    binTypes = six.integer_types + (list, tuple)
 
     # X axis count and range
     assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
-    if isinstance(xbins, integerTypes): # equal x bin widths
+    if isinstance(xbins, six.integer_types): # equal x bin widths
         settings['xbins'], settings['xarray'] = xbins, []
     else: # x bin edges are set explicitly
         settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
@@ -208,7 +219,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     # Y axis count and range
     if ybins is not None:
         assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
-        if isinstance(ybins, integerTypes): # equal y bin widths
+        if isinstance(ybins, six.integer_types): # equal y bin widths
             settings['ybins'], settings['yarray'] = ybins, []
         else: # y bin edges are set explicitly
             settings['ybins'], settings['yarray'] = len(ybins)-1, ybins
@@ -228,12 +239,17 @@ def defineHistogram(varname, type='TH1F', path=None,
     if labels is not None:
         assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
         depricated "labels" argument with [xyz]labels arguments.'
+        log.warning('Histogram %s configured with deprecated "labels" argument. Please use "xlabels" and "ylabels" instead.', 
+                    settings['title'])
         nLabels = len(labels)
         if nLabels==xbins:
             xlabels = labels
         elif nLabels>xbins:
+            if nLabels > xbins+ybins:
+                log.warning('More labels specified for %s (%d) than there are x+y bins (%d+%d)',
+                            settings['title'], nLabels, xbins, ybins)
             xlabels = labels[:xbins]
-            ylabels = labels[xbins:]
+            ylabels = labels[xbins:xbins+ybins]
     # Then, parse the [xyz]label arguments
     if xlabels is not None and len(xlabels)>0:
         assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'
@@ -247,6 +263,11 @@ def defineHistogram(varname, type='TH1F', path=None,
         assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
         settings['zlabels'] = zlabels
 
+    # Tree branches
+    if treedef is not None:
+        assert type=='TTree','cannot define tree branches for a non-TTree object'
+        settings['treeDef'] = treedef
+
     # Filling options
     if len(opt)>0:
         ######################################################
@@ -258,3 +279,27 @@ def defineHistogram(varname, type='TH1F', path=None,
         settings['opt'] = opt
 
     return json.dumps(settings)
+
+## Generate tree definition string for the `GenericMonitoringTool.Histograms` property. Convenience tool for 
+#
+#  For full details see the GenericMonitoringTool documentation.
+#  @param varname  at least one variable name (more than one should be separated by comma);
+#                  optionally give the name of the tree by appending ";" plus the tree name
+#  @param treedef  TTree branch definition string. Looks like the standard TTree definition
+#                  (see https://root.cern.ch/doc/master/classTTree.html#addcolumnoffundamentaltypes).
+#                  In fact if only scalars are given, it is exactly the same as you would use to
+#                  define the TTree directly: "varA/F:varB/I:...".  Vectors can be defined by giving
+#                  "vector<int>", etc., instead of "I".
+#  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
+#  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
+#  @param opt      TTree options (none currently)
+#  @param convention Expert option for how the objects are placed in ROOT
+
+def defineTree(varname, treedef, path=None,
+                    title=None, alias=None,
+                    opt='', convention=None,
+                    cutmask=None):
+    return defineHistogram(varname, type='TTree', path=path, title=title, alias=alias,
+                            treedef=treedef, opt=opt, convention=convention,
+                            cutmask=cutmask)     

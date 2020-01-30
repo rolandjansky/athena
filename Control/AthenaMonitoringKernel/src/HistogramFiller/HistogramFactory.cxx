@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "CxxUtils/checker_macros.h"
 
@@ -7,6 +7,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TTree.h"
 #include "TROOT.h"
 
 #include "HistogramException.h"
@@ -53,12 +54,14 @@ TNamed* HistogramFactory::create(const HistogramDef& def) {
     rootObj = create2DProfile<TProfile2D>(def);
   } else if (def.type == "TEfficiency") {
     rootObj = createEfficiency(def);
+  } else if (def.type == "TTree") {
+    rootObj = createTree(def);
   }
   
   if (rootObj == 0) {
     throw HistogramException("Can not create yet histogram of type: >" + def.type + "<\n" +
                              "Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D, " +
-                             "TEfficiency.");
+                             "TEfficiency, TTree.");
   }
 
   return rootObj;
@@ -135,7 +138,16 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   // Hold global lock until we have detached object from gDirectory
   {
     std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
-    e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
+    if (def.ybins==0 && def.zbins==0) { // 1D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax);
+    } else if (def.ybins>0 && def.zbins==0) { // 2D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax);
+    } else if (def.ybins>0 && def.zbins>0) { // 3D TEfficiency
+      e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
+        def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax, def.zbins, def.zmin, def.zmax);
+    }
     e->SetDirectory(0);
   }
   if ( !m_histSvc->regEfficiency(fullName,e) ) {
@@ -145,9 +157,11 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   TH1* total ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetTotalHistogram());
   setLabels(total->GetXaxis(), def.xlabels);
   setLabels(total->GetYaxis(), def.ylabels);
+  setLabels(total->GetZaxis(), def.zlabels);
   TH1* passed ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetPassedHistogram());
   setLabels(passed->GetXaxis(), def.xlabels);
   setLabels(passed->GetYaxis(), def.ylabels);
+  setLabels(passed->GetZaxis(), def.zlabels);
 
   return e;
 }
@@ -186,6 +200,32 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   setOpts(h, def.opt);
 
   return h;
+}
+
+TTree* HistogramFactory::createTree(const HistogramDef& def) {
+   std::string fullName = getFullName(def);
+
+  // Check if tree exists already
+  TTree* t = nullptr;
+  if ( m_histSvc->existsTree(fullName) ) {
+    if ( !m_histSvc->getTree(fullName,t) ) {
+      throw HistogramException("Tree >"+ fullName + "< seems to exist but can not be obtained from THistSvc");
+    }
+    return t;
+  }
+
+  // Otherwise, create the tree and register it
+  // branches will be created by HistogramFillerTree
+  {
+    std::scoped_lock<std::mutex> dirLock(s_histDirMutex);
+    t = new TTree(def.alias.c_str(),def.title.c_str());
+    t->SetDirectory(0);
+  }
+  if ( !m_histSvc->regTree(fullName,std::unique_ptr<TTree>(t) ) ) {
+    throw HistogramException("Tree >"+ fullName + "< can not be registered in THistSvc");
+  }
+  return t;
+ 
 }
 
 void HistogramFactory::setOpts(TH1* hist, const std::string& opt) {

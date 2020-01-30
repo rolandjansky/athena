@@ -414,9 +414,18 @@ if dumpPixInfo:
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDCSStateConditions=True,
+                                    UseDCSStatusConditions=True)
+
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+    if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
+      condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
 
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):

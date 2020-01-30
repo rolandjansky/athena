@@ -56,32 +56,32 @@ set( extra_patterns "LArDetectorToolNV|is still valid|no data retrieved|Database
 atlas_add_test( TileDigitsContByteStreamCnv_test
    SCRIPT test/TileDigitsContByteStreamCnv_test.sh
    PROPERTIES TIMEOUT 500
-   EXTRA_PATTERNS ${extra_patterns} )
+   LOG_IGNORE_PATTERN ${extra_patterns} )
 
 atlas_add_test( TileRawChannelContByteStreamCnv_test
    SCRIPT test/TileRawChannelContByteStreamCnv_test.sh
    PROPERTIES TIMEOUT 500
-   EXTRA_PATTERNS ${extra_patterns} )
+   LOG_IGNORE_PATTERN ${extra_patterns} )
 
 atlas_add_test( TileBeamElemContByteStreamCnv_test
    SCRIPT test/TileBeamElemContByteStreamCnv_test.sh
    PROPERTIES TIMEOUT 500
-   EXTRA_PATTERNS ${extra_patterns} )
+   LOG_IGNORE_PATTERN ${extra_patterns} )
 
 atlas_add_test( TileL2ContByteStreamCnv_test
    SCRIPT test/TileL2ContByteStreamCnv_test.sh
    PROPERTIES TIMEOUT 500
-   EXTRA_PATTERNS ${extra_patterns} )
+   LOG_IGNORE_PATTERN ${extra_patterns} )
 
 atlas_add_test( TileLaserObjByteStreamCnv_test
    SCRIPT test/TileLaserObjByteStreamCnv_test.sh
    PROPERTIES TIMEOUT 500
-   EXTRA_PATTERNS ${extra_patterns} )
+   LOG_IGNORE_PATTERN ${extra_patterns} )
 
 atlas_add_test( TileMuRcvContByteStreamCnv_test
    SCRIPT test/TileMuRcvContByteStreamCnv_test.sh
    PROPERTIES TIMEOUT 500
-   EXTRA_PATTERNS ${extra_patterns} )
+   LOG_IGNORE_PATTERN ${extra_patterns} )
 
 
 atlas_add_test( TileRawChannel2Bytes4_test

@@ -7,6 +7,7 @@
 #include "TrigOutputHandling/TriggerBitsMakerTool.h"
 #include "../TriggerEDMSerialiserTool.h"
 #include "../TriggerEDMDeserialiserAlg.h"
+#include "../TruncationAnalysisAlg.h"
 
 DECLARE_COMPONENT( HLTEDMCreator )
 DECLARE_COMPONENT( HLTEDMCreatorAlg )
@@ -17,3 +18,4 @@ DECLARE_COMPONENT( DecisionSummaryMakerAlg )
 DECLARE_COMPONENT( TriggerBitsMakerTool )
 DECLARE_COMPONENT( TriggerEDMSerialiserTool )
 DECLARE_COMPONENT( TriggerEDMDeserialiserAlg )
+DECLARE_COMPONENT( TruncationAnalysisAlg )

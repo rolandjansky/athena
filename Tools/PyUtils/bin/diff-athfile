@@ -85,8 +85,8 @@ if __name__ == "__main__":
 
         for k in bitByBitKeys:
             # First check dictionary keys are the same
-            skeys = fhandles[fnames[0]].infos[k].keys()
-            skeys1 = fhandles[fnames[1]].infos[k].keys()
+            skeys = list(fhandles[fnames[0]].infos[k].keys())
+            skeys1 = list(fhandles[fnames[1]].infos[k].keys())
             skeys.sort()
             skeys1.sort()
             if skeys != skeys1:
@@ -109,11 +109,13 @@ if __name__ == "__main__":
                         
                 
         msg.info(':'*80)
-    except Exception, e:
+    except Exception as e:
         msg.error("Caught exception [%s] !!", str(e.__class__))
         msg.error("What:\n%s\n%s\n%s",e,
                   sys.exc_info()[0],
                   sys.exc_info()[1])
+        import traceback
+        msg.error(traceback.print_exc())
         sc = 2
         pass
 

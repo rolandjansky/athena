@@ -22,6 +22,7 @@
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayerVectors_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/CylinderBounds.h"
@@ -72,14 +73,11 @@ namespace InDet{
     ///////////////////////////////////////////////////////////////////
     /// @name Main methods for road builder
     ///////////////////////////////////////////////////////////////////
-    //@{
-    virtual void detElementsRoad
-      (const std::list<const Trk::SpacePoint*>&,
-       std::list<const InDetDD::SiDetectorElement*>&) const override;
-  
+    //@{ 
     virtual void detElementsRoad
       (std::list<Amg::Vector3D>&, 
-       std::list<const InDetDD::SiDetectorElement*>&) const override;
+       std::list<const InDetDD::SiDetectorElement*>&,
+       bool test) const override;
 
     virtual void detElementsRoad
       (const Trk::TrackParameters&,
@@ -129,39 +127,15 @@ namespace InDet{
     /// @name Data members, which are updated only in initialize
     //@{
     Trk::CylinderBounds                  m_bounds{};
-    std::vector<SiDetElementsLayer_xk>   m_layer[3]; //!< Layers
     Trk::MagneticFieldMode               m_fieldModeEnum{Trk::FullField};
     int                                  m_outputlevel{};
-    //@}
-
-    /// @name Flag
-    //@{
-    /// This is not set by third detElementsRoad method but used by first detElementsRoad method.
-    /// This is not multithread safe.
-    mutable std::atomic_bool m_test{};
-    //@}
-
-    /// @name Cache
-    /// SiDetElementsLayer_xk stores used element information
-    /// and has to be event dependent.
-    /// SG::SlotSpecificObj is used to make cache event dependent.
-    //@{
-    struct CacheEntry {
-      /// Mutex to protect the contents
-      std::mutex m_mutex;
-      /// To know if a new event or not
-      EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
-      /// std::vector<SiDetElementsLayer_xk> for each layer. This is not const.
-      SiDetElementsLayerVectors_xk m_layerVectors{SiDetElementsLayerVectors_xk(3)};
-    };
-    mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; //!< Guarded by m_mutex
     //@}
 
     ///////////////////////////////////////////////////////////////////
     // Methods
     ///////////////////////////////////////////////////////////////////
 
-    void mapDetectorElementsProduction();
+    void computeBounds();
     float stepToDetElement(const InDetDD::SiDetectorElement*&,
                            Amg::Vector3D&, Amg::Vector3D&) const;
 
@@ -169,7 +143,14 @@ namespace InDet{
 
     MsgStream& dumpConditions(MsgStream& out) const;
 
-    std::unique_lock<std::mutex> getLayers(std::vector<SiDetElementsLayer_xk>* (&layer)[3]) const;
+    inline
+    const SiDetElementsLayerVectors_xk *getLayers() const {
+       SG::ReadCondHandle<SiDetElementsLayerVectors_xk> layerVec(m_layerVecKey);
+       if (not layerVec.isValid()) {
+          ATH_MSG_ERROR("Failed to get " << m_layerVecKey.key());
+       }
+       return layerVec.cptr();
+    }
   };
 
   MsgStream&    operator << (MsgStream&   , const SiDetElementsRoadMaker_xk&);

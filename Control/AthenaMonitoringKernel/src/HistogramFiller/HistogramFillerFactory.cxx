@@ -17,6 +17,7 @@
 #include "HistogramFillerProfile.h"
 #include "HistogramFiller2D.h"
 #include "HistogramFiller2DProfile.h"
+#include "HistogramFillerTree.h"
 
 #include "HistogramFillerFactory.h"
 
@@ -46,6 +47,8 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
     return new HistogramFiller2DProfile(def, histogramProvider);
   } else if (def.type == "TEfficiency") {
     return new HistogramFillerEfficiency(def, histogramProvider);
+  } else if (def.type == "TTree") {
+    return new HistogramFillerTree(def, histogramProvider);
   }
   
   return nullptr;

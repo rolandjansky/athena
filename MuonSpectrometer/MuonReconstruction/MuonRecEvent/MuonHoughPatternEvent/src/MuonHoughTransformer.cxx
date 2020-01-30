@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer.h"
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughTransformer::MuonHoughTransformer(int nbins, int nbins_angle, double detectorsize, double detectorsize_angle, double threshold_histo, int number_of_sectors):
   m_threshold_histo(threshold_histo), m_eventsize(0), m_eventsize_weightfactor(20.), m_nbins(nbins), m_nbins_plus3(m_nbins + 3), m_nbins_angle(nbins_angle),
@@ -15,12 +17,10 @@ m_detectorsize(detectorsize), m_detectorsize_angle(detectorsize_angle), m_number
 
   m_use_negative_weights = false;
   m_ip_setting = true;
-  // std::cout << "Constructor MuonHoughTransformer" << std::endl;
 
   m_stepsize = 2*detectorsize / (nbins+0.);
   m_stepsize_per_angle = detectorsize_angle / (nbins_angle+0.);
 
-  //  initTables();
   m_add_weight_radius = 1.;
   m_histos.reserve(m_number_of_sectors);
   for (int i=0; i<m_number_of_sectors; i++)
@@ -36,11 +36,9 @@ m_detectorsize(detectorsize), m_detectorsize_angle(detectorsize_angle), m_number
 
 MuonHoughTransformer::~MuonHoughTransformer()
 {
-  //std::cout << "Destructor MuonHoughTransformer" << std::endl;
   for (int i=0; i<m_number_of_sectors; i++)
     {
       delete m_histos.getHisto(i);
-      //m_histos.getHisto(i)=0;
     }
 }
 
@@ -68,6 +66,7 @@ void MuonHoughTransformer::fill(const MuonHoughHitContainer* event, bool subtrac
 
 MuonHoughPattern* MuonHoughTransformer::associateHitsToMaximum(const MuonHoughHitContainer* event, double maximum_residu_mm, double maximum_residu_grad, int maximum_number, bool which_segment, int printlevel)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformer::associateHitsToMaximum");
   MuonHoughPattern* houghpattern;
   std::pair <double,double> coordsmaximum;
   std::pair <int,int> maximumbin;
@@ -79,19 +78,19 @@ MuonHoughPattern* MuonHoughTransformer::associateHitsToMaximum(const MuonHoughHi
     {
       coordsmaximum = m_histos.getHisto(sector)->getCoordsMaximum(maximum_number,which_segment,printlevel);  
       
-      if (printlevel>=4)
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 	{
-	  std::cout << "maximum binnumber of histogram: " << maximumbin.second << " value: " << m_histos.getHisto(sector)->getBinContent(maximumbin.second)  << std::endl;
-	  std::cout << " coordinates: " << coordsmaximum.first << " second " << coordsmaximum.second << std::endl;
+	  log << MSG::VERBOSE << "maximum binnumber of histogram: " << maximumbin.second << " value: " << m_histos.getHisto(sector)->getBinContent(maximumbin.second)  << endmsg;
+	  log << MSG::VERBOSE << " coordinates: " << coordsmaximum.first << " second " << coordsmaximum.second << endmsg;
 	
 	  if (m_number_of_sectors!=1)
-	    {std::cout << "sector: " << sector << std::endl;}
+	    {log << MSG::VERBOSE << "sector: " << sector << endmsg;}
 	}
       
       if (maximumbin.second == -1) // no maximum, no bin above threshold
 	{
-	  if (printlevel>=4)
-	    {std::cout << "MuonHoughTransformer::No Maximum Found" << std::endl;}
+	  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
+	    {log << MSG::VERBOSE << "MuonHoughTransformer::No Maximum Found" << endmsg;}
 	  return 0;
 	}
       else 
@@ -103,8 +102,8 @@ MuonHoughPattern* MuonHoughTransformer::associateHitsToMaximum(const MuonHoughHi
     }
   else
     {
-      if (printlevel>=4)
-	{std::cout << "MuonHoughTransformer::No Maximum Found" << std::endl;}
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE)
+	{log << MSG::VERBOSE << "MuonHoughTransformer::No Maximum Found" << endmsg;}
       return 0;
     }
   
@@ -114,16 +113,15 @@ MuonHoughPattern* MuonHoughTransformer::associateHitsToMaximum(const MuonHoughHi
 MuonHoughPattern* MuonHoughTransformer::associateHitsToCoords(const MuonHoughHitContainer* event,std::pair <double,double> coordsmaximum,double maximum_residu_mm, double maximum_residu_angle, int sector, bool which_segment, int printlevel)const
 {
   MuonHoughPattern* houghpattern = hookAssociateHitsToMaximum(event,coordsmaximum,maximum_residu_mm,maximum_residu_angle,sector,which_segment,printlevel);
-  //  houghpattern->setMaximumHistogram() TODO
   return houghpattern;
 }
 
 MuonHoughPattern* MuonHoughTransformer::associateHitsToBinnumber(const MuonHoughHitContainer* event,int binnumber,double maximum_residu_mm, double maximum_residu_angle, int sector, bool which_segment, int printlevel)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformer::associateHitsToBinnumber");
   // this one is currently in use
-
-  if (printlevel>=4) {
-    std::cout << "maximum of histogram: " << m_histos.getHisto(sector)->getBinContent(binnumber) << std::endl; 
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE) {
+    log << MSG::VERBOSE << "maximum of histogram: " << m_histos.getHisto(sector)->getBinContent(binnumber) << endmsg; 
 
   }
 
@@ -139,8 +137,6 @@ std::pair <double,double> MuonHoughTransformer::getEndPointsFillLoop(double radi
 
   if (-radius < m_histos.getHisto(sector)->getXmin()) // randomizer to avoid binning effects
     {
-      //int floor = (int) std::floor(radius);
-      //endpoints.first=m_histos.getHisto(sector)->getXmin() + floor%stepsize; //randomizer, is there a faster way?
       endpoints.first=m_histos.getHisto(sector)->getXmin() + 0.5*stepsize; // no randomizer! no radius constraint
     }
 
@@ -153,6 +149,7 @@ std::pair <double,double> MuonHoughTransformer::getEndPointsFillLoop(double radi
 
 double MuonHoughTransformer::sinus(double angle)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformer::sinus");
   std::map <double,double>::const_iterator find;
 
   find = m_sin.find(angle);
@@ -163,13 +160,15 @@ double MuonHoughTransformer::sinus(double angle)const
     }
   else 
     {
-      std::cout << "MuonHoughTransformer::WARNING: angle: " << angle << " not in map!" << std::endl;
+      if (log.level()<=MSG::WARNING)
+	log << MSG::WARNING << "MuonHoughTransformer::WARNING: angle: " << angle << " not in map!" << endmsg;
       return std::sin(angle);
     }
 }
 
 double MuonHoughTransformer::cosinus(double angle)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformer::cosinus");
   std::map <double,double>::const_iterator find;
 
   find = m_cos.find(angle);
@@ -180,7 +179,8 @@ double MuonHoughTransformer::cosinus(double angle)const
     }
   else 
     {
-      std::cout << "MuonHoughTransformer::WARNING: angle: " << angle << " not in map!" << std::endl;
+      if (log.level()<=MSG::WARNING)
+	log << MSG::WARNING << "MuonHoughTransformer::WARNING: angle: " << angle << " not in map!" << endmsg;
       return std::cos(angle);
     }
 }
@@ -204,15 +204,6 @@ void MuonHoughTransformer::resetHisto()
   m_histos.reset();
 }
 
-// double MuonHoughTransformer::getHeigthMaximum(int maximum_number, bool which_segment, int printlevel)
-// {
-//   std::pair <int,int> maximumbin;
-//   maximumbin = m_histos.getMaximumBinnumber(maximum_number,which_segment,printlevel); // sector, binnumber
-
-//   // should be easier, function in MuonHoughhisto2dcontainer
-//   return m_histos.getHisto(maximumbin.first)->getBinContent(maximumbin.second);
-// }
-
 std::vector <std::pair <int,int> > MuonHoughTransformer::getMaxima(int max_patterns)const
 {
   std::vector <std::pair <int,int> > maximumbins; // sorted
@@ -221,8 +212,6 @@ std::vector <std::pair <int,int> > MuonHoughTransformer::getMaxima(int max_patte
 
   for (int sector=0; sector<m_number_of_sectors; sector++) // to be made more general when m_number_of_sectors ==1 e.g.
     {
-      // pair (binnumber, content of that bin)
-      //      std::pair <int, double> maximumbin = m_histos.getHisto(sector)->getMaximumBin();
       std::pair <int,double> maximumbin = m_histos.getHisto(sector)->getMax();
       std::pair < std::pair <int,int> , double > maximum;
       maximum.first.first = sector;
@@ -240,7 +229,6 @@ std::vector <std::pair <int,int> > MuonHoughTransformer::getMaxima(int max_patte
   while (count_maxima!=size && number_of_patterns!=max_patterns)
     {
       std::pair <int,int> maximumbin = maxima[count_maxima].first; 
-      //      if (sectorNotInMaximumBinsYet(maximumbins,maximumbin.first))
 
       bool check = true; // check if sector is not nearby a sector already chosen
       int sector = maximumbin.first;
@@ -264,8 +252,6 @@ std::vector <std::pair <int,int> > MuonHoughTransformer::getMaxima(int max_patte
 	    {
 	      int sectorminmin = sectormin - 1;
 	      int sectorplusplus = sectorplus + 1;
-// 	      if (sectorminmin < 0) {sectorminmin = m_number_of_sectors;} // not necessary since those should be odd
-// 	      if (sectorplusplus > m_number_of_sectors) {sectorplusplus=0;}
 	      sectors.insert(sectorminmin);
 	      sectors.insert(sectorplusplus);
 	    }

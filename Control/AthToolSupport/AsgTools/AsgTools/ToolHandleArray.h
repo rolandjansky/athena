@@ -1,14 +1,14 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandleArray.h 613788 2014-08-28 09:22:42Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_TOOLHANDLEARRAY_H
 #define ASGTOOLS_TOOLHANDLEARRAY_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
-
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/ToolHandle.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 // System include(s):
 #include <vector>
@@ -51,5 +51,5 @@ public:
 // Include the implementation of the code:
 #include "AsgTools/ToolHandleArray.icc"
 
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGTOOLS_TOOLHANDLEARRAY_H

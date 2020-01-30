@@ -16,7 +16,7 @@
 
 #include "HLTCaloCellMaker.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),

@@ -47,12 +47,16 @@
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
@@ -123,9 +127,11 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( L2IsoMuonContainer );
   DEF_XAOD_KEY( MuonContainer );
   DEF_XAOD_KEY( TauJetContainer );
+  DEF_XAOD_KEY( TauTrackContainer );
   DEF_XAOD_KEY( CaloClusterContainer );
   DEF_XAOD_KEY( JetContainer );
   DEF_XAOD_KEY( VertexContainer );
+  DEF_XAOD_KEY( BTaggingContainer );
   DEF_XAOD_KEY( TrigBphysContainer );
 #undef DEF_VIEWS
 #undef DEF_KEY

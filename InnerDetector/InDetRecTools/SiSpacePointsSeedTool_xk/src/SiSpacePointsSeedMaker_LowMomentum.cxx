@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -720,18 +720,16 @@ void  InDet::SiSpacePointsSeedMaker_LowMomentum::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size;  ++i) {
 
     if (!data.r_map[i]) continue;
-    r = data.r_Sorted[i].begin();
 
-    while (r!=data.r_Sorted[i].end()) {
+    for (InDet::SiSpacePointForSeed* r  : data.r_Sorted[i]) {
       
       // Azimuthal angle sort
       //
-      float F = (*r)->phi();
+      float F = r->phi();
       if (F<0.) F+=pi2;
 
       int   f = static_cast<int>(F*m_sF);
@@ -739,7 +737,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       else if (f > m_fNmax) f = 0;
 
       int z;
-      float Z = (*r)->z();
+      float Z = r->z();
 
       // Azimuthal angle and Z-coordinate sort
       //
@@ -750,10 +748,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       }
       int n = f*SizeZ+z;
       ++data.nsaz;
-      data.rfz_Sorted[n].push_back(*r);
+      data.rfz_Sorted[n].push_back(r);
       if (!data.rfz_map[n]++) data.rfz_index[data.nrfz++] = n;
-      data.r_Sorted[i].erase(r++);
     }
+    data.r_Sorted[i].clear();
     data.r_map[i] = 0;
   }
   data.nr    = 0;
@@ -813,7 +811,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
   }
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -857,17 +855,17 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed, float K) const
 {
 
   const float COF  = 134*.07*9.;
   const float COFP = 134*.2*9.;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;

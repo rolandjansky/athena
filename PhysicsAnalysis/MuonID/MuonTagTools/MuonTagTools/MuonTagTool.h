@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTAGTOOL_H 
@@ -19,7 +19,7 @@ Purpose : build the Muon Tag objects - MuonTagCollection.h.
 #include <inttypes.h>
 #include "xAODMuon/MuonContainer.h"
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <map>

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -114,15 +114,15 @@ def setupCommonServices():
     svcMgr += TrigEventSelectorByteStream("EventSelector", ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
     theApp.EvtSel = "EventSelector"
 
-    # make the HltEventLoopMgr service available
-    svcMgr.HltEventLoopMgr = theApp.service( "HltEventLoopMgr" )     # already instantiated
-    svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
-    svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
-    svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
-    svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
-
-    # Time to wait before closing DB connections (see ATR-8907)
-    svcMgr.HltEventLoopMgr.dbConnIdleWaitSec = 6
+    # Online event loop manager
+    from TrigServicesConfig import HltEventLoopMgr
+    loopMgr = HltEventLoopMgr("HltEventLoopMgr")
+    loopMgr.WhiteboardSvc = "EventDataSvc"
+    loopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+    loopMgr.EvtSel = svcMgr.EventSelector
+    loopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
+    svcMgr += loopMgr
+    theApp.EventLoop = loopMgr.name()
 
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaPoolSTLAllocator.icc,v 1.2 2008-08-26 02:12:26 ssnyder Exp $
 /**
  * @file  AthAllocators/ArenaPoolSTLAllocator.icc
  * @author scott snyder
@@ -64,6 +62,8 @@ ArenaAllocatorBase::Params ArenaPoolSTLAllocator_initParams<T>::params() const
  *               allocator name.
  */
 template <class T, class VETO>
+// False positive --- cppcheck doesn't grok template specialization
+// cppcheck-suppress uninitMemberVar
 ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
  (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
    : m_pool (ArenaPoolSTLAllocator_initParams<T> (nblock, name))
@@ -91,6 +91,8 @@ ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
  */
 template <class T, class VETO>
 template <class U, class V>
+// False positive --- cppcheck doesn't grok template specialization
+// cppcheck-suppress uninitMemberVar
 ArenaPoolSTLAllocator<T, VETO>::ArenaPoolSTLAllocator
   (const ArenaPoolSTLAllocator<U, V>& a)
     : m_pool (ArenaPoolSTLAllocator_initParams<T> (a.nblock(), a.name()))

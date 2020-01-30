@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,9 +25,8 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "InDetReadoutGeometry/TRT_DetElementContainer.h"
 
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
-
+#include "LumiBlockData/LuminosityCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 class ITRT_StrawSummaryTool;
 class ITRT_DriftFunctionTool;
 class IInDetConditionsSvc;
@@ -74,8 +73,10 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this,"xAODEventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo" }; //!< key to retrieve eventinfo
   SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
+  SG::ReadCondHandleKey<LuminosityCondData>     m_lumiDataKey
+      {this, "LumiDataKey", "", "SG key for luminosity data"};
+
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
   ToolHandle<ITRT_StrawStatusSummaryTool> m_ConditionsSummary; //!< The ConditionsSummaryTool
 //  ServiceHandle<ITRT_ConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool

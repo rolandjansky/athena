@@ -89,8 +89,4 @@ class TFCSExtrapolationState:public TObject {
   ClassDef(TFCSExtrapolationState,1)  //TFCSExtrapolationState
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSExtrapolationState+;
-#endif
-
 #endif

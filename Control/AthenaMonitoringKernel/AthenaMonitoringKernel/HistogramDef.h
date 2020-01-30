@@ -22,6 +22,7 @@ namespace Monitored {
     std::string tld{""}; //!< top level directory (below THistSvc stream)
     std::string convention; //!< path naming convention (e.g. OFFLINE)
     std::string weight; //!< name of weight variable
+    std::string cutMask; //!< variable that defines whether event is accepted
 
     std::string xvar; //!< name of x variable
     int xbins; //!< number of y bins
@@ -38,9 +39,12 @@ namespace Monitored {
     std::vector<double> yarray; //!< array of y bin edges
 
     std::string zvar; //!< name of z variable
+    int zbins; //!< number of z bins
     float zmin; //!< z axis minimum
     float zmax; //!< z axis maximum
     std::vector<std::string> zlabels; //!< labels for z axis
+
+    std::string treeDef;
 
     bool ok{false}; //!< good declaration
 

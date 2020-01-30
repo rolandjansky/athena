@@ -53,6 +53,18 @@ prefixName = ""
 
 ## More fine-tuning available for each tool/alg below (default value shown)
 
+## Steer output file
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+streamName = primDPD.WriteDAOD_IDNCBStream.StreamName
+fileName   = buildFileName( primDPD.WriteDAOD_IDNCBStream )
+IDNCBStream = MSMgr.NewPoolRootStream( streamName, fileName )
+IDNCBStream.AcceptAlgs(["DFIDNCB_KERN"])
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="IDNCBThinningSvc", outStreams=[evtStream] )
 #################
 ### Setup tools
 #################
@@ -255,28 +267,25 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 thin_sct = "SCT_Clusters.bec != 0"
 IDNCBThinningTool_sct = DerivationFramework__TrackMeasurementThinning( name = "IDNCBSCTThinningTool",
-    ThinningService = "IDNCBThinningSvc",
+    StreamName = streamName,
     SelectionString = thin_sct,
-    TrackMeasurementValidationKey = "SCT_Clusters",
-    ApplyAnd = False) 
+    TrackMeasurementValidationKey = "SCT_Clusters")
 ToolSvc += IDNCBThinningTool_sct
 thinningTools.append(IDNCBThinningTool_sct)
 
 thin_pix = "PixelClusters.bec != 0"
 IDNCBThinningTool_pix = DerivationFramework__TrackMeasurementThinning( name = "IDNCBPIXThinningTool",
-    ThinningService = "IDNCBThinningSvc",
+    StreamName = streamName,
     SelectionString = thin_pix,
-    TrackMeasurementValidationKey = "PixelClusters",
-    ApplyAnd = False) 
+    TrackMeasurementValidationKey = "PixelClusters")
 ToolSvc += IDNCBThinningTool_pix
 thinningTools.append(IDNCBThinningTool_pix)
 
 thin_trt = "(TRT_DriftCircles.bec != -2) && (TRT_DriftCircles.layer > 5)"
 IDNCBThinningTool_trt = DerivationFramework__TrackMeasurementThinning( name = "IDNCBTRTThinningTool",
-    ThinningService = "IDNCBThinningSvc",
+    StreamName = streamName,
     SelectionString = thin_trt,
-    TrackMeasurementValidationKey = "TRT_DriftCircles",
-    ApplyAnd = False) 
+    TrackMeasurementValidationKey = "TRT_DriftCircles")
 ToolSvc += IDNCBThinningTool_trt
 thinningTools.append(IDNCBThinningTool_trt)
 
@@ -308,18 +317,6 @@ ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool(
 svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 
-## Steer output file
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
-from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-streamName = primDPD.WriteDAOD_IDNCBStream.StreamName
-fileName   = buildFileName( primDPD.WriteDAOD_IDNCBStream )
-IDNCBStream = MSMgr.NewPoolRootStream( streamName, fileName )
-IDNCBStream.AcceptAlgs(["DFIDNCB_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDNCBThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 excludedTRTData = "-T0.-TRTboard.-TRTchip.-bitPattern.-driftTimeToTCorrection.-driftTimeHTCorrection.-highThreshold.-strawnumber"

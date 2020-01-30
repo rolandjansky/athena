@@ -14,9 +14,9 @@
 
 // Gaudi/Athena include(s):
 #include "AsgTools/AsgMetadataTool.h"
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "AthenaKernel/IMetaDataTool.h"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 
 // EDM include(s):
 #include "xAODTrigger/TriggerMenuContainer.h"
@@ -35,9 +35,9 @@ namespace xAODMaker {
    /// $Date: 2015-07-16 13:11:56 +0200 (Thu, 16 Jul 2015) $
    ///
    class TriggerMenuMetaDataTool : public asg::AsgMetadataTool
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
    , public virtual ::IMetaDataTool
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
    {
 
       /// Declare the correct constructor for Athena

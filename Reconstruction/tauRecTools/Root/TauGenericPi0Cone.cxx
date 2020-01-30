@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -11,17 +11,8 @@
 //
 //-----------------------------------------------------------------------------
 
-//#include <GaudiKernel/IToolSvc.h>
-//#include <GaudiKernel/ListItem.h>
-
 #include "FourMomUtils/P4Helpers.h"
-//#include "FourMom/P4EEtaPhiM.h"
-//#include "Particle/TrackParticle.h"
-
 #include "tauRecTools/TauEventData.h"
-//#include "tauEvent/TauCommonDetails.h"
-//#include "tauEvent/TauJetParameters.h"
-
 #include "tauRecTools/TauGenericPi0Cone.h"
 #include "tauRecTools/TauTrackFilterUtils.h"
 
@@ -34,7 +25,6 @@
 
 TauGenericPi0Cone::TauGenericPi0Cone(const std::string &name) :
 TauRecToolBase(name) {
-    declareProperty("ConfigPath", m_configPath);
 }
 
 
@@ -51,8 +41,6 @@ TauGenericPi0Cone::~TauGenericPi0Cone() {
 //-----------------------------------------------------------------------------
 
 StatusCode TauGenericPi0Cone::initialize() {
-    ATH_MSG_VERBOSE("TauGenericPi0Cone Initialising");
-
     return StatusCode::SUCCESS;
 }
 
@@ -62,8 +50,6 @@ StatusCode TauGenericPi0Cone::initialize() {
 //-----------------------------------------------------------------------------
 
 StatusCode TauGenericPi0Cone::finalize() {
-    ATH_MSG_VERBOSE("TauGenericPi0Cone Finalizing");
-
     return StatusCode::SUCCESS;
 }
 

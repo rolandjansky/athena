@@ -126,7 +126,7 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
       TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv AthenaKernel
-      EXTRA_PATTERNS "MultiRange built successfully|element hash max"
+      LOG_IGNORE_PATTERN "MultiRange built successfully|element hash max"
       PROPERTIES TIMEOUT 300 )
    set_target_properties ( MuonEventTPCnv_${name} PROPERTIES ENABLE_EXPORTS True )
 

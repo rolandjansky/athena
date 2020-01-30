@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from six import iteritems
@@ -107,8 +107,7 @@ class L1Decoder(L1Decoder) :
 
         # CTP unpacker
 
-        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),
-                                       ForceEnableAllChains = True)
+        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.getDefaultProperty("OutputLevel"),)
 
         self.ctpUnpacker = ctpUnpacker
         from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
@@ -168,8 +167,10 @@ def L1DecoderCfg(flags):
     acc.merge( TrigConfigSvcCfg( flags ) )
 
     # Add the algorithm producing the input RoIBResult
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg, L1TriggerResultMakerCfg
+    # TODO: implement flags to allow disabling either RoIBResult or L1TriggerResult
     acc.merge( RoIBResultDecoderCfg(flags) )
+    acc.merge( L1TriggerResultMakerCfg(flags) )
 
     return acc,decoderAlg
 

@@ -1,0 +1,78 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace InDetDD {
+inline double & TRT_BarrelDescriptor::strawXPos       	(unsigned int i) {
+  return m_x[i];
+}
+
+inline const double & TRT_BarrelDescriptor::strawXPos (unsigned int i) const {
+  return m_x[i];
+}
+
+inline double & TRT_BarrelDescriptor::strawYPos       (unsigned int i) {
+  return m_y[i];
+}
+inline const double & TRT_BarrelDescriptor::strawYPos (unsigned int i) const {
+  return m_y[i];
+}
+
+inline unsigned int TRT_BarrelDescriptor::nStraws() const {
+  return m_x.size();
+}
+
+inline const double & TRT_BarrelDescriptor::strawLength() const {
+  return m_length;
+}
+
+inline double & TRT_BarrelDescriptor::strawLength() {
+  return m_length;
+}
+
+inline void TRT_BarrelDescriptor::strawLength(double newLength) {
+  m_length = newLength;
+}
+
+ 
+inline double TRT_BarrelDescriptor::innerTubeRadius() const
+{
+  return m_innerTubeRadius;
+}
+
+
+inline const double & TRT_BarrelDescriptor::strawZDead() const  {
+  return m_zDead;
+}
+
+inline double & TRT_BarrelDescriptor::strawZDead()  {
+  return m_zDead;
+}
+
+inline void TRT_BarrelDescriptor::strawZDead(double zDead)  {
+  m_zDead = zDead;
+}
+
+inline const double & TRT_BarrelDescriptor::strawZPos() const  {
+  return m_zPos;
+}
+
+inline double & TRT_BarrelDescriptor::strawZPos()  {
+  return m_zPos;
+}
+
+inline void TRT_BarrelDescriptor::strawZPos(double zPos)  {
+  m_zPos = zPos;
+}
+
+inline const GeoXF::Function * TRT_BarrelDescriptor::getStrawTransform() const {
+  return m_f;
+}
+
+inline size_t TRT_BarrelDescriptor::getStrawTransformOffset() const {
+  return m_o;
+}
+
+
+
+}

@@ -40,7 +40,7 @@ ClassImp (EL::VomsProxySvc)
 namespace EL
 {
   const std::string& VomsProxySvc ::
-  name ()
+  algServiceName ()
   {
     static std::string result = "VomsProxySvc";
     return result;

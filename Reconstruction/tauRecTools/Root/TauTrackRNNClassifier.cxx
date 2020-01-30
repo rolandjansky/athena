@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ASG include(s)
@@ -28,7 +28,6 @@ TauTrackRNNClassifier::TauTrackRNNClassifier(const std::string& sName)
 {
   declareProperty("Classifiers", m_vClassifier );
   declareProperty("ClassifierNames", m_vClassifierNames );
-  declareProperty("TauTrackContainerName", m_tauTrackConName="TauTracks");
 }
 
 //______________________________________________________________________________
@@ -162,10 +161,9 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*> vTracks, xAOD::
   SeqNodeMap seqInput;
   NodeMap nodeInput;
   
-  seqInput["node_0"] = m_valueMap; 
+  seqInput["input_1"] = m_valueMap; 
 
-  VectorMap mValue = m_RNNClassifier->scan(nodeInput, seqInput, "time_distributed_3_0");
-  ValueMap propValue = m_RNNClassifier->compute(nodeInput, seqInput, "dense_5_0");
+  VectorMap mValue = m_RNNClassifier->scan(nodeInput, seqInput, "time_distributed_2");
 
   int nChargedTracks = 0;
   int nIsoTracks = 0;
@@ -181,10 +179,10 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*> vTracks, xAOD::
       m_vClassProb[3] = 0.0;
       m_vClassProb[4] = 1.0;
     }else{
-      m_vClassProb[0] = mValue["type_1"][i];
-      m_vClassProb[1] = mValue["type_2"][i];
-      m_vClassProb[2] = mValue["type_3"][i];
-      m_vClassProb[3] = mValue["type_4"][i];
+      m_vClassProb[0] = mValue["type_0"][i];
+      m_vClassProb[1] = mValue["type_1"][i];
+      m_vClassProb[2] = mValue["type_2"][i];
+      m_vClassProb[3] = mValue["type_3"][i];
       m_vClassProb[4] = 0.0;
     }
 
@@ -266,24 +264,24 @@ StatusCode TrackRNN::setVars(const std::vector<xAOD::TauTrack*> vTracks, const x
     n_timeSteps = m_nMaxNtracks;
 
 
-  m_valueMap["log(tautracks.trackPt)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["log(tautracks.jetSeedPt)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["log(tautracks.trackPt/tautracks.jetSeedPt)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.trackEta"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.z0sinThetaTJVA"] = std::vector<double>(n_timeSteps);
-  m_valueMap["log(tautracks.rConv)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tanh(tautracks.rConvII/500)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.dRJetSeedAxis"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tanh(tautracks.d0/10)"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.qOverP*1000"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.numberOfInnermostPixelLayerHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.numberOfPixelSharedHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.numberOfSCTSharedHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.numberOfTRTHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.eProbabilityHT"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.nPixHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.nSiHits"] = std::vector<double>(n_timeSteps);
-  m_valueMap["tautracks.charge"] = std::vector<double>(n_timeSteps);
+  m_valueMap["log(trackPt)"] = std::vector<double>(n_timeSteps);
+  m_valueMap["log(jetSeedPt)"] = std::vector<double>(n_timeSteps);
+  m_valueMap["(trackPt/jetSeedPt[0])"] = std::vector<double>(n_timeSteps);
+  m_valueMap["trackEta"] = std::vector<double>(n_timeSteps);
+  m_valueMap["z0sinThetaTJVA"] = std::vector<double>(n_timeSteps);
+  m_valueMap["log(rConv)"] = std::vector<double>(n_timeSteps);
+  m_valueMap["tanh(rConvII/500)"] = std::vector<double>(n_timeSteps);
+  m_valueMap["dRJetSeedAxis"] = std::vector<double>(n_timeSteps);
+  m_valueMap["tanh(d0/10)"] = std::vector<double>(n_timeSteps);
+  m_valueMap["qOverP*1000"] = std::vector<double>(n_timeSteps);
+  m_valueMap["numberOfInnermostPixelLayerHits"] = std::vector<double>(n_timeSteps);
+  m_valueMap["numberOfPixelSharedHits"] = std::vector<double>(n_timeSteps);
+  m_valueMap["numberOfSCTSharedHits"] = std::vector<double>(n_timeSteps);
+  m_valueMap["numberOfTRTHits"] = std::vector<double>(n_timeSteps);
+  m_valueMap["eProbabilityHT"] = std::vector<double>(n_timeSteps);
+  m_valueMap["nPixHits"] = std::vector<double>(n_timeSteps);
+  m_valueMap["nSiHits"] = std::vector<double>(n_timeSteps);
+  m_valueMap["charge"] = std::vector<double>(n_timeSteps);
 
 
   unsigned int i = 0;
@@ -334,24 +332,24 @@ StatusCode TrackRNN::setVars(const std::vector<xAOD::TauTrack*> vTracks, const x
     //float fNumberOfPixelHoles = float(iNumberOfPixelHoles);
     //float fNumberOfSCTHoles = float(iNumberOfSCTHoles);
 
-    m_valueMap["log(tautracks.trackPt)"][i] = log(fTrackPt);
-    m_valueMap["log(tautracks.jetSeedPt)"][i] = log(fTauSeedPt);
-    m_valueMap["log(tautracks.trackPt/tautracks.jetSeedPt)"][i] = log(fTrackPt/fTauSeedPt);
-    m_valueMap["tautracks.trackEta"][i] = fTrackEta;
-    m_valueMap["tautracks.z0sinThetaTJVA"][i] = fZ0SinthetaTJVA;
-    m_valueMap["log(tautracks.rConv)"][i] = log(fRConv);
-    m_valueMap["tanh(tautracks.rConvII/500)"][i] = tanh(fRConvII/500.0);
-    m_valueMap["tautracks.dRJetSeedAxis"][i] = fDRJetSeedAxis;
-    m_valueMap["tanh(tautracks.d0/10)"][i] = tanh(fD0/10);
-    m_valueMap["tautracks.qOverP*1000"][i] = fQoverP*1000.0;
-    m_valueMap["tautracks.numberOfInnermostPixelLayerHits"][i] = fTracksNumberOfInnermostPixelLayerHits;
-    m_valueMap["tautracks.numberOfPixelSharedHits"][i] = fTracksNPixelSharedHits;
-    m_valueMap["tautracks.numberOfSCTSharedHits"][i] = fTracksNSCTSharedHits;
-    m_valueMap["tautracks.numberOfTRTHits"][i] = fTracksNTRTHits;
-    m_valueMap["tautracks.eProbabilityHT"][i] = fTracksEProbabilityHT;
-    m_valueMap["tautracks.nPixHits"][i] = fTracksNPixHits;
-    m_valueMap["tautracks.nSiHits"][i] = fTracksNSiHits;
-    m_valueMap["tautracks.charge"][i] = fTrackCharge;
+    m_valueMap["log(trackPt)"][i] = log(fTrackPt);
+    m_valueMap["log(jetSeedPt)"][i] = log(fTauSeedPt);
+    m_valueMap["(trackPt/jetSeedPt[0])"][i] = (fTrackPt/fTauSeedPt);
+    m_valueMap["trackEta"][i] = fTrackEta;
+    m_valueMap["z0sinThetaTJVA"][i] = fZ0SinthetaTJVA;
+    m_valueMap["log(rConv)"][i] = log(fRConv);
+    m_valueMap["tanh(rConvII/500)"][i] = tanh(fRConvII/500.0);
+    m_valueMap["dRJetSeedAxis"][i] = fDRJetSeedAxis;
+    m_valueMap["tanh(d0/10)"][i] = tanh(fD0/10);
+    m_valueMap["qOverP*1000"][i] = fQoverP*1000.0;
+    m_valueMap["numberOfInnermostPixelLayerHits"][i] = fTracksNumberOfInnermostPixelLayerHits;
+    m_valueMap["numberOfPixelSharedHits"][i] = fTracksNPixelSharedHits;
+    m_valueMap["numberOfSCTSharedHits"][i] = fTracksNSCTSharedHits;
+    m_valueMap["numberOfTRTHits"][i] = fTracksNTRTHits;
+    m_valueMap["eProbabilityHT"][i] = fTracksEProbabilityHT;
+    m_valueMap["nPixHits"][i] = fTracksNPixHits;
+    m_valueMap["nSiHits"][i] = fTracksNSiHits;
+    m_valueMap["charge"][i] = fTrackCharge;
 
     ++i;
     if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks)

@@ -1,11 +1,11 @@
-#print '\n************************************************************************************************\n'
-#print "   ******** Welcome to the Offline BS MuonRawDataMonitoring/RpcRawDataMonitoring package. ******** "  
-#print "   ******** Documentation may be found at:******** "  
-#print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/RPCOfflineMonitoringPlots ***** "  
-#print '\n************************************************************************************************\n'
+#printfunc ('\n************************************************************************************************\n')
+#printfunc ("   ******** Welcome to the Offline BS MuonRawDataMonitoring/RpcRawDataMonitoring package. ******** "  )
+#printfunc ("   ******** Documentation may be found at:******** "  )
+#printfunc ("   **** https://twiki.cern.ch/twiki/bin/view/Atlas/RPCOfflineMonitoringPlots ***** "  )
+#printfunc ('\n************************************************************************************************\n')
 
 if not 'MuonDQAFlags' in dir():
-    print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
+    printfunc ("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
 ############# RpcRawDataValAlg #############
@@ -44,7 +44,7 @@ rpcRawDataValAlg = RpcRawDataValAlg(name='rpcRawDataValAlg',
 #ToolSvc += rpcRawDataValAlg
 rpcRawMonMan.AthenaMonTools += [ rpcRawDataValAlg ]
 topSequence += rpcRawMonMan
-print rpcRawMonMan
+printfunc (rpcRawMonMan)
 #################### RPCStandaloneTracksMon #######################
 
 rpcTrackMonMan = AthenaMonManager(name="RpcTrackMonManager",
@@ -77,7 +77,7 @@ if globalflags.DataSource() != 'data':
 #ToolSvc += RPCStandaloneTracksMon
 rpcTrackMonMan.AthenaMonTools += [ RPCStandaloneTracksMon ]
 topSequence += rpcTrackMonMan
-print rpcTrackMonMan
+printfunc (rpcTrackMonMan)
 
 ############################ rpcLv1RawEfficiencyMonManager ######################################
 rpcLv1RawEfficiencyMonMan = AthenaMonManager(name="rpcLv1RawEfficiencyMonManager",
@@ -98,7 +98,7 @@ if globalflags.DataSource() != 'data':
 #ToolSvc += rpcLv1RawDataEfficiency
 rpcLv1RawEfficiencyMonMan.AthenaMonTools += [ rpcLv1RawDataEfficiency ]
 topSequence += rpcLv1RawEfficiencyMonMan
-print rpcLv1RawEfficiencyMonMan
+printfunc (rpcLv1RawEfficiencyMonMan)
 
 ###################################################################
 #

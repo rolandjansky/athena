@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ thinning
@@ -45,7 +45,7 @@ def TOPQTriggerChains(TriggerFilter='allTriggers'):
 #============================
 # MAIN SETUP FUNCTION
 #============================
-def setup(TOPQname, TOPQThinningSvc, ToolSvc):
+def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   thinningTools=[]
 
   #========================
@@ -110,7 +110,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
   TOPQAK4CCThinningTool = DerivationFramework__JetCaloClusterThinning(
               name                    = TOPQname + "AK4CCThinningTool",
-              ThinningService         = TOPQThinningSvc,
+              StreamName              = streamName,
               SGKey                   = "AntiKt4EMTopoJets",
               TopoClCollectionSGKey   = "CaloCalTopoClusters",
               SelectionString         = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 7*GeV",
@@ -124,7 +124,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
   TOPQLargeJetCCThinningTool = DerivationFramework__JetCaloClusterThinning(
               name                    = TOPQname + "LargeJetCCThinningTool",
-              ThinningService         = TOPQThinningSvc,
+              StreamName              = streamName,
               SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
               TopoClCollectionSGKey   = "CaloCalTopoClusters",
               SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 7*GeV",
@@ -158,12 +158,11 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
   TOPQElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
                                  name                    = TOPQname + "ElectronCCThinningTool",
-                                 ThinningService         = TOPQThinningSvc,
+                                 StreamName              = streamName,
                                  SGKey                   = "Electrons",
                                  CaloClCollectionSGKey   = "egammaClusters",
                                  SelectionString         = "(Electrons.Loose || Electrons.DFCommonElectronsLHLoose)",
-                                 ConeSize                = 0.4,
-                                 ApplyAnd                = False)
+                                 ConeSize                = 0.4)
 
   ToolSvc += TOPQElectronCCThinningTool
   thinningTools.append(TOPQElectronCCThinningTool)
@@ -191,12 +190,11 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
   TOPQPhotonCCThinningTool = DerivationFramework__CaloClusterThinning(
                                  name                    = TOPQname + "PhotonCCThinningTool",
-                                 ThinningService         = TOPQThinningSvc,
+                                 StreamName              = streamName,
                                  SGKey                   = "Photons",
                                  CaloClCollectionSGKey   = "egammaClusters",
                                  SelectionString         = "(Photons.Loose || Photons.DFCommonPhotonsIsEMLoose)",
-                                 ConeSize                = 0.4,
-                                 ApplyAnd                = False)
+                                 ConeSize                = 0.4)
 
   ToolSvc += TOPQPhotonCCThinningTool
   thinningTools.append(TOPQPhotonCCThinningTool)

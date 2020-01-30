@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Various classes for retaining 
 # pertinent information for Data Quality assessment
 # Allows for easy use of creating DQ plots in 
 # trigEgammaDQ.py
+
+from __future__ import print_function
 
 # Class to retain maps of trigger names and plots
 class TrigEgammaPlotHolder:
@@ -52,7 +54,7 @@ class TrigEgammaPlotHolder:
         elif('Resolutions' in plot):
             self.updateResolution(trigger,histos)
         else:
-            print 'No update'
+            print ('No update')
 
     def getPlots(self,trigger,plot):
         group = self.Map[plot]

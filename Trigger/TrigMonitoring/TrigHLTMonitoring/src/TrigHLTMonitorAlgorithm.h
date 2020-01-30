@@ -6,7 +6,7 @@
 #define TRIGHLTMONITORING_TRIGHLTMONITORALGORITHM_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigSteeringEvent/HLTResultMT.h"   
 #include "StoreGate/ReadHandleKey.h"

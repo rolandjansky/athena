@@ -17,7 +17,7 @@
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/SlotSpecificObj.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 // STL includes
 #include <string>

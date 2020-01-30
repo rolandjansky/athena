@@ -24,7 +24,7 @@ namespace Monitored {
       }
     }
 
-    virtual HistogramFillerRebinable1D* clone() override {
+    virtual HistogramFillerRebinable1D* clone() const override {
       return new HistogramFillerRebinable1D( *this );
     }
 

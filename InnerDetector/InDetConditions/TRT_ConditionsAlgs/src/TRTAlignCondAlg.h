@@ -41,7 +41,6 @@ class TRTAlignCondAlg : public AthAlgorithm
   ServiceHandle<ICondSvc> m_condSvc;
   const InDetDD::TRT_DetectorManager* m_detManager;
 
-  //bool m_useDynamicFolders;
   Gaudi::Property<bool> m_useDynamicFolders{ this, "UseDynamicFolders", false, "Turn on-off use of Dynamic folders" };
 };
 

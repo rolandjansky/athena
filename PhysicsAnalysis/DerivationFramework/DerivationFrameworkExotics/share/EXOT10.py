@@ -77,7 +77,7 @@ EXOT10PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( n
 # Calo Clusters associated with Photons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT10PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "EXOT10PhotonCCThinningTool",
-                                                                                     ThinningService         = EXOT10ThinningHelper.ThinningSvc(),
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Photons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -88,7 +88,7 @@ ToolSvc += EXOT10PhotonCCThinningTool
 
 # Calo Clusters associated with Electrons
 EXOT10ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "EXOT10ElectronCCThinningTool",
-                                                                                     ThinningService         = EXOT10ThinningHelper.ThinningSvc(),
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Electrons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",

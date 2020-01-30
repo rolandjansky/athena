@@ -33,6 +33,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonChamberT0s
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData
+                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
                           MuonSpectrometer/MuonSimData )
 
 # External dependencies:
@@ -45,7 +46,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
                            FILES MuonSimData/MuonSimDataCollection.h MuonSimData/CscSimDataCollection.h MuonRDO/MdtCsmContainer.h MuonRDO/RpcPadContainer.h MuonRDO/TgcRdoContainer.h MuonRDO/CscRawDataContainer.h MuonRDO/RpcSectorLogicContainer.h MuonRDO/STGC_RawDataContainer.h MuonRDO/MM_RawDataContainer.h MuonDigitContainer/MdtDigitContainer.h MuonDigitContainer/RpcDigitContainer.h MuonDigitContainer/TgcDigitContainer.h MuonDigitContainer/CscDigitContainer.h MuonDigitContainer/MmDigitContainer.h MuonDigitContainer/sTgcDigitContainer.h CscCalibEvent/CscCalibDataContainer.h MuonPrepRawData/CscPrepDataContainer.h MuonPrepRawData/CscStripPrepDataContainer.h MuonPrepRawData/RpcPrepDataContainer.h MuonPrepRawData/TgcPrepDataContainer.h MuonPrepRawData/MdtPrepDataContainer.h MuonPrepRawData/MMPrepDataContainer.h MuonPrepRawData/sTgcPrepDataContainer.h MuonTrigCoinData/TgcCoinDataContainer.h MuonTrigCoinData/RpcCoinDataContainer.h MuonChamberT0s/ChamberT0s.h src/MuonMeasurements.h
                            TYPES_WITH_NAMESPACE Muon::STGC_RawDataContainer Muon::MM_RawDataContainer Muon::CscPrepDataContainer Muon::CscStripPrepRawDataContainer Muon::RpcPrepDataContainer Muon::TgcPrepDataContainer Muon::MdtPrepDataContainer Muon::MMPrepDataContainer Muon::sTgcPrepDataContainer Muon::TgcCoinDataContainer Muon::ChamberT0s TPCnv::MuonMeasurements
                            INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )
+                           LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers AthenaKernel StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData RPC_CondCablingLib)
 
 # We need to build a separate library for unit testing, since we can't link
 # against the PoolCnv library.
@@ -75,9 +76,9 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( MUONEVENTATHENAPOOL_REFERENCE_TAG
        MuonEventAthenaPoolReference-02-00-00 )
-  run_tpcnv_test( MuonEventTPCnv_17.0.0   ESD-17.0.0
+  run_tpcnv_legacy_test( MuonEventTPCnv_17.0.0   ESD-17.0.0
                    REFERENCE_TAG ${MUONEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( MuonEventTPCnv_20.1.7.2 ESD-20.1.7.2
+  run_tpcnv_legacy_test( MuonEventTPCnv_20.1.7.2 ESD-20.1.7.2
                    REFERENCE_TAG ${MUONEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -14,11 +14,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TInterpreter.h"
 
 #include "AthenaMonitoringKernel/HistogramDef.h"
 
@@ -116,9 +118,9 @@ class HistogramFactoryTestSuite {
     }
 
     void test_shouldRegisterAndReturnTEfficiencyHistogram() {
-      TEfficiency* const graph = createHistogram<TEfficiency>("TEfficiency");
-      // VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
-      VALUE(graph) NOT_EXPECTED(nullptr);
+      TEfficiency* const efficiency = createHistogram<TEfficiency>("TEfficiency");
+      VALUE(m_histSvc->existsEfficiency("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
+      VALUE(efficiency) NOT_EXPECTED(nullptr);
     }
 
     void test_shouldThrowExceptionForUnknownHistogramType() {
@@ -261,6 +263,7 @@ class HistogramFactoryTestSuite {
       result.title = histogramType;
       result.xbins = 1;
       result.ybins = 1;
+      result.zbins = 0;
 
       return result;
     }
@@ -282,6 +285,10 @@ class HistogramFactoryTestSuite {
 
       for (string graphName : m_histSvc->getGraphs()) {
         m_histSvc->deReg(graphName);
+      }
+
+      for (string efficiencyName : m_histSvc->getEfficiencies()) {
+        m_histSvc->deReg(efficiencyName);
       }
     }
 
@@ -321,6 +328,7 @@ class HistogramFactoryTestSuite {
 };
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   ISvcLocator* pSvcLoc;
 
   if (!Athena_test::initGaudi("GenericMon.txt", pSvcLoc)) {

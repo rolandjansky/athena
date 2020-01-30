@@ -138,8 +138,4 @@ constexpr std::uint32_t operator"" _FCShash(char const* s, std::size_t count)
   return TFCSSimulationState::fnv1a_32(s, count);
 }
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSSimulationState+;
-#endif
-
 #endif

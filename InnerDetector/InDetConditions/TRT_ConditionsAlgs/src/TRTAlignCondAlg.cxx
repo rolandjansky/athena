@@ -3,12 +3,12 @@
 */
 
 
-#include "TrkSurfaces/Surface.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 
 #include "TRTAlignCondAlg.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
+
 
 TRTAlignCondAlg::TRTAlignCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
@@ -71,8 +71,6 @@ StatusCode TRTAlignCondAlg::execute()
   }
 
   if(writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    //writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order.");
@@ -158,7 +156,6 @@ StatusCode TRTAlignCondAlg::execute()
   // ____________ Apply alignments to TRT GeoModel ____________
   if(m_detManager->align(readCdoContainer,writeCdo).isFailure()) {
     ATH_MSG_ERROR("Failed to apply alignments to TRT");
-    //delete writeCdo;
     return StatusCode::FAILURE;
   }
 
@@ -263,7 +260,7 @@ StatusCode TRTAlignCondAlg::execute()
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
-  // Record WriteCondHandle (size is meaning less here?)
+  // Record WriteCondHandle (size is meaningless here?)
   const std::size_t size{newDetElColl->size()};
 
   if (writeHandleDetElCont.record(rangeW, std::move(writeCdoDetElCont)).isFailure()) {

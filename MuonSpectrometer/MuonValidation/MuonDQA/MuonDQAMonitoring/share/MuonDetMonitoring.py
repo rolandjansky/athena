@@ -3,11 +3,11 @@
 #======================================================================
 # TOP JobOptions to run on MuonDQAMonitoring
 #======================================================================  
-#print '\n****************************************************************************************\n'
-#print "   ******** Welcome to the Offline MuonDQAMonitoring package      ***** "  
-#print "   ******** Documentation may be found at:******** "  
-#print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MuonOfflineDQA ***** "  
-#print '\n****************************************************************************************\n'
+#printfunc ('\n****************************************************************************************\n')
+#printfunc ("   ******** Welcome to the Offline MuonDQAMonitoring package      ***** "  )
+#printfunc ("   ******** Documentation may be found at:******** "  )
+#printfunc ("   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MuonOfflineDQA ***** "  )
+#printfunc ('\n****************************************************************************************\n')
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -26,7 +26,7 @@ ServiceMgr += RegSelSvcMuonMon
 ##################################################################
  
 if not 'MuonDQADetFlags' in dir():
-    print "MuonDQADetFlags.py: MuonDQADetFlags not yet imported - I import them now"
+    printfunc ("MuonDQADetFlags.py: MuonDQADetFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAProperFlags import MuonDQADetFlags
 
 MuonDQADetFlags.doMuonMonitoring = True

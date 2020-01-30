@@ -42,6 +42,8 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "MuonCondData/MdtCondDbData.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
@@ -87,6 +89,7 @@ namespace Trk {
   class MeasurementBase;
   class TrackStateOnSurface;
   class TrackStateOnSurface;
+  class IExtendedTrackSummaryTool;
 }
 
 namespace Muon {
@@ -188,6 +191,8 @@ namespace Muon {
       "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer
         {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects    
+    ToolHandle<Trk::IExtendedTrackSummaryTool>        m_trackSummaryTool    
+        {this, "TrackSummaryTool", "MuonTrackSummaryTool"}; 
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
     Gaudi::Property<double>                                 m_deta        {this, "DeltaEtaRegion", 0.05}; 

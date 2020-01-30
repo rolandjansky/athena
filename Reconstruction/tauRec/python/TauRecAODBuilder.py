@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -69,7 +69,7 @@ class TauRecAODProcessor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not get handle to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         tools = []
@@ -92,7 +92,7 @@ class TauRecAODProcessor ( TauRecConfigured ) :
                     try: import DOESNOTEXIST
                     except Exception:
                         mlog.error("No TauDiscriminantTools appended")
-                        print traceback.format_exc()
+                        traceback.print_exc()
                         return False
                     pass                
                 tools+=tauDiscTools
@@ -106,7 +106,7 @@ class TauRecAODProcessor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not append tools to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauProcessorHandle())        
@@ -154,7 +154,7 @@ class TauRecAODPi0Processor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not get handle to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         
@@ -173,7 +173,7 @@ class TauRecAODPi0Processor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not append tools to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauProcessorHandle())        

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p2.h
@@ -15,11 +15,18 @@
 #include <unordered_map>
 
 // HepMC / CLHEP includes
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wkeyword-macro"
+#endif
 #define private public
 #define protected public
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #undef private
 #undef protected
 #include "GeneratorObjects/McEventCollection.h"

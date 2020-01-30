@@ -1044,8 +1044,8 @@ public:
            continue;
         const TrigConf::HLTChain* efchain = ch;
         const TrigConf::HLTChain* l2chain = chainsMap[efchain->lower_chain_name()];
-        std::set<std::string> l2tes = HLTUtils::allTEsProducedInL2Chain(*l2chain, m_hlt->getHLTSequenceList());
-        std::set<std::string> eftes = HLTUtils::allTEsProducedInEFChain(*efchain, m_hlt->getHLTSequenceList(), l2tes);
+        std::set<std::string> l2tes = HLTTEUtils::allTEsProducedInL2Chain(*l2chain, m_hlt->getHLTSequenceList());
+        std::set<std::string> eftes = HLTTEUtils::allTEsProducedInEFChain(*efchain, m_hlt->getHLTSequenceList(), l2tes);
 
         std::set<std::string> efinputTEs;
         std::set<std::string>::const_iterator te;
@@ -1173,9 +1173,9 @@ public:
          // these are the TEs that the L2 chain needs from L1
          set<string> needed_tes;
          {
-            set<string> produced_tes = HLTUtils::allTEsProducedInL2Chain( *ch, m_hlt->getHLTSequenceList());
+            set<string> produced_tes = HLTTEUtils::allTEsProducedInL2Chain( *ch, m_hlt->getHLTSequenceList());
       
-            set<string> input_tes    = HLTUtils::inputTEs(produced_tes, m_hlt->getHLTSequenceList());
+            set<string> input_tes    = HLTTEUtils::inputTEs(produced_tes, m_hlt->getHLTSequenceList());
 
             set_difference( input_tes.begin(), input_tes.end(),
                             produced_tes.begin(), produced_tes.end(), 
@@ -1340,7 +1340,7 @@ public:
         l1thresholds.insert((*thrIt)->name());
 
 
-     set<std::string> outputTEsAllL2Chains = HLTUtils::allTEsProducedInL2( *m_hlt );
+     set<std::string> outputTEsAllL2Chains = HLTTEUtils::allTEsProducedInL2( *m_hlt );
 
      // loop over chains
      for(const HLTChain* ch : m_hlt->getHLTChainList()) {
@@ -1348,10 +1348,10 @@ public:
         if( ch->lower_chain_name()=="" ) continue;
 
         // set of all TE's produced in the EF chain (including the recursively produced TE's)
-        set<std::string> outputTEsEFChain = HLTUtils::allTEsProducedInEFChain( *ch, m_hlt->getHLTSequenceList(), outputTEsAllL2Chains);
+        set<std::string> outputTEsEFChain = HLTTEUtils::allTEsProducedInEFChain( *ch, m_hlt->getHLTSequenceList(), outputTEsAllL2Chains);
 
         // set of corresponding input TE's
-        set<std::string> inputTEsEFChain = HLTUtils::inputTEs( outputTEsEFChain, m_hlt->getHLTSequenceList() );
+        set<std::string> inputTEsEFChain = HLTTEUtils::inputTEs( outputTEsEFChain, m_hlt->getHLTSequenceList() );
 
         // remove the unseeded algorithms
         inputTEsEFChain.erase("");
@@ -1365,7 +1365,7 @@ public:
 
         // corresponding L2 chain
         const TrigConf::HLTChain* lowerch = m_hlt->getHLTChainList().chain(ch->lower_chain_name());
-        set<std::string> outputTEsL2Chain = HLTUtils::allTEsProducedInL2Chain( *lowerch, m_hlt->getHLTSequenceList() );
+        set<std::string> outputTEsL2Chain = HLTTEUtils::allTEsProducedInL2Chain( *lowerch, m_hlt->getHLTSequenceList() );
         set<string> notProducedInL2Chain;
         std::set_difference( notProducedInEFChain.begin(), notProducedInEFChain.end(),
                              outputTEsL2Chain.begin(), outputTEsL2Chain.end(), 

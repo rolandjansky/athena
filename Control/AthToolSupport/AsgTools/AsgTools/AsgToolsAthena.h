@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgToolsAthena.h 628154 2014-11-13 12:30:13Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 /// @file AsgTools/AsgToolsAthena.h
 /// @short File making it clear to checkreq.py that the requirements file is OK
 ///

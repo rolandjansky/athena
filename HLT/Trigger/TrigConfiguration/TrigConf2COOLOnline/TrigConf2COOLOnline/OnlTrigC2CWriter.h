@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -46,11 +46,11 @@ public:
    OnlTrigC2CWriter& operator=(OnlTrigC2CWriter const&) = delete;
   
    virtual ~OnlTrigC2CWriter() noexcept;
-   virtual void configure    (const daq::rc::TransitionCmd&);
-   virtual void connect      (const daq::rc::TransitionCmd&);     //< connect to COOL and to TriggerDB
-   virtual void prepareForRun(const daq::rc::TransitionCmd&);
-   virtual void unconfigure  (const daq::rc::TransitionCmd&);
-   virtual void user         (const daq::rc::UserCmd& usrCmd);
+   virtual void configure    (const daq::rc::TransitionCmd&) override;
+   virtual void connect      (const daq::rc::TransitionCmd&) override;     //< connect to COOL and to TriggerDB
+   virtual void prepareForRun(const daq::rc::TransitionCmd&) override;
+   virtual void unconfigure  (const daq::rc::TransitionCmd&) override;
+   virtual void user         (const daq::rc::UserCmd& usrCmd) override;
    virtual void stopArchiving(const daq::rc::TransitionCmd& cmd) override;
 
    TC2CConfig& conf() { return m_jobConfig; }

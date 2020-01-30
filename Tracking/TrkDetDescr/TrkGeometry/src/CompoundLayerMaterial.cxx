@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,10 +12,10 @@
 Trk::CompoundLayerMaterial::CompoundLayerMaterial() :
   Trk::LayerMaterialProperties(),
   m_materialProperties(new Trk::MaterialProperties()),
-  m_binUtility(0),
+  m_binUtility(nullptr),
   m_fullComposition(false)
 {
-    m_elementTable = Trk::SharedObject<const Trk::ElementTable>(0);
+    m_elementTable = Trk::SharedObject<const Trk::ElementTable>(nullptr);
 }
 
 Trk::CompoundLayerMaterial::CompoundLayerMaterial(const Trk::BinUtility& binutility,
@@ -37,7 +37,7 @@ Trk::CompoundLayerMaterial::CompoundLayerMaterial(const Trk::BinUtility& binutil
   m_rhoBins(rhoBins),       
   m_composition(composition),
   m_fullComposition(fComposition),
-  m_elementTable(Trk::SharedObject<const Trk::ElementTable>(0))
+  m_elementTable(Trk::SharedObject<const Trk::ElementTable>(nullptr))
 {}  
    
                                                   

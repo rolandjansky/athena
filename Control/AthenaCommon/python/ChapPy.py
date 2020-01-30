@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file : ChapPy.py
 # @author: Sebastien Binet <binet@cern.ch> 
@@ -32,9 +32,10 @@ def dump( buf, stdout = sys.stdout ):
     fname = None
     if isinstance(buf, str):
         fname = buf
+    from builtins import file
     if six.PY3:
         import io
-        file = io.IOBase
+        file = io.IOBase # noqa: F811
     if isinstance(buf, file):
         fname = buf.name
     with open(fname, 'r') as fd:

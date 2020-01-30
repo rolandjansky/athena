@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TH2D.h"
 #include "TH3D.h"
@@ -18,6 +18,7 @@ namespace G4UA{
     declareProperty("RadMapsFileName", m_radMapsFileName);
     /// Name of the material to make radiation maps for (take all if empty) 
     declareProperty("Material"       , m_config.material);
+    declareProperty("PositiveYOnly"  , m_config.posYOnly);
     /// map granularities 
     /// number of bins in r and z for all 2D maps
     declareProperty("NBinsR"         , m_config.nBinsr);
@@ -68,6 +69,7 @@ namespace G4UA{
     ATH_MSG_INFO( "Initializing     " << name()              << "\n"                                              <<
                   "OutputFile:      " << m_radMapsFileName   << "\n"                                              << 
                   "Material:        " << m_config.material   << "\n"                                              << 
+                  "PositiveYOnly:   " << m_config.posYOnly   << "\n"                                              << 
                   "2D Maps:         " << m_config.nBinsz     << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")   << 
 		                         m_config.nBinsr     << " r-bins"                                         << "\n"                << 
 		  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ") << m_config.zMaxZoom   << ", " << 
@@ -492,6 +494,8 @@ namespace G4UA{
 	double vol=(z1-z0)*M_PI*(r1*r1-r0*r0);
 	// if |z| instead of z double the volume
 	if ( m_config.zMinFull >= 0 ) vol *= 2; 
+	// if positive y hemisphere is used only -- half the volume
+	if ( m_config.posYOnly ) vol *= 0.5; 
 	double val;
 	// TID
 	val =maps.m_rz_tid[vBin];
@@ -588,6 +592,8 @@ namespace G4UA{
 	double vol=(z1-z0)*M_PI*(r1*r1-r0*r0); 
 	// if |z| instead of z double the volume
 	if ( m_config.zMinFull >= 0 ) vol *= 2; 
+	// if positive y hemisphere is used only -- half the volume
+	if ( m_config.posYOnly ) vol *= 0.5; 
 	double val;
 	// TID
 	val =maps.m_full_rz_tid[vBin];
@@ -691,6 +697,9 @@ namespace G4UA{
 	  // lower phi boundary is 0 - i.e. all phi-segments mapped to first
 	  if ( m_config.phiMinZoom == 0 ) {
 	    vol *= 360./m_config.phiMaxZoom;
+	    // if positive y hemisphere is used only -- half the volume
+	    if ( m_config.posYOnly ) 
+	      vol *= 0.5; 
 	  }
 	  double val;
 	  // TID

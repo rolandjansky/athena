@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -89,9 +89,9 @@ namespace Trk {
       const Layer* nextLayer(const Amg::Vector3D& gp, const Amg::Vector3D& mom, bool skipNavLayer=false) const;
 
       /** Closest Material Layer - used for the mapping option */
-      template <class T> const LayerIntersection<Amg::Vector3D>  closestMaterialLayer(const T& pars,
+      template <class T> LayerIntersection<Amg::Vector3D>  closestMaterialLayer(const T& pars,
                                                                                       PropDirection pDir = Trk::alongMomentum,
-                                                                                      BoundaryCheck bchk = true) const;
+                                                                                      const BoundaryCheck& bchk = true) const;
       /** check position at volume boundary */
       bool atVolumeBoundary(const Amg::Vector3D& gp, const TrackingVolume* vol, double tol) const;
       
@@ -110,7 +110,7 @@ namespace Trk {
       void printVolumeHierarchy(MsgStream& msgstream) const;
       
       /** indexLayers : method to re-set the index of the layers, depending on geometrySignature */
-      void indexStaticLayers(GeometrySignature geosit, int offset = 0) const;
+      void indexStaticLayers ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, int offset = 0) const;
 
     private:
       /** Geometry Builder busineess:
@@ -120,48 +120,40 @@ namespace Trk {
       /** Geometry Builder busineess:
           set all contained surfaces TG owned - this should save memory and avoid surface copying 
           - prints compactification statistics */
-      void compactify(MsgStream& msgstream, const TrackingVolume* vol=0) const;
+      void compactify ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
       
       /**  Geometry Builder busineess:
            synchronize all layers to enclosed volume dimensions */
-      void synchronizeLayers(MsgStream& msgstream, const TrackingVolume* vol=0) const;
+      void synchronizeLayers(MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
            
     
       /** private method the Navigation Level */
-      void registerNavigationLevel(NavigationLevel navlevel) const;
+      void registerNavigationLevel(NavigationLevel navlevel);
+      void registerNavigationLevel ATLAS_NOT_THREAD_SAFE (NavigationLevel navlevel) const;
 
       /** private method to register recursively the tracking volumes */
-      void registerTrackingVolumes(const TrackingVolume& tvol, const TrackingVolume* mvol = 0, int lvl = 0);
+      void registerTrackingVolumes ATLAS_NOT_THREAD_SAFE (const TrackingVolume& tvol, const TrackingVolume* mvol = nullptr, int lvl = 0);
 
       /**  private method to be called from GeometryBuilder: return the world with ownership */
-      const TrackingVolume* checkoutHighestTrackingVolume() const;
+      const TrackingVolume* checkoutHighestTrackingVolume();
+      const TrackingVolume* checkoutHighestTrackingVolume ATLAS_NOT_THREAD_SAFE() const;
 
       /** print VolumeInformation with Level */
       void printVolumeInformation(MsgStream& msgstream, const TrackingVolume& tvol, int lvl) const;
       
       /** The known world - and the beam */   
-      mutable const TrackingVolume*                         m_world;
-      mutable const PerigeeSurface*                         m_beam;
+      const TrackingVolume*                         m_world;
+      const PerigeeSurface*                         m_beam;
       
       /** The unique boundary Layers */
-      mutable std::map<const Layer*,int>                    m_boundaryLayers;
+      std::map<const Layer*,int>                    m_boundaryLayers;
       
       /** The Volumes in a map for later finding */
       std::map<const std::string, const TrackingVolume*>    m_trackingVolumes;
 
       /** The Navigation level for identification */
-      mutable NavigationLevel                               m_navigationLevel;
+      NavigationLevel                                       m_navigationLevel;
       
-    public:
-      /// Log a message using the Athena controlled logging system
-      MsgStream& msg( MSG::Level lvl ) const { return m_msg.get() << lvl ; }
-      
-      /// Check whether the logging system is active at the provided verbosity level
-      bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-      
-    private:
-      /// Private message stream member
-      mutable Athena::MsgStreamMember m_msg;
 
   };
   
@@ -171,18 +163,22 @@ namespace Trk {
   inline NavigationLevel TrackingGeometry::navigationLevel() const
   { return m_navigationLevel; }
 
-  inline void TrackingGeometry::registerNavigationLevel(NavigationLevel navLevel) const 
+  inline void TrackingGeometry::registerNavigationLevel(NavigationLevel navLevel)
   { m_navigationLevel = navLevel; }
 
-  inline void TrackingGeometry::sign(GeometrySignature geosit, GeometryType geotype) const
-  { m_world->sign(geosit, geotype); }
+  inline void TrackingGeometry::registerNavigationLevel ATLAS_NOT_THREAD_SAFE (NavigationLevel navLevel) const
+  { const_cast<TrackingGeometry*> (this)->registerNavigationLevel(navLevel); }
+
+
+  inline void TrackingGeometry::sign ATLAS_NOT_THREAD_SAFE (GeometrySignature geosit, GeometryType geotype) const
+  { const_cast<TrackingVolume*> (m_world)->sign(geosit, geotype); }
   
   inline const TrackingVolume* TrackingGeometry::trackingVolume(const std::string& name) const
   {
       std::map<const std::string, const TrackingVolume*>::const_iterator sVol = m_trackingVolumes.begin();
       sVol = m_trackingVolumes.find(name);
       if (sVol != m_trackingVolumes.end()) return(sVol->second);
-      return 0;
+      return nullptr;
   }
   
   inline const Trk::Layer* TrackingGeometry::associatedLayer(const Amg::Vector3D& gp) const
@@ -203,13 +199,13 @@ namespace Trk {
   { return m_boundaryLayers; }
 
   
-  template <class T> const LayerIntersection<Amg::Vector3D> TrackingGeometry::closestMaterialLayer(const T& pars,
+  template <class T> LayerIntersection<Amg::Vector3D> TrackingGeometry::closestMaterialLayer(const T& pars,
                                                                                                    PropDirection pDir,
-                                                                                                   BoundaryCheck bchk) const
+                                                                                                   const BoundaryCheck& bchk) const
   {
       const TrackingVolume* lowestVol = (lowestTrackingVolume(pars.position()));
       return ( lowestVol ) ? (lowestVol->closestMaterialLayer(pars.position(),pars.momentum().unit(), pDir, bchk)) : 
-            Trk::LayerIntersection<Amg::Vector3D>(Trk::Intersection(pars.position(),10e10,false), 0, 0, 0 );
+            Trk::LayerIntersection<Amg::Vector3D>(Trk::Intersection(pars.position(),10e10,false), nullptr, nullptr, nullptr );
   }  
 
 } // end of namespace

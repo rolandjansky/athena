@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDMaker/python/PartonJetConfig.py
 # @author Renaud Bruneliere <Renaud.Bruneliere@cern.ch>
@@ -61,7 +60,6 @@ def PartonJetConfig (finder    = 'AntiKt',
                                               inputTools=[jetPartonSelectorTool]).jetAlgorithmHandle()
         partonJetAlg.AlgTools['JetPartonSelectorTool'].InputCollectionKeys = []
         partonJetAlg.AlgTools['JetPartonSelectorTool'].InputCollectionKeys.append(inputCollections[0])
-        print 'partonJetAlg',partonJetAlg
     else:
         partonJetAlg = make_StandardJetGetter(finder,size,'Truth',inputSuff='Parton'+suffix).jetAlgorithmHandle()
     partonJetAlg.AlgTools['JetFinalPtCut'].MinimumSignal = minJetPt

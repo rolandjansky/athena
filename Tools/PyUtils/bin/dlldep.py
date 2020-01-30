@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @file:    dlldep.py
 #
@@ -14,12 +14,16 @@
 # $Id: dlldep.py,v 1.1 2009-02-09 17:56:35 fwinkl Exp $
 #
 
+from __future__ import print_function
+
 import sys, os
 from os.path import basename
 import subprocess as sp
 import re
 
 import PyUtils.Dso as Dso
+
+import six
 
 class Cache:
    """Global cache of already processed files"""
@@ -37,13 +41,13 @@ class Cache:
       Cache.files[shlib.lib] = shlib
 
    def writeDOT(self, file):      
-      for d in self.dotsrc: print >> file, d
+      for d in self.dotsrc: print (file, d, file=file)
 
    def dot(self, code, style={}):
       """Output a line of dot code"""   
       if len(style)>0:
          code += ' ['
-         for k,v in style.iteritems():
+         for k,v in six.iteritems(style):
             code += '%s="%s" ' % (k,v)
          code += ']'
       
@@ -75,10 +79,11 @@ class SharedLib:
       
       # Run readelf to find direct dependencies
       # Note: ldd itself does recursions so we cannot use it here
-      p = sp.Popen(["readelf","-d",lib], stdout=sp.PIPE)
+      encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+      p = sp.Popen(["readelf","-d",lib], stdout=sp.PIPE, **encargs)
       output = p.communicate()[0]
       if p.returncode != 0:
-         print "Cannot run 'readelf' on",lib
+         print ("Cannot run 'readelf' on",lib)
          return []
 
       libs = []
@@ -87,10 +92,10 @@ class SharedLib:
          libs += [l.split()[-1].strip("[]")]
 
       # Run ldd to find full path of libraries
-      p = sp.Popen(["ldd",lib], stdout=sp.PIPE)
+      p = sp.Popen(["ldd",lib], stdout=sp.PIPE, **encargs)
       output = p.communicate()[0]
       if p.returncode != 0:
-         print "Cannot run 'ldd' on",lib
+         print ("Cannot run 'ldd' on",lib)
          return []
 
       libpaths = []
@@ -121,7 +126,7 @@ class Color:
 
    @classmethod
    def get(cls, lib):
-      for p,c in cls.projects.iteritems():
+      for p,c in six.iteritems(cls.projects):
          if lib.find(p)!=-1: return "/%s/%s" % (cls.scheme, c)
       return cls.default
 
@@ -192,7 +197,7 @@ def processLib(lib, opt, dotFileName = None):
    anaLib(lib, opt, cache, select, ignore)
 
    # Declare style of all nodes
-   for l,v in cache.myfiles.iteritems():
+   for l,v in six.iteritems(cache.myfiles):
       style = {}
       # Special style for direct dependencies
       if v.distance==1:
@@ -226,10 +231,10 @@ def printStats():
    """Print statistics"""
    import operator
    
-   print "%-50s %7s %7s" % ("Library dependencies","Direct","Total")
-   print "-"*70
+   print ("%-50s %7s %7s" % ("Library dependencies","Direct","Total"))
+   print ("-"*70)
    for s in sorted(Cache.stats, key=operator.attrgetter("depDirect"), reverse=True):
-      print "%-50s %7d %7d" % (basename(s.lib), s.depDirect, s.depTotal)
+      print ("%-50s %7d %7d" % (basename(s.lib), s.depDirect, s.depTotal))
 
    return
 
@@ -261,7 +266,7 @@ def main():
       
 
    if len(args)>1 and opt.output:
-      print "Multiple libraries specified. Ignoring output file name."
+      print ("Multiple libraries specified. Ignoring output file name.")
       opt.output = None
       
    for lib in args:

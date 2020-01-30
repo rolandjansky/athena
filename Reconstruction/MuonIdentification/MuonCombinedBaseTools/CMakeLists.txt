@@ -8,6 +8,7 @@ atlas_subdir( MuonCombinedBaseTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
 			  InnerDetector/InDetConditions/BeamSpotConditionsData
+        Reconstruction/MuonIdentification/MuonCombinedToolInterfaces
 			  PRIVATE
                           Calorimeter/CaloEvent
                           Calorimeter/CaloInterface
@@ -36,7 +37,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MuonIdentification/ICaloTrkMuIdTools
                           Reconstruction/MuonIdentification/MuidInterfaces
                           Reconstruction/MuonIdentification/MuonCombinedEvent
-                          Reconstruction/MuonIdentification/MuonCombinedToolInterfaces
                           Reconstruction/MuonIdentification/MuonSegmentTaggers/MuonSegmentTaggerToolInterfaces
                           Reconstruction/MuonIdentification/muonEvent
 			  Reconstruction/MuonIdentification/MuidEvent

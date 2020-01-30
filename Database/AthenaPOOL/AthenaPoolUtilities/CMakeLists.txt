@@ -41,10 +41,14 @@ atlas_add_dictionary( AthenaPoolUtilitiesDict
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/post_tpcnvtest.sh )
+atlas_install_python_modules( python/*.py)
 
 # Install the CMake code from the package:
 atlas_install_generic( cmake/AthenaPoolUtilitiesTestConfig.cmake
    DESTINATION cmake )
+atlas_install_generic( share/run_tpcnv_legacy_test.sh.in
+   DESTINATION cmake/modules/scripts
+   EXECUTABLE )
 atlas_install_generic( share/run_tpcnv_test.sh.in
    DESTINATION cmake/modules/scripts
    EXECUTABLE )

@@ -30,19 +30,16 @@ description          : This class is a multi component adaption of the class
 #include "TrkEventPrimitives/FitQualityOnSurface.h" //typedef
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include <iostream>
 
 class MsgStream;
-
 namespace Trk {
-
-class MultiComponentState;
 class MaterialEffectsBase;
 class MeasurementBase;
 
 class MultiComponentStateOnSurface final : public TrackStateOnSurface
 {
-
 public:
   /*
    * BE CAREFUL: The objects passed in belong to the this object. Never

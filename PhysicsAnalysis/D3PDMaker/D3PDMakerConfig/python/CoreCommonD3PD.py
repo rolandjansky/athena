@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: CoreGenericD3PD.py
 #
@@ -218,7 +218,7 @@ try:
     theemtrackisolationtool.useBremAssoc = True
     ToolSvc += theemtrackisolationtool
 except Exception:
-    print traceback.format_exc()
+    traceback.print_exc()
     
 ElectronD3PDObject.defineBlock(99, "miniiso10", BoostedTopD3PDMaker.MiniIsolationElectronFillerTool, EMTrackIsolationTool=theemtrackisolationtool, KtDist=10., prefix="MI10_")
 ElectronD3PDObject.defineBlock(99, "miniiso15", BoostedTopD3PDMaker.MiniIsolationElectronFillerTool, EMTrackIsolationTool=theemtrackisolationtool, KtDist=15., prefix="MI15_")

@@ -73,12 +73,12 @@ class egammaOQFlagsBuilder : public egammaBaseTool
       "CellsName", "AllCalo","Names of container which contain cells"};
 
   // IToolSvc* m_toolSvc;
-  bool isCore(Identifier Id, const std::vector<IdentifierHash>& neighbourList) const;
-  std::vector<IdentifierHash> findNeighbours( Identifier cellCentrId) const; 
+  bool isCore(const Identifier Id, const std::vector<IdentifierHash>& neighbourList) const;
+  std::vector<IdentifierHash> findNeighbours( const Identifier cellCentrId) const; 
   bool isbadtilecell (CaloCellList& ccl, float clusterEta, float clusterPhi, 
 		      double sizeEta, double sizePhi, CaloSampling::CaloSample sample) const ;   
 
-  bool findCentralCell(const xAOD::CaloCluster* cluster, Identifier& cellCentrId) const;
+  bool findCentralCell(const xAOD::CaloCluster* cluster, Identifier cellCentrId) const;
 
   Gaudi::Property<double> m_QCellCut {this, "QCellCut", 4000.};
   Gaudi::Property<double> m_QCellHECCut {this, "QCellHECCut", 60000.};

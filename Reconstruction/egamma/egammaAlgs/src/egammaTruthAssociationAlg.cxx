@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -90,7 +90,7 @@ StatusCode egammaTruthAssociationAlg::execute() {
     SG::ReadHandle<xAOD::TruthEventContainer> truthEvtContainer(m_truthEventContainerKey);
 
     //only for serial running. Can remove check later
-    if (!truthEvtContainer.isValid() || !truthEvtContainer->size() ){
+    if (!truthEvtContainer.isValid() || truthEvtContainer->empty() ){
       ATH_MSG_WARNING("Could not retrieve " << m_truthEventContainerKey.key() << 
 		      " or container empty, returning");
       return StatusCode::SUCCESS;
@@ -224,7 +224,7 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
       return egammaTruth;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //// The templated functions
@@ -233,9 +233,9 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
 template<class T> 
 StatusCode 
 egammaTruthAssociationAlg::initializeDecorKeys(SG::WriteDecorHandleKeyArray<T>& keys, 
-					       std::string name)
+					       const std::string& name)
 {
-  if (keys.size() != 0) {
+  if (!keys.empty()) {
     ATH_MSG_FATAL("The WriteDecorHandle should not be configured directly.");
     return StatusCode::FAILURE;
   }

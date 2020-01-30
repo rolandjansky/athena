@@ -18,6 +18,10 @@ def usage():
     print "-h, --help      shows this help"
     print "-T, --tree      save all in a tree"
     print "-o, --opt=      specify plotting option: line, noline or graph, bin, dist or 2d, default is dist"
+    print "-z, --zAxis=    specify label for Z axis on 2d plot"
+    print "-x, --noTitle   create plot without title"
+    print "-L, --label=    create plot with ATLAS/Tile label at the very top and this additional text"
+    print "-M, --label2=   second line of the label, if needed"
     print "-P, --print     print all the values on the console"
     print "-n, --norm      normalize everything to the first point"
     print "-f, --folder=   specify status folder to use f.i. /TILE/OFL02/CALIB/CIS/LIN "
@@ -37,12 +41,15 @@ def usage():
     print "-c, --chan=     specify channel to use for 1D plots, default is 0"
     print "-g, --gain=, -a, --adc=  specify adc(gain) to use, default is 0 (low gain)"
     print "-v, --val=,  -i, --ind=  specify index of value to use, default is 0 "
+    print "-d, --vmin=     specify minimal value for plot"
+    print "-u, --vmax=     specify maximal value for plot"
     print "-C, --cut=      specify additional cut on displayed values"
     print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
+    print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2"
 
 
-letters = "hr:l:s:t:f:a:g:b:e:o:Pp:Tv:i:m:c:I:A:N:X:Y:Z:C:n"
-words = ["help","run=","lumi=","schema=","tag=","folder=","adc=","gain=","print","module=","opt=","chan=","begin=","end=","tree","val=","ind=","part=","modmin=","modmax=","chmin=","chmax=","gmin=","gmax=","cut=","norm"]
+letters = "hr:l:s:t:f:D:a:g:b:e:o:z:xL:M:Pp:Tv:i:m:c:I:A:N:X:Y:Z:d:u:C:n"
+words = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","adc=","gain=","print","module=","opt=","zAxis=","noTitle","label=","label2=","chan=","begin=","end=","tree","val=","ind=","part=","modmin=","modmax=","chmin=","chmax=","gmin=","gmax=","vmin=","vmax=","cut=","norm"]
 try:
     options,args = getopt.getopt(sys.argv[1:],letters,words)
 except getopt.GetoptError, err:
@@ -56,6 +63,7 @@ except getopt.GetoptError, err:
 
 # defaults
 schema = 'COOLOFL_TILE/CONDBR2'
+dbname = ''
 folderPath =  "/TILE/OFL02/CALIB/CIS/LIN"
 tag = "UPD4"
 line = False
@@ -65,6 +73,10 @@ plotopt= "dist"
 save_tree = False
 print_msg = False
 opt2d = False
+zAxis = ""
+setTitle = True
+label = None
+label2 = ""
 partname = "LBA"
 modulename = "LBA01"
 modmin=0
@@ -73,6 +85,8 @@ chanmin=0
 chanmax=9999
 gainmin=0
 gainmax=0
+valmin=None
+valmax=None
 mod_n = 0
 chan_n = 0
 gain_n = 0
@@ -93,6 +107,8 @@ for o, a in options:
         tag = a
     elif o in ("-s","--schema"):
         schema = a
+    elif o in ("-D","--dbname"):
+        dbname = a
     elif o in ("-b","--begin"):
         begin = int(a)
     elif o in ("-e","--end"):
@@ -126,6 +142,10 @@ for o, a in options:
         chan_n = chanmin
     elif o in ("-X","--chmax"):
         chanmax = int(a)
+    elif o in ("-d","--vmin"):
+        valmin = float(a)
+    elif o in ("-u","--vmax"):
+        valmax = float(a)
     elif o in ("-Y","--gmin"):
         gainmin = int(a)
         gain_n = gainmin
@@ -133,6 +153,14 @@ for o, a in options:
         gainmax = int(a)
     elif o in ("-o","--opt"):
         plotopt = a
+    elif o in ("-z","--zAxis"):
+        zAxis = a
+    elif o in ("-x","--noTitle"):
+        setTitle = False
+    elif o in ("-L","--label"):
+        label = a
+    elif o in ("-M","--label2"):
+        label2 = a
     elif o in ("-C","--cut"):
         cut = a
     elif o in ("-T","--tree"):
@@ -146,6 +174,29 @@ for o, a in options:
         sys.exit(2)
     else:
         assert False, "unhandeled option"
+
+
+#=== check parameters
+if len(dbname)<7:
+    dbname = 'COMP200' if max(begin,runNum)<232000 else 'CONDBR2'
+
+if not 'COOLO' in schema and not ':' in schema and not ';' in schema:
+    schema='sqlite://;schema='+schema+';dbname='+(dbname if len(dbname) else 'CONDBR2')
+
+if schema=='COOLONL_TILE/COMP200':
+    if not (folderPath.startswith('/TILE/ONL01/') or folderPath.startswith('/TILE/OFL01/')):
+        print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
+        sys.exit(2)
+
+if schema=='COOLONL_TILE/CONDBR2':
+    if not folderPath.startswith('/TILE/ONL01/'):
+        print "Folder %s doesn't exist in schema %s, only /TILE/ONL01 " % (folderPath,schema)
+        sys.exit(2)
+
+if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
+    if not folderPath.startswith('/TILE/OFL02/'):
+        print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
+        sys.exit(2)
 
 
 if opt2d: plotopt = "2d"
@@ -239,7 +290,7 @@ if val_n>0: gainname += " val[%d]" % (val_n)
 
 
 import ROOT
-from ROOT import TCanvas, TH1D, TH2D, TGraph, TTree, TLegend
+from ROOT import TCanvas, TH1D, TH2D, TGraph, TTree, TLegend, TLatex
 from ROOT import gROOT
 from ROOT import kTRUE
 from array import array
@@ -331,14 +382,7 @@ print '-'*20
 be=iovList[0][0][0]
 en=iovList[-1][0][0]
 
-import cx_Oracle
-connection=cx_Oracle.connect(dsn="ATLR",user="atlas_run_number_r",password="-Run.Num@rEaDeR-x-12")
-con=connection.cursor()
-sql="SELECT MAX(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER"
-con.execute(sql)
-data=con.fetchall()
-lastrun=data[0][0]
-connection.close()
+lastrun=TileCalibTools.getLastRunNumber()
 
 if runNum <= 0:
     runNum = en
@@ -351,7 +395,7 @@ else:
     if begin <= 0: begin = be
     if end <= 0: end = lastrun
 
-veryEnd = end if end<lastrun else lastrun
+veryEnd = end if (end<lastrun or begin>lastrun) else lastrun
 
 if begin != be or end != en:
     ib=0
@@ -555,6 +599,8 @@ if plotopt == "print":
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.ForceStyle()
 ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetPalette(1)
+ROOT.gStyle.SetOptTitle(setTitle)
 
 
 if one_run:
@@ -586,8 +632,10 @@ elif vsbin:
 elif one_run:
     data += ":luminum"
 
-
-canv = TCanvas("PlotCalib","plotCalib",0,0,1600,800)
+cx = 1600
+cy = 800
+#if label is not None: cy = int(1.05*cy)
+canv = TCanvas("PlotCalib","plotCalib",0,0,cx,cy)
 
 if opt2d:
     hhh = TH2D("hhh","hhh",modmax-modmin+1,modmin-0.5,modmax+0.5,chanmax-chanmin+1,chanmin-0.5,chanmax+0.5)
@@ -667,8 +715,10 @@ if line or noline:
         leg.SetNColumns(nc)
         extra = (2+0.4*int(lg/nc+1))
         dv=(vmax-vmin)/10.
-        grall[0].SetMinimum(vmin-dv)
-        grall[0].SetMaximum(vmax+dv*extra)
+        if valmin is None: grall[0].SetMinimum(vmin-dv)
+        else:              grall[0].SetMinimum(valmin)
+        if valmax is None: grall[0].SetMaximum(vmax+dv*extra)
+        else:              grall[0].SetMaximum(valmax)
         if nc>8: nc=8
         leg.SetX1(0.9-0.1*nc)
         leg.SetY1(0.9-0.8*(extra-1)/(11+extra))
@@ -683,6 +733,8 @@ if line or noline:
         gr.GetXaxis().SetNoExponent(kTRUE)
         if one_run: gr.GetXaxis().SetTitle("Lumi")
         else: gr.GetXaxis().SetTitle("Runs")
+        if valmin is not None: grall[0].SetMinimum(valmin)
+        if valmax is not None: grall[0].SetMaximum(valmax)
         if noline: gr.Draw("ap")
         else: gr.Draw("apl")
 
@@ -690,8 +742,11 @@ elif opt2d:
     nentries = tree.GetEntries()
     hhh.SetName(modulename)
     hhh.SetTitle(gtitle)
-    hhh.GetYaxis().SetTitle("Channels")
-    hhh.GetXaxis().SetTitle("Modules")
+    if 'zAxis' in dir() and len(zAxis)>0:
+        hhh.GetZaxis().SetTitle(zAxis)
+        canv.SetRightMargin(0.14)
+    hhh.GetYaxis().SetTitle("Channel")
+    hhh.GetXaxis().SetTitle("Module")
 
     if multi:
         Matrix = [[1 for y in range(48)] for x in range(64)]
@@ -714,6 +769,8 @@ elif opt2d:
             else:
                 hhh.Fill(module_n[0]+1, channel_n[0],vals[val_n])
 
+    if valmin is not None: hhh.SetMinimum(valmin)
+    if valmax is not None: hhh.SetMaximum(valmax)
     hhh.Draw("colz")
 
 else:
@@ -731,9 +788,34 @@ else:
         if one_run: h.GetXaxis().SetTitle("Lumi");  h.SetTitle(gtitle)
         h.GetYaxis().SetTitle("")
         h.GetYaxis().SetTitleOffset(1.35)
+        if valmin is not None: h.SetMinimum(valmin)
+        if valmax is not None: h.SetMaximum(valmax)
     try:
         h.Draw()
     except: print "Empty "
+
+if label is not None:
+    canv.SetTopMargin(0.15)
+    x = 0.1
+    y = 0.93
+    dy = 0.05
+    delx = 0.115*696*ROOT.gPad.GetWh()/(472*ROOT.gPad.GetWw());
+
+    l = TLatex()
+    l.SetNDC()
+    l.SetTextFont(72);
+    l.DrawLatex(x,y,"ATLAS");
+    p = TLatex()
+    p.SetNDC()
+    p.SetTextFont(42)
+    p.DrawLatex(x+delx,y,"Preliminary")
+    p.DrawLatex(x,y-dy,"Tile Calorimeter")
+
+    ll = max(len(label),len(label2))
+    if ll>0:
+        x = 0.9 - delx*ll/6.5
+        p.DrawLatex(x,y,label)
+        p.DrawLatex(x,y-dy,label2)
 
 canv.SetGridx();
 canv.SetGridy();
@@ -742,6 +824,8 @@ canv.Update()
 
 ##########################################################
 
+if valmin is not None: fname += "_min_%s" % (valmin)
+if valmax is not None: fname += "_max_%s" % (valmax)
 
 canv.Print(fname+".eps")
 canv.Print(fname+".png")

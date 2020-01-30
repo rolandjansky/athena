@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_FillCablingFromCoraCool_H
@@ -34,12 +34,12 @@ class StatusCode;
 
 /**
  *    @class SCT_FillCablingFromCoraCool
- *    @brief Service which fill the SCT Cabling from the database, using CoraCool.
+ *    @brief Tool which fills the SCT Cabling from the database, using CoraCool.
  *
  */
 class SCT_FillCablingFromCoraCool: public extends<AthAlgTool, ISCT_FillCabling> {
 public:
-  //@name Service methods, reimplemented
+  //@name AthAlgTool methods, reimplemented
   //@{
   SCT_FillCablingFromCoraCool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_FillCablingFromCoraCool() = default;
@@ -72,15 +72,16 @@ public:
    */
   virtual bool canFillDuringInitialize() const {return false;}
 private:
-  //read from db
+  /// read from db
   StatusCode readDataFromDb(SCT_CablingData& data) const;
-  //determine which folder to use; COMP200 style or CONDBR2 style
+  /// determine which folder to use; COMP200 style or CONDBR2 style
   std::string determineFolder(const std::string& option1, const std::string& option2) const;
   
-  //retrieve a IOVDbSvc coracool dataset, give error message if it is empty or the pointer is zero
+  /// retrieve a IOVDbSvc coracool dataset, give error message if it is empty or the pointer is zero
   const CondAttrListVec*
   successfulFolderRetrieve(const std::string& folderName) const;
 
+  /// Insert relations among IdentifierHash, SCT_OnlineId and SCT_SerialNumber to SCT_CablingData.
   bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const;
 
   mutable std::atomic_bool m_filled{false};

@@ -37,3 +37,8 @@ atlas_add_test( ConstIter SOURCES test/itertest.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TestLogicParser SOURCES test/testLogicParser.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData
+                POST_EXEC_SCRIPT nopost.sh )

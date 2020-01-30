@@ -16,6 +16,50 @@ class TrigEgammaKeys(object):
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
       pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20180312'
 
+
+def TrigElectronSelectors(sel):
+    import logging
+
+    mlog = logging.getLogger ('EgammaDefs')
+
+    # Configure the LH selectors
+    from AthenaCommon import CfgMgr
+    from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+    EgammaSliceFlags.pidVersion.set_On()
+    mlog.info("TrigEgammaPidTools version " + str(EgammaSliceFlags.pidVersion()))
+    ConfigFilePath = EgammaSliceFlags.pidVersion() 
+    
+    SelectorNames = {
+          'lhvloose':'AsgElectronLHVLooseSelector',
+          'lhloose':'AsgElectronLHLooseSelector',
+          'lhmedium':'AsgElectronLHMediumSelector',
+          'lhtight':'AsgElectronLHTightSelector',
+          }
+     
+    ElectronToolConfigFile = {
+          'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig2015.conf',
+          'lhloose':'ElectronLikelihoodLooseTriggerConfig2015.conf',
+          'lhmedium':'ElectronLikelihoodMediumTriggerConfig2015.conf',
+          'lhtight':'ElectronLikelihoodTightTriggerConfig2015.conf',
+          }
+    
+
+    mlog.info('Configuring electron PID tools...')
+    if sel not in SelectorNames:
+        mlog.error('No selector defined for working point '+sel+' for electrons :-( ')
+        return
+    else:
+        mlog.info('Configuring electron PID for '+sel)
+        SelectorTool=CfgMgr.AsgElectronLikelihoodTool(SelectorNames[sel])
+        SelectorTool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[sel]
+        SelectorTool.usePVContainer = False 
+        SelectorTool.skipDeltaPoverP = True
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += SelectorTool
+
+        return SelectorTool
+
+
 def TrigPhotonSelectors(sel):
     import logging
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file    PyDumper.SgDumpLib
 # @purpose API for the sg-dump script
@@ -86,6 +86,9 @@ def _gen_jobo(dct):
                      'doPerfMon', 'doDetailedPerfMon',
                      ):
             getattr (rec, item).set_Value_and_Lock(False)
+
+        # Disables more stuff we don't need.
+        rec.doAODMerging.set_Value_and_Lock(True)
 
         # events to process
         acf.EvtMax = %(evts)s

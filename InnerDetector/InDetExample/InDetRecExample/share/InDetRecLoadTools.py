@@ -42,7 +42,7 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         ToolSvc += NeuralNetworkToHistoTool
         if (InDetFlags.doPrintConfigurables()):
-            print NeuralNetworkToHistoTool
+            printfunc (NeuralNetworkToHistoTool)
 
         # --- new NN factor
 
@@ -92,7 +92,7 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
                 conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
 
         if (InDetFlags.doPrintConfigurables()):
-            print NnClusterizationFactory
+            printfunc (NnClusterizationFactory)
 elif InDetFlags.doPixelClusterSplitting():
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
@@ -103,7 +103,7 @@ elif InDetFlags.doPixelClusterSplitting():
                                                                  PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool)
     ToolSvc += NnClusterizationFactory
     if (InDetFlags.doPrintConfigurables()):
-        print NnClusterizationFactory
+        printfunc (NnClusterizationFactory)
 
 
 # --- load cabling (if needed)
@@ -228,7 +228,7 @@ if InDetFlags.loadUpdator() :
     InDetUpdator = TrackingCommon.getInDetUpdator()
     ToolSvc += InDetUpdator
     if (InDetFlags.doPrintConfigurables()):
-      print      InDetUpdator
+      printfunc (     InDetUpdator)
 
 #
 # ----------- control laoding extrapolation
@@ -236,7 +236,7 @@ if InDetFlags.loadUpdator() :
 if InDetFlags.loadExtrapolator():
     #
     # if (InDetFlags.doPrintConfigurables()):
-    #     print      InDetMultipleScatteringUpdator
+    #     printfunc (     InDetMultipleScatteringUpdator)
 
     InDetPropagator      = TrackingCommon.getInDetPropagator()
     InDetNavigator       = TrackingCommon.getInDetNavigator()
@@ -269,11 +269,11 @@ if InDetFlags.loadFitter():
         # if not InDetFlags.doDBMstandalone():
             # ToolSvc += InDetTrackFitterTRT
             # if (InDetFlags.doPrintConfigurables()):
-            #     print InDetTrackFitterTRT
+            #     printfunc (InDetTrackFitterTRT)
         # if InDetFlags.doLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
             # ToolSvc+=InDetTrackFitterLowPt
             # if (InDetFlags.doPrintConfigurables()):
-            #    print InDetTrackFitterLowPt
+            #    printfunc (InDetTrackFitterLowPt)
 
 #
 # ----------- load association tool from Inner Detector to handle pixel ganged ambiguities
@@ -287,7 +287,7 @@ if InDetFlags.loadAssoTool():
     # InDetPrdAssociationTool.OutputLevel = VERBOSE
     ToolSvc += InDetPrdAssociationTool
     if (InDetFlags.doPrintConfigurables()):
-      print      InDetPrdAssociationTool
+      printfunc (     InDetPrdAssociationTool)
 
     from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
     InDetPrdAssociationTool_setup = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
@@ -309,12 +309,8 @@ if InDetFlags.loadSummaryTool():
 
     InDetPixelConditionsSummaryTool = TrackingCommon.getInDetPixelConditionsSummaryTool()
 
-    if InDetFlags.usePixelDCS():
-        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
-        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
-
     if (InDetFlags.doPrintConfigurables()):
-        print InDetPixelConditionsSummaryTool
+        printfunc (InDetPixelConditionsSummaryTool)
 
     InDetTestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerTool()
     InDetHoleSearchTool     = TrackingCommon.getInDetHoleSearchTool()
@@ -346,7 +342,7 @@ if InDetFlags.doPattern():
     InDetPatternPropagator = Propagator(name = 'InDetPatternPropagator')
     ToolSvc += InDetPatternPropagator
     if (InDetFlags.doPrintConfigurables()):
-      print      InDetPatternPropagator
+      printfunc (     InDetPatternPropagator)
     #
     # fast Kalman updator tool
     #
@@ -354,7 +350,7 @@ if InDetFlags.doPattern():
     InDetPatternUpdator = Trk__KalmanUpdator_xk(name = 'InDetPatternUpdator')
     ToolSvc += InDetPatternUpdator
     if (InDetFlags.doPrintConfigurables()):
-      print      InDetPatternUpdator
+      printfunc (     InDetPatternUpdator)
 
     # ------------------------------------------------------------
     #
@@ -366,36 +362,30 @@ if InDetFlags.doPattern():
     # TRT detector elements road builder
     #
     if not InDetFlags.doDBMstandalone():
-        from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
-        InDetTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name                  = 'InDetTRT_RoadMaker',
-                                                                           TRTManagerLocation    = InDetKeys.TRT_Manager(),
-                                                                           RoadWidth             = 20.,
-                                                                           PropagatorTool        = InDetPatternPropagator)
-        ToolSvc += InDetTRTDetElementsRoadMaker
+        InDetTRTDetElementsRoadMaker =  TrackingCommon.getInDetTRT_RoadMaker()
+        from InDetRecExample.TrackingCommon import getTRT_DetElementsRoadCondAlg
+        createAndAddCondAlg(getTRT_DetElementsRoadCondAlg,'TRT_DetElementsRoadCondAlg_xk')
+
         if (InDetFlags.doPrintConfigurables()):
-            print      InDetTRTDetElementsRoadMaker
+            printfunc (     InDetTRTDetElementsRoadMaker)
 
     #
     # TRT segment minimum number of drift circles tool
     #
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
-    InDetTRTDriftCircleCut = InDet__InDetTrtDriftCircleCutTool(name                   = 'InDetTRTDriftCircleCut',
-                                                               MinOffsetDCs           = 5,
-                                                               UseNewParameterization = True,  # Use Thomas's new parameterization by default
-                                                               UseActiveFractionSvc   = DetFlags.haveRIO.TRT_on())
+    InDetTRTDriftCircleCut = TrackingCommon.getInDetTRTDriftCircleCutForPatternReco()
 
-    ToolSvc += InDetTRTDriftCircleCut
     if (InDetFlags.doPrintConfigurables()):
-        print   InDetTRTDriftCircleCut
+        printfunc (  InDetTRTDriftCircleCut)
 
     #
     # Local combinatorial track finding using space point seed and detector element road
     #
     from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
-                                                                 PropagatorTool        = InDetPatternPropagator,
-                                                                 UpdatorTool           = InDetPatternUpdator,
-                                                                 RIOonTrackTool        = InDetRotCreatorDigital, # #NS HERE
+                                                                 PropagatorTool        = TrackingCommon.getInDetPatternPropagator(),
+                                                                 UpdatorTool           = TrackingCommon.getInDetPatternUpdator(),
+                                                                 RIOonTrackTool        = TrackingCommon.getInDetRotCreatorDigital(), # #NS HERE
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
@@ -441,90 +431,14 @@ if InDetFlags.doPattern():
     #  InDetSiComTrackFinder.SctSummaryTool = None
 
     if (InDetFlags.doPrintConfigurables()):
-      print InDetSiComTrackFinder
+      printfunc (InDetSiComTrackFinder)
 
 # ------------------------------------------------------------
 #
 # ----------- Track extension to TRT tool for New Tracking
 #
 # ------------------------------------------------------------
-#if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTExtension():
-if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on():
-    # if new tracking is OFF then xk extension type has to be used!!
-    if (InDetFlags.trtExtensionType() == 'xk') or (not InDetFlags.doNewTracking()) :
-
-        #
-        # TRT segment minimum number of drift circles tool just for Pattern Reco stage
-        #
-        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrtDriftCircleCutTool
-        InDetTRTDriftCircleCutForPatternReco = InDet__InDetTrtDriftCircleCutTool(name                   = 'InDetTRTDriftCircleCutForPatternReco',
-                                                                                 MinOffsetDCs           = 5,
-                                                                                 UseNewParameterization = InDetNewTrackingCuts.useNewParameterizationTRT(),  # Use new parameterization only for high lumi
-                                                                                 UseActiveFractionSvc   = DetFlags.haveRIO.TRT_on())
-
-        ToolSvc += InDetTRTDriftCircleCutForPatternReco
-        if (InDetFlags.doPrintConfigurables()):
-            print   InDetTRTDriftCircleCutForPatternReco
-
-        #
-        # load normal extension code
-        #
-        if InDetFlags.doCosmics():
-            from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
-            InDetTRTExtensionTool = InDet__TRT_TrackExtensionToolCosmics(name                  = 'InDetTRT_ExtensionToolCosmics',
-                                                                         Propagator            = InDetPropagator,
-                                                                         Extrapolator          = InDetExtrapolator,
-                                                                         TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
-                                                                         SearchNeighbour       = False, # needs debugging!!!
-                                                                         RoadWidth             = 10.)
-        else:
-            from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
-            InDetTRTExtensionTool =  InDet__TRT_TrackExtensionTool_xk(name                  = 'InDetTRT_ExtensionTool',
-                                                                      TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
-                                                                      TrtManagerLocation    = InDetKeys.TRT_Manager(),
-                                                                      PropagatorTool        = InDetPatternPropagator,
-                                                                      UpdatorTool           = InDetPatternUpdator,
-                                                                      DriftCircleCutTool    = InDetTRTDriftCircleCutForPatternReco,
-                                                                      UseDriftRadius        = not InDetFlags.noTRTTiming(),
-                                                                      RoadTool              = InDetTRTDetElementsRoadMaker,
-                                                                      MinNumberDriftCircles = InDetNewTrackingCuts.minTRTonTrk(),
-                                                                      ScaleHitUncertainty   = 2.,
-                                                                      RoadWidth             = 20.,
-                                                                      UseParameterization   = InDetNewTrackingCuts.useParameterizedTRTCuts() )
-            # --- single beam running, open cuts
-            if InDetFlags.doBeamHalo() or InDetFlags.doBeamGas():
-                InDetTRTExtensionTool.maxImpactParameter  = 500
-
-    elif InDetFlags.trtExtensionType() == 'DAF' :
-        #
-        # laod TRT Competing ROT tool
-        #
-        from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DAF_SimpleWeightCalculator
-        InDetWeightCalculator =  Trk__DAF_SimpleWeightCalculator( name = 'InDetWeightCalculator')
-        ToolSvc += InDetWeightCalculator
-        if (InDetFlags.doPrintConfigurables()):
-            print InDetWeightCalculator
-        #
-        from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingTRT_DriftCirclesOnTrackTool
-        InDetCompetingTRT_DC_Tool =  InDet__CompetingTRT_DriftCirclesOnTrackTool( name                                  = 'InDetCompetingTRT_DC_Tool',
-                                                                                  Extrapolator                          = InDetExtrapolator,
-                                                                                  ToolForWeightCalculation              = InDetWeightCalculator,
-                                                                                  ToolForTRT_DriftCircleOnTrackCreation = InDetRotCreator.ToolTRT_DriftCircle)
-        ToolSvc += InDetCompetingTRT_DC_Tool
-        if (InDetFlags.doPrintConfigurables()):
-            print InDetCompetingTRT_DC_Tool
-
-        from TRT_TrackExtensionTool_DAF.TRT_TrackExtensionTool_DAFConf import InDet__TRT_TrackExtensionTool_DAF
-        InDetTRTExtensionTool =  InDet__TRT_TrackExtensionTool_DAF(name                        = 'InDetTRT_ExtensionTool',
-                                                                   TRT_DriftCircleContainer    = InDetKeys.TRT_DriftCircles(),
-                                                                   CompetingDriftCircleTool    = InDetCompetingTRT_DC_Tool,
-                                                                   PropagatorTool              = InDetPatternPropagator,
-                                                                   RoadTool                    = InDetTRTDetElementsRoadMaker)
-
-    # --- print out the final configuration
-    ToolSvc += InDetTRTExtensionTool
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetTRTExtensionTool
+InDetTRTExtensionTool = TrackingCommon.getInDetTRT_ExtensionTool(TrackingCuts = InDetNewTrackingCuts)
 
 # ------------------------------------------------------------
 #
@@ -539,7 +453,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
                                                             SummaryTool  = InDetTrackSummaryTool)
     ToolSvc += InDetScoringToolCosmics
     if (InDetFlags.doPrintConfigurables()):
-        print      InDetScoringToolCosmics
+        printfunc (     InDetScoringToolCosmics)
 
     from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
     InDetAmbiTrackSelectionToolCosmics = InDet__InDetAmbiTrackSelectionTool(name                  = 'InDetAmbiTrackSelectionToolCosmics',
@@ -554,7 +468,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
 
     ToolSvc += InDetAmbiTrackSelectionToolCosmics
     if (InDetFlags.doPrintConfigurables()):
-        print      InDetAmbiTrackSelectionToolCosmics
+        printfunc (     InDetAmbiTrackSelectionToolCosmics)
 
 
     from AthenaCommon import CfgGetter
@@ -571,7 +485,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
 
     ToolSvc += InDetAmbiguityProcessorCosmics
     if (InDetFlags.doPrintConfigurables()):
-        print      InDetAmbiguityProcessorCosmics
+        printfunc (     InDetAmbiguityProcessorCosmics)
 
 
 # ------------------------------------------------------------
@@ -596,7 +510,7 @@ if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardP
                                              Extrapolator = InDetExtrapolator)
     ToolSvc += InDetTruthToTrack
     if (InDetFlags.doPrintConfigurables()):
-        print InDetTruthToTrack
+        printfunc (InDetTruthToTrack)
 
 # ------------------------------------------------------------
 #
@@ -630,7 +544,7 @@ if InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring() or 
 
     ToolSvc += InDetTrackSelectorTool
     if (InDetFlags.doPrintConfigurables()):
-        print InDetTrackSelectorTool
+        printfunc (InDetTrackSelectorTool)
 
 
 if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) or InDetFlags.doSplitVertexFindingForMonitoring() and InDetFlags.primaryVertexSetup() != 'DummyVxFinder':
@@ -642,7 +556,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                     Extrapolator      = InDetExtrapolator )
   ToolSvc += InDetLinFactory
   if (InDetFlags.doPrintConfigurables()):
-    print InDetLinFactory
+    printfunc (InDetLinFactory)
 
 
   #
@@ -703,7 +617,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                 )
     ToolSvc += InDetVtxSeedFinder
     if (InDetFlags.doPrintConfigurables()):
-      print InDetVtxSeedFinder
+      printfunc (InDetVtxSeedFinder)
 
     #
     # --- load Impact Point Factory
@@ -713,7 +627,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                               Extrapolator      = InDetExtrapolator)
     ToolSvc += InDetImpactPoint3dEstimator
     if (InDetFlags.doPrintConfigurables()):
-      print InDetImpactPoint3dEstimator
+      printfunc (InDetImpactPoint3dEstimator)
 
     #
     # --- load Configured Annealing Maker
@@ -723,7 +637,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                  SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
     ToolSvc += InDetAnnealingMaker
     if (InDetFlags.doPrintConfigurables()):
-      print InDetAnnealingMaker
+      printfunc (InDetAnnealingMaker)
 
   if (InDetFlags.primaryVertexSetup() == 'DefaultFastFinding' or
       InDetFlags.primaryVertexSetup() == 'DefaultFullFinding' or
@@ -733,7 +647,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     InDetTrackZ0SortingTool =  InDet__InDetTrackZ0SortingTool(name = "InDetTrackZ0SortingTool")
     ToolSvc += InDetTrackZ0SortingTool
     if (InDetFlags.doPrintConfigurables()):
-      print InDetTrackZ0SortingTool
+      printfunc (InDetTrackZ0SortingTool)
 
     if (not InDetFlags.useBeamConstraint()):
       import logging
@@ -745,7 +659,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                      SolveAmbiguityUsingZ = False)
       ToolSvc+=Trk2dDistanceSeeder
       if (InDetFlags.doPrintConfigurables()):
-        print Trk2dDistanceSeeder
+        printfunc (Trk2dDistanceSeeder)
 
 
       from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Trk2DDistanceFinder
@@ -754,7 +668,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
       ToolSvc+=Trk2DDistanceFinder
       if (InDetFlags.doPrintConfigurables()):
-        print Trk2DDistanceFinder
+        printfunc (Trk2DDistanceFinder)
 
       from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
       InDet2DVtxSeedFinder = Trk__CrossDistancesSeedFinder(name                = "InDet2DCrossDistancesSeedFinder",
@@ -766,7 +680,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                            )
       ToolSvc+=InDet2DVtxSeedFinder
       if (InDetFlags.doPrintConfigurables()):
-        print InDet2DVtxSeedFinder
+        printfunc (InDet2DVtxSeedFinder)
 
 
     if(InDetFlags.vertexSeedFinder() == 'DivisiveMultiSeedFinder'):
@@ -833,7 +747,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
     ToolSvc += InDetMultiSeedFinder
     if (InDetFlags.doPrintConfigurables()):
-      print InDetMultiSeedFinder
+      printfunc (InDetMultiSeedFinder)
 
   # -----------------------------------------
   #
@@ -851,7 +765,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     InDetVertexSmoother = Trk__SequentialVertexSmoother(name = "InDetSequentialVertexSmoother")
     ToolSvc += InDetVertexSmoother
     if (InDetFlags.doPrintConfigurables()):
-      print InDetVertexSmoother
+      printfunc (InDetVertexSmoother)
 
   if InDetFlags.primaryVertexSetup() == 'DefaultFastFinding':
     #
@@ -892,7 +806,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                            )
       ToolSvc+=InDet3DVtxSeedFinder
       if (InDetFlags.doPrintConfigurables()):
-        print InDet3DVtxSeedFinder
+        printfunc (InDet3DVtxSeedFinder)
     #
     # --- load configured adaptive vertex fitter (with simplified seed finder for start point)
     #
@@ -939,7 +853,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
   ToolSvc += InDetVxFitterTool
   if (InDetFlags.doPrintConfigurables()):
-    print InDetVxFitterTool
+    printfunc (InDetVxFitterTool)
 
   # -----------------------------------------
   #
@@ -1028,7 +942,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
   ToolSvc += InDetPriVxFinderTool
   if (InDetFlags.doPrintConfigurables()):
-    print InDetPriVxFinderTool
+    printfunc (InDetPriVxFinderTool)
 
   # -----------------------------------------
   #
@@ -1055,9 +969,9 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
       NNFileName     = "NNHisto.root"
       VxProbFile     = FindFile(VxProbFileName , dataPathList, os.R_OK )
       NNFile         = FindFile(NNFileName , dataPathList, os.R_OK )
-      print VxProbFile
+      printfunc (VxProbFile)
       svcMgr.THistSvc.Input += ["VxProbHisto DATAFILE='"+VxProbFile+"' OPT='OLD'"]
-      print NNFile
+      printfunc (NNFile)
       svcMgr.THistSvc.Input += ["NNHisto DATAFILE='"+NNFile+"' OPT='OLD'"]
 
     #
@@ -1083,7 +997,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     ToolSvc += VertexWeightCalculator
     if InDetFlags.doPrintConfigurables():
-      print VertexWeightCalculator
+      printfunc (VertexWeightCalculator)
 
     #
     # --- load sorting tool
@@ -1093,7 +1007,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                    VertexWeightCalculator = VertexWeightCalculator)
     ToolSvc += VertexCollectionSortingTool
     if InDetFlags.doPrintConfigurables():
-      print VertexCollectionSortingTool
+      printfunc (VertexCollectionSortingTool)
 
   elif InDetFlags.primaryVertexSortingSetup() == 'NoReSorting':
 

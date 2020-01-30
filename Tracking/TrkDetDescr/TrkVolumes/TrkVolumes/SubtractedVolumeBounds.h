@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "CxxUtils/checker_macros.h"
 
 
 class MsgStream;
@@ -38,7 +39,7 @@ namespace Trk {
     @author Sarka.Todorova@cern.ch 
     */
     
- class SubtractedVolumeBounds : public VolumeBounds {
+ class ATLAS_NOT_THREAD_SAFE SubtractedVolumeBounds : public VolumeBounds {
   
   public:
     /**Default Constructor*/
@@ -77,7 +78,7 @@ namespace Trk {
     Volume* inner() const;    
     
     /**This method returns bounds orientation*/
-    const std::vector<bool> boundsOrientation() const;
+    std::vector<bool> boundsOrientation() const;
     
     /** Output Method for MsgStream*/
     MsgStream& dump(MsgStream& sl) const override;
@@ -117,7 +118,7 @@ namespace Trk {
                                                                        bool) const
  { return Trk::ObjectAccessor(m_objectAccessor); }
                         
- inline const std::vector<bool> SubtractedVolumeBounds::boundsOrientation() const
+ inline std::vector<bool> SubtractedVolumeBounds::boundsOrientation() const
   { return(m_boundsOrientation); }
 
 }

@@ -18,7 +18,7 @@
 #include "TrigTauEmulation/IHltTauSelectionTool.h"
 #include "TrigTauEmulation/SelectionTool.h"
 #include "TrigTauEmulation/IFastTrackSelectionTool.h"
-/* #ifdef ASGTOOL_STANDALONE */
+/* #ifdef XAOD_STANDALONE */
 /*  #include "TauDiscriminant/TauDiscriminantTool.h" */
 /* #endif */
 
@@ -74,7 +74,7 @@ class HltTauSelectionTool : public virtual IHltTauSelectionTool, public Selectio
     // tau BDT
     std::string m_TauDiscriminantToolName;
     bool m_recalculateBDTscore;
-    /* #ifdef ASGTOOL_STANDALONE */
+    /* #ifdef XAOD_STANDALONE */
     /*   ToolHandle<TauDiscriminantTool> *m_tauIDTool; */
     /* #endif */
 

@@ -41,7 +41,7 @@ atlas_add_test( IOVSvcTool_test
                 test/IOVSvcTool_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES IOVSvcLib
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
+                LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( IOVSvc_test
@@ -49,7 +49,7 @@ atlas_add_test( IOVSvc_test
                 test/IOVSvc_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES IOVSvcLib
-                EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
+                LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 # Install files from the package:

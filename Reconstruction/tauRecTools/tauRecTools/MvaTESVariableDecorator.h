@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
@@ -21,19 +21,10 @@ class MvaTESVariableDecorator
   MvaTESVariableDecorator(const std::string& name="MvaTESVariableDecorator");
   virtual ~MvaTESVariableDecorator();
     
-  StatusCode initialize();
-  StatusCode eventInitialize();
-  StatusCode execute(xAOD::TauJet& xTau);
-  StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
+  StatusCode initialize() override;
+  StatusCode execute(xAOD::TauJet& xTau) override;
+  StatusCode finalize() override;
 
-  StatusCode eventFinalize();
-  
  private:
   int m_mu; //!
   int m_nVtxPU; //!

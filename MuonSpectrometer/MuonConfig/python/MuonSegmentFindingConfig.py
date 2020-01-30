@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # This file configures the Muon segment finding. It is based on a few files in the old configuration system:
 # Tools, which are configured here: 
@@ -429,15 +429,10 @@ def CscClusterUtilToolCfg(flags, name='CscClusterUtilTool', **kwargs):
 def CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool', **kwargs):
     CscSegmentUtilTool=CompFactory.CscSegmentUtilTool
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg
-    from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
     
     result=CscClusterOnTrackCreatorCfg(flags)
     csc_cluster_creator = result.getPrimary()
     kwargs.setdefault("rot_creator", csc_cluster_creator )
-    
-    acc = CscCoolStrSvcCfg(flags)
-    # NB no property to configure right now.
-    result.merge(acc)
     
     result.setPrivateTools(CscSegmentUtilTool( name=name, **kwargs))
     return result

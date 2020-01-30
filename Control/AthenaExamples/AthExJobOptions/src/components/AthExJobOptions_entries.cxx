@@ -1,13 +1,13 @@
-#include "AthExJobOptions/NoopAlgorithm.h"
-#include "AthExJobOptions/TopAlgorithm.h"
-#include "AthExJobOptions/SubAlgorithm.h"
-#include "AthExJobOptions/TestSvcHandleArrayAlg.h"
-#include "AthExJobOptions/ConcreteTool.h"
-#include "AthExJobOptions/ToolUsingTool.h"
-#include "AthExJobOptions/TemplatedTool.h"
-#include "AthExJobOptions/ConcreteSvc.h"
-#include "AthExJobOptions/AnotherConcreteSvc.h"
-#include "AthExJobOptions/ExampleEvtLoopPreSelectTool.h"
+#include "../NoopAlgorithm.h"
+#include "../TopAlgorithm.h"
+#include "../SubAlgorithm.h"
+#include "../TestSvcHandleArrayAlg.h"
+#include "../ConcreteTool.h"
+#include "../ToolUsingTool.h"
+#include "../TemplatedTool.h"
+#include "../ConcreteSvc.h"
+#include "../AnotherConcreteSvc.h"
+#include "../ExampleEvtLoopPreSelectTool.h"
 
 
 typedef ToolSpace::TemplatedTool< double > ToolSpaceTemplatedToolDouble;

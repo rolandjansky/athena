@@ -179,7 +179,7 @@ StatusCode electronSuperClusterBuilder::execute(){
   return StatusCode::SUCCESS;
 }
 
-const std::vector<std::size_t> 
+std::vector<std::size_t> 
 electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electronIndex,
                                                         const EgammaRecContainer* egammaRecs,
                                                         std::vector<bool>& isUsed){

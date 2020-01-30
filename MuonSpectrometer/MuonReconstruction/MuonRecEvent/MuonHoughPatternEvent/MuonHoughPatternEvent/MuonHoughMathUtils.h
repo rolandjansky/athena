@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHMATHUTILS_H
@@ -41,7 +41,7 @@ class MuonHoughMathUtils
   /** default constructor */
   MuonHoughMathUtils();
   /** destructor */
-  ~MuonHoughMathUtils();
+  virtual ~MuonHoughMathUtils() = default;
 
   /** sign (-1 or 1) of a double */
   int sgn(double d)const;

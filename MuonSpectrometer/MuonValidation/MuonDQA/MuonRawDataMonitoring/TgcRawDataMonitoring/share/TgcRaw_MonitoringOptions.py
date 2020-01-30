@@ -1,10 +1,10 @@
-print '\n*************************************************************************************************\n'
-print "   ******** Welcome to the Offline ESD MuonRawDataMonitoring/TgcRawDataMonitoring package. ******** "  
-print "   ******** Documentation may be found at:******** "  
-print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/TGCOfflineMonitoringPlots ***** "  
-print '\n*************************************************************************************************\n'
+printfunc ('\n*************************************************************************************************\n')
+printfunc ("   ******** Welcome to the Offline ESD MuonRawDataMonitoring/TgcRawDataMonitoring package. ******** "  )
+printfunc ("   ******** Documentation may be found at:******** "  )
+printfunc ("   **** https://twiki.cern.ch/twiki/bin/view/Atlas/TGCOfflineMonitoringPlots ***** "  )
+printfunc ('\n*************************************************************************************************\n')
 if not 'MuonDQAFlags' in dir():
-    print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
+    printfunc ("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
 tgcRawMonMan = AthenaMonManager(name="TgcRawMonManager",
@@ -22,7 +22,7 @@ tgcRawDataValAlg = TgcRawDataValAlg(name='tgcRawDataValAlg',
 #ToolSvc += tgcRawDataValAlg
 tgcRawMonMan.AthenaMonTools += [ tgcRawDataValAlg ]
 topSequence += tgcRawMonMan
-print tgcRawMonMan
+printfunc (tgcRawMonMan)
 ############## TgcLv1RawDataValAlg ##########
 from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcLv1RawDataValAlg
 tgcLv1RawDataValAlg = TgcLv1RawDataValAlg(name='tgcLv1RawDataValAlg')
@@ -31,4 +31,4 @@ if DQMonFlags.useTrigger():
     #ToolSvc += tgcLv1RawDataValAlg
     tgcLv1RawMonMan.AthenaMonTools += [ tgcLv1RawDataValAlg  ]
     topSequence += tgcLv1RawMonMan
-    print tgcLv1RawMonMan
+    printfunc (tgcLv1RawMonMan)

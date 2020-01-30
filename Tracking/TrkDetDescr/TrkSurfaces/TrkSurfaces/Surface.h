@@ -161,7 +161,7 @@ public:
   const TrkDetElementBase* associatedDetectorElement() const;
 
   /** return Identifier of the associated Detector Element */
-  const Identifier associatedDetectorElementIdentifier() const;
+  Identifier associatedDetectorElementIdentifier() const;
 
   /** return the associated Layer */
   const Trk::Layer* associatedLayer() const;
@@ -178,13 +178,13 @@ public:
                                                                  double,
                                                                  double,
                                                                  double,
-                                                                 AmgSymMatrix(5) * cov = 0) const = 0;
+                                                                 AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
   virtual ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&,
                                                                  const Amg::Vector3D&,
                                                                  double,
-                                                                 AmgSymMatrix(5) * cov = 0) const = 0;
+                                                                 AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
   virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(double,
@@ -192,19 +192,19 @@ public:
                                                                    double,
                                                                    double,
                                                                    double,
-                                                                   AmgSymMatrix(5) * cov = 0) const = 0;
+                                                                   AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
   virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&,
                                                                    const Amg::Vector3D&,
                                                                    double charge = 0.,
-                                                                   AmgSymMatrix(5) * cov = 0) const = 0;
+                                                                   AmgSymMatrix(5) * cov = nullptr) const = 0;
 
   /** positionOnSurface() returns a pointer to a LocalPosition on the Surface,<br>
     If BoundaryCheck==false it just returns the value of globalToLocal (including NULL pointer possibility),
     if BoundaryCheck==true it checks whether the point is inside bounds or not (returns NULL pointer in this case). */
   const Amg::Vector2D* positionOnSurface(const Amg::Vector3D& glopo,
-                                         BoundaryCheck bchk = true,
+                                         const BoundaryCheck& bchk = true,
                                          double tol1 = 0.,
                                          double tol2 = 0.) const;
 
@@ -260,7 +260,7 @@ public:
   const Amg::Vector2D* globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const;
 
   /** Optionally specified by each surface type : LocalParameters to Vector2D */
-  virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
+  virtual Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
 
   /** the pathCorrection for derived classes with thickness - it reflects if the direction projection is positive or
    * negative */
@@ -268,7 +268,7 @@ public:
 
   /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
        - the default implementation is the the RotationMatrix3D of the transform */
-  virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const;
+  virtual Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos, const Amg::Vector3D& glomom) const;
 
   /** fst straight line intersection schema - templated for cvharged and neutral parameters */
   template<class T>
@@ -350,9 +350,9 @@ protected:
 
   /** Private members are in principle implemented as pointers to
    * objects for easy checks if they are already declared or not */
-  CxxUtils::CachedUniquePtrT<Amg::Transform3D> m_transform; //!< Transform3D to orient surface w.r.t to global frame
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_center;       //!< center position of the surface
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_normal;       //!< normal vector of the surface
+  std::unique_ptr<Amg::Transform3D> m_transform;           //!< Transform3D to orient surface w.r.t to global frame
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_center;       //!< center position of the surface
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_normal;       //!< normal vector of the surface
 
   /** Pointers to the a TrkDetElementBase */
   const TrkDetElementBase* m_associatedDetElement;

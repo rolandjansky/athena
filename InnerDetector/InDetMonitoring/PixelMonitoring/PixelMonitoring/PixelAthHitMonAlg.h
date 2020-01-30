@@ -6,7 +6,7 @@
 #define PIXELATHHITMONTOOL_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
