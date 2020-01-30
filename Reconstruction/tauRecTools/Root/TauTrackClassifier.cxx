@@ -2,9 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// ASG include(s)
-#include "PathResolver/PathResolver.h"
-
 // xAOD include(s)
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTau/TauTrackContainer.h"
@@ -14,14 +11,7 @@
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/HelperFunctions.h"
 
-// #include "TMVA/MethodBDT.h"
-// #include "TMVA/Reader.h"
-
 #include <fstream>
-
-//root includes
-#include <TFile.h>
-#include <TTree.h>
 
 using namespace tauRecTools;
 
@@ -134,7 +124,6 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
   , m_iBackgroundType(xAOD::TauJetParameters::classifiedFake)
   , m_iExpectedFlag(xAOD::TauJetParameters::unclassified)
   , m_rReader(0)
-    //  , m_mParsedVarsBDT({})
   , m_mAvailableVars({})
 {
   declareProperty( "InputWeightsPath", m_sInputWeightsPath );
@@ -142,7 +131,6 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
   declareProperty( "BackgroundType" , m_iBackgroundType );
   declareProperty( "SignalType", m_iSignalType );
   declareProperty( "ExpectedFlag", m_iExpectedFlag );
-  //  m_mParsedVarsBDT.clear();
 }
 
 //______________________________________________________________________________
@@ -259,67 +247,12 @@ StatusCode TrackMVABDT::addWeightsFile()
   m_sInputWeightsPath = find_file(m_sInputWeightsPath);
   ATH_MSG_DEBUG("InputWeightsPath: " << m_sInputWeightsPath);
   
-  // if (m_mParsedVarsBDT.empty())
-  // {
-  //   ATH_CHECK(parseVariableContent());
-      
-  //   for (auto i : m_mParsedVarsBDT)
-  //     ATH_MSG_DEBUG(i.first<<" "<<i.second);
-    
-  //   for (size_t i = 0; i < m_mParsedVarsBDT.size(); i++){
-  //     std::string sVarName = m_mParsedVarsBDT[i];
-  //     if (m_mAvailableVars.find(sVarName) == m_mAvailableVars.end())
-  //     {
-  //       ATH_MSG_ERROR("Variable "<<sVarName<<" not in map of available variables");
-  //       return StatusCode::FAILURE;
-  //     }
-  //     reader->AddVariable( sVarName, &(m_mAvailableVars[sVarName]));
-  //   }
-  // }
-
   m_rReader = tauRecTools::configureMVABDT( m_mAvailableVars, m_sInputWeightsPath.c_str() );
   if(m_rReader==0) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;
   }
 
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
-StatusCode TrackMVABDT::parseVariableContent()
-{
-  // // example     <Variable VarIndex="0" Expression="TracksAuxDyn.tauPt" Label="TracksAuxDyn.tauPt" Title="tauPt" Unit="" Internal="TracksAuxDyn.tauPt" Type="F" Min="1.50000762e+04" Max="5.32858625e+05"/>
-  // std::string sLine;
-  // std::ifstream sFileStream (m_sInputWeightsPath);
-  // if (sFileStream.is_open())
-  // {
-  //   while ( getline (sFileStream,sLine) )
-  //   {
-  //     if (sLine.find("/Variables") != std::string::npos)
-  //       break;
-  //     size_t iPosVarindex = sLine.find("VarIndex=");
-	
-  //     if ( iPosVarindex == std::string::npos )
-  //       continue;
-	
-  //     iPosVarindex += 10;
-	
-  //     size_t iPosVarindexEnd = sLine.find("\"",iPosVarindex);
-  //     size_t iPosExpression = sLine.find("Expression=")+12;
-  //     size_t iPosExpressionEnd = sLine.find("\"",iPosExpression);
-	
-  //     int iVarIndex = std::stoi(sLine.substr(iPosVarindex, iPosVarindexEnd-iPosVarindex));
-  //     std::string sExpression = sLine.substr(iPosExpression, iPosExpressionEnd-iPosExpression);
-	
-  //     m_mParsedVarsBDT.insert(std::pair<int, std::string >(iVarIndex,sExpression));
-  //   }
-  //   sFileStream.close();
-  //   return StatusCode::SUCCESS;
-  // }
-
-  // ATH_MSG_ERROR("Unable to open file "<<m_sInputWeightsPath);
-  // return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
@@ -422,6 +355,4 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
 
   return StatusCode::SUCCESS;
   
-  // for (auto eEntry : m_mAvailableVars)
-  //   std::cout << eEntry.first<<": "<<eEntry.second<<"\n";
 }

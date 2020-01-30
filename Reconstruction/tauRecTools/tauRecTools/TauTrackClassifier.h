@@ -80,9 +80,6 @@ class TrackMVABDT
   // load the root weights file and configure the MVA object with the correct
   // variable addresses
   StatusCode addWeightsFile();
-  // parse the TNamed object in the root file for the line showing the input variable used by that
-  // particular BDT names and store them
-  StatusCode parseVariableContent();
   
 private:
   // configurable variables
