@@ -289,7 +289,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
     }
 
     ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {15, 15, 15, 15, 15, 15, 15, 15};
-    ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {15, 15, 15, 15, 15, 15, 15, 15};   // increased from 10 to 15 then to 25
+    ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {15, 15, 15, 15, 15, 15, 15, 15};
 
     // ----------------------
     // current one
