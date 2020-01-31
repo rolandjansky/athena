@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ namespace Trk {
            - the volume array to be set as inside volume array */
       void setInsideVolumeArray ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
                                                       BoundarySurfaceFace face,
-                                                      SharedObject<BinnedArray<TrackingVolume> >insidevolarray) const;
+                                                      const SharedObject<BinnedArray<TrackingVolume> >&insidevolarray) const;
       
       /** protected method to set outside Volume of a BoundarySurface:
           input:
@@ -105,7 +105,7 @@ namespace Trk {
            - the volume array to be set as outside volume array */
       void setOutsideVolumeArray ATLAS_NOT_THREAD_SAFE(const TrackingVolume& tvol,
                                                        BoundarySurfaceFace face,
-                                                       SharedObject<BinnedArray<TrackingVolume> > outsidevolarray) const;
+                                                       const SharedObject<BinnedArray<TrackingVolume> >& outsidevolarray) const;
 
       /** protected method to confine (dense) volumes:
           input:
