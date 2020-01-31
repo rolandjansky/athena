@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -73,52 +73,13 @@ void
 LArOFCCopy::copyOldtoNew(const LArConditionsSubset<LArOFCP>* oldOFC,
 			   LArConditionsSubset<LArOFCP1>* newOFC)
 {
-    // Get the number of febs and corrections
-    unsigned int nFebs       = oldOFC->m_subset.size();
-    unsigned int nCorrs      = oldOFC->m_correctionVec.size();
-
-    //log << MSG::DEBUG << "LArOFCCompleteCnv::createTransient oldOFC 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endmsg; 
-
-    // Copy conditions
-
-    // Resize subset
-    newOFC->m_subset.resize(nFebs);
-    
-    // Loop over febs
-    for (unsigned int i = 0; i < nFebs; ++i){
-        newOFC->m_subset[i].first = oldOFC->m_subset[i].first;
-	unsigned nChannels=oldOFC->m_subset[i].second.size();
-        newOFC->m_subset[i].second.resize(nChannels);
-        // Loop over channels in feb
-        for (unsigned int j = 0; j < nChannels; ++j){
-          LArOFCP1 tmp (oldOFC->m_subset[i].second[j].m_timeOffset,
-                        25./24,
-                        oldOFC->m_subset[i].second[j].m_vOFC_a,
-                        oldOFC->m_subset[i].second[j].m_vOFC_b);
-          newOFC->m_subset[i].second[j] = tmp;
-        }
-    }
-
-    //log << MSG::DEBUG << "LArOFCCompleteCnv::createTransient oldOFC 2 " << oldOFC << endmsg; 
-
-    // Copy corrections
-    newOFC->m_correctionVec.resize(nCorrs);
-
-    // Loop over corrections
-    for (unsigned int i = 0; i < nCorrs; ++i){
-      newOFC->m_correctionVec[i].first = oldOFC->m_correctionVec[i].first;
-
-      const LArOFCP& old = oldOFC->m_correctionVec[i].second;
-      LArOFCP1 tmp (old.m_timeOffset,
-                    25./24.,
-                    old.m_vOFC_a,
-                    old.m_vOFC_b);
-      newOFC->m_correctionVec[i].second.setFrom (tmp);
-    }
-
-    // Copy the rest
-    newOFC->m_gain          = oldOFC->m_gain; 
-    newOFC->m_channel       = oldOFC->m_channel;
-    newOFC->m_groupingType  = oldOFC->m_groupingType;
+  newOFC->assign (*oldOFC,
+                  [] (const LArOFCP& from,
+                      LArOFCP1& to)
+                  {
+                    to = LArOFCP1 (from.m_timeOffset,
+                                   25./24,
+                                   from.m_vOFC_a,
+                                   from.m_vOFC_b);
+                  });
 }
