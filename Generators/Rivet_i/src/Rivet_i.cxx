@@ -221,7 +221,7 @@ StatusCode Rivet_i::finalize() {
   double custom_xserr = m_crossSection_uncert > 0 ? m_crossSection_uncert : 0.0; 
   m_analysisHandler->setCrossSection({custom_xs, custom_xserr});
   
-
+  m_analysisHandler->finalize();
 
   // Convert YODA-->ROOT
   //This does not work in rivet 3 so temporarily disabled.
