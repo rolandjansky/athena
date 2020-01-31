@@ -9,13 +9,16 @@ class ISvcLocator;
 TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),
   m_decisionId(HLT::Identifier::fromToolName(name)){
-    if( m_muonqualityCut == true ) {
-       m_muonSelTool = ToolHandle<CP::IMuonSelectionTool>("CP::MuonSelectionTool/MuonSelectionTool",this);
-    }
 }
 TrigMuonEFCombinerHypoTool::~TrigMuonEFCombinerHypoTool(){
 }
 StatusCode TrigMuonEFCombinerHypoTool::initialize(){
+
+  if(m_muonqualityCut) {
+      m_muonSelTool = ToolHandle<CP::IMuonSelectionTool>("CP::MuonSelectionTool/MuonSelectionTool",this);
+      if(m_muonSelTool.retrieve().isFailure()) ATH_MSG_INFO("Unable to retrieve " << m_muonSelTool);
+  }
+
   if(m_acceptAll) {
     ATH_MSG_INFO("Accepting all the events!");
   } else {
