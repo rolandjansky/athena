@@ -4,6 +4,7 @@
 # art-description: MadGraph Event Generation Test - NLO Gridpack
 # art-type: grid
 # art-output: test_lhe_events.events
+# art-output: output_hists.root
 
 set -e
 
@@ -21,3 +22,6 @@ cd run_generateFromGridpack
 Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=test_lhe_events --jobConfig=950110 --inputGenConfFile=../run_makeGridpack/run_01_gridpack.tar.gz
 
 echo "art-result: $?"
+
+simple_lhe_plotter.py test_lhe_events.events
+cp output_hists.root test_lhe_events.events ../
