@@ -280,7 +280,10 @@ def isHypoBase(alg):
     if  'HypoInputDecisions'  in alg.__class__.__dict__:
         return True
     prop = alg.__class__.__dict__.get('_properties')
-    return  ('HypoInputDecisions'  in prop)
+    if type(prop) is dict:
+        return  ('HypoInputDecisions'  in prop)
+    else:
+        return False
 
 def isInputMakerBase(alg):
     return  ('InputMakerInputDecisions'  in alg.__class__.__dict__)
@@ -305,11 +308,12 @@ class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self):
+    def __init__(self, CA=None):
         Maker = CompFactory.HLTTest__TestInputMaker("Empty", RoIsLink="initialRoI", LinkName="initialRoI")
+        self.name = "Empty"
         self.reuse = False # flag to draw dot diagrmas
         self._maker       = InputMakerNode( Alg = Maker )
-        self._inputDecision = inputDecision
+        self.ca = CA
 
     @property
     def __maker(self):
