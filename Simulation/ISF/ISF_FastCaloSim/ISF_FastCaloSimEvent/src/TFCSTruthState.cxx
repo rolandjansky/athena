@@ -20,5 +20,5 @@ TFCSTruthState::TFCSTruthState(Double_t x, Double_t y, Double_t z, Double_t t, i
 
 void TFCSTruthState::Print(Option_t *) const
 {
-  std::cout<<"PDGID="<<m_pdgid<<" pT="<<Pt()<<" eta="<<Eta()<<" phi="<<Phi()<<" E="<<E()<<std::endl;
+  std::cout<<"PDGID="<<m_pdgid<<" pT="<<Pt()<<" eta="<<Eta()<<" phi="<<Phi()<<" E="<<E()<<" Ekin_off="<<Ekin_off()<<std::endl;
 }
