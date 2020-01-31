@@ -1,5 +1,4 @@
-
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -300,22 +299,31 @@ def isEmptyAlg(alg):
 ##########################################################
 # NOW sequences and chains
 ##########################################################
-
+from AthenaConfiguration.ComponentFactory import CompFactory # for the default maker alg?
 
 class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self, inputDecision=[]):
+    def __init__(self):
+        Maker = CompFactory.HLTTest__TestInputMaker("Empty", RoIsLink="initialRoI", LinkName="initialRoI")
         self.reuse = False # flag to draw dot diagrmas
+        self._maker       = InputMakerNode( Alg = Maker )
         self._inputDecision = inputDecision
 
+    @property
+    def __maker(self):
+        if self.ca is not None:
+            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+            self._maker.Alg = makerAlg
+        return self._maker
+
     def getOutputList(self):
-        return self._inputDecision
+        return self.__maker.readOutputList()[0] # Only one since it's merged
 
     def connectToFilter(self, outfilter):
-        """ Connect filter to the inputs"""
-        self._inputDecision = outfilter
+        """ Connect filter to the InputMaker"""
+        self.__maker.addInput(outfilter)
 
     def configureHypoTool(self, chainDict):
         log.debug("This sequence is empty. No Hypo to conficure")
