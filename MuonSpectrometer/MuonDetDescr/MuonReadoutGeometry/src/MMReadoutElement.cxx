@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -36,6 +36,12 @@ namespace MuonGM {
 				     MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
+    m_rots = 0.;
+    m_rotz = 0.;
+    m_rott = 0.;
+
+    m_hasALines = false;
+    m_delta = NULL;
     m_ml = mL;
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:MMReadoutElement");
     //MsgStream log(Athena::getMessageSvc(), "MuGM:MMReadoutElement");
@@ -74,19 +80,15 @@ namespace MuonGM {
 	  if ((npos = childname.find("Sensitive")) != std::string::npos ) {
 	    llay ++;
             if (llay > 4) {
-	      std::cerr<<"number of MM layers > 4: increase transform array size"<< std::endl;
+	                          reLog()<<MSG::ERROR<<"number of MM layers > 4: increase transform array size"<< endmsg;
               continue;
 	    }
-	    //std::cerr<<" navigating MM named "
-	    //       <<childname<<" child "
-	    //       <<ich<<" is a layer with tag "<<llay<<std::endl;
+	   
 	    m_Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
             // save layer dimensions
             if (llay==1) {
               if (pc->getLogVol()->getShape()->type()=="Trd") {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (pc->getLogVol()->getShape());
-		//std::cerr<<"MM layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		//	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
                 m_halfX =  trd->getZHalfLength();
                 // adjust phi dimensions according to the active area  
                 m_minHalfY = trd->getYHalfLength1();
@@ -105,10 +107,8 @@ namespace MuonGM {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (sub);
                 
                 if (!trd) {
-		  std::cerr<<"MM layer base shape not trapezoid? " << sub->type()<< std::endl;
+		                        reLog()<<MSG::ERROR<<"MM layer base shape not trapezoid? " << sub->type()<<endmsg;
 		} else {
-		  //std::cerr<<"MM layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		  //	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
 		  m_halfX =  trd->getZHalfLength();
 		  m_minHalfY = trd->getYHalfLength1();
 		  m_maxHalfY = trd->getYHalfLength2();
@@ -117,14 +117,14 @@ namespace MuonGM {
 		  foundShape = true;
                 }
               } else {
-	        std::cerr<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<< std::endl;
+	                     reLog()<<MSG::ERROR<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<<endmsg;
 	      }
 	    }
 	  }
 	}
         m_nlayers=llay;
       } else {
-	std::cerr<<"Cannot perform a dynamic cast ! "<<std::endl;
+	             reLog()<<MSG::ERROR<<"Cannot perform a dynamic cast ! "<<endmsg;
       }
     }
     if( !foundShape ){
@@ -339,10 +339,28 @@ namespace MuonGM {
     
     //    Amg::Vector3D  locP = (m_Xlg[gg-1].inverse())*locPos;
     Amg::Vector3D  locP = (m_Xlg[gg-1])*locPos;
-    std::cout<<"locPos in the gg      r.f. "<<locPos<<std::endl;
-    std::cout<<"locP in the multilayer r.f. "<<locP<<std::endl;
+    reLog()<<MSG::DEBUG<<"locPos in the gg      r.f. "<<locPos<<endmsg;
+    reLog()<<MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
     
     return absTransform()*locP;
+  }
+
+  void MMReadoutElement::setDelta(double tras, double traz, double trat,
+                                  double rots, double rotz, double rott)
+  {
+    m_rots = rots;
+    m_rotz = rotz;
+    m_rott = rott;
+
+    HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
+     if (fabs(tras)+fabs(traz)+fabs(trat)+(fabs(rots)+fabs(rotz)+fabs(rott))*1000. > 0.01)
+    {
+       // compute the delta transform 
+       delta = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
+                     HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
+                    HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
+       m_hasALines = true;
+    }
   }
 
 } // namespace MuonGM
