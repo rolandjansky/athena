@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAINTERFACES_IEGAMMAPRESAMPLERSHAPE_H
@@ -21,6 +21,7 @@
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
 class CaloCellContainer;
+class CaloDetDescrManager;
 
 static const InterfaceID IID_IegammaPreSamplerShape("IegammaPreSamplerShape", 1, 0);
 
@@ -45,9 +46,12 @@ class IegammaPreSamplerShape : virtual public IAlgTool {
   /// @{
 
   /// @brief AlgTool method.
-  virtual StatusCode execute(const xAOD::CaloCluster& cluster, const CaloCellContainer& cell_container, Info& info) const = 0;
-  
- /// @}
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                             const CaloDetDescrManager& cmgr,
+                             const CaloCellContainer& cell_container,
+                             Info& info) const = 0;
+
+  /// @}
 
 };
 
