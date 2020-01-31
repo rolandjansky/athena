@@ -20,10 +20,11 @@ doL2Egamma=True
 # ----------------------------------------------------------------
 # Setup Views
 # ----------------------------------------------------------------
-from AthenaCommon.CFElements import stepSeq,seqOR
+from AthenaCommon.CFElements import stepSeq,seqOR,findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 
-from L1Decoder.L1DecoderConf import L1TestDecoder # this guy produces 
+topSequence.remove( findAlgorithm(topSequence, "L1Decoder") )
+from L1Decoder.L1DecoderConf import L1TestDecoder
 topSequence += L1TestDecoder("L1TestDecoder", OutputLevel=DEBUG)
 
 steps = seqOR("HLTTop")
