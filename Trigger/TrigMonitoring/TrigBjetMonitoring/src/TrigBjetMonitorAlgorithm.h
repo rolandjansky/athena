@@ -28,7 +28,8 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
   //  const std::vector<std::string> m_allChains;
   std::vector<std::string> m_allChains;
   SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey;
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_offlineVertexContainerKey {this,"OfflineVertexContainerName","PrimaryVertices","Key of offline primary vertexes"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_onlineVertexContainerKey {this,"OnlineVertexContainerName","HLT_EFHistoPrmVtx","Key of online bjet primary vertexes"};
   //SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey {this,"PriVtxKey","HLT_EFHistoPrmVtx","Key of bjet primary vertexes"}; // Tim Martin 170919
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
   bool m_doRun2;
