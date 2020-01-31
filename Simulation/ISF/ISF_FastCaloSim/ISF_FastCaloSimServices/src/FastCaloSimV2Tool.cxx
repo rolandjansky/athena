@@ -99,7 +99,7 @@ StatusCode ISF::FastCaloSimV2Tool::commonSetup()
   const EventContext& ctx = Gaudi::Hive::currentContext();
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
   rngWrapper->setSeed( m_randomEngineName, Gaudi::Hive::currentContext() );
 
   for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerToolsSetup)
