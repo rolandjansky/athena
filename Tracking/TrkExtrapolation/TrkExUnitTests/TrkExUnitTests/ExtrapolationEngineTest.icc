@@ -88,6 +88,8 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
             m_sensitiveLocalPosR->clear();
             m_sensitiveLocalPosPhi->clear();
             m_sensitiveIsPixel->clear();
+            m_sensitiveIsInnermost->clear();
+            m_sensitiveIsNextToInnermost->clear();
             m_sensitiveBarrelEndcap->clear();
             m_sensitiveLayerDisc->clear();
             m_sensitiveEtaModule->clear();
@@ -382,6 +384,8 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
                if (m_idHelper->is_pixel(id)) {
                  // save pixel info
                  m_sensitiveIsPixel->push_back(1);
+                 m_sensitiveIsInnermost->push_back(m_pixel_ID->is_innermost(id));
+                 m_sensitiveIsNextToInnermost->push_back(m_pixel_ID->is_nexttoinnermost(id));
                  m_sensitiveBarrelEndcap->push_back(m_pixel_ID->barrel_ec(id));
                  m_sensitiveLayerDisc->push_back(m_pixel_ID->layer_disk(id));
                  m_sensitiveEtaModule->push_back(m_pixel_ID->eta_module(id));
@@ -391,6 +395,8 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
                } else if (m_idHelper->is_sct(id)) {
                  // save sct info 
                  m_sensitiveIsPixel->push_back(0);
+                 m_sensitiveIsInnermost->push_back(0);
+                 m_sensitiveIsNextToInnermost->push_back(0);
                  m_sensitiveBarrelEndcap->push_back(m_sct_ID->barrel_ec(id));
                  m_sensitiveLayerDisc->push_back(m_sct_ID->layer_disk(id));
                  m_sensitiveEtaModule->push_back(m_sct_ID->eta_module(id));

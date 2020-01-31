@@ -176,6 +176,8 @@ namespace Trk {
        std::vector< float >*                        m_sensitiveLocalPosR;
        std::vector< float >*                        m_sensitiveLocalPosPhi;
        std::vector< int >*                          m_sensitiveIsPixel;
+       std::vector< int >*                          m_sensitiveIsInnermost;
+       std::vector< int >*                          m_sensitiveIsNextToInnermost;
        std::vector< int >*                          m_sensitiveBarrelEndcap;
        std::vector< int >*                          m_sensitiveLayerDisc;
        std::vector< int >*                          m_sensitiveEtaModule;

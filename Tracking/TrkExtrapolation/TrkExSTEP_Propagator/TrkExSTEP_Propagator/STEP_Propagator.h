@@ -162,114 +162,107 @@ namespace Trk {
 */
 			    
     /** Main propagation method NeutralParameters. Use StraightLinePropagator for neutrals*/
-    const Trk::NeutralParameters*
-      propagate (const Trk::NeutralParameters&,
-                 const Trk::Surface&,
-		 Trk::PropDirection,
-		 Trk::BoundaryCheck,
-		 bool rC=false) const;
+    const Trk::NeutralParameters* propagate (const Trk::NeutralParameters&,
+                                             const Trk::Surface&,
+                                             Trk::PropDirection,
+                                             Trk::BoundaryCheck,
+                                             bool rC=false) const override final;
     
     
     /** Propagate parameters and covariance without returning the Jacobian */
-    const Trk::TrackParameters*
-      propagate (const Trk::TrackParameters&         trackParameters,
-	         const Trk::Surface&                 targetSurface,
-		 Trk::PropDirection            propagationDirection,
-		 Trk::BoundaryCheck            boundaryCheck,
-		 const      MagneticFieldProperties& magneticFieldProperties,
-		 ParticleHypothesis            particle,
-		 bool                          returnCurv = false,
-		 const Trk::TrackingVolume*          tVol = 0) const;
+    const Trk::TrackParameters* propagate (const Trk::TrackParameters&         trackParameters,
+                                           const Trk::Surface&                 targetSurface,
+                                           Trk::PropDirection            propagationDirection,
+                                           Trk::BoundaryCheck            boundaryCheck,
+                                           const      MagneticFieldProperties& magneticFieldProperties,
+                                           ParticleHypothesis            particle,
+                                           bool                          returnCurv = false,
+                                           const Trk::TrackingVolume*          tVol = 0) const override final;
     
     /** Propagate parameters and covariance with search of closest surface */
-    const Trk::TrackParameters*    
-      propagate  (const Trk::TrackParameters&        trackParameters,
-		  std::vector<Trk::DestSurf>&        targetSurfaces,
-		  Trk::PropDirection                 propagationDirection,
-		  const MagneticFieldProperties&     magneticFieldProperties,
-		  ParticleHypothesis                 particle,
-		  std::vector<unsigned int>&         solutions,
-		  double&                            path,
-                  bool                               usePathLimit = false,
-		  bool                               returnCurv = false,
-		  const Trk::TrackingVolume*          tVol = 0) const;       
+    const Trk::TrackParameters* propagate  (const Trk::TrackParameters&        trackParameters,
+                                            std::vector<Trk::DestSurf>&        targetSurfaces,
+                                            Trk::PropDirection                 propagationDirection,
+                                            const MagneticFieldProperties&     magneticFieldProperties,
+                                            ParticleHypothesis                 particle,
+                                            std::vector<unsigned int>&         solutions,
+                                            double&                            path,
+                                            bool                               usePathLimit = false,
+                                            bool                               returnCurv = false,
+                                            const Trk::TrackingVolume*          tVol = 0) const override final;       
     
     /** Propagate parameters and covariance with search of closest surface */
-    const Trk::TrackParameters*    
-      propagateT  (const Trk::TrackParameters&        trackParameters,
-		   std::vector<Trk::DestSurf>&        targetSurfaces,
-		   Trk::PropDirection                 propagationDirection,
-		   const MagneticFieldProperties&     magneticFieldProperties,
-		   ParticleHypothesis                 particle,
-		   std::vector<unsigned int>&         solutions,
-		   Trk::PathLimit&                    path,
-		   Trk::TimeLimit&                    time,
-		   bool                               returnCurv,
-		   const Trk::TrackingVolume*         tVol,
-		   std::vector<Trk::HitInfo>*& hitVector) const;
+    using IPropagator::propagateT;
+    const Trk::TrackParameters* propagateT  (const Trk::TrackParameters&        trackParameters,
+                                             std::vector<Trk::DestSurf>&        targetSurfaces,
+                                             Trk::PropDirection                 propagationDirection,
+                                             const MagneticFieldProperties&     magneticFieldProperties,
+                                             ParticleHypothesis                 particle,
+                                             std::vector<unsigned int>&         solutions,
+                                             Trk::PathLimit&                    path,
+                                             Trk::TimeLimit&                    time,
+                                             bool                               returnCurv,
+                                             const Trk::TrackingVolume*         tVol,
+                                             std::vector<Trk::HitInfo>*& hitVector) const override final;
        
     /** Propagate parameters and covariance with search of closest surface and material collection */
-    const Trk::TrackParameters*    
-      propagateM  (const Trk::TrackParameters&        trackParameters,
-		   std::vector<Trk::DestSurf>&        targetSurfaces,
-		   Trk::PropDirection                 propagationDirection,
-		   const MagneticFieldProperties&     magneticFieldProperties,
-		   ParticleHypothesis                 particle,
-		   std::vector<unsigned int>&         solutions,
-		   std::vector<const Trk::TrackStateOnSurface*>*& matstates,
-		   std::vector<std::pair<const Trk::TrackParameters*,int> >*& intersections,
-		   double&                            path,
-		   bool                               usePathLimit = false,
-		   bool                               returnCurv = false,
-		   const Trk::TrackingVolume*         tVol = 0,
-                   Trk::ExtrapolationCache*           = 0) const;       
+    const Trk::TrackParameters* propagateM  (const Trk::TrackParameters&        trackParameters,
+                                             std::vector<Trk::DestSurf>&        targetSurfaces,
+                                             Trk::PropDirection                 propagationDirection,
+                                             const MagneticFieldProperties&     magneticFieldProperties,
+                                             ParticleHypothesis                 particle,
+                                             std::vector<unsigned int>&         solutions,
+                                             std::vector<const Trk::TrackStateOnSurface*>*& matstates,
+                                             std::vector<std::pair<const Trk::TrackParameters*,int> >*& intersections,
+                                             double&                            path,
+                                             bool                               usePathLimit = false,
+                                             bool                               returnCurv = false,
+                                             const Trk::TrackingVolume*         tVol = 0,
+                                             Trk::ExtrapolationCache*           = 0) const override final;       
 
     /** Propagate parameters and covariance, and return the Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
-    const Trk::TrackParameters*
-      propagate (const Trk::TrackParameters&         trackParameters,
-	         const Trk::Surface&                 targetSurface,
-		 Trk::PropDirection            propagationDirection,
-		 Trk::BoundaryCheck            boundaryCheck,
-                 const MagneticFieldProperties&      magneticFieldProperties,
-		 Trk::TransportJacobian*&      jacobian,
-		 double& pathLimit,
-		 ParticleHypothesis       particle,
-		 bool                     returnCurv=false,
-		 const Trk::TrackingVolume*          tVol = 0) const;       
+    using IPropagator::propagate;
+    const Trk::TrackParameters* propagate (const Trk::TrackParameters&         trackParameters,
+                                           const Trk::Surface&                 targetSurface,
+                                           Trk::PropDirection            propagationDirection,
+                                           Trk::BoundaryCheck            boundaryCheck,
+                                           const MagneticFieldProperties&      magneticFieldProperties,
+                                           Trk::TransportJacobian*&      jacobian,
+                                           double& pathLimit,
+                                           ParticleHypothesis       particle,
+                                           bool                     returnCurv=false,
+                                           const Trk::TrackingVolume*          tVol = 0) const override final;       
     
     
     /** Propagate parameters only */
-    const Trk::TrackParameters*
-      propagateParameters (const Trk::TrackParameters&         trackParameters,
-  	      	           const Trk::Surface&                 targetSurface,
-			   Trk::PropDirection            propagationDirection,
-			   Trk::BoundaryCheck            boundaryCheck,
-			   const MagneticFieldProperties&      magneticFieldProperties,
-			   ParticleHypothesis       particle,
-			   bool                     returnCurv = false,
-			   const Trk::TrackingVolume*          tVol = 0) const;       
+    const Trk::TrackParameters* propagateParameters (const Trk::TrackParameters& trackParameters,
+                                                     const Trk::Surface&                 targetSurface,
+                                                     Trk::PropDirection            propagationDirection,
+                                                     Trk::BoundaryCheck            boundaryCheck,
+                                                     const MagneticFieldProperties& magneticFieldProperties,
+                                                     ParticleHypothesis       particle,
+                                                     bool                     returnCurv = false,
+                                                     const Trk::TrackingVolume*          tVol = 0) const override final;       
     
     
     /** Propagate parameters and return Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
-    const Trk::TrackParameters*
-      propagateParameters (const Trk::TrackParameters&         trackParameters,
-  	      	           const Trk::Surface&                 targetSurface,
-			   Trk::PropDirection            propagationDirection,
-			   Trk::BoundaryCheck            boundaryCheck,
-			   const MagneticFieldProperties&      magneticFieldProperties,
-			   Trk::TransportJacobian*&      jacobian,
-			   ParticleHypothesis       particle,
-			   bool                     returnCurv = false,
-			   const Trk::TrackingVolume*          tVol = 0) const;       
+    const Trk::TrackParameters* propagateParameters (const Trk::TrackParameters& trackParameters,
+                                                     const Trk::Surface&                 targetSurface,
+                                                     Trk::PropDirection            propagationDirection,
+                                                     Trk::BoundaryCheck            boundaryCheck,
+                                                     const MagneticFieldProperties& magneticFieldProperties,
+                                                     Trk::TransportJacobian*&      jacobian,
+                                                     ParticleHypothesis       particle,
+                                                     bool                     returnCurv = false,
+                                                     const Trk::TrackingVolume*          tVol = 0) const override final;       
     
     
     /** Propagate parameters and return path (Similar to propagateParameters */
-    const IntersectionSolution*
-      intersect (const Trk::TrackParameters&         trackParameters,
-      		 const Trk::Surface&                 targetSurface,
-                 const Trk::MagneticFieldProperties& magneticFieldProperties,
-		 ParticleHypothesis       particle,
-		 const Trk::TrackingVolume*          tVol = 0) const;       
+    const IntersectionSolution* intersect (const Trk::TrackParameters&         trackParameters,
+                                           const Trk::Surface&                 targetSurface,
+                                           const Trk::MagneticFieldProperties& magneticFieldProperties,
+                                           ParticleHypothesis       particle,
+                                           const Trk::TrackingVolume*          tVol = 0) const override final;       
     
     /** Intersection and propagation:
      */
@@ -278,17 +271,16 @@ namespace Trk {
                                                      const TrackSurfaceIntersection*    trackIntersection,
                                                      const double               qOverP,
                                                      const MagneticFieldProperties& mft,
-                                                     ParticleHypothesis       particle) const; 
+                                                     ParticleHypothesis       particle) const override final; 
     
     /** Return a list of positions along the track */
-    void
-      globalPositions (std::list<Amg::Vector3D>&  positionsList,
-		       const TrackParameters&           trackParameters,
-		       const MagneticFieldProperties&   magneticFieldProperties,
-		       const CylinderBounds&            cylinderBounds,
-		       double                     maxStepSize,
-		       ParticleHypothesis         particle,
-		       const Trk::TrackingVolume*       tVol = 0) const;       
+    void globalPositions (std::list<Amg::Vector3D>&  positionsList,
+                          const TrackParameters&           trackParameters,
+                          const MagneticFieldProperties&   magneticFieldProperties,
+                          const CylinderBounds&            cylinderBounds,
+                          double                     maxStepSize,
+                          ParticleHypothesis         particle,
+                          const Trk::TrackingVolume*       tVol = 0) const override final;       
     
     
     /////////////////////////////////////////////////////////////////////////////////
@@ -301,31 +293,29 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
     // Main functions for propagation
     /////////////////////////////////////////////////////////////////////////////////
-    const Trk::TrackParameters*
-      propagateRungeKutta (bool 	               errorPropagation,
-			   const Trk::TrackParameters&         trackParameters,
-			   const Trk::Surface&                 targetSurface,
-			   Trk::PropDirection            propagationDirection,
-			   const      MagneticFieldProperties& magneticFieldProperties,
-			   ParticleHypothesis       particle,
-			   Trk::BoundaryCheck            boundaryCheck,
-			   double*                  Jacobian,
-			   bool                     returnCurv=false) const;
+    const Trk::TrackParameters* propagateRungeKutta (bool  errorPropagation,
+                                                     const Trk::TrackParameters& trackParameters,
+                                                     const Trk::Surface&                 targetSurface,
+                                                     Trk::PropDirection            propagationDirection,
+                                                     const      MagneticFieldProperties& magneticFieldProperties,
+                                                     ParticleHypothesis       particle,
+                                                     Trk::BoundaryCheck            boundaryCheck,
+                                                     double*                  Jacobian,
+                                                     bool                     returnCurv=false) const;
     
     /////////////////////////////////////////////////////////////////////////////////
     // Main function for propagation
     // with search of closest surface (ST) 
     /////////////////////////////////////////////////////////////////////////////////
-    const Trk::TrackParameters*
-      propagateRungeKutta (bool 	               errorPropagation,
-			   const Trk::TrackParameters&         trackParameters,
-			   std::vector<DestSurf>&               targetSurfaces,
-			   Trk::PropDirection            propagationDirection,
-                           const      MagneticFieldProperties& magneticFieldProperties,
-			   ParticleHypothesis       particle,
-			   std::vector<unsigned int>&           solutions,
-			   double&                  path, 
-			   bool                     returnCurv=false) const;
+    const Trk::TrackParameters* propagateRungeKutta (bool  errorPropagation,
+                                                     const Trk::TrackParameters& trackParameters,
+                                                     std::vector<DestSurf>& targetSurfaces,
+                                                     Trk::PropDirection            propagationDirection,
+                                                     const      MagneticFieldProperties& magneticFieldProperties,
+                                                     ParticleHypothesis       particle,
+                                                     std::vector<unsigned int>&           solutions,
+                                                     double&                  path, 
+                                                     bool                     returnCurv=false) const;
     
 
 

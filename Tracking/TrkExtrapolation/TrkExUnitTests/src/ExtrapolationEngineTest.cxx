@@ -201,6 +201,8 @@ StatusCode Trk::ExtrapolationEngineTest::finalize() {
     delete m_sensitiveLocalPosR;
     delete m_sensitiveLocalPosPhi;
     delete m_sensitiveIsPixel;
+    delete m_sensitiveIsInnermost;
+    delete m_sensitiveIsNextToInnermost;
     delete m_sensitiveBarrelEndcap;
     delete m_sensitiveLayerDisc;
     delete m_sensitiveEtaModule;
@@ -345,6 +347,8 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree()
         m_sensitiveLocalPosR       = new std::vector< float >;
         m_sensitiveLocalPosPhi     = new std::vector< float >;
         m_sensitiveIsPixel         = new std::vector< int >; 
+        m_sensitiveIsInnermost     = new std::vector< int >;
+        m_sensitiveIsNextToInnermost = new std::vector< int >;
         m_sensitiveBarrelEndcap    = new std::vector< int >;
         m_sensitiveLayerDisc       = new std::vector< int >;
         m_sensitiveEtaModule       = new std::vector< int >;
@@ -363,6 +367,8 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree()
         m_tree->Branch("SensitiveLocalPosR"   ,  m_sensitiveLocalPosR);
         m_tree->Branch("SensitiveLocalPosPhi" ,  m_sensitiveLocalPosPhi);
         m_tree->Branch("SensitiveIsPixel"     ,  m_sensitiveIsPixel);
+        m_tree->Branch("SensitiveIsInnermost" ,  m_sensitiveIsInnermost);
+        m_tree->Branch("SensitiveIsNextToInnermost" ,  m_sensitiveIsNextToInnermost);
         m_tree->Branch("SensitiveBarrelEndcap",  m_sensitiveBarrelEndcap);
         m_tree->Branch("SensitiveLayerDisc"   ,  m_sensitiveLayerDisc);
         m_tree->Branch("SensitiveEtaModule"   ,  m_sensitiveEtaModule);
