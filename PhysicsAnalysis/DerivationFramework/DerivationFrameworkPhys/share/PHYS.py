@@ -90,20 +90,26 @@ trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=Trigg
 trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
 trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
 # Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
+trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
 
 # Merge and remove duplicates
-trigger_names_full = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
+trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
+trigger_names_full_tau = list(set(trig_tau+trig_txe))
 
 # Now reduce the list...
 from RecExConfig.InputFilePeeker import inputFileSummary
-trigger_names = []
+trigger_names_notau = []
+trigger_names_tau = []
 for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
     if not 'ChainName' in trig_item: continue
-    if trig_item['ChainName'] in trigger_names_full: trigger_names += [ trig_item['ChainName'] ]
+    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
+    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
 
 # Create trigger matching decorations
-trigmatching_helper = TriggerMatchingHelper(
-        trigger_list = trigger_names, add_to_df_job=True)
+trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
+        trigger_list = trigger_names_notau, add_to_df_job=True)
+trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau',
+        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
 
 #====================================================================
 # INNER DETECTOR TRACK THINNING
@@ -345,7 +351,8 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
-trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)
