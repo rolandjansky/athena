@@ -56,14 +56,14 @@ namespace Trk {
         StatusCode finalize();
 
         /** process the material properties */
-        const LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const;
+        LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const;
         
         /** create layer material properties from layer material properties - simply clones */
-        const LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const;
+        LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const;
 
     private:
         /** private method that can be called by both create/convertLayerMaterial */
-        const LayerMaterialProperties* createCompressedLayerMaterial(const MaterialPropertiesMatrix& lmm, const BinUtility& lmbu) const;
+        LayerMaterialProperties* createCompressedLayerMaterial(const MaterialPropertiesMatrix& lmm, const BinUtility& lmbu) const;
         
         double                  m_compressedMaterialThickness;
         unsigned int            m_compressedMaterialX0Bins;

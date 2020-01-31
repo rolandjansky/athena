@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -298,7 +298,7 @@ std::vector<int> Root::TForwardElectronIsEMSelector::findNvtxEtaBin(float nvtx, 
     //Try to figure out in which bin we belong
     int ibin_nvtx = -1;
     // loop on nvtx range
-    if(m_cutVxp_ForwardElectron.size()>0){
+    if(!m_cutVxp_ForwardElectron.empty()){
         for (unsigned int ibinNVTX=0;ibinNVTX<m_cutVxp_ForwardElectron.size();++ibinNVTX) {
             if ( ibinNVTX == 0 ) {
                 if (nvtx < m_cutVxp_ForwardElectron[ibinNVTX] ) {
@@ -370,7 +370,7 @@ bool Root::TForwardElectronIsEMSelector::checkVar(const std::vector<T>& vec, int
     // 5 : vs combinedTRTNB
 
     // if size of vector is 0 it means cut is not defined
-    if (vec.size() == 0) return false;
+    if (vec.empty()) return false;
 
     unsigned int etaNB = m_cutBinEta_ForwardElectron.size();
     unsigned int etaTRTNB = 1;

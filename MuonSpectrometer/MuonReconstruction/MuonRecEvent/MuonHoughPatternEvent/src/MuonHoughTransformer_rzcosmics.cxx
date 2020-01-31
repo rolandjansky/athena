@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughTransformer_rzcosmics.h"
 #include "CxxUtils/sincos.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughTransformer_rzcosmics::MuonHoughTransformer_rzcosmics(int nbins, int nbins_angle, double detectorsize, double detectorsize_angle, double threshold_histo, int number_of_sectors):MuonHoughTransformer(nbins, nbins_angle, detectorsize, detectorsize_angle, threshold_histo, number_of_sectors)
 {
@@ -102,6 +104,7 @@ int MuonHoughTransformer_rzcosmics::fillHisto(double rz0, double theta_in_grad, 
 
 MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(const MuonHoughHitContainer* event, std::pair <double,double> coordsmaximum,double maximum_residu_mm, double /*maximum_residu_angle*/, int maxsector, bool /*which_segment*/, int printlevel)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum");
   MuonHoughPattern* houghpattern = new MuonHoughPattern(MuonHough::hough_rzcosmics);
 
   double eradius=0.,er0=0.;
@@ -110,12 +113,12 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
 
   const double phimax = m_phisec[maxsector];
 
-  if (printlevel>=4)
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
     {
-      std::cout << "sector: " << maxsector << " phimax: " << phimax << std::endl;
-      std::cout << "coordsmaximumfirst: " << rz0 << std::endl;
-      std::cout << "coordsmaximumsecond: " << coordsmaximum.second << " coordsmaximumsecondinrad: " << theta << std::endl;
-      std::cout << "MuonHoughTransformer_rzcosmics::size of event: " << event->size() << std::endl;
+      log << MSG::VERBOSE << "sector: " << maxsector << " phimax: " << phimax << endmsg;
+      log << MSG::VERBOSE << "coordsmaximumfirst: " << rz0 << endmsg;
+      log << MSG::VERBOSE << "coordsmaximumsecond: " << coordsmaximum.second << " coordsmaximumsecondinrad: " << theta << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::size of event: " << event->size() << endmsg;
     }
 
   for (unsigned int i=0; i<event->size(); i++)
@@ -129,18 +132,18 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
       
       double residu_distance = m_muonhoughmathutils.signedDistanceToLine(hitz,perp,rz0,theta);
 	      
-      if (printlevel>=4) 
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE) 
 	{
-	  std::cout << "MuonHoughTransformer_rzcosmics::hitx: " << hitx << " hity: " << hity << " hitz: " << hitz << " perp: " << perp << std::endl;
-	  std::cout << "MuonHoughTransformer_rzcosmics::residu_distance: " << residu_distance << std::endl;
+	  log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::hitx: " << hitx << " hity: " << hity << " hitz: " << hitz << " perp: " << perp << endmsg;
+	  log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::residu_distance: " << residu_distance << endmsg;
 	} 
 
       if(std::abs(residu_distance)<maximum_residu_mm) // here no circular effect
 	{
-	  if (printlevel>=4)
+	  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
 	    {
-	      std::cout << "MuonHoughTransformer_rzcosmics::hit added to houghpattern! detector: " << event->getHit(i)->getWhichDetector() << std::endl;
-	      if (event->getHit(i)->getAssociated()==true) std::cout << " hit already earlier associated to pattern!" << std::endl;
+	      log << MSG::VERBOSE<< "MuonHoughTransformer_rzcosmics::hit added to houghpattern! detector: " << event->getHit(i)->getWhichDetector() << endmsg;
+	      if (event->getHit(i)->getAssociated()==true)log << MSG::VERBOSE  << " hit already earlier associated to pattern!" << endmsg;
 	    }
 	  houghpattern->addHit(event->getHit(i));
 	  event->getHit(i)->setAssociated(true);
@@ -165,28 +168,27 @@ MuonHoughPattern* MuonHoughTransformer_rzcosmics::hookAssociateHitsToMaximum(con
   
   if (houghpattern->size()==0)
     {
-      if (printlevel>=4){std::cout << "MuonHoughTransformer_rzcosmics::WARNING : no hits found on pattern" << std::endl;}
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE){log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::WARNING : no hits found on pattern" << endmsg;}
     }
 
   else if (std::abs(eradius-rz0) > 500.)
     {
-      if (printlevel>=4){
-	std::cout << "MuonHoughTransformer_rzcosmics::WARNING Eradius or Etheta calc. WRONG" << std::endl;
-	std::cout << "MuonHoughTransformer_rzcosmics::eradius: " << rz0 << " etheta: " << theta << std::endl;
-	std::cout << "MuonHoughTransformer_rzcosmics::eradius: " << eradius << " etheta: " << theta << std::endl;
+      if (printlevel>=4 || log.level()<=MSG::VERBOSE){
+	log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::WARNING Eradius or Etheta calc. WRONG" << endmsg;
+	log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::eradius: " << rz0 << " etheta: " << theta << endmsg;
+	log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::eradius: " << eradius << " etheta: " << theta << endmsg;
       }
       houghpattern->setERTheta(rz0);
     }
 
   updateParameters(houghpattern); // not possible when phi direction not known!
 
-  if (printlevel>=4)
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE)
     {
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new phi: " << houghpattern->getEPhi() << " old phi: " << phimax << std::endl;
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new r0: " << houghpattern->getERPhi() << " old r0: " << er0 << std::endl;
-
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new theta: " << houghpattern->getETheta() << " old theta: " << theta << std::endl;
-      std::cout << "MuonHoughTransformer_rzcosmics::updateParameterstheta new z0: " << houghpattern->getERTheta() << " old z0: " << eradius << std::endl;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new phi: " << houghpattern->getEPhi() << " old phi: " << phimax << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new r0: " << houghpattern->getERPhi() << " old r0: " << er0 << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new theta: " << houghpattern->getETheta() << " old theta: " << theta << endmsg;
+      log << MSG::VERBOSE << "MuonHoughTransformer_rzcosmics::updateParameterstheta new z0: " << houghpattern->getERTheta() << " old z0: " << eradius << endmsg;
     }
 
   return houghpattern;

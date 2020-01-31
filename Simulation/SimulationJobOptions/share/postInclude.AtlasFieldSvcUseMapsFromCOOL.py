@@ -3,5 +3,5 @@ atlasFieldSvc = ServiceMgr.AtlasFieldSvc
 try:
     atlasFieldSvc.UseMapsFromCOOL=True
 except:
-    print "WARNING postInclude.AtlasFieldSvcUseMapsFromCOOL.py will have no effect!"
-#print atlasFieldSvc
+    printfunc ("WARNING postInclude.AtlasFieldSvcUseMapsFromCOOL.py will have no effect!")
+#printfunc (atlasFieldSvc)

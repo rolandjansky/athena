@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DetailedMuonPatternTruthBuilder.h"
@@ -49,7 +49,6 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
-#include "Identifier/Identifier.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -80,8 +79,6 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
-
-using namespace std;
 
 const MuonSimDataCollection* retrieveTruthCollection( std::string colName );
 const MuonSimData::Deposit* getDeposit( const MuonSimDataCollection& simCol, const HepMC::GenParticle& genPart, const Identifier& id );
@@ -149,44 +146,21 @@ namespace Trk {
 //================================================================
 DetailedMuonPatternTruthBuilder::DetailedMuonPatternTruthBuilder(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent)
-  , m_idHelper(0)
-  , m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
-  , m_truthTrajBuilder("Trk::ElasticTruthTrajectoryBuilder")
+  , m_truthTrackBuilder("Trk::ElasticTruthTrajectoryBuilder")
   , m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator")
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
 {
   declareInterface<IDetailedMuonPatternTruthBuilder>(this);
-  declareProperty("TruthTrajectoryTool", m_truthTrajBuilder);
-//  declareProperty("MdtRotCreator", m_mdtCreator);
-//  declareProperty("MuonClusterCreator", m_muonClusterCreator);
+  declareProperty("TruthTrajectoryTool", m_truthTrackBuilder);
 }
 
 //================================================================
 StatusCode DetailedMuonPatternTruthBuilder::initialize() {
 
-  if ( m_truthTrajBuilder.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve TruthTrajectory building tool " << m_truthTrajBuilder);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved TruthTrajectory building tool " << m_truthTrajBuilder);
-  }
-  if (m_idHelperTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_idHelperTool.type() << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if(!detStore()->retrieve(m_idHelper, "AtlasID").isSuccess()) {
-    ATH_MSG_FATAL("Unable to initialize ID helper.");
-    return StatusCode::FAILURE;
-  }
-
-  if (m_mdtCreator.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_mdtCreator.type() << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if (m_muonClusterCreator.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_muonClusterCreator.type() << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_truthTrackBuilder.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_mdtCreator.retrieve());
+  ATH_CHECK(m_muonClusterCreator.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -213,9 +187,7 @@ buildDetailedMuonPatternTruth(DetailedMuonPatternTruthCollection *output,
     if(*i) { 
       if (!(*i)->empty()) { 
         SubDetHitStatistics::SubDetType subdet = findSubDetType((*i)->begin()->first) ; 
-        
-        //std::cout<<"Got SubDetType = "<<subdet<<" for "<< (*i)->begin()->first <<std::endl; 
-         
+                 
         if(subdet != SubDetHitStatistics::NUM_SUBDETECTORS) { 
           orderedPRD_Truth[subdet] = *i; 
           addToInverseMultiMap(&inverseTruth, **i); 
@@ -285,9 +257,7 @@ buildDetailedTrackTruth(std::vector<DetailedTrackTruth> *output,
     if(*i) {
       if (!(*i)->empty()) {
 	SubDetHitStatistics::SubDetType subdet = findSubDetType((*i)->begin()->first) ;
-	
-	//std::cout<<"Got SubDetType = "<<subdet<<" for "<< (*i)->begin()->first <<std::endl;
-	
+		
 	if(subdet != SubDetHitStatistics::NUM_SUBDETECTORS) {
 	  orderedPRD_Truth[subdet] = *i;
 	  addToInverseMultiMap(&inverseTruth, **i);
@@ -343,25 +313,18 @@ buildDetailedTrackTruth(std::vector<DetailedTrackTruth> *output,
 
 SubDetHitStatistics::SubDetType 
 DetailedMuonPatternTruthBuilder::findSubDetType(Identifier id) {
-  if (m_idHelper->is_pixel(id))
-    return SubDetHitStatistics::Pixel;
-  if (m_idHelper->is_sct(id))
-    return SubDetHitStatistics::SCT;
-  if (m_idHelper->is_trt(id))
-    return SubDetHitStatistics::TRT;
-  if (m_idHelper->is_mdt(id))
-    return SubDetHitStatistics::MDT;
-  if (m_idHelper->is_rpc(id))
-    return SubDetHitStatistics::RPC;
-  if (m_idHelper->is_tgc(id))
-    return SubDetHitStatistics::TGC;
-  if (m_idHelper->is_csc(id))
-    return SubDetHitStatistics::CSC;
-  if (m_idHelper->is_mm(id))
-    return SubDetHitStatistics::MM;
-  if (m_idHelper->is_stgc(id))
-    return SubDetHitStatistics::STGC;
-
+  if (!m_idHelperSvc->isMuon(id)) {
+    if (m_idHelperSvc->mdtIdHelper().is_pixel(id)) return SubDetHitStatistics::Pixel;
+    else if (m_idHelperSvc->mdtIdHelper().is_sct(id)) return SubDetHitStatistics::SCT;
+    else if (m_idHelperSvc->mdtIdHelper().is_trt(id)) return SubDetHitStatistics::TRT;
+  } else {
+    if (m_idHelperSvc->isMdt(id)) return SubDetHitStatistics::MDT;
+    else if (m_idHelperSvc->isRpc(id)) return SubDetHitStatistics::RPC;
+    else if (m_idHelperSvc->isTgc(id)) return SubDetHitStatistics::TGC;
+    else if (m_idHelperSvc->isCsc(id)) return SubDetHitStatistics::CSC;
+    else if (m_idHelperSvc->isMM(id)) return SubDetHitStatistics::MM;
+    else if (m_idHelperSvc->issTgc(id)) return SubDetHitStatistics::STGC;
+  }
 
   ATH_MSG_WARNING("findSubDetType(): UNKNOWN subdet for id="<<id);
 
@@ -505,7 +468,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
 	}
 
       }
-    } while( (current = m_truthTrajBuilder->getMother(current)) );
+    } while( (current = m_truthTrackBuilder->getMother(current)) );
     
     // Add the grown sprout to the list
     sprouts.insert(std::make_pair(link, current_sprout));
@@ -529,7 +492,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     // Thus no need to update stats track and stats common.
 
     const HepMC::GenParticle* current = *s->second.begin();
-    while( (current = m_truthTrajBuilder->getDaughter(current)) ) {
+    while( (current = m_truthTrackBuilder->getDaughter(current)) ) {
       s->second.push_front(current);
     }
 
@@ -542,7 +505,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     }
 
     // Count PRDs on the TruthTrajectory
-    set<Muon::MuonStationIndex::ChIndex> tempSet;
+    std::set<Muon::MuonStationIndex::ChIndex> tempSet;
     SubDetHitStatistics truthStat = countPRDsOnTruth(traj, inverseTruth, tempSet);
 
     ATH_MSG_VERBOSE("addTrack(): sprout length = "<<traj.size());
@@ -560,7 +523,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
 //================================================================
 SubDetHitStatistics DetailedMuonPatternTruthBuilder::countPRDsOnTruth(const TruthTrajectory& traj,
 								const PRD_InverseTruth& inverseTruth,
-                                                                set<Muon::MuonStationIndex::ChIndex> chIndices)
+                                                                std::set<Muon::MuonStationIndex::ChIndex> chIndices)
 {
   // Different particles from the same TruthTrajectory can contribute to the same cluster.
   // We should be careful to avoid double-counting in such cases.
@@ -570,7 +533,7 @@ SubDetHitStatistics DetailedMuonPatternTruthBuilder::countPRDsOnTruth(const Trut
     typedef PRD_InverseTruth::const_iterator iter;
     std::pair<iter,iter> range = inverseTruth.equal_range(*p);
     for(iter i = range.first; i != range.second; ++i) {
-      if(chIndices.find(m_idHelperTool->chamberIndex(i->second)) != chIndices.end()) {
+      if(chIndices.find(m_idHelperSvc->chamberIndex(i->second)) != chIndices.end()) {
         SubDetHitStatistics::SubDetType subdet = findSubDetType(i->second);
 	if(subdet==SubDetHitStatistics::NUM_SUBDETECTORS) continue;
         prds.subDetHits[subdet].insert(i->second);
@@ -586,13 +549,12 @@ SubDetHitStatistics DetailedMuonPatternTruthBuilder::countPRDsOnTruth(const Trut
 Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::MuonSegment &segment,
 								   std::list<const HepMC::GenParticle*> genPartList,
 								   int truthPos,
-								   set<Muon::MuonStationIndex::ChIndex> chIndices)
+								   std::set<Muon::MuonStationIndex::ChIndex> chIndices)
 {
   double minPos = 2e8, maxPos = 0;
   Amg::Vector3D first3D(0,0,0), last3D(0,0,0);
 
   if(genPartList.size() == 0) {
-    std::cout << "No GenParticles associated to this PRD_TruthTrajectory. Exiting segment creation." << std::endl;
     ATH_MSG_WARNING("No GenParticles associated to this PRD_TruthTrajectory. Exiting segment creation.");
     return Amg::Vector3D(0, 0, 0);
   }  
@@ -630,10 +592,10 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
 
     Identifier id = prd->identify();
 
-    Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(id);
-    bool isEndcap = m_idHelperTool->isEndcap(id);
+    Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
+    bool isEndcap = m_idHelperSvc->isEndcap(id);
 
-    if(chIndices.find(m_idHelperTool->chamberIndex(id)) == chIndices.end()) {
+    if(chIndices.find(m_idHelperSvc->chamberIndex(id)) == chIndices.end()) {
       ATH_MSG_DEBUG("Muon station doesn't match segment.  Continuing");
       continue;
     }
@@ -656,10 +618,10 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
     detLayer.stIndex = stIndex;
 
     //const Trk::MeasurementBase* meas = 0;
-    if( m_idHelperTool->isMdt(id) ){
+    if( m_idHelperSvc->isMdt(id) ){
       const Muon::MdtPrepData* mprd = dynamic_cast<const Muon::MdtPrepData*>(prd);
       if( !mprd ) {
-        ATH_MSG_WARNING(" MDT PRD not of type MdtPrepData " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" MDT PRD not of type MdtPrepData " << m_idHelperSvc->toString(id) );
         continue;
       }
       
@@ -668,14 +630,14 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
         deposit = getDeposit(*mdtSimDataMap, **it ,id);
       }
       if( !deposit ){
-        ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
         continue;
       }
 
       Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
       const Amg::Vector3D* gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
       if( !gpos ) {
-        ATH_MSG_WARNING(" LocalToGlobal failed " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" LocalToGlobal failed " << m_idHelperSvc->toString(id) );
         continue;
       }
 
@@ -709,18 +671,18 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       const Muon::MdtDriftCircleOnTrack* mdt = m_mdtCreator->createRIO_OnTrack(*mprd,*gpos);
       delete gpos;
       if( !mdt ) {
-        ATH_MSG_WARNING(" ROT creation failed " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
         continue;
       }
       Trk::DriftCircleSide side = deposit->second.firstEntry() < 0 ? Trk::LEFT : Trk::RIGHT;
       m_mdtCreator->updateSign(*const_cast<Muon::MdtDriftCircleOnTrack*>(mdt),side);
       double pull = (mdt->driftRadius()-deposit->second.firstEntry())/mdt->localCovariance()(Trk::locR) ;
-      ATH_MSG_VERBOSE(" new MDT    " << m_idHelperTool->toString(id) << " radius " << mdt->driftRadius() 
+      ATH_MSG_VERBOSE(" new MDT    " << m_idHelperSvc->toString(id) << " radius " << mdt->driftRadius() 
                       << " true radius " << deposit->second.firstEntry()
                       << " pull " << pull );
       if( fabs(pull)>3. ) ATH_MSG_VERBOSE(" hit with large pull ");
       detLayer.meas.push_back(mdt);
-      if( m_idHelperTool->isSmallChamber(id) ) ++detLayer.nmdtS;
+      if( m_idHelperSvc->isSmallChamber(id) ) ++detLayer.nmdtS;
       else                                 ++detLayer.nmdtL;
       //meas = mdt;
     }else if( mm ){
@@ -730,14 +692,14 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
         deposit = getDeposit(*mmSimDataMap, **it ,id);
       }
       if( !deposit ){
-        ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
         continue;
       }
 
       Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
       const Amg::Vector3D* gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
       if( !gpos ) {
-        ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperSvc->toString(id) );
         continue;
       }
 
@@ -772,12 +734,12 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       const Muon::MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*mm,*gpos);
       if( !rot ) {
         delete gpos;
-        ATH_MSG_WARNING(" ROT creation failed " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
         continue;
       }
       double residual = rot->localParameters().get(Trk::locX)-lp.x();
       double pull = residual / rot->localCovariance()(Trk::locX);
-      ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperTool->toString(id) << " " << residual << " pull " << pull  );
+      ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperSvc->toString(id) << " " << residual << " pull " << pull  );
       detLayer.meas.push_back(rot);
       //meas = rot;
       ++detLayer.nnsw;
@@ -786,7 +748,7 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
     }else if( stgc ) {
 
       // skip pads in outer most two chambers as here the wires are more precise
-      if( m_idHelperTool->stgcIdHelper().channelType(id) == 0 && abs(m_idHelperTool->stationEta(id)) > 2 ) continue;
+      if( m_idHelperSvc->stgcIdHelper().channelType(id) == 0 && abs(m_idHelperSvc->stationEta(id)) > 2 ) continue;
 
       // there is already a check for this at the beginning of the method
       // if( !stgcSimDataMap ) continue;
@@ -796,7 +758,7 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
         deposit = getDeposit(*stgcSimDataMap, **it ,id);
       }
       if( !deposit ){
-        ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
         continue;
       }
 
@@ -804,7 +766,7 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       Amg::Vector2D lp(deposit->second.firstEntry(),deposit->second.secondEntry());
       const Amg::Vector3D* gpos = prd->detectorElement()->surface(id).localToGlobal(lp);
       if( !gpos ) {
-        ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" LocalToGlobal failed " <<  m_idHelperSvc->toString(id) );
         continue;
       }
 
@@ -839,12 +801,12 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       const Muon::MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack(*stgc,*gpos);
       if( !rot ) {
         delete gpos;
-        ATH_MSG_WARNING(" ROT creation failed " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING(" ROT creation failed " << m_idHelperSvc->toString(id) );
         continue;
       }
       double residual = rot->localParameters().get(Trk::locX) - lp.x();
       double pull = residual / rot->localCovariance()(Trk::locX);
-      ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperTool->toString(id) << " " << residual << " pull " << pull  );
+      ATH_MSG_DEBUG( "Adding r " << gpos->perp() << " z " << gpos->z() << "  " << m_idHelperSvc->toString(id) << " " << residual << " pull " << pull  );
       detLayer.meas.push_back(rot);
       //meas = rot;
       ++detLayer.nnsw;
@@ -999,7 +961,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
 	}
 
       }
-    } while( (current = m_truthTrajBuilder->getMother(current)) );
+    } while( (current = m_truthTrackBuilder->getMother(current)) );
     
     // Add the grown sprout to the list
     sprouts.insert(std::make_pair(link, current_sprout));
@@ -1022,7 +984,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     // Thus no need to update stats track and stats common.
 
     const HepMC::GenParticle* current = *s->second.begin();
-    while( (current = m_truthTrajBuilder->getDaughter(current)) ) {
+    while( (current = m_truthTrackBuilder->getDaughter(current)) ) {
       s->second.push_front(current);
     }
 
@@ -1035,7 +997,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     }
 
     // Count PRDs on the TruthTrajectory
-    set<Muon::MuonStationIndex::ChIndex> tempSet;
+    std::set<Muon::MuonStationIndex::ChIndex> tempSet;
     SubDetHitStatistics truthStat = countPRDsOnTruth(traj, inverseTruth, tempSet);
 
     ATH_MSG_VERBOSE("addTrack(): sprout length = "<<traj.size());
@@ -1127,7 +1089,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
   SubDetHitStatistics trackStat;
   std::map<HepMcParticleLink,SubDetPRDs> pairStat; // stats for (track,GenParticle) for the current track
 
-  set<Muon::MuonStationIndex::ChIndex> chIndices;
+  std::set<Muon::MuonStationIndex::ChIndex> chIndices;
 
   // Loop over containedROTs in segment
   const std::vector<const Trk::RIO_OnTrack*>& cROTv = segment.containedROTs();
@@ -1138,7 +1100,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     const Trk::PrepRawData* prd = cROTv.at(i_cROTv)->prepRawData();
 
     Identifier id = prd->identify();
-    chIndices.insert(m_idHelperTool->chamberIndex(id));
+    chIndices.insert(m_idHelperSvc->chamberIndex(id));
 
     SubDetHitStatistics::SubDetType subdet = findSubDetType(id);
 
@@ -1248,7 +1210,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
 	}
 
       }
-    } while( (current = m_truthTrajBuilder->getMother(current)) );
+    } while( (current = m_truthTrackBuilder->getMother(current)) );
     
     // Add the grown sprout to the list
     sprouts.insert(std::make_pair(link, current_sprout));
@@ -1271,7 +1233,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     // Thus no need to update stats track and stats common.
 
     const HepMC::GenParticle* current = *s->second.begin();
-    while( (current = m_truthTrajBuilder->getDaughter(current)) ) {
+    while( (current = m_truthTrackBuilder->getDaughter(current)) ) {
       s->second.push_front(current);
     }
 
@@ -1301,7 +1263,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
   {
     MuonSimDataCollection::const_iterator it = simCol.find(id);
     if( it == simCol.end() ) {
-      ATH_MSG_WARNING(" Truth PRD not found in simdata collection: " << m_idHelperTool->toString(id) );
+      ATH_MSG_WARNING(" Truth PRD not found in simdata collection: " << m_idHelperSvc->toString(id) );
       return 0;
     }
    

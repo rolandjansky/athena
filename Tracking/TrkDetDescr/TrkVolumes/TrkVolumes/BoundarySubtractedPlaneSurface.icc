@@ -21,9 +21,9 @@ template <class Tvol> inline BoundarySubtractedPlaneSurface<Tvol>&
     BoundarySurface<Tvol>::m_outsideVolume = bps.m_outsideVolume;
     BoundarySurface<Tvol>::m_insideVolumeArray = bps.m_insideVolumeArray;
     BoundarySurface<Tvol>::m_outsideVolumeArray  = bps.m_outsideVolumeArray;
-    Surface::m_transform = (bps.m_transform) ? new Amg::Transform3D(*bps.m_transform) : 0;
-    Surface::m_center     = (bps.m_center)    ? new Amg::Vector3D(*bps.m_center) : 0;
-    Surface::m_normal    = (bps.m_normal)    ? new Amg::Vector3D(*bps.m_normal) : 0 ;
+    Surface::m_transform = (bps.m_transform) ? new Amg::Transform3D(*bps.m_transform) : nullptr;
+    Surface::m_center     = (bps.m_center)    ? new Amg::Vector3D(*bps.m_center) : nullptr;
+    Surface::m_normal    = (bps.m_normal)    ? new Amg::Vector3D(*bps.m_normal) : nullptr ;
     Surface::m_associatedDetElement = bps.m_associatedDetElement;        // copy by pointer as PlaneSurface does not have ownership 
     Surface::m_associatedDetElementId = bps.m_associatedDetElementId;
     m_bounds =  bps.m_bounds->clone();
@@ -34,7 +34,7 @@ template <class Tvol> inline BoundarySubtractedPlaneSurface<Tvol>&
 
 template <class Tvol> inline const Tvol* BoundarySubtractedPlaneSurface<Tvol>::attachedVolume(const TrackParameters& parms, PropDirection dir) const
 {
-  const Tvol* attVolume = 0;
+  const Tvol* attVolume = nullptr;
   if ( (this->surfaceRepresentation().normal()).dot(dir*parms.momentum()) > 0.){
     attVolume = BoundarySurface<Tvol>::m_outsideVolume;
     if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){
@@ -53,7 +53,7 @@ template <class Tvol> inline const Tvol* BoundarySubtractedPlaneSurface<Tvol>::a
                                                                     const Amg::Vector3D& mom,
                                                                     PropDirection dir) const
 {
-  const Tvol* attVolume = 0;
+  const Tvol* attVolume = nullptr;
   if ( (this->surfaceRepresentation().normal()).dot(dir*mom) > 0.){
     attVolume = BoundarySurface<Tvol>::m_outsideVolume;
     if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){

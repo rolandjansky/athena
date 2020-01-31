@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileMuIdMonitorAlgorithm.h"
@@ -17,7 +17,6 @@ StatusCode TileMuIdMonitorAlgorithm::initialize() {
 
   ATH_CHECK( m_muContainerKey.initialize() );
 
-  using Tile = TileCalibUtils;
   using namespace Monitored;
 
   int nL1Triggers = getNumberOfL1Triggers();

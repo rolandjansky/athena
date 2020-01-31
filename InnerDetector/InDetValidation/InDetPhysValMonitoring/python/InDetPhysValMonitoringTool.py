@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from ConfigUtils import serviceFactory,toolFactory
 from InDetRecExample.TrackingCommon import setDefaults
@@ -6,7 +8,7 @@ from InDetRecExample.TrackingCommon import setDefaults
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf
 
 def removePhysValExample() :
-   print 'DEBUG no AntiKt4EMTopoJets in input file.'
+   print ('DEBUG no AntiKt4EMTopoJets in input file.')
    from InDetPhysValDecoration import findMonMan
    mon_index = findMonMan()
    if mon_index is not None :
@@ -16,17 +18,17 @@ def removePhysValExample() :
      from AthenaCommon.AlgSequence import AlgSequence
      topSequence = AlgSequence()
      mon_manager = topSequence.getChildren()[mon_index]
-     print 'DEBUG Found  mon_manager %s with the following tools: %s ' % (mon_manager.getName(), mon_manager.AthenaMonTools.toStringProperty())
+     print ('DEBUG Found  mon_manager %s with the following tools: %s ' % (mon_manager.getName(), mon_manager.AthenaMonTools.toStringProperty()))
      for idx in range(0,len(mon_manager.AthenaMonTools)) :
        tool_name = mon_manager.AthenaMonTools[idx].getName()
-       # print 'DEBUG %s AthenaMonTools %s' % (mon_manager.getName(),tool_name)
+       # print ('DEBUG %s AthenaMonTools %s' % (mon_manager.getName(),tool_name))
        if pattern.match(tool_name) is not None :
-         print 'DEBUG removing %s from %s .' % (tool_name, mon_manager.getName())
+         print ('DEBUG removing %s from %s .' % (tool_name, mon_manager.getName()))
          del mon_manager.AthenaMonTools[idx]
          break
    else :
        for child in topSequence.getChildren() :
-           print 'DEBUG top sequence has %s' % (child.getName())
+           print ('DEBUG top sequence has %s' % (child.getName()))
 
 def getInDetPhysValMonitoringTool(**kwargs) :
    kwargs=setDefaults(kwargs,
@@ -86,8 +88,8 @@ def getInDetPhysValMonitoringTool(**kwargs) :
 
 def getInDetPhysValMonitoringToolLoose(**kwargs) :
    if 'TrackSelectionTool' not in kwargs :
-      from InDetPhysValMonitoring.TrackSelectionTool import InDetTrackSelectionTool
-      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(InDetTrackSelectionTool.getInDetTrackSelectionToolLoose))
+      from InDetPhysValMonitoring.TrackSelectionTool import getInDetTrackSelectionToolLoose
+      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(getInDetTrackSelectionToolLoose))
 
    kwargs=setDefaults(kwargs,
                       name              = 'InDetPhysValMonitoringToolLoose',
@@ -98,8 +100,8 @@ def getInDetPhysValMonitoringToolLoose(**kwargs) :
 
 def getInDetPhysValMonitoringToolTightPrimary(**kwargs) :
    if 'TrackSelectionTool' not in kwargs :
-      from InDetPhysValMonitoring.TrackSelectionTool import InDetTrackSelectionTool
-      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(InDetTrackSelectionTool.getInDetTrackSelectionToolTightPrimary))
+      from InDetPhysValMonitoring.TrackSelectionTool import getInDetTrackSelectionToolTightPrimary
+      kwargs=setDefaults(kwargs, TrackSelectionTool = toolFactory(getInDetTrackSelectionToolTightPrimary))
 
    kwargs=setDefaults(kwargs,
                       name              = 'InDetPhysValMonitoringToolTightPrimary',

@@ -152,7 +152,7 @@ TrigConf::XMLHLTFrameLoader::buildHLTChainList( HLTFrame& frame ) {
 
       if(needMerging) {
          TRG_MSG_DEBUG("Call merging of " << frame.chains().size() << " L2 and EF chains");
-         HLTUtils::mergeHLTChainList2(frame);
+         HLTTEUtils::mergeHLTChainList2(frame);
       }
    }
 

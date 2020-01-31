@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamCnvSvc
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
+                          Event/xAOD/xAODTrigger
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
@@ -31,7 +32,7 @@ atlas_add_library( TrigT1ResultByteStreamLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1ResultByteStream
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData GaudiKernel TrigConfL1Data L1TopoRDO TrigT1Interfaces TrigT1Result StoreGateLib SGtests ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib ByteStreamData_test )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamData xAODTrigger GaudiKernel TrigConfL1Data L1TopoRDO TrigT1Interfaces TrigT1Result StoreGateLib SGtests ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib ByteStreamData_test )
 
 atlas_add_component( TrigT1ResultByteStream
                      src/components/*.cxx

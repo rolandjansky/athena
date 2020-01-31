@@ -26,7 +26,7 @@ public:
   virtual ~IJetProvider() { };
 
   /// Method to build the collection and return it to the caller.
-  virtual  xAOD::JetContainer* build() const =0;
+  virtual  xAOD::JetContainer* getJets() const =0;
 
 
 };

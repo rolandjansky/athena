@@ -21,7 +21,7 @@ namespace Trk {
 class SortByLargerComponentWeight
 {
 public:
-  SortByLargerComponentWeight(){};
+  SortByLargerComponentWeight()= default;
   bool operator()(const ComponentParameters firstComponent, const ComponentParameters secondComponent) const
   {
     return firstComponent.second > secondComponent.second;
@@ -31,7 +31,7 @@ public:
 class SortByLargerWeight
 {
 public:
-  SortByLargerWeight(){};
+  SortByLargerWeight()= default;
   bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight > secondWeight; }
 };
 
@@ -39,7 +39,7 @@ class SortBySmallerWeight
 {
 
 public:
-  SortBySmallerWeight(){};
+  SortBySmallerWeight()= default;
 
   bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight < secondWeight; }
 };

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
    import traceback
@@ -12,7 +12,7 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
         theCaloCellPedestalCorr =  CaloCellPedestalCorr("CaloCellPedestalCorr")
    except:
        mlog.error("could not get handle to CaloCellPedestalCorr Quit")
-       print traceback.format_exc()
+       traceback.print_exc()
    #ToolSvc += theCaloCellPedestalCorr
 
    if globalflags.DataSource()=='data' :

@@ -28,10 +28,10 @@ class IMaterialMixtureConvolution : virtual public IAlgTool
 
 public:
   //!< IAlgTool and AlgTool interface method
-  static const InterfaceID interfaceID() { return IID_IMaterialMixtureConvolution; };
+  static const InterfaceID& interfaceID() { return IID_IMaterialMixtureConvolution; };
 
   //!< Virtual destructor
-  virtual ~IMaterialMixtureConvolution(){};
+  virtual ~IMaterialMixtureConvolution()= default;
 
   //!< Convolution with full material properties
   virtual std::unique_ptr<MultiComponentState> 

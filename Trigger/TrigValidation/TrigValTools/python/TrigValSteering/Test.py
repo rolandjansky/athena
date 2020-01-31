@@ -84,9 +84,7 @@ class Test(object):
         commands['check_steps'] = []
 
         # Run the exec steps
-        for step in self.exec_steps:
-            code, cmd = step.run(self.dry_run)
-            commands['exec_steps'].append(cmd)
+        self.run_steps(self.exec_steps, commands['exec_steps'])
 
         # Make a summary result code for all exec steps if there are multiple
         if len(self.exec_steps) > 1:
@@ -101,9 +99,7 @@ class Test(object):
             art_result(exec_summary, 'ExecSummary')
 
         # Run the check steps
-        for step in self.check_steps:
-            code, cmd = step.run(self.dry_run)
-            commands['check_steps'].append(cmd)
+        self.run_steps(self.check_steps, commands['check_steps'])
 
         # Dump all commands to JSON
         with open('commands.json', 'w') as outfile:
@@ -125,6 +121,20 @@ class Test(object):
             exit_msg += ' because the following required steps failed: {:s}'.format(failed_required_steps)
         self.log.info(exit_msg)
         return exit_code
+
+    def run_steps(self, steps, commands_list):
+        previous_code = 0
+        for step in steps:
+            if previous_code != 0 and step.depends_on_previous:
+                    self.log.error('Skipping step %s because previous step(s) failed', step.name)
+                    step.result = 1
+                    code, cmd = step.result, '# Skipped %s because of earlier failure'.format(step.name)
+                    if step.auto_report_result:
+                        step.report_result()
+                    continue
+            code, cmd = step.run(self.dry_run)
+            previous_code = code
+            commands_list.append(cmd)
 
     def configure_timeout(self):
         '''Set default timeout values for steps which don't have it set'''

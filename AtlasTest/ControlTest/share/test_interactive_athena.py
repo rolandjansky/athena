@@ -47,6 +47,8 @@ def test_lock():
     sg.setConst (ll).ignore()
     assert (ll.m_locked)
     printfunc ('done test lock')
+    import sys
+    sys.stdout.flush()
     return
 
 job += TestAlg("pyalg")

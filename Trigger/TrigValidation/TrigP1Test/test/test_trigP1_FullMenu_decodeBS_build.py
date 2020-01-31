@@ -8,7 +8,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 writeBS = ExecStep.ExecStep("WriteBS")
 writeBS.type = 'athenaHLT'
-writeBS.job_options = 'TrigUpgradeTest/full_menu.py'
+writeBS.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 writeBS.input = 'data'
 writeBS.args = '-o output'
 

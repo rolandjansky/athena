@@ -53,7 +53,7 @@ ToolSvc                                         += TAUP1JetTPThinningTool
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP1CaloClusterThinning                         = DerivationFramework__CaloClusterThinning(
                                                      name                      = "TAUP1ClusterThinning",
-                                                     ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
+                                                     StreamName                = streamName,
                                                      SGKey                     = "TauJets",
                                                      TopoClCollectionSGKey     = "CaloCalTopoClusters")
 ToolSvc                                         += TAUP1CaloClusterThinning

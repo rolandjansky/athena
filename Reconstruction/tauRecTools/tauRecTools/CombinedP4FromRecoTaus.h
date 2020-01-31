@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
@@ -31,7 +31,7 @@ class CombinedP4FromRecoTaus
     CombinedP4FromRecoTaus(const std::string& name="CombinedP4FromRecoTaus");  
     
   //function where variables are computed and decorated
-  StatusCode initialize();
+  StatusCode initialize() override;
         
   // Get correlation coefficient for the given decay mode
   double GetCorrelationCoefficient(int etaIndex, const xAOD::TauJetParameters::DecayMode decayMode);
@@ -71,15 +71,7 @@ class CombinedP4FromRecoTaus
   double GetCaloResolution(const xAOD::TauJet* tau);
   bool GetUseCaloPtFlag(const xAOD::TauJet* tau);
 
-  StatusCode execute(xAOD::TauJet& xTau); 
-  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&, const xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePi0nPFO(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-  virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
-  
+  StatusCode execute(xAOD::TauJet& xTau) override; 
 
  private:
   /*std::vector< std::vector<TH1F*> >  m_resHists_tauRec;

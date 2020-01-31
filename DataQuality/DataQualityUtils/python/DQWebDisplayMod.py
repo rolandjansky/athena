@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
@@ -74,7 +74,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
             try:
                 instance = SingleAppInstance( c.htmlDir + "/" + c.lockFile, True )
                 islocked = instance.acquire()
-            except SingleAppInstance.FileLockAcquisitionError, e:
+            except SingleAppInstance.FileLockAcquisitionError as e:
                 print('=========================================================================')
                 print('Cannot acquire lock on', c.htmlDir)
                 print('This usually means either')
@@ -480,12 +480,12 @@ def mergeAndCache( inputFilePath, run, stream, cache ):
 
     MAX_LOCK_TRIES = 3
 
-    for i in xrange(MAX_LOCK_TRIES):
+    for i in range(MAX_LOCK_TRIES):
         try:
             lockfilename = os.path.join(cache, 'lock_%s_%s' % (run, stream))
             instance = SingleAppInstance( lockfilename, True )
             islocked = instance.acquire()
-        except SingleAppInstance.FileLockAcquisitionError, e:
+        except SingleAppInstance.FileLockAcquisitionError as e:
             print('Unable to start to acquire cache directory lock! Bailing')
             raise e
         if islocked:
@@ -828,13 +828,13 @@ if __name__ == "__main__":
   
     try:
         cmod = importConfiguration(configModule)
-    except Exception, e:
+    except Exception:
         print("Could not import configuration module \'" + configModule + "\'")
         sys.exit(1)
 
     try:
         config = cmod.dqconfig
-    except Exception, e:
+    except Exception:
         print("Configuration object 'dqconfig' not defined in module \'" + configModule + "\'")
     sys.exit(1)
 

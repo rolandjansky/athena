@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,12 +9,13 @@
 // Thinning tool for TrackMeasurementValidationContainer
 
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
-#include "AthenaKernel/IThinningSvc.h"
+#include "StoreGate/ThinningHandle.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -22,20 +23,13 @@
 DerivationFramework::TrackMeasurementThinning::TrackMeasurementThinning( 	const std::string& t,
                                                  		const std::string& n,
                                                  		const IInterface* p ) : 
-  AthAlgTool(t,n,p),
-  m_thinningSvc("ThinningSvc",n),
+  base_class(t,n,p),
   m_parser(0),
   m_selectionString(""),
   m_ntot(0),
-  m_npass(0),
-  m_SGKey("PixelClusters"),
-  m_and(false)
+  m_npass(0)
   {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
     declareProperty("SelectionString", m_selectionString);
-    declareProperty("ApplyAnd", m_and);
-    declareProperty("TrackMeasurementValidationKey", m_SGKey);
   }
   
 // Destructor
@@ -52,10 +46,8 @@ StatusCode DerivationFramework::TrackMeasurementThinning::initialize()
     } else {ATH_MSG_INFO("Track thinning selection string: " << m_selectionString);}
     
     //check xAOD::InDetTrackParticle collection
-    if (m_SGKey=="") {
-        ATH_MSG_FATAL("No track measurement validation collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_SGKey << "as the source collection for thinning.");}
+    ATH_CHECK( m_SGKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_SGKey << "as the source collection for thinning.");
 
     // Set up the text-parsing machinery for thinning the tracks directly according to user cuts
     if (m_selectionString!="") {
@@ -81,13 +73,11 @@ StatusCode DerivationFramework::TrackMeasurementThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::TrackMeasurementThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // Get the cluster container
-    const xAOD::TrackMeasurementValidationContainer* clusters;
-    if (evtStore()->retrieve(clusters, m_SGKey).isFailure()) {
-      ATH_MSG_ERROR ("Couldn't retrieve TrackMeasurementValidationContainer with key" << m_SGKey);
-      return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TrackMeasurementValidationContainer> clusters
+      (m_SGKey, ctx);
 
     // Check the event contains clusters
     unsigned int nClusters = clusters->size();
@@ -117,13 +107,7 @@ StatusCode DerivationFramework::TrackMeasurementThinning::doThinning() const
     }
  
     // Execute the thinning service based on the mask. Finish.
-    IThinningSvc::Operator::Type thinningOperator;
-    if (m_and) thinningOperator = IThinningSvc::Operator::And;
-    else thinningOperator = IThinningSvc::Operator::Or;
-    if (m_thinningSvc->filter(*clusters, mask, thinningOperator).isFailure()) {
-      ATH_MSG_ERROR("Application of thinning service failed! ");
-      return StatusCode::FAILURE;
-    }
+    clusters.keep (mask);
 
     return StatusCode::SUCCESS;
 }  

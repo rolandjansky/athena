@@ -75,5 +75,5 @@ TEST(PartitionsGenTester, m2m3) {
   }
 
   //60 = 6.5.4.3.2/(2! 3!)
-  EXPECT_EQ (results_set.size(), 60);
+  EXPECT_EQ (results_set.size(), 60u);
 }

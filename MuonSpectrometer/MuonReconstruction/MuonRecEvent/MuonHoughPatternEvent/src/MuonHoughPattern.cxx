@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
 #include "CxxUtils/sincos.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughPattern::MuonHoughPattern(int id_number,bool ownhits):MuonHoughHitContainer(ownhits),m_id_number(id_number),m_whichsegment(false),m_ephi(-M_PI/2.),m_erphi(0.),m_etheta(M_PI/2.), m_ertheta(0.),m_ecurvature(1.),m_maximumhistogram(0.)
-{
-}
-
-MuonHoughPattern::~MuonHoughPattern()
 {
 }
 
@@ -39,6 +37,7 @@ bool MuonHoughPattern::hitInHoughPattern(MuonHoughHit * hit)const // adviced not
 
 double MuonHoughPattern::patternLength()const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughPattern::patternLength");
   // takes the first 2 hits and calculates distance and then takes next hit, and calculates from previous 2 hits which 2 are farthest away, etc..
   // also possible to calculate point closest to IP and determine if left/ right to pattern, app. just as fast.
 
@@ -84,7 +83,7 @@ double MuonHoughPattern::patternLength()const
 	    }
 	}
     }
-  else {std::cout << "MuonHoughPattern::pattern_size <2" << std::endl;}
+  else {if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << "MuonHoughPattern::pattern_size <2" << endmsg;}
 
   return max_patternlength;
 }
@@ -118,20 +117,22 @@ double MuonHoughPattern::calculateEZ()const
 
 void MuonHoughPattern::printHoughPattern()const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughPattern::printHoughPattern");
   if (m_hit.size()==0)
     {
-      std::cout <<"MuonHoughPattern::No pattern_Segment" << std::endl;
+      if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE <<"MuonHoughPattern::No pattern_Segment" << endmsg;
     }
   
-  std::cout << "MuonHoughPattern::Size of MuonHoughPattern: " << m_hit.size() << std::endl;  
+  if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << "MuonHoughPattern::Size of MuonHoughPattern: " << m_hit.size() << endmsg;  
   for (unsigned int i=0; i<m_hit.size(); i++)
     {
-      std::cout << m_hit[i]->getHitx() << " " << m_hit[i]->getHity() << " " << m_hit[i]->getHitz() << " " << m_hit[i]->getId() << std::endl;
+      if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << m_hit[i]->getHitx() << " " << m_hit[i]->getHity() << " " << m_hit[i]->getHitz() << " " << m_hit[i]->getId() << endmsg;
     } 
 }
 
 double MuonHoughPattern::getEAngle()const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughPattern::getEAngle");
   double eangle=0;
   switch (m_id_number)
     {
@@ -142,13 +143,14 @@ double MuonHoughPattern::getEAngle()const
       eangle=m_etheta;
       break;
     default:
-      std::cout << "MuonHoughPattern::no valid id_number" << std::endl;
+      if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
   return eangle;
 }
       
 double MuonHoughPattern::getER()const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughPattern::getER");
   double er=0;
   switch (m_id_number)
     {
@@ -159,13 +161,14 @@ double MuonHoughPattern::getER()const
       er=m_ertheta;
       break;
     default:
-      std::cout << "MuonHoughPattern::no valid id_number" << std::endl;
+      if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
   return er;
 }
 
 void MuonHoughPattern::setEAngle(double eangle)
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughPattern::setEAngle");
   switch (m_id_number)
     {
     case MuonHough::hough_xy:
@@ -175,12 +178,13 @@ void MuonHoughPattern::setEAngle(double eangle)
       m_etheta=eangle;
       break;
     default:
-      std::cout << "MuonHoughPattern::no valid id_number" << std::endl;
+      if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
 }
 
 void MuonHoughPattern::setER(double er)
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughPattern::setER");
   switch (m_id_number)
     {
     case MuonHough::hough_xy:
@@ -190,7 +194,7 @@ void MuonHoughPattern::setER(double er)
       m_ertheta=er;
       break;
     default:
-      std::cout << "MuonHoughPattern::no valid id_number" << std::endl;
+      if(log.level()<=MSG::VERBOSE)log << MSG::VERBOSE << "MuonHoughPattern::no valid id_number" << endmsg;
     }
 }
 
@@ -277,7 +281,6 @@ void MuonHoughPattern::updateParametersRPhi(bool cosmics)
   }
 
   if (std::abs(sumx) < 0.000001 || std::abs(sumy) < 0.000001) {
-    // {std::cout << " sum too small to update" << std::endl;}
     return;
   }
 
@@ -286,10 +289,9 @@ void MuonHoughPattern::updateParametersRPhi(bool cosmics)
     if (phi > 0) phi -= M_PI; // phi between 0,-Pi for cosmics! 
   }
 
-  //  std::cout << "phi: << : " << phi << std::endl;
   CxxUtils::sincos scphi(phi);
   
-  const double r0 = scphi.apply(av_x,-av_y); //av_x * sincosphi[0] - av_y * sincosphi[1];
+  const double r0 = scphi.apply(av_x,-av_y);
 
   setEPhi(phi);
   setERPhi(r0);

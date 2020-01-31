@@ -2,6 +2,7 @@
 #
 # art-description: Athena (serial mode only) runs muon segment finding, using the new job configuration system for Run 3, from an ESD file
 # art-type: grid
+# art-athena-mt.
 # art-include: master/Athena
 
 python $Athena_DIR/python/MuonConfig/MuonSegmentFindingConfig.py | tee temp1.log

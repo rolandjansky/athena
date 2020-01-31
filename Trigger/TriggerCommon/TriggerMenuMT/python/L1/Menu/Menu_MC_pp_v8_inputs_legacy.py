@@ -6,7 +6,7 @@ from ..Base.L1MenuFlags import L1MenuFlags
 from ..Base.MenuConfObj import TopoMenuDef
 
 
-def defineLegacyMenu():
+def defineLegacyInputsMenu():
 
     legacyBoards = odict()
     legacyTopoBoards = odict()
@@ -14,16 +14,17 @@ def defineLegacyMenu():
     #----------------------------------------
     # SLOT 7 / CON 0-3 (EM1, EM2, TAU1, TAU2)
     #----------------------------------------
-    legacyBoards["Ctpin"] = odict()
-    legacyBoards["Ctpin"]["inputConnectors"] = []
-    legacyBoards["Ctpin"]["inputConnectors"] += [
+    legacyBoards["Ctpin7"] = odict()
+    legacyBoards["Ctpin7"]["legacy"] = True
+    legacyBoards["Ctpin7"]["connectors"] = []
+    legacyBoards["Ctpin7"]["connectors"] += [
         {
             "name" : "EM1",
             "format" : "multiplicity",
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'EM3', 'EM7', 'EM8VH', 'EM8I', 'EM10VH', 'EM12', 'EM13VH', 'EM15' ],
+            "thresholds" : [ 'EM3', 'EM7', 'EM8VH', 'EM8I', 'EM10VH', 'EM12', 'EM13VH', 'EM15'  ],
             "zeroBias" : "ZB_EM15"
         },
         {
@@ -40,15 +41,16 @@ def defineLegacyMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL']
+            "thresholds" : [ 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL' ]
         },
+        
         {
             "name" : "TAU2",
             "format" : "multiplicity",
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'HA20IM', 'HA20IT', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100']
+            "thresholds" : [ 'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 'HA60', 'HA100' ]
         }
     ]
 
@@ -56,7 +58,10 @@ def defineLegacyMenu():
     #--------------------------------------
     # SLOT 8 / CON 0 (JET1, JET2, EN1, EN2)
     #--------------------------------------
-    legacyBoards["Ctpin"]["inputConnectors"] += [
+    legacyBoards["Ctpin8"] = odict()
+    legacyBoards["Ctpin8"]["legacy"] = True
+    legacyBoards["Ctpin8"]["connectors"] = []
+    legacyBoards["Ctpin8"]["connectors"] += [
         {
             # 10 x 3-bit JET (can have multiplicity 4 or more)
             "name" : "JET1",
@@ -77,9 +82,9 @@ def defineLegacyMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'J35.0ETA23','J40.0ETA25', 'J20.28ETA31', # 3 x Central Jet
+                'J35.0ETA23','J40.0ETA25', 'J45.0ETA20', # 3 x Central Jet
                 'J50', 'J75', 'J85', 'J100', 'J120', 'J400', # 6 Jets
-                'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', 'J100.31ETA49', # 6 x FJ              
+                'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', 'J12.0ETA23', # 6 x FJ              
             ]
         },
         {
@@ -91,7 +96,7 @@ def defineLegacyMenu():
             "legacy" : True,
             "thresholds" : [
                 'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40', 'TE70', # 8 x TE
-                'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300', # 16 x XE (for standard XE)
+                'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50', # 8 x XE
                 'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65',  # 8 x XS
             ]
         },
@@ -103,16 +108,18 @@ def defineLegacyMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'TE5.0ETA24', 'TE10.0ETA24', 'TE15.0ETA24', 'TE20.0ETA24', 'TE25.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24', 'TE70.0ETA24', # 8 x weighted sum ET
+                'TE5.0ETA24', 'TE10.0ETA24', 'TE15.0ETA24', 'TE20.0ETA24', 'TE25.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24', 'TE70.0ETA24', # 8 x TE
+                'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300', # 8 x XE
             ]
         }
     ]
 
-                                
+
     #----------------
     # Legacy L1TOPO 0  
     #----------------
     legacyTopoBoards["LegacyTopo0"] = odict()
+    legacyTopoBoards["LegacyTopo0"]["legacy"] = True
     legacyTopoBoards["LegacyTopo0"]["connectors"] = [
         {
             "name" : "LegacyTopo0",
@@ -203,6 +210,7 @@ def defineLegacyMenu():
     }]
 
     legacyTopoBoards["LegacyTopo1"] = odict()
+    legacyTopoBoards["LegacyTopo1"]["legacy"] = True
     legacyTopoBoards["LegacyTopo1"]["connectors"] = [
         {
             "name" : "LegacyTopo1",

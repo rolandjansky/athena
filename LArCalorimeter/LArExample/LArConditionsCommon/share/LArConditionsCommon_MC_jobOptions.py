@@ -21,7 +21,7 @@ condSeq = AthSequencer("AthCondSeq")
 larCondFlags.config_ElecCalibMC()
 
 if svcMgr.MessageSvc.OutputLevel <= DEBUG :
-  print larCondFlags
+  printfunc (larCondFlags)
 
 # POOL Converters
 #include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )

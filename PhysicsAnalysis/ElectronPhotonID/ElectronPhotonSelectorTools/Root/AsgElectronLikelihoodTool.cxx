@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,7 +36,7 @@
 //=============================================================================
 // Standard constructor
 //=============================================================================
-AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
+AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname) :
   AsgTool(myname),
   m_configFile{""},
   m_rootTool{nullptr},
@@ -161,7 +161,7 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   
   if(!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile( m_configFile);
-    if(configFile==""){ 
+    if(configFile.empty()){ 
       ATH_MSG_ERROR("Could not locate " << m_configFile );
       return StatusCode::FAILURE;
     } 
@@ -333,8 +333,10 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   uint8_t nPixHitsPlusDeadSensors(0);
   bool passBLayerRequirement(false); 
   float d0(0.0);
-  float deltaEta=0, deltaPhiRescaled2=0;
-  float wstot=0, EoverP=0;
+  float deltaEta=0;
+  float deltaPhiRescaled2=0;
+  float wstot=0;
+  float EoverP=0;
   uint8_t ambiguityBit(0); 
   double ip(0);
 
@@ -348,7 +350,7 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   }
 
   // get the ambiguity type from the decoration
-  if ( m_rootTool->m_cutAmbiguity.size() ) {
+  if ( !m_rootTool->m_cutAmbiguity.empty() ) {
     if ( eg->isAvailable<uint8_t>("ambiguityType") ) {
       static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
       ambiguityBit = acc(*eg);
@@ -490,8 +492,11 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   // for now don't cache. 
   double likelihood = calculate(ctx, eg, ip); 
 
-  double deltaEta=0,deltaPhiRescaled2=0,d0=0;
-  float wstot=0, EoverP=0;
+  double deltaEta=0;
+  double deltaPhiRescaled2=0;
+  double d0=0;
+  float wstot=0;
+  float EoverP=0;
 
   bool allFound = true;
   std::string notFoundList = "";
@@ -586,7 +591,8 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
   double dpOverp(0.0);
   float TRT_PID(0.0);
   double trans_TRT_PID(0.0);
-  float deltaEta=0, deltaPhiRescaled2=0;
+  float deltaEta=0;
+  float deltaPhiRescaled2=0;
 
   bool allFound = true;
   std::string notFoundList = "";
@@ -640,7 +646,14 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
       }
   }  // if not calo Only
 
-  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), w2(0), f1(0), Eratio(0), f3(0);
+  float Reta(0);
+  float Rphi(0);
+  float Rhad1(0);
+  float Rhad(0);
+  float w2(0);
+  float f1(0);
+  float Eratio(0);
+  float f3(0);
 
   // reta = e237/e277
   if( !eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta) ){
@@ -791,11 +804,19 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
   float d0sigma(0.0);
   double dpOverp(0.0);
 
-  float deltaEta=0, deltaPhiRescaled2=0;
+  float deltaEta=0;
+  float deltaPhiRescaled2=0;
   float TRT_PID(0.0);
 
   // Calo Variables
-  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), w2(0), f1(0), Eratio(0), f3(0);
+  float Reta(0);
+  float Rphi(0);
+  float Rhad1(0);
+  float Rhad(0);
+  float w2(0);
+  float f1(0);
+  float Eratio(0);
+  float f3(0);
 
   bool allFound = true;
   std::string notFoundList = "";

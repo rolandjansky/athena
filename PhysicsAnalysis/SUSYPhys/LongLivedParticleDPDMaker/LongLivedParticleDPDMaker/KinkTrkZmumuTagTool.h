@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// KinkTrkZmumuTagTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef DERIVATIONFRAMEWORK_KINKTRKZMUMUTAGTOOL_H
 #define DERIVATIONFRAMEWORK_KINKTRKZMUMUTAGTOOL_H 1
@@ -22,7 +18,7 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticle.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace DerivationFramework {
 

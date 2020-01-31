@@ -1,21 +1,21 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.h 804869 2017-05-15 20:14:34Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_TOOLHANDLE_H
 #define ASGTOOLS_TOOLHANDLE_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
-
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/ToolHandle.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 // System include(s):
 #include <string>
 #include <iosfwd>
 
 // Local include(s):
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 class INamedInterface;
 
@@ -120,7 +120,5 @@ std::ostream& operator<< ( std::ostream& out,
 // Include the implementation of the code:
 #include "AsgTools/ToolHandle.icc"
 
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGTOOLS_TOOLHANDLE_H

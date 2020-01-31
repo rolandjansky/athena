@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
@@ -45,8 +45,14 @@ protected: // protected to support unit testing
 private:
 
   ///@{ @name Properties
+
+  /// Level-1 result with RoIs from Run-2 hardware systems
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{this, "RoIBResult", "RoIBResult", 
       "Name of RoIBResult"};
+
+  /// Level-1 result with RoIs from Run-3 hardware systems
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultKey{this, "L1TriggerResult", "L1TriggerResult",
+      "Name of the L1 Trigger Result"};
 
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{this, "L1DecoderSummaryKey", "L1DecoderSummary", 
       "Chains status after L1 and prescaling"}; // Note: was previously property 'Chains' with default value 'HLTChains'

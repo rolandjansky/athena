@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaForwardBuilder.h"
@@ -195,7 +195,7 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, 
   // return success as algorithm may be able to run without it 
   // in degraded mode
 
-  if (m_objectQualityTool.name()=="") return StatusCode::SUCCESS;
+  if (m_objectQualityTool.name().empty()) return StatusCode::SUCCESS;
 
   // setup chrono for this tool
   std::string chronoName=this->name()+"_"+m_objectQualityTool->name() ;

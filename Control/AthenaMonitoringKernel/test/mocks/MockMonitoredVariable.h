@@ -10,11 +10,12 @@ class MockMonitoredVariable : public Monitored::IMonitoredVariable {
     MockMonitoredVariable(const std::string& name) : IMonitoredVariable(name) {}
 
     std::function<std::vector<double>()> mock_getVectorRepresentation;
-    const std::vector<double> getVectorRepresentation() const override {
+    std::vector<double> getVectorRepresentation() const override {
       return mock_getVectorRepresentation ? mock_getVectorRepresentation() : std::vector<double>();
     }
     bool hasStringRepresentation() const override {  return false; }
-    std::vector<std::string> getStringVectorRepresentation() const override { return {}; } 
+    std::vector<std::string> getStringVectorRepresentation() const override { return {}; }
+    size_t size() const override { return getVectorRepresentation().size(); }
 };
 
 #endif /* AthenaMonitoringKernel_test_mocks_MockMonitoredVariable_h */

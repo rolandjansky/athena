@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSVertexTrackletTool.h"
@@ -7,9 +7,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
-
 #include "xAODTracking/TrackParticleAuxContainer.h"
-
 
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
@@ -80,7 +78,7 @@ namespace Muon {
     
     ATH_CHECK(m_mdtTESKey.initialize());
     ATH_CHECK(m_TPContainer.initialize());
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -146,37 +144,37 @@ namespace Muon {
       //loop on hits inside the chamber
       std::vector<const Muon::MdtPrepData*>::const_iterator mdt1 = ChamberItr->begin();
       std::vector<const Muon::MdtPrepData*>::const_iterator mdtEnd = ChamberItr->end();
-      int stName = m_muonIdHelperTool->mdtIdHelper().stationName((*mdt1)->identify());
-      int stEta = m_muonIdHelperTool->mdtIdHelper().stationEta((*mdt1)->identify());
+      int stName = m_idHelperSvc->mdtIdHelper().stationName((*mdt1)->identify());
+      int stEta = m_idHelperSvc->mdtIdHelper().stationEta((*mdt1)->identify());
       if(stName == 6 || stName == 14 || stName == 15) continue; //ignore hits from BEE, EEL and EES
       if(stName == 1 && std::abs(stEta) >= 7) continue; //ignore hits from BIS7/8
       if(stName == 53 || stName == 54) continue; //ignore hits from BME and BMG
 
       //convert to the hardware sector [1-16]
-      int sector = 2*(m_muonIdHelperTool->mdtIdHelper().stationPhi((*mdt1)->identify()));
+      int sector = 2*(m_idHelperSvc->mdtIdHelper().stationPhi((*mdt1)->identify()));
       if(stName == 0 || stName == 2 || stName == 4 || stName == 13 || stName == 17 || stName == 20) sector -= 1;
       //information about the chamber we are looking at
-      int maxLayer = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax((*mdt1)->identify());
-      int ML = m_muonIdHelperTool->mdtIdHelper().multilayer((*mdt1)->identify()); 
+      int maxLayer = m_idHelperSvc->mdtIdHelper().tubeLayerMax((*mdt1)->identify());
+      int ML = m_idHelperSvc->mdtIdHelper().multilayer((*mdt1)->identify()); 
       for(; mdt1 != mdtEnd; ++mdt1) {
         if( Amg::error( (*mdt1)->localCovariance(),Trk::locR) < errorCutOff ){
-          ATH_MSG_WARNING("  " << m_muonIdHelperTool->mdtIdHelper().print_to_string((*mdt1)->identify()) << " with too small error " 
+          ATH_MSG_WARNING("  " << m_idHelperSvc->mdtIdHelper().print_to_string((*mdt1)->identify()) << " with too small error " 
                           << Amg::error( (*mdt1)->localCovariance(),Trk::locR) );
           continue;
         }
-	int tl1 = m_muonIdHelperTool->mdtIdHelper().tubeLayer((*mdt1)->identify());
+	int tl1 = m_idHelperSvc->mdtIdHelper().tubeLayer((*mdt1)->identify());
 	if(tl1 == maxLayer) break;//require hits in at least 2 layers
 	std::vector<const Muon::MdtPrepData*>::const_iterator mdt2 = (mdt1+1);
 	for(; mdt2 != mdtEnd; ++mdt2) {
 
           if( Amg::error( (*mdt2)->localCovariance(),Trk::locR) < errorCutOff ){
-            ATH_MSG_WARNING("  " << m_muonIdHelperTool->mdtIdHelper().print_to_string((*mdt2)->identify()) << " with too small error " 
+            ATH_MSG_WARNING("  " << m_idHelperSvc->mdtIdHelper().print_to_string((*mdt2)->identify()) << " with too small error " 
                             << Amg::error( (*mdt2)->localCovariance(),Trk::locR) );
             continue;
           }
 
 	  //select the correct combinations
-	  int tl2 = m_muonIdHelperTool->mdtIdHelper().tubeLayer((*mdt2)->identify());	  
+	  int tl2 = m_idHelperSvc->mdtIdHelper().tubeLayer((*mdt2)->identify());	  
 	  if(mdt1 == mdt2 || (tl2 - tl1) > 1 || (tl2 - tl1) < 0 ) continue; 
 	  if(fabs((*mdt2)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d12_max && (stName <= 11 || stName == 52)) continue;
 	  //if chamber is endcap, use distance in r
@@ -185,22 +183,22 @@ namespace Muon {
 	    float mdt2R = (*mdt2)->globalPosition().perp();
 	    if(fabs(mdt1R-mdt2R) > d12_max) continue;
 	  }
-	  if( (tl2-tl1) == 0 && (m_muonIdHelperTool->mdtIdHelper().tube((*mdt2)->identify()) - m_muonIdHelperTool->mdtIdHelper().tube((*mdt1)->identify())) < 0) continue;	
+	  if( (tl2-tl1) == 0 && (m_idHelperSvc->mdtIdHelper().tube((*mdt2)->identify()) - m_idHelperSvc->mdtIdHelper().tube((*mdt1)->identify())) < 0) continue;	
 	  //find the third hit
 	  std::vector<const Muon::MdtPrepData*>::const_iterator mdt3 = (mdt2+1);
 	  for(; mdt3 != mdtEnd; ++mdt3) {
 
             if( Amg::error( (*mdt3)->localCovariance(),Trk::locR) < errorCutOff ){
-              ATH_MSG_WARNING("  " << m_muonIdHelperTool->mdtIdHelper().print_to_string((*mdt3)->identify()) << " with too small error " 
+              ATH_MSG_WARNING("  " << m_idHelperSvc->mdtIdHelper().print_to_string((*mdt3)->identify()) << " with too small error " 
                               << Amg::error( (*mdt3)->localCovariance(),Trk::locR) );
               continue;
             }
 
 	    //reject the bad tube combinations
-	    int tl3 = m_muonIdHelperTool->mdtIdHelper().tubeLayer((*mdt3)->identify());	    
+	    int tl3 = m_idHelperSvc->mdtIdHelper().tubeLayer((*mdt3)->identify());	    
 	    if(mdt1 == mdt3 || mdt2 == mdt3) continue;
 	    if( (tl3-tl2) > 1 || (tl3-tl2) < 0 || (tl3-tl1) <= 0) continue;
-	    if( (tl3-tl2) == 0 && (m_muonIdHelperTool->mdtIdHelper().tube((*mdt3)->identify()) - m_muonIdHelperTool->mdtIdHelper().tube((*mdt2)->identify())) < 0) continue;
+	    if( (tl3-tl2) == 0 && (m_idHelperSvc->mdtIdHelper().tube((*mdt3)->identify()) - m_idHelperSvc->mdtIdHelper().tube((*mdt2)->identify())) < 0) continue;
 	    if( fabs((*mdt3)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d13_max && (stName <= 11 || stName == 52) ) continue;
 	    //if chamber is endcap, use distance in r
 	    if( (stName > 11 && stName <=21) || stName == 49 ) {
@@ -434,13 +432,13 @@ namespace Muon {
 
       if ((*MDTItr)->size()==0) continue; 
 
-      int stName = m_muonIdHelperTool->mdtIdHelper().stationName((*mpdc)->identify());
+      int stName = m_idHelperSvc->mdtIdHelper().stationName((*mpdc)->identify());
 
       // Doesn't consider hits belonging to chambers BEE, EEL and EES
       if(stName == 6 || stName == 14 || stName == 15) continue;
 
       // Doesn't consider hits belonging to chambers BIS7 and BIS8
-      if(stName == 1 && std::abs(m_muonIdHelperTool->mdtIdHelper().stationEta((*mpdc)->identify())) >= 7) continue;
+      if(stName == 1 && std::abs(m_idHelperSvc->mdtIdHelper().stationEta((*mpdc)->identify())) >= 7) continue;
 
       // Doesn't consider hits belonging to BME or BMG chambers
       if(stName == 53 || stName == 54) continue;
@@ -461,7 +459,7 @@ namespace Muon {
 	if((*mpdc)->localPosition()[Trk::locR] == 0. ) continue;
         
         if( (*mpdc)->localCovariance()(Trk::locR,Trk::locR) < 1e-6 ) {
-          ATH_MSG_WARNING("Found MDT with unphysical error " << m_muonIdHelperTool->mdtIdHelper().print_to_string((*mpdc)->identify()) 
+          ATH_MSG_WARNING("Found MDT with unphysical error " << m_idHelperSvc->mdtIdHelper().print_to_string((*mpdc)->identify()) 
                           << " cov " << (*mpdc)->localCovariance()(Trk::locR,Trk::locR) );
           continue;
         }
@@ -469,7 +467,7 @@ namespace Muon {
 	++nMDT;
         
         // sort per multi layer
-        if(m_muonIdHelperTool->mdtIdHelper().multilayer((*mpdc)->identify()) == 1 ) hitsML1.push_back(*mpdc);
+        if(m_idHelperSvc->mdtIdHelper().multilayer((*mpdc)->identify()) == 1 ) hitsML1.push_back(*mpdc);
         else                                                     hitsML2.push_back(*mpdc);
 
       }//end MdtPrepDataCollection
@@ -489,9 +487,9 @@ namespace Muon {
     int ntubes = hits.front()->detectorElement()->getNLayers()*hits.front()->detectorElement()->getNtubesperlayer();
     if( hits.size() > 0.75*ntubes ) return;
     std::sort(hits.begin(),hits.end(), [this](const Muon::MdtPrepData* mprd1, const Muon::MdtPrepData* mprd2) ->bool{
-        if(m_muonIdHelperTool->mdtIdHelper().tubeLayer(mprd1->identify()) > m_muonIdHelperTool->mdtIdHelper().tubeLayer(mprd2->identify())) return false;
-        if(m_muonIdHelperTool->mdtIdHelper().tubeLayer(mprd1->identify()) < m_muonIdHelperTool->mdtIdHelper().tubeLayer(mprd2->identify())) return true;
-        if(m_muonIdHelperTool->mdtIdHelper().tube(mprd1->identify()) < m_muonIdHelperTool->mdtIdHelper().tube(mprd2->identify())) return true;
+        if(m_idHelperSvc->mdtIdHelper().tubeLayer(mprd1->identify()) > m_idHelperSvc->mdtIdHelper().tubeLayer(mprd2->identify())) return false;
+        if(m_idHelperSvc->mdtIdHelper().tubeLayer(mprd1->identify()) < m_idHelperSvc->mdtIdHelper().tubeLayer(mprd2->identify())) return true;
+        if(m_idHelperSvc->mdtIdHelper().tube(mprd1->identify()) < m_idHelperSvc->mdtIdHelper().tube(mprd2->identify())) return true;
         return false;
     } );//sort the MDTs by layer and tube number
 
@@ -502,10 +500,10 @@ namespace Muon {
 
 
   bool MSVertexTrackletTool::SortMDT(Identifier& i1, Identifier& i2) const {
-    if(m_muonIdHelperTool->mdtIdHelper().stationName(i1) != m_muonIdHelperTool->mdtIdHelper().stationName(i2)) return false;
-    if(m_muonIdHelperTool->mdtIdHelper().stationEta(i1) != m_muonIdHelperTool->mdtIdHelper().stationEta(i2)) return false;
-    if(m_muonIdHelperTool->mdtIdHelper().stationPhi(i1) != m_muonIdHelperTool->mdtIdHelper().stationPhi(i2)) return false;
-    if(m_muonIdHelperTool->mdtIdHelper().multilayer(i1) != m_muonIdHelperTool->mdtIdHelper().multilayer(i2)) return false;
+    if(m_idHelperSvc->mdtIdHelper().stationName(i1) != m_idHelperSvc->mdtIdHelper().stationName(i2)) return false;
+    if(m_idHelperSvc->mdtIdHelper().stationEta(i1) != m_idHelperSvc->mdtIdHelper().stationEta(i2)) return false;
+    if(m_idHelperSvc->mdtIdHelper().stationPhi(i1) != m_idHelperSvc->mdtIdHelper().stationPhi(i2)) return false;
+    if(m_idHelperSvc->mdtIdHelper().multilayer(i1) != m_idHelperSvc->mdtIdHelper().multilayer(i2)) return false;
     return true;
   }
 
@@ -653,7 +651,7 @@ namespace Muon {
 
   std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitterCore(std::vector<const Muon::MdtPrepData*>& mdts,std::vector<std::pair<float,float> >& SeedParams) const {
     std::vector<TrackletSegment> segs;
-    int stName = m_muonIdHelperTool->mdtIdHelper().stationName(mdts.at(0)->identify());
+    int stName = m_idHelperSvc->mdtIdHelper().stationName(mdts.at(0)->identify());
     float mlmidpt = 0;
     if(stName <= 11 || stName == 52) mlmidpt = sqrt(sq(mdts.at(0)->detectorElement()->center().x())+sq(mdts.at(0)->detectorElement()->center().y()));
     else if(stName <= 21 || stName == 49) mlmidpt = mdts.at(0)->detectorElement()->center().z();
@@ -771,8 +769,8 @@ namespace Muon {
 	}
 	
 	//information about the MDT chamber containing the tracklet
-	int chEta = m_muonIdHelperTool->mdtIdHelper().stationEta(mdts.at(0)->identify());
-	int chPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(mdts.at(0)->identify());
+	int chEta = m_idHelperSvc->mdtIdHelper().stationEta(mdts.at(0)->identify());
+	int chPhi = m_idHelperSvc->mdtIdHelper().stationPhi(mdts.at(0)->identify());
 
 	//find the position of the tracklet in the global frame
 	float mdtPhi = mdts.at(0)->globalPosition().phi();
@@ -1085,8 +1083,8 @@ namespace Muon {
       for(unsigned int tk1=0; tk1<myTracks.size(); ++tk1) {
 	Identifier id1 = myTracks.at(tk1).getML1seg().mdtHitsOnTrack().at(0)->identify();
 	Identifier id2 = myTracks.at(tk1).getML2seg().mdtHitsOnTrack().at(0)->identify();
-	int nLayerML1 = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(id1);
-	int nLayerML2 = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(id2);
+	int nLayerML1 = m_idHelperSvc->mdtIdHelper().tubeLayerMax(id1);
+	int nLayerML2 = m_idHelperSvc->mdtIdHelper().tubeLayerMax(id2);
 	float ratio = (float)(myTracks.at(tk1).mdtHitsOnTrack().size())/(nLayerML1+nLayerML2);
 	if (ratio>0.75) tracks.push_back(myTracks.at(tk1));
       }

@@ -33,7 +33,7 @@ namespace Trk
     const TrackParameters* parameters() const;
 
     /** return the neutral parameters of the NeutralParticle) */
-    const NeutralParameters* neutralParameters() const {return NULL;};
+    const NeutralParameters* neutralParameters() const {return nullptr;};
     
     /** method to clone the LinkToTrack object */
     LinkToTrack * clone() const ;

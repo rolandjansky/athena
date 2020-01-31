@@ -28,8 +28,4 @@ private:
   ClassDefOverride(TFCSHitCellMapping, 1) //TFCSHitCellMapping
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHitCellMapping+;
-#endif
-
 #endif

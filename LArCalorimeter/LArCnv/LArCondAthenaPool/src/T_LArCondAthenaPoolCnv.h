@@ -39,8 +39,7 @@ public:
 
     virtual ~T_LArCondAthenaPoolCnv();
 
-    virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key) override;
-    virtual StatusCode DataObjectToPool(DataObject* pObj, std::string tname) override;
+    virtual StatusCode DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) override;
     virtual StatusCode PoolToDataObject(DataObject*& pObj,
                                         const std::string& token,
                                         const std::string& key) override;

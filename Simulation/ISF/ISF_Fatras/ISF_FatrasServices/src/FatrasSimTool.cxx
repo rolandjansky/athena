@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./FatrasSimTool.h"
@@ -58,11 +58,4 @@ StatusCode ISF::FatrasSimTool::simulate( const ISFParticle& isp, ISFParticleCont
 
   // Fatras call done
   return StatusCode::SUCCESS;
-}
-
-// Act as particle broker for secondaries
-void ISF::FatrasSimTool::push( ISF::ISFParticle * /*particle*/, const ISF::ISFParticle * /*parent*/ )
-{
-  ATH_MSG_VERBOSE( "Caught secondary particle push() from Fatras" );
-  return;
 }

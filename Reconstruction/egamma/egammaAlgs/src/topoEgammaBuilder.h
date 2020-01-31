@@ -95,8 +95,8 @@ private:
     /** @brief Call a tool using contExecute and electrons, photon containers if given **/
     StatusCode CallTool(const EventContext& ctx,
             const ToolHandle<IegammaBaseTool>& tool, 
-            xAOD::ElectronContainer *electronContainer = 0, 
-            xAOD::PhotonContainer *photonContainer = 0) const;
+            xAOD::ElectronContainer *electronContainer = nullptr, 
+            xAOD::PhotonContainer *photonContainer = nullptr) const;
 
     /** @brief Name of the electron output collection*/
     SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,

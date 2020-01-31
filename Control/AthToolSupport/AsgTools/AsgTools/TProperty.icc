@@ -1,9 +1,11 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: TProperty.icc 802972 2017-04-15 18:13:17Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_TPROPERTY_ICC
 #define ASGTOOLS_TPROPERTY_ICC
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgTools/MessageCheckAsgTools.h>
 #include <sstream>
 #include <typeinfo>
 #include <type_traits>
@@ -221,6 +223,7 @@ namespace asg
     };
 
     /// \brief helper class for getting property values from strings
+    // cppcheck-suppress syntaxError
     template<typename T> struct SetStringHelper : SetStringHelperBase<T>
     {
     };
@@ -233,7 +236,7 @@ namespace asg
 	ANA_CHECK (unpackStringVector (value, myvalue));
 	std::vector<T> myresult;
 	for (std::string subvalue : myvalue) {
-	  T subresult;
+	  T subresult {};
 	  ANA_CHECK (SetStringHelper<T>::set (subvalue, subresult));
 	  myresult.push_back (subresult);
 	}

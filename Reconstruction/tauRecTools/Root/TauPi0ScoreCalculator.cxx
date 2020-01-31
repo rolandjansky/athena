@@ -27,7 +27,6 @@ using std::string;
 
 TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
   TauRecToolBase(name),
-  m_readerOption("Silent:!Color"),
   m_mvaBDT(0),
   m_Abs_FIRST_ETA(0),
   m_SECOND_R(0),
@@ -53,7 +52,6 @@ TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
   m_energy_EM1(0),
   m_energy_EM2(0)
 {
-    declareProperty("ReaderOption",            m_readerOption);
     declareProperty("BDTWeightFile",           m_weightfile);
 }
 
@@ -220,21 +218,3 @@ float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
      
     return BDTScore;
 }
-
-// StatusCode TauPi0ScoreCalculator::bookMethod(TMVA::Reader *reader, const std::string &methodName) const 
-// {
-    // if (m_weightfile == ""){
-    //     ATH_MSG_ERROR("No weight file given");
-    //     return StatusCode::FAILURE;
-    // }
-    // std::string resolvedFileName = find_file(m_weightfile);
-    // if (resolvedFileName != "") {
-    //     ATH_MSG_DEBUG( "Parameterisation file found: " << resolvedFileName );
-    // } 
-    // else {
-    //     ATH_MSG_ERROR( "Parameterisation file " << m_weightfile << " not found" );
-    //     return StatusCode::FAILURE;
-    // }
-    // reader->BookMVA( methodName, resolvedFileName);
-//     return StatusCode::SUCCESS;
-// }

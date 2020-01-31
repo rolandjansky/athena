@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -53,11 +53,6 @@ AthMemoryAuditor::AthMemoryAuditor( const std::string& name,
   declareProperty("StacktraceDepthPerAlg", m_depthPerAlg);
   declareProperty("MaxStacktracesPerAlg", m_stmax);
   current_stage=1;
-}
-
-AthMemoryAuditor::~AthMemoryAuditor()
-{
-  ATH_MSG_DEBUG("In Destructor");
 }
 
 StatusCode
@@ -632,9 +627,14 @@ std::string AthMemoryAuditor::stageToString(long s)
   return str;  
 }
 
-void AthMemoryAuditor::beforeInitialize(INamedInterface* comp)
+void AthMemoryAuditor::before(StandardEventType evt, INamedInterface* comp)
 {
-  // ATH_MSG_INFO("==> beforeInitialize " << comp->name() << " . " << initialized );
+  // Only handle these event types
+  if ( evt!=IAuditor::Initialize && evt!=IAuditor::ReInitialize &&
+       evt!=IAuditor::Execute && evt!=IAuditor::Finalize ) {
+    return;
+  }
+
   context=(uintptr_t)(&(comp->name()));
   
   stacktraceDepth=m_defaultStacktraceDepth;
@@ -652,109 +652,37 @@ void AthMemoryAuditor::beforeInitialize(INamedInterface* comp)
       stacktraceDepth=fit->second.stacktrace;
     }
   algorithms[curIndex]=comp->name();
-  current_stage=3;
+
+  if (evt==IAuditor::Initialize) {
+    current_stage=3;
+  }
+  else if (evt==IAuditor::ReInitialize) {
+    current_stage=4;
+    collectStacktraces=bool(stacktraceDepth);
+  }
+  else if (evt==IAuditor::Execute) {
+    if(current_stage<1E6)
+      current_stage=1E6;
+    if (context && ( contextFirst == context ) )
+      ++current_stage;
+    if (context && ( contextFirst == 0 ) )
+      contextFirst = context;
+    collectStacktraces=bool(stacktraceDepth);
+  }
+  else if (evt==IAuditor::Finalize) {
+    current_stage=1E8-2;
+    collectStacktraces=bool(stacktraceDepth);
+  }
 }
 
-void AthMemoryAuditor::beforeReinitialize(INamedInterface* comp)
+void AthMemoryAuditor::after(StandardEventType evt, INamedInterface*, const StatusCode&)
 {
-  context=(uintptr_t)(&(comp->name()));
-  
-  stacktraceDepth=m_defaultStacktraceDepth;
-  auto fit=arrayAlgIndex.find(comp->name());
-  if ( fit == arrayAlgIndex.end() )
-    {
-      // this allocation would show up as memory leak - suppress later printout by setting stage to zero
-      current_stage=0;
-      collectStacktraces=false;
-      arrayAlgIndex[comp->name()]=aiStruct(curIndex= ++curMaxIndex,m_defaultStacktraceDepth);
-    }
-  else
-    {
-      curIndex=fit->second.index;
-      stacktraceDepth=fit->second.stacktrace;
-    }
-  algorithms[curIndex]=comp->name();
-  current_stage=4;
-  collectStacktraces=bool(stacktraceDepth);
-}
+  // Only handle these event types
+  if ( evt!=IAuditor::Initialize && evt!=IAuditor::ReInitialize &&
+       evt!=IAuditor::Execute && evt!=IAuditor::Finalize ) {
+    return;
+  }
 
-void AthMemoryAuditor::beforeExecute(INamedInterface* comp)
-{
-  stacktraceDepth=m_defaultStacktraceDepth;
-  auto fit=arrayAlgIndex.find(comp->name());
-  if ( fit == arrayAlgIndex.end() )
-    {
-      // this allocation would show up as memory leak - suppress later printout by setting stage to zero
-      current_stage=0;
-      collectStacktraces=false;
-      arrayAlgIndex[comp->name()]=aiStruct(curIndex= ++curMaxIndex,m_defaultStacktraceDepth);
-    }
-  else
-    {
-      curIndex=fit->second.index;
-      stacktraceDepth=fit->second.stacktrace;
-    }
-  algorithms[curIndex]=comp->name();
-  
-  if(current_stage<1E6)
-    current_stage=1E6;
-  
-  context=(uintptr_t)(&(comp->name()));
-  
-  if (context && ( contextFirst == context ) )
-    ++current_stage;
-  
-  if (context && ( contextFirst == 0 ) )
-    contextFirst = context;
-  collectStacktraces=bool(stacktraceDepth);
-}
-
-void AthMemoryAuditor::beforeFinalize(INamedInterface* comp)
-{
-  context=(uintptr_t)(&(comp->name()));
-  
-  stacktraceDepth=m_defaultStacktraceDepth;
-  auto fit=arrayAlgIndex.find(comp->name());
-  if ( fit == arrayAlgIndex.end() )
-    {
-      // this allocation would show up as memory leak - suppress later printout by setting stage to zero
-      current_stage=0;
-      collectStacktraces=false;
-      arrayAlgIndex[comp->name()]=aiStruct(curIndex= ++curMaxIndex,m_defaultStacktraceDepth);
-    }
-  else
-    {
-      curIndex=fit->second.index;
-      stacktraceDepth=fit->second.stacktrace;
-    }
-  algorithms[curIndex]=comp->name();
-  current_stage=1E8-2;
-  collectStacktraces=bool(stacktraceDepth);
-}
-
-void AthMemoryAuditor::afterInitialize(INamedInterface* /* comp */)
-{
-  curIndex=1;
-  stacktraceDepth=m_defaultStacktraceDepth;
-  collectStacktraces=bool(m_defaultStacktraceDepth);
-}
-
-void AthMemoryAuditor::afterReinitialize(INamedInterface* /* comp */)
-{
-  curIndex=1;
-  stacktraceDepth=m_defaultStacktraceDepth;
-  collectStacktraces=bool(m_defaultStacktraceDepth);
-}
-
-void AthMemoryAuditor::afterExecute(INamedInterface* /* comp */, const StatusCode& /* sc */)
-{
-  curIndex=1;
-  stacktraceDepth=m_defaultStacktraceDepth;
-  collectStacktraces=bool(m_defaultStacktraceDepth);
-}
-
-void AthMemoryAuditor::afterFinalize(INamedInterface* /* comp */)
-{
   curIndex=1;
   stacktraceDepth=m_defaultStacktraceDepth;
   collectStacktraces=bool(m_defaultStacktraceDepth);

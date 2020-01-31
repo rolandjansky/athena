@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: McParticleAlgs/python/JobOptCfg.py
 # @purpose: hold a set of customized configurables and factory functions
@@ -8,7 +8,7 @@ __author__ = "Sebastien Binet <binet@cern.ch>"
 __version__= "$Revision: 1.14 $"
 
 import EventKernel.ParticleDataType
-from McParticleAlgsConf import TruthParticleBuilder
+from .McParticleAlgsConf import TruthParticleBuilder
 
 
 class PileUpClassification(object):
@@ -38,7 +38,7 @@ class McAodBuilder( TruthParticleBuilder ):
         super( McAodBuilder, self ).__init__( **kwargs )
 
         from AthenaCommon import CfgMgr
-        from McAodFlags import jobproperties as jp
+        from .McAodFlags import jobproperties as jp
         if jp.McAodFlags.doTruthEtIsolations():
             from AthenaCommon.AppMgr import ToolSvc
             if not hasattr(ToolSvc, 'TruthIsolationTool'):
@@ -51,7 +51,7 @@ class McAodBuilder( TruthParticleBuilder ):
         if not isinstance(hdl, McAodBuilder):
             return
 
-        from McAodFlags import jobproperties as jp
+        from .McAodFlags import jobproperties as jp
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.Configurable import Configurable
         
@@ -110,7 +110,7 @@ def createMcAodBuilder( name = "McAodBuilder",
     """
     from AthenaCommon import CfgMgr
     if doTruthEtIsolations is None:
-        from McAodFlags import jobproperties as jp
+        from .McAodFlags import jobproperties as jp
         doTruthEtIsolations = jp.McAodFlags.doTruthEtIsolations()
         
     if filterTool is None:

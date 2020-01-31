@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 /********************************************************************
@@ -61,7 +61,7 @@ and eventually conversions.
 egammaBuilder::egammaBuilder(const std::string& name, 
         ISvcLocator* pSvcLocator): 
     AthAlgorithm(name, pSvcLocator),
-    m_timingProfile(0)
+    m_timingProfile(nullptr)
 {
 }
 
@@ -185,7 +185,7 @@ StatusCode egammaBuilder::execute(){
     ATH_MSG_DEBUG("Executing egammaBuilder");
 
     // This we can drop once the Alg becomes re-entrant
-    const EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     // Chrono name for each Tool
     std::string chronoName;
@@ -328,12 +328,12 @@ StatusCode egammaBuilder::execute(){
 
     for (auto& tool : m_electronTools)
     {
-        CHECK( CallTool(ctx, tool, electronContainer.ptr(), 0) );
+        CHECK( CallTool(ctx, tool, electronContainer.ptr(), nullptr) );
     }
 
     for (auto& tool : m_photonTools)
     {
-        CHECK( CallTool(ctx, tool, 0, photonContainer.ptr()) );
+        CHECK( CallTool(ctx, tool, nullptr, photonContainer.ptr()) );
     }
     ATH_MSG_DEBUG("execute completed successfully");
 
@@ -456,7 +456,8 @@ bool egammaBuilder::getPhoton(const egammaRec* egRec,
     photon->setVertexLinks( vertexLinks );
 
     // Transfer deltaEta/Phi info
-    float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+    float deltaEta = egRec->deltaEtaVtx();
+    float deltaPhi = egRec->deltaPhiVtx();
     if (!photon->setVertexCaloMatchValue( deltaEta,
                 xAOD::EgammaParameters::convMatchDeltaEta1) )
     {

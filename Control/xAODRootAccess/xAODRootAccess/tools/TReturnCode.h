@@ -8,6 +8,7 @@
 #ifndef XAODROOTACCESS_TOOLS_TRETURNCODE_H
 #define XAODROOTACCESS_TOOLS_TRETURNCODE_H
 
+
 namespace xAOD {
 
    /// A light-weight version of StatusCode for the xAODRootAccess package
@@ -80,5 +81,27 @@ namespace xAOD {
    }; // class TReturnCode
 
 } // namespace xAOD
+
+namespace asg
+{
+  /// \brief this is an internal traits class for status codes used by
+  /// the ANA_CHECK* macros
+  template<typename T> struct CheckHelper;
+
+  template<> struct CheckHelper<xAOD::TReturnCode>
+  {
+    /// \brief whether the status code reports a success
+    static inline bool isSuccess (const xAOD::TReturnCode& sc) {
+      return sc.isSuccess(); }
+
+    /// \brief produce a status code to report success
+    static inline decltype (xAOD::TReturnCode::kSuccess) successCode () {
+      return xAOD::TReturnCode::kSuccess;}
+
+    /// \brief produce a status code to report failure
+    static inline decltype (xAOD::TReturnCode::kFailure) failureCode () {
+      return xAOD::TReturnCode::kFailure;}
+  };
+}
 
 #endif // XAODROOTACCESS_TOOLS_TRETURNCODE_H

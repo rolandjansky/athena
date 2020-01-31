@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -192,7 +192,7 @@ def getPreSampLArPhysicsRegionTool(name='PreSampLArPhysicsRegionTool', **kwargs)
 def getDeadMaterialPhysicsRegionTool(name='DeadMaterialPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'DeadMaterial')
     volumeList = []
-    sectionList = range(16,49) # does not include 49
+    sectionList = list(range(16,49)) # does not include 49
     sectionList += [ 51, 52, 53, 54 ]
     for section in sectionList:
         volumeList += ['BeamPipe::SectionF'+str(section)]

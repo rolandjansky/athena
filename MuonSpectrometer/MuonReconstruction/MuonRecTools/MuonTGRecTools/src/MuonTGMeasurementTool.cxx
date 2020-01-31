@@ -62,8 +62,10 @@ Muon::MuonTGMeasurementTool::MuonTGMeasurementTool(const std::string &type, cons
   m_trackingGeometry(0),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_ExtrapolatorName(" "),
+  m_muonDetMgr(nullptr),
   //m_assocMeasName("MuonTGMeasAssocAlg"),
-  m_alignedMode(true)
+  m_alignedMode(true),
+  m_useDSManager(false)
 {  
   declareInterface<Muon::IMuonTGMeasTool>(this);
 
@@ -71,6 +73,7 @@ Muon::MuonTGMeasurementTool::MuonTGMeasurementTool(const std::string &type, cons
   declareProperty("ExtrapolatorName", m_ExtrapolatorName);
   declareProperty("TrackingGeometryName", m_trackingGeometryName);
   declareProperty("AlignedMode", m_alignedMode);
+  declareProperty("UseDSManager", m_useDSManager);
 }
 
 // Initialize method:
@@ -81,7 +84,10 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   ATH_MSG_INFO("MuonTGMeasurementTool::initialize()");
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  ATH_CHECK(m_DetectorManagerKey.initialize());
+  ATH_CHECK(m_DetectorManagerKey.initialize(!m_useDSManager));
+  if (m_useDSManager) {
+    ATH_CHECK( detStore()->retrieve(m_muonDetMgr) );
+  }
 
   // define projection matrices
   m_tgcProjEta = new AmgMatrix(5,5);
@@ -254,12 +260,15 @@ const std::vector<const Trk::Segment*>* Muon::MuonTGMeasurementTool::getSegments
 
 const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk::Layer* lay, const Trk::TrackParameters* parm, Identifier id) const
 {
+  const MuonGM::MuonDetectorManager* MuonDetMgr = m_muonDetMgr;
+  if (!m_useDSManager) {
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    MuonDetMgr = DetectorManagerHandle.cptr();
     if(MuonDetMgr==nullptr){
       ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
       // return StatusCode::FAILURE; 
     } 
+  }
 
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("MuonTGMeasurementTool::layerToDetEl");
@@ -767,12 +776,15 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
 
 const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Layer* lay, const Trk::TrackParameters* parm, const Trk::RIO_OnTrack* rio) const
 {
+  const MuonGM::MuonDetectorManager* MuonDetMgr = m_muonDetMgr;
+  if (!m_useDSManager) {
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-    const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
+    MuonDetMgr = DetectorManagerHandle.cptr();
     if(MuonDetMgr==nullptr){
       ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
       // return StatusCode::FAILURE; 
     } 
+  }
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("MuonTGMeasurementTool::measToLayer");
     const Trk::RIO_OnTrack* projRIO = 0;
@@ -953,12 +965,15 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
 
 const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay, const Trk::TrackParameters* parm, bool measPhi,double& pitch) const
 {
-  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
-  if(MuonDetMgr==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-    // return StatusCode::FAILURE; 
-  } 
+  const MuonGM::MuonDetectorManager* MuonDetMgr = m_muonDetMgr;
+  if (!m_useDSManager) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    MuonDetMgr = DetectorManagerHandle.cptr();
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return StatusCode::FAILURE; 
+    } 
+  }
   // Get the messaging service, print where you are
   ATH_MSG_DEBUG("MuonTGMeasurementTool::nearestDetEl");
   Identifier nid(0);
@@ -1465,13 +1480,16 @@ double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk
 
 double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk::TrackParameters* layPar, Identifier id) const
 {
-  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-  const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
-  if(MuonDetMgr==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-    // return StatusCode::FAILURE; 
-  } 
-  
+  const MuonGM::MuonDetectorManager* MuonDetMgr = m_muonDetMgr;
+  if (!m_useDSManager) {
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    MuonDetMgr = DetectorManagerHandle.cptr();
+    if(MuonDetMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+      // return StatusCode::FAILURE; 
+    } 
+  }
+
   double res = 10000.;
   if (!layer || !layPar || !id.get_identifier32().get_compact()) return res;
   

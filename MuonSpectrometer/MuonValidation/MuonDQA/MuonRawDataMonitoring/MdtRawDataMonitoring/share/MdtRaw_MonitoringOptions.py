@@ -1,22 +1,22 @@
-#print '\n*************************************************************************************************\n'
-#print "   ******** Welcome to the Offline ESD MuonRawDataMonitoring/MdtRawDataMonitoring package. ******** "  
-#print "   ******** Documentation may be found at:******** "  
-#print "   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MDTOfflineMonitoringPlots ***** "  
+#printfunc ('\n*************************************************************************************************\n')
+#printfunc ("   ******** Welcome to the Offline ESD MuonRawDataMonitoring/MdtRawDataMonitoring package. ******** "  )
+#printfunc ("   ******** Documentation may be found at:******** "  )
+#printfunc ("   **** https://twiki.cern.ch/twiki/bin/view/Atlas/MDTOfflineMonitoringPlots ***** "  )
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 isTier0Flag = not athenaCommonFlags.isOnline()
 
 #
 #if not isTier0Flag :
-#    print "   **** Running Online ****"
+#    printfunc ("   **** Running Online ****")
 #else :
-#    print "   **** Running at Tier0 ****"
+#    printfunc ("   **** Running at Tier0 ****")
 #
-#print '\n*************************************************************************************************\n'
+#printfunc ('\n*************************************************************************************************\n')
 
 
 if not 'MuonDQAFlags' in dir():
-    print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
+    printfunc ("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
 from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
@@ -131,5 +131,5 @@ if( isTier0Flag ) :
 #end if( isTier0Flag )
 
 topSequence += mdtRawMonMan
-print mdtRawMonMan
+printfunc (mdtRawMonMan)
 ##################################################################

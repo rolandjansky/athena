@@ -76,7 +76,7 @@ Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans)
 
 // constructor by radius and halflength
 Trk::CylinderSurface::CylinderSurface(double radius, double hlength)
-  : Trk::Surface(0)
+  : Trk::Surface(nullptr)
   , m_bounds(new Trk::CylinderBounds(radius, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
@@ -84,7 +84,7 @@ Trk::CylinderSurface::CylinderSurface(double radius, double hlength)
 
 // constructor by radius, halflenght and phisector
 Trk::CylinderSurface::CylinderSurface(double radius, double hphi, double hlength)
-  : Trk::Surface(0)
+  : Trk::Surface(nullptr)
   , m_bounds(new Trk::CylinderBounds(radius, hphi, hlength))
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
@@ -101,7 +101,7 @@ Trk::CylinderSurface::CylinderSurface(Trk::CylinderBounds* cbounds)
 }
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::CylinderSurface::~CylinderSurface() {}
+Trk::CylinderSurface::~CylinderSurface() = default;
 
 Trk::CylinderSurface&
 Trk::CylinderSurface::operator=(const CylinderSurface& csf)
@@ -143,7 +143,7 @@ Trk::CylinderSurface::operator==(const Trk::Surface& sf) const
 }
 
 // return the measurement frame: it's the tangential plane
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::CylinderSurface::measurementFrame(const Amg::Vector3D& pos, const Amg::Vector3D&) const
 {
   Amg::RotationMatrix3D mFrame;
@@ -203,7 +203,7 @@ Trk::CylinderSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vect
     radius = glopos.perp();
   }
   // return true or false
-  return ((fabs(radius - bounds().r()) > inttol) ? false : true);
+  return (fabs(radius - bounds().r()) <= inttol);
 }
 
 bool
@@ -219,7 +219,7 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
                                                bool forceDir,
                                                Trk::BoundaryCheck bchk) const
 {
-  bool needsTransform = (m_transform || m_associatedDetElement) ? true : false;
+  bool needsTransform = m_transform || m_associatedDetElement;
   // create the hep points
   Amg::Vector3D point1 = pos;
   Amg::Vector3D direction = dir;

@@ -59,7 +59,7 @@ Surface::normal() const
 }
 
 // standard is to set non-defined parameters to 0, but can be changed for surface type
-inline const Amg::Vector2D
+inline Amg::Vector2D
 Surface::localParametersToPosition(const LocalParameters& locpars) const
 {
   if (locpars.contains(Trk::loc1) && locpars.contains(Trk::loc2))
@@ -132,7 +132,7 @@ Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
   if (globalToLocal(glopos, Amg::Vector3D(1., 1., 1.), *lPosition))
     return lPosition;
   delete lPosition;
-  return 0;
+  return nullptr;
 }
 // common to all surfaces, uses memory optized method
 inline const Amg::Vector2D*
@@ -164,7 +164,7 @@ Surface::associatedDetectorElement() const
   return m_associatedDetElement;
 }
 
-inline const Identifier
+inline Identifier
 Surface::associatedDetectorElementIdentifier() const
 {
   if (!m_associatedDetElement)
@@ -195,7 +195,7 @@ Surface::baseSurface() const
 inline bool
 Surface::isActive() const
 {
-  return (m_associatedDetElement != 0);
+  return (m_associatedDetElement != nullptr);
 }
 
 inline bool
@@ -205,7 +205,7 @@ Surface::isFree() const
 }
 
 inline void
-Surface::setOwner(SurfaceOwner x) const
+Surface::setOwner ATLAS_NOT_CONST_THREAD_SAFE (SurfaceOwner x) const
 {
   const_cast<SurfaceOwner&>(m_owner) = x;
 }
@@ -234,13 +234,13 @@ Surface::setMaterialLayer(const Layer* mlay)
 }
 
 inline void
-Surface::setMaterialLayer(const Layer& mlay) const
+Surface::setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer& mlay) const
 {
   const_cast<Surface*>(this)->m_materialLayer = (&mlay);
 }
 
 inline void
-Surface::setMaterialLayer(const Layer* mlay) const
+Surface::setMaterialLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer* mlay) const
 {
   const_cast<Surface*>(this)->m_materialLayer = mlay;
 }
@@ -252,7 +252,7 @@ Surface::associateLayer(const Layer& lay)
 }
 
 inline void
-Surface::associateLayer(const Layer& lay) const
+Surface::associateLayer ATLAS_NOT_CONST_THREAD_SAFE (const Layer& lay) const
 {
   const_cast<Surface*>(this)->m_associatedLayer = (&lay);
 }

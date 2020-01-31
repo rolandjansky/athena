@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/RegistrationServices
+			  Database/PersistentDataModel
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc )
 
 # External dependencies:
@@ -36,7 +37,7 @@ atlas_add_library( DataModelTestDataCommonLib
 atlas_add_component( DataModelTestDataCommon
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib AthenaKernel xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataCommonLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib AthenaKernel xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataCommonLib PersistentDataModel )
 
 atlas_add_dictionary( DataModelTestDataCommonDict
                       DataModelTestDataCommon/DataModelTestDataCommonDict.h

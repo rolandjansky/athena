@@ -13,6 +13,7 @@
 
 // System include(s):
 #include <iostream>
+#include <string>
 
 // Local include(s):
 #include "xAODMetaData/FileMetaData.h"
@@ -30,6 +31,8 @@
    } while( 0 )
 
 int main() {
+   // For the string literals operator s
+   using namespace std::string_literals;
 
    // Set up two objects with their private auxiliary stores, which will be
    // used in the tests:
@@ -39,30 +42,30 @@ int main() {
 
    // First, set them to equivalent values:
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::productionRelease,
-                                  "1.2.3" ) == true );
+                                  "1.2.3"s ) == true );
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::conditionsTag,
-                                  "Cond-1" ) == true );
+                                  "Cond-1"s ) == true );
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::beamEnergy,
-                                  123.456 ) == true );
+                                  123.456f ) == true );
 
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::productionRelease,
-                                  "1.2.3" ) == true );
+                                  "1.2.3"s ) == true );
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::conditionsTag,
-                                  "Cond-1" ) == true );
+                                  "Cond-1"s ) == true );
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::beamEnergy,
-                                  123.456 ) == true );
+                                  123.456f ) == true );
 
    // And then check their equivalency:
    SIMPLE_ASSERT( meta1 == meta2 );
 
    // Make sure that minor floating point differences are overlooked:
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::beamEnergy,
-                                  123.455999 ) == true );
+                                  123.455999f ) == true );
    SIMPLE_ASSERT( meta1 == meta2 );
 
    // Now check that a difference is also found:
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::productionRelease,
-                                  "1.2.4" ) == true );
+                                  "1.2.4"s ) == true );
    SIMPLE_ASSERT( meta1 != meta2 );
 
    // Clear out the two objects:
@@ -73,18 +76,18 @@ int main() {
 
    // Set them up with different types of properties:
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::productionRelease,
-                                  "1.2.3" ) == true );
+                                  "1.2.3"s ) == true );
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::conditionsTag,
-                                  "Cond-1" ) == true );
+                                  "Cond-1"s ) == true );
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::beamEnergy,
-                                  123.456 ) == true );
+                                  123.456f ) == true );
 
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::productionRelease,
-                                  "1.2.3" ) == true );
+                                  "1.2.3"s ) == true );
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::conditionsTag,
-                                  "Cond-1" ) == true );
+                                  "Cond-1"s ) == true );
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::beamType,
-                                  "Collision" ) == true );
+                                  "Collision"s ) == true );
 
    // Check that they are not equivalent:
    SIMPLE_ASSERT( meta1 != meta2 );
@@ -97,33 +100,33 @@ int main() {
 
    // Now try using some custom variables as well:
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::productionRelease,
-                                  "1.2.3" ) == true );
+                                  "1.2.3"s ) == true );
    SIMPLE_ASSERT( meta1.setValue( xAOD::FileMetaData::conditionsTag,
-                                  "Cond-1" ) == true );
-   SIMPLE_ASSERT( meta1.setValue( "AnalysisType", "SUSY" ) == true );
+                                  "Cond-1"s ) == true );
+   SIMPLE_ASSERT( meta1.setValue( "AnalysisType", "SUSY"s ) == true );
 
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::productionRelease,
-                                 "1.2.3" ) == true );
+                                 "1.2.3"s ) == true );
    SIMPLE_ASSERT( meta2.setValue( xAOD::FileMetaData::conditionsTag,
-                                 "Cond-1" ) == true );
-   SIMPLE_ASSERT( meta2.setValue( "AnalysisType", "SUSY" ) == true );
+                                 "Cond-1"s ) == true );
+   SIMPLE_ASSERT( meta2.setValue( "AnalysisType", "SUSY"s ) == true );
 
    SIMPLE_ASSERT( meta1 == meta2 );
 
    // And check whether a difference in a user type is detected:
-   SIMPLE_ASSERT( meta2.setValue( "AnalysisType", "Higgs" ) == true );
+   SIMPLE_ASSERT( meta2.setValue( "AnalysisType", "Higgs"s ) == true );
    SIMPLE_ASSERT( meta1 != meta2 );
 
    // Try it for a floating point difference as well:
-   SIMPLE_ASSERT( meta2.setValue( "AnalysisType", "SUSY" ) == true );
+   SIMPLE_ASSERT( meta2.setValue( "AnalysisType", "SUSY"s ) == true );
    SIMPLE_ASSERT( meta1 == meta2 );
-   SIMPLE_ASSERT( meta1.setValue( "AnalysisValue", 1.2 ) == true );
-   SIMPLE_ASSERT( meta2.setValue( "AnalysisValue", 1.3 ) == true );
+   SIMPLE_ASSERT( meta1.setValue( "AnalysisValue", 1.2f ) == true );
+   SIMPLE_ASSERT( meta2.setValue( "AnalysisValue", 1.3f ) == true );
    SIMPLE_ASSERT( meta1 != meta2 );
 
    // Finally, set an unsupported variable type on the objects, and check that
    // the code complains about them. But still lets the equivalence stand.
-   SIMPLE_ASSERT( meta2.setValue( "AnalysisValue", 1.2 ) == true );
+   SIMPLE_ASSERT( meta2.setValue( "AnalysisValue", 1.2f ) == true );
    SIMPLE_ASSERT( meta1 == meta2 );
    meta1.auxdata< int >( "IntValue" ) = 1;
    meta2.auxdata< int >( "IntValue" ) = 2;

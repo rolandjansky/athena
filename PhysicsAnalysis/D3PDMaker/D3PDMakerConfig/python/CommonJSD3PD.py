@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from JetD3PDMaker.JetD3PDObject             import getJetD3PDObject
 from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
@@ -136,7 +138,7 @@ def CommonJSD3PD(jetsToWrite, alg):
     jsD3PD=None    
     for val in myJSD3PD:
         if val[0]==jetsToWrite:
-            print "using existing JSD3PD"
+            print ("using existing JSD3PD")
             jsD3PD=val[1]
             break
         

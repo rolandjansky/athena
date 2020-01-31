@@ -97,7 +97,7 @@ public:
     ///   will fail if there is more than one
     typedef std::pair<std::string, std::string>   TypeKeyPair;
     typedef std::vector< TypeKeyPair >            TypeKeyPairs;
-    virtual StatusCode streamObjects(const TypeKeyPairs& typeKeys) = 0;
+    virtual StatusCode streamObjects(const TypeKeyPairs& typeKeys, const std::string& outputName = "") = 0;
 
     /// Stream out a vector of objects
     ///   Must convert to DataObject, e.g.    
@@ -105,11 +105,7 @@ public:
     ///     T* obj = xxx;
     ///     DataObject* dataObject = SG::asStorable(obj);
     typedef std::vector< DataObject* >            DataObjectVec;
-    virtual StatusCode streamObjects (const DataObjectVec& dataObjects) = 0;
-
-    /// Fill refs of an object - done as second iteration over
-    /// objects, after streamObject 
-    virtual StatusCode fillObjectRefs(const DataObjectVec& dataObjects) = 0;
+    virtual StatusCode streamObjects(const DataObjectVec& dataObjects, const std::string& outputName = "") = 0;
 
     /// Get ItemList from the OutputStreamTool (e.g. all input objects)
     virtual StatusCode getInputItemList(SG::IFolder* m_p2BWrittenFromTool) = 0;

@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 #include "GaudiKernel/ToolHandle.h" 
 
 //Helper Includes
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 #include "MdtRawDataMonitoring/MDTNoisyTubes.h"
 #include "MdtRawDataMonitoring/MDTChamber.h"
@@ -58,12 +58,9 @@ namespace Muon {
 #include <set>
 
 //root includes
-class TH1;
 class TH2;
-class TString;
-class TH1F_LW;
-class TH2F_LW;
-class TColor;
+struct MDTOverviewHistogramStruct;
+struct MDTSummaryHistogramStruct;
 
 namespace monAlg{
   enum {L1_UNKNOWN, L1_BARREL, L1_ENDCAP};
@@ -115,11 +112,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
  private: 
 
   TH2* m_mdthitspermultilayerLumi[4][4];
-  TH2* m_mdteffpermultilayer[4][4];
   TH2* m_mdthitsperchamber_InnerMiddleOuterLumi[2];
-  TH2* m_mdthitsperchamber_InnerMiddleOuter_HighOcc[2];
-  TH2* m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[2];
-  TH2* m_mdteffperchamber_InnerMiddleOuter[4];
   TH2* m_mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
 
   std::string m_title;
@@ -135,8 +128,10 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    
 
-  virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate) const;
-  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, /*std::set<std::string>,*/ bool &isNoiseBurstCandidate, int lb, bool trig_barrel, bool trig_endcap ) const;
+  virtual void  fillMDTOverviewVects(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate, MDTOverviewHistogramStruct& vects) const;
+  virtual void  fillMDTOverviewHistograms(const MDTOverviewHistogramStruct& vects) const;
+  virtual StatusCode  fillMDTSummaryVects( const Muon::MdtPrepData*, /*std::set<std::string>,*/ bool &isNoiseBurstCandidate, bool trig_barrel, bool trig_endcap, MDTSummaryHistogramStruct vects[4][4][36] ) const;
+  virtual StatusCode  fillMDTSummaryHistograms( const MDTSummaryHistogramStruct vects[4][4][36], int lb ) const;
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* ) const;//fill chamber by chamber histos
 
 
@@ -168,9 +163,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   ToolHandleArray<IDQFilterTool> m_DQFilterTools;
   bool m_atlas_ready;
-  //  uint32_t m_time;
   uint32_t m_firstTime;
-  //int m_time;
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
 

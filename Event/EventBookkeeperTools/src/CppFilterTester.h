@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_BOOKKEEPER_TOOLS__CPP_FILTER_TESTER
@@ -24,8 +24,6 @@ public:
 
 private:
   CutIdentifier m_filterCutID{};
-  CutIdentifier m_cut1ID{};
-  CutIdentifier m_cut2ID{};
 
   Gaudi::Property<int> m_counter{this, "counter", 0, ""};
   Gaudi::Property<double> m_cut1{this, "cut1", 0., ""};

@@ -238,7 +238,7 @@ MUON1ThinningTools.append(MUON1ThinningTool2)
 # keep topoclusters around muons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 MUON1ThinningTool4 = DerivationFramework__CaloClusterThinning(name                    = "MUON1ThinningTool4",
-                                                              ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                              StreamName              = MUON1Stream.Name,
                                                               SGKey                   = "Muons",
                                                               SelectionString         = "Muons.pt>4*GeV",
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",

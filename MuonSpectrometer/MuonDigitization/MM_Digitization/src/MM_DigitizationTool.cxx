@@ -203,7 +203,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 
 	// Constants vars for the MM_ElectronicsResponseSimulation
 	declareProperty("peakTime",                m_peakTime = 100.);                 // The VMM peak time setting.
-	declareProperty("electronicsThreshold",    m_electronicsThreshold = 6000.0);  // 2*(Intrinsic noise ~3k e)
+	declareProperty("electronicsThreshold",    m_electronicsThreshold = 15000.0);  // 2*(Intrinsic noise ~3k e)
 	declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);          // default value 200 ns = 8 BCs
 	declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);          // default value 200 ns = 8 BCs
 
@@ -808,8 +808,10 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			Amg::Vector3D localDirectionTime(0., 0., 0.);
 
 			// drift direction in backwards-chamber should be opposite to the incident direction.
-			if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1)
+			if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1) {
 				localDirectionTime  = localDirection;
+    inAngle_XZ = (-inAngle_XZ);
+   }
 			else
 				localDirectionTime  = surf.transform()
 										.inverse()

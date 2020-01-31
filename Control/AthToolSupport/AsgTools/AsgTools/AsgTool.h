@@ -1,38 +1,35 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.h 790657 2016-12-20 20:54:06Z leggett $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_ASGTOOL_H
 #define ASGTOOLS_ASGTOOL_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/IAsgTool.h"
-#include "AsgTools/MsgLevel.h"
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MsgLevel.h"
+#include "AsgMessaging/MessageCheck.h"
 
 // Environment specific include(s):
-#ifdef ASGTOOL_STANDALONE
-#   include "AsgTools/AsgMessaging.h"
+#ifdef XAOD_STANDALONE
+#   include "AsgMessaging/AsgMessaging.h"
 #   include "AsgTools/SgTEvent.h"
    // Forward declaration(s):
    class Property;
    class PropertyMgr;
-#elif defined(ASGTOOL_ATHENA)
+#else // XAOD_STANDALONE
 #   include "AthenaBaseComps/AthAlgTool.h"
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // XAOD_STANDALONE
 
 
 namespace asg {
 
    // Declare the type name of AsgTool's base class
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
    typedef ::AthAlgTool AsgToolBase;
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
    typedef AsgMessaging AsgToolBase;
-#else
-#  error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 
    /// Base class for the dual-use tool implementation classes
    ///
@@ -57,7 +54,7 @@ namespace asg {
       AsgTool& operator= (const AsgTool&) = delete;
      
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
       /// Stand-alone, StoreGate-like accessor to the event store
       SgTEvent* evtStore() const;
@@ -94,14 +91,14 @@ namespace asg {
 
       /// @}
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
    public:
       /// Pull in the usage of the base class's getProperty function
       using ::AthAlgTool::getProperty;
 
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
       /// @name Additional helper functions, not directly mimicking Athena
       /// @{
@@ -126,11 +123,11 @@ namespace asg {
       virtual void print() const;
 
    private:
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       std::string m_name; ///< The name of the tool instance
       PropertyMgr* m_ppropmgr; ///< Standalone property manager
       mutable SgTEvent m_event; ///< Wrapper around TEvent/TStore
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
    }; // class AsgTool
 

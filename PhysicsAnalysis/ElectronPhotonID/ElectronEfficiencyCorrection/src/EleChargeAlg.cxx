@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ElectronChargeCorrection includes
@@ -54,7 +54,7 @@ StatusCode EleChargeAlg::execute() {
   // Event information
   //---------------------------
 
-  const xAOD::EventInfo* eventInfo = 0; //NOTE: Everything that comes from the storegate direct from the input files is const!
+  const xAOD::EventInfo* eventInfo = nullptr; //NOTE: Everything that comes from the storegate direct from the input files is const!
 
   // ask the event store to retrieve the xAOD EventInfo container
 
@@ -73,7 +73,7 @@ StatusCode EleChargeAlg::execute() {
   // electrons
   //---------
 
-  const xAOD::ElectronContainer* electrons = 0;
+  const xAOD::ElectronContainer* electrons = nullptr;
   CHECK( evtStore()->retrieve( electrons, m_eleContName.value() ) );
 
   ATH_MSG_VERBOSE ("Executing " << name() << "... in event with: " << electrons->size() << " electrons");

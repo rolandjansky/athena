@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBDB_MDTCALIBCOOLSTRTOOL_H
@@ -10,9 +10,10 @@
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -23,9 +24,7 @@
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
 
 class MdtCalibrationRegionSvc;
-class Identifier; 
 class IIOVDbSvc;
-class MsgStream;
 class IAtRndmGenSvc;
 
 namespace coral	{
@@ -76,8 +75,7 @@ private:
   /** loads the tube constants from the DB */
   virtual StatusCode loadTube(IOVSVC_CALLBACK_ARGS);
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 

@@ -1,18 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MVAUtils/BDT.h"
 #include "MVAUtils/ForestTMVA.h"
 #include "MVAUtils/ForestLGBM.h"
+#include "MVAUtils/ForestXGBoost.h"
 
 #include "TTree.h"
-#include <stack>
-#include <string>
-#include <sstream>
-#include <set>
 #include <memory>
+#include <set>
+#include <sstream>
+#include <stack>
 #include <stdexcept>
+#include <string>
+#include <utility>
 
 using namespace MVAUtils;
 
@@ -29,7 +31,7 @@ std::string get_default_string_map(const std::map <std::string, std::string> & m
    else { return it->second; }
 }
 
-std::map<std::string, std::string> parseOptions(std::string raw_options)
+std::map<std::string, std::string> parseOptions(const std::string& raw_options)
 {
   std::stringstream ss(raw_options);
   std::map<std::string, std::string> options;
@@ -69,6 +71,11 @@ BDT::BDT(::TTree *tree)
       throw std::runtime_error("the title of the input tree is misformatted: cannot understand which BDT implementation to use");
     }
   }
+  else if (creator == "xgboost")
+  {
+    //this do support nan as inputs
+    m_forest = std::make_unique<ForestXGBoost>(tree);
+  }
   else {
     // default for compatibility: old TTree (based on TMVA) don't have a special title
     m_forest = std::make_unique<ForestTMVA>(tree);
@@ -76,10 +83,10 @@ BDT::BDT(::TTree *tree)
 }
 
 
-unsigned int BDT::GetNTrees() const { return m_forest->GetNTrees(); }  
+unsigned int BDT::GetNTrees() const { return m_forest->GetNTrees(); }
 int BDT::GetNVars() const { return m_forest->GetNVars(); }
 float BDT::GetOffset() const { return m_forest->GetOffset(); }
- 
+
 /** Return offset + the sum of the response of each tree  **/
 float BDT::GetResponse(const std::vector<float>& values) const
 {
@@ -143,8 +150,7 @@ float BDT::GetTreeResponse(const std::vector<float*>& pointers, MVAUtils::index_
   return m_forest->GetTreeResponse(pointers, index);
 }
 
-TTree* BDT::WriteTree(TString name) const { return m_forest->WriteTree(name); }
+TTree* BDT::WriteTree(TString name) const { return m_forest->WriteTree(std::move(name)); }
 
 void BDT::PrintForest() const { m_forest->PrintForest(); }
 void BDT::PrintTree(unsigned int itree) const { m_forest->PrintTree(itree); }
-

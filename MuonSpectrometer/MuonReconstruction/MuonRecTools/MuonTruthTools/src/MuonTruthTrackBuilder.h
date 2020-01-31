@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TruthTrackBuilder.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUON_MUONTRUTHTOOLS_MUONTRUTHTRACKBUILDER_H
 #define MUON_MUONTRUTHTOOLS_MUONTRUTHTRACKBUILDER_H 
@@ -18,14 +14,14 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecord.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -35,20 +31,14 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 
 namespace Trk {
- 
   class Track;
-  class IRIO_OnTrackCreator;
-  class RIO_OnTrack;
   class MeasurementBase;
   class PseudoMeasurementOnTrack;
 }
 
 namespace Muon {
   
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
   class MuonSegment;
-  class MuonClusterOnTrack;
   /**
      @class MuonTruthTrackBuilder
 
@@ -124,7 +114,7 @@ namespace Muon {
     ToolHandle<IMdtDriftCircleOnTrackCreator>   m_mdtCreator;
     ToolHandle<IMuonClusterOnTrackCreator>      m_muonClusterCreator;
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_muonCompRotCreator;
-    ToolHandle<MuonIdHelperTool>                m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>            m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -18,8 +18,6 @@
 #include "PathResolver/PathResolver.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
 #include <fstream>
 #include <sstream>
 #include <boost/functional/hash.hpp>
@@ -28,35 +26,28 @@ using namespace MuonAlign;
 
 AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
-  m_idTool("MuonCalib::IdToFixedIdTool"),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  m_idTool("MuonCalib::IdToFixedIdTool")
 {
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
   declareProperty("idTool", m_idTool);
-  declareProperty("IdHelper", m_idHelper );
 }
 
 AlignmentErrorTool::~AlignmentErrorTool() {
 }
 
-//int AlignmentErrorTool::deviationSummary_t::i_instance = 0;
-
-
 AlignmentErrorTool::deviationSummary_t::deviationSummary_t()
 : traslation(0.), rotation(0.), stationName(""), sumP(Amg::Vector3D(0., 0., 0.)), sumU(Amg::Vector3D(0., 0., 0.)), sumV(Amg::Vector3D(0., 0., 0.)), sumW2(0.) { 
-	//i_instance++;
-} //
+}
 AlignmentErrorTool::deviationSummary_t::~deviationSummary_t() {
-	//i_instance--;
-} //
+}
 
 StatusCode AlignmentErrorTool::initialize() {
 
   ATH_MSG_INFO("*****************************************");
   ATH_MSG_INFO("AlignmentErrorTool::initialize()");
 
-  ATH_CHECK( m_idTool.retrieve() );
-  ATH_CHECK( m_idHelper.retrieve() );
+  ATH_CHECK(m_idTool.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_readKey.initialize());
     
   return StatusCode::SUCCESS;
@@ -125,9 +116,13 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       if (!rot) continue;
 
       Identifier channelId = rot->identify();
+      if (!m_idHelperSvc->isMuon(channelId)) {
+        ATH_MSG_WARNING("Given Identifier "<<channelId.get_compact()<<" is no muon Identifier, continuing...");
+        continue;
+      }
+      if (m_idHelperSvc->isMM(channelId)||m_idHelperSvc->issTgc(channelId)) continue; // needs to be still implemented for the NSW
+      
       MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(channelId);
-      if (m_idHelper->isMM(channelId)||m_idHelper->issTgc(channelId)) continue; // needs to be still implemented for the NSW
-
       if (!calibId.isValid()) continue;
 
       // GATHERING INFORMATION TO PUT TOGETHER THE STATION NAME //
@@ -136,7 +131,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       multilayer_stream << calibId.mdtMultilayer();
       std::string multilayer_sstring = multilayer_stream.str();
 
-      if ( m_idHelper->isMdt(channelId) || ( m_idHelper->isCsc(channelId) && m_idHelper->cscIdHelper().measuresPhi(channelId) == 0 ) ) { 
+      if ( m_idHelperSvc->isMdt(channelId) || ( m_idHelperSvc->isCsc(channelId) && m_idHelperSvc->cscIdHelper().measuresPhi(channelId) == 0 ) ) { 
 
         ATH_MSG_DEBUG("Hit is in station " << completename << " multilayer " << multilayer_sstring);
 	++nPrecisionHits;
@@ -152,7 +147,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
            if (  boost::regex_match(completename, tmp_stationName) ) {
 
-              if( !boost::regex_match(multilayer_sstring, devSumVec[iDev]->multilayer) && !m_idHelper->isCsc(channelId) ) {
+              if( !boost::regex_match(multilayer_sstring, devSumVec[iDev]->multilayer) && !m_idHelperSvc->isCsc(channelId) ) {
                  continue;
               }
 

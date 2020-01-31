@@ -666,7 +666,10 @@ class ConfiguredFactory(object):
     ## @arg @c parent : the parent (@c ConfiguredPlaceHolder) of the property
     def _resolveProperties(self,parent,props,indent="",propStack=None):
         newProps = {}
-        for name,value in props.items():
+        propnames = list(props.keys())
+        propnames.sort()
+        for name in propnames:
+            value = props[name]
             if value != Configurable.propertyNoValue:
                 newProps[name] = self._resolveProperty( parent, name, value, indent, propStack )
 
@@ -676,7 +679,10 @@ class ConfiguredFactory(object):
     def _resolveAllProperties(self,conf,indent="",propStack=None):
 
         defaultProps = conf.getDefaultProperties()
-        for name,value in defaultProps.items():
+        propnames = list(defaultProps.keys())
+        propnames.sort()
+        for name in propnames:
+            value = defaultProps[name]
             # skip non-configurables, since they don't need to be resolved
             propertyType = getPropertyType(conf,name)
             if not issubclass(propertyType,(GaudiHandle,GaudiHandleArray,Configurable)):

@@ -44,10 +44,10 @@ private:
 
 public:
   /** Constructor with parameters to be passed to AlgTool */
-  GsfMeasurementUpdator(const std::string, const std::string, const IInterface*);
+  GsfMeasurementUpdator(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfMeasurementUpdator(){};
+  virtual ~GsfMeasurementUpdator()= default;
 
   /** AlgTool initialise method */
   StatusCode initialize() override;

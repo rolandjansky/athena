@@ -158,13 +158,13 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
       if(singleSigStrings.size()==2) {
 
          // the part in front of the '|'
-         vector< string > splitRecursive = HLTUtils::splitGroups( singleSigStrings[0] );
+         vector< string > splitRecursive = HLTTEUtils::splitGroups( singleSigStrings[0] );
          for( string outtename : splitRecursive ) {
             if(outtename.find(',')!=string::npos)
                outtename.erase(0,outtename.rfind(',')+1);
 
             if(sequences && !sequences->hasTE(outtename)) {
-               HLTSequence* seq = HLTUtils::buildSequence( outtename );
+               HLTSequence* seq = HLTTEUtils::buildSequence( outtename );
                sequences->addHLTSequence( seq );
             }
          }
@@ -179,7 +179,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
             ch->signatureList().push_back(signature);
             signature->set_signature_counter(++sc);
 
-            vector<string> sequenceDescriptions = HLTUtils::splitGroups(sigdef);
+            vector<string> sequenceDescriptions = HLTTEUtils::splitGroups(sigdef);
             for(string outtename : sequenceDescriptions) {
                
                if(outtename.find(',') != string::npos)
@@ -188,7 +188,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
                HLTTriggerElement * outte = new HLTTriggerElement( outtename );
                signature->outputTEs().push_back( outte );
                if(sequences && !sequences->hasTE(outtename)) {
-                  HLTSequence* seq = HLTUtils::buildSequence(outtename);
+                  HLTSequence* seq = HLTTEUtils::buildSequence(outtename);
                   sequences->addHLTSequence( seq );
                }
             }

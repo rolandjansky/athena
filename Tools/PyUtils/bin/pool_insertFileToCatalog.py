@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    pool_insertFileToCatalog.py
 # @purpose: insert a POOL file into a POOL file catalog without displaying the
@@ -15,24 +15,27 @@
 #
 # if pool_insertFileToCatalog.py has been made 'chmod +x' one can just do:
 # ./pool_insertFileToCatalog.py aod.pool.root
-from __future__ import with_statement
+from __future__ import with_statement, print_function
+
+from future import standard_library
+standard_library.install_aliases()
 
 def pool_insert(files, catalog_name="xmlcatalog_file:PoolFileCatalog.xml"):
-    print ":: inserting [%i] files into pool catalog... (%s)"%(
+    print (":: inserting [%i] files into pool catalog... (%s)"%(
         len (files),
         catalog_name
-        )
+        ))
     import os, sys
-    import commands
-    sc,exe = commands.getstatusoutput ('which pool_insertFileToCatalog')
+    import subprocess
+    sc,exe = subprocess.getstatusoutput ('which pool_insertFileToCatalog')
     if sc != 0:
-        print ":: could not find 'pool_insertFileToCatalog' !"
-        print exe
+        print (":: could not find 'pool_insertFileToCatalog' !")
+        print (exe)
         return 1
 
     os.environ['POOL_CATALOG'] = catalog_name
     cmd = "%s %s" % (exe, " ".join(files))
-    sc, out = commands.getstatusoutput (cmd)
+    sc, out = subprocess.getstatusoutput (cmd)
         
     out = os.linesep.join(
         [o for o in out.splitlines()
@@ -41,12 +44,12 @@ def pool_insert(files, catalog_name="xmlcatalog_file:PoolFileCatalog.xml"):
         )
 
     if sc != 0:
-        print ":: problem running pool_insertFileToCatalog:"
-        print out
+        print (":: problem running pool_insertFileToCatalog:")
+        print (out)
         return 2
 
-    print out
-    print ":: inserting [%i] files into pool catalog... [done]"%len(files)
+    print (out)
+    print (":: inserting [%i] files into pool catalog... [done]"%len(files))
     return sc
     
 if __name__ == "__main__":
@@ -69,8 +72,8 @@ if __name__ == "__main__":
 
     if options.files is None and len(files) == 0:
         str(parser.print_help() or "")
-        print ":: You have to provide at least one POOL file to insert:"
-        print " shell> pool_insertFileToCatalog.py aod.pool"
+        print (":: You have to provide at least one POOL file to insert:")
+        print (" shell> pool_insertFileToCatalog.py aod.pool")
         sys.exit(1)
 
     if not (options.files is None):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,41 +11,44 @@
 #define DERIVATIONFRAMEWORKCALO_JETCALOCLUSTERTHINNING_H
 
 #include <string>
+#include <atomic>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "StoreGate/ThinningHandleKey.h"
 
 namespace ExpressionParsing {
   class ExpressionParser;
 }
 
-class IThinningSvc;
-
 namespace DerivationFramework {
 
-  class JetCaloClusterThinning : public AthAlgTool, public IThinningTool {
+  class JetCaloClusterThinning : public extends<AthAlgTool,IThinningTool> {
     public: 
       JetCaloClusterThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~JetCaloClusterThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+      virtual ~JetCaloClusterThinning();
+    virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
+      virtual StatusCode doThinning() const override;
 
     private:
-      ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntotTopo, m_npassTopo; //, m_ntotFrwd, m_npassFrwd;
+      mutable std::atomic<unsigned int> m_ntotTopo, m_npassTopo; //, m_ntotFrwd, m_npassFrwd;
       std::string m_sgKey;
-      std::string m_TopoClSGKey;
+
+      StringProperty m_streamName
+        { this, "StreamName", "", "Name of the stream being thinned" };
+      SG::ThinningHandleKey<xAOD::CaloClusterContainer> m_TopoClSGKey
+        { this, "TopoClCollectionSGKey", "CaloCalTopoCluster", "" };
+
       std::string m_selectionString;
       float m_coneSize;
-      bool m_and;
       ExpressionParsing::ExpressionParser *m_parser;
 
-      void setJetClustersMask(std::vector<bool>&, const xAOD::JetContainer*&, const xAOD::CaloClusterContainer*&) const;
-      void setJetClustersMask(std::vector<bool>&, std::vector<const xAOD::Jet*>&, const xAOD::CaloClusterContainer*&) const;
+      void setJetClustersMask(std::vector<bool>&, const xAOD::JetContainer*, const xAOD::CaloClusterContainer*) const;
+      void setJetClustersMask(std::vector<bool>&, std::vector<const xAOD::Jet*>&, const xAOD::CaloClusterContainer*) const;
       void select(const xAOD::Jet* particle, float coneSize, const xAOD::CaloClusterContainer* clusters, std::vector<bool> &mask) const;
   };
 

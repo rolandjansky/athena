@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ namespace Trk {
        virtual NeutralParameters* propagate(const NeutralParameters& parameters,
                                             const Surface& sf,
                                             PropDirection dir,
-                                            BoundaryCheck bcheck,
+                                            const BoundaryCheck& bcheck,
                                             bool returnCurv = false) const = 0;
 
        /** N 0) <b>Neutral parameters method </b> 
@@ -77,14 +77,14 @@ namespace Trk {
        NeutralParameters* propagate(const NeutralParameters& parameters,
                                     const Surface& sf,
                                     PropDirection dir,
-                                    BoundaryCheck bcheck,
+                                    const BoundaryCheck& bcheck,
                                     const MagneticFieldProperties&,
                                     ParticleHypothesis,
                                     bool returnCurv,
-                                    const TrackingVolume* tVol=0) const
+                                    const TrackingVolume* tVol=nullptr) const
        { //avoid warning for tVol
           return propagate(parameters,sf,dir,bcheck,returnCurv);
-          if (tVol) return 0;
+          if (tVol) return nullptr;
         }
 
        /** [TrackParameters] --------------------------------------------------------- */
@@ -96,11 +96,11 @@ namespace Trk {
        virtual TrackParameters*  propagate( const TrackParameters& parm,
                                              const Surface& sf,
                                              PropDirection dir,
-                                             BoundaryCheck bcheck,
+                                             const BoundaryCheck& bcheck,
                                              const MagneticFieldProperties& mprop,
                                              ParticleHypothesis particle=pion,
                                              bool returnCurv = false,
-                                             const TrackingVolume* tVol=0) const = 0;
+                                             const TrackingVolume* tVol=nullptr) const = 0;
        
 
        /** Propagation interface:
@@ -117,7 +117,7 @@ namespace Trk {
                                             double& path,
                                             bool usePathLim = false,
                                             bool returnCurv = false,
-                                            const TrackingVolume* tVol=0) const = 0;
+                                            const TrackingVolume* tVol=nullptr) const = 0;
        
        /** Propagation interface:
          
@@ -174,8 +174,8 @@ namespace Trk {
 						  double& path,
 						  bool usePathLim = false,
 						  bool returnCurv = false,
-						  const TrackingVolume* tVol = 0,
-                                                  Trk::ExtrapolationCache* cache = 0) const;
+						  const TrackingVolume* tVol = nullptr,
+                                                  Trk::ExtrapolationCache* cache = nullptr) const;
          
 
        /** Propagation interface:
@@ -186,13 +186,13 @@ namespace Trk {
        virtual TrackParameters*      propagate( const TrackParameters& parm,
                                                 const Surface& sf,
                                                 PropDirection dir,
-                                                BoundaryCheck bcheck,
+                                                const BoundaryCheck& bcheck,
                                                 const MagneticFieldProperties& mprop,
                                                 TransportJacobian*&,
                                                 double& pathLength,
                                                 ParticleHypothesis particle=pion,
                                                 bool returnCurv = false,
-                                                const TrackingVolume* tVol=0) const = 0;
+                                                const TrackingVolume* tVol=nullptr) const = 0;
        
 
        /** Propagation interface without Covariance matrix propagation
@@ -202,21 +202,21 @@ namespace Trk {
        virtual TrackParameters*      propagateParameters( const TrackParameters& parm,
                                                           const Surface& sf,
                                                           PropDirection dir,
-                                                          BoundaryCheck bcheck,
+                                                          const BoundaryCheck& bcheck,
                                                           const MagneticFieldProperties& mprop,
                                                           ParticleHypothesis particle=pion,
                                                           bool returnCurv = false,
-                                                          const TrackingVolume* tVol=0) const = 0;
+                                                          const TrackingVolume* tVol=nullptr) const = 0;
        
        virtual TrackParameters*      propagateParameters( const TrackParameters& parm,
                                                           const Surface& sf,
                                                           PropDirection dir,
-                                                          BoundaryCheck bcheck,
+                                                          const BoundaryCheck& bcheck,
                                                           const MagneticFieldProperties& mprop,
                                                           TransportJacobian*&,
                                                           ParticleHypothesis particle=pion,
                                                           bool returnCurv = false,
-                                                          const TrackingVolume* tVol=0) const = 0;
+                                                          const TrackingVolume* tVol=nullptr) const = 0;
        
 
        /** Intersection interface:
@@ -224,20 +224,20 @@ namespace Trk {
           The intersection interface might be used by the material service as well to estimate
           the surfaces (sensitive and nonesensitive) while propagation
          */
-       virtual const IntersectionSolution* intersect( const TrackParameters& parm,
-                                                      const Surface& sf,
-                                                      const MagneticFieldProperties& mprop,
-                                                      ParticleHypothesis particle=pion,
-                                                      const TrackingVolume* tVol=0) const = 0;
+       virtual IntersectionSolution* intersect( const TrackParameters& parm,
+                                                const Surface& sf,
+                                                const MagneticFieldProperties& mprop,
+                                                ParticleHypothesis particle=pion,
+                                                const TrackingVolume* tVol=nullptr) const = 0;
 
       /** Intersection and Intersector interface: 
         */
 
-       virtual const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
-                                                     const TrackSurfaceIntersection*    trackIntersection,
-                                                     const double               qOverP,
-                                                     const MagneticFieldProperties& mft,
-                                                     ParticleHypothesis       particle) const = 0;                        
+       virtual TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
+                                                          const TrackSurfaceIntersection*    trackIntersection,
+                                                          const double               qOverP,
+                                                          const MagneticFieldProperties& mft,
+                                                          ParticleHypothesis       particle) const = 0;                        
  
 
       /** GlobalPositions list interface:
@@ -254,7 +254,7 @@ namespace Trk {
                                     const CylinderBounds& cylbo,
                                     double stepSize,
                                     ParticleHypothesis particle=pion,
-				                    const TrackingVolume* tVol=0) const = 0;
+				                    const TrackingVolume* tVol=nullptr) const = 0;
 
      /** a very simple propagation along a given path length */
      virtual void propagateStep(const Amg::Vector3D& inputPosition, 
@@ -285,7 +285,7 @@ inline  Trk::TrackParameters* Trk::IPropagator::propagate( const TrackParameters
 								bool,
 								const Trk::TrackingVolume*) const
 {                  
-  return 0;
+  return nullptr;
 }
 
 inline Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters&,
@@ -298,7 +298,7 @@ inline Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters
 								 bool,const Trk::TrackingVolume*,
 								 std::vector<Trk::HitInfo>*&) const
 {                  
-  return 0;
+  return nullptr;
 }
 
 inline  Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters& ,
@@ -310,7 +310,7 @@ inline  Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameter
 								 PathLimit& , TimeLimit& ,
 								 bool,std::vector<Trk::HitInfo>*& ) const
 {
-  return 0;
+  return nullptr;
 }
 
 inline Trk::ExtrapolationCode Trk::IPropagator::propagate( Trk::ExCellCharged& ,
@@ -334,7 +334,7 @@ inline  Trk::TrackParameters* Trk::IPropagator::propagateM( const TrackParameter
 								 const Trk::TrackingVolume*,							      
 								 Trk::ExtrapolationCache*) const
 {                  
-  return 0;
+  return nullptr;
 }
 
 /** a very simple propagation along a given path length */

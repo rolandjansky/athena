@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -76,13 +76,13 @@ def generateInDetSensitiveDetectorList():
     isRUN1 = not (isRUN2 or isUpgrade)
 
     from AthenaCommon.DetFlags import DetFlags
-    if (isRUN1 or isRUN2) and DetFlags.simulate.BCM_on():
-        SensitiveDetectorList += [ 'BCMSensorSD' ]
     #if isRUN2 and DetFlags.simulation.DBM_on():
     #    SensitiveDetectorList += [ 'DBMSensorSD' ]
     if DetFlags.simulate.pixel_on():
         if isRUN1 or isRUN2:
-            SensitiveDetectorList += [ 'BLMSensorSD' ]
+            if DetFlags.simulate.BCM_on():
+                SensitiveDetectorList += [ 'BCMSensorSD' ]
+                SensitiveDetectorList += [ 'BLMSensorSD' ]
         SensitiveDetectorList += [ 'PixelSensorSD' ]
     if DetFlags.simulate.SCT_on():
         if isUpgrade:

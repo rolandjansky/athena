@@ -1,11 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonTruthAssociationAlg.h
-//   Header file for class MuonTruthAssociationAlg
-///////////////////////////////////////////////////////////////////
 
 #ifndef TRUTHPARTICLEALGS_MUONTRUTHASSOCIATIONALG_H
 #define TRUTHPARTICLEALGS_MUONTRUTHASSOCIATIONALG_H
@@ -13,9 +8,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "StoreGate/WriteDecorHandleKey.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class MuonTruthAssociationAlg : public AthAlgorithm  {
 
@@ -26,7 +21,6 @@ public:
   // Basic algorithm methods:
   virtual StatusCode initialize();
   virtual StatusCode execute();
-  virtual StatusCode finalize();
 
 private:
   Gaudi::Property<SG::WriteDecorHandleKey<xAOD::TruthParticleContainer> >m_muonTruthParticleContainerName{this,"MuonTruthParticleContainerName","MuonTruthParticles","container name for muon truth particles; the full handle name, including the reco muon link auxdata, is set in initialize()"};
@@ -40,7 +34,7 @@ private:
   Gaudi::Property<bool>m_associateWithInDetTP{this,"AssociateWithInDetTP",false,"force use of ID track particles for association"};
   Gaudi::Property<int>m_barcodeOffset{this,"BarcodeOffset",1000000 ,"barcode offset for truth particles"};
 
-  ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 

@@ -51,7 +51,7 @@ Trk::RotatedDiamondBounds::RotatedDiamondBounds(const RotatedDiamondBounds& diab
 {}
 
 // destructor
-Trk::RotatedDiamondBounds::~RotatedDiamondBounds() {}
+Trk::RotatedDiamondBounds::~RotatedDiamondBounds() = default;
 
 Trk::RotatedDiamondBounds&
 Trk::RotatedDiamondBounds::operator=(const RotatedDiamondBounds& diabo)

@@ -13,8 +13,7 @@
 #include <istream>
 
 PixelReadoutSpeedAlg::PixelReadoutSpeedAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -33,16 +32,16 @@ StatusCode PixelReadoutSpeedAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelReadoutSpeedAlg::execute() {
+StatusCode PixelReadoutSpeedAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelReadoutSpeedAlg::execute()");
 
-  SG::WriteCondHandle<PixelReadoutSpeedData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelReadoutSpeedData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 
-  SG::ReadCondHandle<AthenaAttributeList> readHandle(m_readKey);
+  SG::ReadCondHandle<AthenaAttributeList> readHandle(m_readKey, ctx);
   const AthenaAttributeList* readCdo = *readHandle; 
   if (readCdo==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -92,7 +91,3 @@ StatusCode PixelReadoutSpeedAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelReadoutSpeedAlg::finalize() {
-  ATH_MSG_DEBUG("PixelReadoutSpeedAlg::finalize()");
-  return StatusCode::SUCCESS;
-}

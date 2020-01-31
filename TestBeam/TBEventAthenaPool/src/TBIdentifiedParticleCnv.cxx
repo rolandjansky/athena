@@ -62,10 +62,3 @@ StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj,
 
   return StatusCode::SUCCESS; 
 }
-
-StatusCode TBIdentifiedParticleCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBIdentifiedParticleCnv::DataObjectToPool" );
-  
-  return TBIdentifiedParticleCnvBase::DataObjectToPool( pObj, tname) ;
-}

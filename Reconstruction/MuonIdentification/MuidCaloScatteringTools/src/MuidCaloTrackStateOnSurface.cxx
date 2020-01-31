@@ -43,13 +43,13 @@ MuidCaloTrackStateOnSurface::MuidCaloTrackStateOnSurface (const std::string&	typ
 							  const std::string&	name,
 							  const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_caloEnergyDeposit	("Rec::MuidCaloEnergyTool/MuidCaloEnergyTool"),
-	m_caloEnergyParam	("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam"),
-	m_caloMaterialParam	("Rec::MuidCaloMaterialParam/MuidCaloMaterialParam"),
+	m_caloEnergyDeposit	("Rec::MuidCaloEnergyTool/MuidCaloEnergyTool", this),
+	m_caloEnergyParam	("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam", this),
+	m_caloMaterialParam	("Rec::MuidCaloMaterialParam/MuidCaloMaterialParam", this),
 	m_magFieldProperties    (0),
 	m_magFieldSvcHandle	("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
 	m_magFieldSvc           (0),
-	m_propagator            ("Trk::IntersectorWrapper/IntersectorWrapper"),
+	m_propagator            ("Trk::IntersectorWrapper/IntersectorWrapper", this),
 	m_minCaloRadius		(0.4*Gaudi::Units::meter),
 	m_minRemainingEnergy	(0.5*Gaudi::Units::GeV),
 	m_paramPtCut		(15.0*Gaudi::Units::GeV),
@@ -60,7 +60,7 @@ MuidCaloTrackStateOnSurface::MuidCaloTrackStateOnSurface (const std::string&	typ
 	m_countOuterFailure	(0)
 {
     declareInterface<IMuidCaloTrackStateOnSurface>(this);
-    declareProperty("CaloEnergyDeposit",	m_caloEnergyDeposit);
+    declareProperty("CaloEnergyDeposit",	m_caloEnergyDeposit) ;
     declareProperty("CaloEnergyParam",		m_caloEnergyParam);
     declareProperty("CaloMaterialParam",	m_caloMaterialParam);
     declareProperty("Propagator",		m_propagator);

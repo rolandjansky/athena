@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv.cxx
@@ -27,8 +27,7 @@
 
 // cppcheck-suppress uninitMemberVar
 DataHeaderCnv::DataHeaderCnv(ISvcLocator* svcloc) :
-	T_AthenaPoolCustomCnv<DataHeader, DataHeader_p6>::T_AthenaPoolCustomCnv(svcloc),
-	m_dhInForm5( nullptr )
+      DataHeaderCnvBase(svcloc, "DataHeaderCnv")
 {
    m_classDesc = RootType( "DataHeader_p6" );
 }
@@ -72,7 +71,7 @@ void DataHeaderCnv::handle(const Incident& incident)
 }
 
 //______________________________________________________________________________
-/* DH is reveiced by the SharedWriter first and needs the DHForm object both for
+/* DH is received by the SharedWriter first and needs the DHForm object both for
    reference (Token) and to add DHElem with the ref to itself.
    These updates will be handled by updateRepRefs() - cache the DH info so it can
    by used later by updateRepRefs
@@ -82,11 +81,9 @@ void DataHeaderCnv::handle(const Incident& incident)
 StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObject)
 {
    if( m_sharedWriterCachedDH ) {
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::ERROR << "updateRep called but the previous DataHeader was not yet processed."
-          << " cached DH Key=" << m_sharedWriterCachedDHKey
-          << " cached DH Ref=" << m_sharedWriterCachedDHToken
-          << endmsg;
+      ATH_MSG_ERROR( "updateRep called but the previous DataHeader was not yet processed."
+                     << " cached DH Key=" << m_sharedWriterCachedDHKey
+                     << " cached DH Ref=" << m_sharedWriterCachedDHToken );
       return StatusCode::FAILURE;
    }
    // remember this DH and finish processing in updateRepRefs()
@@ -113,8 +110,7 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
    if( pAddress && pObject ) {
       this->setToken( pAddress->par()[0] );
       if( !compareClassGuid( dhf_p6_guid ) ) {
-         MsgStream log(msgSvc(), "DataHeaderCnv");
-         log << MSG::ERROR << "updateRepRefs called without DataHeaderForm" << endmsg;
+         ATH_MSG_ERROR( "updateRepRefs called without DataHeaderForm" );
          return StatusCode::FAILURE;
       }
       // replace the old DHForm
@@ -124,13 +120,11 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
    }
 
    if( m_sharedWriterCachedDHForm.find(dhid) == m_sharedWriterCachedDHForm.end() ) {
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::ERROR << "updateRepRefs: missing DataHeaderForm for DH ID=" << dhid << endmsg;
+      ATH_MSG_ERROR( "updateRepRefs: missing DataHeaderForm for DH ID=" << dhid );
       return StatusCode::FAILURE;
    }
    if( !m_sharedWriterCachedDH ) {
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::ERROR << "updateRepRefs: missing DataHeader" << endmsg;
+      ATH_MSG_ERROR( "updateRepRefs: missing DataHeader" );
       return StatusCode::FAILURE;
    }
    // update the cached DataHeader (can be done until a commit is called)
@@ -145,22 +139,21 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
 
    
 //______________________________________________________________________________
-StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& tname)
+StatusCode DataHeaderCnv::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj)
 {
    DataHeader* obj = nullptr;
    bool success = SG::fromStorable(pObj, obj);
    if (!success || obj == nullptr) {
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::ERROR << "Failed to cast DataHeader to transient type" << endmsg;
+      ATH_MSG_ERROR( "Failed to cast DataHeader to transient type" );
       return(StatusCode::FAILURE);
    }
    // DH placement first:
-   setPlacementWithType("DataHeader", tname);
+   setPlacementWithType("DataHeader", pObj->name(), *pAddr->par());
    Placement dh_placement;
    dh_placement.fromString( m_placement->toString() + "[KEY=" + obj->getProcessTag() + "]" );
 
-   // Form placement:
-   setPlacementWithType("DataHeaderForm", tname);
+   // DHForm placement:
+   setPlacementWithType("DataHeaderForm", pObj->name(), *pAddr->par());
    std::string form_placement_str = m_placement->toString();
    // Find or create Form
    std::unique_ptr<DataHeaderForm_p6>& dhForm = m_persFormMap[form_placement_str];
@@ -174,8 +167,7 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    try {
       persObj = createPersistent( obj, dhForm.get() );
    } catch (std::exception &e) {
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to convert DataHeader to persistent type: " << e.what() << endmsg;
+      ATH_MSG_FATAL( "Failed to convert DataHeader to persistent type: " << e.what() );
       return(StatusCode::FAILURE);
    }
    // Set the Ref to the Form, if know (may be updated if a new Form is created below)
@@ -184,8 +176,7 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    // Queue DH for write - for local writes object can still be updated
    Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(&dh_placement, persObj, m_classDesc);
    if (dh_token == nullptr) {
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to write DataHeader" << endmsg;
+      ATH_MSG_FATAL( "Failed to write DataHeader" );
       return(StatusCode::FAILURE);
    }
    // this updates DH and can update Form
@@ -193,11 +184,11 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
 
    // Queue Form for write if it was modified (or new)
    if( dhForm->wasModified() ) {
+      m_wroteDHForm = true;
       static const RootType dhFormType( typeid(*dhForm) );
       Token* dhfToken = m_athenaPoolCnvSvc->registerForWrite(m_placement, dhForm.get(), dhFormType);
       if( !dhfToken ) {
-         MsgStream log(msgSvc(), "DataHeaderCnv");
-         log << MSG::FATAL << "Failed to write " << dhFormType.Name() << endmsg;
+         ATH_MSG_FATAL( "Failed to write " << dhFormType.Name() );
          return(StatusCode::FAILURE);
       }
       dhForm->setToken( dhfToken->toString() );
@@ -205,8 +196,9 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
       // Update DH with the new Form Ref
       persObj->setDhFormToken( dhForm->getToken() );
       dhForm->clearModified();
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::DEBUG << "wrote new DHForm with " << dhForm->sizeObj() << " SG object data" << endmsg;
+      ATH_MSG_DEBUG( "wrote new DHForm with " << dhForm->sizeObj() << " SG object data" );
+   } else {
+      m_wroteDHForm = false;
    }
    
    keepPoolObj(persObj);
@@ -214,25 +206,23 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    const coral::AttributeList* list = obj->getAttributeList();
    if (list != nullptr) {
       obj->setEvtRefTokenStr(dh_token->toString());
-      this->setPlacementWithType("AttributeList", "Token");
+      this->setPlacementWithType("AttributeList", "Token", *pAddr->par());
       const Token* ref_token = m_athenaPoolCnvSvc->registerForWrite(m_placement,
 	      obj->getEvtRefTokenStr().c_str(),
 	      RootType("Token"));
       delete ref_token; ref_token = nullptr;
       for (coral::AttributeList::const_iterator iter = list->begin(), last = list->end(); iter != last; ++iter) {
-         this->setPlacementWithType("AttributeList", (*iter).specification().name());
+         this->setPlacementWithType("AttributeList", (*iter).specification().name(), *pAddr->par());
          const Token* attr_token = m_athenaPoolCnvSvc->registerForWrite(m_placement,
 	         (*iter).addressOfData(),
                  RootType((*iter).specification().type()) );
          delete attr_token; attr_token = nullptr;
       }
    }
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pObj->registry()->address());
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr != nullptr) {
-      tokAddr->setToken(dh_token); dh_token = nullptr; // Token will be inserted into DataHeader, which takes ownership
-   } else { // No address (e.g. satellite DataHeader), delete Token
-      MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to get DataHeader Token" << endmsg;
+      tokAddr->setToken(dh_token); dh_token = nullptr;
+   } else {
       delete dh_token; dh_token = nullptr;
       return(StatusCode::FAILURE);
    }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaSuperClusterBuilder.h"
@@ -493,7 +493,8 @@ StatusCode egammaSuperClusterBuilder::fillPositionsInCalo(xAOD::CaloCluster* clu
   const bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
   CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
   // eta and phi of the cluster in the calorimeter frame
-  double eta, phi;
+  double eta;
+  double phi;
   m_caloCellDetPos.getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi); 
   cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME,phi);
@@ -564,7 +565,8 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
   ATH_MSG_DEBUG("Hottest cell in layer 1 Calo co-ordinates (eta,phi): (" << etamax << " , " << phimax << ")");
   //  
   //now Locate the +-1 range
-  double detastr(-999), dphistr(-999);
+  double detastr(-999);
+  double dphistr(-999);
   //Raw co-ordinates used here
   etaphi_range(etamax, phimax,xsample,detastr, dphistr);
   //

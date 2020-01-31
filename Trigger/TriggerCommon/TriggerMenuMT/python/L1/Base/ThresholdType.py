@@ -23,7 +23,7 @@ class ThrType( Enum ):
     ZB = 50 
 
     # topo thresholds
-    TOPO = 60
+    TOPO = 60; MUTOPO = 61; MULTTOPO = 62; R2TOPO = 63 # noqa: E702
 
     # ALFA thresholds
     ALFA = 70

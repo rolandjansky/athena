@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
 #include "MuonRPC_Cabling/CablingRPC.h"
-#include "MuonCondInterface/IRPCCablingDbTool.h"
-#include "MuonCondInterface/IRPCTriggerDbTool.h"
 
 #include "RPC_CondCabling/RDOindex.h"
 #include "MuonCablingTools/OutputDef.h"
 
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "RPCcablingInterface/RpcPadIdHash.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -57,56 +54,29 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
     
 }
 
-MuonRPC_CablingSvc::~MuonRPC_CablingSvc()
-{
-}
-
 StatusCode MuonRPC_CablingSvc::initialize()
 {
-   
-    msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		   << PACKAGE_VERSION << endmsg;
+    ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
 
-    // get the pointer to the MuonIdHelpers
-    StoreGateSvc * detStore;
-    StatusCode status = service("DetectorStore",detStore);
-    if (status.isFailure()) {
-	msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;  
-    } else {
-      if( m_muonIdHelperTool.retrieve().isFailure() ){
-        ATH_MSG_FATAL("Could not get " << m_muonIdHelperTool);      
-        return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_DEBUG("Found the MuonIdHelperTool");
-        RDOindex::setMuonIdHelperTool(m_muonIdHelperTool.get());
-      }
-    }    
+    StoreGateSvc * detStore=nullptr;
+    ATH_CHECK(service("DetectorStore",detStore));
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_MSG_DEBUG("Found the MuonIdHelperTool");
+    RDOindex::setRpcIdHelper(&m_idHelperSvc->rpcIdHelper());
     
     bool tryRecoveringByReadingFromFile = false;
     bool tryRecoveringByReadingTrigRoadsFromFile = false;
 
     if(!m_RPCMapfromCool && m_RPCTriggerRoadsfromCool) {
-      msg(MSG::ERROR)<< " !!! RPC cabling map from files and trigger roads from COOL - option not implemented !!!"<< endmsg;
-      return StatusCode::FAILURE;
+        ATH_MSG_ERROR(" !!! RPC cabling map from files and trigger roads from COOL - option not implemented !!!");
+        return StatusCode::FAILURE;
     }    
 
     if(m_RPCMapfromCool)
     {
-	StatusCode sc = m_condDataTool.retrieve();
-	if ( sc.isFailure() )
-	{
-	    //log<<MSG::ERROR<<"Could not retrieve MuonAlignmentDbTool"<<endmsg;
-	    msg(MSG::ERROR) << "Could not retrieve RPCCablingDbTool" << endmsg;
-	}
-	else
-	{
-	    //log<<MSG::INFO<<"MuonAlignmentDbTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
-            msg(MSG::INFO)<<"RPCCablingDbTool retrieved with statusCode = "<<sc<<" with handle "<<m_condDataTool<<endmsg;
-	}
+    ATH_CHECK(m_condDataTool.retrieve());
+    ATH_MSG_INFO("RPCCablingDbTool retrieved with handle "<<m_condDataTool);
 
-
-
-	//std::vector<std::string> folderNames = m_coolReadingTool->mapFolderNames();
 	std::vector<std::string> folderNames;
 	folderNames.push_back((m_condDataTool)->mapConfFolderName());
 	folderNames.push_back((m_condDataTool)->mapCorrFolderName());
@@ -217,7 +187,6 @@ StatusCode MuonRPC_CablingSvc::initialize()
 
 StatusCode MuonRPC_CablingSvc::finalize()
 {
-
     CablingRPC::delete_instance();
     return StatusCode::SUCCESS;
 }
@@ -442,7 +411,7 @@ unsigned long int MuonRPC_CablingSvc::strip_code_fromOffId (std::string stationN
 Identifier MuonRPC_CablingSvc::strip_OffId_fromCode (unsigned long int strip_code) const 
 {
   RPCofflineId rpc_strip  = CablingRPC::s_instance->strip_id_fromCode (strip_code);
-  Identifier rpcId = m_muonIdHelperTool->rpcIdHelper().channelID(rpc_strip.stationName,
+  Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(rpc_strip.stationName,
 					       rpc_strip.stationEta,
 					       rpc_strip.stationPhi,
 					       rpc_strip.doubletR,
@@ -470,7 +439,7 @@ Identifier MuonRPC_CablingSvc::protected_strip_OffId_fromCode (unsigned long int
 	  if (rpc_strip.strip>36) rpc_strip.strip=36;
 	}
     }
-  Identifier rpcId = m_muonIdHelperTool->rpcIdHelper().channelID(rpc_strip.stationName,
+  Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(rpc_strip.stationName,
 					       rpc_strip.stationEta,
 					       rpc_strip.stationPhi,
 					       rpc_strip.doubletR,
@@ -498,7 +467,7 @@ std::list<Identifier> MuonRPC_CablingSvc::give_strip_id(unsigned short int Subsy
     std::list<RPCofflineId>::const_iterator it = offlineIds.begin();
     while(it != offlineIds.end())
     {	
-        Identifier rpcId = m_muonIdHelperTool->rpcIdHelper().channelID((*it).stationName,
+        Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID((*it).stationName,
 	                                             (*it).stationEta,
 						     (*it).stationPhi,
 						     (*it).doubletR,
@@ -564,7 +533,7 @@ MuonRPC_CablingSvc::buildOfflineOnlineMap()
   
   std::set< uint32_t > ROBid;
   
-  IdContext rpcModuleContext = m_muonIdHelperTool->rpcIdHelper().module_context();
+  IdContext rpcModuleContext = m_idHelperSvc->rpcIdHelper().module_context();
   
   const CablingRPCBase* cab = CablingRPC::instance();
   ATH_MSG_DEBUG("cabling singleton at <"<<(uintptr_t)cab<<">");
@@ -604,7 +573,7 @@ MuonRPC_CablingSvc::buildOfflineOnlineMap()
     // build the map
     std::pair < OfflineOnlineMap::iterator, bool> ins = 
                 m_RDOmap.insert(OfflineOnlineMap::value_type(id,pRDOindex));
-    ATH_MSG_DEBUG("OfflineOnlineMap new entry: value  "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(id)
+    ATH_MSG_DEBUG("OfflineOnlineMap new entry: value  "<<m_idHelperSvc->rpcIdHelper().show_to_string(id)
                    <<" hash of the RDOindex (key) = "<<pRDOindex->hash());
                 
     if(!ins.second) return false;
@@ -634,9 +603,9 @@ MuonRPC_CablingSvc::buildOfflineOnlineMap()
           );
         }
         for (Identifier strip_id : strip_id_list) {
-          Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(strip_id);
+          Identifier idp = m_idHelperSvc->rpcIdHelper().parentID(strip_id);
           IdentifierHash prdHashId;
-          int gethash_code = m_muonIdHelperTool->rpcIdHelper().get_hash(idp, prdHashId, &rpcModuleContext);
+          int gethash_code = m_idHelperSvc->rpcIdHelper().get_hash(idp, prdHashId, &rpcModuleContext);
           if (gethash_code != 0) {
             ATH_MSG_DEBUG("Unable to get the PRD HashId! parentID(strip_id)=" << idp.getString());
             continue;
@@ -994,7 +963,7 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
                         msg(MSG::DEBUG)<<  "Side="   << side 
                                        << " Sector=" << Sector
                                        << " Pad="    << Pad << ": identifier is "
-                                       << m_muonIdHelperTool->rpcIdHelper().show_to_string(ID) 
+                                       << m_idHelperSvc->rpcIdHelper().show_to_string(ID) 
                                        << endmsg;
                 }
     }
@@ -1227,7 +1196,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
                         msg(MSG::DEBUG)<<  "Side="   << side 
                                        << " Sector=" << Sector
                                        << " Pad="    << Pad << ": identifier is "
-                                       << m_muonIdHelperTool->rpcIdHelper().show_to_string(ID) 
+                                       << m_idHelperSvc->rpcIdHelper().show_to_string(ID) 
                                        << endmsg;
 	     }
        }

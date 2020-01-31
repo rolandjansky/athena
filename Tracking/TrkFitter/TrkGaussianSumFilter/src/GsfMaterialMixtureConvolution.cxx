@@ -13,9 +13,12 @@ decription           : Implementation code for GSF material mixture convolution
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
+
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MaterialProperties.h"
+
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 
@@ -27,7 +30,7 @@ Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(const std::str
   declareInterface<IMaterialMixtureConvolution>(this);
 }
 
-Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() {}
+Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
@@ -38,13 +41,6 @@ Trk::GsfMaterialMixtureConvolution::initialize()
                                                                               << "... Exiting");
     return StatusCode::FAILURE;
   }
-
-  // Retrieve the multi-state combiner
-  if (m_stateCombiner.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the multi-component state combiner... Exiting");
-    return StatusCode::FAILURE;
-  }
-
 
   // Retrieve the state merge 
   if (m_stateMerger.retrieve().isFailure()) {
@@ -259,10 +255,10 @@ Trk::GsfMaterialMixtureConvolution::simplifiedMaterialUpdate(const Trk::MultiCom
   }
 
   // Hardwired material effects based on approximate material distribution
-  std::unique_ptr<Trk::TrackParameters> combinedState =m_stateCombiner->combine(multiComponentState);
+  std::unique_ptr<Trk::TrackParameters> combinedState =MultiComponentStateCombiner::combine(multiComponentState);
   const Amg::Vector3D& globalPosition = combinedState->position();
 
-  const Trk::MaterialProperties* materialProperties = 0;
+  const Trk::MaterialProperties* materialProperties = nullptr;
 
   // Material properties 2.5% X0 - pixels
   if (globalPosition.x() >= 180. && globalPosition.x() < 350.) {

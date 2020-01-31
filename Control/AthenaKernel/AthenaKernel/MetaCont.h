@@ -1,20 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IOVSVC_METACONT_H
-#define IOVSVC_METACONT_H 1
+#ifndef ATHENAKERNEL_METACONT_H
+#define ATHENAKERNEL_METACONT_H
 
-#include <iostream>
 #include <sstream>
 #include <map>
 #include <vector>
 #include <typeinfo>
 #include <mutex>
-#include <typeinfo>
 
-#include "GaudiKernel/DataObject.h"
-#include "GaudiKernel/DataObjID.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/SourceID.h"
@@ -22,111 +18,85 @@
 #include "AthenaKernel/MetaContDataBucket.h"
 
 namespace SG {
-  class DataProxy;
-  template<class T>
-  class ReadMetaHandle;
-  template<class T>
-  class WriteMetaHandle;
+  template<class T> class ReadMetaHandle;
 }
 
 class MetaContBase {
-//typedef Guid SourceID;
-public:
+ public:
   typedef SG::SourceID SourceID;
   MetaContBase() {};
   virtual ~MetaContBase(){};
 
-  //  virtual void list() const { std::cout << "CCBase" << std::endl; }
-  virtual void list(std::ostringstream&) const = 0;
-  virtual int entries() const { return 0; }
-  virtual bool valid( const SourceID& t) const = 0;
-  virtual const DataObjID& id() const = 0;
-  virtual bool insert(const SourceID& sid, DataObject* obj) = 0;
   virtual bool insert(const SourceID& sid, void* obj) = 0;
 
-  virtual SG::DataProxy* proxy() = 0;
-  virtual void setProxy(SG::DataProxy*) = 0;
+  virtual int entries() const { return 0; }
+  virtual bool valid(const SourceID& sid) const = 0;
 
   virtual std::vector<SourceID> sources() const = 0;
 
-private:
+  virtual void list(std::ostringstream& stream) const = 0;
+
+ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 class MetaCont: public MetaContBase {
-public:
-
+ public:
   typedef T Payload_t;
-
   friend SG::ReadMetaHandle<T>;
-  friend SG::WriteMetaHandle<T>;
 
-  MetaCont(const DataObjID& id, SG::DataProxy* prx=nullptr):
-    m_id(id), m_proxy(prx) {};
+  MetaCont() {};
   ~MetaCont();
 
-  bool insert(const SourceID& r, DataObject* t);
-  bool insert(const SourceID& r, void* t);
-  bool insert(const SourceID& r, T* t);
+  // Virtual functions
+  virtual bool insert(const SourceID& sid, void* obj) override;
 
-  bool find(const SourceID& t, T*&) const;
+  virtual int entries() const override;
+  virtual bool valid(const SourceID& sid) const override;
 
-  virtual void list(std::ostringstream&) const;
-  virtual int entries() const;
+  virtual std::vector<SourceID> sources() const override;
 
-  virtual bool valid( const SourceID& t ) const;
+  virtual void list(std::ostringstream& stream) const override;
 
-  virtual const DataObjID& id() const { return m_id; }
+  // Non-virtual functions
+  bool insert(const SourceID& sid, T* t);
+  bool find(const SourceID& sid, T*& t) const;
 
-  virtual SG::DataProxy* proxy() { return m_proxy; }
-  virtual void setProxy(SG::DataProxy* prx) { m_proxy = prx; }
-
-  virtual std::vector<SourceID> sources() const;
-
-private:
+ private:
 
   mutable std::mutex m_mut;
 
   typedef std::map<SourceID,T*> MetaContSet;
   MetaContSet m_metaSet;
-
-  DataObjID m_id;
-
-  SG::DataProxy* m_proxy;
-
 };
 
 
 namespace SG {
 
 
-/**
- * @brief Metafunction to find the proper @c DataBucket class for @c T.
- *
- * Specialize this for @c MetaCont.
- * See AthenaKernel/StorableConversions.h for an explanation.
- */
-template <class T, class U>
-struct DataBucketTrait<MetaCont<T>, U>
-{
-  typedef MetaContDataBucket<U> type;
-  static void init() {}
-};
-
+  /**
+   * @brief Metafunction to find the proper @c DataBucket class for @c T.
+   *
+   * Specialize this for @c MetaCont.
+   * See AthenaKernel/StorableConversions.h for an explanation.
+   */
+  template <class T, class U>
+    struct DataBucketTrait<MetaCont<T>, U>
+    {
+      typedef MetaContDataBucket<U> type;
+      static void init() {}
+    };
 
 } // namespace SG
 
-
-//
-///////////////////////////////////////////////////////////////////////////
-//
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
 MetaCont<T>::~MetaCont<T>() {
-  for (auto itr=m_metaSet.begin(); itr != m_metaSet.end(); ++itr) {
-    delete itr->second;
+  for (auto t : m_metaSet) {
+    delete t.second;
   }
   m_metaSet.clear();
 }    
@@ -134,60 +104,34 @@ MetaCont<T>::~MetaCont<T>() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
-bool MetaCont<T>::insert(const SourceID& r, void* obj) {
+bool MetaCont<T>::insert(const SourceID& sid, void* obj) {
   T* t = static_cast<T*>(obj);
-
-  return insert(r, t);
+  return insert(sid, t);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
-bool MetaCont<T>::insert(const SourceID& r, DataObject* obj) {
-  T* t = dynamic_cast<T*>( obj );
-
-  if (t == 0) {
-    std::cerr << "MetaCont<>T unable to dcast from DataObject to " 
-              << typeid(T).name()
-              << std::endl;
-    return false;
-  }
-
-  return insert(r, t);
+bool MetaCont<T>::insert(const SourceID& sid, T* t) {
+  std::lock_guard<std::mutex> lock(m_mut);
+  return m_metaSet.insert(std::make_pair(sid,t)).second;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
-bool MetaCont<T>::insert(const SourceID& r, T* t) {
+bool MetaCont<T>::valid(const SourceID& sid) const {
+  std::lock_guard<std::mutex> lock(m_mut);
+  return m_metaSet.find(sid)!=m_metaSet.end();
+}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+template <typename T>
+bool MetaCont<T>::find(const SourceID& sid, T*& t) const {
   std::lock_guard<std::mutex> lock(m_mut);
 
-  return m_metaSet.insert(std::make_pair(r,t)).second;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool MetaCont<T>::valid(const SourceID& it) const {
-  typename MetaContSet::const_iterator itr;
-  
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  return m_metaSet.find(it)!=m_metaSet.end();
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool MetaCont<T>::find(const SourceID& it, T*& t) const {
-  typename MetaContSet::const_iterator itr;
-  
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  //std::cerr << "MetaCont find SID " << it << std::endl;
-
-  itr = m_metaSet.find(it);
+  typename MetaContSet::const_iterator itr = m_metaSet.find(sid);
   if (itr != m_metaSet.end()) {
     t=itr->second;
     return true;
@@ -200,16 +144,13 @@ bool MetaCont<T>::find(const SourceID& it, T*& t) const {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
-void MetaCont<T>::list(std::ostringstream& ost) const {
+void MetaCont<T>::list(std::ostringstream& stream) const {
   std::lock_guard<std::mutex> lock(m_mut);
-
-  ost << "id: " << m_id << "  proxy: " << m_proxy << std::endl;
-
-  ost << "Meta: [" << m_metaSet.size() << "]" << std::endl;
-  //auto itr = m_metaSet.begin();
-  //for (; itr != m_metaSet.end(); ++itr) {
-  //  ost << *(itr->second) << std::endl;
-  //}
+  // To Do: perhaps extend this output?
+  stream << "MetaCont with size : [" << m_metaSet.size() << "]" << std::endl;
+  for(const auto& mapel : m_metaSet) {
+    stream << "... Key : " << mapel.first << std::endl;
+  }
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

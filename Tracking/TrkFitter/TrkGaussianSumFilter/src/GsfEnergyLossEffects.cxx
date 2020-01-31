@@ -35,7 +35,7 @@ Trk::GsfEnergyLossEffects::GsfEnergyLossEffects(const std::string& type,
   declareInterface<IMultiStateMaterialEffects>(this);
 }
 
-Trk::GsfEnergyLossEffects::~GsfEnergyLossEffects() {}
+Trk::GsfEnergyLossEffects::~GsfEnergyLossEffects() = default;
 
 StatusCode
 Trk::GsfEnergyLossEffects::initialize()

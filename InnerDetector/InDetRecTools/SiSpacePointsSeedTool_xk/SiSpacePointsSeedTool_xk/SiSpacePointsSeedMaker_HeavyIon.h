@@ -254,24 +254,24 @@ namespace InDet {
     void production3Sp(EventData& data) const;
     void production3Sp
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&) const;
     void production3SpTrigger
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&) const;
     void production3SpNoVertex
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&) const;
 
     bool newVertices(EventData& data, const std::list<Trk::Vertex>&) const;

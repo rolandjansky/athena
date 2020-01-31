@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Utility module for things not specific to DQ
@@ -19,7 +19,7 @@ def get_package_version(package_name, default_prefix="DataQuality"):
     if "/" not in package_name and default_prefix:
         package_name = "/".join([default_prefix, package_name])
     output = getoutput("cmt show versions %s" % package_name).split("\n")
-    output = map(str.strip, output)
+    output = list(map(str.strip, output))
     return " ".join(output[0].split()[1:])
 
 @contextmanager

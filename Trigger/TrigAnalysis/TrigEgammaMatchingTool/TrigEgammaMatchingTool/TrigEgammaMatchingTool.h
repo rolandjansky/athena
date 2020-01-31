@@ -7,7 +7,6 @@
 
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"

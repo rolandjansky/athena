@@ -6,7 +6,7 @@
 #define BOOKKEEPERTOOL_H
 
 /** @file BookkeeperTool.h
- *  @brief This class is an implementation of the GenericMetadataTool
+ *  @brief This class is an implementation of the AsgMetadataTool
  *  for the xAOD::CutBookkeeperContainer.
  *  @author Jack Cranshaw <cranshaw@anl.gov>
  *  $Id: $
@@ -15,9 +15,9 @@
 //#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "AthenaKernel/IMetaDataTool.h"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/ICutFlowSvc.h"
 
@@ -29,9 +29,9 @@
 
 
 class BookkeeperTool : public asg::AsgMetadataTool
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
                      , public virtual ::IMetaDataTool
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 {
    ASG_TOOL_CLASS0(BookkeeperTool)
 public: // Constructor and Destructor

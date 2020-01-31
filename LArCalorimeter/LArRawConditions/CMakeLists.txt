@@ -54,3 +54,11 @@ atlas_add_test( LArConditionsContainerDB_test
    SOURCES test/LArConditionsContainerDB_test.cxx
    LINK_LIBRARIES LArRawConditions )
 
+atlas_add_test( LArCompactSubset_test
+   SOURCES test/LArCompactSubset_test.cxx
+   LINK_LIBRARIES LArRawConditions )
+
+atlas_add_test( LArConditionsSubset_test
+   SOURCES test/LArConditionsSubset_test.cxx
+   LINK_LIBRARIES LArRawConditions )
+

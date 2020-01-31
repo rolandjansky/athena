@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ElectronEfficiencyCorrection includes
@@ -42,7 +42,7 @@ StatusCode testAthenaElectronAlg::execute() {
   //----------------------------
   // Event information
   //--------------------------- 
-  const xAOD::EventInfo* eventInfo = 0; //NOTE: Everything that comes from the storegate direct from the input files is const!
+  const xAOD::EventInfo* eventInfo = nullptr; //NOTE: Everything that comes from the storegate direct from the input files is const!
 
   // ask the event store to retrieve the xAOD EventInfo container
   //ATH_CHECK( evtStore()->retrieve( eventInfo, "EventInfo") );  // the second argument ("EventInfo") is the key name
@@ -53,7 +53,7 @@ StatusCode testAthenaElectronAlg::execute() {
   //---------
   // electrons
   //---------
-  const xAOD::ElectronContainer* electrons = 0;
+  const xAOD::ElectronContainer* electrons = nullptr;
   ATH_CHECK( evtStore()->retrieve( electrons, "Electrons") );
  
   // Let's create a shallow copy of the const electron container, and decorate it with the obtained SF

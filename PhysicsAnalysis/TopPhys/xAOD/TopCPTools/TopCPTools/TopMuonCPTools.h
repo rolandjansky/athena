@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TOPCPTOOLS_TOPMUONCPTOOLS_H_
@@ -17,9 +17,9 @@
 
 // Muon include(s):
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 namespace top {
 

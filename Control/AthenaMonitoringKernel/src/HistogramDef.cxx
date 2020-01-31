@@ -20,6 +20,7 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.opt = setting["opt"];
   result.convention = setting["convention"];
   result.weight = setting["weight"];
+  result.cutMask = setting["cutMask"];
 
   result.xvar = setting["xvar"];
   result.xbins = setting["xbins"];
@@ -40,6 +41,8 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.zmin = setting["zmin"];
   result.zmax = setting["zmax"];
   result.zlabels = setting["zlabels"].get<std::vector<std::string>>();
+
+  result.treeDef = setting["treeDef"];
 
   result.ok = true;
   return result;

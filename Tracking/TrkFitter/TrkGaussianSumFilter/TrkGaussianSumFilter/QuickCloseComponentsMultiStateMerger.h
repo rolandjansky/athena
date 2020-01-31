@@ -58,13 +58,6 @@ private:
                                                              12,
                                                              "Maximum number of components" };
 
-  ToolHandle<Trk::IMultiComponentStateCombiner> m_stateCombiner{
-    this,
-    "CombinerTool",
-    "Trk::MultiComponentStateCombiner/CloseComponentsCombiner",
-    " Combonent combiner"
-  };
-
   ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
 
   std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,

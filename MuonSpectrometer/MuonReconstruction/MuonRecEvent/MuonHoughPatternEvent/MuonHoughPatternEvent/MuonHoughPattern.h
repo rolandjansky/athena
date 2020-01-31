@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHPATTERN_H
@@ -23,7 +23,7 @@ class MuonHoughPattern : public MuonHoughHitContainer
   MuonHoughPattern(int id_number, bool ownhits = false);
 
   /** destructor */
-  virtual ~MuonHoughPattern();
+  virtual ~MuonHoughPattern() = default;
 
   /** clear pattern */
   void resetTracksegment();

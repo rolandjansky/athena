@@ -53,10 +53,10 @@ class ItemDef:
             
         # InternalTriggers
         for i in range( Limits.NumBunchgroups ):
-            setattr (d, "BGRP%i"%i,  Logic(InternalTrigger('BGRP%i'%i)))
+            setattr (d, "BGRP%i"%i,  InternalTrigger('BGRP%i'%i))
 
         for i in range( Limits.NumRndmTriggers ):
-            setattr (d, "RNDM%i"%i, Logic(InternalTrigger('RNDM%i'%i)))
+            setattr (d, "RNDM%i"%i, InternalTrigger('RNDM%i'%i))
 
         # Setting up bunch group and BPTX conditions
         physcond            = d.BGRP0 & d.BGRP1
@@ -1232,8 +1232,8 @@ class ItemDef:
         MenuItem('L1_BCM_Wide_UNPAIRED_NONISO'   ).setLogic( d.BCM_Wide & unpaired_nonisocond ).setTriggerType(TT.minb)
 
         MenuItem('L1_BCM_HT_BGRP0'               ).setLogic( d.BCM_Comb.x(7) & d.BGRP0).setTriggerType(TT.minb)            
-        MenuItem('L1_BCM_AC_CA_BGRP0'            ).setLogic((d.BCM_AtoC|d.BCM_CtoA) & d.BGRP0).setTriggerType(TT.minb)       
-        MenuItem('L1_BCM_AC_CA_UNPAIRED_ISO'     ).setLogic((d.BCM_AtoC|d.BCM_CtoA)&unpaired_isocond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_AC_CA_BGRP0'            ).setLogic((d.BCM_AtoC | d.BCM_CtoA) & d.BGRP0).setTriggerType(TT.minb)       
+        MenuItem('L1_BCM_AC_CA_UNPAIRED_ISO'     ).setLogic((d.BCM_AtoC | d.BCM_CtoA) & unpaired_isocond).setTriggerType(TT.minb)
 
         MenuItem('L1_BCM_AC_UNPAIRED_ISO'     ).setLogic( d.BCM_AtoC & unpaired_isocond).setTriggerType(TT.minb)
         MenuItem('L1_BCM_CA_UNPAIRED_ISO'     ).setLogic( d.BCM_CtoA & unpaired_isocond).setTriggerType(TT.minb)
@@ -1970,11 +1970,13 @@ class ItemDef:
                         MenuItem('L1_SC111').setLogic(  d.TOPO_SC111_CJ15abETA26 & physcond)   
                         MenuItem('L1_SC85').setLogic(  d.TOPO_SC85_CJ15abETA26 & physcond)     
 
-                    MenuItem('L1_TAU60_DR-TAU20ITAU12I' ).setLogic( d.HA60 & d.TOPO_0DR28_TAU20abi_TAU12abi & physcond)
+                    x = MenuItem('L1_TAU60_DR-TAU20ITAU12I' ).setLogic( d.HA60 & d.TOPO_0DR28_TAU20abi_TAU12abi & physcond)
                     if isV8:
                         MenuItem('L1_CEP-CJ60').setLogic( d.TOPO_CEP_CJ60s6 & physcond )
                         MenuItem('L1_CEP-CJ50').setLogic( d.TOPO_CEP_CJ50s6 & physcond )
                         MenuItem('L1_CEP-CJ50.ETA21').setLogic( d.TOPO_CEP_CJ50s6ETA21 & physcond )
+
+
 
             except NameError as ex:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
