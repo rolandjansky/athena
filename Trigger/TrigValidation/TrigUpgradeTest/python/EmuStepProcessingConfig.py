@@ -5,7 +5,7 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
-
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
 
 def thresholdToChains( chains ):
@@ -167,6 +167,7 @@ def generateL1DecoderAndChains():
 
     # combined chain
     if doCombo:
+        emptySeq = EmptyMenuSequence()
         if not doElectron:
             from TrigUpgradeTest.HLTSignatureConfig import elMenuSequence        
             el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1")    
@@ -185,7 +186,6 @@ def generateL1DecoderAndChains():
             mu32 = muMenuSequence(step="3",reconame="v2", hyponame="v2")
             #step4
             mu41 = muMenuSequence(step="4",reconame="v1", hyponame="v1")
-
            
            
            
@@ -200,7 +200,7 @@ def generateL1DecoderAndChains():
      
         CombChains =[
 
-            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [mu11, el11], multiplicity=[1,1]),
+            makeChain(name='HLT_mu6_e8_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu_em", [emptySeq, el11], multiplicity=[1,1]),
                                                                                              ChainStep("Step2_mu_em", [mu21, el21], multiplicity=[1,1])] ),
 
             makeChain(name='HLT_mu6Comb_e8_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[ ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
