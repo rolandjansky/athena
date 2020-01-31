@@ -90,16 +90,21 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
 
     mglog.info('Finished process generation at '+str(time.asctime()))
 
-    thedir = None
-    for adir in sorted(glob.glob( os.getcwd()+'/*PROC*' ),reverse=True):
-        print 'Testing',adir
-        if os.access('%s/SubProcesses/subproc.mg'%adir,os.R_OK):
-            if thedir==None: thedir=adir
-            else:
-                mglog.warning('Additional possible process directory, '+adir+' found. Had '+thedir)
-                mglog.warning('Likely this is because you did not run from a clean directory, and this may cause errors later.')
-    if thedir==None:
-        raise RuntimeError('No diagrams for this process in dir='+str(thedir)+' from list: '+str(sorted(glob.glob(os.getcwd()+'/*PROC*'),reverse=True)))
+    # at this point thedir is for sure defined - it's equal to '' in the worst case
+    if thedir == '': # no user-defined value, need to find the directory created by MadGraph5
+        for adir in sorted(glob.glob( os.getcwd()+'/*PROC*' ),reverse=True):
+            print 'Testing',adir
+            if os.access('%s/SubProcesses/subproc.mg'%adir,os.R_OK):
+                if thedir=='': thedir=adir
+                else:
+                    mglog.warning('Additional possible process directory, '+adir+' found. Had '+thedir)
+                    mglog.warning('Likely this is because you did not run from a clean directory, and this may cause errors later.')
+    else: # user-defined directory
+        print 'Testing',thedir
+        if not os.access('%s/SubProcesses/subproc.mg'%thedir,os.R_OK):
+            raise RuntimeError('No diagrams for this process in user-define dir='+str(thedir))
+    if thedir=='':
+        raise RuntimeError('No diagrams for this process from list: '+str(sorted(glob.glob(os.getcwd()+'/*PROC*'),reverse=True)))
 
     # Special catch related to path setting and using afs
     import os
