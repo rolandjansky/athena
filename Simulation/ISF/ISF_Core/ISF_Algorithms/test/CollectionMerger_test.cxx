@@ -57,6 +57,7 @@ class CollectionMerger_test : public ::testing::Test {
     virtual void SetUp() override {
       m_alg = new ISF::CollectionMerger{"CollectionMerger", g_svcLoc};
       ASSERT_TRUE( m_alg->setProperties().isSuccess() );
+      ASSERT_TRUE( g_svcLoc->service("StoreGateSvc", m_sg) );
     }
 
     virtual void TearDown() override {
@@ -75,21 +76,26 @@ class CollectionMerger_test : public ::testing::Test {
     }
 
     ISF::CollectionMerger* m_alg;
-
+    StoreGateSvc* m_sg{};
 };  // CollectionMerger_test fixture
 
 
 TEST_F(CollectionMerger_test, empty_alg_execute) {
-  ASSERT_TRUE( m_alg->execute().isSuccess() );
+  ASSERT_TRUE( m_alg->initialize().isSuccess() );
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
+  ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
 }
 
 TEST_F(CollectionMerger_test, mergeCollections) {
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
   SG::ReadHandleKeyArray<TestHitCollection_t> inputKeys{};
   SG::WriteHandleKey<TestHitCollection_t>             outputKey{"outputCollectionMergeTest"};
   ASSERT_TRUE( outputKey.initialize().isSuccess() );
 
   // should not fail, just does nothing
-  mergeCollections(inputKeys, outputKey);
+  mergeCollections(inputKeys, outputKey, ctx);
 
   // create dummy input collections containing dummy data
   auto                                 inputTestDataA = std::make_unique<TestHitCollection_t>();
@@ -122,7 +128,7 @@ TEST_F(CollectionMerger_test, mergeCollections) {
   ASSERT_TRUE( inputKeys.at(2).initialize().isSuccess() );
 
   // access the inputTestData
-  mergeCollections(inputKeys, outputKey);
+  mergeCollections(inputKeys, outputKey, ctx);
 
   // test "outputCollectionMergeTest" contents
   SG::ReadHandleKey<TestHitCollection_t>  mergedCollectionKey{"outputCollectionMergeTest"};
@@ -145,6 +151,8 @@ TEST_F(CollectionMerger_test, mergeCollections) {
 
 
 TEST_F(CollectionMerger_test, integration_with_data) {
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
   // ordering A, C, B is on purpose to test for unintended alphabetic ordering
   std::string inputPropertyValue = "['inputPixelCollectionIntegrationTestA',"
                                     "'inputPixelCollectionIntegrationTestC',"
@@ -156,32 +164,38 @@ TEST_F(CollectionMerger_test, integration_with_data) {
   // create dummy input collections containing dummy data
   HepGeom::Point3D<double> pos(0.,0.,0.);
   auto                                 inputTestDataA = std::make_unique<SiHitCollection>();
-  SG::WriteHandle<SiHitCollection> inputTestDataHandleA{"inputPixelCollectionIntegrationTestA"};
+  SG::WriteHandleKey<SiHitCollection> inputTestDataHandleKeyA{"inputPixelCollectionIntegrationTestA"};
+  ASSERT_TRUE( inputTestDataHandleKeyA.initialize().isSuccess() );
+  SG::WriteHandle<SiHitCollection> inputTestDataHandleA{inputTestDataHandleKeyA, ctx};
   inputTestDataHandleA.record( std::move(inputTestDataA) );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  1, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleA->Emplace( pos, pos, 1., 1.,  5, 0 );
 
   auto                                 inputTestDataB = std::make_unique<SiHitCollection>();
-  SG::WriteHandle<SiHitCollection> inputTestDataHandleB{"inputPixelCollectionIntegrationTestB"};
+  SG::WriteHandleKey<SiHitCollection> inputTestDataHandleKeyB{"inputPixelCollectionIntegrationTestB"};
+  ASSERT_TRUE( inputTestDataHandleKeyB.initialize().isSuccess() );
+  SG::WriteHandle<SiHitCollection> inputTestDataHandleB{inputTestDataHandleKeyB, ctx};
   inputTestDataHandleB.record( std::move(inputTestDataB) );
   inputTestDataHandleB->Emplace( pos, pos, 1., 1., 50, 0 );
   inputTestDataHandleB->Emplace( pos, pos, 1., 1.,  1, 0 );
 
   auto                                 inputTestDataC = std::make_unique<SiHitCollection>();
-  SG::WriteHandle<SiHitCollection> inputTestDataHandleC{"inputPixelCollectionIntegrationTestC"};
+  SG::WriteHandleKey<SiHitCollection> inputTestDataHandleKeyC{"inputPixelCollectionIntegrationTestC"};
+  ASSERT_TRUE( inputTestDataHandleKeyC.initialize().isSuccess() );
+  SG::WriteHandle<SiHitCollection> inputTestDataHandleC{inputTestDataHandleKeyC, ctx};
   inputTestDataHandleC.record( std::move(inputTestDataC) );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1.,  5, 0 );
   inputTestDataHandleC->Emplace( pos, pos, 1., 1.,  1, 0 );
 
   ASSERT_TRUE( m_alg->initialize().isSuccess() );
-  ASSERT_TRUE( m_alg->execute().isSuccess() );
+  ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
 
   // test "outputPixelCollectionIntegrationTest" contents
   SG::ReadHandleKey<SiHitCollection>  mergedCollectionKey{"outputPixelCollectionIntegrationTest"};
   ASSERT_TRUE( mergedCollectionKey.initialize().isSuccess() );
-  SG::ReadHandle<SiHitCollection>     mergedCollectionHandle{mergedCollectionKey};
+  SG::ReadHandle<SiHitCollection>     mergedCollectionHandle{mergedCollectionKey, ctx};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
   ASSERT_EQ( mergedCollectionHandle->size(), 3u+2u+3u );
@@ -199,6 +213,8 @@ TEST_F(CollectionMerger_test, integration_with_data) {
 
 
 TEST_F(CollectionMerger_test, one_empty_one_filled_input_collection___expect_filled_output_collection) {
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
   std::string inputPropertyValue = "['inputPixelCollectionIntegrationTestFilled',"
                                     "'inputPixelCollectionIntegrationTestEmpty']";
   std::string outputPropertyValue = "'outputPixelCollectionTestFilled'";
@@ -207,22 +223,26 @@ TEST_F(CollectionMerger_test, one_empty_one_filled_input_collection___expect_fil
 
   // create dummy input collections containing dummy data
   HepGeom::Point3D<double> pos(0.,0.,0.);
-  SG::WriteHandle<SiHitCollection> inputTestDataHandleFilled{"inputPixelCollectionIntegrationTestFilled"};
+  SG::WriteHandleKey<SiHitCollection> inputTestDataHandleFilledKey{"inputPixelCollectionIntegrationTestFilled"};
+  ASSERT_TRUE( inputTestDataHandleFilledKey.initialize().isSuccess() );
+  SG::WriteHandle<SiHitCollection> inputTestDataHandleFilled{inputTestDataHandleFilledKey, ctx};
   ASSERT_TRUE(inputTestDataHandleFilled.record(std::make_unique<SiHitCollection>()).isSuccess());
   inputTestDataHandleFilled->Emplace( pos, pos, 1., 1.,  1, 0 );
   inputTestDataHandleFilled->Emplace( pos, pos, 1., 1., 20, 0 );
   inputTestDataHandleFilled->Emplace( pos, pos, 1., 1.,  5, 0 );
 
-  SG::WriteHandle<SiHitCollection> inputTestDataHandleEmpty{"inputPixelCollectionIntegrationTestEmpty"};
+  SG::WriteHandleKey<SiHitCollection> inputTestDataHandleEmptyKey{"inputPixelCollectionIntegrationTestEmpty"};
+  ASSERT_TRUE( inputTestDataHandleEmptyKey.initialize().isSuccess() );
+  SG::WriteHandle<SiHitCollection> inputTestDataHandleEmpty{inputTestDataHandleEmptyKey, ctx};
   ASSERT_TRUE(inputTestDataHandleEmpty.record(std::make_unique<SiHitCollection>()).isSuccess());
 
   ASSERT_TRUE( m_alg->initialize().isSuccess() );
-  ASSERT_TRUE( m_alg->execute().isSuccess() );
+  ASSERT_TRUE( m_alg->execute(ctx).isSuccess() );
 
   // test "outputPixelCollectionIntegrationTest" contents
   SG::ReadHandleKey<SiHitCollection>  mergedCollectionKey{"outputPixelCollectionTestFilled"};
   ASSERT_TRUE( mergedCollectionKey.initialize().isSuccess() );
-  SG::ReadHandle<SiHitCollection> mergedCollectionHandle{mergedCollectionKey};
+  SG::ReadHandle<SiHitCollection> mergedCollectionHandle{mergedCollectionKey, ctx};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
   ASSERT_EQ( 3u, mergedCollectionHandle->size() );
@@ -235,43 +255,55 @@ TEST_F(CollectionMerger_test, one_empty_one_filled_input_collection___expect_fil
 
 
 TEST_F(CollectionMerger_test, preexisting_output_collection___expect_execute_isFailure) {
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
   std::string inputPropertyValue = "['inputPixelCollectionTestX']";
   std::string outputPropertyValue = "'outputPixelCollectionTestPreexisting'";
   ASSERT_TRUE( m_alg->setProperty( "InputPixelHits",  inputPropertyValue).isSuccess()  );
   ASSERT_TRUE( m_alg->setProperty( "OutputPixelHits", outputPropertyValue).isSuccess() );
 
   // create dummy input collections containing dummy data
-  SG::WriteHandle<SiHitCollection> inputTestDataHandleA{"inputPixelCollectionTestX"};
+  SG::WriteHandleKey<SiHitCollection> inputTestDataHandleKeyA{"inputPixelCollectionTestX"};
+  ASSERT_TRUE( inputTestDataHandleKeyA.initialize().isSuccess() );
+  SG::WriteHandle<SiHitCollection> inputTestDataHandleA{inputTestDataHandleKeyA, ctx};
   ASSERT_TRUE( inputTestDataHandleA.record(std::make_unique<SiHitCollection>()).isSuccess() );
 
   // create pre-existing output collection
-  SG::WriteHandle<SiHitCollection> outputDataHandle{"outputPixelCollectionTestPreexisting"};
+  SG::WriteHandleKey<SiHitCollection> outputDataHandleKey{"outputPixelCollectionTestPreexisting"};
+  ASSERT_TRUE( outputDataHandleKey.initialize().isSuccess() );
+  SG::WriteHandle<SiHitCollection> outputDataHandle{outputDataHandleKey, ctx};
   ASSERT_TRUE( outputDataHandle.record(std::make_unique<SiHitCollection>()).isSuccess() );
 
   ASSERT_TRUE( m_alg->initialize().isSuccess() );
-  ASSERT_TRUE( m_alg->execute().isFailure() );
+  ASSERT_TRUE( m_alg->execute(ctx).isFailure() );
 }
 
 
 TEST_F(CollectionMerger_test, nonexisting_input_collection___expect_SG_exception) {
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
   std::string inputPropertyValue = "['inputPixelCollectionDoesntExist']";
   std::string outputPropertyValue = "'outputPixelCollectionTest123'";
   ASSERT_TRUE( m_alg->setProperty( "InputPixelHits",  inputPropertyValue).isSuccess()  );
   ASSERT_TRUE( m_alg->setProperty( "OutputPixelHits", outputPropertyValue).isSuccess() );
 
   ASSERT_TRUE( m_alg->initialize().isSuccess() );
-  ASSERT_THROW( m_alg->execute(), SG::ExcNullReadHandle );
+  ASSERT_THROW( m_alg->execute(ctx), SG::ExcNullReadHandle );
 }
 
 
 TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merged_pointers_not_equal_to_input) {
+  EventContext ctx(0,0);
+  ctx.setExtension( Atlas::ExtendedEventContext( m_sg, 0 ) );
   SG::ReadHandleKeyArray<TestPointerHitCollection_t> inputKeys{};
   SG::WriteHandleKey<TestPointerHitCollection_t> outputKey{"outputPointerCollectionMergeTest"};
   ASSERT_TRUE( outputKey.initialize().isSuccess() );
 
   // create dummy input collections containing dummy data
   auto inputTestDataA = std::make_unique<TestPointerHitCollection_t>();
-  SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleA{"inputPointerCollectionA"};
+  SG::WriteHandleKey<TestPointerHitCollection_t> inputTestDataHandleKeyA{"inputPointerCollectionA"};
+  ASSERT_TRUE( inputTestDataHandleKeyA.initialize().isSuccess() );
+  SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleA{inputTestDataHandleKeyA, ctx};
   inputTestDataHandleA.record( std::move(inputTestDataA) );
   auto* inputHitA1 = new ISFTesting::TestHit(1);
   inputTestDataHandleA->push_back(inputHitA1);
@@ -281,7 +313,9 @@ TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merge
   inputTestDataHandleA->push_back(inputHitA3);
 
   auto inputTestDataB = std::make_unique<TestPointerHitCollection_t>();
-  SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleB{"inputPointerCollectionB"};
+  SG::WriteHandleKey<TestPointerHitCollection_t> inputTestDataHandleKeyB{"inputPointerCollectionB"};
+  ASSERT_TRUE( inputTestDataHandleKeyB.initialize().isSuccess() );
+  SG::WriteHandle<TestPointerHitCollection_t> inputTestDataHandleB{inputTestDataHandleKeyB, ctx};
   inputTestDataHandleB.record( std::move(inputTestDataB) );
   auto* inputHitB1 = new ISFTesting::TestHit(50);
   inputTestDataHandleB->push_back(inputHitB1);
@@ -296,12 +330,12 @@ TEST_F(CollectionMerger_test, mergeCollections_with_pointer_types___expect_merge
   ASSERT_TRUE( inputKeys.at(1).initialize().isSuccess() );
 
   // merge pointer collections
-  mergeCollections(inputKeys, outputKey);
+  mergeCollections(inputKeys, outputKey, ctx);
 
   // test "outputCollectionMergeTest" contents
   SG::ReadHandleKey<TestPointerHitCollection_t> mergedCollectionKey{"outputPointerCollectionMergeTest"};
   ASSERT_TRUE( mergedCollectionKey.initialize().isSuccess() );
-  SG::ReadHandle<TestPointerHitCollection_t> mergedCollectionHandle{mergedCollectionKey};
+  SG::ReadHandle<TestPointerHitCollection_t> mergedCollectionHandle{mergedCollectionKey, ctx};
 
   ASSERT_TRUE( mergedCollectionHandle.isValid() );
   ASSERT_EQ( 3u+2u, mergedCollectionHandle->size() );
