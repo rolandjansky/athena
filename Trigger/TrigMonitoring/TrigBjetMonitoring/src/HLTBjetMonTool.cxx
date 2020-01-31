@@ -86,7 +86,7 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
   m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
   m_Shifter_jSplit{}, m_Expert_jSplit{}, m_Shifter_jUnSplit{},  m_Expert_jUnSplit{}, m_Shifter_mujet{},m_Expert_mujet{},
-  m_vertexContainerKey("PrimaryVertices"),
+  m_vertexContainerKey("HLT_EFHistoPrmVtx"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_etCut(10.), m_sv1_infosource("SV1")
 {
