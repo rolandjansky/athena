@@ -55,37 +55,6 @@ if DerivationFrameworkIsMonteCarlo:
   if IsSUSYSignal():
      from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
-#====================================================================
-# TRIGGER CONTENT   
-#====================================================================
-# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
-# Get single and multi mu, e, photon triggers
-# Jet, tau, multi-object triggers not available in the matching code
-allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
-trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
-trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
-trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
-# Add cross-triggers for some sets
-trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
-trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
-
-# Merge and remove duplicates
-trigger_names_full = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
-
-# Now reduce the list...
-from RecExConfig.InputFilePeeker import inputFileSummary
-trigger_names = []
-for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
-    if not 'ChainName' in trig_item: continue
-    if trig_item['ChainName'] in trigger_names_full: trigger_names += [ trig_item['ChainName'] ]
-
-# Create trigger matching decorations
-trigmatching_helper = TriggerMatchingHelper(
-        trigger_list = trigger_names, add_to_df_job=True)
-
 #==============================================================================
 # HEAVY FLAVOR DECORATION
 #==============================================================================
@@ -360,6 +329,50 @@ METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = P
 scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 
 #====================================================================
+# TRIGGER CONTENT
+#====================================================================
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
+# Get single and multi mu, e, photon triggers
+# Jet, tau, multi-object triggers not available in the matching code
+# Note this comes relatively late as we have to re-do the matching to our analysis objects
+allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
+trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
+trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
+trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
+# Add cross-triggers for some sets
+trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
+trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
+trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
+
+# Merge and remove duplicates
+trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
+trigger_names_full_tau = list(set(trig_tau+trig_txe))
+
+# Now reduce the list...
+from RecExConfig.InputFilePeeker import inputFileSummary
+trigger_names_notau = []
+trigger_names_tau = []
+for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
+    if not 'ChainName' in trig_item: continue
+    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
+    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
+
+# Create trigger matching decorations
+trigmatching_helper_notau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolNoTau',
+        trigger_list = trigger_names_notau, add_to_df_job=False,
+        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
+        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
+trigmatching_helper_tau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolTau',
+        trigger_list = trigger_names_tau, add_to_df_job=False, DRThreshold=0.2,
+        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
+        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
+SeqPHYSLITE += trigmatching_helper_notau.alg
+SeqPHYSLITE += trigmatching_helper_tau.alg
+
+#====================================================================
 # MAIN KERNEL
 #====================================================================
 # Put our sequence into the top sequence
@@ -452,9 +465,7 @@ if DerivationFrameworkIsMonteCarlo:
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 
 # Extra trigger collections
-trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
+trigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
+trigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
-
-svcMgr.MetaDataSvc.OutputLevel = DEBUG
-for t in svcMgr.MetaDataSvc.MetaDataTools: t.OutputLevel=DEBUG
