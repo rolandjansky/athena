@@ -58,6 +58,14 @@ namespace Analysis {
     m_jetBTaggingLinkName = m_JetCollectionName.key() + m_BTagLink;
     ATH_CHECK( m_jetBTaggingLinkName.initialize() );
    
+    /// retrieve the main BTagTool
+    if ( m_bTagTool.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_bTagTool);
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_bTagTool);
+    }
+
     /// retrieve the bTagSecVtxTool
     if ( m_bTagSecVtxTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("#BTAGVTX# Failed to retrieve tool " << m_bTagSecVtxTool);
