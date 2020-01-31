@@ -13,7 +13,6 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkEventPrimitives/PropDirection.h"
-//https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkEventPrimitives/trunk/TrkEventPrimitives/PropDirection.h
 
 // constructor
 Trk::PropagationEngine::PropagationEngine(const std::string& t, const std::string& n, const IInterface* p)

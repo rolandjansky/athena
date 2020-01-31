@@ -212,8 +212,6 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePo
     EX_MSG_DEBUG(++eCell.navigationStep, "navigation", "", "resolve position '"<< eCell.leadParameters->position() 
                 << (int(pDir) > 0 ? "' along momentum." : "' opposite momentum.") );
 
-    // noLoop= True is used when we have exit from leadVolume 
-
     if (!eCell.leadVolume) eCell.leadVolume = trackingGeometry().lowestStaticTrackingVolume(eCell.leadParameters->position());
     if (!eCell.leadVolume) return Trk::ExtrapolationCode::FailureNavigation;
     const Trk::TrackingVolume* nextVol=0;
@@ -222,8 +220,6 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePo
                                              eCell.leadVolume,
                                              nextVol, pDir, 0.01) ) {          // set tolerance globally 
   
-       //if (noLoop && nextVol==eCell.leadVolume) return Trk::ExtrapolationCode::FailureLoop;  
-
        if (nextVol) {
          eCell.leadVolume = nextVol;
          return Trk::ExtrapolationCode::InProgress;

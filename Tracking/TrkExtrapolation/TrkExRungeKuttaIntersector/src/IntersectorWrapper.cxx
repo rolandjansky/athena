@@ -199,8 +199,7 @@ IntersectorWrapper::findIntersection (const TrackParameters&	parameters,
 				      const Surface&		surface,
 				      PropDirection	       	dir) const
 {
-    //if (! m_intersection || &parameters != m_parameters)
-    {
+    
 	delete m_intersection;
 	m_charge	=  parameters.charge();
 	m_momentum	=  parameters.momentum();
@@ -210,7 +209,7 @@ IntersectorWrapper::findIntersection (const TrackParameters&	parameters,
 	m_qOverP	=  1./m_momentum.mag();
 	m_intersection	=  new TrackSurfaceIntersection(m_position,m_momentum*m_qOverP,0.);
 	m_qOverP	*= m_charge;
-    }
+    
 
     const TrackSurfaceIntersection* oldIntersection = m_intersection;
     m_intersection = m_intersector->intersectSurface(surface,
