@@ -198,7 +198,7 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
 
   TFCSExtrapolationState extrapol;
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
   TFCSSimulationState simulstate(*rngWrapper);
 
   ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << " direction phi: " << particle_direction.phi());
