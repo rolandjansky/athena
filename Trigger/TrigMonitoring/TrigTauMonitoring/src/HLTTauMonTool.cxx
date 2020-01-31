@@ -815,7 +815,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
       } else { // TrigComposite
 
         const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > featuresPreselect
-           = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "TrigTauRecPreselection");
+           = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition,"HLT_TrigTauRecMerged_MVA");
 
         if(featuresPreselect.size() == 0) {
           ATH_MSG_DEBUG("TrigTauPreselection TauJet container EMPTY in " << trig_item_EF);
