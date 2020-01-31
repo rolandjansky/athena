@@ -24,10 +24,15 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 find_package( GeoModelCore )
+find_package( Qt5 )
+
+# Run the QT build steps automatically.
+set( CMAKE_AUTOMOC TRUE )
+set( CMAKE_AUTOUIC TRUE )
 
 # Component(s) in the package:
 atlas_add_library( VP12DGeometrySystems
-                   src/*.c*
+		   VP12DGeometrySystems/*.h src/*.cxx src/*.ui
                    PUBLIC_HEADERS VP12DGeometrySystems
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives VP1Base StoreGateLib SGtests CaloDetDescrLib MuonIdHelpersLib
