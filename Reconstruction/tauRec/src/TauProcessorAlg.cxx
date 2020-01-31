@@ -96,8 +96,6 @@ StatusCode TauProcessorAlg::initialize() {
         return StatusCode::FAILURE;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-
     return StatusCode::SUCCESS;
 }
 
@@ -121,14 +119,10 @@ StatusCode TauProcessorAlg::finalize() {
   }
 
   if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE("The tau candidate container has been modified");
-  } else if (!sc.isSuccess()) {
-  } else  {
-  }
-
+    ATH_MSG_VERBOSE("All the invoded tools are finilized successfully.");
+  } 
 
   return StatusCode::SUCCESS;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -136,7 +130,6 @@ StatusCode TauProcessorAlg::finalize() {
 //-----------------------------------------------------------------------------
 StatusCode TauProcessorAlg::execute() {
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  StatusCode sc;
 
     //-------------------------------------------------------------------------                         
     // Create and Record containers
@@ -228,6 +221,7 @@ StatusCode TauProcessorAlg::execute() {
       //-----------------------------------------------------------------
       // Loop stops when Failure indicated by one of the tools
       //-----------------------------------------------------------------
+      StatusCode sc;
       ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
@@ -247,45 +241,26 @@ StatusCode TauProcessorAlg::execute() {
       }
 
       if (sc.isSuccess()) {
-	
 	ATH_MSG_VERBOSE("The tau candidate has been registered");
-     
-      } else if (!sc.isSuccess()) {
+      } 
+      else {
 	//remove orphaned tracks before tau is deleted via pop_back
 	xAOD::TauJet* bad_tau = pContainer->back();
 	ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
 	pTauTrackCont->erase(pTauTrackCont->end()-bad_tau->nAllTracks(), pTauTrackCont->end());
 
-	//m_data.xAODTauContainer->pop_back();
 	pContainer->pop_back();
-      } else{
-
-	//remove orphaned tracks before tau is deleted via pop_back
-	xAOD::TauJet* bad_tau = pContainer->back();
-	ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
-	pTauTrackCont->erase(pTauTrackCont->end()-bad_tau->nAllTracks(), pTauTrackCont->end());
-
-	//m_data.xAODTauContainer->pop_back();
-	pContainer->pop_back();
-      }
-
-
+      } 
     }// loop through seeds
 
     // Check this is needed for the cell container?
     // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
     ATH_CHECK(evtStore()->symLink(Pi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
-    //---------------------------------------------------------------------
-    // use the m_cellMakerTool to finalize the custom CaloCellContainer
-    //---------------------------------------------------------------------
-    CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer), ctx) );
+    
+    // sort the cll container by hash
+    ATH_CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer), ctx) );
 
-
-  if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE("The tau candidate container has been modified");
-  } else if (!sc.isSuccess()) {
-  } else  {
-  }
+  ATH_MSG_VERBOSE("The tau candidate container has been modified");
   
   // Write the completed tau and track containers
   ATH_MSG_DEBUG("  write: " << tauHandle.key() << " = " << "..." );
