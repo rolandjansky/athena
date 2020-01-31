@@ -48,7 +48,6 @@ namespace Muon {
     declareProperty("FixedErrorTgcPhi", m_fixedErrorTgcPhi = 5. );
     declareProperty("FixedErrorRpcPhi", m_fixedErrorRpcPhi = 5. );
     declareProperty("FixedErrorCscPhi", m_fixedErrorCscPhi = 5. );
-    declareProperty("eDriftVelocityMM", m_eDriftVelocityMM = 0.047 );
   }
 
 
@@ -75,7 +74,7 @@ namespace Muon {
 
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::createRIO_OnTrack(const Trk::PrepRawData& RIO,
-									 const Amg::Vector3D& GP, const Amg::Vector3D& GD) const
+									 const Amg::Vector3D& GP) const
 
   {
     MuonClusterOnTrack* MClT = 0;
@@ -264,57 +263,18 @@ namespace Muon {
       // cast to MMPrepData
       const MMPrepData* MClus   = dynamic_cast<const MMPrepData*> (&RIO);
       if (!MClus) {
-	ATH_MSG_WARNING ( "RIO not of type MMPrepData, cannot create ROT" );
-	return 0;
+	        ATH_MSG_WARNING ( "RIO not of type MMPrepData, cannot create ROT" );
+	        return 0;
       }
-
-      Amg::Vector2D lposMM = MClus->localPosition();
-
-      double tOffset = 0.0;
-      double zshift = m_eDriftVelocityMM * (MClus->time() - tOffset);
-
-      ATH_MSG_DEBUG( " Drift time " << MClus->time() << " zshift " << zshift);
-      if (zshift<-5.05) {
-        ATH_MSG_WARNING( "Invalid drift time: zshift " << zshift << " while volume size 10: [-5;5]. Set zshift = -5.05");
-	zshift = -5.05;
-      } else if (zshift>5.) {
-        ATH_MSG_WARNING( "Invalid drift time: zshift " << zshift << " while volume size 10: [-5;5]. Set zshift = 5.05");
-	zshift = 5.05;
-      }
-      ATH_MSG_DEBUG( " MM Prepdata pos locX " << lposMM[0] << " locY " << lposMM[1] << " and zshift " << zshift);
-
-      Amg::Vector3D lposTrack = RIO.detectorElement()->surface(RIO.identify()).transform().inverse()*GP;
-      Amg::Vector3D GPinGasGap = GP + Amg::Vector3D(0.,0.,zshift);
-      Amg::Vector3D GPshifted = GPinGasGap;
-      if (std::abs(GD.z()) > 0.000001)
-        GPshifted-= zshift*GD/GD.z();
-      else
-        ATH_MSG_WARNING ( "GD.z() is 0, mTPC correction cannot be done" );;
-
-      ATH_MSG_DEBUG( " GD x " << GD.x() << " y " << GD.y() << " z " << GD.z());
-      ATH_MSG_DEBUG( " GP x " << GP.x() << " y " << GP.y() << " z " << GP.z());
-      ATH_MSG_DEBUG( " GPshifted x " << GPshifted.x() << " y " << GPshifted.y() << " z " << GPshifted.z());
-
-      ATH_MSG_DEBUG( " lposTrack x " << lposTrack.x() << " y " << lposTrack.y() << " z " << lposTrack.z());
-      Amg::Vector3D lposTrackShifted = RIO.detectorElement()->surface(RIO.identify()).transform().inverse()*GPshifted;
-      ATH_MSG_DEBUG( " lposTrackShifted x " << lposTrackShifted.x() << " y " << lposTrackShifted.y() << " z " << lposTrackShifted.z());
-      double locXshift = lposTrackShifted.x() - lposTrack.x();
-      double locYshift = lposTrackShifted.y() - lposTrack.y();
-      ATH_MSG_DEBUG( " MM ClusterOnTrack locXshift " << locXshift);
-
-      ATH_MSG_DEBUG( " MM ClusterOnTrack old pos locX " << locpar[Trk::locX] << " Old position along strip " << positionAlongStrip);
-      positionAlongStrip += locYshift;
-      locpar[Trk::locX] = lposMM[0] + locXshift;
-      ATH_MSG_DEBUG( " MM ClusterOnTrack new pos locX " << locpar[Trk::locX] << " New position along strip " << positionAlongStrip);
-
       MClT = new MMClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
     }else if( m_idHelperSvc->issTgc(RIO.identify()) ){
 
+      // cast to sTgcPrepData
       const sTgcPrepData* MClus   = dynamic_cast<const sTgcPrepData*> (&RIO);
       if (!MClus) {
-	ATH_MSG_WARNING ( "RIO not of type MMPrepData, cannot create ROT" );
-	return 0;
+      	ATH_MSG_WARNING ( "RIO not of type sTgcPrepData, cannot create ROT" );
+      	return 0;
       }
 
       
@@ -324,9 +284,8 @@ namespace Muon {
   }  
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::
-  createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP) const {
-    const Amg::Vector3D GD = GP;
-    return createRIO_OnTrack(RIO,GP,GD);
+  createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP, const Amg::Vector3D&) const {
+    return createRIO_OnTrack(RIO,GP);
   }
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const 

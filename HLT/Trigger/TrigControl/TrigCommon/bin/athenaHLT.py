@@ -41,6 +41,7 @@ import argparse
 import ast
 import collections
 from datetime import datetime as dt
+import six
 
 from TrigCommon import AthHLT
 from AthenaCommon.Logging import logging
@@ -143,7 +144,7 @@ def update_run_params(args):
 
 def update_nested_dict(d, u):
    """Update nested dictionary (https://stackoverflow.com/q/3232943)"""
-   for k, v in u.iteritems():
+   for k, v in six.iteritems(u):
       if isinstance(v, collections.Mapping):
          d[k] = update_nested_dict(d.get(k, {}), v)
       else:
@@ -170,6 +171,8 @@ def HLTMPPy_cfgdict(args):
       'soft_timeout_fraction' : 0.95,
       'hltresultSizeMb': args.hltresult_size
    }
+   if args.debug:
+      cdict['HLTMPPU']['debug'] = args.debug
 
    cdict['datasource'] = {
       'module': 'dffileds',
@@ -291,6 +294,8 @@ def main():
                   help='Python commands executed before job options or database configuration')
    g.add_argument('--postcommand', '-C', metavar='CMD', action='append', default=[],
                   help='Python commands executed after job options or database configuration')
+   g.add_argument('--debug', '-d', nargs='?', const='child', choices=['parent','child'],
+                  help='attach debugger (to child by default)')
    g.add_argument('--interactive', '-i', action='store_true', help='interactive mode')
    g.add_argument('--help', '-h', nargs='?', choices=['all'], action=MyHelp, help='show help')
 

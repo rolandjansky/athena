@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,8 @@
 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 
+#include "AthenaMonitoringKernel/Monitored.h"
+
 class ITrigL2LayerNumberTool;
 class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
@@ -53,8 +55,6 @@ namespace Trk {
   class SpacePoint;
 }
 
-class IFTK_DataProviderSvc;
-
 class TrigL2LayerSetLUT;
 class TrigSpacePointStorage;
 class TrigInDetTriplet;
@@ -67,14 +67,15 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
  public:
   
   TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigFastTrackFinder();
-  HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltFinalize();
-  HLT::ErrorCode hltStart();
+  virtual ~TrigFastTrackFinder();
+  virtual HLT::ErrorCode hltInitialize() override;
+  virtual HLT::ErrorCode hltFinalize() override;
+  virtual HLT::ErrorCode hltStart() override;
 
-  StatusCode execute();
+  virtual StatusCode execute() override;
+  virtual
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
-			    HLT::TriggerElement* outputTE);
+			    HLT::TriggerElement* outputTE) override;
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
@@ -82,6 +83,9 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
+
+  virtual bool isClonable() const override { return true; }
+  virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
 
 protected: 
 
@@ -107,8 +111,7 @@ protected:
   ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle<ITrigZFinder> m_trigZFinder;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
-  ServiceHandle<IFTK_DataProviderSvc > m_ftkDataProviderSvc;
-  std::string m_ftkDataProviderSvcName;
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
   //DataHandles
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
@@ -122,13 +125,9 @@ protected:
   // Control flags
 
   bool m_doCloneRemoval;
-  bool m_ftkMode;//If True: Retrieve FTK tracks
-  bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
   bool m_doZFinder;
-  bool m_doFTKZFinder;
-  bool m_doFTKFastVtxFinder;
   bool m_doFastZVseeding;
   bool m_doResMonitoring;
 

@@ -83,10 +83,10 @@ namespace Trk {
       virtual const MaterialProperties* material(size_t ib0, size_t ib1) const = 0;
       
       /** Update the ElementTable */
-      void updateElementTable(const SharedObject<const ElementTable>&) const { return; }
+      void updateElementTable(const SharedObject<const ElementTable>&) const { }
       
       /** Get the ElementTable */
-      const ElementTable* elementTable() const { return 0; }
+      const ElementTable* elementTable() const { return nullptr; }
             
       /** Update pre factor */
       double factor(PropDirection pDir, MaterialUpdateStage mStage) const;
@@ -111,7 +111,7 @@ namespace Trk {
       virtual const BinUtility* binUtility() const = 0;
             
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      virtual void updateBinning(BinUtility* bu) const = 0;
+      virtual void updateBinning(BinUtility* bu) = 0;
 
       /** Output Method for MsgStream, to be overloaded by child classes */
       virtual MsgStream& dump(MsgStream& sl) const = 0;

@@ -34,8 +34,6 @@ private:
   SG::ReadHandleKey<SCT_RDO_Container> m_bkgInputKey{ this, "BkgInputKey", "Bkg_SCT_RDOs", "ReadHandleKey for Background Input SCT_RDO_Container" };
   SG::ReadHandleKey<SCT_RDO_Container> m_signalInputKey{ this, "SignalInputKey", "Sig_SCT_RDOs", "ReadHandleKey for Signal Input SCT_RDO_Container" };
   SG::WriteHandleKey<SCT_RDO_Container> m_outputKey{ this, "OutputKey", "SCT_RDOs", "WriteHandleKey for Output SCT_RDO_Container" };
-
-  BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
 };
 
 #endif // INDETOVERLAY_SCTOVERLAY_H

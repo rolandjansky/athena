@@ -58,12 +58,12 @@ namespace Trig {
     Trig::ExpertMethods* ExperimentalAndExpertMethods() const { return m_expertMethods; }
 
   protected:
-    virtual Trig::CacheGlobalMemory* cgm() const { return m_cacheGlobalMemory; }
+    virtual Trig::CacheGlobalMemory* cgm() const;
 
     
   private:
-    Trig::CacheGlobalMemory*    m_cacheGlobalMemory;    
-    Trig::ExpertMethods*        m_expertMethods;
+    SG::SlotSpecificObj<Trig::CacheGlobalMemory> m_cacheGlobalMemory;    
+    Trig::ExpertMethods* m_expertMethods;
     TrigDecisionToolCore (const TrigDecisionToolCore&);
     TrigDecisionToolCore& operator= (const TrigDecisionToolCore&);
     

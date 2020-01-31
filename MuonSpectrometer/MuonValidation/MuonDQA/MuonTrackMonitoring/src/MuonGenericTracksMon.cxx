@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================================================
@@ -14,7 +14,6 @@
 // ============================================================================== 
 
 #include "MuonTrackMonitoring/MuonGenericTracksMon.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
@@ -43,11 +42,8 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   m_oRecoMuonMETrackPlots(0),
   m_oRecoMuonIDTrackPlots(0),
   m_oRecoMuonPlots(0),
-  //m_oRecoMuonForwPlots(0),
-  //m_oRecoMuonCaloPlots(0),
   m_oRecoPhysPlots(0),
   m_oRecoVertexPlots(0),
-  m_storeGate(0),
   m_useTrigger(true),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_ZmumuResonanceSelectionTool("MuonResonanceSelectionTool/ZmumuResonanceSelectionTool"),
@@ -56,8 +52,6 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   m_JpsimumuResonancePairingTool("MuonResonancePairingTool/JpsimumuResonancePairingTool"),
   m_isMC(false)
 {
-
-  //m_pullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
 
   declareProperty("UseTriggerVector",     m_useTrigger); 
   declareProperty("MuonTriggerChainName", m_MuonTriggerChainName);
@@ -74,16 +68,11 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   declareProperty("MSVertexCollection",				 m_msVertexCollection   = "MSDisplacedVertex");
 }
 
-//======================================================================================//
-StatusCode MuonGenericTracksMon::initialize()
-//======================================================================================//
-{ 
-  StatusCode sc = ManagedMonitorToolBase::initialize();
-  if(!sc.isSuccess()) return sc;
-  sc = setupTools();
-  return sc;
+StatusCode MuonGenericTracksMon::initialize() { 
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
+  ATH_CHECK(setupTools());
+  return StatusCode::SUCCESS;
 }
-
 
 //======================================================================================//
 StatusCode MuonGenericTracksMon::bookHistograms()
@@ -251,7 +240,6 @@ StatusCode MuonGenericTracksMon::bookInMongroup(TH1* hist, MonGroup& mongroup)
 {
   ATH_MSG_DEBUG ("Initializing " << hist << " " << hist->GetName() << "...");
   return (mongroup.regHist(hist));
-  //return bookInMongroup( HistData(hist,hist->GetName()), mongroup);
 }
 
 StatusCode MuonGenericTracksMon::bookInMongroup(HistData& hist, MonGroup& mongroup, std::string source)
@@ -349,11 +337,8 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 {
     ATH_MSG_DEBUG("In fillHistograms()");
 
-    const xAOD::EventInfo* eventInfo;
-    if (evtStore()->retrieve(eventInfo).isFailure()){
-        ATH_MSG_ERROR ("Cannot access to event info");
-        return StatusCode::SUCCESS;
-    }
+    const xAOD::EventInfo* eventInfo=nullptr;
+    ATH_CHECK(evtStore()->retrieve(eventInfo));
 
     if(!(m_environment == AthenaMonManager::tier0    || 
          m_environment == AthenaMonManager::tier0ESD || 
@@ -384,12 +369,15 @@ StatusCode MuonGenericTracksMon::fillHistograms()
     }
 
     // retrieve containers
-    const xAOD::MuonSegmentContainer* MuonSegments = evtStore()->retrieve< const xAOD::MuonSegmentContainer >(m_muonSegmentsName);
-    const xAOD::TrackParticleContainer*   tracksMS = evtStore()->retrieve< const xAOD::TrackParticleContainer >(m_muonTracksName);
-    const xAOD::MuonContainer*               Muons = evtStore()->retrieve< const xAOD::MuonContainer >(m_muonsName);
-    const xAOD::VertexContainer*         MSVertices = evtStore()->retrieve< const xAOD::VertexContainer >(m_msVertexCollection);
-    //const xAOD::TrackParticleContainer* METracks = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_muonExtrapTracksName );
-    //const xAOD::TrackParticleContainer* IDTracks = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_innerTracksName );
+    const xAOD::MuonSegmentContainer* MuonSegments=nullptr;
+    ATH_CHECK(evtStore()->retrieve(MuonSegments, m_muonSegmentsName));
+    const xAOD::TrackParticleContainer* tracksMS=nullptr;
+    ATH_CHECK(evtStore()->retrieve(tracksMS, m_muonTracksName));
+    const xAOD::MuonContainer* Muons=nullptr;
+    ATH_CHECK(evtStore()->retrieve(Muons, m_muonsName));
+    const xAOD::VertexContainer* MSVertices=nullptr;
+    ATH_CHECK(evtStore()->retrieve(MSVertices, m_msVertexCollection));
+
     // check validity
     if (!MuonSegments){
         ATH_MSG_WARNING ("Couldn't retrieve MuonSegments container: " << m_muonSegmentsName);
@@ -407,15 +395,6 @@ StatusCode MuonGenericTracksMon::fillHistograms()
         ATH_MSG_WARNING ("Couldn't retrieve MS vertex container: " << m_msVertexCollection);
         return StatusCode::SUCCESS;
     }
-    // if (!METracks) {
-    //   ATH_MSG_WARNING ("Couldn't retrieve muon track container: " << m_muonExtrapTracksName);
-    //   return StatusCode::RECOVERABLE;
-    // }
-    // if (!IDTracks) {
-    //   ATH_MSG_WARNING ("Couldn't retrieve muon track container: " << m_innerTracksName);
-    //   return StatusCode::RECOVERABLE;
-    // }
-    // ATH_MSG_WARNING ("MS container size: " << tracksMS->size() << " ME container size: " << METracks->size());
 
     // fill the histograms
     if (m_MuonTriggerChainName != ""){
@@ -623,7 +602,6 @@ StatusCode MuonGenericTracksMon::procHistograms()
     if(endOfRunFlag()) {
 
       //finish the post processing
-      //for (auto plots : m_oRecoPhysPlots)            plots->finalizeRecoPlots();
 
       //remove all the pointers
       for (auto plots : m_oRecoLumiPlots)            delete plots;
@@ -632,8 +610,6 @@ StatusCode MuonGenericTracksMon::procHistograms()
       for (auto plots : m_oRecoMuonMETrackPlots)     delete plots;
       for (auto plots : m_oRecoMuonIDTrackPlots)     delete plots;
       for (auto plots : m_oRecoMuonPlots)            delete plots;
-      //for (auto plots : m_oRecoMuonForwPlots)        delete plots;
-      //for (auto plots : m_oRecoMuonCaloPlots)        delete plots;
       for (auto plots : m_oRecoPhysPlots)            delete plots;
       for (auto plots : m_oRecoVertexPlots)          delete plots;
 
@@ -642,82 +618,24 @@ StatusCode MuonGenericTracksMon::procHistograms()
   return StatusCode::SUCCESS;   
 }
 
-
-//======================================================================================//
-StatusCode MuonGenericTracksMon::finalize()
-//======================================================================================//
-{ 
-
-  StatusCode sc = ManagedMonitorToolBase::finalize();
-  if(!sc.isSuccess()) return sc;
-  
-  return StatusCode::SUCCESS;
-}
-
-
 //======================================================================================//
 StatusCode MuonGenericTracksMon::setupTools()
 //======================================================================================//
 {
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = service("StoreGateSvc", m_storeGate);
-
-  if (sc.isFailure()){
-    ATH_MSG_FATAL( "Unable to retrieve the StoreGate service... Exiting!" );
-    return sc;
-  }
-  ATH_MSG_DEBUG( "Defined detector service" );
-
-
-  // sc = m_pullCalculator.retrieve();
-  // if (sc.isFailure()) {
-  //   ATH_MSG_ERROR( "Can't retrieve " << m_pullCalculator );
-  //   return sc;
-  // }
-  // ATH_MSG_DEBUG( " Found the " << m_pullCalculator );
-
-  // sc = m_edmHelperSvc.retrieve();
-  // if (!sc.isSuccess()){
-  //   ATH_MSG_FATAL( "Could not get " << m_edmHelperSvc );
-  //   return sc;
-  // }
-  // ATH_MSG_DEBUG( "Retrieved " << m_edmHelperSvc );
- 
-  sc = m_ZmumuResonanceSelectionTool.retrieve();
-  if (!sc.isSuccess()){
-    ATH_MSG_FATAL( "Could not get " << m_ZmumuResonanceSelectionTool ); 
-    return sc;
-  }
+  ATH_CHECK(m_ZmumuResonanceSelectionTool.retrieve());
   ATH_MSG_DEBUG( "Retrieved " << m_ZmumuResonanceSelectionTool );
  
-  sc = m_ZmumuResonancePairingTool.retrieve();
-  if (!sc.isSuccess()){
-    ATH_MSG_FATAL( "Could not get " << m_ZmumuResonancePairingTool ); 
-    return sc;
-  }
+  ATH_CHECK(m_ZmumuResonancePairingTool.retrieve());
   ATH_MSG_DEBUG( "Retrieved " << m_ZmumuResonancePairingTool );
  
-  sc = m_JpsimumuResonanceSelectionTool.retrieve();
-  if (!sc.isSuccess()){
-    ATH_MSG_FATAL( "Could not get " << m_JpsimumuResonanceSelectionTool ); 
-    return sc;
-  }
+  ATH_CHECK(m_JpsimumuResonanceSelectionTool.retrieve());
   ATH_MSG_DEBUG( "Retrieved " << m_JpsimumuResonanceSelectionTool );
  
-  sc = m_JpsimumuResonancePairingTool.retrieve();
-  if (!sc.isSuccess()){
-    ATH_MSG_FATAL( "Could not get " << m_JpsimumuResonancePairingTool ); 
-    return sc;
-  }
+  ATH_CHECK(m_JpsimumuResonancePairingTool.retrieve());
   ATH_MSG_DEBUG( "Retrieved " << m_JpsimumuResonancePairingTool );
  
-  sc = m_muonSelectionTool.retrieve();
-  if (!sc.isSuccess()){
-    ATH_MSG_FATAL( "Could not get " << m_muonSelectionTool ); 
-    return sc;
-  }
+  ATH_CHECK(m_muonSelectionTool.retrieve());
   ATH_MSG_DEBUG( "Retrieved " << m_muonSelectionTool );
-
 
   return StatusCode::SUCCESS;
 }  

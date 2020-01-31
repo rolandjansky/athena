@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNTOOLS_MUONHOUGHPATTERNTOOL_H
@@ -49,8 +49,6 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
 
   /** resets members, called once per event */
   void reset() const;
-  /** initiates members, called once per event */ 
-  void init() const; 
 
   /** reset association flag of hits in m_event */
   void resetAssociation() const;
@@ -161,33 +159,27 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   /** the original hit container */
   mutable const MuonHoughHitContainer* m_event;
 
-  /** number of patterns build per id*/
-  mutable std::vector <int> m_npatterns; // number_of_ids
-  
   /** reconstructed patterns stored per [number_of_ids][level][which_segment] */
   mutable MuonHoughPatternContainerShip m_houghpattern; 
 
-  /** hough histograms for visualisation in root stored per id */
-  mutable std::vector <TH2F*> m_h_histogram;
-
   /** output histograms (false) */
-  bool m_use_histos;
+  Gaudi::Property<bool> m_use_histos{this,"UseHistos",false};
   /** use cosmic settings (false) */
-  bool m_use_cosmics;
+  Gaudi::Property<bool> m_use_cosmics{this,"UseCosmics",false};
   /** use csc hits in association / pattern (true) */
-  bool m_use_csc_in_pattern;
+  Gaudi::Property<bool> m_use_csc_in_pattern{this,"UseCscInPattern",true};
   /** use csc hits in histogram (false) */
-  bool m_use_csc_in_hough;
+  Gaudi::Property<bool> m_use_csc_in_hough{this,"UseCscInHough",true};
   /** use negative weights (false) */
-  bool m_use_negative_weights;
+  Gaudi::Property<bool> m_use_negative_weights{this,"UseNegativeWeights",false};
   /** use curved hough transformation for eta patterns (true) */
-  bool m_use_curvedhough;
+  Gaudi::Property<bool> m_use_curvedhough{this,"UseCurvedHough",true};
   
   /** number of hough transforms currently supported (7) */
   int m_number_of_ids;
 
   /** number of iterations (5) */
-  int m_number_of_maxima;
+  Gaudi::Property<int> m_number_of_maxima{this,"NumberOfMaximaPerIterations",5};
 
   /** use rpc phi strips in phi-patterns (true) */
   //const bool m_use_rpc_measures_phi; 
@@ -197,9 +189,9 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   bool m_use_ip; 
 
   /** minimal size for a phi pattern (1) */
-  unsigned int m_thresholdpattern_xyz; 
+  Gaudi::Property<unsigned int> m_thresholdpattern_xyz{this,"SetThresholdPatternRPhi",1}; 
   /** minimal size for a eta pattern (3) */
-  unsigned int m_thresholdpattern_rz;
+  Gaudi::Property<unsigned int> m_thresholdpattern_rz{this,"SetThresholdPatternREta",3};
 
   // hittosegment association: 
 
@@ -285,36 +277,36 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   const int m_nbins_curved; 
 
   /** weight_cut for hits in hough */
-  bool m_weightcut;
+  Gaudi::Property<bool> m_weightcut{this,"ApplyWeightCut",true};
 
   /** value of weight cut */
-  double m_weight;
+  Gaudi::Property<double> m_weight{this,"WeightCut",0.25}; // cut all hits under 0.25
 
   /** weight_cut for mdt hits in hough */
-  bool m_weightcutmdt;
+  Gaudi::Property<bool> m_weightcutmdt{this,"ApplyWeightCutMdt",true};  // cut all mdt hits under a certain weight (dependent on number of mdt hits in event
 
   /** value of mdt weight cut, dependent on # hits in event */
   mutable double m_weightmdt;
 
   /** threshold histogram in xyz */
-  double m_thresholdhisto_xyz;
+  Gaudi::Property<double> m_thresholdhisto_xyz{this,"SetThresholdHistoRPhi",0.9};
   /** threshold histogram in rz */
-  double m_thresholdhisto_rz;
+  Gaudi::Property<double> m_thresholdhisto_rz{this,"SetThresholdHistoREta",2.1};
 
   /** number of sectors (different regions in which patterns can be found in the same iteration) in xyz */
-  int m_number_of_sectors_xyz;
+  Gaudi::Property<int> m_number_of_sectors_xyz{this,"SetNumberOfSectorsRPhi",12};
   /** number of sectors (different regions in which patterns can be found in the same iteration) in rz */
-  int m_number_of_sectors_rz;
+  Gaudi::Property<int> m_number_of_sectors_rz{this,"SetNumberOfSectorsREta",16};
   /** number of sectors (different regions in which patterns can be found in the same iteration) in rzcosmics */
   int m_number_of_sectors_rz_cosmics;
 
   /** output level (range 0-10) (default 0) */
-  int m_printlevel;
+  Gaudi::Property<int> m_printlevel{this,"Printlevel",0};
 
-  mutable int m_ncalls;
+  mutable std::atomic_uint m_ncalls{0};
 
   /** maximum number of phi hits to do pattern recognition, if small zero no cut is applied */
-  int m_maxNumberOfPhiHits;
+  Gaudi::Property<int> m_maxNumberOfPhiHits{this,"MaximumNumberOfPhiHits",-1};
 
   /** print out pattern hits */
   void printPattern(Muon::MuonPrdPattern* muonpattern)const;

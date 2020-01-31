@@ -1,10 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_tstore_test.cxx 663791 2015-04-29 13:08:06Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -19,11 +17,11 @@
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
-#define protected public
-#define private public
+//#define protected public
+//#define private public
 #   include "xAODRootAccess/TStore.h"
-#undef private
-#undef protected
+//#undef private
+//#undef protected
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/Utils.h"
 
@@ -68,6 +66,18 @@ public:
 
 }; // class ClassB
 
+
+class TStoreTest
+  : public xAOD::TStore
+{
+public:
+  using xAOD::TStore::TStore;
+
+  using xAOD::TStore::contains;
+  using xAOD::TStore::getName;
+};
+
+
 int main() {
 
    // Get the name of the application:
@@ -77,7 +87,7 @@ int main() {
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
    // Create the TStore object that we'll be testing:
-   xAOD::TStore store;
+   TStoreTest store;
 
    // Record an EventFormat object:
    std::unique_ptr< xAOD::AuxContainerBase > c1( new xAOD::AuxContainerBase() );

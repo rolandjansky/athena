@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -30,18 +30,11 @@ public:
     //-------------------------------------------------------------
     ~TauConversionTagger();
 
-    virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    virtual StatusCode finalize();
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
-
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode finalize() override;
 
 private:
-    
-    std::string m_trackContainerName;
-
     int m_ConvTaggerVer; 
     bool m_TrkIsConv;
     bool m_storeFullSummary;
@@ -49,7 +42,6 @@ private:
     float m_a_cut[2][2], m_b_cut[2][2];	    
     float m_TRTHighTOutliersRatio;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
-
 };
 
 #endif //TAUREC_TAUCONVERSIONTAGGER_H

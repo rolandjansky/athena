@@ -37,7 +37,7 @@ std::atomic<MSG::Level> PathResolver::m_level=MSG::INFO;
 PathResolver::PathResolver() { }
 
 asg::AsgMessaging& PathResolver::asgMsg() {
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
    static thread_local asg::AsgMessaging asgMsg("PathResolver");
 #else
    static asg::AsgMessaging asgMsg ATLAS_THREAD_SAFE ("PathResolver");

@@ -111,7 +111,7 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createObj(IOpaqu
 //__________________________________________________________________________
 template <class COLL_T, class ELEM_T, class ELEM_P>
 StatusCode
-T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T* obj,
+T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T* obj, IOpaqueAddress*& pAddr,
 								  CondAttrListCollection*& attrListColl,
 								  Token*& implToken)
 {
@@ -146,7 +146,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T
 	ELEM_T* elem = (*obj)[chan];
         // Allow for T/P separation, convert to persistent object
         ELEM_P* elem_p = this->createPersistent(elem);
-	StatusCode sc = this->objectToPool(elem_p, token);
+	StatusCode sc = this->objectToPool(elem_p, token, "", *pAddr->par());
 	if (sc != StatusCode::SUCCESS || !token) {
 	    ATH_MSG_ERROR("Unable to write out object");
 	    return(StatusCode::FAILURE);
@@ -179,7 +179,7 @@ T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T
 	ATH_MSG_DEBUG("Chan " << *itChan1);
     }
 
-    StatusCode sc = this->objectToPool(impl, implToken);
+    StatusCode sc = this->objectToPool(impl, implToken, "", *pAddr->par());
     if (sc != StatusCode::SUCCESS || !implToken) {
 	ATH_MSG_ERROR("Unable to write out CondMultChanCollImpl");
 	return(StatusCode::FAILURE);
@@ -209,7 +209,7 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createRep(DataOb
     }
     CondAttrListCollection* coll = 0;
     Token* token = 0;
-    StatusCode sc = objectToAttrListColl(obj, coll, token);
+    StatusCode sc = objectToAttrListColl(obj, pAddr, coll, token);
     if (sc != StatusCode::SUCCESS || !token) {
 	ATH_MSG_ERROR("Unable to get objects and fill CondAttrListCollection with tokens");
 	return(StatusCode::FAILURE);
@@ -218,7 +218,7 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createRep(DataOb
 								this->classID(),
 								token->toString());
     addr->setAttrListColl(coll);
-    pAddr = addr;
+    delete pAddr; pAddr = addr;
     delete token; token = 0;
 
     ATH_MSG_DEBUG("End createRep");

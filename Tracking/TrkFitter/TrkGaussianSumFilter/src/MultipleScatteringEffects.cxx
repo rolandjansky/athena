@@ -31,7 +31,7 @@ Trk::MultipleScatteringEffects::MultipleScatteringEffects(const std::string& typ
   declareProperty("MultipleScatterLogarithmicTermOn", m_multipleScatterLogTermOn);
 }
 
-Trk::MultipleScatteringEffects::~MultipleScatteringEffects() {}
+Trk::MultipleScatteringEffects::~MultipleScatteringEffects() = default;
 
 StatusCode
 Trk::MultipleScatteringEffects::initialize()

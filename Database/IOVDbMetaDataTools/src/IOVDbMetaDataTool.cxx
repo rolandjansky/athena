@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,56 +11,45 @@
  * @author Antoine Perus <perus@lal.in2p3.fr>
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  *
- * $Header: /build/atlas/cvs/atlas/offline/Database/IOVDbMetaDataTools/src/IOVDbMetaDataTool.cxx,v 1.12 2009-04-29 07:44:13 schaffer Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "IOVDbMetaDataTool.h"
 
-// Gaudi includes
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 
-// Athena includes
 #include "StoreGate/StoreGate.h"
-
-// MetaData includes
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-//--------------------------------------------------------------------------
+#include "AthenaKernel/MetaCont.h"
 
 IOVDbMetaDataTool::IOVDbMetaDataTool(const std::string& type, 
                                      const std::string& name, 
                                      const IInterface*  parent)
-        : 
-        AthAlgTool(type, name, parent),
-        m_metaDataStore ("StoreGateSvc/MetaDataStore",      name), 
-        m_inputStore    ("StoreGateSvc/InputMetaDataStore", name),
-        m_processedFirstInputFileIncidence(false),
-        m_overrideRunNumber(false),
-        m_overrideMinMaxRunNumber(false),
-        m_newRunNumber(0),
-        m_oldRunNumber(0),
-        m_minRunNumber(0),
-        m_maxRunNumber(0),
-        m_modifyFolders(false)
+  : AthAlgTool(type, name, parent)
+  , m_metaDataStore ("StoreGateSvc/MetaDataStore",      name)
+  , m_inputStore    ("StoreGateSvc/InputMetaDataStore", name)
+  , m_processedFirstInputFileIncident(false)
+  , m_overrideRunNumber(false)
+  , m_overrideMinMaxRunNumber(false)
+  , m_newRunNumber(0)
+  , m_oldRunNumber(0)
+  , m_minRunNumber(0)
+  , m_maxRunNumber(0)
+  , m_modifyFolders(false)
 {
-    // Declare additional interface
-    declareInterface<IIOVDbMetaDataTool>(this);
-    declareInterface<IMetaDataTool>(this);
+  // Declare additional interface
+  declareInterface<IIOVDbMetaDataTool>(this);
+  declareInterface<IMetaDataTool>(this);
 
-    // Declare properties
-    declareProperty("MinMaxRunNumbers",  m_minMaxRunNumbers);
+  // Declare properties
+  declareProperty("MinMaxRunNumbers",  m_minMaxRunNumbers);
 
-    // Folders and attributes to be deleted
-    declareProperty("FoldersToBeModified",  m_foldersToBeModified = 
-                    std::vector<std::string>(1, "/Simulation/Parameters"));
-    declareProperty("AttributesToBeRemoved",  m_attributesToBeRemoved =
-                    std::vector<std::string>(1, "RandomSeedOffset"));
-    
-    
+  // Folders and attributes to be deleted
+  declareProperty("FoldersToBeModified"
+		  , m_foldersToBeModified = std::vector<std::string>(1, "/Simulation/Parameters"));
+  declareProperty("AttributesToBeRemoved"
+		  , m_attributesToBeRemoved = std::vector<std::string>(1, "RandomSeedOffset"));
 
 }
 
@@ -71,40 +60,24 @@ IOVDbMetaDataTool::~IOVDbMetaDataTool()
 
 //--------------------------------------------------------------------------
 
-StatusCode 
-IOVDbMetaDataTool::initialize()
+StatusCode IOVDbMetaDataTool::initialize()
 {
-    ATH_MSG_DEBUG("in initialize()");
+  ATH_MSG_DEBUG("in initialize()");
 
-    // locate the meta data stores
-    StatusCode sc = m_metaDataStore.retrieve();
-    if (!sc.isSuccess() || 0 == m_metaDataStore) {
-        ATH_MSG_ERROR("Could not find MetaDataStore");
-        return(StatusCode::FAILURE);
-    }
-    sc = m_inputStore.retrieve();
-    if (!sc.isSuccess() || 0 == m_inputStore) {
-        ATH_MSG_ERROR("Could not find InputMetaDataStore");
-        return(StatusCode::FAILURE);
-    }
+  // locate the meta data stores
+  ATH_CHECK(m_metaDataStore.retrieve());
+  ATH_CHECK(m_inputStore.retrieve());
 
-    // Set to be listener for FirstInputFile and BeginInputFile
-    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-    sc = incSvc.retrieve();
-    if (!sc.isSuccess()) {
-        ATH_MSG_ERROR("Unable to get the IncidentSvc");
-        return(sc);
-    }
-    incSvc->addListener(this, "FirstInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
-    incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
+  // Set to be listener for FirstInputFile
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
+  ATH_CHECK(incSvc.retrieve());
+  incSvc->addListener(this, "FirstInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
 
-    // Check whether folders need to be modified
-    m_modifyFolders = false;
-    if (m_foldersToBeModified.value().size() > 0) m_modifyFolders = true;
-    if (m_modifyFolders) ATH_MSG_DEBUG("initialize(): need to modify folders ");
+  // Check whether folders need to be modified
+  m_modifyFolders = (m_foldersToBeModified.value().size()>0);
+  ATH_MSG_DEBUG("initialize(): " << (m_modifyFolders ? "" : "No ") << "need to modify folders");
 
-    return(StatusCode::SUCCESS);
-
+  return(StatusCode::SUCCESS);
 }
 
 //--------------------------------------------------------------------------
@@ -117,40 +90,45 @@ IOVDbMetaDataTool::finalize()
 
 //--------------------------------------------------------------------------
 
-void 
-IOVDbMetaDataTool::handle(const Incident& inc) {
-    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-    if (fileInc == 0) {
-        ATH_MSG_ERROR(" Unable to get FileName from BeginInputFile/EndInputFile incident");
-        return;
-    }
-    const std::string fileName = fileInc->fileName();
-    ATH_MSG_DEBUG("handle() " << inc.type() << " for " << fileName);
+void IOVDbMetaDataTool::handle(const Incident& inc)
+{
+  const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+  if(!fileInc) throw std::runtime_error("Unable to get FileName from FirstInputFile incident");
 
-    if (inc.type() == "FirstInputFile" || inc.type() == "BeginInputFile") {
+  const std::string fileName = fileInc->fileName();
+  ATH_MSG_DEBUG("handle() " << inc.type() << " for " << fileName);
 
-        if (inc.type() == "FirstInputFile") {
-            m_processedFirstInputFileIncidence = true;
-            // Check if we need to override run number - only needed
-            // for simulation
-            checkOverrideRunNumber();
-        }
-        else if (m_processedFirstInputFileIncidence) {
-            // We skip the first BeginInputFile incidence following
-            // the FirstInputFile - both are fired for the first file
-            m_processedFirstInputFileIncidence = false;
-            ATH_MSG_DEBUG("The first BeginInputFile incidence is fired along with the FirstInputFile incidence so we skip the processing of the Input File MetaData ");
-            return;
-        }
-        // Process the input file meta data
-        StatusCode sc = processInputFileMetaData(fileName);
-        if (!sc.isSuccess()) {
-            ATH_MSG_ERROR(" Could not process input file meta data");
-            throw std::exception();
-        }
-    } 
+  m_processedFirstInputFileIncident = true;
+  // Check if we need to override run number - only needed for simulation
+  checkOverrideRunNumber();
+
+  StatusCode sc = processInputFileMetaData(fileName);
+  if(!sc.isSuccess()) throw std::runtime_error("Could not process input file meta data");
 }
 
+StatusCode IOVDbMetaDataTool::beginInputFile(const SG::SourceID& sid)
+{
+  if(m_processedFirstInputFileIncident) {
+    // We skip the first BeginInputFile incident following the FirstInputFile - both are fired for the first file
+    m_processedFirstInputFileIncident = false;
+    ATH_MSG_DEBUG("The first BeginInputFile incident is fired along with the FirstInputFile incident so we skip the processing of the Input File MetaData ");
+    return StatusCode::SUCCESS;
+  }
+  else {
+    return processInputFileMetaData(sid);
+  }
+}
+
+StatusCode IOVDbMetaDataTool::endInputFile(const SG::SourceID&)
+{
+  return StatusCode::SUCCESS;
+}
+
+StatusCode IOVDbMetaDataTool::metaDataStop()
+{
+  StatusCode sc = dumpMetaConts();
+  return sc;
+}
 
 //--------------------------------------------------------------------------
 
@@ -268,54 +246,50 @@ IOVDbMetaDataTool::registerFolder(const std::string& folderName,
 
 //--------------------------------------------------------------------------
 
-StatusCode      
-IOVDbMetaDataTool::addPayload    (const std::string& folderName, 
-                                  CondAttrListCollection* payload) const
+StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
+					  , CondAttrListCollection* payload) const
 {
-    ATH_MSG_DEBUG("begin addPayload ");
+  ATH_MSG_DEBUG("begin addPayload ");
+  
+  // Check if the  folder has already been found
+  IOVMetaDataContainer* cont = m_metaDataStore->tryRetrieve<IOVMetaDataContainer>(folderName);
+  if(cont) {
+    ATH_MSG_DEBUG("Retrieved IOVMetaDataContainer from MetaDataStore for folder " 
+		  << folderName);
+  }
+  else {
+    ATH_MSG_ERROR("addPayload: Could not find IOVMetaDataContainer in MetaDataStore for folder " 
+		   << folderName 
+		   << ". One must have previously called registerFolder. ");
+     return StatusCode::FAILURE;
+  }
 
-    // Check if the  folder has already been found
-    IOVMetaDataContainer* cont = 0;
-    // see if it is in the meta data store
-    if (!m_metaDataStore->contains<IOVMetaDataContainer>(folderName)) {
-        ATH_MSG_ERROR("addPayload: Could not find IOVMetaDataContainer in MetaDataStore for folder " 
-                      << folderName << " One must have previously called registerFolder. ");
-        return(StatusCode::FAILURE);
-    } 
-    else {
-        StatusCode sc = m_metaDataStore->retrieve(cont, folderName);
-        if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Could not retrieve IOVMetaDataContainer for folder " 
-                          << folderName);
-            return(StatusCode::FAILURE);
-        }
-        ATH_MSG_DEBUG("Retrieved IOVMetaDataContainer from MetaDataStore for folder " 
-                      << folderName);
-    }
+  // Override run number if requested
+  if (m_overrideRunNumber || m_overrideMinMaxRunNumber) overrideIOV(payload);
 
-    // Override run number if requested
-    if (m_overrideRunNumber || m_overrideMinMaxRunNumber) overrideIOV(payload);
+  // Add payload to container
+  bool success = cont->merge(payload);
+  if (success) {
+    ATH_MSG_DEBUG("Added new payload for folder " << folderName);
+  }
+  else {
+    ATH_MSG_DEBUG("Could not add new payload for folder " 
+		  << folderName 
+		  << " (may be duplicate payload).");
 
-    // Add payload to container
-    bool success = cont->merge(payload);
-    if (success) {
-        ATH_MSG_DEBUG("Added new payload for folder " << folderName);
-    }
-    else {
-        ATH_MSG_DEBUG("Could not add new payload for folder " 
-            << folderName 
-            << " (may be duplicate payload). Dump of payload: " );
-            //printOut(payload);
-        delete payload;
-        payload = 0;
+    // To Do: the function implicitly assumes ownership on the payload pointer
+    delete payload;
+    payload = nullptr;
+  }
 
-    }
+  // Debug printout
+  if(payload && msgLvl(MSG::DEBUG)) {
+    std::ostringstream stream;
+    payload->dump(stream);
+    ATH_MSG_DEBUG(stream.str());
+  }
 
-    if (payload && msgLvl(MSG::DEBUG)) {
-        printOut(payload);
-    }
-
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------------------------
@@ -395,7 +369,11 @@ IOVDbMetaDataTool::modifyPayload (const std::string& folderName,
     }
     delete coll;
     coll = coll1;
-    if (msgLvl(MSG::DEBUG)) printOut(coll);
+    if (msgLvl(MSG::DEBUG)) {
+      std::ostringstream stream;
+      coll->dump(stream);
+      ATH_MSG_DEBUG(stream.str());
+    }
 
     return StatusCode::SUCCESS;
 }
@@ -403,240 +381,237 @@ IOVDbMetaDataTool::modifyPayload (const std::string& folderName,
 //--------------------------------------------------------------------------
 
 IOVMetaDataContainer* 
-IOVDbMetaDataTool::getMetaDataContainer(const std::string& folderName, 
-                                        const std::string& folderDescription) const
+IOVDbMetaDataTool::getMetaDataContainer(const std::string& folderName
+                                        , const std::string& folderDescription) const
 {
-    
-    ATH_MSG_DEBUG("begin getMetaDataContainer ");
+  ATH_MSG_DEBUG("begin getMetaDataContainer ");
 
-    // See if it is in the meta data store
-    if (!m_metaDataStore->contains<IOVMetaDataContainer>(folderName)) {
-        // Container not found, add in new one
-        IOVMetaDataContainer* cont = new IOVMetaDataContainer(folderName, folderDescription);
-        StatusCode sc = m_metaDataStore->record(cont, folderName);
-        if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Could not record IOVMetaDataContainer in MetaDataStore for folder " 
-                          << folderName);
-            return(0);
-        }
-        return (cont);
-    } 
-    else {
-        ATH_MSG_DEBUG("IOVMetaDataContainer already in MetaDataStore for folder " << folderName);
-        IOVMetaDataContainer* cont;
-        StatusCode sc = m_metaDataStore->retrieve(cont, folderName);
-        if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Could not retrieve IOVMetaDataContainer in MetaDataStore for folder " 
-                          << folderName);
-            return(0);
-        }
-        return (cont);
-    }
-}
-
-//--------------------------------------------------------------------------
-void
-IOVDbMetaDataTool::printOut(const CondAttrListCollection* coll) const
-{
-    ATH_MSG_DEBUG("in printOut(const CondAttrListCollection* coll)");
-
-    if (!coll) {
-        ATH_MSG_DEBUG("null pointer - no printout");
-        return;
-    }
-
-    ATH_MSG_DEBUG(coll->minRange() << " iov size " <<     coll->iov_size());
-    CondAttrListCollection::iov_const_iterator  itIOV    = coll->iov_begin();
-    CondAttrListCollection::iov_const_iterator  itIOVEnd = coll->iov_end  ();
-    for (; itIOV != itIOVEnd; ++itIOV) {
-        ATH_MSG_DEBUG((*itIOV).first << " " << (*itIOV).second);
-    }
-
-    CondAttrListCollection::const_iterator  itAtt    = coll->begin();
-    CondAttrListCollection::const_iterator  itAttEnd = coll->end  ();
-    for (; itAtt != itAttEnd; ++itAtt) {
-        std::ostringstream attrStr;
-        attrStr << "{";
-        for (coral::AttributeList::const_iterator itr= (*itAtt).second.begin();
-             itr !=  (*itAtt).second.end();++itr) {
-            if (itr !=  (*itAtt).second.begin()) attrStr << ",";
-            itr->toOutputStream(attrStr);
-        }
-        attrStr << "}";
-        ATH_MSG_DEBUG((*itAtt).first << " " << attrStr.str());
-    }
-}
-
-
-//--------------------------------------------------------------------------
-
-StatusCode
-IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
-{
-    ATH_MSG_DEBUG("processInputFileMetaData: file name " << fileName);
-
-    // Retrieve all meta data containers from InputMetaDataStore
-
-    SG::ConstIterator<IOVMetaDataContainer> cont;
-    SG::ConstIterator<IOVMetaDataContainer> contEnd;
-
-    StatusCode sc = m_inputStore->retrieve(cont, contEnd);
+  IOVMetaDataContainer* cont{nullptr};
+  // See if it is in the meta data store
+  if (!m_metaDataStore->contains<IOVMetaDataContainer>(folderName)) {
+    // Container not found, add in new one
+    cont = new IOVMetaDataContainer(folderName, folderDescription);
+    ATH_MSG_DEBUG("No IOVMetaDataContainer in MetaDataStore for folder " << folderName
+		  << ". Created a new instance");
+    StatusCode sc = m_metaDataStore->record(cont, folderName);
     if (!sc.isSuccess()) {
-        ATH_MSG_DEBUG("Could not retrieve IOVMetaDataContainer objects from InputMetaDataStore - cannot process input file meta data");
-        return(StatusCode::SUCCESS);
+      ATH_MSG_ERROR("Could not record IOVMetaDataContainer in MetaDataStore for folder " << folderName);
+      delete cont;
+      cont = nullptr;
+    }
+  } 
+  else {
+    ATH_MSG_DEBUG("IOVMetaDataContainer already in MetaDataStore for folder " << folderName);
+    StatusCode sc = m_metaDataStore->retrieve(cont, folderName);
+    if (!sc.isSuccess()) {
+      ATH_MSG_ERROR("Could not retrieve IOVMetaDataContainer in MetaDataStore for folder " << folderName);
+      cont = nullptr;
+    }
+  }
+  return cont;
+}
+
+//--------------------------------------------------------------------------
+
+StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
+{
+  ATH_MSG_DEBUG("processInputFileMetaData: file name " << fileName);
+
+  // Retrieve all meta data containers from InputMetaDataStore
+  SG::ConstIterator<IOVMetaDataContainer> cont;
+  SG::ConstIterator<IOVMetaDataContainer> contEnd;
+
+  StatusCode sc = m_inputStore->retrieve(cont, contEnd);
+  if (!sc.isSuccess()) {
+    ATH_MSG_DEBUG("Could not retrieve IOVMetaDataContainer objects from InputMetaDataStore - cannot process input file meta data");
+    return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_DEBUG("Retrieved from IOVMetaDataContainer(s) from InputMetaDataStore");
+
+  // For each container, merge its contents into the MetaDataStore 
+  unsigned int ncolls    = 0;
+  unsigned int ndupColls = 0;
+  for (; cont != contEnd; ++cont) {
+    IOVMetaDataContainer* contMaster = getMetaDataContainer(cont->folderName()
+							    , cont->folderDescription());
+
+    // At the same time we want to create a new instance of IOVMetaDataContainer for new SID
+    // and store it into MetaCont<IOVMetaDataContainer>
+    IOVMetaDataContainer* newCont4Sid = new IOVMetaDataContainer(cont->folderName()
+								 , cont->folderDescription()); 
+
+    // We assume that the folder is the same for all versions, and
+    // now we loop over versions for the payloads
+    std::list<SG::ObjectWithVersion<IOVMetaDataContainer> > allVersions;
+    sc = m_inputStore->retrieveAllVersions(allVersions, cont.key());
+    if (!sc.isSuccess()) {
+      ATH_MSG_ERROR("Could not retrieve all versions for " << cont.key());
+      return sc;
     }
 
-    ATH_MSG_DEBUG("Retrieved from IOVMetaDataContainer(s) from InputMetaDataStore");
+    for (SG::ObjectWithVersion<IOVMetaDataContainer>& obj : allVersions) {
+      const IOVPayloadContainer*  payload = obj.dataObject->payloadContainer();
 
-    // For each container, merge its contents into the MetaDataStore 
-    unsigned int ncolls    = 0;
-    unsigned int ndupColls = 0;
-    for (; cont != contEnd; ++cont) {
+      ATH_MSG_DEBUG("New container: payload size " << payload->size() << " version key " << obj.versionedKey);
 
-        IOVMetaDataContainer* contMaster    = getMetaDataContainer(cont->folderName(), 
-                                                                   cont->folderDescription());
-
-        // We assume that the folder is the same for all versions, and
-        // now we loop over versions for the payloads
-
-        std::list<SG::ObjectWithVersion<IOVMetaDataContainer> > allVersions;
-        sc = m_inputStore->retrieveAllVersions(allVersions, cont.key());
-        if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Could not retrieve all versions for " << cont.key());
-            return sc;
-        }
-
-        for (SG::ObjectWithVersion<IOVMetaDataContainer>& obj : allVersions) {
-            const IOVPayloadContainer*  payload = obj.dataObject->payloadContainer();
-
-            ATH_MSG_DEBUG("New container: payload size " << payload->size() << " version key " << obj.versionedKey);
-
-            // detailed printout before merge
-            if (msgLvl(MSG::VERBOSE)) {
-                const IOVPayloadContainer*  payloadMaster = contMaster->payloadContainer();
-                ATH_MSG_VERBOSE("Before merge, payload minRange for folder " << cont->folderName());
-                if (payloadMaster && payloadMaster->size()) {
-                    // Loop over AttrColls and print out minRange
-                    IOVPayloadContainer::const_iterator itColl    = payloadMaster->begin();
-                    IOVPayloadContainer::const_iterator itCollEnd = payloadMaster->end();
-                    unsigned int iPayload = 0;
-                    for (; itColl != itCollEnd; ++itColl, ++iPayload) {
-                        ATH_MSG_VERBOSE(iPayload << " " << (*itColl)->minRange() << " " 
-                                        << (*itColl)->size());
-                    }
-                }
-                else { ATH_MSG_VERBOSE("  no payloads yet!"); }
-            }
-        }
+      // detailed printout before merge
+      if (msgLvl(MSG::VERBOSE)) {
+	const IOVPayloadContainer*  payloadMaster = contMaster->payloadContainer();
+	ATH_MSG_VERBOSE("Before merge, payload minRange for folder " << cont->folderName());
+	if (payloadMaster && payloadMaster->size()) {
+	  // Loop over AttrColls and print out minRange
+	  IOVPayloadContainer::const_iterator itColl    = payloadMaster->begin();
+	  IOVPayloadContainer::const_iterator itCollEnd = payloadMaster->end();
+	  unsigned int iPayload = 0;
+	  for (; itColl != itCollEnd; ++itColl, ++iPayload) {
+	    ATH_MSG_VERBOSE(iPayload << " " << (*itColl)->minRange() << " " 
+			    << (*itColl)->size());
+	  }
+	}
+	else { 
+	  ATH_MSG_VERBOSE("  no payloads yet!"); 
+	}
+      }
+    }
         
-        // Detailed printout
-        if (msgLvl(MSG::DEBUG)) {
-            ATH_MSG_DEBUG("Current payload before merge " << contMaster->folderName());
-            IOVPayloadContainer::const_iterator itColl1    = contMaster->payloadContainer()->begin();
-            IOVPayloadContainer::const_iterator itCollEnd1 = contMaster->payloadContainer()->end();
-            for (; itColl1 != itCollEnd1; ++itColl1) printOut(*itColl1);
-        }
-
-
-        //
-        // Loop over CondAttrListCollections and do merge
-        //
-        for (SG::ObjectWithVersion<IOVMetaDataContainer>& obj : allVersions) {
-            const IOVPayloadContainer*  payload = obj.dataObject->payloadContainer();
-            IOVPayloadContainer::const_iterator itColl    = payload->begin();
-            IOVPayloadContainer::const_iterator itCollEnd = payload->end();
-            for (; itColl != itCollEnd; ++itColl) {
-
-                // Make a copy of the collection and merge it into
-                // master container in meta data store 
-                CondAttrListCollection* coll = new CondAttrListCollection(**itColl);
-                // Override run number if requested
-                if (m_overrideRunNumber || m_overrideMinMaxRunNumber) overrideIOV(coll);
-
-                // first check if we need to modify the incoming payload
-                if (!modifyPayload (contMaster->folderName(), coll).isSuccess()) {
-                    ATH_MSG_ERROR("Could not modify the payload for folder " 
-                                  << contMaster->folderName());
-                    return(StatusCode::FAILURE);
-                }
-
-
-                ATH_MSG_VERBOSE(" merge minRange: " << coll->minRange());
-                if (!contMaster->merge(coll)) {
-                    // Did not merge it in - was a duplicate, so we need to delete it 
-                    delete coll;
-                    ++ndupColls;
-                    ATH_MSG_VERBOSE(" => not merged ");
-                }
-                else {
-                    ++ncolls;
-                    ATH_MSG_VERBOSE(" => merged ");
-                }
-            }
-            ATH_MSG_DEBUG("Merged together containers for folder " << cont->folderName() << " ncoll/ndup " 
-                          << ncolls << " " << ndupColls);
-
-            // Check for consistency after merge
-            const IOVPayloadContainer*  payloadMaster = contMaster->payloadContainer();
-            if (payloadMaster && payloadMaster->size()) {
-                // Loop over AttrColls and print out minRange
-                IOVPayloadContainer::const_iterator itColl    = payloadMaster->begin();
-                IOVPayloadContainer::const_iterator itCollEnd = payloadMaster->end();
-                IOVTime lastStop;
-                if ((*itColl)->minRange().start().isTimestamp()) lastStop = IOVTime(0);
-                else lastStop = IOVTime(0,0);
-                bool hasError = false;
-                for (; itColl != itCollEnd; ++itColl) {
-                    if ((*itColl)->minRange().start() < lastStop) hasError = true;
-                    lastStop = (*itColl)->minRange().stop();
-                }
-                if (hasError) {
-                    ATH_MSG_ERROR("processInputFileMetaData: error after merge of file meta data. " );
-                    ATH_MSG_ERROR("processInputFileMetaData: Filename " << fileName);
-                    ATH_MSG_ERROR("processInputFileMetaData: folder " << contMaster->folderName());
-                    ATH_MSG_ERROR("processInputFileMetaData: MinRange for meta data folders ");
-                    unsigned int iPayload = 0;
-                    itColl    = payloadMaster->begin();
-                    for (; itColl != itCollEnd; ++itColl, ++iPayload) {
-                        ATH_MSG_ERROR(iPayload << " " << (*itColl)->minRange() << " " << (*itColl)->size());
-                    }
-                }
-            }
-
-            // detailed printout after merge
-            if (msgLvl(MSG::VERBOSE)) {
-                const IOVPayloadContainer*  payloadMaster = contMaster->payloadContainer();
-                ATH_MSG_VERBOSE("After merge, payload minRange ");
-                if (payloadMaster) {
-                    // Loop over AttrColls and print out minRange
-                    IOVPayloadContainer::const_iterator itColl    = payloadMaster->begin();
-                    IOVPayloadContainer::const_iterator itCollEnd = payloadMaster->end();
-                    unsigned int iPayload = 0;
-                    for (; itColl != itCollEnd; ++itColl, ++iPayload) {
-                        ATH_MSG_VERBOSE(iPayload << " " << (*itColl)->minRange() << " " 
-                                        << (*itColl)->size());
-                    }
-                }
-                else { ATH_MSG_ERROR("  no payloads yet!"); }
-            }
-
-            // Detailed printout
-            if (msgLvl(MSG::DEBUG)) {
-                ATH_MSG_DEBUG("Input payload " << cont->folderName());
-                itColl    = payload->begin();
-                itCollEnd = payload->end();
-                for (; itColl != itCollEnd; ++itColl) printOut(*itColl);
-                ATH_MSG_DEBUG("Output payload " << contMaster->folderName());
-                itColl    = contMaster->payloadContainer()->begin();
-                itCollEnd = contMaster->payloadContainer()->end();
-                for (; itColl != itCollEnd; ++itColl) printOut(*itColl);
-            }
-        }
+    // Detailed printout
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("Current payload before merge " << contMaster->folderName());
+      IOVPayloadContainer::const_iterator itColl1    = contMaster->payloadContainer()->begin();
+      IOVPayloadContainer::const_iterator itCollEnd1 = contMaster->payloadContainer()->end();
+      std::ostringstream stream;
+      for (; itColl1 != itCollEnd1; ++itColl1) (*itColl1)->dump(stream);
+      ATH_MSG_DEBUG(stream.str());
     }
 
-    ATH_MSG_DEBUG("Total number of attribute collections  merged together " << ncolls
-                  << " Number of duplicate collections " << ndupColls);
-    return(StatusCode::SUCCESS);
+    //
+    // Loop over CondAttrListCollections and do merge
+    //
+    for (SG::ObjectWithVersion<IOVMetaDataContainer>& obj : allVersions) {
+      const IOVPayloadContainer*  payload = obj.dataObject->payloadContainer();
+      IOVPayloadContainer::const_iterator itColl    = payload->begin();
+      IOVPayloadContainer::const_iterator itCollEnd = payload->end();
+      for (; itColl != itCollEnd; ++itColl) {
+
+	// Make a copy of the collection and merge it into
+	// master container in meta data store 
+	CondAttrListCollection* coll = new CondAttrListCollection(**itColl);
+	// Override run number if requested
+	if (m_overrideRunNumber || m_overrideMinMaxRunNumber) overrideIOV(coll);
+
+	// first check if we need to modify the incoming payload
+	if (!modifyPayload (contMaster->folderName(), coll).isSuccess()) {
+	  ATH_MSG_ERROR("Could not modify the payload for folder " << contMaster->folderName());
+	  return StatusCode::FAILURE;
+	}
+
+	// Do the same with newCont4Sid
+	if (!modifyPayload (newCont4Sid->folderName(), coll).isSuccess()) {
+	  ATH_MSG_ERROR("Could not modify the payload for folder " << newCont4Sid->folderName());
+	  return StatusCode::FAILURE;
+	}
+
+	// Before starting merging, make a copy for newCont4Sid
+	CondAttrListCollection* collCopy = new CondAttrListCollection(*coll);
+
+	ATH_MSG_VERBOSE(" merge minRange: " << coll->minRange());
+	if (!contMaster->merge(coll)) {
+	  // Did not merge it in - was a duplicate, so we need to delete it 
+	  delete coll;
+	  ++ndupColls;
+	  ATH_MSG_VERBOSE(" => not merged ");
+	}
+	else {
+	  ++ncolls;
+	  ATH_MSG_VERBOSE(" => merged ");
+	}
+
+	ATH_MSG_VERBOSE(" merge for MetaCont minRange: " << collCopy->minRange());
+	if (!newCont4Sid->merge(collCopy)) {
+	  // Did not merge it in - was a duplicate, so we need to delete it 
+	  delete collCopy;
+	  ATH_MSG_VERBOSE(" => not merged ");
+	}
+	else {
+	  ATH_MSG_VERBOSE(" => merged ");
+	}
+
+      }
+      ATH_MSG_DEBUG("Merged together containers for folder " << cont->folderName() << " ncoll/ndup " 
+		    << ncolls << " " << ndupColls);
+
+      // Check for consistency after merge
+      const IOVPayloadContainer*  payloadMaster = contMaster->payloadContainer();
+      if (payloadMaster && payloadMaster->size()) {
+	// Loop over AttrColls and print out minRange
+	IOVPayloadContainer::const_iterator itColl    = payloadMaster->begin();
+	IOVPayloadContainer::const_iterator itCollEnd = payloadMaster->end();
+	IOVTime lastStop;
+	if ((*itColl)->minRange().start().isTimestamp()) lastStop = IOVTime(0);
+	else lastStop = IOVTime(0,0);
+	bool hasError = false;
+	for (; itColl != itCollEnd; ++itColl) {
+	  if ((*itColl)->minRange().start() < lastStop) hasError = true;
+	  lastStop = (*itColl)->minRange().stop();
+	}
+	if (hasError) {
+	  ATH_MSG_ERROR("processInputFileMetaData: error after merge of file meta data. " );
+	  ATH_MSG_ERROR("processInputFileMetaData: Filename " << fileName);
+	  ATH_MSG_ERROR("processInputFileMetaData: folder " << contMaster->folderName());
+	  ATH_MSG_ERROR("processInputFileMetaData: MinRange for meta data folders ");
+	  unsigned int iPayload = 0;
+	  itColl    = payloadMaster->begin();
+	  for (; itColl != itCollEnd; ++itColl, ++iPayload) {
+	    ATH_MSG_ERROR(iPayload << " " << (*itColl)->minRange() << " " << (*itColl)->size());
+	  }
+	}
+      }
+
+      // Insert the merged container into MetaCont
+      if(fillMetaCont(fileName,newCont4Sid).isFailure()) {
+	ATH_MSG_ERROR("Failed to insert the merged IOVMetaDataContainer into MetaCont");
+	return StatusCode::FAILURE;
+      }
+
+      // detailed printout after merge
+      if (msgLvl(MSG::VERBOSE)) {
+	const IOVPayloadContainer*  payloadMaster = contMaster->payloadContainer();
+	ATH_MSG_VERBOSE("After merge, payload minRange ");
+	if (payloadMaster) {
+	  // Loop over AttrColls and print out minRange
+	  IOVPayloadContainer::const_iterator itColl    = payloadMaster->begin();
+	  IOVPayloadContainer::const_iterator itCollEnd = payloadMaster->end();
+	  unsigned int iPayload = 0;
+	  for (; itColl != itCollEnd; ++itColl, ++iPayload) {
+	    ATH_MSG_VERBOSE(iPayload << " " << (*itColl)->minRange() << " " 
+			    << (*itColl)->size());
+	  }
+	}
+	else { ATH_MSG_ERROR("  no payloads yet!"); }
+      }
+      
+      // Detailed printout
+      if (msgLvl(MSG::DEBUG)) {
+	ATH_MSG_DEBUG("Input payload " << cont->folderName());
+	std::ostringstream streamInp;
+	itColl    = payload->begin();
+	itCollEnd = payload->end();
+	for (; itColl != itCollEnd; ++itColl) (*itColl)->dump(streamInp);
+	ATH_MSG_DEBUG(streamInp.str());
+	ATH_MSG_DEBUG("Output payload " << contMaster->folderName());
+	std::ostringstream streamOut;
+	itColl    = contMaster->payloadContainer()->begin();
+	itCollEnd = contMaster->payloadContainer()->end();
+	for (; itColl != itCollEnd; ++itColl) (*itColl)->dump(streamOut);
+	ATH_MSG_DEBUG(streamOut.str());
+      }
+    }
+  }
+
+  ATH_MSG_DEBUG("Total number of attribute collections  merged together " << ncolls
+		<< " Number of duplicate collections " << ndupColls);
+  return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------------------------
@@ -690,9 +665,84 @@ IOVDbMetaDataTool::overrideIOV(CondAttrListCollection*& coll) const
         }
         delete coll;
         coll = coll1;
-        if (msgLvl(MSG::DEBUG)) printOut(coll);
+        if (msgLvl(MSG::DEBUG)) {
+	  std::ostringstream stream;
+	  coll->dump(stream);
+	  ATH_MSG_DEBUG(stream.str());
+	}
     }
     else ATH_MSG_DEBUG("overrideIOV: IOV is not run/event ");
 }
 
+StatusCode IOVDbMetaDataTool::fillMetaCont(const std::string& sid
+					   , const IOVMetaDataContainer* iovCont)
+{
+  ATH_MSG_DEBUG("fillMetaCont for SID=" << sid 
+		<< " and folder name=" << iovCont->folderName());
+ 
+  // Drop the leading 'FID:' from sid, if present
+  std::string keyInMetaCont = sid.compare(0,4,std::string("FID:")) ? sid : sid.substr(4);
 
+  IOVMetaDataContainer* copyCont = new IOVMetaDataContainer(*iovCont);
+  ATH_MSG_DEBUG("Created a copy container");
+  MetaCont<IOVMetaDataContainer>* pMetaCont = m_metaDataStore->tryRetrieve<MetaCont<IOVMetaDataContainer>>(iovCont->folderName());
+  if(pMetaCont) {
+    pMetaCont->insert(keyInMetaCont,copyCont);
+    ATH_MSG_DEBUG("New element added to an existing MetaCont in the store");
+  }
+  else {
+    std::unique_ptr<MetaCont<IOVMetaDataContainer>> pMetaContPtr = std::make_unique<MetaCont<IOVMetaDataContainer>>();
+    pMetaContPtr->insert(keyInMetaCont,copyCont);
+    ATH_MSG_DEBUG("Created new MetaCont, and added new element to it");
+
+    StatusCode sc = m_metaDataStore->record(std::move(pMetaContPtr),iovCont->folderName());
+    if(sc.isFailure()) {
+      ATH_MSG_FATAL("Failed to record MetaCont with key " << iovCont->folderName() << " into the store");
+      delete copyCont;
+      return sc;
+    }
+    ATH_MSG_DEBUG("New MetaCont recorded into the store");
+  } // pMetaCont == nullptr
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode IOVDbMetaDataTool::dumpMetaConts()
+{
+  if(msgLvl(MSG::DEBUG)) {
+    ATH_MSG_DEBUG("Begin dumping MetaCont<IOVMetaDataContainer> objects from MetaDataStore");
+    const std::vector<std::string>& keys = m_metaDataStore->keys<MetaCont<IOVMetaDataContainer>>();
+    if(keys.empty()) ATH_MSG_DEBUG(" ... NONE ...");
+    for(const auto& key : keys) {
+      const MetaCont<IOVMetaDataContainer>* metacont{nullptr};
+      if(m_metaDataStore->retrieve(metacont,key).isFailure()) {
+	ATH_MSG_FATAL("Failed to retrieve MetaCont<IOVMetaDataContainer> for key=" << key
+		      << " from the MetaDataStore");
+	return StatusCode::FAILURE;
+      }
+
+      ATH_MSG_DEBUG("... Dumping " << key);
+      std::ostringstream stream;
+
+      stream << "\nMetaCont :::::" << std::endl;
+      std::vector<SG::SourceID> sources = metacont->sources();
+      for(const auto& source : sources) {
+	IOVMetaDataContainer* ptr{nullptr};
+	if(metacont->find(source,ptr)) {
+	  stream << "SID : " << source << std::endl;
+	  stream << "OBJ :: " << std::endl;
+	  ptr->dump(stream);
+	}
+	else {
+	  ATH_MSG_FATAL("Failed to get IOVMetaDataContainer from MetaCont for the source " << source);
+	  return StatusCode::FAILURE;
+	}
+      }
+
+      ATH_MSG_DEBUG(stream.str());
+      ATH_MSG_DEBUG("... ... ...");
+    }
+    ATH_MSG_DEBUG("End dumping MetaCont<IOVMetaDataContainer> objects from MetaDataStore");
+  }
+  return StatusCode::SUCCESS;
+}

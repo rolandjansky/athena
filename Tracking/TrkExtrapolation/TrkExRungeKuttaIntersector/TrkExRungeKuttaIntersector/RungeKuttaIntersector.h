@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -91,33 +91,39 @@ private:
                                                       const bool trapped) const;
     double				distanceToCylinder (const TrackSurfaceIntersection& isect,
                                                             const double		cylinderRadius,
-							    const double		offsetRadius, 
-							    const Amg::Vector3D&	offset,
+                                                            const double		offsetRadius, 
+                                                            const Amg::Vector3D&	offset,
                                                             double& stepLength) const;
     double				distanceToDisc (const TrackSurfaceIntersection& isect,
                                                         const double discZ,
                                                         double& stepLength) const;
+ 
     double				distanceToLine (const TrackSurfaceIntersection& isect,
                                                         const Amg::Vector3D&	linePosition,
-							const Amg::Vector3D&	lineDirection,
+                                                        const Amg::Vector3D&	lineDirection,
                                                         double& stepLength) const;
+ 
     double				distanceToPlane (const TrackSurfaceIntersection& isect,
                                                          const Amg::Vector3D&	planePosition,
-							 const Amg::Vector3D&	planeNormal,
+                                                         const Amg::Vector3D&	planeNormal,
                                                          double& stepLength) const;
     Amg::Vector3D			field (const Amg::Vector3D&	point) const;
+    
     bool				isTrapped (const double distance,
-                                                   double& previousDistance,
-                                                   unsigned long long& stepsUntilTrapped) const;
+                           double& previousDistance,
+                           unsigned long long& stepsUntilTrapped) const;
+
     const TrackSurfaceIntersection*	newIntersection (std::unique_ptr<TrackSurfaceIntersection> isect,
-                                                         const Surface&	surface,
-                                                         const double qOverP,
-                                                         const double rStart,
-                                                         const double zStart) const;
+                                                     const Surface&	surface,
+                                                     const double qOverP,
+                                                     const double rStart,
+                                                     const double zStart) const;
+ 
     void				shortStep (TrackSurfaceIntersection& isect,
                                                    const Amg::Vector3D& fieldValue,
                                                    const double stepLength,
                                                    const double qOverP) const;
+ 
     void				step (TrackSurfaceIntersection& isect,
                                               Amg::Vector3D& fieldValue,
                                               double& stepLength,

@@ -12,8 +12,6 @@
 #include <string>
 
 // ASG include(s):
-#include "AsgTools/AsgToolsConf.h"
-
 #include "AsgTools/AsgMessaging.h"
 
 // xAOD include(s):
@@ -23,6 +21,8 @@
 // Local include(s):
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "TrigDecisionTool/EventPtrDef.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 
 namespace Trig {
@@ -35,8 +35,8 @@ namespace Trig {
 
    public:
       /// Constructor with arguments
-      DecisionObjectHandleStandalone( EventPtr_t sg, const std::string& deckey,
-                                      const std::string& navikey );
+      DecisionObjectHandleStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
+                                      SG::ReadHandleKey<xAOD::TrigNavigation>* navikey );
 
       /// Reset the object at the end of an event
       virtual void reset(bool hard = false);
@@ -46,12 +46,10 @@ namespace Trig {
       virtual xAOD::TrigNavigation const * getNavigation() const override;
 
    private:
-      /// Pointer to the event store
-      EventPtr_t m_sg;
       /// Key of the trigger decision object in the event
-      const std::string m_deckey;
+      SG::ReadHandleKey<xAOD::TrigDecision>* m_deckey;
       /// Key of the trigger navigation object in the event
-      const std::string m_navikey;
+      SG::ReadHandleKey<xAOD::TrigNavigation>* m_navikey;
       /// Cached pointer to the trigger decision object
       mutable xAOD::TrigDecision const * m_decision;
       /// Cached pointer to the trigger navigation object

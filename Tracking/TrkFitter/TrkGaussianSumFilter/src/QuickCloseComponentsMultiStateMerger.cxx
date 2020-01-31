@@ -13,14 +13,13 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilter/AllignedDynArray.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GaudiKernel/Chrono.h"
 #include <limits>
 
-using namespace KLGaussianMixtureReduction; 
 using namespace GSFUtils; 
 
 Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type,
@@ -33,7 +32,7 @@ Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(
   declareInterface<IMultiComponentStateMerger>(this);
 }
 
-Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger() {}
+Trk::QuickCloseComponentsMultiStateMerger::~QuickCloseComponentsMultiStateMerger() = default;
 
 StatusCode
 Trk::QuickCloseComponentsMultiStateMerger::initialize()
@@ -46,11 +45,6 @@ Trk::QuickCloseComponentsMultiStateMerger::initialize()
   } else
     ATH_MSG_INFO("Retrieved service " << m_chronoSvc);
 
-  // Request an instance of the MultiComponentStateCombiner
-  if (m_stateCombiner.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve an instance of the multi-component state combiner... Exiting!");
-    return StatusCode::FAILURE;
-  }
 
   if (m_maximumNumberOfComponents <= 0) {
     ATH_MSG_FATAL("Attempting to merge multi-state into zero components... stop being silly!");
@@ -109,55 +103,54 @@ std::unique_ptr<Trk::MultiComponentState>
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                                                               Trk::MultiComponentState& statesToMerge ) const 
 {
+  /*
+   * Allocate, and initialize the needed arrays
+   */
   const int n = statesToMerge.size();
   const int nn2 = (n + 1) * n / 2;
   AlignedDynArray<float,alignment> distances(nn2); // Array to store all of the distances between components
-  AlignedDynArray<int,alignment> indexToI(nn2);    // The i  & J of each distances so that i don't have to calculate them
-  AlignedDynArray<int,alignment> indexToJ(nn2);
   AlignedDynArray<float,alignment> qonp(n);    // Array of qonp for each component
   AlignedDynArray<float,alignment> qonpCov(n); // Array of Cov(qonp,qonp) for each component
   AlignedDynArray<float,alignment> qonpG(n);   // Array of 1/Cov(qonp,qonp) for each component
 
-  // Initlise all values
+  // Initialize all values 
   for (int i = 0; i < n; ++i) {
     qonp[i] = 0;
     qonpCov[i] = 0;
     qonpG[i] = 1e10;
   }
-
   for (int i = 0; i < nn2; ++i) {
     distances[i] = std::numeric_limits<float>::max();
-    indexToI[i] = -1;
-    indexToJ[i] = -1;
   }
 
+  //Needed to convert the triangular index to (i,j)
+  std::vector<triangularToIJ> convert(nn2,{-1,-1});
   // Calculate indicies
   for (int i = 0; i < n; ++i) {
-    int indexConst = (i + 1) * i / 2;
+    const int indexConst = (i + 1) * i / 2;
     for (int j = 0; j <= i; ++j) {
       int index = indexConst + j;
-      indexToI[index] = i;
-      indexToJ[index] = j;
+      convert[index].I = i;
+      convert[index].J = j;
     }
   }
 
   // Create an array of all components to be merged
-  for (int ii(0); ii < n; ++ii) {
-    const AmgSymMatrix(5)* measuredCov = statesToMerge[ii].first->covariance();
-    const Amg::VectorX& parameters = statesToMerge[ii].first->parameters();
-
+  for (int i = 0; i < n; ++i) {
+    const AmgSymMatrix(5)* measuredCov = statesToMerge[i].first->covariance();
+    const AmgVector(5) parameters = statesToMerge[i].first->parameters();
     // Fill in infomation
-    qonp[ii] = parameters[Trk::qOverP];
-    qonpCov[ii] = measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP): -1.;
-    qonpG[ii] = qonpCov[ii] > 0 ? 1. / qonpCov[ii] : 1e10;
-  }
-
- 
+    qonp[i] = parameters[Trk::qOverP];
+    qonpCov[i] = measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP): -1.;
+    qonpG[i] = qonpCov[i] > 0 ? 1. / qonpCov[i] : 1e10;
+  } 
   // Calculate distances for all pairs
   // This loop can be vectorised
   calculateAllDistances(qonp, qonpCov, qonpG, distances, n);
 
-  // Loop over all components until you reach the target amount
+  /*
+   *  Loop over all components until you reach the target amount
+   */
   unsigned int numberOfComponents = n;
   int minIndex = -1;
   int nextMinIndex = -1;
@@ -177,8 +170,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
       nextMinIndex = -1;
     }
 
-    int mini = indexToI[minIndex];
-    int minj = indexToJ[minIndex];
+    int mini = convert[minIndex].I;
+    int minj = convert[minIndex].J;
 
     if (mini == minj) {
       ATH_MSG_ERROR("Err keys are equal key1 " << mini << " key2 " << minj);
@@ -192,7 +185,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
      * statesToMerge[mini] becomes the merged
      * statesToMerge[minj] is set to dummy values
      */
-    m_stateCombiner->combineWithWeight(statesToMerge[mini], statesToMerge[minj]);
+    MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini], statesToMerge[minj]);
     ATH_MSG_VERBOSE("Weight of new component " << statesToMerge[mini].second);
     statesToMerge[minj].first.reset();
     statesToMerge[minj].second = 0.;
@@ -213,8 +206,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
     resetDistances(distances, mini, n);
 
     // If that element has been removed already the next min pair is invalid and can't be used
-    if (nextMinIndex > 0 && (mini == indexToI[nextMinIndex] || minj == indexToJ[nextMinIndex] ||
-                             minj == indexToI[nextMinIndex] || mini == indexToJ[nextMinIndex])) {
+    if (nextMinIndex > 0 && (mini == convert[nextMinIndex].I || minj == convert[nextMinIndex].J ||
+                             minj == convert[nextMinIndex].I || mini == convert[nextMinIndex].J)) {
       nextMinIndex = -1;
     }
 

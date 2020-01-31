@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -175,7 +175,8 @@ ConeBounds::inside(const Amg::Vector2D& locpo, double tol1, double tol2) const
   // it off the z tol2 in that case?) or does the rphi tol1 cover
   // this? (Could argue either way)
   double coneR = z * m_tanAlpha;
-  double minRPhi = coneR * minPhi() - tol1, maxRPhi = coneR * maxPhi() + tol1;
+  double minRPhi = coneR * minPhi() - tol1;
+  double maxRPhi = coneR * maxPhi() + tol1;
   return minRPhi < locpo[locRPhi] && locpo[locRPhi] < maxRPhi;
 }
 
@@ -204,7 +205,8 @@ ConeBounds::insideLoc1(const Amg::Vector2D& locpo, double tol1) const
 {
   double z = locpo[locZ];
   double coneR = z * m_tanAlpha;
-  double minRPhi = coneR * minPhi() - tol1, maxRPhi = coneR * maxPhi() + tol1;
+  double minRPhi = coneR * minPhi() - tol1;
+  double maxRPhi = coneR * maxPhi() + tol1;
   return minRPhi < locpo[locRPhi] && locpo[locRPhi] < maxRPhi;
 }
 
@@ -218,7 +220,8 @@ ConeBounds::insideLoc2(const Amg::Vector2D& locpo, double tol2) const
 inline double
 ConeBounds::r() const
 {
-  double z = fabs(m_boundValues[ConeBounds::bv_maxZ]), mz = fabs(m_boundValues[ConeBounds::bv_minZ]);
+  double z = fabs(m_boundValues[ConeBounds::bv_maxZ]);
+  double mz = fabs(m_boundValues[ConeBounds::bv_minZ]);
   if (mz > z)
     z = mz;
   return fabs(z * m_tanAlpha);

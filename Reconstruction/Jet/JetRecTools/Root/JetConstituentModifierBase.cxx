@@ -11,7 +11,7 @@
 #include "xAODPFlow/TrackCaloCluster.h"
 
 JetConstituentModifierBase::JetConstituentModifierBase(const std::string & name): asg::AsgTool(name) {
-#ifdef ASGTOOL_ATHENA  
+#ifndef XAOD_STANDALONE  
   declareInterface<IJetConstituentModifier>(this);
 #endif
   declareProperty("InputType", m_inputType);

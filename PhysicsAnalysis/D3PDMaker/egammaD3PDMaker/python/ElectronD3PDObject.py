@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file egammaD3PDMaker/python/ElectronD3PDObject.py
 # @author scott snyder <snyder@bnl.gov>
@@ -385,7 +384,7 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
     # otherwise, we don't make this block.
     def _jetAssocLevel (reqlev, args):
         if reqlev < 2: return False
-        if not args.has_key ('target'): return False
+        if 'target' not in args: return False
         args['Target'] = args['target']
         return True
 

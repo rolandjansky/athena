@@ -111,7 +111,7 @@ StatusCode TrigJetSelectorMT::execute() {
     }
 
     if ( fabs( jetEta ) > m_maxJetEta ) {
-      ATH_MSG_DEBUG( "** Jet outside the |eta| < " << m_maxJetEta.value() << " requirement; Eta = " << jetEta << "; Skipping this Jet." );
+      ATH_MSG_DEBUG( "** Jet outside the |eta| < " << m_maxJetEta.value() << " requirement (ID acceptance); Eta = " << jetEta << "; Skipping this Jet." );
       continue;
     }
 
@@ -165,6 +165,7 @@ const xAOD::Vertex* TrigJetSelectorMT::getPrimaryVertex( const xAOD::VertexConta
     return vertex;
   }
 
-  ATH_MSG_WARNING( "None of the vertexes in the vertex container is a primary vertex!" );
-  return nullptr;
+  ATH_MSG_DEBUG( "None of the vertexes in the vertex container is a primary vertex!" );
+  ATH_MSG_DEBUG( "Using dummy vertex!" );
+  return vertexContainer->front();
 }

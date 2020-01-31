@@ -1,3 +1,5 @@
+//Dear emacs, this is -*-c++-*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -7,35 +9,30 @@
 #ifndef JetAlgorithm_H
 #define JetAlgorithm_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class IJetExecuteTool;
 
-class JetAlgorithm : public AthAlgorithm { 
+class JetAlgorithm : public AthReentrantAlgorithm { 
 
 public: 
-
-  /// Constructor with parameters: 
-  JetAlgorithm(const std::string& name, ISvcLocator* pSvcLocator);
+  
+  //Delegate to base-class constructor
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   /// Destructor: 
   ~JetAlgorithm(); 
 
   /// Athena algorithm's Hooks
-  StatusCode  initialize();
-  StatusCode  execute();
-  StatusCode  finalize();
-
-private: 
-
-  /// Default constructor: 
-  JetAlgorithm();
+  StatusCode  initialize() override;
+  StatusCode  execute(const EventContext& ctx) const override;
+  StatusCode  finalize() override;
 
 private:
 
   /// Athena configured tools
-  ToolHandleArray<IJetExecuteTool> m_exetools;
+  ToolHandleArray<IJetExecuteTool> m_exetools{this,"Tools",{},"Jet-tools to run"};
 
 }; 
 

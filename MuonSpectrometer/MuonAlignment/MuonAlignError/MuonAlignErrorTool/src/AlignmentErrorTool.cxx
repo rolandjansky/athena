@@ -116,9 +116,13 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       if (!rot) continue;
 
       Identifier channelId = rot->identify();
-      MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(channelId);
+      if (!m_idHelperSvc->isMuon(channelId)) {
+        ATH_MSG_WARNING("Given Identifier "<<channelId.get_compact()<<" is no muon Identifier, continuing...");
+        continue;
+      }
       if (m_idHelperSvc->isMM(channelId)||m_idHelperSvc->issTgc(channelId)) continue; // needs to be still implemented for the NSW
-
+      
+      MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(channelId);
       if (!calibId.isValid()) continue;
 
       // GATHERING INFORMATION TO PUT TOGETHER THE STATION NAME //

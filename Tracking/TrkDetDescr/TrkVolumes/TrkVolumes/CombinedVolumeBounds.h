@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ namespace Trk {
    @author Sarka.Todorova@cern.ch 
   */
     
- class CombinedVolumeBounds : public VolumeBounds {
+ class ATLAS_NOT_THREAD_SAFE CombinedVolumeBounds : public VolumeBounds {
   
   public:
     /**Default Constructor*/
@@ -83,7 +83,7 @@ namespace Trk {
     bool intersection() const;
     
     /**This method returns bounds orientation*/
-    const std::vector<bool> boundsOrientation() const;
+    std::vector<bool> boundsOrientation() const;
     
     /** Output Method for MsgStream*/
     virtual MsgStream& dump(MsgStream& sl) const override;
@@ -123,7 +123,7 @@ namespace Trk {
                                                                           bool) const
   { return Trk::ObjectAccessor(m_objectAccessor); }
 
- inline const std::vector<bool> CombinedVolumeBounds::boundsOrientation() const
+ inline std::vector<bool> CombinedVolumeBounds::boundsOrientation() const
   { return(m_boundsOrientation); }
                         
 }

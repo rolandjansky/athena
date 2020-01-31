@@ -47,8 +47,4 @@ private:
   ClassDefOverride(TFCSHitCellMappingWiggle,1)  //TFCSHitCellMappingWiggle
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHitCellMappingWiggle+;
-#endif
-
 #endif

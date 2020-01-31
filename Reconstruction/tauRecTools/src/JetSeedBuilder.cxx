@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -13,9 +13,6 @@ CREATED:  Nov 27 2007
 16/05/2011: FF: fix rare case if no jet_seed found at all (coverity 21744)
   Dec 2011: FF: changes for tauRec4
  ********************************************************************/
-
-//#include "EventKernel/SignalStateHelper.h"
-//#include "FourMomUtils/P4Helpers.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
@@ -31,15 +28,7 @@ CREATED:  Nov 27 2007
 //-------------------------------------------------------------------------
 
 JetSeedBuilder::JetSeedBuilder(const std::string& name) :
-  TauRecToolBase(name),
-  m_jetCollectionName("AntiKt4LCTopoJets"),
-  m_maxJetdist(0.1),
-  m_minJetPt(10000.0),
-  m_switch_jets_em_scale(false) {
-  declareProperty("JetCollection", m_jetCollectionName);
-  declareProperty("maxDist", m_maxJetdist);
-  declareProperty("minPt", m_minJetPt);
-  declareProperty("SwitchJetsEmScale", m_switch_jets_em_scale);
+  TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------
@@ -47,11 +36,6 @@ JetSeedBuilder::JetSeedBuilder(const std::string& name) :
 //-------------------------------------------------------------------------
 
 JetSeedBuilder::~JetSeedBuilder() {
-}
-
-
-void JetSeedBuilder::print() const {
-  
 }
 
 //-------------------------------------------------------------------------
@@ -63,18 +47,10 @@ StatusCode JetSeedBuilder::initialize() {
 }
 
 //-------------------------------------------------------------------------
-// initialize
+// finalize 
 //-------------------------------------------------------------------------
 
 StatusCode JetSeedBuilder::finalize() {
-	return StatusCode::SUCCESS;
-}
-
-//-------------------------------------------------------------------------
-// Event Finalize
-//-------------------------------------------------------------------------
-
-StatusCode JetSeedBuilder::eventFinalize() {
 	return StatusCode::SUCCESS;
 }
 
@@ -86,23 +62,13 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 
 	ATH_MSG_DEBUG("Starting execute");
 
-	bool inTrigger = tauEventData()->inTrigger();
-
-	if(inTrigger)
-		ATH_MSG_DEBUG("inTrigger read properly");
-
-	const xAOD::JetContainer *pJetColl = 0;
-
-	ATH_MSG_DEBUG("Pulling out the seed");
-
-	const xAOD::Jet* pJetSeed = 0;
+	const xAOD::Jet* pJetSeed = nullptr;
 	if (pTau.jetLink().isValid()) pJetSeed = * pTau.jetLink();
-	if (!pJetSeed) {
+    else { 
 		ATH_MSG_DEBUG("seed is not a jet -> tau will not be reconstructed");
 		return StatusCode::FAILURE;
 	}
 
-	ATH_MSG_DEBUG("Seed extracted");
 	ATH_MSG_DEBUG("seed is Jet with"
 			<< " pt=" << pJetSeed->pt()
 			<< " eta=" << pJetSeed->eta()
@@ -121,29 +87,14 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 	// // track seeded tau
 	// pTau.setAuthor(TauJetParameters::tau1P3P);
 	//***********************************************************************
-
-	//
-	// ATTENTION: direction will be overwritten later by TauAxis and TauEnergyCalibration
-	//
-	if (inTrigger && pJetSeed->e() < 0) {
+	
+    if (m_in_trigger && pJetSeed->e() < 0) {
 		// SL/SX trigger mode with negative jet_seed - do not set TauJet eta and phi in JetSeedBuilder
 		ATH_MSG_DEBUG("TauJet eta/phi will be set in Level2 Trigger for negative energy jet");
-
-		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta , static_cast<float>( pTau.eta() ) );
-		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi , static_cast<float>( pTau.phi() ) );
-
 		pTau.setP4(pJetSeed->pt(),pTau.eta(),pTau.phi(),0.0);
 
 	} else {
-		if (m_switch_jets_em_scale) {
-			ATH_MSG_INFO("trying to set seed jet signal state to EMSCALE, but this code has not been migrated to xAOD::Jet yet");
-			//XXX still need to look up how signal states are handled for the xAOD jets
-			// SignalStateHelper sigstateH(P4SignalState::JETEMSCALE);
-			// sigstateH.controlObject(pJetSeed);
-		}
 
-		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta , static_cast<float>( pJetSeed->eta() ) );
-		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi , static_cast<float>( pJetSeed->phi() ) );
 		if ( pJetSeed->pt() > 1e-7)
 			pTau.setP4(static_cast<float>( pJetSeed->pt() ) ,static_cast<float>( pJetSeed->eta() ) ,static_cast<float>( pJetSeed->phi() ) ,0.0 );
 		else
@@ -151,18 +102,6 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 
 		//store 4-vector of seed
 		pTau.setP4( xAOD::TauJetParameters::JetSeed, pJetSeed->pt(), pJetSeed->eta(), pJetSeed->phi(), pJetSeed->m() );
-	}
-
-	// set now the link to the jet seed
-	// if not already set
-	if(!pTau.jetLink().isValid() || (*pTau.jetLink())!=pJetSeed ) pTau.setJet(pJetColl, pJetSeed);
-
-	if ( pTau.jetLink().isValid() ) {
-		ATH_MSG_DEBUG("seed associated with tau is Jet with"
-				<< " pt=" << (*pTau.jetLink())->pt()
-				<< " eta=" << (*pTau.jetLink())->eta()
-				<< " phi=" << (*pTau.jetLink())->phi()
-		);
 	}
 
 	return StatusCode::SUCCESS;

@@ -41,7 +41,7 @@ def collectHypos( steps ):
 
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
-    from DecisionHandling.TrigCompositeUtils import isLegId
+    from TrigCompositeUtils.TrigCompositeUtils import isLegId
     if hypo.getType() == 'ComboHypo':
         return [key for key in hypo.MultiplicitiesMap.keys() if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
@@ -391,7 +391,7 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     if flags.Output.doWriteAOD:
         outputType = 'AOD'
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord)
+    acc = OutputStreamCfg(flags, outputType, ItemList=itemsToRecord, disableEventTag=True)
 
     # OutputStream has a data dependency on xTrigDecision
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
@@ -566,7 +566,7 @@ def triggerIDCCacheCreatorsCfg(flags):
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
     acc.merge( MuonCacheCfg() )
 
-    from TrigUpgradeTest.InDetConfig import InDetIDCCacheCreatorCfg
+    from TrigInDetConfig.InDetConfig import InDetIDCCacheCreatorCfg
     acc.merge( InDetIDCCacheCreatorCfg() )
 
     return acc

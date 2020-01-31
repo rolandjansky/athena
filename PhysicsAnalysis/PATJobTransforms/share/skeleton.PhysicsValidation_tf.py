@@ -153,8 +153,7 @@ if TriggerFlags.doMT() or TriggerFlags.EDMDecodingVersion() == 3:
   if hasattr(ToolSvc, 'TrigDecisionTool'):
     ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite"
 
-    if not hasattr(ToolSvc, 'xAODConfigTool'):
-      from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
-      ToolSvc += TrigConf__xAODConfigTool('xAODConfigTool')
-    ToolSvc.TrigDecisionTool.ConfigTool = ToolSvc.xAODConfigTool
-    ToolSvc.TrigDecisionTool.TrigConfigSvc = "" # Force use of in-file configuration
+    if not hasattr(svcMgr, 'xAODConfigSvc'):
+      from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
+      svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
+    ToolSvc.TrigDecisionTool.TrigConfigSvc = svcMgr.xAODConfigSvc

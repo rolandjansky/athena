@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -40,7 +40,7 @@
 //=============================================================================
 // Standard constructor
 //=============================================================================
-EGammaAmbiguityTool::EGammaAmbiguityTool(std::string myname) :
+EGammaAmbiguityTool::EGammaAmbiguityTool(const std::string& myname) :
   asg::AsgTool(myname)
 {
   declareProperty("minNoSiHits",  m_MinNoSiHits = 4, "Minimum number of silicon hits to be an electron==>not photon for sure");
@@ -89,7 +89,8 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
 
   
   //Number of hits from the track
-  uint8_t trkPixelHits(0), trkSiHits(0);    
+  uint8_t trkPixelHits(0);
+  uint8_t trkSiHits(0);    
   if (tp && !tp->summaryValue(trkPixelHits,xAOD::numberOfPixelHits)){
     ATH_MSG_WARNING("Could not retrieve number of pixel hits from track");
   }
@@ -114,9 +115,9 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   
   //Debug messages
   ATH_MSG_DEBUG("Vertex, SiSi, tracks with innermost pixel hits: " 
-		<< (vx != 0) << ", " << vxDoubleSi << ",  " << nTrkVxWithInnermostHit);
+		<< (vx != nullptr) << ", " << vxDoubleSi << ",  " << nTrkVxWithInnermostHit);
   ATH_MSG_DEBUG("Track, Si hits, pixel hits, has innermost pixel hit: " 
-		<< (tp != 0) << ", " << (int) trkSiHits << ", " << (int) trkPixelHits 
+		<< (tp != nullptr) << ", " << (int) trkSiHits << ", " << (int) trkPixelHits 
 		<< " , " <<  (int) trkHasInnermostHit);
   ATH_MSG_DEBUG("Share track : " << shareTrack);
 
@@ -285,7 +286,8 @@ bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma) const{
  **/
 bool EGammaAmbiguityTool::hasInnermostPixelHit(const xAOD::TrackParticle& tp) const
 {
-  uint8_t trkExpectHit(0), trkNhits(0);
+  uint8_t trkExpectHit(0);
+  uint8_t trkNhits(0);
   CHECK_HITS( tp.summaryValue(trkNhits,xAOD::numberOfInnermostPixelLayerHits) );
   if (trkNhits) {return true;}
   

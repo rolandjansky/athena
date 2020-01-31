@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////////
@@ -8,21 +8,22 @@
 // (c) ATLAS Detector software
 //////////////////////////////////////////////////////////////////////
 
-#include <iomanip>
-#include <vector>
+#include "TrkExRungeKuttaIntersector/IntersectorWrapper.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkExInterfaces/IIntersector.h"
-#include "TrkExRungeKuttaIntersector/IntersectorWrapper.h"
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
-#include "TrkParameters/TrackParameters.h"
+#include <iomanip>
+#include <memory>
+#include <vector>
 
 namespace Trk
 {
@@ -70,7 +71,7 @@ NeutralParameters*
 IntersectorWrapper::propagate (const NeutralParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
-                               BoundaryCheck			boundsCheck,
+                               const BoundaryCheck& 			boundsCheck,
                                bool				curvilinear) const
 {
   return m_linePropagator->propagate(parameters,surface,dir,boundsCheck,curvilinear);
@@ -80,7 +81,7 @@ TrackParameters*
 IntersectorWrapper::propagate (const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
-                               BoundaryCheck			boundsCheck,
+                               const BoundaryCheck& 			boundsCheck,
                                const MagneticFieldProperties&	/*magProperties*/,
                                ParticleHypothesis		/*particle*/,
                                bool				curvilinear,
@@ -96,7 +97,7 @@ TrackParameters*
 IntersectorWrapper::propagate (const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
-                               BoundaryCheck			boundsCheck,
+                               const BoundaryCheck& 			boundsCheck,
                                const MagneticFieldProperties&	/*magProperties*/,
                                TransportJacobian*&		/*transportJac*/,
                                double&,
@@ -114,7 +115,7 @@ TrackParameters*
 IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
-                                         BoundaryCheck			boundsCheck,
+                                         const BoundaryCheck& 			boundsCheck,
                                          const MagneticFieldProperties&	/*magProperties*/,
                                          ParticleHypothesis		/*particle*/,
                                          bool				curvilinear,
@@ -131,7 +132,7 @@ TrackParameters*
 IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
-                                         BoundaryCheck			boundsCheck,
+                                         const BoundaryCheck& 			boundsCheck,
                                          const MagneticFieldProperties& /*magProperties*/,
                                          TransportJacobian*&		/*transportJac*/,
                                          ParticleHypothesis		/*particle*/,
@@ -144,7 +145,7 @@ IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
   return cache.m_parameters;
 }
 
-const IntersectionSolution*
+IntersectionSolution*
 IntersectorWrapper::intersect (const TrackParameters&		parameters,
                                const Surface&			surface,
                                const MagneticFieldProperties&	/*magProperties*/,
@@ -154,7 +155,7 @@ IntersectorWrapper::intersect (const TrackParameters&		parameters,
   Cache cache{};
   findIntersection(cache,parameters,surface);
   IntersectionSolution* solution = new IntersectionSolution;
-  if (cache.m_intersection.get()) {
+  if (cache.m_intersection) {
     solution->push_back(cache.m_intersection.release());
   }
   return solution;
@@ -178,7 +179,7 @@ IntersectorWrapper::globalPositions (std::list<Amg::Vector3D>&,
 void
 IntersectorWrapper::createParameters (Cache& cache, 
                                       const Surface&	surface,
-                                      BoundaryCheck	/*boundsCheck*/,
+                                      const BoundaryCheck& 	/*boundsCheck*/,
                                       bool		curvilinear) const
 {
   cache.m_parameters	= nullptr;
@@ -212,7 +213,7 @@ IntersectorWrapper::findIntersection (Cache& cache,
   cache.m_parameters= nullptr;
   cache.m_position	=  Amg::Vector3D(parameters.position());
   cache.m_qOverP	=  1./cache.m_momentum.mag();
-  cache.m_intersection.reset(new TrackSurfaceIntersection(cache.m_position,cache.m_momentum*cache.m_qOverP,0.));
+  cache.m_intersection = std::make_unique<TrackSurfaceIntersection>(cache.m_position,cache.m_momentum*cache.m_qOverP,0.);
   cache.m_qOverP	*= cache.m_charge;
 
   const TrackSurfaceIntersection* oldIntersection = cache.m_intersection.release();
@@ -220,7 +221,7 @@ IntersectorWrapper::findIntersection (Cache& cache,
                                                               oldIntersection,
                                                               cache.m_qOverP));
   delete oldIntersection;
-  if (! cache.m_intersection.get())
+  if (! cache.m_intersection)
   {
     ATH_MSG_DEBUG( " no intersection found " );
     return;

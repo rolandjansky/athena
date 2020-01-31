@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // INCLUDE HEADER FILES:
@@ -60,7 +60,7 @@ StatusCode EMShowerBuilder::initialize()
     ATH_MSG_DEBUG(" Initializing EMShowerBuilder, m_cellKey = " << m_cellsKey.key());
 
     ATH_CHECK(m_cellsKey.initialize((m_UseShowerShapeTool || m_UseCaloIsoTool) && 
-                m_cellsKey.key() != ""));
+                !m_cellsKey.key().empty()));
 
     
     if (m_UseShowerShapeTool) { 
@@ -136,7 +136,7 @@ StatusCode EMShowerBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) c
     // 
     ATH_MSG_DEBUG("Executing EMShowerBuilder::execute");
     // protection against bad pointers
-    if (eg==0) return StatusCode::SUCCESS;
+    if (eg==nullptr) return StatusCode::SUCCESS;
 
     // retrieve the cell containers
     SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
@@ -172,7 +172,7 @@ StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg,const CaloCellConta
     // 
     ATH_MSG_DEBUG("Executing CalcShowerShape");
     // protection against bad pointers
-    if (eg==0) {return StatusCode::SUCCESS;}
+    if (eg==nullptr) {return StatusCode::SUCCESS;}
     StatusCode sc = StatusCode::SUCCESS;
     // retrieve the cluster 
     const xAOD::CaloCluster* clus = eg->caloCluster(); 

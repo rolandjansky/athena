@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/RpcCondDbAlg.h"
@@ -8,11 +8,8 @@
 // constructor
 RpcCondDbAlg::RpcCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
     AthReentrantAlgorithm(name, pSvcLocator),
-    m_condSvc("CondSvc", name),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_condSvc("CondSvc", name)
   {
- 
-    declareProperty("IdHelper"         , m_idHelper              );
     declareProperty("isOnline"         , m_isOnline              );
     declareProperty("isData"           , m_isData                );
     declareProperty("isRun1"           , m_isRun1                );
@@ -26,7 +23,7 @@ RpcCondDbAlg::initialize(){
 
     ATH_MSG_DEBUG( "initializing " << name() );                
     ATH_CHECK(m_condSvc .retrieve());
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
     ATH_CHECK(m_readKey_folder_da_deadPanels  .initialize());
     ATH_CHECK(m_readKey_folder_da_offPanels   .initialize());
@@ -140,10 +137,10 @@ RpcCondDbAlg::loadDataDeadPanels(EventIDRange & rangeW, RpcCondDbData* writeCdo,
 				ATH_MSG_DEBUG("info_panel " << ch_tmp << " " << atoi(ch_tmp));
 				
 				if(PanelId.get_compact()){
-					ATH_MSG_DEBUG("DEADPANEL " << m_idHelper->rpcIdHelper().show_to_string(PanelId));
-					Identifier atlasId = m_idHelper->rpcIdHelper().panelID(PanelId);
+					ATH_MSG_DEBUG("DEADPANEL " << m_idHelperSvc->rpcIdHelper().show_to_string(PanelId));
+					Identifier atlasId = m_idHelperSvc->rpcIdHelper().panelID(PanelId);
 					std::stringstream ss;
-					ss << "panel_" << sector_name << "_" << m_idHelper->rpcIdHelper().show_to_string(PanelId);
+					ss << "panel_" << sector_name << "_" << m_idHelperSvc->rpcIdHelper().show_to_string(PanelId);
 					if(atlasId!=0) writeCdo->setDeadPanel(ss.str(), atlasId);
 					ATH_MSG_DEBUG("push-back");
 				}
@@ -209,10 +206,10 @@ RpcCondDbAlg::loadDataOffPanels(EventIDRange & rangeW, RpcCondDbData* writeCdo, 
 				ATH_MSG_DEBUG("info_panel " << ch_tmp << " " << PanelId);
 				
 				if(PanelId.get_compact()){
-					ATH_MSG_DEBUG("OFFPANEL " << m_idHelper->rpcIdHelper().show_to_string(PanelId));
-					Identifier atlasId = m_idHelper->rpcIdHelper().panelID(PanelId);
+					ATH_MSG_DEBUG("OFFPANEL " << m_idHelperSvc->rpcIdHelper().show_to_string(PanelId));
+					Identifier atlasId = m_idHelperSvc->rpcIdHelper().panelID(PanelId);
 					std::stringstream ss;
-					ss << "panel_" << sector_name << "_" << m_idHelper->rpcIdHelper().show_to_string(PanelId);
+					ss << "panel_" << sector_name << "_" << m_idHelperSvc->rpcIdHelper().show_to_string(PanelId);
 					if(atlasId!=0) writeCdo->setOffPanel(ss.str(), atlasId);
 					ATH_MSG_DEBUG("push-back");
 				}  
@@ -264,7 +261,7 @@ RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, RpcCondDbData* writeCdo
 		striplist = *(static_cast<const std::string*>((atr["StripStatus"]).addressOfData()));
 
 		ATH_MSG_DEBUG("-----------------------------entry #" << chan_index);
-		ATH_MSG_DEBUG("channel ID = Panel ID " << channum << " as identif. = " << m_idHelper->rpcIdHelper().show_to_string(chamberId)); 
+		ATH_MSG_DEBUG("channel ID = Panel ID " << channum << " as identif. = " << m_idHelperSvc->rpcIdHelper().show_to_string(chamberId)); 
 		ATH_MSG_DEBUG("eff_panel load is " << eff_panel);
 		ATH_MSG_DEBUG("striplist load is " << striplist << " " << striplist.size());
      
@@ -330,7 +327,7 @@ RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, RpcCondDbData* writeCdo
 				writeCdo->setFracClusterSize1(chamberId, 0.6);
 				writeCdo->setFracClusterSize2(chamberId, 0.2);
 				ATH_MSG_DEBUG("Panel with incomplete info in the DB, size = " << info_panel.size() << " instead of required >20");
-				ATH_MSG_DEBUG("PanelId = " << channum << " = " << m_idHelper->rpcIdHelper().show_to_string(chamberId));
+				ATH_MSG_DEBUG("PanelId = " << channum << " = " << m_idHelperSvc->rpcIdHelper().show_to_string(chamberId));
 				ATH_MSG_DEBUG("Cluster Size 1 and 2 fractions are set to 0.6 and 0.2 for this chamber.");
 			}
 		}
@@ -383,7 +380,7 @@ RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, RpcCondDbData* writeCdo
 				writeCdo->setStripTime(strip_id, Time_vect);
 
 				ATH_MSG_VERBOSE("strip #"<<i+1<< " strip_id " <<  stripnum 
-				                <<" expanded "<<m_idHelper->rpcIdHelper().show_to_string(strip_id));
+				                <<" expanded "<<m_idHelperSvc->rpcIdHelper().show_to_string(strip_id));
 
 				++countpanelstrip;
 				
@@ -414,7 +411,7 @@ RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, RpcCondDbData* writeCdo
 	
 				ATH_MSG_VERBOSE("strip #"<<i+1<<" info_strip " << part_strip
 				                << " strip_id " <<  stripnum <<" expanded "
-				                <<m_idHelper->rpcIdHelper().show_to_string(strip_id)<< " panel = " << ch_panel);
+				                <<m_idHelperSvc->rpcIdHelper().show_to_string(strip_id)<< " panel = " << ch_panel);
 	 
 				++countpanelstrip;
 
@@ -459,7 +456,7 @@ RpcCondDbAlg::loadMcElementStatus(EventIDRange & rangeW, RpcCondDbData* writeCdo
 					    <<" and 0.99-dead_frac="<<0.99-FracDeadStripMap
 					    <<" nDeadStrips,InFidArea/nStrips "<<countdeadstrip<<","
 					    <<countdeadstripinfidarea<<"/"<<countpanelstrip
-					    <<" for panelId="<<m_idHelper->rpcIdHelper().show_to_string(chamberId);
+					    <<" for panelId="<<m_idHelperSvc->rpcIdHelper().show_to_string(chamberId);
 					if      (Efficiency-(0.99-FracDeadStripMap)>0.2)
 						msg << " difference >0.2";
 					else if (Efficiency-(0.99-FracDeadStripMap)>0.1)

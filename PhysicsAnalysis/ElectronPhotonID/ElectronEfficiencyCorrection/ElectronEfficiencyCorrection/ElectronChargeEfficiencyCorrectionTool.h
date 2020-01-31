@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ELECTRONCHARGECORRECTION__ELECTRONCHARGECORRECTIONTOOL__H
@@ -36,7 +36,7 @@ namespace CP {
   public:
 
     /// Standard constructor
-    ElectronChargeEfficiencyCorrectionTool(const std::string name);
+    ElectronChargeEfficiencyCorrectionTool(const std::string& name);
 
 
     /// Standard destructor

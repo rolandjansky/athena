@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -61,11 +61,7 @@ def getJetSeedBuilder(seed_collection_name):
         return cached_instances[_name]
     
     from tauRecTools.tauRecToolsConf import JetSeedBuilder
-    JetSeedBuilder = JetSeedBuilder(name = _name,
-            JetCollection = seed_collection_name,
-            maxDist = 0.2,
-            minPt = 10.*GeV,
-            SwitchJetsEmScale = False)
+    JetSeedBuilder = JetSeedBuilder(name = _name)
             
     cached_instances[_name] = JetSeedBuilder
     return JetSeedBuilder
@@ -81,7 +77,7 @@ def getTauAxis():
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    CellCorrection = True)
+                                    VertexCorrection = True)
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
@@ -124,10 +120,8 @@ def getCellVariables(cellConeSize=0.2, prefix=''):
     TauCellVariables = TauCellVariables(name = _name,
             CellEthreshold = 0.2*GeV,
             StripEthreshold = 0.2*GeV,
-            EMSumThreshold = 0.5*GeV,
-            EMSumRadius = 0.2,
             CellCone = cellConeSize,
-            CellCorrection = True)
+            VertexCorrection = True)
             
     cached_instances[_name] = TauCellVariables   
     return TauCellVariables
@@ -336,7 +330,7 @@ def getElectronVetoVars():
     
     from tauRecTools.tauRecToolsConf import TauElectronVetoVariables
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
-                                                        CellCorrection = True,
+                                                        VertexCorrection = True,
                                                         ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                                         tauEVParticleCache = getParticleCache() )
     
@@ -426,7 +420,6 @@ def getPi0ScoreCalculator():
 
     from tauRecTools.tauRecToolsConf import TauPi0ScoreCalculator
     TauPi0ScoreCalculator = TauPi0ScoreCalculator(name = _name,
-        ReaderOption = 'Silent:!Color',
         BDTWeightFile = 'TauPi0BDTWeights.root',
         )
 
@@ -457,9 +450,6 @@ def getPi0Selector():
     cached_instances[_name] = TauPi0Selector
     return TauPi0Selector
 
-
-
-
 #########################################################################
 # Photon Shot Finder algo
 def getTauShotFinder():    
@@ -472,30 +462,16 @@ def getTauShotFinder():
     shotPtCut_1Photon = jobproperties.tauRecFlags.shotPtCut_1Photon()
     shotPtCut_2Photons = jobproperties.tauRecFlags.shotPtCut_2Photons()
 
-    #from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    #TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name=sPrefix+'tauShotCellContainerFinalizer')
-    #from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += TauCellContainerFinalizer
-    
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
                                   CaloWeightTool = getCellWeightTool(),
-                                  #ReaderOption = "Silent:!Color",
-                                  #BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
                                   NCellsInEta           = 5,
                                   MinPtCut              = shotPtCut_1Photon,
                                   AutoDoubleShotCut     = shotPtCut_2Photons,
-                                  MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
                                   Key_caloCellInputContainer="AllCalo"
                                   )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder
-
-
-
-
 
 
 #########################################################################

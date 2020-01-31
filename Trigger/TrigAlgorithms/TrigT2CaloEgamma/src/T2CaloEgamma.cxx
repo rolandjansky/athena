@@ -33,11 +33,12 @@
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 
 #include "TrigT2CaloCommon/phiutils.h"
+#include "egammaUtils/egammaqweta2c.h"
 
 class ISvcLocator;
 
 T2CaloEgamma::T2CaloEgamma(const std::string & name, ISvcLocator* pSvcLocator)
-  : T2CaloBase(name, pSvcLocator),  m_calibsBarrel(this), m_calibsEndcap(this), m_storeCells(false), m_egammaqweta2c("egammaqweta2c/egammaqweta2c",this)
+  : T2CaloBase(name, pSvcLocator),  m_calibsBarrel(this), m_calibsEndcap(this), m_storeCells(false)
 {
     declareProperty("TrigEMClusterKey",m_trigEmClusterKey = "TrigT2CaloEgamma");
     declareProperty("L1ForceEta",m_l1eta = -10.0);
@@ -45,7 +46,6 @@ T2CaloEgamma::T2CaloEgamma(const std::string & name, ISvcLocator* pSvcLocator)
     declareProperty("CalibListBarrel",m_calibsBarrel,"list of calib tools for the Barrel clusters");
     declareProperty("CalibListEndcap",m_calibsEndcap,"list of calib tools for the EndCap clusters");
     declareProperty("StoreCells",m_storeCells,"store cells in container attached to RoI");
-    declareProperty("egammaqweta2c",m_egammaqweta2c,"Egamma Weta2 correction");
     declareProperty("RhoFirstLayer",m_rhoFirstLayer);
     declareProperty("RhoMiddleLayer",m_rhoMiddleLayer);
     declareProperty("ZFirstLayer",m_zFirstLayer);
@@ -81,10 +81,6 @@ HLT::ErrorCode T2CaloEgamma::hltInitialize()
   for (; it < m_emAlgTools.end(); it++)
     (*it)->setCellContainerPointer(&m_Container);
 
-  if ( (m_egammaqweta2c.retrieve()).isFailure() ){
-    ATH_MSG_FATAL( "Could not find egammaqweta2c"  );
-    return HLT::TOOL_FAILURE;
-  }
   return HLT::OK;
 }
 
@@ -296,7 +292,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 
   // Final correction to weta only
   if ( caloDDE != 0 )
-    ptrigEmCluster->setWeta2( m_egammaqweta2c->Correct(ptrigEmCluster->eta(),caloDDE->eta(),ptrigEmCluster->weta2()) );
+    ptrigEmCluster->setWeta2( egammaqweta2c::Correct(ptrigEmCluster->eta(),caloDDE->eta(),ptrigEmCluster->weta2()) );
 
   
   float calZ0 = 0;

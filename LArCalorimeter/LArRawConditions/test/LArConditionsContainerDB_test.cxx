@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -80,7 +80,7 @@ void test1()
     LArConditionsContainerDB<int>::FebIdVec febs { 1, 4 };
     LArConditionsContainerDB<int>::const_iterator it = cdb1.begin (nullptr, febs);
     LArConditionsContainerDB<int>::const_iterator it_end = cdb1.end (nullptr);
-    for (; it != it_end; it++) {
+    for (; it != it_end; ++it) {
       std::cout << "  " << it.getFebId() << " (" << it.febId().get_compact() << ") "
                 << it.getChannel() << ": " << *it << "\n";
     }
@@ -132,7 +132,7 @@ void test1()
     LArConditionsContainerDB<int>::FebIdVec febs { 1, 4 };
     LArConditionsContainerDB<int>::iterator it = db1.begin (nullptr, febs);
     LArConditionsContainerDB<int>::iterator it_end = db1.end (nullptr);
-    for (; it != it_end; it++) {
+    for (; it != it_end; ++it) {
       std::cout << "  " << it.getFebId() << " (" << it.febId().get_compact() << ") "
                 << it.getChannel() << ": " << *it << "\n";
     }

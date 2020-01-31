@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DenseEnvironmentsAmbiguityScoreProcessorTool.h"
@@ -87,16 +87,18 @@ StatusCode Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::finalize()
 
 void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
    if (msgLvl(MSG::INFO)) {
-      std::cout << name() << " -- statistics " << std::endl;
+      MsgStream &out=msg(MSG::INFO);
+      out << " -- statistics " << std::endl;
       std::lock_guard<std::mutex> lock( m_statMutex );
-      m_stat.dump(std::cout);
+      m_stat.dump(out);
+      out << endmsg;
    }
 }
 
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::dump(std::ostream &out) const
+void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::dump(MsgStream &out) const
 {
    // @TODO restore ios
-   std::streamsize ss = std::cout.precision();
+   std::streamsize ss = out.precision();
    int iw=9;
    out << "------------------------------------------------------------------------------------" << std::endl;
    out << "  Number of events processed      :   "<< m_globalCounter[kNevents].value() << std::endl;

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -35,6 +35,7 @@ class Step(object):
         self.result = None
         self.auto_report_result = False
         self.required = False
+        self.depends_on_previous = False
         self.timeout = None
 
     def get_log_file_name(self):
@@ -145,6 +146,17 @@ class Step(object):
                 self.result = subprocess.call(cmd, shell=True)
         if self.auto_report_result:
             self.report_result()
+
+        # Print full log to stdout for failed steps if running in CI
+        if self.required \
+                and self.result != 0 \
+                and os.environ.get('gitlabTargetBranch') \
+                and self.output_stream==self.OutputStream.FILE_ONLY:
+            self.log.error('Step failure while running in CI. Printing full log %s', self.get_log_file_name())
+            with open(self.get_log_file_name()) as log_file:
+                log=log_file.read()
+                print(log)  # noqa: ATL901
+
         return self.result, cmd
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -11,22 +11,6 @@
 //
 //
 //-----------------------------------------------------------------------------
-//TODO:
-
-//#include <GaudiKernel/IToolSvc.h>
-//#include <GaudiKernel/ListItem.h>
-
-//#include "FourMomUtils/P4Helpers.h"
-//#include "FourMom/P4EEtaPhiM.h"
-//#include "CLHEP/Vector/LorentzVector.h"
-//#include "Particle/TrackParticle.h"
-
-//#include "TrkParameters/TrackParameters.h"
-
-#include "tauRecTools/TauEventData.h"
-//#include "tauEvent/TauCommonDetails.h"
-//#include "tauEvent/TauJetParameters.h"
-
 #include "TauConversionTagger.h"
 
 //-----------------------------------------------------------------------------
@@ -40,7 +24,6 @@ TauConversionTagger::TauConversionTagger(const std::string &name) :
   m_trackToVertexTool("Reco::TrackToVertex")
 {
     declareProperty("ConversionTaggerVersion", m_ConvTaggerVer = 1);
-    declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");
     declareProperty("TrackToVertexTool", m_trackToVertexTool);
     declareProperty ("TRTRatio", m_doTRTRatio = true);
     declareProperty ("FullInfo", m_storeFullSummary = false);
@@ -79,8 +62,6 @@ StatusCode TauConversionTagger::finalize() {
 //-----------------------------------------------------------------------------
 StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
 
-  //2012 data reporocessing bug
-  //events with no vertices had taus w/ associated tracks
   if(pTau.vertexLink().isValid()==0) return StatusCode::SUCCESS;
 
   for(unsigned int j=0; j<pTau.nTracks(); j++ ) {
@@ -164,8 +145,6 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
     }
 
     ATH_MSG_VERBOSE("Is tau track a conversion? : " << m_TrkIsConv);
-    // if (m_TrkIsConv && !pTau.trackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion))
-    //   pTau.setTrackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion, true);
     xAOD::TauTrack* tauTrack = pTau.trackNonConst(j);
     if(m_TrkIsConv && !tauTrack->flag(xAOD::TauJetParameters::isConversionOld))
       tauTrack->setFlag( xAOD::TauJetParameters::isConversionOld, true);

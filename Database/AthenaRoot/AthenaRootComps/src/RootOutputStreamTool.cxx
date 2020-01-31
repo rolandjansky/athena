@@ -131,7 +131,7 @@ StatusCode RootOutputStreamTool::finalizeOutput() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RootOutputStreamTool::streamObjects(const IAthenaOutputStreamTool::TypeKeyPairs& typeKeys) {
+StatusCode RootOutputStreamTool::streamObjects(const IAthenaOutputStreamTool::TypeKeyPairs& typeKeys, const std::string& outputName) {
   ATH_MSG_VERBOSE("streamObjects(type/keys)...");
   // Now iterate over the type/key pairs and stream out each object
   std::vector<DataObject*> dataObjects;
@@ -167,10 +167,11 @@ StatusCode RootOutputStreamTool::streamObjects(const IAthenaOutputStreamTool::Ty
     // Save the dObj
     dataObjects.push_back(dObj);
   }
-  return this->streamObjects(dataObjects);
+  return this->streamObjects(dataObjects, outputName);
 }
 
-StatusCode RootOutputStreamTool::streamObjects(const DataObjectVec& dataObjects) {
+StatusCode RootOutputStreamTool::streamObjects(const DataObjectVec& dataObjects, const std::string&
+ /*outputName*/) {
   ATH_MSG_VERBOSE("streamObjects(dobjs)");
   if (m_outputName.empty()) {
     ATH_MSG_ERROR("Unable to commit, no output connected.");

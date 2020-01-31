@@ -204,7 +204,7 @@ if Rel17Style:
     TileTopoCluster += PrintCaloCluster
 
 topSequence += TileTopoCluster
-print TileTopoCluster
+printfunc (TileTopoCluster)
 
 if Rel17Style:
   # cell 2 cluster mapper

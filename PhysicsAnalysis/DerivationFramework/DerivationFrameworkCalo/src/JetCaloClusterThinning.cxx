@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 
 #include "DerivationFrameworkCalo/JetCaloClusterThinning.h"
 
-//#include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
@@ -18,6 +17,8 @@
 #include "xAODCaloEvent/CaloCluster.h"
 
 #include "xAODJet/JetConstituentVector.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <vector>
 #include <string>
@@ -26,24 +27,18 @@
 DerivationFramework::JetCaloClusterThinning::JetCaloClusterThinning(const std::string& t,
                                                                     const std::string& n,
                                                                     const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_thinningSvc("ThinningSvc",n),
+base_class(t,n,p),
 m_ntotTopo(0),
 m_npassTopo(0),
 m_sgKey(""),
-m_TopoClSGKey("CaloCalTopoCluster"),
 m_selectionString(""),
 m_coneSize(-1.0),
-m_and(false),
 m_parser(0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
     declareProperty("SGKey", m_sgKey);
-    declareProperty("TopoClCollectionSGKey", m_TopoClSGKey);
     declareProperty("SelectionString", m_selectionString);
     declareProperty("ConeSize", m_coneSize);
-    declareProperty("ApplyAnd", m_and); 
 }
 
 // Destructor
@@ -55,10 +50,8 @@ StatusCode DerivationFramework::JetCaloClusterThinning::initialize()
 {
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_TopoClSGKey=="") {
-        ATH_MSG_FATAL("No CalCaloTopoCluster collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else { ATH_MSG_INFO("Using " << m_TopoClSGKey << "as the source collection for topo calo clusters");}
+    ATH_CHECK( m_TopoClSGKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_TopoClSGKey.key() << "as the source collection for topo calo clusters");
     if (m_sgKey=="") {
         ATH_MSG_FATAL("No jet collection provided for thinning.");
         return StatusCode::FAILURE;
@@ -93,12 +86,11 @@ StatusCode DerivationFramework::JetCaloClusterThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
     // Retrieve CalCaloTopo collection if required
-    const xAOD::CaloClusterContainer* importedTopoCaloCluster;
-    if (evtStore()->retrieve(importedTopoCaloCluster,m_TopoClSGKey).isFailure()) {
-        ATH_MSG_ERROR("No CalCaloTopo collection with name " << m_TopoClSGKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::CaloClusterContainer> importedTopoCaloCluster
+      (m_TopoClSGKey, ctx);
     
     // Check the event contains tracks
     unsigned int nTopoClusters = importedTopoCaloCluster->size();
@@ -135,9 +127,9 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
     
     // Set elements in the mask to true if there is a corresponding ElementLink from a reconstructed object
     if (m_selectionString=="") { // check all objects as user didn't provide a selection string
-       	setJetClustersMask(topomask, importedJet, importedTopoCaloCluster);
+        setJetClustersMask(topomask, importedJet, importedTopoCaloCluster.cptr());
     } else {
-       	setJetClustersMask(topomask, jetToCheck, importedTopoCaloCluster);
+        setJetClustersMask(topomask, jetToCheck, importedTopoCaloCluster.cptr());
     }
     
     // Count up the mask contents
@@ -146,25 +138,14 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
     }
     
     // Execute the thinning service based on the mask. Finish.
-    if (m_and) {
-        if (m_thinningSvc->filter(*importedTopoCaloCluster, topomask, IThinningSvc::Operator::And).isFailure()) {
-        	ATH_MSG_ERROR("Application of thinning service failed! ");
-        	return StatusCode::FAILURE;
-    	}
-    }
-    if (!m_and) {
-        if (m_thinningSvc->filter(*importedTopoCaloCluster, topomask, IThinningSvc::Operator::Or).isFailure()) {
-        	ATH_MSG_ERROR("Application of thinning service failed! ");
-        	return StatusCode::FAILURE;
-    	}
-    }
+    importedTopoCaloCluster.keep (topomask);
     
     return StatusCode::SUCCESS;
 }
 
 void DerivationFramework::JetCaloClusterThinning::setJetClustersMask(std::vector<bool>& mask,
-                                                                      const xAOD::JetContainer*& jets,
-                                                                      const xAOD::CaloClusterContainer*& cps
+                                                                      const xAOD::JetContainer* jets,
+                                                                      const xAOD::CaloClusterContainer* cps
                                                                       ) const {
     for (xAOD::JetContainer::const_iterator jetIt=jets->begin(); jetIt!=jets->end(); ++jetIt) {
         const xAOD::Jet* jet = dynamic_cast<const xAOD::Jet*>(*jetIt);
@@ -176,7 +157,7 @@ void DerivationFramework::JetCaloClusterThinning::setJetClustersMask(std::vector
 
 void DerivationFramework::JetCaloClusterThinning::setJetClustersMask(std::vector<bool>& mask,
                                                                       std::vector<const xAOD::Jet*>& jets,
-                                                                      const xAOD::CaloClusterContainer*& cps
+                                                                      const xAOD::CaloClusterContainer* cps
                                                                       ) const {
     for (std::vector<const xAOD::Jet*>::iterator jetIt=jets.begin(); jetIt!=jets.end(); ++jetIt) {
         const xAOD::Jet* jet = dynamic_cast<const xAOD::Jet*>(*jetIt);

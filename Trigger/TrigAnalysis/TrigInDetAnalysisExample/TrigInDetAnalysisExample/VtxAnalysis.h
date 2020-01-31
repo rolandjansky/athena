@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Sun  9 Aug 2015 00:02:23 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -57,7 +57,7 @@ private:
   TProfile* rdz_vs_zed;
   TProfile* rdz_vs_ntrax;
   TProfile* rdz_vs_nvtx;
-  TProfile* rdz_vs_mu;
+  //TProfile* rdz_vs_mu;
 
   TProfile* eff_zed;
   TProfile* eff_ntrax;

@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-   */
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EGAMMACALOTOOLS_EGAMMASTRIPSSHAPE_H
 #define EGAMMACALOTOOLS_EGAMMASTRIPSSHAPE_H
@@ -28,7 +28,6 @@ class LArEM_ID;
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "egammaInterfaces/IegammaStripsShape.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
 
 class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
 
@@ -89,9 +88,6 @@ private:
     /** @brief set F1core*/
     void setF1core(Info& info, const xAOD::CaloCluster& cluster) const;
 
-    /** Tool to calculate correction for the eta width modulation in strips */
-    ToolHandle<Iegammaqweta1c> m_egammaqweta1c {this,
-        "egammaqweta1cTool", "egammaqweta1c/egammaqweta1c"};
 
     /** @brief tool to calculate sum of energy in all samples */
    
@@ -114,11 +110,6 @@ private:
     /** @brief boolean to calculate all variables*/
     Gaudi::Property<bool> m_ExecAllVariables {this, 
         "ExecAllVariables", true, "flag used by trigger"};
-
-    /** @brief boolean to calculate less important variables*/
-    Gaudi::Property<bool> m_ExecOtherVariables {this,
-        "ExecOtherVariables", true, "Calculate some less important variables"};
-
 };
 
 #endif

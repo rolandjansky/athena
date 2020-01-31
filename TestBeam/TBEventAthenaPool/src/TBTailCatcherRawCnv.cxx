@@ -62,10 +62,3 @@ StatusCode TBTailCatcherRawCnv::PoolToDataObject(DataObject*& pObj,
 
   return StatusCode::SUCCESS; 
 }
-
-StatusCode TBTailCatcherRawCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBTailCatcherRawCnv::DataObjectToPool" );
-  
-  return TBTailCatcherRawCnvBase::DataObjectToPool( pObj, tname) ;
-}

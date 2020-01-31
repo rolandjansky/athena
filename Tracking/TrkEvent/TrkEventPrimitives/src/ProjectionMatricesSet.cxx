@@ -28,8 +28,8 @@ Trk::ProjectionMatricesSet::ProjectionMatricesSet(int maxdim) :
          if (bit) ++cols;
        }
      
-    Amg::MatrixX* reduction = 0;
-    Amg::MatrixX* expansion = 0;
+    Amg::MatrixX* reduction = nullptr;
+    Amg::MatrixX* expansion = nullptr;
       
     if (cols){      
       // rows and cols - initialized to zero

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,13 +23,19 @@ TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
 {
 }
 
-StatusCode TauIDVarCalculator::eventInitialize()
+StatusCode TauIDVarCalculator::initialize()
 {
+  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  return StatusCode::SUCCESS;
+}
 
+StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
+{
   SG::ReadHandle<xAOD::EventInfo> xEventInfo(m_eventInfoKey);
   m_mu = xEventInfo->averageInteractionsPerCrossing();
 
-  if(!inTrigger()){
+  if(!m_in_trigger){
 
     m_nVtx = int(LOW_NUMBER);    
     // Get the primary vertex container from StoreGate
@@ -54,18 +60,6 @@ StatusCode TauIDVarCalculator::eventInitialize()
     }
   }
  
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauIDVarCalculator::initialize()
-{
-  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
-  ATH_CHECK( m_eventInfoKey.initialize() );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
-{
   //define accessors:
   SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
@@ -73,12 +67,12 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   SG::AuxElement::Accessor<float> acc_mu("MU");
   acc_mu(tau) = m_mu;
 
-  if(!inTrigger()){
+  if(!m_in_trigger){
     SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
     acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0;
   }
   
-  if(inTrigger()){
+  if(m_in_trigger){
     //for old trigger BDT:
     SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
     //the ID should train on nIsolatedTracks which is static!
@@ -92,7 +86,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   acc_absipSigLeadTrk(tau) = fabs(ipSigLeadTrk);
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
-  if(inTrigger()) return StatusCode::SUCCESS;
+  if(m_in_trigger) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
   SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 

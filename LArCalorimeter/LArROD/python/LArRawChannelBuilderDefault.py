@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from LArROD.LArRODFlags import larRODFlags
 from AthenaCommon.GlobalFlags import globalflags
 from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
@@ -9,7 +11,7 @@ def LArRawChannelBuilderDefault():
 
     if larRODFlags.readDigits() and globalflags.InputFormat() == 'bytestream':
         if LArRawDataReadingAlg() not in topSequence:
-            print "Adding LArRawDataReaderAlg"
+            print ("Adding LArRawDataReaderAlg")
             topSequence+=LArRawDataReadingAlg()
 
         from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault

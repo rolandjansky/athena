@@ -139,7 +139,7 @@ class HypoToolConf(object):
     def __init__(self, hypoToolGen):
         self.hypoToolGen = hypoToolGen
         self.name=hypoToolGen.__name__ if hypoToolGen else "None"
-       
+
 
     def setConf( self, chainDict):
         if type(chainDict) is not dict:
@@ -162,7 +162,7 @@ class HypoAlgNode(AlgNode):
         self.previous=[]
 
     def addOutput(self, name):
-        outputs = self.readOutputList()        
+        outputs = self.readOutputList()
         if name in outputs:
             log.debug("Output DH not added in %s: %s already set!", self.name, name)
         elif self.initialOutput in outputs:
@@ -245,7 +245,7 @@ class ComboMaker(AlgNode):
     def create (self, name):
         log.debug("ComboMaker.create %s",name)
         return ComboHypo(name)
-        
+
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
         log.debug("ComboMaker %s adding chain %s", self.Alg.name(),chainName)
@@ -296,16 +296,74 @@ def isFilterAlg(alg):
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
-    
+
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
-        self.sequence     = Node( Alg=Sequence)
+        self._sequence     = Node( Alg=Sequence)
         self._maker       = InputMakerNode( Alg = Maker )
-        self.seed=''
-        self.reuse = False # flag to draw dot diagrmas
+        self._seed=''
         self.ca = CA
-        self.connect(Hypo, HypoToolGen)
-        
+
+        if isinstance(Hypo, list): # we will remove support for this and will issue error
+            log.warning("Sequence %s has more than one Hypo; correct your sequence in the next development cycle", self.name)
+            assert len(Hypo) == len(HypoToolGen), "The number of hypo algs {} and hypo tools {} not the same".format( len(Hypo), len(HypoToolGen) )
+
+        input_maker_output= self.maker.readOutputList()[0] # only one since it's merged
+
+        #### Add input/output Decision to Hypo, handle first somewhat ill-defined case
+        if isinstance(Hypo, list):
+            self._hypo         = [ HypoAlgNode( Alg = alg ) for alg in Hypo ]
+            self._hypoToolConf = [ HypoToolConf( tool ) for tool in HypoToolGen ]
+            self._name         = [ CFNaming.menuSequenceName(alg.name()) for alg in self._hypo ]
+
+            hypo_input = input_maker_output
+            for hypo_alg_node in self._hypo:
+                hypo_output = CFNaming.hypoAlgOutName(hypo_alg_node.Alg.name())
+                hypo_alg_node.addOutput(  hypo_output )
+                hypo_alg_node.setPreviousDecision( hypo_input )
+                hypo_input = hypo_output
+
+        else:
+            self._name = CFNaming.menuSequenceName(Hypo.name())
+            self._hypoToolConf = HypoToolConf( HypoToolGen )
+            self._hypo = HypoAlgNode( Alg = Hypo )
+            hypo_output = CFNaming.hypoAlgOutName(Hypo.name())
+            self._hypo.addOutput(hypo_output)
+            self._hypo.setPreviousDecision( input_maker_output)
+
+        log.debug("MenuSequence.connect: connecting InputMaker and HypoAlg and OverlapRemoverAlg, adding: \n\
+        InputMaker::%s.output=%s",\
+                        self.maker.Alg.name(), input_maker_output)
+
+        if type(self._hypo) is list:
+            hypo_input_total = []
+            [ hypo_input_total.extend( alg_node.Alg.getInputList() )  for alg_node in self._hypo ]
+            hypo_output_total = []
+            [ hypo_output_total.extend( alg_node.Alg.getOutputList() )  for alg_node in self._hypo ]
+
+            for hp, hp_in, hp_out in zip( self._hypo, hypo_input_total, hypo_output_total):
+                log.debug("HypoAlg::%s.previousDecision=%s, \n\
+                HypoAlg::%s.output=%s",\
+                          hp.Alg.name(), hp_in, hp.Alg.name(), hp_out)
+        else:
+           log.debug("HypoAlg::%s.previousDecision=%s, \n \
+           HypoAlg::%s.output=%s",\
+                           self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), self.hypo.readOutputList()[0])
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def sequence(self):
+        if self.ca is not None:
+            makerAlg = self.ca.getEventAlgo(self._maker.Alg.name())
+            self._maker.Alg = makerAlg
+        return self._sequence
 
     @property
     def __maker(self):
@@ -375,7 +433,6 @@ class MenuSequence(object):
            self._hypo.addOutput(hypo_output)
            self._hypo.setPreviousDecision( input_maker_output)
 
-  
 
         log.debug("MenuSequence.connect: connecting InputMaker and HypoAlg and OverlapRemoverAlg, adding: \n\
         InputMaker::%s.output=%s",\
@@ -450,6 +507,8 @@ class MenuSequence(object):
         else:
             return self._hypo.tools
 
+    def setSeed( self, seed ):
+        self._seed = seed
 
     def __repr__(self):
         if type(self._hypo) is list:
@@ -473,7 +532,7 @@ class MenuSequence(object):
 
 #from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getAllThresholdsFromItem, getUniqueThresholdsFromItem
 
-       
+
 class Chain(object):
     """Basic class to define the trigger menu """
     __slots__='name','steps','vseeds','L1decisions'
@@ -491,7 +550,7 @@ class Chain(object):
         # in practice it is the L1Decoder Decision output
         self.L1decisions = [ mapThresholdToL1DecisionCollection(stri) for stri in L1Thresholds]
         log.debug("L1Decisions: %s", ' '.join(self.L1decisions))
-        
+
         self.setSeedsToSequences()
         isCombo=False
         #TO DO: check that all the steps are combo
@@ -519,8 +578,8 @@ class Chain(object):
             return 0
         return not_empty_mult[0]
 
-        
-       
+
+
     def setSeedsToSequences(self):
         """ Set the L1 seeds (L1Decisions) to the menu sequences """
         if len(self.steps) == 0:
@@ -529,8 +588,8 @@ class Chain(object):
         # TODO: check if the number of seeds is sufficient for all the seuqences, no action of no steps are configured
         for step in self.steps:
             for seed, seq in zip(self.L1decisions, step.sequences):
-                seq.seed= seed
-                log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seq.seed, step.name )                                 
+                seq.setSeed( seed )
+                log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence in step %s", self.name, seed, step.name )
 
     def getChainLegs(self):
         """ This is extrapolating the chain legs"""
@@ -538,7 +597,7 @@ class Chain(object):
         listOfChainDictsLegs = splitChainInDict(self.name)
         legs = [part['chainName'] for part in listOfChainDictsLegs]
         return legs
-                
+
 
     def decodeHypoToolConfs(self):
         """ This is extrapolating the hypotool configuration from the chain name"""
@@ -550,7 +609,7 @@ class Chain(object):
                 continue
 
             step_mult = [str(m) for m in step.multiplicity]
-            menu_mult = [part['chainParts'][0]['multiplicity'] for part in listOfChainDictsLegs ] 
+            menu_mult = [part['chainParts'][0]['multiplicity'] for part in listOfChainDictsLegs ]
             if step_mult != menu_mult:
                 # need to agree on the procedure: if the jet code changes the chainparts accordingly, this will never happen
                 log.warning("Got multiplicty %s from chain parts, but have %s legs. This is expected now for jets, so this tmp fix is added:", menu_mult, step_mult)
@@ -661,7 +720,7 @@ class StepComp(object):
 class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1]):
-       
+
         self.name = name
         self.sequences=Sequences
         self.multiplicity = multiplicity

@@ -68,13 +68,13 @@ StatusCode JetClusterer::initialize() {
   // Input DataHandles
   ATH_CHECK( m_eventinfokey.initialize() );
   ATH_CHECK( m_inputPseudoJets.initialize() );
-  m_finalPSeudoJets = m_inputPseudoJets.key() +"FinalPJ";
+  m_finalPseudoJets = m_inputPseudoJets.key() +"FinalPJ";
 
   return StatusCode::SUCCESS;
 }
 
 
-xAOD::JetContainer* JetClusterer::build() const {
+xAOD::JetContainer* JetClusterer::getJets() const {
 
   // Build the container to be returned 
   std::unique_ptr<xAOD::JetContainer>  jets = std::make_unique<xAOD::JetContainer>() ;
@@ -140,9 +140,9 @@ xAOD::JetContainer* JetClusterer::build() const {
 
   // -------------------------------------
   // record final PseudoJetVector
-  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPSeudoJets);
+  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPseudoJets);
   if(!pjVectorHandle.record(std::move(pjVector))){
-    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPSeudoJets);
+    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPseudoJets);
     return nullptr;
   }
 

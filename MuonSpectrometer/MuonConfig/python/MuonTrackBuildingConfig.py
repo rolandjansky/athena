@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -165,6 +165,12 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     track_segment_matching_tool=acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("CandidateMatchingTool", track_segment_matching_tool)
+
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
+    acc = MuonTrackSummaryHelperToolCfg(flags)
+    track_summary_helper = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("TrackSummaryTool",  track_summary_helper)
    
     builder = Muon__MooTrackBuilder(name, **kwargs)
     result.setPrivateTools(builder)
@@ -289,6 +295,12 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
     msis = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("MuonStationIntersectSvc",msis)
+
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
+    acc = MuonTrackSummaryHelperToolCfg(flags)
+    track_summary_helper = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("TrackSummaryTool",  track_summary_helper)
 
     # Not bothering to handle IDHelper or EDMHelper or HitSummaryTool. Default is okay.
     
@@ -437,6 +449,12 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     
     kwargs.setdefault("HoleRecoveryTool",       hole_recovery_tool) 
     
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
+    acc = MuonTrackSummaryHelperToolCfg(flags)
+    track_summary_helper = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("TrackSummaryTool",  track_summary_helper)
+
     track_maker_steering = Muon__MuonTrackSteering(name,**kwargs)
     result.setPrivateTools(track_maker_steering)
     return result

@@ -483,20 +483,29 @@ InDet::InDetExtensionProcessor::trackPlusExtension(const Trk::Track* siTrack,
 
 // Finalize method:
 StatusCode InDet::InDetExtensionProcessor::finalize() {
-  ATH_MSG_INFO(name() << "::finalize() -- statistics:");
   if (msgLvl(MSG::INFO)) {
+     MsgStream &out = msg(MSG::INFO);
+     out << "::finalize() -- statistics:" << std::endl;
+     dumpStat(out);
+     out << endmsg;
+  }
+  return StatusCode::SUCCESS;
+}
+
+MsgStream &InDet::InDetExtensionProcessor::dumpStat(MsgStream &out) const
+{
     int iw = 9;
-    std::cout.width(9);
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of events processed      :   " << m_Nevents << std::endl;
-    std::cout << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- " << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of tracks at input       :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out.width(9);
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of events processed      :   " << m_Nevents << std::endl;
+    out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- " << std::endl;
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of tracks at input       :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ninput[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ninput[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ninput[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Ninput[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
-    std::cout << "  Number of not extended tracks   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  Number of not extended tracks   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_NnotExtended[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) <<
     std::setw(iw)
               << m_NnotExtended[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) <<
@@ -504,28 +513,28 @@ StatusCode InDet::InDetExtensionProcessor::finalize() {
               << m_NnotExtended[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) <<
     std::setw(iw)
               << m_NnotExtended[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
-    std::cout << "  Number of proposed ext. roads   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  Number of proposed ext. roads   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nrecognised[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nrecognised[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(
       iw)
               << m_Nrecognised[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) << std::setw(
       iw)
               << m_Nrecognised[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of track fits            :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of track fits            :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfits[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
     if (m_tryBremFit) {
-      std::cout << "  + brem fits for electron tracks :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  + brem fits for electron tracks :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NbremFits[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NbremFits[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(
         iw)
                 << m_NbremFits[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) << std::setw(
         iw)
                 << m_NbremFits[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
-      std::cout << "  + brem fit to recover failed fit:" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  + brem fit to recover failed fit:" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NrecoveryBremFits[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) <<
       std::setw(iw)
                 << m_NrecoveryBremFits[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) <<
@@ -533,7 +542,7 @@ StatusCode InDet::InDetExtensionProcessor::finalize() {
                 << m_NrecoveryBremFits[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) <<
       std::setw(iw)
                 << m_NrecoveryBremFits[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
-      std::cout << "  + brem fit to recover low score :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  + brem fit to recover low score :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NlowScoreBremFits[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) <<
       std::setw(iw)
                 << m_NlowScoreBremFits[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) <<
@@ -542,20 +551,20 @@ StatusCode InDet::InDetExtensionProcessor::finalize() {
       std::setw(iw)
                 << m_NlowScoreBremFits[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
     }
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout << "  Number of track fit failing     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    out << "  Number of track fit failing     :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfailed[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfailed[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfailed[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nfailed[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
-    std::cout << "  Number of rejected extensions   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  Number of rejected extensions   :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nrejected[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nrejected[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) <<
     std::setw(iw)
               << m_Nrejected[InDet::InDetExtensionProcessor::iTransi] << std::setiosflags(std::ios::dec) <<
     std::setw(iw)
               << m_Nrejected[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
-    std::cout << "  Number of successful extensions :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+    out << "  Number of successful extensions :" << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nextended[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) << std::setw(iw)
               << m_Nextended[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) <<
     std::setw(iw)
@@ -563,7 +572,7 @@ StatusCode InDet::InDetExtensionProcessor::finalize() {
     std::setw(iw)
               << m_Nextended[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
     if (m_tryBremFit) {
-      std::cout << "  including brem fitted tracks    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
+      out << "  including brem fitted tracks    :" << std::setiosflags(std::ios::dec) << std::setw(iw)
                 << m_NextendedBrem[InDet::InDetExtensionProcessor::iAll] << std::setiosflags(std::ios::dec) <<
       std::setw(iw)
                 << m_NextendedBrem[InDet::InDetExtensionProcessor::iBarrel] << std::setiosflags(std::ios::dec) <<
@@ -572,12 +581,10 @@ StatusCode InDet::InDetExtensionProcessor::finalize() {
       std::setw(iw)
                 << m_NextendedBrem[InDet::InDetExtensionProcessor::iEndcap] << std::endl;
     }
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-    std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
               << "    definition: ( 0.0 < Barrel < " << m_etabounds[0] << " < Transition < " << m_etabounds[1]
               << " < Endcap < " << m_etabounds[2] << " )" << std::setprecision(-1) << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
-  }
-
-  return StatusCode::SUCCESS;
+    out << "-------------------------------------------------------------------------------" << std::endl;
+    return out;
 }

@@ -23,8 +23,8 @@ CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p )
 : AthAlgTool(t,n,p),
-  m_calo_dd(0),
-  m_emid(0)
+  m_calo_dd(nullptr),
+  m_emid(nullptr)
 {
   declareInterface<ICaloCluster_OnTrackBuilder>(this);
 }
@@ -82,26 +82,26 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
   
   if(!m_useClusterPhi && !m_useClusterEta && !m_useClusterEnergy){
     ATH_MSG_WARNING("CaloCluster_OnTrackBuilder is configured incorrectly");  
-    return 0;  
+    return nullptr;  
   }
   
-  if(!cluster) return 0;
+  if(!cluster) return nullptr;
 
   const Trk::Surface* surface = getCaloSurface( cluster );
   
-  if(!surface) return 0;
+  if(!surface) return nullptr;
   
   const Trk::LocalParameters*  lp =getClusterLocalParameters( cluster, surface, charge );
   if (!lp){
     delete surface;
-    return 0;
+    return nullptr;
   }
      
   const  Amg::MatrixX *em  =getClusterErrorMatrix( cluster, surface, charge );  
   if (!em){
     delete surface;
     delete lp;
-    return 0;
+    return nullptr;
   }
   
   Trk::CaloCluster_OnTrack* ccot = new  Trk::CaloCluster_OnTrack( *lp, *em, *surface );
@@ -123,7 +123,7 @@ const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::Ca
 //--------------------------------------------------------------------------------------------
 {
  
-  const Trk::Surface* destinationSurface = 0;
+  const Trk::Surface* destinationSurface = nullptr;
   
   // Determine if we want to extrapolate to the barrel or endcap.  If in the crack choose the 
   // detector with largest amount of energy in the second sampling layer 
@@ -169,7 +169,7 @@ const Trk::LocalParameters*   CaloCluster_OnTrackBuilder::getClusterLocalParamet
   phi += correction * 1e-3 * charge;
 */
 
-  Trk::LocalParameters* newLocalParameters(0);
+  Trk::LocalParameters* newLocalParameters(nullptr);
  
   if ( xAOD::EgammaHelpers::isBarrel( cluster ) ){
     //Two corindate in a cyclinder are 

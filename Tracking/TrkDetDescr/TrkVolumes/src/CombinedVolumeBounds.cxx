@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@
 
 Trk::CombinedVolumeBounds::CombinedVolumeBounds() :
  VolumeBounds(),
- m_first(0),
- m_second(0),
+ m_first(nullptr),
+ m_second(nullptr),
  m_intersection(false),
  m_objectAccessor(),
  m_boundsOrientation()
@@ -133,11 +133,11 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
        
 	Trk::Volume* firstSub = new Trk::Volume(*volExcl->volume());
 
-	Trk::Volume* comb_sub = 0;
-	if (!shared && !m_intersection) comb_sub = new Trk::Volume(0,new Trk::CombinedVolumeBounds(secondSub,firstSub,m_intersection));
-	if (!shared &&  m_intersection) comb_sub = new Trk::Volume(0,new Trk::SubtractedVolumeBounds(secondSub,firstSub));
-	if ( shared &&  m_intersection) comb_sub = new Trk::Volume(0,new Trk::CombinedVolumeBounds(secondSub,firstSub,m_intersection));
-	if ( shared && !m_intersection) comb_sub = new Trk::Volume(0,new Trk::SubtractedVolumeBounds(firstSub,secondSub));
+	Trk::Volume* comb_sub = nullptr;
+	if (!shared && !m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(secondSub,firstSub,m_intersection));
+	if (!shared &&  m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(secondSub,firstSub));
+	if ( shared &&  m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(secondSub,firstSub,m_intersection));
+	if ( shared && !m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(firstSub,secondSub));
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
         bool new_shared = shared;
         if (m_intersection) new_shared = true;
@@ -201,11 +201,11 @@ const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSu
         if (!volExcl) throw std::logic_error("Not a VolumeExcluder");
 	Trk::Volume* secondSub = new Trk::Volume(*volExcl->volume());
  
-	Trk::Volume* comb_sub = 0;
-	if (!shared && !m_intersection) comb_sub = new Trk::Volume(0,new Trk::CombinedVolumeBounds(firstSub,secondSub,m_intersection));
-	if (!shared &&  m_intersection) comb_sub = new Trk::Volume(0,new Trk::SubtractedVolumeBounds(firstSub,secondSub));
-	if ( shared &&  m_intersection) comb_sub = new Trk::Volume(0,new Trk::CombinedVolumeBounds(firstSub,secondSub,m_intersection));
-	if ( shared && !m_intersection) comb_sub = new Trk::Volume(0,new Trk::SubtractedVolumeBounds(secondSub,firstSub));
+	Trk::Volume* comb_sub = nullptr;
+	if (!shared && !m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(firstSub,secondSub,m_intersection));
+	if (!shared &&  m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(firstSub,secondSub));
+	if ( shared &&  m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(firstSub,secondSub,m_intersection));
+	if ( shared && !m_intersection) comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(secondSub,firstSub));
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
         bool new_shared = shared;
         if (m_intersection) new_shared = true;
@@ -272,7 +272,7 @@ std::ostream& Trk::CombinedVolumeBounds::dump( std::ostream& sl ) const
 
 Trk::Volume* Trk::CombinedVolumeBounds::createSubtractedVolume(const Amg::Transform3D& transf, Trk::Volume* subtrVol) const
 {
-  Trk::Volume* subVol = 0;
+  Trk::Volume* subVol = nullptr;
   if (!subtrVol) return subVol;
 
   subVol = new Trk::Volume( *subtrVol, transf );

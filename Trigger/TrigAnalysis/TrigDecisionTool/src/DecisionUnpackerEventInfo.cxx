@@ -2,9 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AsgTools/AsgToolsConf.h"
 //only in full Athena
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 
 
 
@@ -33,7 +32,7 @@ bool get32BitDecision( unsigned int index,
 
 
 namespace Trig {
-  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key) : m_handle(new DecisionObjectHandleEventInfo(sg,key)){
+  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(SG::ReadHandleKey<EventInfo>* oldEventInfoKey) : m_handle(new DecisionObjectHandleEventInfo(oldEventInfoKey)){
   }
 
   DecisionUnpackerEventInfo::~DecisionUnpackerEventInfo(){
@@ -190,7 +189,7 @@ namespace Trig {
     m_handle->validate();
   }
   void DecisionUnpackerEventInfo::invalidate_handle(){
-    m_handle->invalidate();
+    m_handle->reset(); // This used to be invalidate(), but we now use a ReadHandle, so it has to be a full reset.
     this->unpacked_navigation(false);
     this->unpacked_decision(false);
   }

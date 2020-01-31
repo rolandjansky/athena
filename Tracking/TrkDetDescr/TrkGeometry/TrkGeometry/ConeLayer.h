@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,14 +47,14 @@ namespace Trk {
             ConeBounds* cbounds,
             const LayerMaterialProperties& laymatprop,
             double thickness = 0.,
-            OverlapDescriptor* od = 0,
+            OverlapDescriptor* od = nullptr,
             int laytyp=int(Trk::active));
     
       /**Constructor with ConeSurface and  MaterialProperties */
       ConeLayer(ConeSurface* cyl,
             const LayerMaterialProperties& laymatprop,
             double thickness = 0.,
-            OverlapDescriptor* od = 0,
+            OverlapDescriptor* od = nullptr,
             int laytyp=int(Trk::active));
     
       /**Constructor with ConeSurface components and pointer to SurfaceArray (passing ownership) */
@@ -62,7 +62,7 @@ namespace Trk {
             ConeBounds* cbounds,
             SurfaceArray* surfaceArray,
             double thickness = 0.,
-            OverlapDescriptor* od = 0,
+            OverlapDescriptor* od = nullptr,
             int laytyp=int(Trk::active));
     
       /**Constructor with ConeSurface components,
@@ -72,7 +72,7 @@ namespace Trk {
             SurfaceArray* surfaceArray,
             const LayerMaterialProperties& laymatprop,
             double thickness = 0.,
-            OverlapDescriptor* od = 0,
+            OverlapDescriptor* od = nullptr,
             int laytyp=int(Trk::active));
     
       /**Copy constructor of ConeLayer*/

@@ -171,22 +171,6 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    m_IDiso       = -9999.;
    m_isIsolated  = -1.0;
 
-   const xAOD::EventInfo* pEvent;
-   StatusCode sc = evtStore()->retrieve(pEvent);
-   if (sc.isFailure()) {
-      m_ErrorFlagMI = 1;
-      ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );
-      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
-   }
-
-   auto current_run_id = pEvent->runNumber();
-   auto current_event_id = pEvent->eventNumber();
-   auto current_bcg_id = pEvent->bcid();
-
-   ATH_MSG_DEBUG( " ---> Run Number       : " << current_run_id  );
-   ATH_MSG_DEBUG( " ---> Event Number     : " << std::hex << current_event_id << std::dec  );
-   ATH_MSG_DEBUG( " ---> Bunch Crossing ID: " << std::hex << current_bcg_id << std::dec  );
-
    ATH_MSG_DEBUG( "Configured to fex ID:   "  );
    ATH_MSG_DEBUG( "R ID:                   " << m_RID            );
    ATH_MSG_DEBUG( "PtMin ID:               " << m_PtMinTrk       );
@@ -390,22 +374,6 @@ StatusCode muIso::findIsolation( const xAOD::L2CombinedMuonContainer& muonColl,
    xAOD::L2IsoMuon* muonIS = new xAOD::L2IsoMuon();
    muonISColl.push_back(muonIS);
    muonIS->setPt(0.0);
-
-   const xAOD::EventInfo* pEvent;
-   StatusCode sc = evtStore()->retrieve(pEvent);
-   if (sc.isFailure()) {
-      m_ErrorFlagMI = 1;
-      ATH_MSG_ERROR( "Could not find xAOD::EventInfo object"  );
-      return StatusCode::FAILURE;
-   }
-
-   auto current_run_id = pEvent->runNumber();
-   auto current_event_id = pEvent->eventNumber();
-   auto current_bcg_id = pEvent->bcid();
-
-   ATH_MSG_DEBUG( " ---> Run Number       : " << current_run_id  );
-   ATH_MSG_DEBUG( " ---> Event Number     : " << std::hex << current_event_id << std::dec  );
-   ATH_MSG_DEBUG( " ---> Bunch Crossing ID: " << std::hex << current_bcg_id << std::dec  );
 
    ATH_MSG_DEBUG( "Configured to fex ID:   "  );
    ATH_MSG_DEBUG( "R ID:                   " << m_RID            );

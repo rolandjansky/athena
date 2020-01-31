@@ -1,10 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+import six
 
 
 try:
     from CoolRunQuery.AtlRunQueryLookup import DQChannelDict
 except ImportError:
     from warnings import warn
+    import traceback
+    traceback.print_exc()
     warn("Failed to import DQChannelDict from CoolRunQuery. "
          "Can't perform channel conversions.")
     channel_mapping = {}
@@ -14,14 +18,15 @@ else:
     channel_mapping = DQChannelDict.copy()
     channel_names = channel_mapping.keys()
 
-cm_reversed = dict((value, key) for key, value in channel_mapping.iteritems())
+cm_reversed = dict((value, key) for key, value in six.iteritems(channel_mapping))
 channel_mapping.update(cm_reversed)
 
 def convert_channel(name, want_id=True, channel_mapping=channel_mapping):
     """
     Given a channel, return a name detector or an integer (depending on want_id)
     """
-    if isinstance(name, (int, long)):
+    from builtins import int
+    if isinstance(name, int):
         if name not in channel_mapping:
             raise RuntimeError("ChannelID %r is not in channel_mapping" % name)
         return name if want_id else channel_mapping[name]
@@ -101,8 +106,8 @@ def get_channel_ids_names(folder):
     """
     channel_ids = list(folder.listChannels())
     channel_names = folder.listChannelsWithNames()
-    channel_names = map(channel_names.__getitem__, channel_ids)
-    channel_dict = dict(zip(channel_ids,   channel_names)
-                       +zip(channel_names, channel_ids))
+    channel_names = list(map(channel_names.__getitem__, channel_ids))
+    channel_dict = dict(list(zip(channel_ids,   channel_names))
+                       +list(zip(channel_names, channel_ids)))
     return channel_ids, channel_names, channel_dict
 

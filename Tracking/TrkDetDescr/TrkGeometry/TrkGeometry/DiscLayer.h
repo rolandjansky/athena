@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,14 +51,14 @@ namespace Trk {
                   DiscBounds* dbounds,
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
-                  OverlapDescriptor* od = 0,
+                  OverlapDescriptor* od = nullptr,
                   int laytyp=int(Trk::active));
 
         /**Constructor with DiscSurface and MaterialProperties */
         DiscLayer(DiscSurface* disc,
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
-                  OverlapDescriptor* od = 0,
+                  OverlapDescriptor* od = nullptr,
                   int laytyp=int(Trk::active));
                   
         /**Constructor with DiscSurface components and pointer to SurfaceArray (passing ownership) */
@@ -66,8 +66,8 @@ namespace Trk {
                   DiscBounds* dbounds,
                   SurfaceArray* surfaceArray,
                   double isontolerance = 0.,
-                  OverlapDescriptor* od = 0,
-                  IApproachDescriptor* ad = 0,
+                  OverlapDescriptor* od = nullptr,
+                  IApproachDescriptor* ad = nullptr,
                   int laytyp=int(Trk::active));
                 
         /**Constructor with DiscSurface components, 
@@ -77,8 +77,8 @@ namespace Trk {
                   SurfaceArray* surfaceArray,
                   const LayerMaterialProperties& laymatprop,
                   double thickness = 0.,
-                  OverlapDescriptor* od = 0,
-                  IApproachDescriptor* ad = 0,
+                  OverlapDescriptor* od = nullptr,
+                  IApproachDescriptor* ad = nullptr,
                   int laytyp=int(Trk::active)); 
  
         /**Copy constructor of DiscLayer*/
@@ -102,7 +102,7 @@ namespace Trk {
                                          PropDirection pdir,
                                          const BoundaryCheck& bcheck,
                                          bool resolveSubSurfaces = 0,
-                                         const ICompatibilityEstimator* ice = 0) const override;
+                                         const ICompatibilityEstimator* ice = nullptr) const override;
       
         /** getting the MaterialProperties back - for pre-update*/ 
         double preUpdateMaterialFactor(const Trk::TrackParameters& par,
@@ -123,13 +123,17 @@ namespace Trk {
      private:   
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
        virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
-              /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, double envelope) const override{
+              /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
+                                                            double envelope) const override
+       {
          const_cast<DiscLayer*> (this)->resizeLayer(vBounds,envelope);
-       }        
-     
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& cCenter, double envelop) override;
+       }
+
+       /** Resize the layer to the tracking volume - not implemented */
+       virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
+                                             const Amg::Vector3D& cCenter,
+                                             double envelop) override;
 
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
@@ -140,14 +144,14 @@ namespace Trk {
 
 
        /** build approach surfaces */
-       void buildApproachDescriptor() const;
+       void buildApproachDescriptor();
     
        /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
        const Surface& approachSurface(const Amg::Vector3D& pos,
                                       const Amg::Vector3D& dir,
                                       const BoundaryCheck& bcheck) const;    
      protected:
-       mutable IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
+       IApproachDescriptor*  m_approachDescriptor;      //!< surface for approaching
     
   };
 

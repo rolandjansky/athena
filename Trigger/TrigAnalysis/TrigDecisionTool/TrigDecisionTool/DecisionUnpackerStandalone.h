@@ -9,7 +9,6 @@
 #define TRIGDECISIONTOOL_DECISIONUNPACKERSTANDALONE_H
 
 // ASG include(s):
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMessaging.h"
 
 // Trigger configuration include(s):
@@ -20,6 +19,12 @@
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/EventPtrDef.h"
+
+// xAOD include(s):
+#include "xAODTrigger/TrigDecision.h"
+#include "xAODTrigger/TrigNavigation.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 // Forward declaration(s):
 namespace HLT {
@@ -41,8 +46,8 @@ namespace Trig {
 
   public:
     /// Constructor with arguments
-    DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
-				const std::string& navikey);
+    DecisionUnpackerStandalone(SG::ReadHandleKey<xAOD::TrigDecision>*,
+				SG::ReadHandleKey<xAOD::TrigNavigation>* navikey);
     /// Destructor
     virtual ~DecisionUnpackerStandalone();
 

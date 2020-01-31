@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EMClusterTool.h"
@@ -155,7 +155,7 @@ void EMClusterTool::setNewCluster(const EventContext& ctx,
     return;
   }
   typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;
-  xAOD::CaloCluster* cluster = 0;
+  xAOD::CaloCluster* cluster = nullptr;
 
   //Special Case for topo seeded photons. 
   if (eg->author(xAOD::EgammaParameters::AuthorCaloTopo35)) {
@@ -189,12 +189,12 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const EventContext& ctx,
   // protection against cluster not in barrel nor endcap
   if (!cluster.inBarrel() && !cluster.inEndcap() ){
     ATH_MSG_ERROR("Cluster neither in barrel nor in endcap, Skipping cluster");
-    return 0;
+    return nullptr;
   }
   
   if ((int) egType < 0 || egType >= xAOD::EgammaParameters::NumberOfEgammaTypes){
     ATH_MSG_WARNING("Invalid egamma type");
-    return 0;
+    return nullptr;
   }
 
   bool isBarrel = xAOD::EgammaHelpers::isBarrel(&cluster);  
@@ -263,7 +263,8 @@ void EMClusterTool::fillPositionsInCalo(xAOD::CaloCluster* cluster) const{
   bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
   CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
   // eta and phi of the cluster in the calorimeter frame
-  double eta, phi;
+  double eta;
+  double phi;
   m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi); 
 
   cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);

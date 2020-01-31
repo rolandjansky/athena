@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -22,7 +22,7 @@
 #include <TH3.h>
 #include <TProfile.h>
 #include <EventLoop/StatusCode.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <MultiDraw/Formula.h>
 #include <MultiDraw/FormulaSvc.h>
 #include <RootCoreUtils/Assert.h>
@@ -72,7 +72,7 @@ namespace MD
   AlgCFlow (TH1 *val_hist_swallow)
     : m_hist (0), m_hist2 (0)
   {
-    std::auto_ptr<TH1> hist (val_hist_swallow);
+    std::unique_ptr<TH1> hist (val_hist_swallow);
 
     RCU_REQUIRE_SOFT (val_hist_swallow != 0);
     RCU_REQUIRE_SOFT (val_hist_swallow->GetDimension() == 1);

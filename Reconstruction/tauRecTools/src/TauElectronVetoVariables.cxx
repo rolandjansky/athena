@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -31,18 +31,8 @@
 #include <math.h>
 #include <sstream>
 
-//#include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-//#include "CaloUtils/CaloCellList.h"
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloCell.h"
 #include "CaloUtils/CaloVertexedCell.h"
-//#include "AtlasDetDescr/AtlasDetectorID.h"
-//#include "CaloIdentifier/CaloID.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
@@ -59,12 +49,11 @@ using Gaudi::Units::GeV;
 //-------------------------------------------------------------------------
 TauElectronVetoVariables::TauElectronVetoVariables(const std::string &name) :
 TauRecToolBase(name),
-m_doCellCorrection(false), //FF: don't do cell correction by default
+m_doVertexCorrection(false), //FF: don't do cell correction by default
 m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
 {
-    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("VertexCorrection", m_doVertexCorrection);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
-    // declareProperty("tauEVParticleCache", m_ParticleCacheKey);
 }
 
 //-------------------------------------------------------------------------
@@ -90,18 +79,7 @@ StatusCode TauElectronVetoVariables::initialize()
   if (!m_ParticleCacheKey.key().empty()) {ATH_CHECK(m_ParticleCacheKey.initialize());}
   else {m_useOldCalo = true;}
 
-  if(m_caloExtensionTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("initialize: Cannot retrieve " << m_caloExtensionTool);
-      return StatusCode::FAILURE;
-  } else {
-      ATH_MSG_VERBOSE("Successfully retrieved Extrapolation tool "
-              << m_caloExtensionTool.typeAndName());
-  }
   return StatusCode::SUCCESS;
-}
-StatusCode TauElectronVetoVariables::eventInitialize()
-{
-    return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------
@@ -109,12 +87,11 @@ StatusCode TauElectronVetoVariables::eventInitialize()
 //-------------------------------------------------------------------------
 StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 {
-
     if (pTau.nTracks() < 1) {
         return StatusCode::SUCCESS;
     }
 
-    ATH_MSG_VERBOSE(name() << " in execute() ...");
+    ATH_MSG_DEBUG("in execute()");
 
     float detPhiTrk = 0.;
     float detEtaTrk = 0.;
@@ -155,12 +132,6 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     const CaloCell *pCell;
 
     int trackIndex = -1;
-
-    //use tau vertex to correct cell position
-    bool applyCellCorrection = false;
-    if (m_doCellCorrection && pTau.vertexLink()) {
-       applyCellCorrection = true;
-    }
 
     //---------------------------------------------------------------------
     // Calculate eta, phi impact point of leading track at calorimeter layers EM 0,1,2,3
@@ -249,27 +220,17 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
       
       CaloClusterCellLink::const_iterator pCellIter  = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator pCellIterE = cluster->getCellLinks()->end();
-     
 
       double cellPhi;
       double cellEta;
       double cellET;
-    for (; pCellIter != pCellIterE; pCellIter++) {
+      for (; pCellIter != pCellIterE; pCellIter++) {
 
         pCell = *pCellIter;
-	
-	if (cellSeen.test(pCell->caloDDE()->calo_hash())) {
-	  //already encountered this cell
-	  continue;
-	}
-	else {
-	  //New cell
-	  cellSeen.set(pCell->caloDDE()->calo_hash());
-	}
+	    if (cellSeen.test(pCell->caloDDE()->calo_hash())) continue;
+	    else cellSeen.set(pCell->caloDDE()->calo_hash());
 
-
-        if (applyCellCorrection) {
-          //ATH_MSG_INFO( "before cell correction: phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
+        if (m_doVertexCorrection && pTau.vertexLink()) {
           CaloVertexedCell vxCell (*pCell, (*pTau.vertexLink())->position());
           cellPhi = vxCell.phi();
           cellEta = vxCell.eta();
@@ -299,9 +260,9 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
         if (sampling == 12 || sampling == 13 || sampling == 14) i = 3;
 
         detPhiTrk = Tau1P3PKineUtils::deltaPhi( cellPhi, phi_extrapol[i] );
-	detEtaTrk = std::fabs( cellEta - eta_extrapol[i] );
-	clEtaTrk = eta_extrapol[i];
-	distEtaTrk = cellEta - eta_extrapol[i];
+	    detEtaTrk = std::fabs( cellEta - eta_extrapol[i] );
+	    clEtaTrk = eta_extrapol[i];
+	    distEtaTrk = cellEta - eta_extrapol[i];
 
         if ((sampling == 0 && detEtaTrk < eta0cut && detPhiTrk < phi0cut) ||
                 (sampling == 1 && detEtaTrk < eta1cut && detPhiTrk < phi1cut) ||
@@ -344,7 +305,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
             etareg = 0.00415;
         }
         
-    } //end cell loop
+      } //end cell loop
 
     }// end jet constituent loop
 
@@ -369,7 +330,6 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     } else {
         max = max2;
     }
-
 
     float TRTratio = -9999.0;
     uint8_t TRTHTHits;
@@ -406,7 +366,6 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
         } else {
             TRTratio = 0.0;
         }
-    // }
 
     pTau.setDetail(xAOD::TauJetParameters::TRT_NHT_OVER_NLT , TRTratio );
     pTau.setDetail(xAOD::TauJetParameters::secMaxStripEt , energy_3phi[max] );
@@ -416,8 +375,5 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 
     return StatusCode::SUCCESS;
 }
-
-
-
 
 #endif
