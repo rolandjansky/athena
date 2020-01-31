@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -209,6 +209,8 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::handleLayerT(Trk::E
     //    - Recovered              : layer was not hit, so can be ignored in the layer to layer loop 
     eCode = m_propagationEngine->propagate(eCell,*eCell.leadLayerSurface,pDir,true,eCell.navigationCurvilinear);
     CHECK_ECODE_SUCCESS_NODEST(eCell, eCode);
+    // record the passive parameters 
+    if (eCode!=Trk::ExtrapolationCode::Recovered) eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);  
     // check if the layer was actually hit
     if (eCode.inProgress()){
         // successful layer hit 
@@ -219,8 +221,6 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::handleLayerT(Trk::E
         // - SuccessMaterialLimit  : material limit reached & configured to stop there
         eCode = m_materialEffectsEngine->handleMaterial(eCell,pDir,Trk::fullUpdate);
         CHECK_ECODE_CONTINUE(eCell, eCode);
-        // record the passive parameters
-        eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);
         // return the progress eCode back to the extrapolateT
         return eCode;
     }    
@@ -316,7 +316,7 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::resolveLayerT(Trk::
         // now loop over the surfaces:
         // the surfaces will be sorted
         for (auto& csf : cSurfaces ) {
-            EX_MSG_VERBOSE(eCell.navigationStep, "layer", eCell.leadLayer->layerIndex().value(), "trying candidate surfaces with straight line path length " << csf.intersection.pathLength); 
+	    EX_MSG_VERBOSE(eCell.navigationStep, "layer", eCell.leadLayer->layerIndex().value(), "trying candidate surfaces with straight line path length " << csf.intersection.pathLength); 
             // propagate to the compatible surface, return types are 
             // - InProgress       : propagation to compatible surface worked
             // - Recovered        : propagation to compatible surface did not work, leadParameters stay the same
@@ -344,7 +344,9 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::resolveLayerT(Trk::
                     eCode = m_materialEffectsEngine->handleMaterial(eCell,pDir,Trk::fullUpdate);
                     CHECK_ECODE_CONTINUE(eCell, eCode);
                 }
-            } 
+            } else if (eCode== Trk::ExtrapolationCode::SuccessPathLimit) {
+                eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);              
+	    }  
        } // loop over test surfaces done
     } // there are compatible surfaces          
 
@@ -364,7 +366,7 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::resolveLayerT(Trk::
         // Possible return types:
         // - SuccessDestination  : great, desintation surface hit - but post-update needs to be done
         // - SuccessPathLimit    : pathlimit was reached on the way to the destination surface 
-        eCode = m_propagationEngine->propagate(eCell,*sf,pDir,bcheck,eCell.destinationCurvilinear);
+ 	eCode = m_propagationEngine->propagate(eCell,*sf,pDir,false,eCell.destinationCurvilinear);
         // check for success return path limit
         CHECK_ECODE_SUCCESS_NODEST(eCell,eCode);
         EX_MSG_VERBOSE(eCell.navigationStep, "layer", eCell.leadLayer->layerIndex().value(), "attempt to hit destination surface resulted in " << eCode.toString() ); 
