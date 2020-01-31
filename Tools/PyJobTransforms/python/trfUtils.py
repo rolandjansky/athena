@@ -245,13 +245,15 @@ def asetupReport():
             setupMsg += '\t%s=%s\n' % (eVar, os.environ[eVar])
     # Look for patches so that the job can be rerun
     if 'WorkDir_DIR' in os.environ and os.access(os.environ['WorkDir_DIR'], os.R_OK):
-        setupMsg += "\n\tPatch packages are:\n"
-        try:
-            cmd = ['lstags']
-            lstagsOut = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1).communicate()[0]
-            setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.decode().split("\n") ])
-        except (CalledProcessError, OSError) as e:
-            setupMsg += 'Execution of lstags failed: {0}'.format(e)
+        pass
+        # lstags is obsolete with git releases.
+        # setupMsg += "\n\tPatch packages are:\n"
+        # try:
+        #     cmd = ['lstags']
+        #     lstagsOut = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1).communicate()[0]
+        #     setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.decode().split("\n") ])
+        # except (CalledProcessError, OSError) as e:
+        #     setupMsg += 'Execution of lstags failed: {0}'.format(e)
     else:
         setupMsg+= "No readable patch area found"
 
