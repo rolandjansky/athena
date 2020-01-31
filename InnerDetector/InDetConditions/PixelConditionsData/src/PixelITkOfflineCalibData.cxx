@@ -53,8 +53,9 @@ namespace PixelCalib{
 
     for(int i=0;i<map_size;i++){
 
+      long long pixelId_long = constants[i*entry_size];
       std::ostringstream ss;
-      ss << constants[i*entry_size];
+      ss << "0x" << std::hex << pixelId_long;
       std::string pixelId_str(ss.str());
       Identifier pixelId;
       pixelId.set(pixelId_str);
