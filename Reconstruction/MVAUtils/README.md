@@ -1,6 +1,6 @@
 # MVAUtils
 
-MVAUtils is a lightweight implementation of Boosted Decision Trees (BDT). It is able to compute the output of BDT optimized with several tools (presently TMVA and lgbm). It has been originally designed to redude the memory usage by the TMVA::Reader. It is suggested to use this tool instead of the native api provided by the tool used in the training.
+MVAUtils is a lightweight implementation of Boosted Decision Trees (BDT). It is able to compute the output of BDT optimized with several tools (presently TMVA, lgbm, and XGBoost). It has been originally designed to redude the memory usage by the TMVA::Reader. It is suggested to use this tool instead of the native api provided by the tool used in the training.
 
 `MVAUtils::BDT` is the class the user has to instantiate. The constructor get a `TTree*` which holds the weights. Several tools are provided to convert the original format to a ROOT file containing the needed TTree.
 
@@ -25,7 +25,7 @@ The input is a `std::vector<float>` but other interfaces are provided, in partic
 By the way in most of the cases the first interface (passing `std::vector<float>` each time) should be preferred. The interface with pointers is not thread-safe.
 
 ## Convert weights to TTree
-If you have optimized a BDT with TMVA or lgbm you need to convert the weights to a TTree. The script after converting to a ROOT file checks if the output computed with MVAUtils is the same as the one predicted by the original tool (pay attention to the output of the script).
+If you have optimized a BDT with TMVA, lgbm, or XGBoost you need to convert the weights to a TTree. The script after converting to a ROOT file checks if the output computed with MVAUtils is the same as the one predicted by the original tool (pay attention to the output of the script).
 
 ### TMVA
 Save your optimization in an xml using TMVA. Then simply run:
@@ -43,25 +43,37 @@ Then call the script:
 
 it is also suggested to provide a table of input values (e.g. the training or testing sample) to run the test (otherwise the test will use random values as input). See `convertLGBMToRooTree.py -h`.
 
+### XGBoost 
+Save your optimization (the booster) to a model file, with
+
+    booster.save_model('my_model.model')
+
+Then call the script:
+
+    convertXGBoostToRootTree.py my_model.model my_output.root --objective binary:logistic(or reg:linear)
+
+it is also suggested to provide a numpy table of input values (e.g. the training or testing sample) to run the test. See `convertXGBoostToRootTree.py -h`.
 
 ## Details about the implementation
-This tool was originally written by Jovan Mitrevski, supporting only TMVA BDT, and then updated by Ruggero Turra so that it is easy to support different kind of BDT, presently lgbm.
+This tool was originally written by Jovan Mitrevski, supporting only TMVA BDT, and then updated by Ruggero Turra so that it is easy to support different kind of BDT, presently lgbm, XGBoost.
 
 The tool uses a ROOT TTree to store the weights. Each entry of the TTree is a tree of the forest. Usually the branches are vectors with the variable used to cut (-1 for leafs), for each node, and the value to be used to cut (or the output value for leafs). The trees are serialized in vectors using preorder traversal. See previous section to see how to create these TTree.
 
 The BDT class is now splitted in three layers:
 
- * BDT: this is the only class the user needs and its interface. It is reading the input weights and deciding which implementation of the forest to instantiate. BDT class holds a pointer to IForest which point to a concret Forest class (ForestLGBM / ForestLGBMSimple / ForestTMVA).
- * Forest: this implements the forest of decision trees, but the implementation of the node of the BDT is not here. Different Forest classes are provided, since for example the way the trees are summed is different between TMVA/lgbm (for example for TMVA classification output is a normalized weighted sum of all the response of all the trees, while lgbm is a simple sum followed by a sigmoid activation). The Forest class holds a vector of nodes. All the nodes of all the trees are in the same vector. The Forest knows the index of the top node for each tree.
- * Node: this implements the logic at each node of the tree which is different for TMVA/lgbm (e.g. TMVA is using >= as decision, lgbm is using <=, lgbm support nan as input, ...)
+ * BDT: this is the only class the user needs and its interface. It is reading the input weights and deciding which implementation of the forest to instantiate. BDT class holds a pointer to IForest which point to a concret Forest class (ForestLGBM / ForestLGBMSimple / ForestTMVA / ForestXGBoost).
+ * Forest: this implements the forest of decision trees, but the implementation of the node of the BDT is not here. Different Forest classes are provided, since for example the way the trees are summed is different between TMVA/lgbm/XGBoost (for example for TMVA classification output is a normalized weighted sum of all the response of all the trees, while lgbm is a simple sum followed by a sigmoid activation). The Forest class holds a vector of nodes. All the nodes of all the trees are in the same vector. The Forest knows the index of the top node for each tree.
+ * Node: this implements the logic at each node of the tree which is different for TMVA/lgbm/XGBoost (e.g. TMVA is using >= as decision, lgbm is using <=, lgbm support nan as input, ...)
 
 Forest is implemented with polymorphism with virtual classes but the Node class is not (static polymorphism) to avoid to query a virtual table for each node evaluation.
 
 Everything else is unchanged: the weights are from TTree and old TTree works in the new implementation. The memory usage and cpu speed is identical.
 
-lgbm has many options (much more than tmva). Only the most common or default options are supported. The new lgbm implementation support only regression/multiclassification/binary classification. It supports continuous inputs, including nan as missing values (but not other kinds of missing values as in lgbm). It does not support categorical input variables. It supports only default activation functions (e.g. standard sigmoid for binary classification).
+lgbm/XGBoost has many options (much more than tmva). Only the most common or default options are supported. The new lgbm implementation support only regression/multiclassification/binary classification. It supports continuous inputs, including nan as missing values (but not other kinds of missing values as in lgbm). It does not support categorical input variables. It supports only default activation functions (e.g. standard sigmoid for binary classification).
 
-A python utility to convert the weights saved by lgbm training to our TTree format is provided. It needs lgbm installed (writing a parser is too complicated, error prone, do not guaranteed compatibility with future lgbm formats, ...).
+Only regression/binary classification are currently supported for XGBoost.
+
+A python utility to convert the weights saved by lgbm/XGBoost training to our TTree format is provided. It needs lgbm/XGBoost installed (writing a parser is too complicated, error prone, do not guaranteed compatibility with future lgbm formats, ...).
 
 ### Performances
 
