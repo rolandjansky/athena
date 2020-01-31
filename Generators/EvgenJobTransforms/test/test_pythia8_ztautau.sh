@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: Generation test Pythia8 Z->tautau 
 # art-type: build
-# art-include: 21.6/AthGeneration
+# art-include: master/Athena
 # art-output: *.root
 # art-output: log.generate
 
