@@ -1,3 +1,11 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+## this is test for clusterization configuration
+#import sys
+#sys.path.append("/afs/cern.ch/work/z/zchubini/public/IDconfig/athena/InnerDetector/InDetConfig/python")
+
+import dill
+
 import TrackReco 	   as TrackReco
 import PixelGeoModelConfig      as PixelGeoModelConfig
 import SCT_GeoModelConfig	as SCT_GeoModelConfig
@@ -7,8 +15,7 @@ arg_TrackCollectionKeys      = 'tracks'
 arg_TrackCollectionTruthKeys = 'truth'
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+#from AthenaConfiguration.ComponentFactory import CompFactory
 
 #@extraArgs( redoPatternRecoAndTracking = False )
 def InDetRecPreProcessingSiliconAlgorithmsCfg(flags, **kwargs) :
@@ -36,7 +43,7 @@ def InDetRecPreProcessingSiliconAlgorithmsCfg(flags, **kwargs) :
 
 
 
-from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
+
 ###from code of Soshi Tsuno: 
 ###https://gitlab.cern.ch/atlas/athena/blob/nightly/master/2020-01-15T2134/InnerDetector/InDetDigitization/PixelDigitization/python/PixelDigitizationConfigNew.py
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
@@ -69,52 +76,52 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     # charge calibration
     acc.merge(PixelChargeCalibCondAlgCfg(flags))
     # DCS setup
-    acc.merge(PixelDCSCondHVAlgCfg(flags))
-    acc.merge(PixelDCSCondTempAlgCfg(flags))
+#    acc.merge(PixelDCSCondHVAlgCfg(flags))
+#    acc.merge(PixelDCSCondTempAlgCfg(flags))
     # cabling setup
-    acc.merge(PixelHitDiscCnfgAlgCfg(flags))
-    acc.merge(PixelReadoutSpeedAlgCfg(flags))
-    acc.merge(PixelCablingCondAlgCfg(flags))
+#    acc.merge(PixelHitDiscCnfgAlgCfg(flags))
+#    acc.merge(PixelReadoutSpeedAlgCfg(flags))
+#    acc.merge(PixelCablingCondAlgCfg(flags))
     # deadmap
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
     # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
     acc.merge(PixelTDAQCondAlgCfg(flags))
     # offline calibration
-    acc.merge(PixelDistortionAlgCfg(flags))
-    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
+#   acc.merge(PixelDistortionAlgCfg(flags))
+#   acc.merge(PixelOfflineCalibCondAlgCfg(flags))
     ########print('digitization')
     return acc
 
 
 
-from SiLorentzAngleTool.SCT_LorentzAngleConfig import (SCT_LorentzAngleToolCfg, SCT_LorentzAngleCfg)
+from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
 
 
 # the requires a single additional layer where the algorithm returned by getInDetPixelClusterization is collected:
 def main(flags) :
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
+    Configurable.configurableRun3Behavior = 1
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg,MainServicesSerialCfg,MainServicesMiniCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
     #top_acc=MainServicesMiniCfg(flags)
     top_acc=MainServicesThreadedCfg(flags)
     #top_acc=MainServicesSerialCfg()
 
+    ### configure top_acc to be able to read input file
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(flags))
    
-    ######acc_bare.merge( IDGeoModel_bare.InDetGeoModelSvcCfg(flags) )
-    print("merge Pixel and SCT Geo models configs...")
+    ### obtain pixel and SCT geometry
     top_acc.merge( PixelGeoModelConfig.PixelGeometryCfg(flags) )
     top_acc.merge( SCT_GeoModelConfig.SCT_GeometryCfg(flags) )
+
+    ### configuration of pixel and sct clusterization algorithms
     top_acc.merge( InDetRecPreProcessingSiliconAlgorithmsCfg(flags) )
-    print("merge PixelDigitizationTool...")    
     top_acc.merge( PixelDigitizationBasicToolCfg(flags))
     ##top_acc.merge(SCT_LorentzAngleToolCfg(flags))
     ##top_acc.merge(SCT_LorentzAngleCfg(flags))
-    print("merge LorentzAngleTool...")    
-    LorentzAngleTool = top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
+    top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
     ####SiliCondTool = SCT_LorentzAngleToolCfg(flags)
     ####top_acc.setPrivateTools(SiliCondTool)
 
@@ -122,10 +129,6 @@ def main(flags) :
 
 
 if __name__ == "__main__":
-    
-    from AthenaCommon.Configurable import Configurable
-    #Configurable.configurableRun3Behavior=1
-
     import IDTestFlags
     flags = IDTestFlags.IDTestFlags_q221()
     ##from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -142,7 +145,9 @@ if __name__ == "__main__":
     flags.lock()
 
     acc = main(flags)
-    acc.setAppProperty("EvtMax",25)
-    #acc.store(open("test_SiClusterization.pkl", "w"))
-
+    ##acc.setAppProperty("EvtMax",25)
+    ##acc.store(open("test_SiClusterization.pkl", "w"))
+    ##acc.store("storetest.pkl")
     acc.run(25)
+    with open('test4.pkl', mode="wb") as f:
+       dill.dump(acc, f)
