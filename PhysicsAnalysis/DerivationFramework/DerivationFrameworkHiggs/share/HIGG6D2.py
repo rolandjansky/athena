@@ -31,6 +31,20 @@ if is_MC:
   from DerivationFrameworkMCTruth.MCTruthCommon import *
   
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_HIGG6D2Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG6D2Stream )
+HIGG6D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+HIGG6D2Stream.AcceptAlgs(["HIGG6D2Kernel"])
+# Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="HIGG6D2ThinningSvc", outStreams=[evtStream] )
+
+#====================================================================
 # TAU SELECTOR TOOL 
 #====================================================================
 augmentationTools = []
@@ -163,12 +177,11 @@ ToolSvc += HIGG6D2JetTPThinningTool
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG6D2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = "HIGG6D2TauTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
+            StreamName              = streamName,
             TauKey                       = "TauJets",
             InDetTrackParticlesKey  = "InDetTrackParticles",
 #            SelectionString = tauSel,
-            ConeSize = 0.6,
-            ApplyAnd = False)
+            ConeSize = 0.6)
 
 thinningTools.append(HIGG6D2TauTPThinningTool)
 ToolSvc += HIGG6D2TauTPThinningTool
@@ -178,12 +191,11 @@ ToolSvc += HIGG6D2TauTPThinningTool
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 HIGG6D2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name= "HIGG6D2MuonTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
+            StreamName              = streamName,
             MuonKey                 = "Muons",
             InDetTrackParticlesKey  = "InDetTrackParticles",
 #            SelectionString = muonRequirements,
-            ConeSize = 0.4,
-            ApplyAnd = False)
+            ConeSize = 0.4)
 
 thinningTools.append(HIGG6D2MuonTPThinningTool)
 ToolSvc += HIGG6D2MuonTPThinningTool
@@ -193,12 +205,11 @@ ToolSvc += HIGG6D2MuonTPThinningTool
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG6D2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name= "HIGG6D2ElectronTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
+            StreamName              = streamName,
             SGKey                   = "Electrons",
             InDetTrackParticlesKey  = "InDetTrackParticles",
 #            SelectionString = electronRequirements,
-            ConeSize = 0.4,
-            ApplyAnd = False)
+            ConeSize = 0.4)
 
 thinningTools.append(HIGG6D2ElectronTPThinningTool)
 ToolSvc += HIGG6D2ElectronTPThinningTool
@@ -258,20 +269,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG6D2K
 
 
  
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_HIGG6D2Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG6D2Stream )
-HIGG6D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-HIGG6D2Stream.AcceptAlgs(["HIGG6D2Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG6D2ThinningSvc", outStreams=[evtStream] )
-
 #====================================================================
 # Add the containers to the output stream - slimming done here (smart slimming)
 #====================================================================

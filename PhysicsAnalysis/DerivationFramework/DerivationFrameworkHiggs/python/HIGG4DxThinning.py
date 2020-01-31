@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################################################
 # Common code used for the HIGG4 thinning       #
@@ -23,7 +23,7 @@ def TriggerChains(HIGG4DxName):
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
-def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
+def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
     thinningTools=[]
 
     #jets and tracks
@@ -75,7 +75,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
         HIGG4DxMuonSelectionString = "Muons.pt > 1*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
     HIGG4DxMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = HIGG4DxName+"MuonTPThinningTool",
-                                                                               ThinningService         = HIGG4DxThinningSvc,
+                                                                               StreamName              = streamName,
                                                                                MuonKey                 = "Muons",
                                                                                SelectionString 	       = HIGG4DxMuonSelectionString,
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -88,7 +88,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
         HIGG4DxElectronSelectionString = "Electrons.pt > 1*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
     HIGG4DxElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = HIGG4DxName+"ElectronTPThinningTool",
-                                                                                     ThinningService         = HIGG4DxThinningSvc,
+                                                                                     StreamName              = streamName,
                                                                                      SGKey                   = "Electrons",
                                                                                      SelectionString 	     = HIGG4DxElectronSelectionString,
                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -101,7 +101,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
         HIGG4DxTauSelectionString = "TauJets.pt > 40*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
     HIGG4DxTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = HIGG4DxName+"TauTPThinningTool",
-                                                                             ThinningService         = HIGG4DxThinningSvc,
+                                                                             StreamName              = streamName,
                                                                              TauKey                  = "TauJets",
                                                                              SelectionString         = HIGG4DxTauSelectionString,
                                                                              ConeSize                = 0.6,
