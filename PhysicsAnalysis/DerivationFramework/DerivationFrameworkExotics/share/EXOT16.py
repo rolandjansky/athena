@@ -217,7 +217,7 @@ thinningTools.append(EXOT16JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT16MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT16MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT16ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                             SelectionString = "Muons.pt > 7*GeV",
@@ -228,7 +228,7 @@ thinningTools.append(EXOT16MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT16ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT16ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT16ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey                   = "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                         GSFTrackParticlesKey    = "GSFTrackParticles",
