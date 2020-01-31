@@ -9,9 +9,12 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
+#include <SystematicsHandles/SysDecorationHandle.h>
+#include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODBase/IParticleContainer.h>
+#include <xAODEventInfo/EventInfo.h>
 
 namespace CP {
 /// \brief an algorithm for selecting events based on object flags
@@ -34,6 +37,11 @@ class EventSelectionByObjectFlagAlg final : public EL::AnaAlgorithm {
   private:
     SysListHandle m_systematicsList{this};
 
+    /// \brief the event info we run on
+  private:
+    SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle {
+      this, "eventInfo", "EventInfo", "the event info object to run on"};
+
     /// \brief the particle collection we run on
   private:
     SysReadHandle<xAOD::IParticleContainer> m_particleHandle{
@@ -41,8 +49,16 @@ class EventSelectionByObjectFlagAlg final : public EL::AnaAlgorithm {
 
     /// \brief the preselection we apply to our input
   private:
-    SelectionReadHandle m_preselection{this, "preselection", "",
-                                       "the preselection to apply"};
+    SelectionReadHandle m_preselection{this, "preselection", "", "the preselection to apply"};
+
+    /// \brief the preselection we apply to our input
+  private:
+    SelectionReadHandle m_veto{this, "veto", "", "selection upon which events are vetoed"};
+
+    /// \brief the decoration for writing the scale factor
+  private:
+    SysDecorationHandle<float> m_eventDecisionOutputDecoration {
+      this, "eventDecisionOutputDecoration", "", "the decoration for the event decision"};
 
     /// \brief counter for passed events
   private:
