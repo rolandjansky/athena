@@ -385,13 +385,13 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       }
    }
    std::map<void*, RootType> commitCache;
+   std::string fileName;
    if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
       auto streamingTool = m_outputStreamingTool[m_streamServer];
       // Clear object to get Placements for all objects in a Stream
       char* placementStr = nullptr;
       int num = -1;
-      std::string fileName;
       StatusCode sc = streamingTool->clearObject(&placementStr, num);
       if (sc.isSuccess() && placementStr != nullptr && strlen(placementStr) > 0 && num > 0) {
          fileName = strstr(placementStr, "[FILE=");
@@ -454,7 +454,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   // Write object
                   Placement placement;
                   placement.fromString(placementStr); placementStr = nullptr;
-                  std::unique_ptr<Token> token( registerForWrite(&placement, obj, classDesc) );
+                  std::unique_ptr<Token> token (registerForWrite(&placement, obj, classDesc));
                   if (token == nullptr) {
                      ATH_MSG_ERROR("Failed to write Data for: " << className);
                      return abortSharedWrClients(num);
@@ -472,12 +472,12 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                      }
                      dataHeaderSeen = true;
                      dataHeaderID = token->contID() + "/" + oss2.str();
-                  } else if( dataHeaderSeen ) {
+                  } else if (dataHeaderSeen) {
                      dataHeaderSeen = false;
                      // next object after DataHeader - may be a DataHeaderForm
                      // in any case we need to call the DH converter to update the DHForm Ref
-                     if( className == "DataHeaderForm_p6") {
-                        // Tell DataHeaderCnv that it should use a new DHForm 
+                     if (className == "DataHeaderForm_p6") {
+                        // Tell DataHeaderCnv that it should use a new DHForm
                         GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(),
                                                tokenStr, dataHeaderID);
                         if (!DHcnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
@@ -485,9 +485,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                            return abortSharedWrClients(num);
                         }
                      } else {
-                        // Tell DataHeaderCnv that it should use the old DHForm 
-                        GenericAddress address(0,0, "", dataHeaderID);
-                        if( !DHcnv->updateRepRefs(&address, nullptr).isSuccess() ) {
+                        // Tell DataHeaderCnv that it should use the old DHForm
+                        GenericAddress address(0, 0, "", dataHeaderID);
+                        if (!DHcnv->updateRepRefs(&address, nullptr).isSuccess()) {
                            ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
                            return abortSharedWrClients(num);
                         }
@@ -511,7 +511,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             while (sc.isRecoverable()) {
                sc = streamingTool->clearObject(&placementStr, num);
             }
-            if( sc.isFailure() ) {
+            if (sc.isFailure()) {
                // no more clients, break the loop and exit
                num = -1;
             }
@@ -519,7 +519,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          if (dataHeaderSeen) {
             // DataHeader was the last object, need to tell the converter there is no DHForm coming
             GenericAddress address(0, 0, "", dataHeaderID);
-            if( !DHcnv->updateRepRefs( &address, nullptr ).isSuccess() ) {
+            if (!DHcnv->updateRepRefs(&address, nullptr).isSuccess()) {
                ATH_MSG_ERROR("Failed updateRepRefs for DataHeader");
                return abortSharedWrClients(-1);
             }
@@ -528,7 +528,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       } else if (sc.isRecoverable() || num == -1) {
          return(StatusCode::RECOVERABLE);
       }
-      if( sc.isFailure() || fileName.empty() ) {
+      if (sc.isFailure() || fileName.empty()) {
          ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
          std::ostringstream oss1;
          oss1 << std::dec << m_metadataClient;
@@ -537,7 +537,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          incSvc->fireIncident(beginInputIncident);
          FileIncident endInputIncident(name(), "EndInputFile", memName);
          incSvc->fireIncident(endInputIncident);
-         if( sc.isFailure() ) {
+         if (sc.isFailure()) {
             ATH_MSG_INFO("All SharedWriter clients stopped - exiting");
          } else {
             ATH_MSG_INFO("Failed to get Data for client: " << num);
@@ -550,6 +550,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    }
    std::unique_lock<std::mutex> lock(m_mutex);
    std::string outputConnection = outputConnectionSpec;
+   if (outputConnection.empty()) {
+      outputConnection = fileName;
+   }
    // Extract the technology
    int tech = m_dbType.type();
    if (!decodeOutputSpec(outputConnection, tech).isSuccess()) {
@@ -557,7 +560,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       return(StatusCode::FAILURE);
    }
    unsigned int contextId = outputContextId(outputConnection);
-   ATH_MSG_DEBUG("file="<< outputConnection <<" context=" << contextId);
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
       ATH_MSG_DEBUG("commitOutput failed process POOL domain attributes.");
    }
@@ -723,12 +725,12 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          ATH_MSG_ERROR("Failed to get Token");
          return(nullptr);
       }
-      if( !strcmp(tokenStr, "ABORT") ) {
+      if (!strcmp(tokenStr, "ABORT")) {
          ATH_MSG_ERROR("Writer requested ABORT");
          // tell the server we are leaving
          m_outputStreamingTool[streamClient]->stop().ignore();
          return nullptr;
-      }        
+      }
       Token* tempToken = new Token();
       tempToken->fromString(tokenStr); tokenStr = nullptr;
       tempToken->setClassID(pool::DbReflex::guid(classDesc));
@@ -963,8 +965,8 @@ StatusCode AthenaPoolCnvSvc::registerCleanUp(IAthenaPoolCleanUp* cnv) {
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::cleanUp() {
    bool retError = false;
-   for( auto convertr : m_cnvs ) {
-      if( ! convertr->cleanUp().isSuccess() ) {
+   for (auto convertr : m_cnvs) {
+      if (!convertr->cleanUp().isSuccess()) {
          ATH_MSG_WARNING("AthenaPoolConverter cleanUp failed.");
          retError = true;
       }
@@ -1107,8 +1109,8 @@ StatusCode AthenaPoolCnvSvc::abortSharedWrClients(int client_n)
    // but it could be a time-limited loop
    auto streamingTool = m_outputStreamingTool[m_streamServer];
    StatusCode sc = StatusCode::SUCCESS;
-   while( sc.isSuccess() ) {
-      if( client_n >= 0 ) {
+   while (sc.isSuccess()) {
+      if (client_n >= 0) {
          sc = streamingTool->lockObject("ABORT", client_n);
       }
       char* dummy;
