@@ -484,22 +484,18 @@ StatusCode AsgPhotonIsEMSelector::execute(const EventContext& ctx, const xAOD::E
 
   // cut on E/p
   double ep = 1.0; // default passes
-  
-  if (m_caloOnly){
+
+  if (m_caloOnly) {
     ATH_MSG_DEBUG("Doing CaloCutsOnly");
   } else {
-    if (xAOD::EgammaHelpers::isConvertedPhoton(eg)) {
-      const xAOD::Photon *ph = dynamic_cast<const xAOD::Photon*>(eg);
-      if(!ph){
-	ATH_MSG_WARNING("Can not cast egamma to photon for the e/p cut");
-      }else{
-	float p = xAOD::EgammaHelpers::momentumAtVertex(ph).mag();
-	if (p!=0.){
-	  ep = energy / p;
-	}
-	else{
-	  ep = 9999999.;
-	}
+    if (xAOD::EgammaHelpers::isConvertedPhoton(eg)) // returns false if not photon or no conversion
+    {
+      const xAOD::Photon* ph = static_cast<const xAOD::Photon*>(eg);
+      float p = xAOD::EgammaHelpers::momentumAtVertex(ph).mag();
+      if (p != 0.) {
+        ep = energy / p;
+      } else {
+        ep = 9999999.;
       }
     }
   }
@@ -517,7 +513,6 @@ StatusCode AsgPhotonIsEMSelector::execute(const EventContext& ctx, const xAOD::E
                               Reta,
                               Rphi,
                               weta2c,
-                              //emax2,
                               f1,
                               Eratio,
                               DeltaE,
