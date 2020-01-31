@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/Combinators.h"
@@ -15,9 +15,11 @@ TrigMuonEFCombinerHypoTool::~TrigMuonEFCombinerHypoTool(){
 StatusCode TrigMuonEFCombinerHypoTool::initialize(){
 
   if(m_muonqualityCut) {
-      m_muonSelTool = ToolHandle<CP::IMuonSelectionTool>("CP::MuonSelectionTool/MuonSelectionTool",this);
-      if(m_muonSelTool.retrieve().isFailure()) ATH_MSG_INFO("Unable to retrieve " << m_muonSelTool);
-  }
+    if(m_muonSelTool.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve " << m_muonSelTool);
+      return StatusCode::FAILURE;
+    }
+  } else m_muonSelTool.disable();
 
   if(m_acceptAll) {
     ATH_MSG_INFO("Accepting all the events!");
