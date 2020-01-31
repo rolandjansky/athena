@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -118,7 +118,7 @@ class Test(object):
         if exit_code == 0:
             exit_msg += ' because all required steps were successful'
         else:
-            exit_msg += ' because the following required steps failed: {:s}'.format(failed_required_steps)
+            exit_msg += ' because the following required steps failed: {:s}'.format(str(failed_required_steps))
         self.log.info(exit_msg)
         return exit_code
 
