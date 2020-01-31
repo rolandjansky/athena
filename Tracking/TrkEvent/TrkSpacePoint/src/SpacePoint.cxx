@@ -34,7 +34,7 @@ namespace Trk
   // Default constructor
   SpacePoint::SpacePoint()
     :
-    m_clusList(0),
+    m_clusList(nullptr),
     m_elemIdList(0,0),
     m_position(),
     m_globalCovariance()

@@ -35,7 +35,7 @@ namespace Trk {
       for (std::vector<xAOD::Vertex*>::const_iterator verticesIter=verticesBegin;
 	   verticesIter!=verticesEnd;++verticesIter) {
         xAOD::Vertex* myCandidate=*verticesIter;
-        if (myCandidate!=0) {
+        if (myCandidate!=nullptr) {
 	  delete myCandidate;
         } else {
 	  std::cout << " Warning in VxSecVertexInfo: tried to delete a zero pointer --> Inconsistency found. " << std::endl;
@@ -52,7 +52,7 @@ namespace Trk {
     for (std::vector<xAOD::Vertex*>::const_iterator verticesIter=verticesBegin;
 	 verticesIter!=verticesEnd;++verticesIter) {
       xAOD::Vertex* myCandidate=*verticesIter;
-      if (myCandidate!=0) {
+      if (myCandidate!=nullptr) {
 	m_vertices.push_back(new xAOD::Vertex(*myCandidate));
       } else {
 	std::cout << " Warning in VxSecVertexInfo: tried in copy constructor to copy over a zero pointer Vertex " << std::endl;
@@ -73,7 +73,7 @@ namespace Trk {
       for (std::vector<xAOD::Vertex*>::const_iterator verticesIter=verticesBegin;
 	   verticesIter!=verticesEnd;++verticesIter) {
 	xAOD::Vertex* myCandidate=*verticesIter;
-	if (myCandidate!=0) {
+	if (myCandidate!=nullptr) {
 	  m_vertices.push_back(new xAOD::Vertex(*myCandidate));
 	} else {
 	  std::cout << " Warning in VxSecVertexInfo: tried in copy constructor to copy over a zero pointer Vertex " << std::endl;

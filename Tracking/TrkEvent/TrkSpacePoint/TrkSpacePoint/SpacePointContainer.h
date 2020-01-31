@@ -73,9 +73,9 @@ public:
   ///////////////////////////////////////////////////////////////////
 private:
 
-  SpacePointContainer();
-  SpacePointContainer(const SpacePointContainer&);
-  SpacePointContainer &operator=(const SpacePointContainer&);
+  SpacePointContainer() = delete;
+  SpacePointContainer(const SpacePointContainer&) = delete;
+  SpacePointContainer &operator=(const SpacePointContainer&) = delete;
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////

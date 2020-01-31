@@ -75,8 +75,8 @@ class SpacePointCollection
 	///////////////////////////////////////////////////////////////////
 	private:
 	
-	SpacePointCollection();
-	SpacePointCollection &operator=(const SpacePointCollection&);
+	SpacePointCollection() = delete;
+	SpacePointCollection &operator=(const SpacePointCollection&) = delete;
 	
 	///////////////////////////////////////////////////////////////////
 	// Private data:

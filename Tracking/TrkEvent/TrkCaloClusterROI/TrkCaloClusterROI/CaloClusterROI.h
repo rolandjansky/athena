@@ -52,7 +52,7 @@ namespace Trk {
       const Surface& associatedSurface() const;
      
       /** method to get the global Position */
-      const Amg::Vector3D globalPosition() const;
+      Amg::Vector3D globalPosition() const;
  
       double energy() const;
       

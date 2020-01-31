@@ -19,7 +19,7 @@
 Trk::CompetingRIOsOnTrack::CompetingRIOsOnTrack():
         Trk::MeasurementBase(),
         m_indexMaxAssignProb(0),
-        m_assignProb(0),
+        m_assignProb(nullptr),
         m_maxProbCalculated(false)
 {}
 
@@ -29,7 +29,7 @@ Trk::CompetingRIOsOnTrack::CompetingRIOsOnTrack(const Trk::CompetingRIOsOnTrack&
     Trk::MeasurementBase(compROT)
 {
   m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
-  m_assignProb = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : 0;
+  m_assignProb = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : nullptr;
   m_maxProbCalculated = compROT.m_maxProbCalculated;
 }
 
@@ -50,7 +50,7 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(const Trk::Compe
 
 	Trk::MeasurementBase::operator=(compROT);
         m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
-        m_assignProb         = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : 0;
+        m_assignProb         = compROT.m_assignProb ? new std::vector<AssignmentProb>(*compROT.m_assignProb) : nullptr;
         m_maxProbCalculated  = compROT.m_maxProbCalculated;
     }
     return (*this);

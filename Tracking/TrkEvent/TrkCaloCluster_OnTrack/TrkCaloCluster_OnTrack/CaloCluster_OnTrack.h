@@ -41,7 +41,7 @@ namespace Trk {
       CaloCluster_OnTrack( const LocalParameters& locpars,
                            const Amg::MatrixX& locerr,
                            const Surface& surf,
-                           const EnergyLoss* eloss = 0);
+                           const EnergyLoss* eloss = nullptr);
     
       /** Destructor */
       virtual ~CaloCluster_OnTrack();

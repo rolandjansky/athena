@@ -101,10 +101,10 @@ namespace Trk {
     const xAOD::Vertex* pseudoVertex() const;
 
     /* get list of bad TP */
-    const std::vector<const Trk::TrackParticleBase*> badTracksTP() const;
+    std::vector<const Trk::TrackParticleBase*> badTracksTP() const;
 
     /* get list of bad Tracks */
-    const std::vector<const xAOD::IParticle*> badTracksIP() const;
+    std::vector<const xAOD::IParticle*> badTracksIP() const;
 
     /* set origin collection for IParticle */
     void setIParticleOrigin(const xAOD::IParticleContainer* iparticleTES);

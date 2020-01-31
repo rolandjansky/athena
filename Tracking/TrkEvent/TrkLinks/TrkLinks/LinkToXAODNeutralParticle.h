@@ -41,7 +41,7 @@ namespace Trk
     virtual ~LinkToXAODNeutralParticle() = default;
    
     /** dummy function to return 0 if TrackParameters are asked for */
-    const TrackParameters* parameters() const { return NULL; };
+    const TrackParameters* parameters() const { return nullptr; };
 
     /** return the neutral parameters of the neutral (to which the EL< NeutralCollection > points) */
     const NeutralParameters* neutralParameters() const;

@@ -20,10 +20,10 @@ namespace Trk
 		if ( isValid() )
 		{
 			const xAOD::TrackParticle * trk = this->cachedElement();
-			if ( 0 != trk ) return dynamic_cast<const Trk::TrackParameters* > ( &trk->perigeeParameters() );
-			return 0;
+			if ( nullptr != trk ) return dynamic_cast<const Trk::TrackParameters* > ( &trk->perigeeParameters() );
+			return nullptr;
 		}
-		return 0;
+		return nullptr;
 	}//end of parameters method
 
         Trk::LinkToXAODTrackParticle* Trk::LinkToXAODTrackParticle::clone() const

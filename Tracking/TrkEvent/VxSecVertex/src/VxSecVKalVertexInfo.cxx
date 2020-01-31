@@ -30,7 +30,7 @@ namespace Trk {
     m_dstToMatLayer(1000.),
     m_n2trackvertices(0),
     m_nBigImpTracks(0),
-    m_pseudoVertex(0){}
+    m_pseudoVertex(nullptr){}
 
   VxSecVKalVertexInfo::VxSecVKalVertexInfo(const std::vector<xAOD::Vertex*> & vertices,
 					   double mass,double energyFraction,int n2trackvertices,double energyTrkInJet,
@@ -42,7 +42,7 @@ namespace Trk {
     m_dstToMatLayer(1000.),
     m_n2trackvertices(n2trackvertices),
     m_nBigImpTracks(0),
-    m_pseudoVertex(0)
+    m_pseudoVertex(nullptr)
   {
     std::vector<const Trk::TrackParticleBase*>::const_iterator badTracksBegin=badTracks.begin();
     std::vector<const Trk::TrackParticleBase*>::const_iterator badTracksEnd=badTracks.end();
@@ -66,7 +66,7 @@ namespace Trk {
     m_dstToMatLayer(1000.),
     m_n2trackvertices(n2trackvertices),
     m_nBigImpTracks(0),
-    m_pseudoVertex(0)
+    m_pseudoVertex(nullptr)
   {
     std::vector<const xAOD::IParticle*>::const_iterator badTracksBegin=badTracks.begin();
     std::vector<const xAOD::IParticle*>::const_iterator badTracksEnd=badTracks.end();
@@ -136,7 +136,7 @@ namespace Trk {
   
   VxSecVKalVertexInfo::~VxSecVKalVertexInfo() { if(m_pseudoVertex && m_SVOwnership)delete m_pseudoVertex;}
 
-  const std::vector<const Trk::TrackParticleBase*> VxSecVKalVertexInfo::badTracksTP() const {
+  std::vector<const Trk::TrackParticleBase*> VxSecVKalVertexInfo::badTracksTP() const {
 
     std::vector<const Trk::TrackParticleBase*> vectorOfTP;
     
@@ -146,7 +146,7 @@ namespace Trk {
     for (std::vector<ElementLink<Trk::TrackParticleBaseCollection> >::const_iterator badTracksIter=badTracksBegin;
 	 badTracksIter!=badTracksEnd;++badTracksIter) {
       if ((*badTracksIter).isValid()) {
-	if (**badTracksIter!=0) {
+	if (**badTracksIter!=nullptr) {
 	  vectorOfTP.push_back(**badTracksIter);
 	}
       }
@@ -155,7 +155,7 @@ namespace Trk {
     return vectorOfTP;
   }
 
-  const std::vector<const xAOD::IParticle*> VxSecVKalVertexInfo::badTracksIP() const {
+  std::vector<const xAOD::IParticle*> VxSecVKalVertexInfo::badTracksIP() const {
 
     std::vector<const xAOD::IParticle*> vectorOfIP;
     
@@ -165,7 +165,7 @@ namespace Trk {
     for (std::vector<ElementLink<xAOD::IParticleContainer> >::const_iterator badTracksIter=badTracksBegin;
 	 badTracksIter!=badTracksEnd;++badTracksIter) {
       if ((*badTracksIter).isValid()) {
-	if (**badTracksIter!=0) {
+	if (**badTracksIter!=nullptr) {
 	  vectorOfIP.push_back(**badTracksIter);
 	}
       }

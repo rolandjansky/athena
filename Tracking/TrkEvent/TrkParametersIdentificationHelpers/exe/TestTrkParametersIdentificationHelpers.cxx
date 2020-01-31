@@ -40,7 +40,7 @@ void testCalo() {
     for( unsigned int sample = CaloSampling::PreSamplerB; sample < CaloSampling::Unknown; ++sample ){
       
       for( unsigned int isEntry = 0; isEntry < 2 ; ++isEntry ){
-        bool entry = isEntry == 1 ? true : false;
+        bool entry = isEntry == 1;
         TrackParametersIdentifier id = helper.encode( static_cast<AtlasDetDescr::AtlasDetTechnology>(tech), 
                                                       static_cast<CaloSampling::CaloSample>(sample), entry );
         AtlasDetDescr::AtlasDetTechnology itech = helper.technology(id);

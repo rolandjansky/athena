@@ -49,8 +49,8 @@ public:
 private:
 
   //  SpacePointOverlapCollection();
-  SpacePointOverlapCollection(const SpacePointOverlapCollection&);
-  SpacePointOverlapCollection &operator=(const SpacePointOverlapCollection&);
+  SpacePointOverlapCollection(const SpacePointOverlapCollection&) = delete;
+  SpacePointOverlapCollection &operator=(const SpacePointOverlapCollection&) = delete;
 
   ///////////////////////////////////////////////////////////////////
   // Private data:

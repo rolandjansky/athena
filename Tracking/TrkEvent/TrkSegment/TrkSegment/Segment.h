@@ -89,7 +89,7 @@ class FitQuality;
       Segment( const LocalParameters& locpars,
                const Amg::MatrixX& locerr,
                DataVector<const MeasurementBase>* measurements,
-               FitQuality* fitq=0,Author author=AuthorUnknown);
+               FitQuality* fitq=nullptr,Author author=AuthorUnknown);
   
       /** Destructor */
       virtual ~Segment();
@@ -168,7 +168,7 @@ inline bool Segment::hasContainedMeasurements() const
 inline const MeasurementBase* Segment::measurement(unsigned int indx) const
  { if (m_containedMeasBases && indx<m_containedMeasBases->size())
       return m_containedMeasBases->operator[](indx);
-   return 0;
+   return nullptr;
  }
  
 inline unsigned int Segment::numberOfMeasurementBases() const

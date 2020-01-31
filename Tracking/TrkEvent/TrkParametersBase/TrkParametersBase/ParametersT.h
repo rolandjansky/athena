@@ -65,7 +65,7 @@ namespace Trk
 		double theta,
 		double qop, 
 		const S& surface,
-		AmgSymMatrix(DIM)* covariance = 0);
+		AmgSymMatrix(DIM)* covariance = nullptr);
   
     /** Constructor with parameters - extract position and momentum */
     ParametersT(const AmgVector(DIM)& parameters,

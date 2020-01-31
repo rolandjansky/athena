@@ -23,7 +23,7 @@
 
 const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert(bool covariance) const
 {
-  AmgSymMatrix(5)* e = 0;
+  AmgSymMatrix(5)* e = nullptr;
   if(covariance && m_iscovariance) {
 
     const double* c = &m_covariance[0];
@@ -355,8 +355,10 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   const Amg::Transform3D&  T = su->transform();
   double A[3] = {T(0,2),T(1,2),T(2,2)};
 
-  double Sf,Cf; sincos(m_parameters[2],&Sf,&Cf);
-  double Se,Ce; sincos(m_parameters[3],&Se,&Ce);
+  double Sf;
+  double Cf; sincos(m_parameters[2],&Sf,&Cf);
+  double Se;
+  double Ce; sincos(m_parameters[3],&Se,&Ce);
 
   double P3 = Cf*Se; 
   double P4 = Sf*Se; 
@@ -384,7 +386,8 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double Ax[3] = {T(0,0),T(1,0),T(2,0)};
   double Ay[3] = {T(0,1),T(1,1),T(2,1)};
 
-  double Sf,Cf; sincos(m_parameters[1],&Sf,&Cf);
+  double Sf;
+  double Cf; sincos(m_parameters[1],&Sf,&Cf);
 
   double d0 = Cf*Ax[0]+Sf*Ay[0]; 
   double d1 = Cf*Ax[1]+Sf*Ay[1]; 
@@ -412,7 +415,8 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double  R = su->bounds().r();
   double fr = m_parameters[0]/R;
 
-  double Sf,Cf; sincos(fr,&Sf,&Cf);
+  double Sf;
+  double Cf; sincos(fr,&Sf,&Cf);
 
   Amg::Vector3D gp
     (R*(Cf*Ax[0]+Sf*Ay[0])+m_parameters[1]*Az[0]+T(0,3),
@@ -431,8 +435,10 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   const Amg::Transform3D&  T = su->transform();
   double A[3] = {T(0,2),T(1,2),T(2,2)};
 
-  double Sf,Cf; sincos(m_parameters[2],&Sf,&Cf);
-  double Se,Ce; sincos(m_parameters[3],&Se,&Ce);
+  double Sf;
+  double Cf; sincos(m_parameters[2],&Sf,&Cf);
+  double Se;
+  double Ce; sincos(m_parameters[3],&Se,&Ce);
 
   double P3 = Cf*Se; 
   double P4 = Sf*Se; 
@@ -462,7 +468,8 @@ Amg::Vector3D Trk::PatternTrackParameters::localToGlobal
   double Az[3] = {T(0,2),T(1,2),T(2,2)};
 
   double r  = m_parameters[1]*su->bounds().tanAlpha();
-  double Sf,Cf; sincos((m_parameters[0]/r),&Sf,&Cf);
+  double Sf;
+  double Cf; sincos((m_parameters[0]/r),&Sf,&Cf);
   double xl = r*Cf;
   double yl = r*Sf;
 
@@ -526,7 +533,8 @@ bool Trk::PatternTrackParameters::initiate
       
 void Trk::PatternTrackParameters::changeDirection()
 {
-  const double pi = M_PI, pi2 = 2.*M_PI; //NB CLHEP also defines pi and pi2 constants.
+  const double pi = M_PI;
+  const double pi2 = 2.*M_PI; //NB CLHEP also defines pi and pi2 constants.
 
   m_parameters[ 2] =  m_parameters[2]-pi; 
   m_parameters[ 3] =  pi-m_parameters[3];

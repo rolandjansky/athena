@@ -46,7 +46,7 @@ namespace Trk
     const TrackParameters* parameters() const;
 
     /** return the neutral parameters of the NeutralParticle) */
-    virtual const NeutralParameters* neutralParameters() const {return NULL;};
+    virtual const NeutralParameters* neutralParameters() const {return nullptr;};
     
     /** method to clone the LinkToXAODTrackParticle object */
     LinkToXAODTrackParticle * clone() const ;

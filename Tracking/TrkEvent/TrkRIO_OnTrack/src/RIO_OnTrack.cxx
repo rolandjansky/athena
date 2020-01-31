@@ -78,7 +78,7 @@ MsgStream& Trk::RIO_OnTrack::dump( MsgStream& sl ) const
     sl << "\t  has Error Matrix: "<< endmsg;
     sl<< localCovariance() <<"}"<< endmsg; 
 
-    if (prepRawData()!=0) {
+    if (prepRawData()!=nullptr) {
         sl<<"PrepRawData: "<< (*prepRawData()) << endmsg;
     }else{
         sl<<"PrepRawData: NULL"<<endmsg;
@@ -96,7 +96,7 @@ std::ostream& Trk::RIO_OnTrack::dump( std::ostream& sl ) const
     sl << "\t  has Error Matrix: " << std::endl;
     sl << localCovariance() <<" }" << std::endl; 
     
-    if (prepRawData()!=0) {
+    if (prepRawData()!=nullptr) {
         sl <<"PrepRawData: "<< (*prepRawData()) << std::endl;
     }else{
         sl<<"PrepRawData: NULL" << std::endl;

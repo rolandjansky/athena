@@ -33,7 +33,7 @@ namespace Trk {
     Trk::TrackState::MeasurementType defineType(const MeasurementBase*) const;
 
   private:
-    MeasurementTypeID() : m_idHelper(0) {}
+    MeasurementTypeID() : m_idHelper(nullptr) {}
     const AtlasDetectorID* m_idHelper;
 
  };

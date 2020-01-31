@@ -20,10 +20,10 @@ namespace Trk
 		if ( isValid() )
 		{
 			const xAOD::NeutralParticle * neut = this->cachedElement();
-			if ( 0 != neut ) return dynamic_cast<const Trk::NeutralParameters* > ( &neut->perigeeParameters() );
-			return 0;
+			if ( nullptr != neut ) return dynamic_cast<const Trk::NeutralParameters* > ( &neut->perigeeParameters() );
+			return nullptr;
 		}
-		return 0;
+		return nullptr;
 	}//end of parameters method
 
         Trk::LinkToXAODNeutralParticle* Trk::LinkToXAODNeutralParticle::clone() const

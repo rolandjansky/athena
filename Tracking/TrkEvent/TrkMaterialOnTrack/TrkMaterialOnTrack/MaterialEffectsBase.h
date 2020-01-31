@@ -150,8 +150,7 @@ inline double Trk::MaterialEffectsBase::thicknessInX0() const
 inline bool Trk::MaterialEffectsBase::type(const Trk::MaterialEffectsBase::MaterialEffectsType& type) const
 {
     if (type==NumberOfMaterialEffectsTypes) return false;
-    if ((1<<static_cast<int>(type))&m_typeFlags) return true;
-    return false;
+    return ((1<<static_cast<int>(type))&m_typeFlags) != 0;
 }
 
 #endif // TRKMATERIALONTRACK_MATERIALEFFECTSBASE_H
