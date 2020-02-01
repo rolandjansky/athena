@@ -66,7 +66,8 @@ class HLTBjetMonTool : public IHLTMonTool {
   std::map<std::string,std::string> m_Chain2Dir;
   std::vector<std::string> m_Shifter_jSplit, m_Expert_jSplit, m_Shifter_jUnSplit,  m_Expert_jUnSplit, m_Shifter_mujet, m_Expert_mujet;
 
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_offlineVertexContainerKey {this,"OfflineVertexContainerName","PrimaryVertices","Key of offline primary vertexes"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_onlineVertexContainerKey {this,"OnlineVertexContainerName","HLT_EFHistoPrmVtx","Key of online bjet primary vertexes"};
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 

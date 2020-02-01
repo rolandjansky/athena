@@ -63,8 +63,9 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     OffxVtx = (*(offlinepv))[j]->x();
     OffyVtx = (*(offlinepv))[j]->y();
     OffzVtx = (*(offlinepv))[j]->z();
+    fill("TrigBjetMonitor",OffxVtx,OffyVtx,OffzVtx);
   }
-  fill("TrigBjetMonitor",OffNVtx,OffxVtx,OffyVtx,OffzVtx);
+  fill("TrigBjetMonitor",OffNVtx);
   
 
   // print the trigger chain names 
