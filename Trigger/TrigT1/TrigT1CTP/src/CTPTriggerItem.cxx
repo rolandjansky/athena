@@ -60,11 +60,11 @@ LVL1CTP::CTPTriggerItem::triggerType() const {
 void
 LVL1CTP::CTPTriggerItem::setLogic(const std::string & logicExpr) {
    TrigConf::LogicParser p;
-   m_logic = std::unique_ptr<TrigConf::Logic>(p.parse(logicExpr));
+   m_logic = p.parse(logicExpr);
 }
 
 
-const std::unique_ptr<TrigConf::Logic> &
+const std::shared_ptr<TrigConf::Logic> &
 LVL1CTP::CTPTriggerItem::logic() const {
    return m_logic;
 }

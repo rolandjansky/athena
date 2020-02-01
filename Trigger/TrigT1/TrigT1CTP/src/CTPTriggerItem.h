@@ -30,7 +30,7 @@ namespace LVL1CTP {
 
       // setters and getters for member variables
       void setLogic(const std::string & logicExpr);
-      const std::unique_ptr<TrigConf::Logic> & logic() const;
+      const std::shared_ptr<TrigConf::Logic> & logic() const;
 
       void setBunchGroups(const std::vector<std::string> & bunchGroups);
       const std::vector<std::string> & bunchGroups() const;
@@ -55,7 +55,7 @@ namespace LVL1CTP {
       unsigned int m_ctpid { 1 };                  //!< CTPID
       unsigned char m_TriggerType { 0 };           //!< 8 bit trigger type (4 bit for secondary partitions)
       int m_prescale { 1 };                        //!< prescale value
-      std::unique_ptr<TrigConf::Logic> m_logic;    //!< the definition of the item turned into a Logic object
+      std::shared_ptr<TrigConf::Logic> m_logic;    //!< the definition of the item turned into a Logic object
       std::vector<std::string> m_bunchGroups;      //!< the list of bunchgroups forming this item
    };
 

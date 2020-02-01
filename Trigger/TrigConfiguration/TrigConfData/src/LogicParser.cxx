@@ -16,14 +16,14 @@ namespace {
    void printSubExpr(const std::string & id, const std::vector<std::string> & tokExpr, size_t & front, const size_t back) {
       std::cout << id << ": ";
       for(size_t i = front; i<=back; i++) {
-         cout << tokExpr[i] << " ";
+         std::cout << tokExpr[i] << " ";
       }
-      std::cout << endl;
+      std::cout << std::endl;
    }
 
    size_t findMatchingClosingParenthesis(const std::vector<std::string> & tokExpr, size_t front, size_t back) {
       if(tokExpr[front]!="(") {
-         throw TrigConf::LogicParsingException(string("Looking for closing parenthesis, but not starting with '(', but '") + tokExpr[front] + "'");
+         throw TrigConf::LogicParsingException(std::string("Looking for closing parenthesis, but not starting with '(', but '") + tokExpr[front] + "'");
       }
       size_t pos(front);
       size_t parCount = 1;
