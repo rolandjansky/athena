@@ -57,7 +57,7 @@ class EventSelectionByObjectFlagAlg final : public EL::AnaAlgorithm {
 
     /// \brief the decoration for writing the scale factor
   private:
-    SysDecorationHandle<float> m_eventDecisionOutputDecoration {
+    SysDecorationHandle<bool> m_eventDecisionOutputDecoration {
       this, "eventDecisionOutputDecoration", "", "the decoration for the event decision"};
 
     /// \brief counter for passed events
