@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -71,7 +71,7 @@ namespace CoreDumpSvcHandler
     // Protect against additional signals while we are handling this one
     static std::atomic<int> inHandler {0};
     if (inHandler++ > 0) {
-      if (inHandler > 100) _exit (99);
+      if (inHandler > 100) _exit (98);
       return;
     }
     
@@ -94,15 +94,22 @@ namespace CoreDumpSvcHandler
     }
 
     if (callOldHandler) {
-    
       // Call previous signal handler
       // Need to distinguish between the two different types
-      if (oldSigHandler[sig].sa_flags & SA_SIGINFO) {
-        if (oldSigHandler[sig].sa_handler) oldSigHandler[sig].sa_sigaction(sig,info,extra);
+      const struct sigaction& oact = oldSigHandler[sig];
+      if ( oact.sa_flags & SA_SIGINFO ) {
+        std::cout << "Invoking previous sa_sigaction at " << (void*)oact.sa_sigaction
+                  << ", sa_flags = " << oact.sa_flags << std::endl;
+        oact.sa_sigaction(sig, info, extra);
+      }
+      else if (oact.sa_handler != SIG_DFL && oact.sa_handler != SIG_IGN ) {
+        std::cout << "Invoking previous sa_handler at " << (void*)oact.sa_handler
+                  << ", sa_flags = " << oact.sa_flags << std::endl;
+        oact.sa_handler(sig);
       }
       else {
-        if (oldSigHandler[sig].sa_handler) oldSigHandler[sig].sa_handler(sig);
-      }      
+        std::cout << "Could not invoke previous signal handler" << std::endl;
+      }
     }
 
     if (coreDumpSvc && (sig == SIGSEGV || sig == SIGBUS || sig == SIGABRT) ) {
@@ -388,7 +395,7 @@ std::string CoreDumpSvc::dump() const
   os << "-------------------------------------------------------------------------------------\n";
   os << "| AtlasBaseDir : " << std::setw(66) << getenv("AtlasBaseDir")  << " |\n";
   os << "| AtlasVersion : " << std::setw(66) << getenv("AtlasVersion")  << " |\n";
-  os << "| CMTCONFIG    : " << std::setw(66) << getenv("CMTCONFIG")  << " |\n";
+  os << "| BINARY_TAG   : " << std::setw(66) << getenv("BINARY_TAG")    << " |\n";
   os << "-------------------------------------------------------------------------------------\n";
   os << " Note: to see line numbers in below stacktrace you might consider running following :\n";
   os << "  atlasAddress2Line --file <logfile>\n";
@@ -465,7 +472,7 @@ StatusCode CoreDumpSvc::installSignalHandler()
       ATH_MSG_ERROR ("Error on installing handler for signal " << sig
                      << ": " << strerror(errno));
       return StatusCode::FAILURE;
-    }     
+    }
   }
   ATH_MSG_INFO ("Handling signals: " << oss.str());
   
