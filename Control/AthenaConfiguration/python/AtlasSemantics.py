@@ -2,6 +2,7 @@
 
 import GaudiConfig2.semantics
 import re
+import collections
 
 class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     '''
@@ -78,8 +79,24 @@ class ToolHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
                 a.append(bTool)
         return a
 
+class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
+    __handled_types__  = ("SubAlgorithm",)
+    def __init__(self,cpp_type,name=None):
+        super(SubAlgoSemantics, self).__init__(cpp_type,name)
+        
+    def store(self,value):
+        if not isinstance(value,collections.Sequence):
+            value=[value,]
+        
+        for v in value:
+            if v.__component_type__ != 'Algorithm':
+                raise TypeError('Algorithm expected, got {!r} in assignemnt to {}'.\
+                                format(value, self.name))
+        return value
+
 GaudiConfig2.semantics.SEMANTICS.append(SetSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(AppendListSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(VarHandleSematics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleArraySemantics)
+GaudiConfig2.semantics.SEMANTICS.append(SubAlgoSemantics)
