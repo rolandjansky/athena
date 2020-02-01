@@ -341,10 +341,7 @@ def getTauVertexVariables():
                                               Key_vertexInputContainer = "",
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
-                                              #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              Key_trackPartInputContainer = "" # ATM only needed in case old API is used
-                                              #OutputLevel = 2
                                               )
     
     cached_instances[_name] = TauVertexVariables    

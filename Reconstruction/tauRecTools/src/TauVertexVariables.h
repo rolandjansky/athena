@@ -10,6 +10,8 @@
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 // forwards
 class TauEventData;
 namespace Trk {
@@ -47,9 +49,9 @@ private:
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
     ToolHandle< Trk::IVertexFitter >     m_fitTool; //!< Pointer to the base class of the fit algtools
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
-    
+
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };    
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
-    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
 
 };
 

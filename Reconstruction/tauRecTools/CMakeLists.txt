@@ -57,6 +57,7 @@ else()
       GaudiKernel
       InnerDetector/InDetRecTools/InDetRecToolInterfaces
       InnerDetector/InDetRecTools/InDetTrackSelectionTool
+      InnerDetector/InDetConditions/BeamSpotConditionsData
       Reconstruction/Jet/JetEDM
       Reconstruction/RecoTools/ITrackToVertex
       Reconstruction/RecoTools/RecoToolInterfaces
