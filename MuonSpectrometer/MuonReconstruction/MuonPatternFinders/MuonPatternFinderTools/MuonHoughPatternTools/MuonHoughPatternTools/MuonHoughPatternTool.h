@@ -23,10 +23,10 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   /** Default constructor */
   MuonHoughPatternTool(const std::string& type, const std::string& name, const IInterface* parent);
   /** Destructor */
-  virtual ~MuonHoughPatternTool();
+  virtual ~MuonHoughPatternTool() = default;
 
   /** method that builds the patterns */
-  virtual void makePatterns(const MuonHoughHitContainer* hitcontainer) const ;
+  virtual void makePatterns(const MuonHoughHitContainer* hitcontainer, MuonHoughPatternContainerShip& houghpatterns) const ;
 
   /** initiates private members */
   virtual StatusCode initialize(); 
@@ -35,30 +35,29 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   virtual StatusCode finalize(); 
 
   /** returns phipattern container in EDM */
-  virtual MuonPrdPatternCollection* getPhiMuonPatterns() const ;
+  virtual MuonPrdPatternCollection* getPhiMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const ;
   /** returns etapattern container in EDM */
-  virtual MuonPrdPatternCollection* getEtaMuonPatterns() const ;
+  virtual MuonPrdPatternCollection* getEtaMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const ;
+
+  /** resets houpattern vector, called once per event from FinderTool*/
+  void reset(MuonHoughPatternContainerShip& houghpattern) const;
+  /** creates houghpatterns, called from FinderTool */
+  MuonHoughPatternContainerShip emptyHoughPattern() const;
 
  private:
 
   /** method that builds the patterns */
-  virtual void makePatterns(int id_number) const ;
+  virtual void makePatterns(int id_number, double weightmdt, const MuonHoughHitContainer* event, MuonHoughPatternContainerShip& houghpatterns) const ;
 
   /** returns curvedpattern container in EDM */
-  MuonPrdPatternCollection* getCurvedMuonPatterns() const ;
-
-  /** resets members, called once per event */
-  void reset() const;
+  MuonPrdPatternCollection* getCurvedMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const ;
 
   /** reset association flag of hits in m_event */
-  void resetAssociation() const;
+  void resetAssociation(const MuonHoughHitContainer* event) const;
 
   /** reduces Detector sizes for Hough Histograms to find patterns from muons from the Interaction Point (default on) */
   void useIPMuons();
   
-  /** clears houghpatterns, called in init() */
-  MuonHoughPatternContainerShip emptyHoughPattern() const;
-
   /**
    * @brief fills the hough histograms 
    * @param[in] id_number The enum number corresponding to the HoughTransform
@@ -74,7 +73,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
    * @param[in] event_to_analyse The hitcontainer which will be associated to the pattern
    * @param[in] houghtransform The HoughTransform
    */
-  bool analyseHisto(int id_number, int level,const MuonHoughHitContainer* event_to_analyse,MuonHoughTransformSteering* houghtransform) const;
+  bool analyseHisto(int id_number, int level,const MuonHoughHitContainer* event_to_analyse,MuonHoughTransformSteering* houghtransform, MuonHoughPatternContainerShip& houghpatterns) const;
 
   /** method to analyse the pattern build, currently nothing implemented */
   void analyseTrack(int id_number,const MuonHoughHitContainer* event_to_analyse,MuonHoughTransformSteering* houghtransform) const; 
@@ -95,13 +94,13 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   void weightRescaling(const MuonHoughHitContainer* event, int id_number, int level)const;
 
   /** calculates new weights based on rejection factor (1-origweight) and number of hits in event, only done for MDTs */
-  void calculateWeights(const MuonHoughHitContainer* event)const;
+  void calculateWeights(const MuonHoughHitContainer* event, double weightmdt)const;
 
   /** returns number of hits that are in both hough patterns */
   int overlapHoughPatterns(const MuonHoughPattern *houghpattern1, const MuonHoughPattern *houghpattern2)const;
 
   /** selects the hitcontainer to be used for filling the histograms */
-  MuonHoughHitContainer* whichEventHough(int id, const MuonHoughHitContainer* event)const;
+  MuonHoughHitContainer* whichEventHough(int id, const MuonHoughHitContainer* event, double weightmdt)const;
 
   /** selects the hitcontainer to be used to associate to the maxima */
   MuonHoughHitContainer* whichEventAssociation(int id, const MuonHoughHitContainer* event)const;
@@ -118,13 +117,6 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
 
   /** corrects the maximum of the histogram with a factor (not in use anymore, used for old rz transform) */
   void transformCoordsMaximum(std::pair <double,double> &coordsmaximum,double r0_true)const;
-
-  /** returns phipattern container*/
-  MuonHoughPatternContainer getPhiPatterns()const;
-  /** returns etapattern container*/
-  MuonHoughPatternContainer getEtaPatterns()const;
-  /** returns curvedpattern container*/
-  MuonHoughPatternContainer getCurvedPatterns()const;
 
   /** converts hough pattern to EDM eta patterns */
   Muon::MuonPrdPattern* houghPatternToEtaPattern(MuonHoughPattern* houghpattern)const;
@@ -143,24 +135,15 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   double getThresholdHisto(int id_number)const;
 
   /** calculates the mdt weight cut value */
-  void setWeightMdtCutValue(const MuonHoughHitContainer* event) const;
+  void setWeightMdtCutValue(const MuonHoughHitContainer* event, double& weightmdt) const;
 
   /** hit through weight cut? */
-  bool hitThroughCut(MuonHoughHit* hit)const;
+  bool hitThroughCut(MuonHoughHit* hit, double weightmdt)const;
 
   /** pointer to the file name for the hough histograms */
   TFile *m_file;
   /** object for use of mathematical formulas for trackmodels */
   MuonHoughMathUtils m_muonhoughmathutils;
-
-  /** vector of houghtransforms */
-  mutable std::vector <MuonHoughTransformSteering*> m_houghtransforms;
-
-  /** the original hit container */
-  mutable const MuonHoughHitContainer* m_event;
-
-  /** reconstructed patterns stored per [number_of_ids][level][which_segment] */
-  mutable MuonHoughPatternContainerShip m_houghpattern; 
 
   /** output histograms (false) */
   Gaudi::Property<bool> m_use_histos{this,"UseHistos",false};
@@ -285,9 +268,6 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   /** weight_cut for mdt hits in hough */
   Gaudi::Property<bool> m_weightcutmdt{this,"ApplyWeightCutMdt",true};  // cut all mdt hits under a certain weight (dependent on number of mdt hits in event
 
-  /** value of mdt weight cut, dependent on # hits in event */
-  mutable double m_weightmdt;
-
   /** threshold histogram in xyz */
   Gaudi::Property<double> m_thresholdhisto_xyz{this,"SetThresholdHistoRPhi",0.9};
   /** threshold histogram in rz */
@@ -311,18 +291,5 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   /** print out pattern hits */
   void printPattern(Muon::MuonPrdPattern* muonpattern)const;
 };
-
-inline MuonHoughPatternContainer MuonHoughPatternTool::getPhiPatterns()const{
-  return m_houghpattern[MuonHough::hough_xy];
-}
-
-inline MuonHoughPatternContainer MuonHoughPatternTool::getEtaPatterns()const{
-  return m_houghpattern[MuonHough::hough_rz];
-}
-
-inline MuonHoughPatternContainer MuonHoughPatternTool::getCurvedPatterns()const{
-  return m_houghpattern[MuonHough::hough_curved_at_a_cylinder];
-}
-
 
 #endif //MUONHOUGHPATTERNTOOLS_MUONHOUGHPATTERNTOOL_H

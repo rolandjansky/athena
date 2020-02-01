@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
@@ -48,7 +48,8 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   virtual StatusCode finalize();
 
   /** Combines phi and eta pattern collection into a new combined pattern collection */
-  virtual const MuonPrdPatternCollection* combineEtaPhiPatterns(const MuonPrdPatternCollection* phiPatternCollection, const MuonPrdPatternCollection* etaPatternCollection)const;
+  virtual const MuonPrdPatternCollection* combineEtaPhiPatterns(const MuonPrdPatternCollection* phiPatternCollection, const MuonPrdPatternCollection* etaPatternCollection,
+								const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const;
 
   /** Combines phi and eta pattern into a new combined pattern */ 
   virtual Muon::MuonPrdPattern* makeCombinedPattern(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern)const;
@@ -57,16 +58,14 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
    * MuonPatternCombinationCollection are default output for PatternFinder */
   virtual MuonPatternCombinationCollection* makePatternCombinations(const MuonPrdPatternCollection* muonpatterns)const;
 
-  /** method to set association map between phi and eta hits */
-  virtual void setPhiEtaHitAssMap(std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >*);
-
  private: 
 
   /** make combined pattern from all candidates, removes duplicates with phi when no overlap with eta pattern */
   const MuonPrdPatternCollection* makeCombinedPatterns(std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates)const;
 
   /** number of associated hits between patterns, returns by reference the phi hits to be added based on association with eta hits */
-  int overlap(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, std::vector<const Trk::PrepRawData*> &associated_phihits_notonphipattern)const;
+  int overlap(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, std::vector<const Trk::PrepRawData*> &associated_phihits_notonphipattern,
+	      const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const;
 
   /** is pattern1 a complete subset of other pattern2? */
   bool subset(const Muon::MuonPrdPattern* pattern1, const Muon::MuonPrdPattern* pattern2)const;
@@ -94,7 +93,9 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   std::vector <std::pair<Muon::MuonPrdPattern*, Muon::MuonPrdPattern*> > splitPatternsCylinder(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern)const;
 
   /** make combined phi pattern by associating phi hits to noncombined eta pattern, return 0 if no phi measurements added, 2nd argument is if checking that added phi hits are already on pattern (not necessary for uncombined etapattern) */
-  Muon::MuonPrdPattern* makeAssPhiPattern(const Muon::MuonPrdPattern* pattern, bool check = false)const;
+  Muon::MuonPrdPattern* makeAssPhiPattern(const Muon::MuonPrdPattern* pattern, 
+					  const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap,
+					  bool check = false)const;
 
   /** calculate new track parameters of match (only for cosmics!) returns [r0, phi, rz0, theta]*/
   double* updateParametersForCosmics(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern)const;
@@ -112,7 +113,8 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   const Amg::Vector3D& globalPrdPos( const Trk::PrepRawData* prd ) const;
 
   /** adds eta,phi pair to candidate vector, also performs splitting and associated pattern (only for cosmics!)*/
-  void addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete)const; 
+  void addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete,
+		    const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const; 
 
   /** clean candidates from subsets or duplicates */
   void cleanCandidates(std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates)const;
@@ -147,14 +149,9 @@ class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonComb
   unsigned int m_maxSizePhiPatternLoose;
   unsigned int m_maxSizeEtaPatternLoose;
 
-  /** phi eta association map, eta prds are key*/
-  std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* m_phiEtaHitAssMap;
-
   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
 };
-
-inline void MuonCombinePatternTool::setPhiEtaHitAssMap(std::map<const Trk::PrepRawData*,std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* assmap){m_phiEtaHitAssMap = assmap;}
 
 #endif //MUONCOMBINEPATTERNTOOLS_MUONCOMBINEPATTERNTOOL_H
