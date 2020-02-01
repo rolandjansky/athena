@@ -167,7 +167,6 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     // Only retrieve the container if we are not in trigger
     if ( ! m_vertexInputContainer.key().empty() ) {
 
-      // StatusCode sc;
       // Get the primary vertex container from StoreGate
       SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
       if (!vertexInHandle.isValid()) {
@@ -208,7 +207,6 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 
     }
 
-
     
     double calibConst = 1.0;
 
@@ -216,7 +214,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     double offset = slopeNPV * (nVertex - m_averageNPV);
 
     // energy response parameterized as a function of pileup-corrected E_LC
-    double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV;            //was sumClusterVector.e() / GeV;
+    double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV; 
     if(m_doPtResponse) energyLC = pTau.ptDetectorAxis() / GeV;
 
     if (energyLC <= 0) {
@@ -227,9 +225,6 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
       return StatusCode::SUCCESS;
     }
 
-    // get detector axis energy
-    // was saved by TauAxisSetter
-      
     if (energyLC - offset <= 0) {
       ATH_MSG_DEBUG("after pile-up correction energy would be = " << energyLC - offset << " --> setting offset=0 now!");
       offset = 0;
@@ -269,41 +264,30 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
   if (m_doAxisCorr) {
 
     // get tau intermediate axis values
-
     double eta = pTau.etaIntermediateAxis();
     double absEta = std::abs(eta);
     double etaCorr = eta;
     
-    // WARNING !!! THIS IS NEW - MAKE SURE WE WANT THIS
     double phi = pTau.phiIntermediateAxis();
     double phiCorr = phi;
 
     // TauCalibrateLC should then only be called after Pantau !!
-    //
     if(m_usePantauAxis && fabs(pTau.etaPanTauCellBased()) < 111) {      
       etaCorr = pTau.etaPanTauCellBased();
       phiCorr = pTau.phiPanTauCellBased();      
-
     }
     else if (absEta) {
-
       etaCorr = (eta / absEta)*(absEta - m_etaCorrectionHist->GetBinContent(m_etaCorrectionHist->GetXaxis()->FindBin(absEta)));
-
     }      
 
     ATH_MSG_DEBUG("eta " << eta << "; corrected eta = " << etaCorr << " ; phi " << phi << "; corrected phi " << phiCorr );
-    
     pTau.setP4( pTau.e() / cosh( etaCorr ), etaCorr, phiCorr, pTau.m());
-    
     pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 
   if (m_isCaloOnly == true && m_in_trigger == true){
-
     pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
-      
   }
-
 
   return StatusCode::SUCCESS;
 }
