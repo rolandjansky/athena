@@ -257,7 +257,7 @@ StatusCode TauProcessorAlg::execute() {
     // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
     ATH_CHECK(evtStore()->symLink(Pi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
     
-    // sort the cll container by hash
+    // sort the cell container by hash
     ATH_CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer), ctx) );
 
   ATH_MSG_VERBOSE("The tau candidate container has been modified");
