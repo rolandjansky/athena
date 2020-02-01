@@ -661,14 +661,22 @@ StatusCode IHLTMonTool::fillHistograms() {
     ATH_MSG_DEBUG("Running fill() for " << name());
    
     // Do not require check on truncated HLTResult 
-    if(m_ignoreTruncationCheck)
+    if(m_ignoreTruncationCheck) {
         sc=fill();
+    }
     else {
-    // Require non-truncated HLTResult
-        if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) 
-            ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
-        else 
-            sc= fill();
+      // Actually - DON'T do this now, since for MT this way of checking whether 
+      // the HLT result is truncated no longer works and the code crashes
+      // NB: leave this code here, but commented since there will need to 
+      //     some replacement code at some point - this is just a quick fix
+      //   
+      // Require non-truncated HLTResult
+      //    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) {
+      //       ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
+      //    }
+      // else { 
+      sc= fill();
+      // }
     }
 
     if (sc.isFailure()) {
@@ -683,6 +691,7 @@ StatusCode IHLTMonTool::fillHistograms() {
   }
   return sc;
 }
+
 
 StatusCode IHLTMonTool::procHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
