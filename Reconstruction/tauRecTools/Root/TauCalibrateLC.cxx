@@ -5,7 +5,8 @@
 //tau
 #include "tauRecTools/TauCalibrateLC.h"
 #include "xAODTau/TauJet.h"
-#include "tauRecTools/TauEventData.h"
+
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 
 //compilation error if attempting to include CLHEP first
 //ASGTOOL_ATHENA defined here:
@@ -16,7 +17,6 @@
 #include "TF1.h"
 #include "TH1D.h"
 
-//included eventually from ITauToolBase
 #ifndef XAOD_STANDALONE
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -28,6 +28,7 @@ using CLHEP::GeV;
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   TauRecToolBase(name),
+  m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),  
   m_doEnergyCorr(false),
   m_doPtResponse(false),
   m_doAxisCorr(false),
@@ -50,8 +51,16 @@ TauCalibrateLC::~TauCalibrateLC() {
 /********************************************************************/
 StatusCode TauCalibrateLC::initialize() {
 
-  ATH_CHECK( m_vertexInputContainer.initialize(! m_vertexInputContainer.key().empty()) );
-
+  if (m_in_trigger) {
+    if (m_lumiBlockMuTool.retrieve().isFailure())  
+      ATH_MSG_WARNING( "Unable to retrieve LumiBlockMuTool" );
+    else  
+      ATH_MSG_DEBUG( "Successfully retrieved LumiBlockMuTool" ); 
+  }
+  else {
+    ATH_CHECK( m_vertexInputContainer.initialize() );
+  }
+  
   std::string fullPath = find_file(m_calibrationFile);
 
   TFile * file = TFile::Open(fullPath.c_str(), "READ");
@@ -145,7 +154,6 @@ StatusCode TauCalibrateLC::initialize() {
 /********************************************************************/
 StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) 
 { 
-
   // energy calibration depends on number of tracks - 1p or Mp
   int prongBin = 1; //Mp
   if (pTau.nTracks() <= 1) prongBin = 0; //1p
@@ -160,53 +168,35 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
         
     if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
-    const xAOD::VertexContainer * vxContainer = 0;
 
     int nVertex = 0;
-        
-    // Only retrieve the container if we are not in trigger
-    if ( ! m_vertexInputContainer.key().empty() ) {
-
-      // Get the primary vertex container from StoreGate
+    
+    // Obtain pileup
+    if (m_in_trigger)  { // online: retrieved from LumiBlockTool 
+      if(m_lumiBlockMuTool){
+        nVertex = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+        ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
+      }
+      else {
+        nVertex = m_averageNPV;
+        ATH_MSG_DEBUG("No AvgInteractions object in tau candidate - using default value = " << nVertex);
+      } 
+    }  
+    else { // offline: count the primary vertex container
       SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
       if (!vertexInHandle.isValid()) {
 	ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
 	return StatusCode::FAILURE;
       }
-      vxContainer = vertexInHandle.cptr();
-	  
-      // Calculate nVertex
-      xAOD::VertexContainer::const_iterator vx_iter = vxContainer->begin();
-      xAOD::VertexContainer::const_iterator vx_end = vxContainer->end();
-	  
-      for (; vx_iter != vx_end; ++vx_iter) {
-	if(m_countOnlyPileupVertices && 
-	   (*vx_iter)->vertexType() == xAOD::VxType::PileUp)
-	  ++nVertex;
-	else if(!m_countOnlyPileupVertices &&
-	   (*vx_iter)->nTrackParticles() >= m_minNTrackAtVertex)
-	  ++nVertex;
-      }
-	  
+      const xAOD::VertexContainer * vxContainer = vertexInHandle.cptr();
+      for (const auto vertex : *vxContainer) {
+        if (m_countOnlyPileupVertices && vertex->vertexType() == xAOD::VxType::PileUp)
+          ++nVertex;
+        else if (!m_countOnlyPileupVertices && vertex->nTrackParticles() >= m_minNTrackAtVertex)
+          ++nVertex;
+      } 
       ATH_MSG_DEBUG("calculated nVertex " << nVertex );           
-
-    } else {
-
-      StatusCode scMu = StatusCode::FAILURE;
-      double muTemp = 0.0;
-
-      if (tauEventData()->hasObject("AvgInteractions")) scMu = tauEventData()->getObject("AvgInteractions", muTemp);
-	    
-      if(scMu.isSuccess()){
-	ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << muTemp);
-	nVertex = muTemp;
-      } else {
-	ATH_MSG_DEBUG("No AvgInteractions object in tau candidate - using default value");
-	nVertex = m_averageNPV;
-      }
-
-    }
-
+    } 
     
     double calibConst = 1.0;
 

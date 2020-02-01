@@ -53,6 +53,7 @@ else()
       Event/FourMomUtils
       Event/NavFourMom
       Event/xAOD/xAODJet
+      LumiBlock/LumiBlockComps
       GaudiKernel
       InnerDetector/InDetRecTools/InDetRecToolInterfaces
       InnerDetector/InDetRecTools/InDetTrackSelectionTool
@@ -111,7 +112,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking xAODParticleEvent
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib LumiBlockCompsLib)
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx  ${tauRecToolsLibCintDict}
@@ -123,7 +124,7 @@ else()
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking xAODParticleEvent CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib LumiBlockCompsLib)
 endif()
 
 if( NOT XAOD_STANDALONE )
@@ -133,7 +134,7 @@ if( NOT XAOD_STANDALONE )
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} xAODTau
          xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
+         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib LumiBlockCompsLib)
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
@@ -145,7 +146,7 @@ if( NOT XAOD_STANDALONE )
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
          TrkVertexFittersLib InDetTrackSelectionToolLib
-         tauRecToolsLib )
+         tauRecToolsLib LumiBlockCompsLib)
    endif()
 endif()
 
