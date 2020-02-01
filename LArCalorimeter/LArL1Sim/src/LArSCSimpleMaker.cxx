@@ -97,6 +97,7 @@ StatusCode LArSCSimpleMaker::execute()
   
   int hash_max = calo_sc_id->calo_cell_hash_max(); 
   std::vector<float> energies (hash_max,0);
+  std::vector<float> times (hash_max,0); 
   std::vector<uint16_t> provenances  (hash_max,0);
   std::vector<uint16_t> gains (hash_max,0);
   std::vector<uint16_t> qualities (hash_max,0);
@@ -135,6 +136,7 @@ StatusCode LArSCSimpleMaker::execute()
     float pedestalshift = 0.0;
     if ( m_addBCID ) pedestalshift = m_caloLumiBCIDTool->average(cell,bunch_crossing);
     energies[hash] += cell->energy() + pedestalshift; 
+    times[hash]    += energies[hash]*energies[hash]*cell->time(); 
     if ( cell->gain() == CaloGain::LARHIGHGAIN )
 	sigma_noise_per_scell[hash]+=m_noise_per_cell[idx];
     idx++;
@@ -205,6 +207,12 @@ StatusCode LArSCSimpleMaker::execute()
 
 
   } 
+  //compute the energy^2 weighted time. We have sum_i t_i*E_i^2 in the variable times[i]
+  // see https://twiki.cern.ch/twiki/bin/view/AtlasPublic/LArCaloPublicResults2015#LAr_Time_Resolution_Plots_for_20 
+  for (unsigned int i=0; i < times.size(); i++){
+    float E2 = energies[i]*energies[i]; 
+    times[i]=times[i]/E2; 
+  }
 
   CaloCellContainer* superCellContainer= new CaloCellContainer(SG::VIEW_ELEMENTS);
   superCellContainer->reserve(energies.size());
@@ -236,8 +244,11 @@ StatusCode LArSCSimpleMaker::execute()
     CaloCell* ss = dataPool.nextElementPtr();
     ss->setCaloDDE( m_sem_mgr->get_element (i));
     ss->setEnergy( energies[i] );
-    ss->setTime(  0.  );
+    ss->setTime(  times[i]  );
 
+    if(energies[i]>10e3 && times[i]>-8 && times[i]<16)provenances[i] |= 0x200;
+    if(energies[i]<=10e3 && fabs(times[i])<8) provenances[i] |= 0x200; 
+    
     ss->setQuality( qualities[i] );
     if (calo_sc_id->is_tile(ss->ID()))
       {

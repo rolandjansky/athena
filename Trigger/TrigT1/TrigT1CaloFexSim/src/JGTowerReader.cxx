@@ -92,7 +92,7 @@ histSvc("THistSvc",name){
   declareProperty("plotSeeds", m_plotSeeds = false);
   declareProperty("saveSeeds", m_saveSeeds = false);
 
-  declareProperty("buildgBlockJets", m_buildgBlockJets=false);
+  declareProperty("buildgBlockJets", m_buildgBlockJets=true);
   declareProperty("gJet_seed_size", m_gJet_seed_size=0.2);
   declareProperty("gJet_max_r", m_gJet_max_r=1.0);  //gFEX constructs large radius jets
   declareProperty("gJet_r", m_gJet_r=1.0);
@@ -115,7 +115,14 @@ JGTowerReader::~JGTowerReader() {
   delete jSeeds;
   delete jJetSeeds;
   delete gSeeds;
-  delete acc_rho;
+  delete acc_rhoA; 
+  delete acc_rhoB;
+  delete acc_rhoC;
+  delete acc_rho_barrel; 
+  delete acc_threshA;
+  delete acc_threshB;
+  delete acc_threshC;
+  
   delete acc_mht;
   delete acc_mst;
 
@@ -155,7 +162,15 @@ StatusCode JGTowerReader::initialize() {
     CHECK( ReadTowerMap() );
   }
 
-  acc_rho = new SG::AuxElement::Accessor<float>("Rho");
+  acc_rhoA = new SG::AuxElement::Accessor<float>("RhoA");
+  acc_rhoB = new SG::AuxElement::Accessor<float>("RhoB");
+  acc_rhoC = new SG::AuxElement::Accessor<float>("RhoC");
+  acc_rho_barrel = new SG::AuxElement::Accessor<float>("Rho_barrel");
+  
+  acc_threshA = new SG::AuxElement::Accessor<float>("ThreshA");
+  acc_threshB = new SG::AuxElement::Accessor<float>("ThreshB");
+  acc_threshC = new SG::AuxElement::Accessor<float>("ThreshC");
+
   acc_mht = new SG::AuxElement::Accessor<float>("MHT");
   acc_mst = new SG::AuxElement::Accessor<float>("MST");
 
@@ -454,6 +469,11 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   xAOD::JGTowerContainer* gCaloTowers = new xAOD::JGTowerContainer();
   gCaloTowers->setStore(gCaloTowersAux);
 
+  //add container for rhoA,B,C using Run2 EnergySumRoIAux container 
+  xAOD::EnergySumRoIAuxInfo* RhoContAux = new xAOD::EnergySumRoIAuxInfo();
+  xAOD::EnergySumRoI* RhoCont = new xAOD::EnergySumRoI();
+  RhoCont->setStore(RhoContAux);
+
   for(unsigned int t = 0; t < gTs->size(); t++){
     const xAOD::JGTower* gt_em = gTs->at(t);
     const float eta = gt_em->eta();
@@ -467,6 +487,11 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
       totalEt = gt_em->et() + gt_had->et();
     }
     //if(t > 544) totalEt = 0;
+    if(fabs(eta)>=3.15){
+      //For the case where eta > 3.15, the sampling is always 2. Not sure that is quite what we want, but that is how the 
+      //identifiers are configured for now... 
+      totalEt=gTs->at(t)->et(); 
+    }
     const float tEt = totalEt; 
 
     const std::vector<int> index(2, 0);
@@ -489,9 +514,9 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   ConstDataVector<xAOD::JGTowerContainer> temp_b(SG::VIEW_ELEMENTS);
   ConstDataVector<xAOD::JGTowerContainer> temp_c(SG::VIEW_ELEMENTS);
 
-  TH1F* h_fpga_a = new TH1F();
-  TH1F* h_fpga_b = new TH1F();
-  TH1F* h_fpga_c = new TH1F();
+  TH1F* h_fpga_a = new TH1F("h_fpga_a", "", 50, 0, 5000);
+  TH1F* h_fpga_b = new TH1F("h_fpga_b", "", 50, 0, 5000);
+  TH1F* h_fpga_c = new TH1F("h_fpga_c", "", 50, 0, 5000);
 
   for(unsigned int t = 0; t < gCaloTowers->size(); t++){
     const xAOD::JGTower* tower = gCaloTowers->at(t);
@@ -528,6 +553,15 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   float rhoC = METAlg::Rho_avg_etaRings(fpga_c, 3, false);
   
   float rho_barrel = METAlg::Rho_avg(gCaloTowers, false);
+
+  (*acc_rhoA)(*RhoCont) = rhoA; 
+  (*acc_rhoB)(*RhoCont) = rhoB;
+  (*acc_rhoC)(*RhoCont) = rhoC;
+  (*acc_rho_barrel)(*RhoCont) = rho_barrel;
+  
+  (*acc_threshA)(*RhoCont) = thresh_a;
+  (*acc_threshB)(*RhoCont) = thresh_b;
+  (*acc_threshC)(*RhoCont) = thresh_c;
 
   for(unsigned int t = 0; t < gCaloTowers->size(); t++){
     const xAOD::JGTower* tower = gCaloTowers->at(t);
@@ -642,7 +676,7 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     CHECK(METAlg::Baseline_MET(pu_sub, "gXERHO", noNoise, m_useNegTowers));
     CHECK(METAlg::Baseline_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_useNegTowers));
     CHECK(METAlg::JwoJ_MET(pu_sub, puSub_gBlocks,"gXEJWOJRHO",m_pTcone_cut,false, false, m_useNegTowers));
-    CHECK(METAlg::JwoJ_MET(gTs, gBlocks, "gXEJWOJ",m_pTcone_cut,false, true, m_useNegTowers));
+    CHECK(METAlg::JwoJ_MET(gTs, gBlocks, "gXEJWOJ",m_pTcone_cut,false, true, /*m_useNegTowers*/ true));//by default, m_useNegTowers=false, but setting it = true here for consistency 
     CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_useNegTowers) ); 
 
 
@@ -655,6 +689,9 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
   CHECK(evtStore()->record(gBs, "gBlocks"));
   CHECK(evtStore()->record(gBAux, "gBlocksAux."));
+
+  CHECK(evtStore()->record(RhoCont,"EventVariables"));
+  CHECK(evtStore()->record(RhoContAux,"EventVariablesAux."));
 
   delete h_fpga_a;
   delete h_fpga_b;
@@ -712,11 +749,9 @@ StatusCode JGTowerReader::ProcessObjects(){
     
     std::shared_ptr<METAlg::MET> met = it->second;
     CHECK(HistBookFill(Form("MET_%s_et",it->first.Data()), 50, 0, 500, met->et*1e-3, 1.));
-    CHECK(HistBookFill(Form("MET_%s_phi",it->first.Data()), 31, -3.1416, 3.1416, met->phi, 1.));
-    METCont->setEnergyX(met->et*cos(met->phi));
-    METCont->setEnergyY(met->et*sin(met->phi));
+    METCont->setEnergyX(met->ex); 
+    METCont->setEnergyY(met->ey); 
     METCont->setEnergyT(met->et);
-    (*acc_rho)(*METCont) = met->rho;
     (*acc_mht)(*METCont) = met->mht;
     (*acc_mst)(*METCont) = met->mst;
     CHECK(evtStore()->record(METCont,Form("%s_MET",it->first.Data())));

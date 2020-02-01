@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloFexSim/JetAlg.h"
@@ -545,7 +545,7 @@ StatusCode JetAlg::BuildgBlocksJets(const xAOD::JGTowerContainer* gBs, TString j
     const xAOD::JGTower* block = gBs->at(b);
 
     const float eta = block->eta();
-    const float pt = block->pt();
+    const float pt = block->et();
 
     // fpga_a
     if(eta > -2.5 && eta < -1.25){
@@ -612,7 +612,7 @@ StatusCode JetAlg::BuildgBlocksJets(const xAOD::JGTowerContainer* gBs, TString j
     }
   }
 
-  rho *= 64; //assuming there are ~64 towers per jet
+  rho *= 9; //assuming there are ~9 towers per jet
   for(unsigned int i=0; i<max_pt.size(); i++){
     int i_max = max_index.at(i);
     int i_sec = sec_index.at(i);
@@ -631,6 +631,6 @@ StatusCode JetAlg::BuildgBlocksJets(const xAOD::JGTowerContainer* gBs, TString j
     gbJets.push_back(gbJ_max);
     gbJets.push_back(gbJ_sec);
   }
-
+  m_JetMap[jetname] = gbJets;
   return StatusCode::SUCCESS;
 }

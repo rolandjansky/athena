@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 for the benefit of the ATLAS collaboration
 */
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -37,15 +37,9 @@ StatusCode METAlg::Baseline_MET(const xAOD::JGTowerContainer*towers, TString met
   }
   
   float et_met = sqrt(met_x*met_x+met_y*met_y);
-  
-  float phi_met=0;
-  if(et_met > 0)
-    phi_met = TMath::ACos(met_x/et_met);
-
-  if (met_y<0) phi_met = -phi_met;
-
   std::shared_ptr<MET> met  = std::make_shared<MET>();
-  met->phi=phi_met;
+  met->ex=met_x; 
+  met->ey=met_y; 
   met->et = et_met;
   met->rho = 0;
 
@@ -141,16 +135,17 @@ StatusCode METAlg::SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString
   }
   
   EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
-  float phi_met = 0;
 
   //std::cout<<"Ex = "<<Ex<<", Ey = "<<Ey<<std::endl;
   //std::cout<<" EtMiss = "<<EtMiss<<std::endl;
-  if(EtMiss != 0) phi_met = TMath::ACos(Ex/EtMiss);
-  if (Ey<0) phi_met = -phi_met;
+  //if(EtMiss != 0) phi_met = TMath::ACos(Ex/EtMiss);
+  //if (Ey<0) phi_met = -phi_met;
 
   //ATH_MSG_INFO("Dumping event rho: " << rho ); 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
-  met->phi = phi_met;
+  //met->phi = phi_met;
+  met->ex=Ex; 
+  met->ey=Ey; 
   met->et = EtMiss;
   met->rho = rho;
 
@@ -204,12 +199,9 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString 
   }
   
   float EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
-  float phi_met = 0;
-  if(EtMiss != 0) phi_met = TMath::ACos(Ex/EtMiss);
-  if (Ey<0) phi_met = -phi_met;
-
   std::shared_ptr<MET> met  = std::make_shared<MET>();
-  met->phi=phi_met;
+  met->ex=Ex; 
+  met->ey=Ey; 
   met->et =EtMiss;
   met->rho = rho;
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
@@ -317,7 +309,6 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vec
   float Ey = ay*(Et_values[2])+ by*Et_values[4] + cy;
 
   float EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
-  float phi = 0;
 
   float mht_phi = 0;
   if(Et_values[5]>0) mht_phi = TMath::ACos(Et_values[1]/Et_values[5]);
@@ -326,15 +317,10 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vec
   float mst_phi = 0;
   if(Et_values[6]>0) mst_phi = TMath::ACos(Et_values[3]/Et_values[6]);
   if(Et_values[4] < 0) mst_phi = -mst_phi;
-
-  if(EtMiss > 0) phi = TMath::ACos(Ex/EtMiss);
-
-  if(Ey < 0) phi = -phi;
-
   std::shared_ptr<MET> met  = std::make_shared<MET>();
-  met->phi=phi;
+  met->ex=Ex; 
+  met->ey=Ey; 
   met->et =EtMiss;
-  //met->rho = rho;
   //std::cout<<"Hard term = "<<Et_values[5]<<std::endl;
   //std::cout<<"Soft term = "<<Et_values[6]<<std::endl;
   met->mht_x = Et_values[1];
@@ -357,7 +343,8 @@ StatusCode METAlg::Pufit_MET(const xAOD::JGTowerContainer*towers, TString metNam
   std::vector<float> EtMiss = Run_PUfit(towers, 3, useNegTowers);
 
   std::shared_ptr<MET> met  = std::make_shared<MET>();
-  met->phi=EtMiss[1];
+  met->ex=EtMiss[1];
+  met->ey=EtMiss[2]; 
   met->et=EtMiss[0];
 
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
@@ -420,13 +407,14 @@ float METAlg::Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, int fpga, b
       else area_c += 4.;
     }
     
-    if(Et < et_max){
-      if(fpga == 1) rho+=Et/area_a;
-      if(fpga == 2) rho+=Et/area_b;
-      if(fpga == 3) rho+=Et/area_c;
-    }
-
+    if(Et < et_max) rho+=Et; //sum ET together to compute total 
+    
   }
+  //after computing total, divide by total area 
+  if(fpga == 1) rho=rho/area_a;
+  if(fpga == 2) rho=rho/area_b;
+  if(fpga == 3) rho=rho/area_c;
+
   return rho;
 }
 
