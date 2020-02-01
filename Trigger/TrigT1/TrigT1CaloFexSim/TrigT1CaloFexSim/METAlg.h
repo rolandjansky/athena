@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_METALG_H
@@ -37,7 +37,9 @@ class METAlg{
 
  public:
   struct MET{
-    float phi;
+    float ex; 
+    float ey; 
+    //float phi;
     float et;
     float rho = 0; 
     float mht = 0;
