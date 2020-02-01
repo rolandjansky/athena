@@ -1,9 +1,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
-Serivce and Tool configurations for ISF for ISF_FatrasServicesConfig
+Service and Tool configurations for ISF for ISF_FatrasServicesConfig
 KG Tan, 04/12/2012
 """
+
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
