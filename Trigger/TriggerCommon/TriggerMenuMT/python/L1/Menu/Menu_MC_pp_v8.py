@@ -199,7 +199,7 @@ def defineMenu():
         
 
         # XE
-        "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
+        "L1_XE10", "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
         "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80",
          'L1_XE30', 'L1_XE300',
          'L1_gXERHO50',
@@ -553,7 +553,6 @@ def defineMenu():
         'L1_2eEM20VH' : 49,
         'L1_2eEM8VH_MU10' : 50,
         'L1_eEM15VHI_2eTAU12IM_4jJ12' : 59,
-        'L1_eEM15VHI_2eTAU12IM_jJ25_3jJ12' : 68,
         'L1_eEM15VHI_2eTAU12IM_gXERHO35' : 73,
         'L1_eEM15VH_MU10' : 82,
         'L1_eEM18VHI_3jJ20' : 86,
@@ -719,6 +718,7 @@ def defineMenu():
         #'L1_J75_XE40' : 143,
 
         #'L1_XE25': 82,
+        'L1_XE10': 68,
         'L1_XE30': 85,
         'L1_XE300': 187,
         
