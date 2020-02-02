@@ -16,7 +16,7 @@
 
 #include "boost/algorithm/string.hpp"
 #include <boost/tokenizer.hpp>
-
+#include <boost/lexical_cast.hpp>
 
 LVL1CTP::ItemMap::ItemMap( const TrigConf::L1Menu * l1menu )
 {
@@ -110,10 +110,10 @@ LVL1CTP::ItemMap::getDefinition( const TrigConf::TriggerItem * item ) const {
    // build tokens with separators ()&|! and <space>. Keeps all separators except <space> in the list of tokens
    for ( auto & tok : boost::tokenizer<boost::char_separator<char> > (item->definition(), boost::char_separator<char>(" ", "()&|!")) ) {
       try {
-         int n = std::stoi(tok);
+         int n = boost::lexical_cast<int,std::string>(tok);
          tokens.emplace_back(thrNames[n]);
       }
-      catch(std::invalid_argument&) {
+      catch(const boost::bad_lexical_cast &) {
          tokens.emplace_back(tok);
       }
    }
