@@ -85,16 +85,16 @@ namespace Trk {
       ConeLayer& operator=(const ConeLayer&);
     
       /**Destructor*/
-      virtual ~ConeLayer(){}  
+      virtual ~ConeLayer() override{}  
     
       /** Transforms the layer into a Surface representation for extrapolation */
-      const ConeSurface& surfaceRepresentation() const override;
+      virtual const ConeSurface& surfaceRepresentation() const override;
     
       /** getting the MaterialProperties back - for pre-update*/ 
-      double preUpdateMaterialFactor(const Trk::TrackParameters& par, Trk::PropDirection dir) const override;
+      virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par, Trk::PropDirection dir) const override;
     
       /** getting the MaterialProperties back - for post-update*/ 
-      double  postUpdateMaterialFactor(const Trk::TrackParameters& par, Trk::PropDirection dir) const override;
+      virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par, Trk::PropDirection dir) const override;
    
       /** move the Layer */
       virtual void moveLayer(Amg::Transform3D& shift) override;
@@ -109,7 +109,7 @@ namespace Trk {
      void resize(const VolumeBounds&, double) const {}
  
      /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 
-     virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)  override {}       
+    virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)  override {}       
 
       
     /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 

@@ -54,17 +54,17 @@ class OverlapDescriptor;
         SubtractedCylinderLayer& operator=(const SubtractedCylinderLayer&);
                       
         /**Destructor*/
-        virtual ~SubtractedCylinderLayer(){}  
+        virtual ~SubtractedCylinderLayer() override{}  
         
         /** Transforms the layer into a Surface representation for extrapolation */
-        const SubtractedCylinderSurface& surfaceRepresentation() const override;
+        virtual const SubtractedCylinderSurface& surfaceRepresentation() const override;
         
         /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
                                        Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
                                          Trk::PropDirection dir) const override;
 
         /** use the base class insideBounds (Vector2d, BoundaryCheck) */
@@ -90,8 +90,8 @@ class OverlapDescriptor;
 
        /** Resize the layer to the tracking volume - not implemented */
        virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                         const Amg::Vector3D&,
-                                                                         double) const override
+                                                                   const Amg::Vector3D&,
+                                                                   double) const override
        {}
   };
  
