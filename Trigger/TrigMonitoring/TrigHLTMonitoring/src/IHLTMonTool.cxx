@@ -74,7 +74,7 @@ StatusCode IHLTMonTool::initialize() {
   }
   else { 
     /// disable the truncation check unless this is the legacy monitoring
-    if ( m_ignoreTruncationCheck ) { 
+    if ( !m_ignoreTruncationCheck ) { 
       ATH_MSG_WARNING("Can only check HLT result truncation in legacy monitoring - disabling truncation check");
     }
     m_ignoringTruncationCheck = true;
