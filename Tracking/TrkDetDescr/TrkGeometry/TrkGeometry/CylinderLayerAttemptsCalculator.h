@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,10 +31,10 @@ namespace Trk {
         {}
 
         /** one single interface method */
-        unsigned int layerAttempts(BoundarySurfaceFace bsFace = Trk::undefinedFace) const;
+        virtual unsigned int layerAttempts(BoundarySurfaceFace bsFace = Trk::undefinedFace) const override;
 
         /** The max attempts */
-        unsigned int maxLayerAttempts() const;
+        virtual unsigned int maxLayerAttempts() const override;
 
       private:
         unsigned int m_faceAttempts;     //!< number of face attampts
