@@ -1,10 +1,12 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Project file for building a selected set of packages against an
 # installed ATLAS release/nightly.
 #
 
-# Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
+# Set up the project.
+cmake_minimum_required( VERSION 3.6 )
+project( WorkDir VERSION 1.0.0 LANGUAGES C CXX )
 
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
@@ -14,8 +16,8 @@ find_package( AtlasCMake QUIET )
 # Try to figure out what project is our parent. Just using a hard-coded list
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
-set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase
-   AthSimulation AthDerivation AthDataQuality )
+set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysis
+   AthSimulation AthDerivation AthDataQuality AthGeneration )
 set( _defaultParentProject Athena )
 set( _defaultUseFortran TRUE )
 foreach( _pp ${_parentProjectNames} )
@@ -36,6 +38,11 @@ set( ATLAS_PROJECT ${_defaultParentProject}
 option( ATLAS_USE_FORTRAN
    "Whether the WorkDir project should provide support for Fortran"
    ${_defaultUseFortran} )
+
+# If Fortran is needed, enable it now.
+if( ATLAS_USE_FORTRAN )
+   enable_language( Fortran )
+endif()
 
 # Clean up:
 unset( _parentProjectNames )
@@ -59,15 +66,8 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL
    "Create compile_commands.json" FORCE )
 
 # Set up a work directory project:
-set( _useFortran )
-if( ATLAS_USE_FORTRAN )
-   set( _useFortran FORTRAN )
-endif()
-atlas_project( WorkDir ${${ATLAS_PROJECT}_VERSION}
-   USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../..
-   ${_useFortran} )
-unset( _useFortran )
+atlas_project( USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION}
+   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Set up the runtime environment setup script(s):
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
