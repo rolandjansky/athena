@@ -24,9 +24,8 @@
 using boost::property_tree::ptree;
 
 namespace LVL1MUCTPIPHASE1 {
-  MuonSectorProcessor::MuonSectorProcessor(int subSystem)
+  MuonSectorProcessor::MuonSectorProcessor(int /*subSystem*/)
     :
-    m_subSystem(subSystem),
     m_muctpiInput(nullptr),
     m_l1topo(nullptr)
   {

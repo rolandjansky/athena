@@ -52,10 +52,10 @@ namespace LVL1MUCTPIPHASE1 {
     virtual ~MUCTPI_AthTool();
 
     virtual void handle(const Incident&) override;
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
 
-    StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates, int bcidOffset) const;
+    virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates, int bcidOffset) const override;
     
   private:
 

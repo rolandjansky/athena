@@ -51,7 +51,6 @@ namespace LVL1MUCTPIPHASE1 {
 
   private:
     
-    int m_subSystem;
     LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_muctpiInput;
     LVL1::MuCTPIL1Topo* m_l1topo;
     std::map<std::string, std::map<unsigned int, ROIObject> > m_roiConfig;

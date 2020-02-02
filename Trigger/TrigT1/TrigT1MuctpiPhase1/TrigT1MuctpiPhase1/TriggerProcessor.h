@@ -36,7 +36,6 @@ namespace LVL1MUCTPIPHASE1 {
 
   private:
 
-    Configuration* m_conf;
     std::vector<unsigned int> m_ctp_words;
     std::vector<unsigned int> m_daq_data;
 
