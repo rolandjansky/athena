@@ -338,7 +338,6 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                              Key_vertexInputContainer = "",
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               SeedFinder = getTauCrossDistancesSeedFinder(),

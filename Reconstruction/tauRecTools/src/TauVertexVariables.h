@@ -51,8 +51,6 @@ private:
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };    
-    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
-
 };
 
 #endif	/* TAUREC_TAUVERTEXVARIABLES_H */

@@ -291,7 +291,6 @@ def getTauVertexVariables():
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              Key_vertexInputContainer = _DefaultVertexContainer,
                                               )
     
     cached_instances[_name] = TauVertexVariables    

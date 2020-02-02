@@ -51,8 +51,6 @@ StatusCode TauVertexVariables::initialize() {
     ATH_CHECK(m_beamSpotKey.initialize());
   }
 
-  ATH_CHECK(m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
-
   return StatusCode::SUCCESS;
 }
 
@@ -67,7 +65,6 @@ StatusCode TauVertexVariables::finalize() {
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) {
-  setProperty("OutputLevel", MSG::DEBUG);
   ATH_MSG_DEBUG("execut()");
 	
   // impact parameter variables for standard tracks
@@ -119,29 +116,11 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   if (pTau.detail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, ipZ0SinThetaSigLeadTrk))
     ATH_MSG_VERBOSE("IP Z0 significance lead track " << ipZ0SinThetaSigLeadTrk);
 
-  //try to find secondary vertex if more than 1 track
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(-1111.));
-  if (pTau.nTracks() < 2) {
+  
+  //try to find secondary vertex if more than 1 track and the tau vertex is available
+  if ( pTau.nTracks() < 2 ||  !(pTau.vertexLink()) ) {
     return StatusCode::SUCCESS;
-  }
-
-  if (m_vertexInputContainer.key().empty()){
-    const xAOD::VertexContainer* vxContainer = 0;
-    StatusCode sc=StatusCode::SUCCESS;
-    sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
-    
-    if (sc.isFailure() || !vxContainer) {
-      ATH_MSG_WARNING("No vertex container found. Skipping secondary vertex fitting.");
-      return StatusCode::SUCCESS;
-    }
-  }
-  else{
-    // retrieve vertex container, exit if not found
-    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
-    if (!vertexInHandle.isValid()) {
-      ATH_MSG_WARNING("No vertex container found. Skipping secondary vertex fitting.");
-      return StatusCode::SUCCESS;
-    }
   }
 
   // get xAOD TrackParticles and Trk::Tracks
@@ -177,7 +156,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 
   // Note, we only attach the 2nd vertex if at offline, otherwise, break the trigger persistency
   if  (!m_in_trigger) {
-    ATH_MSG_VERBOSE("using new xAOD API: Secondary Vertex found and recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
+    ATH_MSG_VERBOSE("secondary vertex recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
     pSecVtxContainer.push_back(xAODvertex);
     xAODvertex->setVertexType(xAOD::VxType::NotSpecified);
     pTau.setSecondaryVertex(&pSecVtxContainer, xAODvertex); 		// set the link to the vertex
