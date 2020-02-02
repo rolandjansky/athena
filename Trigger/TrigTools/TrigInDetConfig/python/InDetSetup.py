@@ -271,7 +271,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
-  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + separateTrackParticleCreator,
+  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
                                                             doIBLresidual = False,
                                                             TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
                                                             TrackParticlesName = recordable("HLT_xAODTracks" + separateTrackParticleCreator),

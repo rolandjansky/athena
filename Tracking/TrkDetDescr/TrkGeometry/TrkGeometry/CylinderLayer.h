@@ -115,26 +115,26 @@ class IApproachDescriptor;
         CylinderLayer& operator=(const CylinderLayer&);
                       
         /**Destructor*/
-        virtual ~CylinderLayer();
+        virtual ~CylinderLayer() override;
                 
         /** Transforms the layer into a Surface representation for extrapolation */
-        const CylinderSurface& surfaceRepresentation() const override;
+        virtual const CylinderSurface& surfaceRepresentation() const override;
         
         /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                               Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                                 Trk::PropDirection dir) const override;
                                          
         /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
-        const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
-                                         const Amg::Vector3D& dir,
-                                         PropDirection pdir,
-                                         const BoundaryCheck& bcheck,
-                                         bool resolveSubSurfaces = 0,
-                                         const ICompatibilityEstimator* ice = nullptr) const override;
+        virtual const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
+                                                 const Amg::Vector3D& dir,
+                                                 PropDirection pdir,
+                                                 const BoundaryCheck& bcheck,
+                                                 bool resolveSubSurfaces = 0,
+                                                 const ICompatibilityEstimator* ice = nullptr) const override;
         
        /** move the Layer */
        virtual void moveLayer ( Amg::Transform3D& shift ) override;
@@ -146,11 +146,11 @@ class IApproachDescriptor;
      
      private:   
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope)  override; 
+       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
    
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
        virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
-                                                            double envelope) const override
+                                                      double envelope) const override
        {
          const_cast<CylinderLayer*>(this)->resizeLayer(vBounds,envelope);
        }
@@ -163,8 +163,8 @@ class IApproachDescriptor;
        /** Resize the layer to the tracking volume */
        virtual void resizeAndRepositionLayer
        ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
-                                   const Amg::Vector3D& cCenter,
-                                   double envelope) const override
+                             const Amg::Vector3D& cCenter,
+                             double envelope) const override
        {
          const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(vBounds,cCenter,envelope);
        }

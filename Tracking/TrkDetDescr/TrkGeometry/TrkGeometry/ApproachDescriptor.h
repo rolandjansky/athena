@@ -38,7 +38,9 @@ namespace Trk {
             - primary bin surface : sf
             - position & direction : pos, dir
         */
-        virtual const ApproachSurfaces* approachSurfaces(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
+        virtual const ApproachSurfaces*
+        approachSurfaces(const Amg::Vector3D& pos,
+                         const Amg::Vector3D& dir) const override;
 
       private :
     };

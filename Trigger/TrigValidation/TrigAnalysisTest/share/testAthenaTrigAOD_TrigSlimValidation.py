@@ -26,7 +26,7 @@ if not acf.EvtMax.is_locked():
     acf.EvtMax=10
 
 if not 'inputFile' in dir():
-    print "testAthenaTrigAOD_TrigSlimValidation.py: FATAL you must set an input file via '-c inputFile=...'"
+    printfunc ("testAthenaTrigAOD_TrigSlimValidation.py: FATAL you must set an input file via '-c inputFile=...'")
     import sys
     sys.exit(-1)
 acf.FilesInput = [inputFile]

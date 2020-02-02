@@ -54,7 +54,7 @@ namespace Trk {
         NavigationLayer(const NavigationLayer& lay);
                                       
         /**Destructor*/
-        virtual ~NavigationLayer();
+        virtual ~NavigationLayer() override;
         
         /** Assignment operator */
         NavigationLayer& operator=(const NavigationLayer& lay);
@@ -69,12 +69,12 @@ namespace Trk {
         const MaterialProperties* fullUpdateMaterialProperties() const;
         
         /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                               Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                                 Trk::PropDirection dir) const override;
                                                                       
         /** getting the next/overlapping Surface */
         const Surface* overlapSurface(const TrackParameters& tp, const Surface* sf = nullptr) const;
@@ -88,7 +88,7 @@ namespace Trk {
       virtual void resizeLayer(const VolumeBounds&, double) override {}
       /** Resize the layer to the tracking volume - not implemented */
       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                           double) const override
+                                                     double) const override
       {}
 
       /** Resize the layer to the tracking volume - not implemented */
@@ -98,8 +98,8 @@ namespace Trk {
       {}
       /** Resize the layer to the tracking volume - not implemented */
       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                        const Amg::Vector3D&,
-                                                                        double) const override
+                                                                  const Amg::Vector3D&,
+                                                                  double) const override
       {}
 
       Surface*

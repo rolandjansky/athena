@@ -91,33 +91,33 @@ namespace Trk {
         DiscLayer& operator=(const DiscLayer&);
               
         /**Destructor*/
-        virtual ~DiscLayer();
+        virtual ~DiscLayer() override;
                 
         /** Transforms the layer into a Surface representation for extrapolation */
-        const DiscSurface& surfaceRepresentation() const override;
+        virtual const DiscSurface& surfaceRepresentation() const override;
 
         /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
-        const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
-                                         const Amg::Vector3D& mom, 
-                                         PropDirection pdir,
-                                         const BoundaryCheck& bcheck,
-                                         bool resolveSubSurfaces = 0,
-                                         const ICompatibilityEstimator* ice = nullptr) const override;
+        virtual const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
+                                                 const Amg::Vector3D& mom, 
+                                                 PropDirection pdir,
+                                                 const BoundaryCheck& bcheck,
+                                                 bool resolveSubSurfaces = 0,
+                                                 const ICompatibilityEstimator* ice = nullptr) const override;
       
         /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                               Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                                 Trk::PropDirection dir) const override;
 
        /** move the Layer */
        virtual void moveLayer( Amg::Transform3D& shift ) override;
      
        /** move the Layer */
        virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
-          const_cast<DiscLayer*> (this)->moveLayer(shift);
+         const_cast<DiscLayer*> (this)->moveLayer(shift);
        }
  
      private:   
@@ -125,7 +125,7 @@ namespace Trk {
        virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
               /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
        virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
-                                                            double envelope) const override
+                                                      double envelope) const override
        {
          const_cast<DiscLayer*> (this)->resizeLayer(vBounds,envelope);
        }
@@ -137,8 +137,8 @@ namespace Trk {
 
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds& vBounds, 
-                                                            const Amg::Vector3D& cCenter, 
-                                                            double envelop) const override{
+                                                                    const Amg::Vector3D& cCenter, 
+                                                                    double envelop) const override{
          const_cast<DiscLayer*> (this)->resizeAndRepositionLayer(vBounds,cCenter,envelop);
        }
 
