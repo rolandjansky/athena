@@ -72,7 +72,9 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 
     const Trk::ImpactParametersAndSigma* myIPandSigma(nullptr);
     const xAOD::Vertex* vxcand = nullptr;
+
     xAOD::Vertex theBeamspot;
+    theBeamspot.makePrivateStore();
 
     if (m_in_trigger) { // online: use beamspot
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };        
@@ -81,6 +83,11 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
         const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
         theBeamspot.setCovariancePosition(cov);
         vxcand = &theBeamspot;        
+	
+        myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand);
+      }
+      else {
+        ATH_MSG_DEBUG("No Beamspot object in tau candidate");
       }  
     }  
     else if (pTau.vertexLink()) { // offline: obtain tau vertex by link
