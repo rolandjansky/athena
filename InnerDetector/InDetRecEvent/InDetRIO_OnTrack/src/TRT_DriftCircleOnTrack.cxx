@@ -42,8 +42,10 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
   m_detEl( RIO->detectorElement() )
 {
   m_rio.setElement(RIO);
-  const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
-  if (slsf) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ)));
+  if (m_detEl->surface(RIO->identify()).type()==Trk::Surface::Line){
+    const Trk::StraightLineSurface& slsf =static_cast<const Trk::StraightLineSurface&>((m_detEl->surface(RIO->identify())));
+    m_globalPosition.store(std::unique_ptr<const Amg::Vector3D>(slsf.localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ)));
+  } 
   Amg::Vector3D  loc_gDirection = predictedTrackDirection; 
   const double dr = driftRadius[Trk::driftRadius];
   //scaling the direction with drift radius   
