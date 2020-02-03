@@ -50,6 +50,8 @@ for inputfilename in inputfilenames:
                 # Print the matching cut for info
                 print 'Matching cut:',float(line.split()[0])
                 continue
+            # Check for a comment
+            if len(line.split('#')[0].strip())==0: continue
             # Check if we have entered an event
             if not event and not '<event>' in line:
                 continue
