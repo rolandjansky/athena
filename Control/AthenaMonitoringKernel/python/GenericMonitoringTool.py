@@ -143,7 +143,7 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Alias
     variableAliasSplit = varname.split(';')
-    varList = variableAliasSplit[0].split(',')
+    varList = [v.strip() for v in variableAliasSplit[0].split(',')]
     if len(variableAliasSplit)==1:
         alias = '_vs_'.join(reversed(varList))
     elif len(variableAliasSplit)==2:
