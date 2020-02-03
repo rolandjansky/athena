@@ -84,7 +84,7 @@ StatusCode Trk::TrackScoringTool::finalize()
 
 Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const
 {
-	const TrackSummary* summary = 0;
+	const TrackSummary* summary = nullptr;
 	if (suppressHoleSearch)
 	  summary = m_trkSummaryTool->createSummaryNoHoleSearch(track);
 	else
@@ -109,7 +109,7 @@ Trk::TrackScore Trk::TrackScoringTool::simpleScore( const Track& track, const Tr
 	TrackScore score(100); // score of 100 per track
 
 	// --- prob(chi2,NDF), protect for chi2<0
-	if (track.fitQuality()!=0 && track.fitQuality()->chiSquared() > 0 && track.fitQuality()->numberDoF() > 0) {
+	if (track.fitQuality()!=nullptr && track.fitQuality()->chiSquared() > 0 && track.fitQuality()->numberDoF() > 0) {
 	  score+= log10(1.0-Genfun::CumulativeChiSquare(track.fitQuality()->numberDoF())(track.fitQuality()->chiSquared()));
 	}
 

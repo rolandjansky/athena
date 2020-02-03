@@ -111,7 +111,7 @@ public:
     //! interface for update for reference-track KF, not implemented.
     virtual std::pair<AmgVector(5), AmgSymMatrix(5)>* updateParameterDifference (const AmgVector(5)&, const AmgSymMatrix(5)&, 
                                                                                  const Amg::VectorX&, const Amg::MatrixX&, 
-                                                                                 const int&, Trk::FitQualityOnSurface*&, bool ) const  override final {return 0;}
+                                                                                 const int&, Trk::FitQualityOnSurface*&, bool ) const  override final {return nullptr;}
 
     //! give back how updator is configured for inital weights
     virtual std::vector<double>  initialErrors() const  override final;

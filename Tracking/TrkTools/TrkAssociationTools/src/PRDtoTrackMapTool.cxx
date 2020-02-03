@@ -135,7 +135,7 @@ Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map
     return itvec->second;
   }
 
-  if (track.measurementsOnTrack()==0) {
+  if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING ("Track has no RoTs");
     return PRDs_t();
   }

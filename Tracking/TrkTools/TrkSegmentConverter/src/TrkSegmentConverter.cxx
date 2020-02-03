@@ -94,7 +94,7 @@ StatusCode Trk::TrkSegmentConverter::finalize()
 
 Trk::Track* Trk::TrkSegmentConverter::convert(const Trk::Segment& segment)
 {
-  Track* track=0;
+  Track* track=nullptr;
   if(m_useFitter)
     track=convertWithFitter(segment);
   else
@@ -106,7 +106,7 @@ Trk::Track* Trk::TrkSegmentConverter::convert(const Trk::Segment& segment)
 //================ Convert with a TrackFitter ======================================
 Trk::Track* Trk::TrkSegmentConverter::convertWithFitter(const Trk::Segment& segment)
 {
-  Track* track=0;
+  Track* track=nullptr;
   MeasurementSet myset;
 
   int nROTs=segment.numberOfMeasurementBases();
@@ -161,7 +161,7 @@ Trk::Track* Trk::TrkSegmentConverter::convertBruteForce(const Trk::Segment& tS)
   DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
 
   //Get the track segment fit quality. If not there drop segment
-  const Trk::FitQuality* fq = tS.fitQuality() ? tS.fitQuality()->clone() : 0;
+  const Trk::FitQuality* fq = tS.fitQuality() ? tS.fitQuality()->clone() : nullptr;
   //if(!fq) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Segment has no fit quality!Discard..." << endmsg; return 0;}
 
   //Get the track segment information and build the initial track parameters
@@ -173,12 +173,12 @@ Trk::Track* Trk::TrkSegmentConverter::convertBruteForce(const Trk::Segment& tS)
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endmsg;
   }else{
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endmsg;
-    return 0;
+    return nullptr;
   }
 
   for(int it=0; it<int(tS.numberOfMeasurementBases()); it++){
     // on first measurement add parameters
-    const Trk::TrackStateOnSurface* seg_tsos = 0;
+    const Trk::TrackStateOnSurface* seg_tsos = nullptr;
     
     if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tS.measurement(it)) ) {
       Amg::Vector3D perigeePosition(0.,0.,0.);
@@ -186,18 +186,18 @@ Trk::Track* Trk::TrkSegmentConverter::convertBruteForce(const Trk::Segment& tS)
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
       const Trk::TrackParameters* parm = m_extrapolator->extrapolate(*segPar, perigeeSurface);
       const Trk::Perigee* perParm = dynamic_cast<const Trk::Perigee*>(parm); 
-      if(!perParm) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to build perigee parameters.Discard..." << endmsg; delete ntsos; return 0;}
+      if(!perParm) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to build perigee parameters.Discard..." << endmsg; delete ntsos; return nullptr;}
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      seg_tsos = new Trk::TrackStateOnSurface(0,perParm,0,0,typePattern);
+      seg_tsos = new Trk::TrackStateOnSurface(nullptr,perParm,nullptr,nullptr,typePattern);
     }
     if(it>=1){
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
       if(it==1) {
-	seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),segPar,0,0,typePattern);
+	seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),segPar,nullptr,nullptr,typePattern);
       }else{
-	seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),0,0,0,typePattern);
+	seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),nullptr,nullptr,nullptr,typePattern);
       }
     }
     ntsos->push_back(seg_tsos);

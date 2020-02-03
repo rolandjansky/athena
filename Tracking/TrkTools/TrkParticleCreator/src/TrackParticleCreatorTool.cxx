@@ -45,10 +45,11 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
-#include <map>
-#include <vector>
 #include <algorithm>
 #include <cassert>
+#include <map>
+#include <memory>
+#include <vector>
 
 // helper methods to print messages 
 template<class T>
@@ -247,8 +248,8 @@ namespace Trk
             errors.push_back(eprob_to_copy);
           }
           else {
-            m_decorateSummaryTypes.push_back( std::make_pair(SG::AuxElement::Decorator<uint8_t>(extra_summary_type_iter->first),
-                                                             extra_summary_type_iter->second));  
+            m_decorateSummaryTypes.emplace_back(SG::AuxElement::Decorator<uint8_t>(extra_summary_type_iter->first),
+                                                             extra_summary_type_iter->second);  
           }
         }
         else {
@@ -256,7 +257,7 @@ namespace Trk
             m_copyEProbabilities.push_back(eprob_iter->second.first);
           }
           else{
-            m_decorateEProbabilities.push_back( std::make_pair(SG::AuxElement::Decorator<float>(eprob_iter->first),eprob_iter->second.first)); 
+            m_decorateEProbabilities.emplace_back(SG::AuxElement::Decorator<float>(eprob_iter->first),eprob_iter->second.first); 
           }
         }
       }
@@ -378,7 +379,7 @@ namespace Trk
         summary = std::make_unique<Trk::TrackSummary>(*track->trackSummary());
       } else {
         ATH_MSG_VERBOSE("No proper TrackSummaryTool found. Creating TrackParticle with a dummy TrackSummary");
-        summary.reset(new Trk::TrackSummary);
+        summary = std::make_unique<Trk::TrackSummary>();
       }
     }
     if (m_forceTrackSummaryUpdate || m_updateTrack) {
@@ -814,7 +815,7 @@ namespace Trk
      
     if (!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
-      return 0;
+      return nullptr;
     }
 
     trackparticle->setTrackLink( *(trackParticle.trackElementLink()) );
@@ -834,7 +835,7 @@ namespace Trk
  
     if (!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
-      return 0;
+      return nullptr;
     }
    
     trackparticle->setTrackLink( trackLink );
@@ -852,7 +853,7 @@ namespace Trk
     xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle;
     if (!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
-      return 0;
+      return nullptr;
     }
     /*
      * The following needs care as in one case the ownership 
@@ -906,7 +907,7 @@ namespace Trk
                                                      const Trk::Perigee* &aPer) const
   {
     aPer = track->perigeeParameters();
-    if (aPer==0)
+    if (aPer==nullptr)
       {
         ATH_MSG_VERBOSE ("Track has no perigee parameters.");
         return false;

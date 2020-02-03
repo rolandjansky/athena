@@ -505,7 +505,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk:
                                                                       Trk::PRDtoTrackMap &prd_to_track_map,
                                                                       Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const
 {
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
   if (!m_suppressTrackFit){
     if (m_refitPrds) 
     {
@@ -548,7 +548,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk:
     newTrack = new Trk::Track(info, vecTsos, fq);  
   }
   
-  if (newTrack!=0) 
+  if (newTrack!=nullptr) 
   {
     ATH_MSG_DEBUG ("New track "<<newTrack<<" successfully fitted from "<<track);
   }
@@ -572,23 +572,23 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const Trk::
 
   if ( prds.empty() ) {
     ATH_MSG_WARNING( "No PRDs on track");
-    return 0;
+    return nullptr;
   }
      
   ATH_MSG_VERBOSE ("Track "<<track<<"\t has "<<prds.size()<<"\t PRDs");
 
   const TrackParameters* par = track->perigeeParameters();
-  if (par==0) {
+  if (par==nullptr) {
     ATH_MSG_DEBUG ("Track ("<<track<<") has no perigee! Try any other ?");
     par = track->trackParameters()->front();
-    if (par==0) {
+    if (par==nullptr) {
       ATH_MSG_DEBUG ("Track ("<<track<<") has no Track Parameters ! No refit !");
-      return 0;
+      return nullptr;
     }
   }
 
   // refit using first parameter, do outliers
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
 
   if (m_tryBremFit && track->info().trackProperties(Trk::TrackInfo::BremFit))
   {
@@ -643,7 +643,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots(const Trk::T
   ATH_MSG_VERBOSE ("Refit track "<<track);
 
   // refit using first parameter, do outliers
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
 
   if (m_tryBremFit &&
       track->info().trackProperties(Trk::TrackInfo::BremFit))
@@ -867,7 +867,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::removeInnerHits(std::vector<c
   int count = 0; 
   for (size_t i=0; i < measurements.size(); ++i){
     const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(measurements.at(i));
-    if (rio != 0) {
+    if (rio != nullptr) {
       const Identifier& surfaceID = (rio->identify()) ;                            
       if(m_idHelper->is_pixel(surfaceID) && count ==0){  
         //Only do this if we want to remove the pixel hits 
@@ -891,11 +891,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::removeInnerHits(std::vector<c
 Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTracksFromB(const Trk::Track* track, double fitQualityOriginal) const
 {
   const Trk::TrackParameters* par = track->perigeeParameters();
-  if (par==0) {
+  if (par==nullptr) {
     par = track->trackParameters()->front();
-    if (par==0) {
+    if (par==nullptr) {
       ATH_MSG_DEBUG ("Track ("<<track<<") has no Track Parameters ! No refit !");
-      return 0;
+      return nullptr;
     }
   }
   
@@ -911,7 +911,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTracksFromB(const
     if ( (*trackStateOnSurface)->measurementOnTrack() ){
       if ( (*trackStateOnSurface)->type( Trk::TrackStateOnSurface::Measurement) ){
         const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>( (*trackStateOnSurface)->measurementOnTrack() );
-        if (rio != 0) {
+        if (rio != nullptr) {
           const Identifier& surfaceID = (rio->identify()) ;                            
           if(m_idHelper->is_pixel(surfaceID)|| m_idHelper->is_sct(surfaceID)) {
             measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
@@ -935,12 +935,12 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTracksFromB(const
         }
       }
       if (previousMeasSize == measurementSet.size()){
-        return 0;
+        return nullptr;
       }
       previousMeasSize = measurementSet.size();
     } else {
       //cannot refit the track because we do not have enough measurements
-      return 0;
+      return nullptr;
     }
   }
 }

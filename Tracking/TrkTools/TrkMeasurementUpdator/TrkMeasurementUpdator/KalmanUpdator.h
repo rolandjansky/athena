@@ -145,7 +145,7 @@ class KalmanUpdator : virtual public IUpdator, public AthAlgTool {
                                                                                  const Amg::MatrixX&, 
                                                                                  const int&, Trk::FitQualityOnSurface*&, 
                                                                                  bool ) const override final 
-    {return 0;}
+    {return nullptr;}
 
     //! gives back how updator is configured for inital covariances
     virtual std::vector<double>  initialErrors() const override final;

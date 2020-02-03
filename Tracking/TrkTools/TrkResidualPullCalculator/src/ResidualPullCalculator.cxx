@@ -33,7 +33,7 @@ Trk::ResidualPullCalculator::ResidualPullCalculator(const std::string& type, con
 m_SCTresidualTool("InDet::SCT_ResidualPullCalculator/SCT_ResidualPullCalculator"),
 m_RPCresidualTool("Muon::RPC_ResidualPullCalculator/RPC_ResidualPullCalculator"),
 m_TGCresidualTool("Muon::TGC_ResidualPullCalculator/TGC_ResidualPullCalculator"),
-m_idHelper(0) {
+m_idHelper(nullptr) {
     declareInterface<IResidualPullCalculator>(this);
     declareProperty("ResidualPullCalculatorForSCT", m_SCTresidualTool,  "Tool to calculate residuals and pulls in the SCT (including module rotation)");
     declareProperty("ResidualPullCalculatorForRPC", m_RPCresidualTool,  "Tool to calculate residuals and pulls in the RPC (including phi/eta detection)");
@@ -186,7 +186,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
     const Trk::ResidualPull::ResidualType resType,
     const Trk::TrackState::MeasurementType detType) const {
 
-    if (!measurement || !trkPar) return 0;
+    if (!measurement || !trkPar) return nullptr;
 
     // if no covariance for the track parameters is given the pull calculation is not valid
     bool pullIsValid = trkPar->covariance();
@@ -253,7 +253,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
             return m_SCTresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::SCT);
         } else {
             ATH_MSG_WARNING ("No SCT ResidualPullCalculator given, cannot calculate residual and pull for SCT measurement!");
-            return 0;
+            return nullptr;
         }
         break;
         case Trk::TrackState::RPC:
@@ -263,7 +263,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
             return m_RPCresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::RPC);
         } else {
             ATH_MSG_WARNING ("No RPC ResidualPullCalculator given, cannot calculate residual and pull for RPC measurement!");
-            return 0;
+            return nullptr;
         }
         break;
         case Trk::TrackState::TGC:
@@ -273,7 +273,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
             return m_TGCresidualTool->residualPull(measurement, trkPar, resType, Trk::TrackState::TGC);
         } else {
             ATH_MSG_WARNING ("No TGC ResidualPullCalculator given, cannot calculate residual and pull for TGC measurement!");
-            return 0;
+            return nullptr;
         }
         break;
         case Trk::TrackState::Segment:

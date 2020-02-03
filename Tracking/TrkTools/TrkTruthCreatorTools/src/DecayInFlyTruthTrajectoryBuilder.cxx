@@ -40,7 +40,7 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) c
 {
   result->clear();
   if(input) {
-    const HepMC::GenParticle *next(0);
+    const HepMC::GenParticle *next(nullptr);
     const HepMC::GenParticle *current = input;
 
     // Extend trajectory outwards.  The last particle should go at [0]
@@ -71,8 +71,8 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) c
 DecayInFlyTruthTrajectoryBuilder::MotherDaughter
 DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
 {
-  const HepMC::GenParticle *mother(0);
-  const HepMC::GenParticle *daughter(0);
+  const HepMC::GenParticle *mother(nullptr);
+  const HepMC::GenParticle *daughter(nullptr);
   
   // only truth vertices with 1 incoming particle
   if(vtx && (vtx->particles_in_size() == 1)) {
@@ -92,7 +92,7 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vt
       if (vtx->particles_out_size() <= 2) {
 
 	int num_passed_cuts = 0;
-	const HepMC::GenParticle *passed_cuts(0);
+	const HepMC::GenParticle *passed_cuts(nullptr);
 	for(HepMC::GenVertex::particles_in_const_iterator it = vtx->particles_out_const_begin();
 	    it != vtx->particles_out_const_end(); ++it) {
 	
@@ -130,7 +130,7 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vt
 //================================================================
 const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) const {
 
-  const HepMC::GenParticle *daughter = 0;
+  const HepMC::GenParticle *daughter = nullptr;
   
   if(mother) {
 
@@ -147,7 +147,7 @@ const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getDaughter(const He
 //================================================================
 const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) const {
 
-  const HepMC::GenParticle *mother = 0;
+  const HepMC::GenParticle *mother = nullptr;
 
   if(daughter) {
 

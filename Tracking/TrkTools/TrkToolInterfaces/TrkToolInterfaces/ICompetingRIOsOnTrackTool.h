@@ -112,7 +112,7 @@ inline const Trk::CompetingRIOsOnTrack* Trk::ICompetingRIOsOnTrackTool::createSi
   const Trk::TrackState::MeasurementType) const
 {
   std::cout << "CONFIGURATION WARNING: dummy version of single-hit CompetingRIOsOnTrack maker called." << std::endl;
-  return 0;
+  return nullptr;
 }
 
 inline void Trk::ICompetingRIOsOnTrackTool::reequipCompetingROT

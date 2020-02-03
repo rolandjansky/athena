@@ -3,17 +3,18 @@
 */
 
 #include "SimpleAmbiguityProcessorTool.h"
-#include "TrackScoringTool.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "TrkTrack/TrackCollection.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TrackScoringTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackInfo.h"
-#include <map>
 #include <ext/functional>
 #include <iterator>
+#include <map>
+#include <memory>
 
 //==================================================================================================
 Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::string& t, 
@@ -613,7 +614,7 @@ void Trk::SimpleAmbiguityProcessorTool::refitTrack( const Trk::Track* track,
       newInfo.setPatternRecognitionInfo(Trk::TrackInfo::SimpleAmbiguityProcessorTool);
       info.addPatternReco(newInfo); 
 
-      newTrack.reset( new Trk::Track(info, vecTsos, fq) );
+      newTrack = std::make_unique<Trk::Track>( info, vecTsos, fq );
     }
 
   if (newTrack)
@@ -714,7 +715,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track* trac
   ATH_MSG_VERBOSE ("Refit track "<<track);
 
   // refit using first parameter, do outliers
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
 
   if (m_tryBremFit &&
       track->info().trackProperties(Trk::TrackInfo::BremFit))

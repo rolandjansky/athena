@@ -76,7 +76,7 @@ namespace Trk {
 //================================================================
 DetailedTrackTruthBuilder::DetailedTrackTruthBuilder(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent)
-  , m_idHelper(0)
+  , m_idHelper(nullptr)
   , m_truthTrajBuilder("Trk::ElasticTruthTrajectoryBuilder")
 {
   declareInterface<IDetailedTrackTruthBuilder>(this);
