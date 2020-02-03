@@ -464,7 +464,9 @@ namespace H5Utils {
 
     // write out
     hsize_t n_buffer_pts = m_buffer.size() / m_consumers.size();
-    assert(m_file_space.getSelectNpoints() == n_buffer_pts);
+    assert(m_file_space.getSelectNpoints() >= 0);
+    assert(static_cast<hsize_t>(m_file_space.getSelectNpoints())
+           == n_buffer_pts);
     H5::DataSpace mem_space(1, &n_buffer_pts);
     m_ds.write(m_buffer.data(), m_par.type, mem_space, m_file_space);
     m_offset += buffer_size;
