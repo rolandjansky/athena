@@ -82,7 +82,7 @@ namespace CP
 
     /// \brief check if the object decoration is available
   public:
-    bool isAvailable (const SG::AuxElement& oject,
+    bool isAvailable (const SG::AuxElement& object,
                       const CP::SystematicSet& sys) const;
 
 
