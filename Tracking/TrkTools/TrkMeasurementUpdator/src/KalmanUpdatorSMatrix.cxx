@@ -588,7 +588,7 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
                        *covTwo, +1);
 }
 
-const std::vector<double> Trk::KalmanUpdatorSMatrix::initialErrors() const {
+std::vector<double> Trk::KalmanUpdatorSMatrix::initialErrors() const {
   std::vector<double> E(5);
   for (int i=0; i<5; ++i) E[i] = sqrt(m_cov0(i));
   return E;
@@ -1202,7 +1202,8 @@ Trk::FitQualityOnSurface* Trk::KalmanUpdatorSMatrix::makeChi2_5D(const SParVecto
                                                           const int& sign) const
 {   // sign: -1 = updated, +1 = predicted parameters.
 
-  SCovMatrix5 ScovOne,ScovTwo; // trafo EDM to new math lib
+  SCovMatrix5 ScovOne;
+  SCovMatrix5 ScovTwo; // trafo EDM to new math lib
   for (int i=0; i<5; ++i) 
     for (int j=0; j<=i; ++j) {
       ScovOne(i,j) = covOne(i,j);
@@ -1242,7 +1243,8 @@ Trk::KalmanUpdatorSMatrix::convertToClonedTrackPars(const Trk::TrackParameters& 
     TP.associatedSurface().createTrackParameters(par[0],par[1],par[2],par[3],par[4],C);
   
   if (msgLvl(MSG::VERBOSE) && resultPar) {
-    char reportCalledInterface[80], ndtext2[5];
+    char reportCalledInterface[80];
+    char ndtext2[5];
     memset(ndtext2, '\0', 5 ); ndtext.copy(ndtext2,2); // convert char to string
     if (sign>0) 
       sprintf(reportCalledInterface,"%s-%s,%s)",

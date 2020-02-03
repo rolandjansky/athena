@@ -148,7 +148,7 @@ class KalmanUpdator : virtual public IUpdator, public AthAlgTool {
     {return 0;}
 
     //! gives back how updator is configured for inital covariances
-    virtual const std::vector<double>  initialErrors() const override final;
+    virtual std::vector<double>  initialErrors() const override final;
 		
 private:
     //! Common maths calculation code for addToState and removeFromState - Amg::Vector2D interface.

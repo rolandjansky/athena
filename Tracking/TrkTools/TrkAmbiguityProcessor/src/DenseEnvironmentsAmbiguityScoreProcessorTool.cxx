@@ -166,8 +166,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<cons
     }
   }
 
-  return;
-}
+  }
 
 
 //==================================================================================================
@@ -190,7 +189,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
     float score = m_scoringTool->score( *a_track, true);
     ATH_MSG_DEBUG ("Track Score is "<< score);
     // veto tracks with score 0
-    bool reject = (score==0) ? true:false;      
+    bool reject = score==0;      
     
     // double track rejection
     if (!reject) {
@@ -222,8 +221,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
      m_stat += stat;
   }
 
-  return;
-}
+  }
 
 //==================================================================================================
 void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformationForCluster(const std::pair<const InDet::PixelCluster* const,
@@ -368,6 +366,5 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const 
     }
     
   }  
-  return ;
-}
+  }
 

@@ -442,7 +442,7 @@ Trk::KalmanUpdatorAmg::predictedStateFitQuality (const Trk::TrackParameters& trk
                          trkParTwo.parameters(),*covTwo, 31, +1);
 }
 
-const std::vector<double> Trk::KalmanUpdatorAmg::initialErrors() const {
+std::vector<double> Trk::KalmanUpdatorAmg::initialErrors() const {
   std::vector<double> E(5);
   for (int i=0; i<5; ++i) E[i] = sqrt(m_cov0Vec(i));
   return E;
@@ -613,7 +613,8 @@ Trk::KalmanUpdatorAmg::calculateFilterStep_1D(const AmgVector(5)& trkPar, const 
                                               FitQualityOnSurface*& fQ, bool createFQoS) const
 {
   ATH_MSG_DEBUG("--> entered KalmanUpdatorAmg::calculateFilterStep_1D ");
-  int mk=0, sign=1;
+  int mk=0;
+  int sign=1;
   if (paramKey!=1) for (int i=0; i<5; ++i) if (paramKey & (1<<i)) { mk=i; break; }
   double r = measPar - trkPar(mk);
   double R = (sign * measCov) + trkCov(mk,mk);
@@ -799,7 +800,8 @@ Trk::KalmanUpdatorAmg::convertToClonedTrackPars(const Trk::TrackParameters& TP,
       TP.associatedSurface().createTrackParameters(par[0],par[1],par[2],par[3],par[4],new AmgSymMatrix(5)(covPar));
   // screen output
   if (msgLvl(MSG::VERBOSE) && resultPar) {
-    char reportCalledInterface[80], ndtext2[5];
+    char reportCalledInterface[80];
+    char ndtext2[5];
     memset(ndtext2, '\0', 5 ); ndtext.copy(ndtext2,2); // convert char to string
     if (sign>0) 
       sprintf(reportCalledInterface,"%s-%s,%s)",

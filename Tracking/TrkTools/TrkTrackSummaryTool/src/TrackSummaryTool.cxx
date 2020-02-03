@@ -343,7 +343,6 @@ void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::
 {
   // first check if track has no summary - then it is recreated
   m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
-  return;
 }
 
 void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map, TrackSummary &summary, bool initialise_to_zero) const
@@ -388,7 +387,6 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::
   m_idTool->updateExpectedHitInfo(track, summary);
 
   if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
-  return;
 }
 
 void Trk::TrackSummaryTool::processTrackStates(const Track& track,
@@ -401,9 +399,12 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
 {
   ATH_MSG_DEBUG ("Starting to process " << tsos->size() << " track states");
 
-  int measCounter = 0, cntAddChi2 = 0;
-  float chi2Sum = 0, chi2Sum2 = 0;
-  DataVector<const TrackStateOnSurface>::const_iterator it = tsos->begin(), itEnd = tsos->end();
+  int measCounter = 0;
+  int cntAddChi2 = 0;
+  float chi2Sum = 0;
+  float chi2Sum2 = 0;
+  DataVector<const TrackStateOnSurface>::const_iterator it = tsos->begin();
+  DataVector<const TrackStateOnSurface>::const_iterator itEnd = tsos->end();
   for ( ; it!=itEnd; ++it){
     if ((*it)->type(Trk::TrackStateOnSurface::Measurement) || (*it)->type(Trk::TrackStateOnSurface::Outlier)){
       ++measCounter;
@@ -450,8 +451,6 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
   float varChi2 = 0;
   if (cntAddChi2>0) varChi2=chi2Sum2/cntAddChi2 - (chi2Sum/cntAddChi2) *(chi2Sum/cntAddChi2) ;
   if (varChi2>0 && varChi2<1.e13) information[Trk::standardDeviationOfChi2OS] = int(sqrt(varChi2)*100);
-
-  return;
 }
 
 void Trk::TrackSummaryTool::processMeasurement(const Track& track,
@@ -596,6 +595,5 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
       m_muonTool->searchForHoles(track,information,Trk::muon) ;
     }
   }
-  return;
-}
+  }
 

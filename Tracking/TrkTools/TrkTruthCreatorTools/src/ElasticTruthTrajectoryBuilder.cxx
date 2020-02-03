@@ -40,7 +40,8 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) c
 {
 	result->clear();
 	if(input) {
-		const HepMC::GenParticle *next(0), *current = input;
+		const HepMC::GenParticle *next(0);
+		const HepMC::GenParticle *current = input;
 
 		// Extend trajectory outwards.  The last particle should go at [0]
 		// in the TruthTrajectory, so we need to use a tmp storage while
@@ -70,7 +71,8 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) c
 ElasticTruthTrajectoryBuilder::MotherDaughter
 	ElasticTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
 {
-	const HepMC::GenParticle *mother(0), *daughter(0);
+	const HepMC::GenParticle *mother(0);
+	const HepMC::GenParticle *daughter(0);
 
 	// only truth vertices with 1 incoming particle
 	if(vtx && (vtx->particles_in_size() == 1)) {

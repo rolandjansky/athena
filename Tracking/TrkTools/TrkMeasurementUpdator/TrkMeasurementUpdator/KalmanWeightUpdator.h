@@ -114,7 +114,7 @@ public:
                                                                                  const int&, Trk::FitQualityOnSurface*&, bool ) const  override final {return 0;}
 
     //! give back how updator is configured for inital weights
-    virtual const std::vector<double>  initialErrors() const  override final;
+    virtual std::vector<double>  initialErrors() const  override final;
 
 private:
     //! common maths calculation code for addToState and removeFromState

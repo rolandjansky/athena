@@ -272,7 +272,8 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 	    if (n == 0) {
 	      ATH_MSG_VERBOSE("--> no link, noise ? PRD-ID:"<<id<<" subdet:"<<subdet);
 	      // add barcode 0 to pairs, we like to keep track of fake fakes
-	      unsigned int BC(0),EV(0);
+	      unsigned int BC(0);
+	      unsigned int EV(0);
 	      pairStat[HepMcParticleLink(BC,EV)].subDetHits[subdet].insert(id);
 	    }
 	  } // orderedPRD_Truth[] available

@@ -352,8 +352,6 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const std::vector<const Tra
   
   ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap.size());
   DEBUG_CODE( countTrueTracksInMap( trackScoreTrackMap ) );
-  
-  return;
 }
 
 //==================================================================================================
@@ -453,8 +451,7 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
       DEBUG_CODE( rejectedTrack(atrack.get(), prd_to_track_map) );
       cleanup_tracks.push_back(std::move(atrack));
     }
-  return;
-}
+  }
 //==================================================================================================
 
 TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap,
@@ -520,7 +517,7 @@ TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& t
           }
 	  // delete original copy
 	 }
-      else if ( cleanedTrack.get() )
+      else if ( cleanedTrack )
 	{
 
            DEBUG_CODE(newCleanedTrack(cleanedTrack.get(), atrack.track()) );
@@ -631,8 +628,7 @@ void Trk::SimpleAmbiguityProcessorTool::refitTrack( const Trk::Track* track,
      ATH_MSG_DEBUG ("Fit failed !");
   }  
   
-  return;
-}
+  }
 
 //==================================================================================================
 
@@ -644,7 +640,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* trac
   // get vector of PRDs
   std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(prd_to_track_map,*track);
 
-  if ( 0==prds.size() ) {
+  if ( prds.empty() ) {
     msg(MSG::WARNING) << "No PRDs on track"<<endmsg;
     return nullptr;
   }
@@ -784,7 +780,6 @@ void Trk::SimpleAmbiguityProcessorTool::dumpTracks( const TrackCollection& track
       totalScore+=score;
     }
   ATH_MSG_DEBUG ("Total event score : "<<totalScore);
-  return;
 }
 
 

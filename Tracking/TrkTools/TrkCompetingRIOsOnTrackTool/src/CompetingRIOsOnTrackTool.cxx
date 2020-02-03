@@ -195,7 +195,6 @@ void Trk::CompetingRIOsOnTrackTool::updateCompetingROT(
     // --- its assignment probabilities
     ATH_MSG_WARNING( "could not identify CompetingROT as one of those with a detector-specific tool given!");
     ATH_MSG_WARNING( "PRD with identifier " << m_idHelper->print_to_string(id));
-    return;
 }
 
 StatusCode Trk::CompetingRIOsOnTrackTool::updateCompetingROTprobs(

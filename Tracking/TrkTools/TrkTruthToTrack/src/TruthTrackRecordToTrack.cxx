@@ -101,7 +101,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
   }
   ATH_MSG_DEBUG("reading from track record, size=" << recordCollection->size());
 
-  if (recordCollection->size() == 0) ATH_MSG_WARNING ("action required but record size is 0");
+  if (recordCollection->empty()) ATH_MSG_WARNING ("action required but record size is 0");
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           
@@ -172,7 +172,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
   ATH_MSG_DEBUG("reading from track record, size=" << recordCollection->size());
 
-  if (recordCollection->size() == 0) ATH_MSG_WARNING ("action required but record size is 0");
+  if (recordCollection->empty()) ATH_MSG_WARNING ("action required but record size is 0");
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           

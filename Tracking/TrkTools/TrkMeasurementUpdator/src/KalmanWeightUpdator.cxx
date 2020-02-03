@@ -472,7 +472,7 @@ Trk::KalmanWeightUpdator::predictedStateFitQuality (    const Trk::TrackParamete
     return new FitQualityOnSurface(chiSquared, 5);
 }
 
-const std::vector<double> Trk::KalmanWeightUpdator::initialErrors() const {
+std::vector<double> Trk::KalmanWeightUpdator::initialErrors() const {
   std::vector<double> E(5);
   for (int i=0; i<5; ++i) E[i] = (m_weight[i]!=0.) ? 
       sqrt(1./m_weight[i]) : 1E5 ;
@@ -827,7 +827,8 @@ bool Trk::KalmanWeightUpdator::correctThetaPhiRange(Amg::VectorX& V, const bool 
     // get phi and theta coordinate.
     // The case of no angles among meas'coordinates should have been blocked
     // by inline function thetaPhiWithinRange() - but is caught also here ("-1")
-    int jphi = -1, jtheta = -1;
+    int jphi = -1;
+    int jtheta = -1;
     double thetaMin = (isDifference ? -M_PI : 0);
     if (key == 31) jphi = Trk::phi;
     else if (key & 4) // phi is within localParameter and a measured coordinate

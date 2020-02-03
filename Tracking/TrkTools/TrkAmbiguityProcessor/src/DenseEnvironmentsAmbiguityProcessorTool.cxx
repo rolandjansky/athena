@@ -168,8 +168,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
      m_stat.dump(out, m_tryBremFit);
      out << endmsg;
   }
-  return;
-}
+  }
 
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &out, bool try_brem_fit) const
 {
@@ -375,8 +374,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
     // @TODO can delete this track ?
     cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(track) );
   }
-  return;
-}
+  }
 //==================================================================================================
 
 
@@ -498,8 +496,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScore
   }
 
   ATH_MSG_DEBUG ("Finished, number of track on output: "<<finalTracks.size());
-
-  return;
 }
 
 
@@ -574,7 +570,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const Trk::
   // @TODO ensured that prds on track are registered for this track ?
    std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(prd_to_track_map,*track);
 
-  if ( 0==prds.size() ) {
+  if ( prds.empty() ) {
     ATH_MSG_WARNING( "No PRDs on track");
     return 0;
   }
@@ -778,7 +774,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
          std::pair<float,float> min (mindX, mindZ);
          ret = dRMapHandle->insert ( std::pair<const InDet::PixelCluster*,std::pair<float,float> >(pixel,min));
          // if we already have a dR for this prd, we update it, if current value is smaller
-         if (ret.second==false) {
+         if (!ret.second) {
             InDet::DRMap::iterator it;
             it = dRMapHandle->find(pixel);
             if(sqrt(pow((*it).second.first,2)+pow((*it).second.second,2)) > (float)mindR) {
@@ -789,8 +785,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
       }
       if(refit) refit_tracks_out.push_back(track);
   }
-  return;
-}
+  }
 
 //============================================================================================================
 bool Trk::DenseEnvironmentsAmbiguityProcessorTool::decideIfInHighPtBROI(const Trk::Track* ptrTrack) const
@@ -816,9 +811,11 @@ bool Trk::DenseEnvironmentsAmbiguityProcessorTool::decideIfInHighPtBROI(const Tr
 //============================================================================================================
 bool Trk::DenseEnvironmentsAmbiguityProcessorTool::isHadCaloCompatible(const Trk::TrackParameters& Tp) const
 {
-  const double pi = M_PI, pi2 = 2.*M_PI;
+  const double pi = M_PI;
+  const double pi2 = 2.*M_PI;
     if(m_hadF.empty()) return false;
-  auto f = m_hadF.begin(), fe = m_hadF.end();
+  auto f = m_hadF.begin();
+  auto fe = m_hadF.end();
   auto e = m_hadE.begin();
   auto r = m_hadR.begin();
   auto z = m_hadZ.begin();

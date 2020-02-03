@@ -137,7 +137,7 @@ class KalmanUpdatorAmg : virtual public IUpdator, public AthAlgTool {
                                                                                  Trk::FitQualityOnSurface*&, bool ) const override final;
 
     //!< give back how updator is configured for inital covariances
-    virtual const std::vector<double>  initialErrors() const override final;
+    virtual std::vector<double>  initialErrors() const override final;
 		
 private:
     //!< common code analysing the measurement's rank and calling the appropriate implementation for this rank.

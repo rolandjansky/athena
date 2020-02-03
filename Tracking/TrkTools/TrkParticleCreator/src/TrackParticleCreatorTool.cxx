@@ -368,7 +368,7 @@ namespace Trk
         m_trackSummaryTool->updateTrack(nonConstTrack);
       }
       summary.reset(m_trackSummaryTool->createSummary(*track));
-      if (summary.get() == nullptr) {
+      if (summary == nullptr) {
         ATH_MSG_DEBUG ("No proper TrackSummary was returned. Creating TrackParticle with a dummy TrackSummary");
         summary = std::make_unique<Trk::TrackSummary>();
       } // else ATH_MSG_VERBOSE("Got Summary for Track" );
@@ -466,7 +466,7 @@ namespace Trk
                              << ", Z " << tsos->trackParameters()->position().z() );
 
             // we are not interested in keeping measurement parameters after any second perigee
-            if (parameters.size() > 0) haveFirstMeasurementParameters = true;
+            if (!parameters.empty()) haveFirstMeasurementParameters = true;
           }
       }
 
@@ -760,7 +760,7 @@ namespace Trk
                          << ", Z " << tsos->trackParameters()->position().z() );
         
         // we are not interested in keeping measurement parameters after any second perigee
-        if (parameters.size() > 0) haveFirstMeasurementParameters = true;
+        if (!parameters.empty()) haveFirstMeasurementParameters = true;
       }
     }
 

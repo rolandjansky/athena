@@ -261,13 +261,6 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
   // update the original vector
   this->updateVector(inputTSOS, firstCALO, firstMS, caloTSOS);
   myLocal_resetTrack(track);
-
-#ifdef DEBUGON
-    ATH_MSG_VERBOSE("NEW TSOS multiplicity : " << inputTSOS->size());
-    for(auto m : *inputTSOS) this->printTSOS(m, "NEW TSOS");
-#endif
-
-  return;
 }
 
 
@@ -395,13 +388,6 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
   this->updateVector(inputTSOS_MS, firstCALO, firstMS, caloTSOS);
   
   myLocal_resetTrack(extrapolatedTrack);
-
-#ifdef DEBUGON
-    ATH_MSG_VERBOSE("NEW-MS TSOS multiplicity : " << inputTSOS_MS->size());
-    for(auto m : *inputTSOS_MS) printTSOS(m, "NEW-MS TSOS");
-#endif
-
-  return;
 }
 
 
@@ -543,8 +529,6 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     delete (*caloTSOS)[i];
   }
   delete caloTSOS; 
-    
-  return;
 }
 
 
@@ -792,7 +776,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 
 
   DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = 0;
-  if(caloTSOS->size()<1||Eloss<1000.) {
+  if(caloTSOS->empty()||Eloss<1000.) {
     if(dir==Trk::alongMomentum&&pOri>4000.) {
         ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
         ATH_MSG_WARNING(" momentum of track " << pOri);
@@ -910,7 +894,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 //  
 //  sigmaElossIoni should be scaled by 0.45 to go to Landau this is later done in updateEloss
 //
-      if(muonTrack.trackParameters() && muonTrack.trackParameters()->size()>0)
+      if(muonTrack.trackParameters() && !muonTrack.trackParameters()->empty())
 	m_muonCaloEnergyTool->calculateMuonEnergies( &muonTrack, 
 						     totalEloss, meanElossIoni, 0.45*sigmaElossIoni,  
 						     measCaloEnergy, measCaloEnergyError, fsrCaloEnergy, e_exp,
@@ -1242,8 +1226,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
 
   } // end debug
 
-  return;
-
+  
 }
 
 //* Helper to indentify detector volume**/
@@ -1907,8 +1890,7 @@ bool Trk::TrkMaterialProviderTool::isIsolatedTrack(double eta, double phi) const
 
   ATH_MSG_VERBOSE("Isolation : Number of tracks in cone " << nTracks << " cut < " << m_maxNTracksIso);
 
-  if (nTracks > m_maxNTracksIso) return false;
-  return true;
+  return nTracks <= m_maxNTracksIso;
 }
 
 /** Function to get calorimeter measured energy loss*/

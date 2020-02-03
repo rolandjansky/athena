@@ -444,7 +444,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& one,
   return new FitQualityOnSurface(chiSquared, 5);
 }
 
-const std::vector<double> Trk::KalmanUpdator::initialErrors() const {
+std::vector<double> Trk::KalmanUpdator::initialErrors() const {
   std::vector<double> E(5);
   for (int i=0; i<5; ++i) E[i] = sqrt(m_cov0[i]);
   return E;
@@ -697,7 +697,8 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, AmgSymMatrix(5)& 
 					      const bool isDifference, const int key) const
 {
   // get phi and theta coordinate
-  int jphi = -1, jtheta = -1;
+  int jphi = -1;
+  int jtheta = -1;
   double thetaMin = (isDifference ? -M_PI : 0);
   if (key == 31) jphi = Trk::phi;
   else if (key & 4) { // phi is within localParameter and a measured coordinate
@@ -780,7 +781,8 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, Amg::MatrixX& C,
 					      const bool isDifference, const int key) const
 {
   // get phi and theta coordinate
-  int jphi = -1, jtheta = -1;
+  int jphi = -1;
+  int jtheta = -1;
   double thetaMin = (isDifference ? -M_PI : 0);
   if (key == 31) jphi = Trk::phi;
   else if (key & 4) { // phi is within localParameter and a measured coordinate

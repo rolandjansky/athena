@@ -123,7 +123,6 @@ inline void Trk::ICompetingRIOsOnTrackTool::reequipCompetingROT
   const Trk::TrackState::MeasurementType) const
 {
   std::cout << "CONFIGURATION WARNING: dummy version of single-hit CompROT re-equipping called." << std::endl;
-  return;
 }
 
 
