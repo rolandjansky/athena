@@ -28,11 +28,6 @@ from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
 # other imports
 from AthenaCommon.SystemOfUnits import GeV
 
-from AthenaCommon.AppMgr import ToolSvc
-
-from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
-ToolSvc += CP__MuonSelectionTool("MuonSelectorTool")
-
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMuonHypoMTConfig')
 
@@ -604,8 +599,7 @@ class TrigMuonEFCombinerHypoConfig(object):
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
  
-        if(muonquality is True):
-           tool.MuonQualityCut = True
+        tool.MuonQualityCut = muonquality
  
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'

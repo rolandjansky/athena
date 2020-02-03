@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1Interfaces
                           Control/AthenaMonitoringKernel
                           Event/xAOD/xAODMuon
-                          PhysicsAnalysis/MuonID/MuonSelectorTools
+                          PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
                           GaudiKernel )
 
 # External dependencies:

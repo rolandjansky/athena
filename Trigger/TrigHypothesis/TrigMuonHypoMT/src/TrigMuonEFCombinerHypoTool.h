@@ -11,7 +11,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // include Muon SelectionTool for quality criteria 
-#include "MuonSelectorTools/IMuonSelectionTool.h" 
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 class StoreGateSvc;
 class TrigMuonEFCombinerHypoTool: public ::AthAlgTool {
