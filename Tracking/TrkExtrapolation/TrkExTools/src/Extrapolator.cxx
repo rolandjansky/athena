@@ -1038,8 +1038,6 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
   }
   delete detVols;
 
-  // cache.m_navigSurfs contains destination surface (if it exists), static volume boundaries
-  // complete with TG cache.m_layers/dynamic layers, cache.m_denseBoundaries, cache.m_navigBoundaries, cache.m_detachedBoundaries
 
   if (not cache.m_layers.empty()) {
     cache.m_navigSurfs.insert(cache.m_navigSurfs.end(), cache.m_layers.begin(), cache.m_layers.end());
@@ -2852,7 +2850,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                                    Trk::ExtrapolationCache *extrapolationCache) const {
   
   cache.m_extrapolationCache = extrapolationCache;
-  cache.m_cacheEloss = extrapolationCache ? dynamic_cast<const Trk::EnergyLoss *>(extrapolationCache->eloss()) : nullptr;
+  cache.m_cacheEloss = extrapolationCache ? extrapolationCache->eloss() : nullptr;
 
   if (extrapolationCache && m_dumpCache) {
     ATH_MSG_DEBUG("  In extrapolate cache pointer input: " << extrapolationCache << " cache.m_extrapolationCache " <<
