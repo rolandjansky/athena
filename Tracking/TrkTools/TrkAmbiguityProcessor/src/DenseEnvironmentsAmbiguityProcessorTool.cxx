@@ -625,7 +625,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const Trk::
   if(newTrack) {
     stat.increment_by_eta(TrackStat::kNgoodFits,newTrack);
     //keeping the track of previously accumulated TrackInfo
-    const Trk::TrackInfo old_info = track->info();
+    const Trk::TrackInfo& old_info = track->info();
     newTrack->info().addPatternReco(old_info);
   }
   else {
@@ -673,7 +673,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots(const Trk::T
   {
     stat.increment_by_eta(TrackStat::kNgoodFits,newTrack);
     //keeping the track of previously accumulated TrackInfo
-    const Trk::TrackInfo old_info = track->info();
+    const Trk::TrackInfo& old_info = track->info();
     newTrack->info().addPatternReco(old_info);
   }
   else {

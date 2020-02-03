@@ -180,7 +180,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 // (no way to reuse its private function PrepRawDataCollectionType() )
 
 SubDetHitStatistics::SubDetType 
-DetailedTrackTruthBuilder::findSubDetType(Identifier id) const {
+DetailedTrackTruthBuilder::findSubDetType(const Identifier& id) const {
   if (m_idHelper->is_pixel(id))
     return SubDetHitStatistics::Pixel;
   if (m_idHelper->is_sct(id))
@@ -421,7 +421,7 @@ void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, con
   // to allow lookup of all Identifiers produced by a given HepMcParticleLink.
   // the result is only used in countPRDsOnTruth. since that code ignores
   // geantinos, don't bother to sort the geantinos here.
-  for( auto i : rec2truth ) {
+  for( const auto& i : rec2truth ) {
     // i.first = Identifier
     // i.second = HepMcParticleLink
     const HepMC::GenParticle* pa = i.second.cptr();

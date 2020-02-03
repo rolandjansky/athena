@@ -331,7 +331,7 @@ Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
   const AmgSymMatrix(5)& covTrk = (*trkPar.covariance());
 
   // State to measurement dimensional reduction Matrix ( n x m )
-  Amg::MatrixX H(rioPar.expansionMatrix());
+  const Amg::MatrixX& H(rioPar.expansionMatrix());
 	
   // residuals
   Amg::VectorX    r = rioPar;
@@ -404,7 +404,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
   const AmgSymMatrix(5)& covPred = (*predPar.covariance());
 
   // State to measurement dimensional reduction Matrix ( n x m )
-  Amg::MatrixX H(rioPar.expansionMatrix());
+  const Amg::MatrixX& H(rioPar.expansionMatrix());
 	
   // residuals
   Amg::VectorX    r = rioPar;

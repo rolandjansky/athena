@@ -695,7 +695,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* trac
       increment_by_eta(Counter::kNgoodFits,stat,newTrack);
 
       //keeping the track of previously accumulated TrackInfo
-      const Trk::TrackInfo old_info = track->info();
+      const Trk::TrackInfo& old_info = track->info();
       newTrack->info().addPatternReco(old_info);
     }
   else
@@ -752,7 +752,7 @@ Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track* trac
       increment_by_eta(Counter::kNgoodFits,stat,newTrack);
 
       //keeping the track of previously accumulated TrackInfo
-      const Trk::TrackInfo old_info = track->info();
+      const Trk::TrackInfo& old_info = track->info();
       newTrack->info().addPatternReco(old_info);
     }
   else

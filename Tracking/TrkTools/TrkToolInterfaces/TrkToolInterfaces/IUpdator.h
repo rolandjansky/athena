@@ -151,7 +151,7 @@ public:
 
      /** let the client tools know how the assumptions on the initial
          precision for non-measured track parameters are configured */
-    virtual const std::vector<double>       initialErrors() const = 0;
+    virtual    std::vector<double>       initialErrors() const = 0;
 
   };
 		

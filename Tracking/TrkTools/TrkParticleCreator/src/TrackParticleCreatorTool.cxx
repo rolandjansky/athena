@@ -626,10 +626,10 @@ namespace Trk
                 float theta = -1000;
                 if (element)
                   {
-                    Amg::Vector3D my_track = tp->momentum();
-                    Amg::Vector3D my_normal = element->normal();
-                    Amg::Vector3D my_phiax = element->phiAxis();
-                    Amg::Vector3D my_etaax = element->etaAxis();
+                    const Amg::Vector3D& my_track = tp->momentum();
+                    const Amg::Vector3D& my_normal = element->normal();
+                    const Amg::Vector3D& my_phiax = element->phiAxis();
+                    const Amg::Vector3D& my_etaax = element->etaAxis();
                     // track component on etaAxis:
                     float trketacomp = my_track.dot(my_etaax);
                     // track component on phiAxis:
@@ -658,7 +658,7 @@ namespace Trk
                 surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
                 if (m_detID->is_pixel(surfaceID))
                   {
-                    InDet::SiWidth width = pixelCluster->width();
+                    const InDet::SiWidth& width = pixelCluster->width();
                     zWidth = static_cast<int>(width.colRow().y());
                   }
 

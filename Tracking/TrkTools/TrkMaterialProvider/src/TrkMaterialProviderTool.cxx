@@ -1271,7 +1271,7 @@ void Trk::TrkMaterialProviderTool::deleteTSOS(DataVector<const Trk::TrackStateOn
 
 
 //** Helper to printout TSOS details*/
-void Trk::TrkMaterialProviderTool::printTSOS(const Trk::TrackStateOnSurface* m, std::string tag) const
+void Trk::TrkMaterialProviderTool::printTSOS(const Trk::TrackStateOnSurface* m, const std::string& tag) const
 {
   unsigned int ivolGeo = getVolumeByGeo(m);
 

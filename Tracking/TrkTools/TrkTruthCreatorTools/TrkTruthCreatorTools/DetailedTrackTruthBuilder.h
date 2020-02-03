@@ -42,7 +42,7 @@ namespace Trk {
 
     ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrajBuilder;
 
-    SubDetHitStatistics::SubDetType findSubDetType(Identifier id) const;
+    SubDetHitStatistics::SubDetType findSubDetType(const Identifier& id) const;
     
     void addTrack(DetailedTrackTruthCollection *output,
 		  const ElementLink<DataVector<Trk::Track> > &track,

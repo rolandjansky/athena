@@ -118,7 +118,7 @@ Trk::Track* Trk::TrkSegmentConverter::convertWithFitter(const Trk::Segment& segm
     
     ATH_MSG_DEBUG (" numberOfContainedRots: " << nROTs );
     
-    Amg::Vector3D inputMatchingPos(segment.globalPosition());
+    const Amg::Vector3D& inputMatchingPos(segment.globalPosition());
  
     ATH_MSG_DEBUG (" created inputMatchingPos " );
     

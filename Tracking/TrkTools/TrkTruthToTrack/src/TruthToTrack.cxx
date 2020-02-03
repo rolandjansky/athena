@@ -67,11 +67,11 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const He
   if(part && part->production_vertex() && m_particleDataTable) {
     HepMC::ThreeVector tv = part->production_vertex()->point3d();
     Amg::Vector3D hv(tv.x(),tv.y(),tv.z());
-    Amg::Vector3D globalPos = hv;
+    const Amg::Vector3D& globalPos = hv;
     
-    HepMC::FourVector fv = part->momentum();
+    const HepMC::FourVector& fv = part->momentum();
     Amg::Vector3D hv2(fv.px(),fv.py(),fv.pz());
-    Amg::Vector3D globalMom = hv2;
+    const Amg::Vector3D& globalMom = hv2;
       
     int id = part->pdg_id();
     // the table seems to lack antiparticles, thus the use of abs()
@@ -101,10 +101,10 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xA
 
   if(part && part->hasProdVtx() && m_particleDataTable) {
     Amg::Vector3D hv(part->prodVtx()->x(),part->prodVtx()->y(),part->prodVtx()->z());
-    Amg::Vector3D globalPos = hv;
+    const Amg::Vector3D& globalPos = hv;
     
     Amg::Vector3D hv2(part->p4().Px(),part->p4().Py(),part->p4().Pz());
-    Amg::Vector3D globalMom = hv2;
+    const Amg::Vector3D& globalMom = hv2;
       
     int id = part->pdgId();
     // the table seems to lack antiparticles, thus the use of abs()

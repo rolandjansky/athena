@@ -132,7 +132,7 @@ namespace Trk{
     void deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) const;
 
     //** Helper to printout TSOS details*/
-    void printTSOS(const Trk::TrackStateOnSurface* m, std::string tag) const;
+    void printTSOS(const Trk::TrackStateOnSurface* m, const std::string& tag) const;
            
     /** Function to modify TSOS doing repositioning, aggregation and corrections*/
     DataVector<const Trk::TrackStateOnSurface>* 
