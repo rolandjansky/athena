@@ -54,6 +54,7 @@ namespace Trk
     m_stepPropagator("Trk::STEP_Propagator/AtlasSTEP_Propagator", this),
     m_straightLineIntersector("Trk::StraightLineIntersector/StraightLineIntersector", this),
     m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc", name),
+    m_trackSummaryTool("MuonTrackSummaryTool"),
     m_stepField(Trk::MagneticFieldProperties(Trk::FullField)) {
     m_messageHelper = std::make_unique<MessageHelper>(*this);
     declareInterface<ITrackFitter>(this);
@@ -62,6 +63,7 @@ namespace Trk
     declareProperty("SolenoidalIntersector", m_solenoidalIntersector);
     declareProperty("StraightLineIntersector", m_straightLineIntersector);
     declareProperty("TrackingVolumesSvc", m_trackingVolumesSvc);
+    declareProperty("TrackSummaryTool", m_trackSummaryTool );
   }
 
   iPatFitter::~iPatFitter (void)
@@ -148,6 +150,8 @@ namespace Trk
       m_indetVolume = std::make_unique<Volume>(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
     }
+
+    ATH_CHECK(m_trackSummaryTool.retrieve());
 
     // can now create FitProcedure class
     m_fitProcedure = std::make_unique<FitProcedure>(
@@ -1080,6 +1084,11 @@ namespace Trk
         }
       }
     }
+
+   // generate a track summary for this candidate
+   if ( (m_trackSummaryTool.isEnabled()) && (fittedTrack!=nullptr) ) {
+     m_trackSummaryTool->computeAndReplaceTrackSummary(*fittedTrack, nullptr, false);
+   }
 
     return fittedTrack.release();
   }
