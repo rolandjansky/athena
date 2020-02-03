@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //c - c++
@@ -22,14 +22,11 @@
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-
 //MuonCalibIdentifier
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
-
 //this
 #include "MuonCalibStandAloneTools/NtupleRunScanTool.h"
-
 
 namespace MuonCalib{
 
@@ -50,9 +47,7 @@ StatusCode NtupleRunScanTool::initialize()
 		ATH_MSG_FATAL( "MaxBadFits must be between 0 and 1!" );
 		return StatusCode::FAILURE;
 		}
-//get geometry
-	//retrieve mdt id helper
-		ATH_CHECK( m_muonIdHelperTool.retrieve() );
+		ATH_CHECK(m_idHelperSvc.retrieve());
 
         //retrieve detector manager from the conditions store
 		ATH_CHECK(m_DetectorManagerKey.initialize());
@@ -101,7 +96,7 @@ StatusCode NtupleRunScanTool::handleEvent(const MuonCalibEvent &event, int /*evn
 			HitCounter &counter(m_hit_counters[id]);
 			if(!counter.IsInitialized())
 				{
-				if(!id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr))
+				if(!id.InitializeGeometry(m_idHelperSvc->mdtIdHelper(), MuonDetMgr))
 					{
 					ATH_MSG_FATAL( "Cannot initialize Geometry!" );
 					return StatusCode::FAILURE;

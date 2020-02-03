@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -20,19 +20,15 @@
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-// AtlasConditions //
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 // MuonCalib //
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 namespace MuonCalib {
-
 
 ///////////////////////////
 // SegmentRawdataSelector //
 ///////////////////////////
 SegmentRawdataSelector::SegmentRawdataSelector(const std::string &t, const std::string &n, const IInterface *p):
-  AthAlgTool(t, n, p), m_reg_sel_svc("RegionSelectionSvc", n) {
+  AthAlgTool(t, n, p), m_reg_sel_svc("RegionSelectionSvc", n), m_id_tool(nullptr) {
   m_min_hits = 1;
   declareProperty("MinHits", m_min_hits);
   m_max_hits = -1; 
@@ -40,9 +36,6 @@ SegmentRawdataSelector::SegmentRawdataSelector(const std::string &t, const std::
   m_adc_cut = 0;
   declareProperty("AdcCut", m_adc_cut);
   declareInterface< CalibSegmentPreparationTool >(this);
-  
-  m_MDT_ID_helper = std::string("MDTIDHELPER");
-  declareProperty("MDTIdHelper", m_MDT_ID_helper);
 
   m_idToFixedIdToolType = std::string("MuonCalib::IdToFixedIdTool");
   declareProperty("idToFixedIdToolType", m_idToFixedIdToolType);
@@ -57,16 +50,10 @@ SegmentRawdataSelector::SegmentRawdataSelector(const std::string &t, const std::
 ////////////////
 StatusCode SegmentRawdataSelector::initialize(void) {
 
-  ATH_CHECK( m_reg_sel_svc.retrieve() );
-
-// MDT ID helper //
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-//retrieve detector manager from the conditions store
+  ATH_CHECK(m_reg_sel_svc.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
-// muon fixed id tool //
-  ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType, m_idToFixedIdToolName, m_id_tool) );
+  ATH_CHECK(toolSvc()->retrieveTool(m_idToFixedIdToolType, m_idToFixedIdToolName, m_id_tool));
 
   return StatusCode::SUCCESS;
 }  //end SegmentRawdataSelector::initialize
@@ -101,7 +88,7 @@ void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *&event, std::
     station_identifier.SetMultilayer(0);
     Identifier station_id = m_id_tool->fixedIdToId(hit->identify());
     const MuonGM::MdtReadoutElement *MdtRoEl =
-      MuonDetMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(station_id,
+      MuonDetMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(station_id,
 	hit->identify().mdtMultilayer(),hit->identify().mdtTubeLayer(),hit->identify().mdtTube()));
 
     if (MdtRoEl==0) {
@@ -147,7 +134,6 @@ void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *&event, std::
 
 inline const Amg::Vector3D SegmentRawdataSelector::get_raw_position(const MuonCalibRawMdtHit *hit, 
 const MuonCalibRawHitCollection *coll, const Amg::Transform3D &global_to_local) const {
-//	std::cout<<"event"<<std::endl;
   double x_pos=0.0;
   int n_rpc_hits=0;
   int mdt_station=hit->identify().stationName();
@@ -155,8 +141,6 @@ const MuonCalibRawHitCollection *coll, const Amg::Transform3D &global_to_local) 
   int mdt_phi=hit->identify().phi();
   for(MuonCalibRawHitCollection::MuonCalibRawRpcHitVecCit it = coll->rawRpcHitCollectionBegin(); it != coll->rawRpcHitCollectionEnd(); it++) {
     MuonCalibRawRpcHit *rpc_hit(*it);
-//		const MuonFixedId & id(rpc_hit->identify());
-//		std::cout<<id.stationNameString()<<" "<<id.phi()<<" "<<id.eta()<<std::endl;
 	//check that rpc and mdt hit are in the same chamber
     if(mdt_station != rpc_hit->identify().stationName() || mdt_eta != rpc_hit->identify().eta() || mdt_phi != rpc_hit->identify().phi()) {
       continue;
@@ -165,7 +149,6 @@ const MuonCalibRawHitCollection *coll, const Amg::Transform3D &global_to_local) 
     if(rpc_hit->identify().rpcMeasuresPhi() == 0) continue;
     Amg::Vector3D local_strip_pos = global_to_local*rpc_hit->globalPosition();
     x_pos += local_strip_pos.x();
-//		std::cout<< local_strip_pos << std::endl;
     n_rpc_hits++;
   }
   if(n_rpc_hits>0) {

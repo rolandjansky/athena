@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 19.10.2007, AUTHOR: STEFFEN KAISER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_NtupleDisplayToolH
 #define MuonCalib_NtupleDisplayToolH
@@ -42,7 +38,7 @@ class TApplication;
 // MuonCalib
 #include "MdtCalibInterfaces/IMdtPatRecFitter.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class RegionSelectionSvc;
@@ -62,18 +58,12 @@ class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationToo
     public:
         // Constructors //
         NtupleDisplayTool(const std::string& t, const std::string& n, const IInterface* p);
-        ///< Default constructor.
 
-        inline ~NtupleDisplayTool(){}
+        ~NtupleDisplayTool()=default;
         ///< Destructor
-
-        // Methods //
 	
 	/** tool initialize */
 	StatusCode initialize();
-	
-	/** tool finalize */
-	StatusCode finalize();
 	
         StatusCode handleEvent(const MuonCalibEvent & event, int evnt_nr, const std::vector<MuonCalibSegment *> &segments, unsigned int position);
         ///< analysis of the given segment of
@@ -88,9 +78,7 @@ class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationToo
 		}
 
     private:
-            //for retrieving the chamber geometry
-            ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-                "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 	    // MuonDetectorManager from the conditions store
 	    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
