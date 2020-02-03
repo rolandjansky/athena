@@ -55,7 +55,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (
 # Keep tracks associated with muons
 EXOT5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(
     name                    = 'EXOT5MuonTPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     MuonKey                 = 'Muons',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
 ToolSvc += EXOT5MuonTPThinningTool
@@ -64,7 +64,7 @@ thinningTools.append(EXOT5MuonTPThinningTool)
 # Keep tracks associated with electrons
 EXOT5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
     name                    = 'EXOT5ElectronTPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SGKey                   = 'Electrons',
     GSFTrackParticlesKey    = 'GSFTrackParticles',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
@@ -74,7 +74,7 @@ thinningTools.append(EXOT5ElectronTPThinningTool)
 # Keep tracks associated with taus
 EXOT5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
     name                    = 'EXOT5TauTPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     TauKey                  = 'TauJets',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
 ToolSvc += EXOT5TauTPThinningTool

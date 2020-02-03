@@ -54,7 +54,7 @@ thinningTools.append(SUSY11TPThinningTool)
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY11MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name			 = "SUSY11MuonTPThinningTool",
-									 ThinningService	 = SUSY11ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
 									 MuonKey		 = "Muons",
 									 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY11MuonTPThinningTool
@@ -63,7 +63,7 @@ thinningTools.append(SUSY11MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY11ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY11ElectronTPThinningTool",
-										 ThinningService	 = SUSY11ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
 										 SGKey			 = "Electrons",
 										 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY11ElectronTPThinningTool
@@ -72,7 +72,7 @@ thinningTools.append(SUSY11ElectronTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 SUSY11TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "SUSY11TauTPThinningTool",
-                                                                        ThinningService	 = SUSY11ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY11TauTPThinningTool

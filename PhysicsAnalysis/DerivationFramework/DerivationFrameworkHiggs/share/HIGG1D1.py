@@ -17,6 +17,23 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_HIGG1D1Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG1D1Stream )
+HIGG1D1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+HIGG1D1Stream.AcceptAlgs(["HIGG1D1Kernel"])
+
+## Do not use this variable at the derivation stage
+#HIGG1D1Stream.AddItem("std::vector<int>#leadingV")
+
+# Thinning service name must match the one passed to the thinning tools
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream] )
+
+#====================================================================
 # SKIMMING TOOLS 
 #====================================================================
 
@@ -98,7 +115,7 @@ print HIGG1D1JetEMTPThinningTool
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 HIGG1D1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "HIGG1D1MuonTPThinningTool",
-                                                                            ThinningService         = "HIGG1D1ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1MuonTPThinningTool
@@ -108,7 +125,7 @@ print HIGG1D1MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG1D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "HIGG1D1ElectronTPThinningTool",
-                                                                                  ThinningService         = "HIGG1D1ThinningSvc",
+                                                                                  StreamName              = streamName,
                                                                                   SGKey                   = "Electrons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1ElectronTPThinningTool
@@ -118,7 +135,7 @@ print HIGG1D1ElectronTPThinningTool
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG1D1PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "HIGG1D1PhotonTPThinningTool",
-                                                                                  ThinningService         = "HIGG1D1ThinningSvc",
+                                                                                  StreamName              = streamName,
                                                                                   SGKey                   = "Photons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1PhotonTPThinningTool
@@ -188,23 +205,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D1K
                                                                         ThinningTools = thinningTools
                                                                       )
 #====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_HIGG1D1Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG1D1Stream )
-HIGG1D1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-HIGG1D1Stream.AcceptAlgs(["HIGG1D1Kernel"])
-
-## Do not use this variable at the derivation stage
-#HIGG1D1Stream.AddItem("std::vector<int>#leadingV")
-
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream] )
-
- #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
