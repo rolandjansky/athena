@@ -35,7 +35,8 @@ public :
 
 private:
 	ToolHandle <ICaloLumiBCIDTool> m_tool;
-
+	std::string m_sCellContainerIn; 
+	std::string m_sCellContainerOut;
 };
 	
 #endif

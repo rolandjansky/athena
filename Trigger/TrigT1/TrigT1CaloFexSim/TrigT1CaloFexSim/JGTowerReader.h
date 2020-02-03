@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JGTOWERREADER_H
@@ -181,7 +181,15 @@ class JGTowerReader: public ::AthAlgorithm {
   std::shared_ptr<TowerHelper> gT_helper;
 
   unsigned int m_eventCount = 0;
-  SG::AuxElement::Accessor<float>* acc_rho = new SG::AuxElement::Accessor<float>("Rho_avg");
+  SG::AuxElement::Accessor<float>* acc_rho_barrel = new SG::AuxElement::Accessor<float>("Rho_barrel");
+  SG::AuxElement::Accessor<float>* acc_rhoA = new SG::AuxElement::Accessor<float>("RhoA");
+  SG::AuxElement::Accessor<float>* acc_rhoB = new SG::AuxElement::Accessor<float>("RhoB"); 
+  SG::AuxElement::Accessor<float>* acc_rhoC = new SG::AuxElement::Accessor<float>("RhoC");
+  
+  SG::AuxElement::Accessor<float>* acc_threshA = new SG::AuxElement::Accessor<float>("ThreshA");
+  SG::AuxElement::Accessor<float>* acc_threshB = new SG::AuxElement::Accessor<float>("ThreshB");  
+  SG::AuxElement::Accessor<float>* acc_threshC = new SG::AuxElement::Accessor<float>("ThreshC");
+  
   SG::AuxElement::Accessor<float>* acc_mht = new SG::AuxElement::Accessor<float>("MHT");
   SG::AuxElement::Accessor<float>* acc_mst = new SG::AuxElement::Accessor<float>("MST");
 }; 
