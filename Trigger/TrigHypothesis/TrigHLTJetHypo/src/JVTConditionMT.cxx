@@ -28,13 +28,13 @@ bool JVTConditionMT::isSatisfied(const HypoJetVector& ips, const std::unique_ptr
   auto jet = ips[0];
 
   // The conditions for each jet are: JVT>JVTwp or |eta|>2.5 or pT>60
-  auto pt      = jet->pt() * 0.001;
+  auto pt      = jet->pt() * 0.001; // MeV -> GeV
   float detEta = 0;
   if(!(jet->getAttribute("DetectorEta",detEta))){
     throw std::runtime_error("JVT condition cannot retrieve variable 'DetectorEta', 'DetectorEta' does not exist");
   }
   auto absdetEta = std::abs(detEta);
-  bool jvtApplicable  = (absdetEta<2.5 and pt<60) ? true : false;
+  bool jvtApplicable  = (absdetEta<m_maxEta and pt<m_maxPt) ? true : false;
   bool pass = false;
   float jvt = -1.;
   if(!jvtApplicable){ // jvt not applicable

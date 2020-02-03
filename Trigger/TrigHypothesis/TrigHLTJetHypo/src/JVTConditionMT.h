@@ -34,6 +34,8 @@ class JVTConditionMT: public IConditionMT{
  private:
 
   double m_workingPoint;
+  double m_maxEta = 2.5;
+  double m_maxPt  = 120;
 
   const static unsigned int s_capacity{1};
 
