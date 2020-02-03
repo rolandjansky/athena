@@ -47,11 +47,6 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
                              const CaloDetDescrManager& cmgr,
                              const CaloCellContainer& cell_container,
                              Info& info) const override final;
-
-private: 
-
-  const CaloDetDescrManager* m_calo_dd;
-  /** @brief CaloSample */
 };
 
 #endif
