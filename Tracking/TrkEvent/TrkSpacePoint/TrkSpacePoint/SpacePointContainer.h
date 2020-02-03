@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,9 +73,9 @@ public:
   ///////////////////////////////////////////////////////////////////
 private:
 
-  SpacePointContainer();
-  SpacePointContainer(const SpacePointContainer&);
-  SpacePointContainer &operator=(const SpacePointContainer&);
+  SpacePointContainer() = delete;
+  SpacePointContainer(const SpacePointContainer&) = delete;
+  SpacePointContainer &operator=(const SpacePointContainer&) = delete;
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
