@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENPHICMA_H
@@ -33,6 +33,7 @@ class EvenPhiCMA : public CMAparameters
      void get_confirm_strip_boundaries(int,int);
      int  get_max_strip_readout(int);
      bool m_debug;
+     bool m_verbose;
      IMessageSvc* m_msgSvc;
 
      public:
