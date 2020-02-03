@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -13,9 +13,7 @@
 #ifndef LArMphysOverMcalMCCnv_H
 #define LArMphysOverMcalMCCnv_H
 #include "LArMphysOverMcalCompleteCnv.h"
-#define private public
 #include "LArRawConditions/LArMphysOverMcalMC.h"
-#undef private
  
 typedef LArSingleFloatConverter<LArMphysOverMcalMC> LArMphysOverMcalMCCnvBase;
 
