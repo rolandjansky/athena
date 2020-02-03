@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -109,9 +109,9 @@ const std::vector<const Trk::Surface*>* Trk::PrismVolumeBounds::decomposeToSurfa
 }
     
 // faces in xy
-Trk::PlaneSurface* Trk::PrismVolumeBounds::sideSurf(Amg::Transform3D transform,unsigned int iv1,unsigned int iv2) const
+Trk::PlaneSurface* Trk::PrismVolumeBounds::sideSurf(const Amg::Transform3D& transform,unsigned int iv1,unsigned int iv2) const
 {
-  Trk::PlaneSurface* plane=0;
+  Trk::PlaneSurface* plane=nullptr;
    
   double xdif = m_xyVtx[iv2].first  - m_xyVtx[iv1].first;
   double ydif = m_xyVtx[iv2].second - m_xyVtx[iv1].second;

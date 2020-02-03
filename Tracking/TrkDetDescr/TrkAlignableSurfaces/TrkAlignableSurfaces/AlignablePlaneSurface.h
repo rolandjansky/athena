@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ public:
   AlignablePlaneSurface();
 
   /** Constructor with already different transform from the nominal one */
-  AlignablePlaneSurface(const PlaneSurface& psf, Amg::Transform3D* alignedTransf = 0);
+  AlignablePlaneSurface(const PlaneSurface& psf, Amg::Transform3D* alignedTransf = nullptr);
 
   /** Copy Constructor  */
   AlignablePlaneSurface(const AlignablePlaneSurface& psf);
@@ -74,7 +74,7 @@ public:
   const TrkDetElementBase* associatedDetectorElement() const;
 
   /** return Identifier of the associated Detector Element - forwarded from nominal Surface */
-  const Identifier associatedDetectorElementIdentifier() const;
+  Identifier associatedDetectorElementIdentifier() const;
 
   /** return the associated Layer - forwarded from nominal Surface */
   const Layer* associatedLayer() const;
@@ -116,7 +116,7 @@ AlignablePlaneSurface::associatedDetectorElement() const
   return m_nominalSurface->associatedDetectorElement();
 }
 
-inline const Identifier
+inline Identifier
 AlignablePlaneSurface::associatedDetectorElementIdentifier() const
 {
   return m_nominalSurface->associatedDetectorElementIdentifier();

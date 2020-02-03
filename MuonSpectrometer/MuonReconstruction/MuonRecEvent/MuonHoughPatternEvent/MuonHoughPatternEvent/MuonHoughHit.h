@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHHIT_H
@@ -32,7 +32,7 @@ class MuonHoughHit
   /** constructor */
   MuonHoughHit(double x,double y,double z,bool measures_phi,MuonHough::DetectorTechnology detector_id, double prob = 1, double weight = 1., const Trk::PrepRawData* prd = 0, int id = -1);
   /** destructor */
-  virtual ~MuonHoughHit();
+  virtual ~MuonHoughHit() = default;
 
   /** return DetectorTechnology */
   MuonHough::DetectorTechnology getDetectorId() const;

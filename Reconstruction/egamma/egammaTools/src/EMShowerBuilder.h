@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATOOLS_EMSHOWERBUILDER_H
@@ -31,6 +31,8 @@
 #include "GaudiKernel/ToolHandle.h" 
 #include "StoreGate/ReadHandleKey.h"
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IegammaShowerShape.h"
 #include "egammaInterfaces/IegammaIso.h"
@@ -44,8 +46,9 @@
 class StoreGateSvc;
 class CaloCellContainer;
 class IChronoStatSvc;
+class CaloDetDescrManager;
 
-class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
+class EMShowerBuilder : public AthAlgTool, virtual public IEMShowerBuilder
 {
 public:
 
@@ -60,9 +63,13 @@ public:
     /** @brief initialize method*/
     virtual StatusCode initialize() override;
     /** @brief standard execute method */
-    virtual StatusCode execute(const EventContext& ctx, xAOD::Egamma*) const override final ;
-    /** @brief method to calculate shower shapes from a CaloCellContainer */
-    virtual StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const override final;
+    virtual StatusCode execute(const EventContext& ctx,
+                               const CaloDetDescrManager& cmgr,
+                               xAOD::Egamma*) const override final;
+
+    virtual StatusCode executeWithCells(const CaloCellContainer* cellcoll,
+                                        const CaloDetDescrManager& cmgr,
+                                        xAOD::Egamma*) const override final;
     /** @brief finalize method*/
     virtual StatusCode finalize() override;
 
@@ -72,7 +79,9 @@ private:
     /** @brief method to retrieve hadronic leakage calculation from CaloIso tool */
     StatusCode RetrieveHadronicLeakageTool(); 
     /** @brief calculate shower shapes*/
-    StatusCode CalcShowerShape(xAOD::Egamma* eg,const CaloCellContainer* cellcoll) const;
+    StatusCode CalcShowerShape(xAOD::Egamma* eg,
+                               const CaloDetDescrManager& cmgr,
+                               const CaloCellContainer* cellcoll) const;
     /** @brief calculate Hadronic leakage*/
     StatusCode CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::CaloCluster* clus,
                                         const CaloCellContainer* cellcoll) const ;

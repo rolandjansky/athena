@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # copy of TrigAnalysisExamples/CompareESDs.py by Tomasz Bold
-# 
+#
+
+from __future__ import print_function
 
 ### import the modules 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
-print '... importing ROOT'
+print ('... importing ROOT')
 import ROOT
 import AthenaROOTAccess.transientTree
 
 ### define the list of input files
-print '... define list of files'
+print ('... define list of files')
 
 import sys
 if '-c' in sys.argv:
@@ -27,7 +29,7 @@ if not ('PoolAODInput2' in dir()):
 
     
 ### build the transient event and metadata trees
-print '... build collection and metadata trees'
+print ('... build collection and metadata trees')
 #from TrigDecisionTool.BuildTransientTrees import BuildTransientTrees
 #(transientTree1, transientMetaDataTree1) = BuildTransientTrees(files1)
 
@@ -61,7 +63,7 @@ transientMetaDataTree2   = AthenaROOTAccess.transientTree.makeTree(MetaDataTree2
 
 
 ### instantiate the TrigDecisionToolARA
-print '... instantiate TrigDecisionToolARA'
+print ('... instantiate TrigDecisionToolARA')
 tdt1 = ROOT.Trig.TrigDecisionToolARA(transientCollectionTree1, transientMetaDataTree1)
 tdt2 = ROOT.Trig.TrigDecisionToolARA(transientCollectionTree2, transientMetaDataTree2)
 
@@ -78,17 +80,17 @@ chains2 = tdt2.getChainGroup('EF_.*')
 
 ### loop over the events
 if transientCollectionTree1.GetEntries() != transientCollectionTree2.GetEntries():
-    print '... WARNING both files have different number of events in, ',\
-          transientCollectionTree1.GetEntries(), ' and ', transientCollectionTree2.GetEntries()
+    print ('... WARNING both files have different number of events in, ',\
+          transientCollectionTree1.GetEntries(), ' and ', transientCollectionTree2.GetEntries())
 
 
 nevt = min(transientCollectionTree1.GetEntries(), transientCollectionTree2.GetEntries() )
-print '... loop over %i events' % nevt
+print ('... loop over %i events' % nevt)
 
 
 for evt in xrange(nevt):
     eventOK=True
-    print "... reading event",evt
+    print ("... reading event",evt)
     transientCollectionTree1.GetEntry(evt)
     transientCollectionTree2.GetEntry(evt)
 
@@ -96,11 +98,11 @@ for evt in xrange(nevt):
     c2 = list(chains2.getListOfTriggers())
     for a in c1:
         if a not in c2:
-            print "REGTEST ... chain ", a ," present in file 1 while not in file 2"
+            print ("REGTEST ... chain ", a ," present in file 1 while not in file 2")
             eventOK=False
         else:
             if tdt1.isPassedBits(a) != tdt2.isPassedBits(a):
-                print "REGTEST .... chain ", a, " has different isPassedBits in file 1: ", tdt1.isPassedBits(a) ," while in file 2: ", tdt2.isPassedBits(a) 
+                print ("REGTEST .... chain ", a, " has different isPassedBits in file 1: ", tdt1.isPassedBits(a) ," while in file 2: ", tdt2.isPassedBits(a) )
                 eventOK=False
     if eventOK:
-        print "INFO event OK"
+        print ("INFO event OK")

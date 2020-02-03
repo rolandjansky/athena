@@ -8,16 +8,8 @@
 // constructor
 CscCondDbAlg::CscCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
     AthReentrantAlgorithm(name, pSvcLocator),
-    m_condSvc("CondSvc", name),
-    m_defaultDatabaseReadVersion("02-00")
-  {
-    declareProperty("defaultDatabaseReadVersion", m_defaultDatabaseReadVersion, "02-00");
-    declareProperty("phiSwapVersion1Strings"    , m_phiSwapVersion1Strings = true      );
-    declareProperty("onlineOfflinePhiFlip"      , m_onlineOfflinePhiFlip = true        );
-
-    declareProperty("isOnline"                  , m_isOnline                           );
-    declareProperty("isData"                    , m_isData                             );
-    declareProperty("isRun1"                    , m_isRun1                             );
+    m_condSvc("CondSvc", name)
+{
 }
 
 
@@ -25,15 +17,30 @@ CscCondDbAlg::CscCondDbAlg( const std::string& name, ISvcLocator* pSvcLocator ) 
 StatusCode
 CscCondDbAlg::initialize(){
 
-    ATH_MSG_DEBUG( "initializing " << name() );                
+    ATH_MSG_DEBUG( "initializing " << name() );
     ATH_CHECK(m_condSvc .retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
+
+    if (m_pslopeFromDB) {
+        ATH_MSG_WARNING("You have activated the retrieval of the pslope per CSC channel from the COOL database. "
+            << "Please make sure that a correct PSLOPE database is in place which uses geometrical CSC hashes in hex format "
+            << "as keys and different values of the pslopes for the different CSC channels as values, otherwise please run "
+            << "with the ReadPSlopeFromDatabase property set to false");
+    } else {
+        if (!(m_pslope>0 && m_pslope<1)) {
+            ATH_MSG_FATAL("The Pslope cannot be set to a value <=0 or >=1");
+            return StatusCode::FAILURE;
+        } else if (m_pslope != m_DEFAULT_PSLOPE) {
+            ATH_MSG_WARNING("You have manually set the Pslope property (to " << m_pslope << "). Please check whether this is really intended.");
+        }
+    }
+
     ATH_CHECK(m_readKey_folder_da_hv     .initialize());
     ATH_CHECK(m_readKey_folder_da_f001   .initialize());
     ATH_CHECK(m_readKey_folder_da_noise  .initialize());
     ATH_CHECK(m_readKey_folder_da_ped    .initialize());
-    ATH_CHECK(m_readKey_folder_da_pslope .initialize());
+    if (m_pslopeFromDB) ATH_CHECK(m_readKey_folder_da_pslope .initialize());
     ATH_CHECK(m_readKey_folder_da_rms    .initialize());
     ATH_CHECK(m_readKey_folder_da_status .initialize());
     ATH_CHECK(m_readKey_folder_da_t0base .initialize());
@@ -43,6 +50,8 @@ CscCondDbAlg::initialize(){
       ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
     }
+
+
 
     return StatusCode::SUCCESS;
 }
@@ -77,7 +86,7 @@ CscCondDbAlg::execute(const EventContext& ctx) const {
     ATH_CHECK(loadDataF001   (rangeW, writeCdo.get(), ctx)); 
     ATH_CHECK(loadDataNoise  (rangeW, writeCdo.get(), ctx)); 
     ATH_CHECK(loadDataPed    (rangeW, writeCdo.get(), ctx)); 
-    ATH_CHECK(loadDataPSlope (rangeW, writeCdo.get(), ctx)); 
+    if (m_pslopeFromDB) ATH_CHECK(loadDataPSlope (rangeW, writeCdo.get(), ctx)); 
     ATH_CHECK(loadDataRMS    (rangeW, writeCdo.get(), ctx)); 
     ATH_CHECK(loadDataStatus (rangeW, writeCdo.get(), ctx)); 
 
@@ -286,20 +295,14 @@ CscCondDbAlg::loadData(EventIDRange & rangeW, CscCondDbData* writeCdo, SG::ReadC
         std::string version;
 		ss >> version;
 
-        if(version == "1" || atoi(version.c_str()) == 1){
-            if(!cacheVersion1(data, writeCdo, parName).isSuccess()) {
-                ATH_MSG_ERROR("Failed caching from COOL string version 1");
-                return StatusCode::FAILURE;
-            }
-        }
-        else if(version == "02-00" && parAsm) {
-            if(!cacheVersion2ASM(data, writeCdo, parName).isSuccess()) {
+        if(version == "02-00" && parAsm) {
+            if(!cacheASM(data, writeCdo, parName).isSuccess()) {
                 ATH_MSG_ERROR("Failed caching from COOL string version 02-00 in ASM format");
                 return StatusCode::FAILURE;
             }
         }
         else if(version == "02-00") {
-            if(!cacheVersion2(data, writeCdo, parName).isSuccess()) {
+            if(!cache(data, writeCdo, parName).isSuccess()) {
                 ATH_MSG_ERROR("Failed caching from COOL string version 02-00");
                 return StatusCode::FAILURE;
             }
@@ -308,97 +311,30 @@ CscCondDbAlg::loadData(EventIDRange & rangeW, CscCondDbData* writeCdo, SG::ReadC
             // Old version was treated as an actual number rather than string. It was always
             // set to 1 or sometimes 1.00000, so we convert to integer here and check
             ATH_MSG_WARNING("Don't recognize CSC COOL string version " << version << ". Will treat as default version " << m_defaultDatabaseReadVersion);
-            if(m_defaultDatabaseReadVersion == "1"){
-                if(!cacheVersion1(data, writeCdo, parName).isSuccess()) {
-                    ATH_MSG_ERROR("Failed caching from COOL string version 1");
-                    return StatusCode::FAILURE;
-                }
-            }
-            else if(m_defaultDatabaseReadVersion == "02-00" && parAsm) {
-                if(!cacheVersion2ASM(data, writeCdo, parName).isSuccess()) {
+            if(m_defaultDatabaseReadVersion == "02-00" && parAsm) {
+                if(!cacheASM(data, writeCdo, parName).isSuccess()) {
                     ATH_MSG_ERROR("Failed caching from COOL string version 02-00 in ASM format");
                     return StatusCode::FAILURE;
                 }
             }
             else if(m_defaultDatabaseReadVersion == "02-00"){
-                if(!cacheVersion2(data, writeCdo, parName).isSuccess()) {
+                if(!cache(data, writeCdo, parName).isSuccess()) {
                     ATH_MSG_ERROR("Failed caching from COOL string version 02-00");
                     return StatusCode::FAILURE;
                 }
             }
-        }
-    }
-
-    return StatusCode::SUCCESS;
-}
-
-
-// cacheVersion1
-StatusCode 
-CscCondDbAlg::cacheVersion1(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
-
-    std::istringstream ss(data);
-    std::string valueStr;
-    ss >> valueStr; // first element is the '1' for the string version
-    unsigned int chanAddress = 0;
-
-    bool hasAddress = false;
-    while(ss.good()) {
-        ss >> valueStr;
-        ATH_MSG_DEBUG("current element " << valueStr);
-
-        // need the next string as token
-        if(!hasAddress){
-            chanAddress = atoi(valueStr.c_str());
-            hasAddress = true;
-            continue;
-        }
-
-		// swapping version 1 strings
-        if(m_phiSwapVersion1Strings){
-            Identifier chanId;
-            IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();
-            m_idHelperSvc->cscIdHelper().get_id((IdentifierHash) chanAddress, chanId, &channelContext);
-            int stationEta  = m_idHelperSvc->cscIdHelper().stationEta (chanId); // +1 Wheel A   -1 Wheel C
-            int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(chanId); // 0 eta 1 phi
-
-            if(stationEta > 0 && measuresPhi ==1){
-                int stationName  = m_idHelperSvc->cscIdHelper().stationName (chanId); // CSL or CSS
-                int stationPhi   = m_idHelperSvc->cscIdHelper().stationPhi  (chanId); // PhiSector from 1-8
-                int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(chanId); // Either 1 or 2 (but always 2)
-                int wireLayer    = m_idHelperSvc->cscIdHelper().wireLayer   (chanId); // layer in chamber 1-4
-                int strip        = 49 - m_idHelperSvc->cscIdHelper().strip  (chanId);
-
-                Identifier newId = m_idHelperSvc->cscIdHelper().channelID(stationName,stationEta,stationPhi,chamberLayer, wireLayer,measuresPhi,strip);
-                IdentifierHash hash ;
-                m_idHelperSvc->cscIdHelper().get_channel_hash(newId, hash);
-
-				ATH_MSG_VERBOSE("Swapped phi strip "<< m_idHelperSvc->cscIdHelper().show_to_string(chanId) << 
-                                " (" << chanAddress << ") to " << m_idHelperSvc->cscIdHelper().show_to_string(newId) << 
-                                " (" << hash << ")");
-                chanAddress = hash;
-            }
             else {
-                ATH_MSG_VERBOSE("Not swapping " << m_idHelperSvc->cscIdHelper().show_to_string(chanId));
+                ATH_MSG_FATAL("Did not recognize CSC COOL string version " << version << ". Currently, only version 02-00 is supported. The keys of the database have to be geometrical CSC hashes in hex format.");
+                return StatusCode::FAILURE;
             }
         }
-
-        // record parameter
-        if(recordParameter(chanAddress, valueStr, writeCdo, parName).isFailure())
-        	return StatusCode::FAILURE;
-
-        // reset the address
-        chanAddress = 0;
-        hasAddress = false;
     }
 
     return StatusCode::SUCCESS;
 }
 
-
-// cacheVersion2
 StatusCode 
-CscCondDbAlg::cacheVersion2(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
+CscCondDbAlg::cache(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
 
 	std::istringstream ss(data);
     std::string valueStr;
@@ -436,10 +372,8 @@ CscCondDbAlg::cacheVersion2(std::string data, CscCondDbData* writeCdo, const std
     return StatusCode::SUCCESS;
 }
 
-
-// cacheVersion2ASM
 StatusCode 
-CscCondDbAlg::cacheVersion2ASM(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
+CscCondDbAlg::cacheASM(std::string data, CscCondDbData* writeCdo, const std::string parName) const {
 
 	std::istringstream ss(data);
     std::string valueStr;
@@ -498,7 +432,7 @@ CscCondDbAlg::cacheVersion2ASM(std::string data, CscCondDbData* writeCdo, const 
         int stripSince   = 0;
         int stripUntil   = 0;
         if(!getAsmScope(asmNum, measuresPhi, layerSince, layerUntil, stripSince, stripUntil).isSuccess()){ 
-            ATH_MSG_FATAL("Failure of getAsmScope in cacheVersion2.");
+            ATH_MSG_FATAL("Failure of getAsmScope in cacheASM.");
             return StatusCode::FAILURE;
         }
 
@@ -507,11 +441,28 @@ CscCondDbAlg::cacheVersion2ASM(std::string data, CscCondDbData* writeCdo, const 
         Identifier chanId;
         IdentifierHash hashIdentifier;
         for(int iStrip = stripSince; iStrip < stripUntil; iStrip++){ 
-            for(int iLayer = layerSince; iLayer < layerUntil; iLayer++){ 
+            for(int iLayer = layerSince; iLayer < layerUntil; iLayer++){
+                // The following call of channelID with check=true ensures that the identifier is checked to be physically valid.
+                // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
+                // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
+                bool isValid = true;
                 chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
-                                                             chamberLayer, iLayer, measuresPhi, iStrip);
-                m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, hashIdentifier);
+                                                             chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
+                static bool conversionFailPrinted = false;
+                if (!isValid) {
+                    if (!conversionFailPrinted) {
+                        ATH_MSG_WARNING("Failed to retrieve offline identifier from ASM cool string " << chanAddress
+                                              << ". This is likely due to the fact that the CSCCool database contains "
+                                              << "more entries than the detector layout.");
+                        conversionFailPrinted = true;
+                    }
+                    continue;
+                }
+                if (m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, hashIdentifier)) {
+                    ATH_MSG_WARNING("Failed to retrieve channel hash for Identifier " << chanId.get_compact());
+                }
                 index = (int) hashIdentifier;
+                if (index==UINT_MAX) continue;
 
                 ATH_MSG_VERBOSE("[cache version 2 (ASM)] Recording "
                                     << valueStr << " at index " << index 
@@ -594,11 +545,16 @@ CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, CscCon
     // retrieve channel hash
     Identifier chamberId;
     Identifier channelId;
-    if(!writeCdo->onlineToOfflineIds(&m_idHelperSvc->cscIdHelper(), chanAddress, chamberId, channelId).isSuccess())
-        ATH_MSG_ERROR("Cannon get offline Ids from online Id" << std::hex << chanAddress << std::dec);
+    if(!writeCdo->onlineToOfflineIds(&m_idHelperSvc->cscIdHelper(), chanAddress, chamberId, channelId).isSuccess()) {
+        // if onlineToOfflineIds does not return SUCCESS, the underlying reason was alrady printed there, so no need to also print a WARNING here
+        return StatusCode::SUCCESS;
+    }
     
     IdentifierHash chanHash;
-    m_idHelperSvc->cscIdHelper().get_channel_hash(channelId, chanHash);
+    if (m_idHelperSvc->cscIdHelper().get_channel_hash(channelId, chanHash)) {
+        ATH_MSG_WARNING("recordParameter(): Failed to retrieve channel Identifier hash for Identifier "<<channelId.get_compact()<<". Not recording parameter...");
+        return StatusCode::SUCCESS;
+    }
     
     // record parameter
     return recordParameter(chanHash, data, writeCdo, parName);   
@@ -608,7 +564,6 @@ CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, CscCon
 // recordParameter
 StatusCode
 CscCondDbAlg::recordParameter(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo, const std::string parName) const {
-    
     // record parameter
     StatusCode sc = StatusCode::FAILURE;
     if     (parName == "f001"   ) sc = recordParameterF001   (chanHash, data, writeCdo);
@@ -662,10 +617,14 @@ CscCondDbAlg::recordParameterPed(IdentifierHash chanHash, std::string data, CscC
 // recordParameterPSlope
 StatusCode
 CscCondDbAlg::recordParameterPSlope(IdentifierHash chanHash, std::string data, CscCondDbData* writeCdo) const {
-
-    float token;
-    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
-    writeCdo->setChannelPSlope(chanHash, token);
+    if (m_pslopeFromDB) {
+        float token;
+        if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+        writeCdo->setChannelPSlope(chanHash, token);
+    } else {
+        // just set plsope to m_pslope for every channel
+        writeCdo->setChannelPSlope(chanHash, m_pslope);
+    }
     return StatusCode::SUCCESS;
 }
 

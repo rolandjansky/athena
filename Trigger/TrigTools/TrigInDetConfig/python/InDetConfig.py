@@ -10,6 +10,7 @@ class InDetCacheNames(object):
   SCT_ClusterKey     = "SCT_ClustersCache"
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
+  SCTBSErrCacheKey   = "SctBSErrCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
 
@@ -23,6 +24,7 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
+                                              SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey)
 
   acc.addEventAlgo( InDetCacheCreatorTrig )

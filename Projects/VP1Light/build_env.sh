@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # This script sets up the build enironment for an VP1Light
 # build, on top of a built set of externals.
 #
@@ -37,14 +39,14 @@ env_setup() {
         BUILDDIR=${VP1LightSrcDir}/../../../build
     fi
 
+    # Get the version of VP1Light for the build.
+    version=`cat ${VP1LightSrcDir}/version.txt`
+
     # Set up the environment for the build:
-    export NICOS_PROJECT_VERSION=`cat ${VP1LightSrcDir}/version.txt`
-    export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-    export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
     export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/VP1Light
 
     # Set up the VP1LightExternals project:
-    extDir=${BUILDDIR}/install/VP1LightExternals/${NICOS_PROJECT_VERSION}/InstallArea
+    extDir=${BUILDDIR}/install/VP1LightExternals/${version}/InstallArea
     if [ ! -d ${extDir} ]; then
         echo "Didn't find the VP1LightExternals project under ${extDir}"
     fi

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -25,7 +25,7 @@ class EGammaAmbiguityTool : public asg::AsgTool,
 
 public: 
   /** Standard constructor */
-  EGammaAmbiguityTool(std::string myname);
+  EGammaAmbiguityTool(const std::string& myname);
 
 
   /** Standard destructor */

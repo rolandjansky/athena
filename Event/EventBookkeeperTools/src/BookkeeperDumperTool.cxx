@@ -16,9 +16,9 @@
 BookkeeperDumperTool::BookkeeperDumperTool(const std::string &name)
   : asg::AsgMetadataTool(name)
 {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 }
 
 

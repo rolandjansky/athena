@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@ Trk::SimplePolygonBrepVolumeBounds::SimplePolygonBrepVolumeBounds() :
  m_halfY(0.),
  m_halfZ(0.),
  m_ordering(-1),
- m_combinedVolume(0),
- m_envelope(0),
+ m_combinedVolume(nullptr),
+ m_envelope(nullptr),
  m_objectAccessor()
 {
   //@TODO an object created by the default constructor cannot be copied or assigned.
@@ -44,8 +44,8 @@ Trk::SimplePolygonBrepVolumeBounds::SimplePolygonBrepVolumeBounds(std::vector<st
  m_halfY(0.),
  m_halfZ(halez),
  m_ordering(-1),
- m_combinedVolume(0),
- m_envelope(0),
+ m_combinedVolume(nullptr),
+ m_envelope(nullptr),
  m_objectAccessor()
 {  
   m_xyVtx.resize(xyVtx.size());
@@ -74,8 +74,8 @@ Trk::SimplePolygonBrepVolumeBounds::SimplePolygonBrepVolumeBounds(std::vector<st
  m_halfY(0.),
  m_halfZ(halez),
  m_ordering(-1),
- m_combinedVolume(0),
- m_envelope(0),
+ m_combinedVolume(nullptr),
+ m_envelope(nullptr),
  m_objectAccessor()
 {  
   m_xyVtx.resize(xyVtx.size());
@@ -161,9 +161,9 @@ const std::vector<const Trk::Surface*>* Trk::SimplePolygonBrepVolumeBounds::deco
 }
     
 // faces in xy
-Trk::PlaneSurface* Trk::SimplePolygonBrepVolumeBounds::sideSurf(Amg::Transform3D transform,unsigned int iv1,unsigned int iv2) const
+Trk::PlaneSurface* Trk::SimplePolygonBrepVolumeBounds::sideSurf(const Amg::Transform3D& transform,unsigned int iv1,unsigned int iv2) const
 {
-  Trk::PlaneSurface* plane=0;
+  Trk::PlaneSurface* plane=nullptr;
    
   double xdif = m_xyVtx[iv2].first  - m_xyVtx[iv1].first;
   double ydif = m_xyVtx[iv2].second - m_xyVtx[iv1].second;
@@ -198,7 +198,7 @@ bool Trk::SimplePolygonBrepVolumeBounds::inside(const Amg::Vector3D& pos, double
 void Trk::SimplePolygonBrepVolumeBounds::processSubVols() 
 {
   // translate into prisms (triangulate)
-  Trk::Volume* cVol = 0;
+  Trk::Volume* cVol = nullptr;
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif   
@@ -211,8 +211,8 @@ void Trk::SimplePolygonBrepVolumeBounds::processSubVols()
     vertices.push_back( triangles[i] );
     vertices.push_back( triangles[i+1] );
     vertices.push_back( triangles[i+2] );
-    Trk::Volume* newVol = new Trk::Volume(0,new Trk::PrismVolumeBounds(vertices,m_halfZ));
-    if (cVol) cVol = new Trk::Volume(0,new Trk::CombinedVolumeBounds(cVol,newVol,false));
+    Trk::Volume* newVol = new Trk::Volume(nullptr,new Trk::PrismVolumeBounds(vertices,m_halfZ));
+    if (cVol) cVol = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(cVol,newVol,false));
     else cVol = newVol; 
     vertices.clear();
   } 
@@ -322,7 +322,7 @@ bool Trk::SimplePolygonBrepVolumeBounds::Diagonalie(int  i , int j  ,std::vector
 
 
 
-bool Trk::SimplePolygonBrepVolumeBounds::Diagonal(int i, int j, std::vector<std::pair<double,double> > inputVertices) const
+bool Trk::SimplePolygonBrepVolumeBounds::Diagonal(int i, int j, const std::vector<std::pair<double,double> >& inputVertices) const
 // Returns TRUE iff (v_i, v_j) is a proper internal diagonal of P.
 {
 // std::cout<<"MW Diagonal "<<i<<" "<<j<<" "<<InCone(i,j, inputVertices)<<" "<<Diagonalie(i,j, inputVertices)<<std::endl;
@@ -344,7 +344,8 @@ std::vector<std::pair<double,double> > Trk::SimplePolygonBrepVolumeBounds::Trian
   int NSize = Vertices.size();
   std::vector<std::pair<double,double> > outTriangles;
   std::vector<std::pair<double,double> > inputVertices;
-  for (int i=0; i<NSize;i++) inputVertices.push_back((Vertices)[i]);
+  inputVertices.reserve(NSize);
+for (int i=0; i<NSize;i++) inputVertices.push_back((Vertices)[i]);
   
 //for (int i; i<NSize;i++) std::cout<<"MW input vertices: "<<inputVertices[i].first<<" "<<inputVertices[i].second<<std::endl;	
 // Triangulates this polygon and saves triangle edges in TriPoly.
@@ -408,7 +409,7 @@ Trk::SimplePolygonBrepVolumeBounds::TriangulatePolygonCheck(
 	
 	if (m_ordering == -1) m_ordering = 1; 
         std::vector<std::pair<double,double> > outTriangles = TriangulatePolygon( Vertices );
-	if (outTriangles.size() == 0 ) {
+	if (outTriangles.empty() ) {
 	      m_ordering = -m_ordering+1;
 	      outTriangles = TriangulatePolygon( Vertices );
 	}	

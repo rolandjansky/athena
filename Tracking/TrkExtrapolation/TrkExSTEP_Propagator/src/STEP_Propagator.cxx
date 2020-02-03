@@ -159,7 +159,7 @@ Trk::NeutralParameters*
 Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
                                  const Trk::Surface&,
                                  Trk::PropDirection,
-                                 Trk::BoundaryCheck,
+                                 const Trk::BoundaryCheck&,
                                  bool) const
 {
   ATH_MSG_WARNING( "[STEP_Propagator] STEP_Propagator does not handle neutral track parameters." 
@@ -175,8 +175,8 @@ Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
 Trk::TrackParameters*
 Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParameters,
                                  const Trk::Surface&                 targetSurface,
-                                 Trk::PropDirection            propagationDirection,
-                                 Trk::BoundaryCheck            boundaryCheck,
+                                 Trk::PropDirection                  propagationDirection,
+                                 const Trk::BoundaryCheck&           boundaryCheck,
                                  const MagneticFieldProperties&      magneticFieldProperties,
                                  ParticleHypothesis       particle,
                                  bool                     returnCurv,
@@ -419,7 +419,7 @@ Trk::TrackParameters*
 Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParameters,
                                  const Trk::Surface&                 targetSurface,
                                  Trk::PropDirection                  propagationDirection,
-                                 Trk::BoundaryCheck                  boundaryCheck,
+                                 const Trk::BoundaryCheck&           boundaryCheck,
                                  const Trk::MagneticFieldProperties& magneticFieldProperties,
                                  Trk::TransportJacobian*&            jacobian,
                                  double&,
@@ -469,8 +469,8 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
 Trk::TrackParameters*
 Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         trackParameters,
                                            const Trk::Surface&                 targetSurface,
-                                           Trk::PropDirection            propagationDirection,
-                                           Trk::BoundaryCheck            boundaryCheck,
+                                           Trk::PropDirection                  propagationDirection,
+                                           const Trk::BoundaryCheck&           boundaryCheck,
                                            const Trk::MagneticFieldProperties& magneticFieldProperties,
                                            ParticleHypothesis       particle,
                                            bool                     returnCurv,
@@ -507,7 +507,7 @@ Trk::TrackParameters*
 Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         trackParameters,
                                            const Trk::Surface&                 targetSurface,
                                            Trk::PropDirection                  propagationDirection,
-                                           Trk::BoundaryCheck                  boundaryCheck,
+                                           const Trk::BoundaryCheck&           boundaryCheck,
                                            const Trk::MagneticFieldProperties& magneticFieldProperties,
                                            Trk::TransportJacobian*&            jacobian,
                                            ParticleHypothesis                  particle,
@@ -1358,9 +1358,9 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
 
   // binned material ?
   cache.m_binMat = nullptr;
-  if (cache.m_trackingVolume) {
-    const Trk::AlignableTrackingVolume* aliTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (cache.m_trackingVolume);
-    if (aliTV) cache.m_binMat = aliTV->binnedMaterial();
+  if (cache.m_trackingVolume && cache.m_trackingVolume->isAlignable()){
+    const Trk::AlignableTrackingVolume* aliTV = static_cast<const Trk::AlignableTrackingVolume*> (cache.m_trackingVolume);
+    cache.m_binMat = aliTV->binnedMaterial();
   }
 
   // closest distance estimate

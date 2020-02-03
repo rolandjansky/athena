@@ -10,9 +10,9 @@ namespace asg {
 }
 class StoreGateSvc;
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
     typedef asg::SgTEvent* EventPtr_t;
-#elif defined(ASGTOOL_ATHENA)
+#elif !defined(XAOD_STANDALONE)
       typedef StoreGateSvc*  EventPtr_t;
 #else
 #   error "Wrong environment configuration detected!"

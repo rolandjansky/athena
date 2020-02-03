@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternEvent/MuonHoughHisto2D.h"
 #include "TH2F.h"
-#include <iostream>
 #include "TFile.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 MuonHoughHisto2D::~MuonHoughHisto2D()
 {
   delete[] m_histBuffer;
-
-  //  std::cout << "Destructor of MuonHoughHisto2D" << std::endl;
 }
 
 MuonHoughHisto2D::MuonHoughHisto2D(int nbinsx, double xmin, double xmax, int nbinsy, double ymin, double ymax,int number_of_maxima):m_nbinsx(nbinsx), m_xmin(xmin), m_xmax(xmax), m_nbinsy(nbinsy), m_ymin(ymin), m_ymax(ymax), m_number_of_maxima(number_of_maxima), m_scale(10000),m_threshold(2.1*m_scale), m_distance_to_next_maximum(100)
@@ -43,8 +42,6 @@ void MuonHoughHisto2D::reset()
 {
   resetHisto();
 
-//   std::cout << "m_bins_above_threshold size: " << m_bins_above_threshold.size() << " size: " << m_size << std::endl;
-//   std::cout << "occupancy: " << (m_bins_above_threshold.size()+0.)/(m_size+0.) << std::endl;
   m_bins_above_threshold.clear();
   m_maximumbins.clear(); // obsolete?
   m_maxima_found=0;
@@ -55,6 +52,7 @@ void MuonHoughHisto2D::reset()
 
 void MuonHoughHisto2D::findMaxima(int printlevel, bool which_segment)
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughHisto2D::findMaxima");
   m_maximumbins.clear(); // clear old m_maxima_vector and start searching again
 
   int maximum_number=0;
@@ -64,7 +62,7 @@ void MuonHoughHisto2D::findMaxima(int printlevel, bool which_segment)
       double maximum=-1.;
       int maxbin=-1;
       
-      if (printlevel>=3){std::cout << "MuonHoughHisto2D::size bins above threshold: " << m_bins_above_threshold.size() <<std::endl;}
+      if (printlevel>=3 || log.level()<=MSG::DEBUG){log << MSG::DEBUG << "MuonHoughHisto2D::size bins above threshold: " << m_bins_above_threshold.size() <<endmsg;}
       
       std::set<int>::iterator it = m_bins_above_threshold.begin();
       std::set<int>::iterator it_end = m_bins_above_threshold.end();
@@ -77,35 +75,34 @@ void MuonHoughHisto2D::findMaxima(int printlevel, bool which_segment)
       
       if (maximum < m_threshold)
 	{
-	  if (printlevel>=2)
+	  if (printlevel>=2 || log.level()<=MSG::INFO)
 	    {
-	      std::cout << "MuonHoughHisto2D:: no maximum found" << std::endl; 
+	      log << MSG::INFO << "MuonHoughHisto2D:: no maximum found" << endmsg; 
 	    }
 	  break;
 	}
       else 
 	{
-	  if (printlevel>=2)
+	  if (printlevel>=2 || log.level()<=MSG::INFO)
 	    {
 	      std::pair <double,double> coords;
 	      coords = binnumberToCoords(maxbin);
-	      std::cout << "MuonHoughHisto2D:: Maximum found: " << maximum <<  " binnumber: "<< maxbin <<  " R (z) " << coords.first << " angle " << coords.second << std::endl;
+	      log << MSG::INFO << "MuonHoughHisto2D:: Maximum found: " << maximum <<  " binnumber: "<< maxbin <<  " R (z) " << coords.first << " angle " << coords.second << endmsg;
 	    }
 	  m_maximumbins.push_back(maxbin);
 	} // maxbin <> m_threshold
 
-      if (printlevel>=10)
+      if (printlevel>=10 || log.level()<=MSG::VERBOSE)
 	{   
 	  if (maximum==-1.)
 	    {
-	      std::cout << "MuonHoughHisto2D::No Bins Above Threshold" << std::endl;
+	      log << MSG::VERBOSE  << "MuonHoughHisto2D::No Bins Above Threshold" << endmsg;
 	    }
 	  else
 	    {
 	      std::pair <double,double> coords;
 	      coords = binnumberToCoords(maxbin);
-	      
-	      std::cout << "MuonHoughHisto2D::Maximum Number: " << maximum_number << " Maximum: " << maximum << " binnumber: " << maxbin << " x: " << coords.first << " y: " << coords.second <<std::endl;
+	      log << MSG::VERBOSE  << "MuonHoughHisto2D::Maximum Number: " << maximum_number << " Maximum: " << maximum << " binnumber: " << maxbin << " x: " << coords.first << " y: " << coords.second <<endmsg;
 	    }
 	} // printlevel 
 
@@ -142,6 +139,7 @@ std::pair <int,double> MuonHoughHisto2D::getMax()const
 
 std::pair <int,double> MuonHoughHisto2D::getMaximumBin(unsigned int maximum_number,bool which_segment, int printlevel)
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughHisto2D::getMaximumBin");  
   if (m_maxima_found==0)
     {
       findMaxima(printlevel,which_segment); // fills m_maximumbins
@@ -150,9 +148,9 @@ std::pair <int,double> MuonHoughHisto2D::getMaximumBin(unsigned int maximum_numb
   int maxbin = -1;
   double maximum= -1.;
 
-  if (printlevel>=3)
+  if (printlevel>=3 || log.level()<=MSG::DEBUG)
     {
-      std::cout << "MuonHoughHisto2D:: m_maximumbins.size: " << m_maximumbins.size() << std::endl;
+      log << MSG::VERBOSE << "MuonHoughHisto2D:: m_maximumbins.size: " << m_maximumbins.size() << endmsg;
     }
 
   if (m_maximumbins.size() > maximum_number)
@@ -169,6 +167,7 @@ std::pair <int,double> MuonHoughHisto2D::getMaximumBin(unsigned int maximum_numb
 
 std::pair <double, double> MuonHoughHisto2D::getCoordsMaximum(unsigned int maximum_number, bool which_segment, int printlevel)
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughHisto2D::getCoordsMaximum");  
   std::pair <double,double> coordsmaximum; 
   int binnumber = getMaxBin(maximum_number,which_segment,printlevel);
   
@@ -178,7 +177,7 @@ std::pair <double, double> MuonHoughHisto2D::getCoordsMaximum(unsigned int maxim
     }
   else 
     {
-      std::cout << "HoughTransform::No Maximum Found" << std::endl;
+      if (log.level()<=MSG::WARNING)log << MSG::WARNING << "HoughTransform::No Maximum Found" << endmsg;
       coordsmaximum.first = 99999.;
       coordsmaximum.second = 99999.;
     }
@@ -242,10 +241,11 @@ int MuonHoughHisto2D::distanceBins(int binnumber1,int binnumber2)const
 
 std::pair <double,double> MuonHoughHisto2D::binnumberToCoords(int binnumber, int printlevel)const
 {
+  MsgStream log(Athena::getMessageSvc(),"MuonHoughHisto2D::binnumberToCoords");  
   std::pair <double,double> coordsbin;
   if (binnumber < 0) 
     {
-      std::cout << "MuonHoughHisto2D::ERROR: negativebinnumber: " << binnumber  << std::endl;   
+      if (log.level()<=MSG::WARNING)log << MSG::WARNING << "MuonHoughHisto2D::ERROR: negativebinnumber: " << binnumber  << endmsg;   
       coordsbin.first=99999.;
       coordsbin.second=99999.;
       return coordsbin;
@@ -254,7 +254,7 @@ std::pair <double,double> MuonHoughHisto2D::binnumberToCoords(int binnumber, int
   double xcoord = binnumberToXCoord(binnumber);
   double ycoord = binnumberToYCoord(binnumber);
   
-  if (printlevel>=4){std::cout << "MuonHoughHisto2D::Maximum: " << getBinContent(binnumber) << " binnumber: " << binnumber << " x: " << xcoord << " y: " << ycoord <<std::endl;}
+  if (printlevel>=4 || log.level()<=MSG::VERBOSE){log << MSG::VERBOSE << "MuonHoughHisto2D::Maximum: " << getBinContent(binnumber) << " binnumber: " << binnumber << " x: " << xcoord << " y: " << ycoord <<endmsg;}
 
   coordsbin.first = xcoord;
   coordsbin.second = ycoord;
@@ -275,17 +275,9 @@ int MuonHoughHisto2D::binInHistogram(unsigned int binnumber)const
 
 TH2F* MuonHoughHisto2D::bookAndFillRootHistogram(std::string hname)const
 {
-
-//   std::pair <int,double> theMax = getMax();
-//   int mix = theMax.first%m_nbinsx_plus2;
-//   int miy = theMax.first/m_nbinsx_plus2;
-
-//   if( theMax.first != -1 ) std::cout << " getting maximum for " << hname << " maxbin " << theMax.first 
-// 				     << "  x " << mix << "  y " << miy << "  val " << theMax.second/(double)m_scale << std::endl;
   TH2F* histogram =  new TH2F(hname.c_str(),hname.c_str(),m_nbinsx,m_xmin,m_xmax,m_nbinsy,m_ymin,m_ymax);
   for (unsigned int i=0; i<m_size; i++)
-    {
-      
+    {      
       int ix = i%m_nbinsx_plus2;
       int iy = i/m_nbinsx_plus2;
       histogram->SetBinContent(ix,iy,m_histBuffer[i]/(double)m_scale);

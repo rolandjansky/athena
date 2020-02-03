@@ -23,7 +23,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackSeedMap.h"
 
-#include <map>
 #include <set>
 #include <vector>
 #include <functional>
@@ -294,7 +293,7 @@ namespace Trk {
       const int iw=9;
       out << head;
       for (unsigned int eta_bin_i=0; eta_bin_i < kNRegions; ++eta_bin_i) {
-         assert( eta_bin_i < m_counter[stat_i].size() );
+         assert( eta_bin_i < m_stat.m_counter[stat_i].size() );
          out << std::setiosflags(std::ios::dec) << std::setw(iw) << m_stat.m_counter[stat_i][eta_bin_i];
       }
       out << std::endl;

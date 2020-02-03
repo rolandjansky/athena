@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ Trk::HomogeneousLayerMaterial::HomogeneousLayerMaterial( const Trk::MaterialProp
                  
 Trk::HomogeneousLayerMaterial::HomogeneousLayerMaterial(const Trk::HomogeneousLayerMaterial& lmp) :
   LayerMaterialProperties(lmp.m_splitFactor),
-  m_fullMaterial(lmp.m_fullMaterial ? lmp.m_fullMaterial->clone() : 0)
+  m_fullMaterial(lmp.m_fullMaterial ? lmp.m_fullMaterial->clone() : nullptr)
 {}
 
 Trk::HomogeneousLayerMaterial::~HomogeneousLayerMaterial()

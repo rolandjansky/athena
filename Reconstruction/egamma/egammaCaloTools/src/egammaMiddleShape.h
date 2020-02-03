@@ -45,9 +45,12 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
   StatusCode finalize() override;
 
   /** @brief AlgTool main method */
-  virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-			     const CaloCellContainer& cell_container, Info& info) const override final;
- private:
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                             const CaloDetDescrManager& cmgr,
+                             const CaloCellContainer& cell_container,
+                             Info& info) const override final;
+
+private:
 
   Gaudi::Property<double> m_neta {this, "Neta", 7.0,
       "Number of eta cells in each sampling in which to calculated shower shapes"};
@@ -58,10 +61,7 @@ class egammaMiddleShape : public AthAlgTool, virtual public IegammaMiddleShape {
     /** @brief boolean to calculate less important variables*/
   Gaudi::Property<bool> m_ExecOtherVariables {this,
       "ExecOtherVariables", true,
-      "Calculate some less important variables"}
-;
-// Calo variables
-  const CaloDetDescrManager* m_calo_dd;
+      "Calculate some less important variables"};
 };
 
 #endif

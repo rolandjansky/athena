@@ -107,7 +107,7 @@ namespace Trig {
      * @param f is the Feature that holds the trigger object (container)
      * @param flagsLabel is the label of the TrigPassFlags object
      **/
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     template<class T> TrigPassFlags getFlags(const Trig::Feature<T> & f, const std::string & flagsLabel = "") const;
 #endif
       
@@ -208,7 +208,7 @@ Trig::FeatureContainer::get(const std::string& label, unsigned int condition, co
  * @param f is the Feature that holds the trigger object (container)
  * @param flagsLabel is the label of the TrigPassFlags object
  **/
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 template<class T> TrigPassFlags
 Trig::FeatureContainer::getFlags(const Trig::Feature<T> & f, const std::string & flagsLabel) const {
 

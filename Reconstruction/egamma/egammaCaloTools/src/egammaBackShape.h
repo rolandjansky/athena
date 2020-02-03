@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMACALOTOOLS_EGAMMABACKSHAPE_H
@@ -44,11 +44,12 @@ public:
     StatusCode finalize() override ;
 
     /** @brief AlgTool main method */
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer& cell_container, Info& info) const override final;
-private:
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               const CaloCellContainer& cell_container,
+                               Info& info) const override final;
 
- const CaloDetDescrManager* m_calo_dd;
+  private:
  
 
     /** @brief boolean to calculate less important variables*/

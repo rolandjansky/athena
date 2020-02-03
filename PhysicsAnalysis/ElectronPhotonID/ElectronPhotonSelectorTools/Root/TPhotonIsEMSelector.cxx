@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  TPhotonIsEMSelector.cxx
@@ -520,10 +520,10 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   //
   // second sampling cuts
   //
-  if ((m_e277_photonsNonConverted.size() == 0)) {
+  if ((m_e277_photonsNonConverted.empty())) {
     ATH_MSG_WARNING("e277 needs to  be set ");
   }
-  if (m_e277_photonsNonConverted.size() > 0 && e277 >= m_e277_photonsNonConverted[0]) {
+  if (!m_e277_photonsNonConverted.empty() && e277 >= m_e277_photonsNonConverted[0]) {
     if (ibinEta == -1) {
       iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;
@@ -577,7 +577,7 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   //
   // first sampling cuts
   //
-  if (m_cutBinEtaStrips_photonsNonConverted.size() > 0) {
+  if (!m_cutBinEtaStrips_photonsNonConverted.empty()) {
 
     int ibineStrips = 0;
     // loop on ET range
@@ -735,10 +735,10 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
   //
   // second sampling cuts
   //
-  if ((m_e277_photonsConverted.size() == 0)) {
+  if ((m_e277_photonsConverted.empty())) {
     ATH_MSG_WARNING("e277 needs to  be set ");
   }
-  if (m_e277_photonsConverted.size() > 0 && e277 >= m_e277_photonsConverted[0]) {
+  if (!m_e277_photonsConverted.empty() && e277 >= m_e277_photonsConverted[0]) {
 
     if (ibinEta == -1) {
       iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
@@ -793,7 +793,7 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
   //
   // first sampling cuts
   //
-  if (m_cutBinEtaStrips_photonsConverted.size() > 0) {
+  if (!m_cutBinEtaStrips_photonsConverted.empty()) {
 
     int ibineStrips = 0;
     // loop on ET range
@@ -938,7 +938,7 @@ bool Root::TPhotonIsEMSelector::checkVar(const std::vector <T> &vec, int choice)
 
 
   // if size of vector is 0 it means cut is not defined
-  if (vec.size() == 0) return false;
+  if (vec.empty()) return false;
   // check if size is 1
   if (choice == 0) {
     if (vec.size() != 1) {

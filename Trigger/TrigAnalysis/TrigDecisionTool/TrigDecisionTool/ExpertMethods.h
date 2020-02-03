@@ -32,7 +32,7 @@
 
 #include "AthenaKernel/SlotSpecificObj.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigNavigation/NavigationCore.h"
 #endif
 
@@ -92,7 +92,7 @@ namespace Trig {
     /**
      * @brief return HLT::NavigationCore
      **/
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     const HLT::NavigationCore* getNavigation() const;
 #else
     const HLT::TrigNavStructure* getNavigation() const;

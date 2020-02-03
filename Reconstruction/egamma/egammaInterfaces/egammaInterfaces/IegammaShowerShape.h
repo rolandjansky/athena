@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ MODIFIED :
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
 class CaloCellContainer;
-
+class CaloDetDescrManager;
 static const InterfaceID IID_IegammaShowerShape("IegammaShowerShape", 1, 0);
 
 class IegammaShowerShape : virtual public IAlgTool {
@@ -104,9 +104,10 @@ public:
     };
 
     /** @brief AlgTool method.*/
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer& cell_container, Info& info) const = 0;
-
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               const CaloCellContainer& cell_container,
+                               Info& info) const = 0;
 };
 
 inline const InterfaceID& IegammaShowerShape::interfaceID()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_MDTCONDDBDATA_H
@@ -10,11 +10,8 @@
 #include <vector>
 
 //Athena includes
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "Identifier/Identifier.h"
 #include "AthenaKernel/CondCont.h" 
 #include "AthenaKernel/BaseInfo.h" 
-
 
 //forward declarations
 class Identifier;
@@ -27,7 +24,7 @@ class MdtCondDbData {
 
 public:
 
-    MdtCondDbData();
+    MdtCondDbData() = default;
     virtual ~MdtCondDbData() = default;
 
     void setDeadTube      (std::string, Identifier);

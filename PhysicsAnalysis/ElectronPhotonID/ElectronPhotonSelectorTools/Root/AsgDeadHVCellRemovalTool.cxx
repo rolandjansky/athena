@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonSelectorTools/AsgDeadHVCellRemovalTool.h"
@@ -7,7 +7,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEventInfo/EventInfo.h"
 
-AsgDeadHVCellRemovalTool::AsgDeadHVCellRemovalTool(std::string myname) :
+AsgDeadHVCellRemovalTool::AsgDeadHVCellRemovalTool(const std::string& myname) :
   asg::AsgTool(myname){
 }
 

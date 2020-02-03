@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''Script to dump trigger counts to a text file'''
@@ -308,9 +308,10 @@ def main():
     if len(in_total_hists) == 0:
         logging.error('No total-events histogram could be loaded')
         return 1
-    in_total = in_total_hists.values()[0].GetEntries()
+    items = list(in_total_hists.items())
+    in_total = items[0][1].GetEntries()
     logging.info('Loaded total-events histogram %s, number of events: %d',
-                 in_total_hists.keys()[0], in_total)
+                 items[0][0], in_total)
 
     ref_hists = None
     ref_total_hists = None
@@ -336,7 +337,7 @@ def main():
 
     json_dict = OrderedDict()
     json_dict[total_events_key] = OrderedDict()
-    json_dict[total_events_key]['hist_name'] = in_total_hists.keys()[0]
+    json_dict[total_events_key]['hist_name'] = list(in_total_hists.keys())[0]
     json_dict[total_events_key]['count'] = int(in_total)
     json_dict[total_events_key]['ref_count'] = int(ref_total) if ref_total else 'n/a'
 
