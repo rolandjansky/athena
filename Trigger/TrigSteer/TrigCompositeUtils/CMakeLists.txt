@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODMuon
-                          Event/xAOD/xEGamma
+                          Event/xAOD/xAODEgamma
                           AtlasTest/TestTools
                           Control/StoreGate
                           )
