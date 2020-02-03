@@ -4,6 +4,7 @@
 
 #include "electronSuperClusterBuilder.h"
 //
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -68,6 +69,10 @@ StatusCode electronSuperClusterBuilder::execute(){
   //Create the new Electron Super Cluster based EgammaRecContainer
   SG::WriteHandle<EgammaRecContainer> newEgammaRecs(m_electronSuperRecCollectionKey);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
+
+  //The calo Det Descr manager
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
 
   //Reserve a vector to keep track of what is used
   std::vector<bool> isUsed (egammaRecs->size(),0);
@@ -154,6 +159,7 @@ StatusCode electronSuperClusterBuilder::execute(){
 
     //Take the full list of cluster and add their cells together
     std::unique_ptr<xAOD::CaloCluster> newClus = createNewCluster(accumulatedClusters,
+                                                                  *calodetdescrmgr,
                                                                   xAOD::EgammaParameters::electron);
 
     if (!newClus) {
