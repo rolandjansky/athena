@@ -13,6 +13,7 @@
 #include <vector>
 
 class MDTSimHitVariables;
+class RPCSimHitVariables;
 class MMDigitVariables;
 class MMSimHitVariables;
 class MMSDOVariables;
@@ -68,6 +69,7 @@ class NSWPRDValAlg:public AthAlgorithm
   MMPRDVariables*         m_MmPrdVar;
   CSCDigitVariables*      m_CscDigitVar;
   MDTSimHitVariables*     m_MDTSimHitVar;
+  RPCSimHitVariables*     m_RPCSimHitVar;  
 
   ITHistSvc *m_thistSvc;
   TTree *m_tree;
@@ -89,6 +91,7 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty  m_doMMPRD;            // switch on the output of the MicroMegas prepdata
   BooleanProperty  m_doCSCDigit;         // switch on the output of the MicroMegas digitization
   BooleanProperty  m_doMDTHit;
+  BooleanProperty  m_doRPCHit;
 
   unsigned int m_runNumber;
   unsigned int m_eventNumber;
@@ -106,7 +109,8 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_NSWMM_RDOContainerName;
   std::string m_NSWMM_PRDContainerName;
   std::string m_CSC_DigitContainerName;
-  std::string m_MDT_SimContainerName; 
+  std::string m_MDT_SimContainerName;
+  std::string m_RPC_SimContainerName;
 
   // Matching algorithm
   BooleanProperty m_doNSWMatching;

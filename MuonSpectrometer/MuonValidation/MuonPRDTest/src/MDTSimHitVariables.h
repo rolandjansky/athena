@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTSimHitVariables_H
@@ -21,6 +21,10 @@ class MDTSimHitVariables : public ValAlgVariables
               MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_MDT_Sim_stationName(nullptr),
+    m_MDT_stationName(nullptr),
+    m_MDT_stationEta(nullptr),
+    m_MDT_stationPhi(nullptr),
+    m_MDT_isEndcap(nullptr),
     m_MDT_Sim_stationEta(nullptr),
     m_MDT_Sim_stationPhi(nullptr),
     m_MDT_Sim_multilayer(nullptr),
@@ -76,6 +80,10 @@ class MDTSimHitVariables : public ValAlgVariables
   const MdtIdHelper* m_MdtIdHelper;
 
   std::vector<std::string>  *m_MDT_Sim_stationName;
+  std::vector<int>  *m_MDT_stationName;
+  std::vector<int>  *m_MDT_stationEta;
+  std::vector<int>  *m_MDT_stationPhi;
+  std::vector<bool> *m_MDT_isEndcap;
   std::vector<int>  *m_MDT_Sim_stationEta;
   std::vector<int>  *m_MDT_Sim_stationPhi;
   std::vector<int>  *m_MDT_Sim_multilayer;

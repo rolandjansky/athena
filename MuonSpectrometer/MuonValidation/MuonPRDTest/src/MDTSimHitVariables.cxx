@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSimHitVariables.h"
@@ -59,6 +59,10 @@ StatusCode MDTSimHitVariables::fillVariables()
     }
 
     m_MDT_Sim_stationName   ->push_back(stname);
+    m_MDT_stationName   ->push_back(m_MdtIdHelper->stationName(offid));
+    m_MDT_stationEta   ->push_back(m_MdtIdHelper->stationEta(offid));
+    m_MDT_stationPhi   ->push_back(m_MdtIdHelper->stationPhi(offid));
+    m_MDT_isEndcap   ->push_back(m_MdtIdHelper->isEndcap(offid));
     m_MDT_Sim_stationEta    ->push_back(steta);
     m_MDT_Sim_stationPhi    ->push_back(stphi);
     m_MDT_Sim_multilayer     ->push_back(ml);
@@ -130,6 +134,10 @@ StatusCode MDTSimHitVariables::clearVariables()
 {
 
     m_MDT_Sim_stationName->clear();
+    m_MDT_stationName->clear();
+    m_MDT_stationEta->clear();
+    m_MDT_stationPhi->clear();
+    m_MDT_isEndcap->clear();
     m_MDT_Sim_stationEta->clear();
     m_MDT_Sim_stationPhi->clear();
     m_MDT_Sim_multilayer->clear();
@@ -168,6 +176,10 @@ StatusCode MDTSimHitVariables::clearVariables()
 StatusCode MDTSimHitVariables::initializeVariables()
 {
     m_MDT_Sim_stationName = new std::vector<std::string>;
+    m_MDT_stationName = new std::vector<int>;
+    m_MDT_stationEta = new std::vector<int>;
+    m_MDT_stationPhi = new std::vector<int>;
+    m_MDT_isEndcap = new std::vector<bool>;
     m_MDT_Sim_stationEta = new std::vector<int>;
     m_MDT_Sim_stationPhi = new std::vector<int>;
     m_MDT_Sim_multilayer = new std::vector<int>;
@@ -198,7 +210,11 @@ StatusCode MDTSimHitVariables::initializeVariables()
     m_MDT_nSimHits = 0;
  
     if(m_tree){
-      m_tree->Branch("MDT_Sim_stationName", &m_MDT_Sim_stationName);
+      m_tree->Branch("MDT_Sim_stationName", &m_MDT_Sim_stationName);   
+      m_tree->Branch("MDT_stationName", &m_MDT_stationName);
+      m_tree->Branch("MDT_stationEta", &m_MDT_stationEta);
+      m_tree->Branch("MDT_stationPhi", &m_MDT_stationPhi);
+      m_tree->Branch("MDT_isEndcap", &m_MDT_isEndcap);
       m_tree->Branch("MDT_Sim_stationEta", &m_MDT_Sim_stationEta);
       m_tree->Branch("MDT_Sim_stationPhi", &m_MDT_Sim_stationPhi);
       m_tree->Branch("MDT_Sim_multilayer", &m_MDT_Sim_multilayer);
@@ -238,6 +254,10 @@ StatusCode MDTSimHitVariables::initializeVariables()
 void MDTSimHitVariables::deleteVariables()
 {
     delete m_MDT_Sim_stationName;
+    delete m_MDT_stationName;
+    delete m_MDT_stationEta;
+    delete m_MDT_stationPhi;
+    delete m_MDT_isEndcap;
     delete m_MDT_Sim_stationEta;
     delete m_MDT_Sim_stationPhi;
     delete m_MDT_Sim_multilayer;
@@ -267,6 +287,10 @@ void MDTSimHitVariables::deleteVariables()
     m_MDT_nSimHits=0;
 
     m_MDT_Sim_stationName = nullptr;
+    m_MDT_stationName = nullptr;
+    m_MDT_stationEta = nullptr;
+    m_MDT_stationPhi = nullptr;
+    m_MDT_isEndcap = nullptr;
     m_MDT_Sim_stationEta = nullptr;
     m_MDT_Sim_stationPhi = nullptr;
     m_MDT_Sim_multilayer = nullptr;
