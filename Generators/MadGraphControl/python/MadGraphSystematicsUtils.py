@@ -6,6 +6,8 @@
 import MadGraphUtils,ast
 from MadGraphUtilsHelpers import *
 
+SYSTEMATICS_WEIGHT_INFO="MUR%(mur).1f_MUF%(muf).1f_PDF%(pdf)i"
+
 #==================================================================================
 # main function: figure out run_card arguments that need to be set
 # depends on
@@ -235,9 +237,12 @@ def convertSysCalcArguments(extras):
             i+=1
         if len(pdfs)>0:
             systematics_arguments['pdf']=','.join(pdfs)
-    extras['systematics_arguments']='['+','.join(["'--"+k+"="+systematics_arguments[k]+"'" for k in systematics_arguments])+']'
+    systematics_arguments['weight_info']=SYSTEMATICS_WEIGHT_INFO
+    extras['systematics_arguments']=write_systematics_arguments(systematics_arguments)
     return extras['systematics_arguments']
 
+def write_systematics_arguments(systematics_arguments):
+    return '['+','.join(["'--"+k+"="+systematics_arguments[k]+"'" for k in systematics_arguments])+']'
 
 #==================================================================================
 # create a map from the 'systematics_arguments' run card argument

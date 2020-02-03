@@ -247,10 +247,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     # use f2py2 if f2py not available
     if reweight_card_loc is not None:
         from distutils.spawn import find_executable
-        if find_executable('f2py') is not None:
-            mglog.info('Found f2py, can run reweighting.')
-        elif find_executable('f2py2') is not None:
-            mglog.info('f2py is called f2py2 on this machine, will update configuration')
+        if find_executable('f2py2') is not None:
+            mglog.info('found f2py2, will update configuration')
             if isNLO:
                 config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
             else:
@@ -265,6 +263,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                     newcard.write(line)
             oldcard.close()
             newcard.close()
+        elif find_executable('f2py') is not None:
+            mglog.info('Found f2py, will use it for reweighting')
         else:
             mglog.error('Could not find f2py or f2py2, needed for reweighting')
             return 1
@@ -327,6 +327,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     if reweight_card_loc:
         mglog.info('Running reweighting module. Moving card (%s) into place.'%(reweight_card_loc))
         shutil.copyfile(reweight_card_loc,proc_dir+'/Cards/reweight_card.dat')
+        check_reweight_card(proc_dir+'/Cards/reweight_card.dat')
 
     # Ensure that things are set up normally
     if not os.access(run_card_loc,os.R_OK):
@@ -620,7 +621,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             mglog.info( 'Moved reweight card into place: '+str(reweight_card) )
         else:
             mglog.info( 'Did not find reweight card '+str(reweight_card)+', using the one provided by gridpack' )
-
+        check_reweight_card(gridpack_dir+'/Cards/reweight_card.dat')
 
     print_cards(run_card=gridpack_dir+'/Cards/run_card.dat',param_card=gridpack_dir+'/Cards/param_card.dat')
 
@@ -1500,6 +1501,45 @@ def setup_bias_module(bias_module,run_card_loc,proc_dir,grid_pack):
             gunzip = subprocess.Popen(['gunzip',bias_module_newpath])
             gunzip.wait()
 
+def check_reweight_card(reweight_card_loc):
+    shutil.move(reweight_card_loc,reweight_card_loc+'.old')
+    oldcard = open(reweight_card_loc+'.old','r')
+    newcard = open(reweight_card_loc,'w')
+    changed = False
+    nrwgt = 1
+    for line in oldcard:
+        if not line.strip().startswith('launch') :
+            newcard.write(line)
+        else:
+            # if both rwgt_info and name are given, fine
+            if '--rwgt_info' in line and '--rwgt_name' in line:
+                newcard.write(line)
+            # if only one of the two is defined, set the other to the same value
+            elif '--rwgt_info' in line:
+                m=re.match('launch\s*--rwgt_info\s*=\s*([\s\S]+)',line.strip())
+                if m==None or len(m.groups())!=1:
+                    raise RuntimeError('Unexpected format of reweight card')
+                else:
+                    newcard.write(line.strip()+' --rwgt_name='+m.group(1).strip()+'\n')
+                    changed=True
+            elif '--rwgt_name' in line:
+                m=re.match('launch\s*--rwgt_name\s*=\s*([\s\S]+)',line.strip())
+                if m==None or len(m.groups())!=1:
+                    raise RuntimeError('Unexpected format of reweight card')
+                else:
+                    newcard.write(line.strip()+' --rwgt_info='+m.group(1).strip()+'\n')
+                    changed=True
+            # if none is defined: complain
+            else:
+                mglog.warning('Every reweighting launch needs a --rwgt_name (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Added a dummy name for now.')
+                newcard.write(line.strip()+' --rwgt_name=dummy_rwgt_name_{0}  --rwgt_info=dummy_rwgt_info_{0}\n'.format(nrwgt))
+                nrwgt+=1
+
+    if changed:
+        mglog.info('Updated reweight_card')
+    newcard.close()
+    oldcard.close()
+
 
 def helpful_definitions():
     return """
@@ -2192,7 +2232,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     # guess NLO from run card -- not the most robust way to do this but otherwise arguments of build_run_card would need to change
     isNLO=isNLO_from_run_card(run_card_old)
     # add gobal PDF and scale uncertainty config to extras, except PDF or weights for syscal config are explictly set
-    MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,extras,isNLO)
+    MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,extras,isNLO)    
 
     # Grab the old run card and move it into place
     # Get the run card from the installation
@@ -2507,6 +2547,15 @@ def run_card_consistency_check(isNLO=False,path='.'):
         # still need to set pdf and systematics
         syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
         modify_run_card(cardpath,cardpath.replace('.dat','_before_syst.dat'),syst_settings)
+
+    mydict_new=getDictFromCard(cardpath)
+    if 'systematics_arguments' in mydict_new:
+        systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict_new['systematics_arguments'])
+        if not 'weight_info' in systematics_arguments:
+            mglog.info('Enforcing systematic weight name convention')
+            systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
+            modify_run_card(cardpath,cardpath.replace('.dat','_before_systnamingconvetion.dat'),
+                            {'systematics_arguments' : MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)})
 
     if not isNLO:
         if not 'python_seed' in mydict:
