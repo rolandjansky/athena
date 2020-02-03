@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: StackedDict.py 529131 2012-12-06 10:45:33Z ssnyder $
 #
@@ -41,9 +41,9 @@ class StackedDict (collections.Mapping):
     ['a', 'c', 'e']
     >>> 'c' in d
     True
-    >>> d.has_key('c')
+    >>> 'c' in d
     True
-    >>> d.has_key('d')
+    >>> 'd' in d
     False
     >>> d['c'] = 10
     >>> d['c']

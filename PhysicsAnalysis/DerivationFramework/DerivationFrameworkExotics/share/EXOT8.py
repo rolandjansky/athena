@@ -16,6 +16,20 @@ exot8Seq = CfgMgr.AthSequencer("EXOT8Sequence")
 from JetRec.JetRecFlags import jetFlags
 
 #========================================================================================================================================
+# Set up Stream
+#========================================================================================================================================
+streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
+fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
+EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
+
+# Thinning
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="EXOT8ThinningSvc", outStreams=[evtStream] )
+
+#========================================================================================================================================
 # Thinning Tools
 #========================================================================================================================================
 thinningTools=[]
@@ -25,7 +39,7 @@ thinningTools=[]
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "EXOT8MuonTPThinningTool",
-                                                                         ThinningService        = "EXOT8ThinningSvc",
+                                                                         StreamName              = streamName,
                                                                          MuonKey                = "Muons",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles",
                                                                          SelectionString        = "Muons.pt > 5*GeV",
@@ -38,7 +52,7 @@ thinningTools.append(EXOT8MuonTPThinningTool)
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "EXOT8ElectronTPThinningTool",
-                                                                               ThinningService        = "EXOT8ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                SGKey                  = "Electrons",
                                                                                InDetTrackParticlesKey = "InDetTrackParticles",
                                                                                SelectionString        = "Electrons.pt > 25*GeV",
@@ -74,7 +88,7 @@ thinningTools.append(EXOT8Ak10r2JetTPThinningTool)
 #########################################
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT8Ak4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                   = "EXOT8Ak4CCThinningTool",
-                                                                     ThinningService        = "EXOT8ThinningSvc",
+                                                                     StreamName             = streamName,
                                                                      SGKey                  = "AntiKt4LCTopoJets",
                                                                      TopoClCollectionSGKey  = "CaloCalTopoClusters",
                                                                      SelectionString        = "AntiKt4LCTopoJets.pt > 50*GeV",
@@ -86,7 +100,7 @@ thinningTools.append(EXOT8Ak4CCThinningTool)
 # clusters associated with large-R jets (0.2)
 #############################################
 EXOT8Ak10r2CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT8Ak10r2CCThinningTool",
-                                                                        ThinningService         = "EXOT8ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                         TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                         SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV",
@@ -235,20 +249,6 @@ exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel_skim",
                                                         )
 
 exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", ThinningTools = thinningTools)
-
-#========================================================================================================================================
-# Set up Stream
-#========================================================================================================================================
-streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
-fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
-EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
-
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT8ThinningSvc", outStreams=[evtStream] )
 
 #
 # Add the containers to the output stream - slimming done here

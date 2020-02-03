@@ -107,7 +107,7 @@ thinningTools.append(EXOT4CA15JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT4MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT4MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT4ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                             SelectionString = "Muons.pt > 7*GeV",
@@ -118,7 +118,7 @@ thinningTools.append(EXOT4MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT4ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT4ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey                   = "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                         GSFTrackParticlesKey    = "GSFTrackParticles",
@@ -131,7 +131,7 @@ thinningTools.append(EXOT4ElectronTPThinningTool)
 # calo cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT4ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "EXOT4ElectronCCThinningTool",
-                                                                                     ThinningService         = "EXOT4ThinningSvc",
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Electrons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -143,7 +143,7 @@ thinningTools.append(EXOT4ElectronCCThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT4CA15CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT4CA15CCThinningTool",
-                                                                       ThinningService         = "EXOT4ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        SGKey                   = "CamKt15LCTopoJets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV",
@@ -153,7 +153,7 @@ thinningTools.append(EXOT4CA15CCThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
 EXOT4Ak10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT4Ak10CCThinningTool",
-                                                                       ThinningService         = "EXOT4ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 150*GeV",

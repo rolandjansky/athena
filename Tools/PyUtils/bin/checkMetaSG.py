@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    checkMetaSG.py
 # @purpose: Print the metadata that would be accessible via the IOVMetaDataContainers of the MetaDataStore
@@ -12,6 +12,8 @@
 # checkMetaSG.py aod.pool.root
 # @endcode
 #
+
+from __future__ import print_function
 
 __version__ = "$Revision: 724150 $"
 __author__  = "Will Buttinger <will@cern.ch>"
@@ -55,65 +57,64 @@ if __name__ == "__main__":
     for fileName in fileNames:
         try:
             from PyUtils import AthFile
-            print "## checking [%s]..."%fileName
+            print ("## checking [%s]..."%fileName)
             fileInfo = AthFile.fopen(fileName).fileinfos
-            print "="*91
+            print ("="*91)
             #do the table of extra information
-            print "## Content of AthFile.fopen(%s).fileinfos"%fileName
-            print "="*91
+            print ("## Content of AthFile.fopen(%s).fileinfos"%fileName)
+            print ("="*91)
             exclude_list = ['stream_tags','file_name','tag_info','det_descr_tags', 'evt_number', 'metadata', 'metadata','metadata_items', 'lumi_block','eventdata_items' ]
-            print "%30s%-28s" % ("key", " | value")
-            print "%30s%s%-25s" % ("-"*30, "-+-", "-"*(28-3))
+            print ("%30s%-28s" % ("key", " | value"))
+            print ("%30s%s%-25s" % ("-"*30, "-+-", "-"*(28-3)))
             for a,b in fileInfo.items():
                if a in exclude_list: continue
-               print "%30s%s%-25s" % (a, " | ", b) 
+               print ("%30s%s%-25s" % (a, " | ", b) )
             metadata = fileInfo['metadata']
-            print ""
-            print "="*91
-            print "## IOVMetaData (fileinfos['metadata']):"
-            print "%30s%-28s%-10s%-30s" % ("folder", " | key "," | type "," | value")
-            print "%30s%s%-25s%s%-7s%s%-30s" % ("-"*30, "-+-", "-"*(28-3),"-+-","-"*(10-3),"-+-","-"*(20))
+            print ("")
+            print ("="*91)
+            print ("## IOVMetaData (fileinfos['metadata']):")
+            print ("%30s%-28s%-10s%-30s" % ("folder", " | key "," | type "," | value"))
+            print ("%30s%s%-25s%s%-7s%s%-30s" % ("-"*30, "-+-", "-"*(28-3),"-+-","-"*(10-3),"-+-","-"*(20)))
             for metaFolder,metaObj in metadata.items(): #metaObj may be dict, list (occurs with multi IOV), or none... so far only support dict FIXME
                first=True
                if isinstance(metaObj,dict):
                   for metaKey,metaValue in metaObj.items():
-                     if first: print "%30s%s%-25s%s%-7s%s%-30s" % (metaFolder, " | ", metaKey," | ",type(metaValue).__name__," | ",metaValue) #print "%30s%s%-30s" % (metaFolder, " | ",metaKey+" = "+str(metaValue) )
-                     else: print "%30s%s%-25s%s%-7s%s%-30s" % ("", " | ", metaKey," | ",type(metaValue).__name__," | ",metaValue)
+                     if first:
+                         print ("%30s%s%-25s%s%-7s%s%-30s" % (metaFolder, " | ", metaKey," | ",type(metaValue).__name__," | ",metaValue))
+                     else:
+                         print ("%30s%s%-25s%s%-7s%s%-30s" % ("", " | ", metaKey," | ",type(metaValue).__name__," | ",metaValue))
                      first=False
-            print "="*91
+            print ("="*91)
             if options.outFileName:
                 osp = os.path
                 outFileName = options.outFileName
                 outFileName = osp.expanduser(outFileName)
                 outFileName = osp.expandvars(outFileName)
-                print "## saving checkSG report into [%s]..." % outFileName
+                print ("## saving checkSG report into [%s]..." % outFileName)
                 if os.path.splitext(outFileName)[1] in ('.pkl', '.dat'):
-                    # we explicitely import 'bsddb' to try to always
-                    # get that particular backend for the shelve...
-                    import bsddb
                     import shelve
                     if os.path.exists(outFileName):
                         os.remove(outFileName)
                     db = shelve.open(outFileName)
-                    db['eventdata_items'] = ks
+                    db['eventdata_items'] = fileInfo
                     db.close()
-        except Exception, e:
-            print "## Caught exception [%s] !!" % str(e.__class__)
-            print "## What:",e
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception as e:
+            print ("## Caught exception [%s] !!" % str(e.__class__))
+            print ("## What:",e)
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
             sc = 1
             pass
 
         except :
-            print "## Caught something !! (don't know what)"
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+            print ("## Caught something !! (don't know what)")
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
             sc = 10
             pass
         if len(fileNames) > 1:
-            print ""
+            print ("")
         pass # loop over fileNames
     
-    print "## Bye."
+    print ("## Bye.")
     sys.exit(sc)

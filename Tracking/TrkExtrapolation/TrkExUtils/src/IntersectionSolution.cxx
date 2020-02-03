@@ -16,7 +16,7 @@
 
 // default constructor
 Trk::IntersectionSolution::IntersectionSolution()
-{}
+= default;
 
 // constructor
 Trk::IntersectionSolution::IntersectionSolution(int dim) :

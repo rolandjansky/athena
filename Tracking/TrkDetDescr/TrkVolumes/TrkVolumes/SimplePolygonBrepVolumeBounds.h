@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ namespace Trk {
 #define double float
 #endif                                            
     /**This method returns the set of xy generating vertices*/
-    const std::vector<std::pair<double, double> >  xyVertices() const;
+    std::vector<std::pair<double, double> >  xyVertices() const;
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
 #endif    
@@ -97,8 +97,8 @@ namespace Trk {
     std::ostream& dump(std::ostream& sl) const override;
 
   private:  
-    void processSubVols() const;
-    Trk::PlaneSurface* sideSurf(Amg::Transform3D,unsigned int,unsigned int) const;
+    void processSubVols();
+    Trk::PlaneSurface* sideSurf(const Amg::Transform3D&,unsigned int,unsigned int) const;
     bool Xor(bool x, bool y) const;
     
 #ifdef TRKDETDESCR_USEFLOATPRECISON
@@ -113,12 +113,12 @@ namespace Trk {
     
     bool Diagonalie(int  i , int j  ,std::vector<std::pair<double,double> > inputVertices) const;
     
-    bool Diagonal(int i, int j, std::vector<std::pair<double,double> > inputVertices) const;
+    bool Diagonal(int i, int j, const std::vector<std::pair<double,double> >& inputVertices) const;
     
 
     std::vector<std::pair<double,double> > TriangulatePolygon(const std::vector<std::pair<double,double> >& Vertices ) const;
     
-    std::vector<std::pair<double,double> > TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices ) const;
+    std::vector<std::pair<double,double> > TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices );
 
     std::vector<std::pair<double,double> > m_xyVtx;          //!< generating xy vertices
     double m_halfX;                                         //!< halflength in x - to define enclosing rectangle 
@@ -128,8 +128,8 @@ namespace Trk {
 #undef double
 #endif    
     
-    mutable int m_ordering;                         //!< -1 not set/ 1 anticlockwise / 0  clockwise 
-    mutable const Trk::Volume* m_combinedVolume;    //!< triangulated polygon   
+    int m_ordering;                                 //!< -1 not set/ 1 anticlockwise / 0  clockwise 
+    const Trk::Volume* m_combinedVolume;            //!< triangulated polygon   
     const Trk::Volume* m_envelope;                  //!< simplified envelope
          
    /** There's only one single object Acessor for the moment
@@ -143,7 +143,7 @@ namespace Trk {
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif 
- inline const std::vector<std::pair<double,double> > SimplePolygonBrepVolumeBounds::xyVertices() const { return m_xyVtx; }
+ inline std::vector<std::pair<double,double> > SimplePolygonBrepVolumeBounds::xyVertices() const { return m_xyVtx; }
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
 #endif     

@@ -98,10 +98,6 @@ StatusCode GenericMonitoringTool::book() {
     for (const auto& fillerVariable : fillerVariables) {
       m_fillerMap[fillerVariable].push_back(filler);
     }
-    const auto& fillerWeight = filler->histogramWeightName();
-    if (fillerWeight != "") {
-      m_fillerMap[fillerWeight].push_back(filler);
-    }
   }
 
   return StatusCode::SUCCESS;
@@ -114,26 +110,32 @@ namespace Monitored {
     }
 }
 
-std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredVariables) const {
+std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(const std::vector<std::reference_wrapper<IMonitoredVariable>>& monitoredVariables) const {
 
-
-  std::vector<std::shared_ptr<HistogramFiller>> result;
 
   // stage 1: get candidate fillers (assume generally we get only a few variables)
-  std::unordered_set<std::shared_ptr<HistogramFiller>> candidates;
+  std::vector<const HistogramFiller*> candidates;
   for (const auto& monValue : monitoredVariables) {
     const auto& match = m_fillerMap.find(monValue.get().name());
     if (match != m_fillerMap.end()) {
-      candidates.insert(match->second.begin(), match->second.end());
+      for (const auto& i : match->second) {
+        candidates.push_back(i.get());
+      }
     }
   } 
+  // dedup vector
+  std::sort(candidates.begin(), candidates.end());
+  candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
 
   // stage 2: refine for fillers that have all variables set
+  std::vector<std::shared_ptr<HistogramFiller>> result;
+  result.reserve(candidates.size());
   for (const auto& filler : candidates) {
     // Find the associated monitored variable for each histogram's variable(s)
     const auto& fillerVariables = filler->histogramVariablesNames();
 
     std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
+    variables.reserve(3); // enough for all current fillers
 
     for (const auto& fillerVariable : fillerVariables) {
       for (const auto& monValue : monitoredVariables) {
@@ -156,17 +158,42 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
       }
     }
 
-    if (fillerVariables.size() != variables.size()) {
-      ATH_MSG_DEBUG("Filler has different variables than monitoredVariables");
-      ATH_MSG_DEBUG("Filler variables            : " << fillerVariables);
-      ATH_MSG_DEBUG("Asked to fill from mon. vars: " << monitoredVariables);
-      ATH_MSG_DEBUG("Selected monitored variables: " << variables);
+    // Find the cutMask variable in the list of monitored variables
+    const auto& fillerCutMask = filler->histogramCutMaskName();
+    Monitored::IMonitoredVariable* cutmask = nullptr;
+    if ( fillerCutMask != "" ) {
+      for (const auto& monValue : monitoredVariables) {
+        if (fillerCutMask.compare(monValue.get().name()) == 0) {
+          cutmask = &monValue.get();
+          break;
+        }
+      }
+    }
+
+    if (ATH_UNLIKELY(fillerVariables.size() != variables.size())) {
+      ATH_MSG_WARNING("Filler has different variables than monitoredVariables:"
+                      << "\n  Filler variables            : " << fillerVariables
+                      << "\n  Asked to fill from mon. vars: " << monitoredVariables
+                      << "\n  Selected monitored variables: " << variables);
       continue;
     }
-    std::shared_ptr<HistogramFiller> fillerCopy(filler->clone());
-    fillerCopy->setMonitoredVariables(variables);
+    if (ATH_UNLIKELY(!fillerWeight.empty() && !weight)) {
+      ATH_MSG_WARNING("Filler weight not found in monitoredVariables:"
+                      << "\n  Filler weight               : " << fillerWeight
+                      << "\n  Asked to fill from mon. vars: " << monitoredVariables);
+      continue;
+    }
+    if (ATH_UNLIKELY(!fillerCutMask.empty() && !cutmask)) {
+      ATH_MSG_WARNING("Filler cut mask not found in monitoredVariables:"
+                      << "\n  Filler cut mask             : " << fillerCutMask
+                      << "\n  Asked to fill from mon. vars: " << monitoredVariables);
+      continue;
+    }
+    HistogramFiller* fillerCopy(filler->clone());
+    fillerCopy->setMonitoredVariables(std::move(variables));
     fillerCopy->setMonitoredWeight(weight);
-    result.push_back(fillerCopy);
+    fillerCopy->setMonitoredCutMask(cutmask);
+    result.emplace_back(fillerCopy);
   }
 
   return result;

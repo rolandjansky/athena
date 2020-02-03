@@ -34,6 +34,13 @@
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_IDCosmic.merge.RAW._lb0494._SFO-ALL._0001.1"
         ]
     },
+    "data_ALFACalib": {
+        "source": "data",
+        "format": "BS",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00354863.calibration_ALFACalib.daq.RAW._lb0000._SFO-1._0018.data"
+        ]
+    },
     "ttbar": {
         "source": "mc",
         "format": "RDO",

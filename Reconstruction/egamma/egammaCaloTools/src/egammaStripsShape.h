@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-   */
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EGAMMACALOTOOLS_EGAMMASTRIPSSHAPE_H
 #define EGAMMACALOTOOLS_EGAMMASTRIPSSHAPE_H
@@ -28,7 +28,6 @@ class LArEM_ID;
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "egammaInterfaces/IegammaStripsShape.h"
-#include "egammaInterfaces/Iegammaqweta1c.h"
 
 class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
 
@@ -47,17 +46,20 @@ public:
     StatusCode finalize() override;
 
     /** @brief AlgTool main method */
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, Info& info) const override final;
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               Info& info) const override final;
 
-private:
+  private:
 
     /** @brief From the original (eta,phi) position, find the location
       (sampling, barrel/end-cap, granularity) */
     /** @brief set an array of energies,eta,phi in ~40 strips around max*/
-    void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
-            double eta, double phi,  double deta, double dphi,
-            double* enecell, double* etacell, double* gracell,
-            int* ncell) const ;
+    void setArray(const xAOD::CaloCluster& cluster,
+                  const CaloDetDescrManager& cmgr,
+                  CaloSampling::CaloSample sam, double eta, double phi,
+                  double deta, double dphi, double* enecell, double* etacell,
+                  double* gracell, int* ncell) const;
     /** @brief check index of seed in the array*/
     void setIndexSeed(Info& info, double* etacell, double* gracell) const;  
     /** @brief set total width in strips*/
@@ -89,15 +91,6 @@ private:
     /** @brief set F1core*/
     void setF1core(Info& info, const xAOD::CaloCluster& cluster) const;
 
-    /** Tool to calculate correction for the eta width modulation in strips */
-    ToolHandle<Iegammaqweta1c> m_egammaqweta1c {this,
-        "egammaqweta1cTool", "egammaqweta1c/egammaqweta1c"};
-
-    /** @brief tool to calculate sum of energy in all samples */
-   
-    // Calo variables
-    const CaloDetDescrManager* m_calo_dd;
-
     // calculate quantities based on information in the strips in a region
     // around the cluster. 
     //
@@ -114,11 +107,6 @@ private:
     /** @brief boolean to calculate all variables*/
     Gaudi::Property<bool> m_ExecAllVariables {this, 
         "ExecAllVariables", true, "flag used by trigger"};
-
-    /** @brief boolean to calculate less important variables*/
-    Gaudi::Property<bool> m_ExecOtherVariables {this,
-        "ExecOtherVariables", true, "Calculate some less important variables"};
-
 };
 
 #endif

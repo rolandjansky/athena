@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /****************************************
@@ -26,8 +26,8 @@ namespace Trk {
 
   VxJetFitterVertexInfo::VxJetFitterVertexInfo() :
           VxSecVertexInfo(),
-          m_twoTrackVerticesInJet(0),
-          m_selectedTracksInJet(0) {}
+          m_twoTrackVerticesInJet(nullptr),
+          m_selectedTracksInJet(nullptr) {}
 
   VxJetFitterVertexInfo::VxJetFitterVertexInfo(const std::vector<Trk::VxJetCandidate*> & vertices,
                                                const Trk::TwoTrackVerticesInJet * twoTrackVertices,
@@ -41,8 +41,8 @@ namespace Trk {
 
   VxJetFitterVertexInfo::VxJetFitterVertexInfo(const VxJetFitterVertexInfo & rhs):
     VxSecVertexInfo(rhs),
-    m_twoTrackVerticesInJet(rhs.m_twoTrackVerticesInJet?new Trk::TwoTrackVerticesInJet(*rhs.m_twoTrackVerticesInJet):0),    
-    m_selectedTracksInJet(rhs.m_selectedTracksInJet?new Trk::SelectedTracksInJet(*rhs.m_selectedTracksInJet):0)
+    m_twoTrackVerticesInJet(rhs.m_twoTrackVerticesInJet?new Trk::TwoTrackVerticesInJet(*rhs.m_twoTrackVerticesInJet):nullptr),    
+    m_selectedTracksInJet(rhs.m_selectedTracksInJet?new Trk::SelectedTracksInJet(*rhs.m_selectedTracksInJet):nullptr)
   {
     std::vector<Trk::VxJetCandidate*>::const_iterator verticesBegin=rhs.m_verticesJF.begin();
     std::vector<Trk::VxJetCandidate*>::const_iterator verticesEnd=rhs.m_verticesJF.end();
@@ -50,7 +50,7 @@ namespace Trk {
     for (std::vector<Trk::VxJetCandidate*>::const_iterator verticesIter=verticesBegin;
 	 verticesIter!=verticesEnd;++verticesIter) {
       Trk::VxJetCandidate* myCandidate=*verticesIter;
-      if (myCandidate!=0) {
+      if (myCandidate!=nullptr) {
 	m_verticesJF.push_back(new Trk::VxJetCandidate(*myCandidate));
       } else {
 	std::cout << " Warning in VxSecVertexInfo: tried in copy constructor to copy over a zero pointer Vertex " << std::endl;
@@ -73,14 +73,14 @@ namespace Trk {
       for (std::vector<Trk::VxJetCandidate*>::const_iterator verticesIter=verticesBegin;
 	   verticesIter!=verticesEnd;++verticesIter) {
 	Trk::VxJetCandidate* myCandidate=*verticesIter;
-	if (myCandidate!=0) {
+	if (myCandidate!=nullptr) {
 	  m_verticesJF.push_back(new Trk::VxJetCandidate(*myCandidate));
 	} else {
 	  std::cout << " Warning in VxSecVertexInfo: tried in copy constructor to copy over a zero pointer Vertex " << std::endl;
 	}
       }   
-      m_twoTrackVerticesInJet=rhs.m_twoTrackVerticesInJet?new Trk::TwoTrackVerticesInJet(*rhs.m_twoTrackVerticesInJet):0;
-      m_selectedTracksInJet=rhs.m_selectedTracksInJet?new Trk::SelectedTracksInJet(*rhs.m_selectedTracksInJet):0;
+      m_twoTrackVerticesInJet=rhs.m_twoTrackVerticesInJet?new Trk::TwoTrackVerticesInJet(*rhs.m_twoTrackVerticesInJet):nullptr;
+      m_selectedTracksInJet=rhs.m_selectedTracksInJet?new Trk::SelectedTracksInJet(*rhs.m_selectedTracksInJet):nullptr;
       m_SVOwnership=true;    
     }
     return *this;
@@ -95,7 +95,7 @@ namespace Trk {
       for (std::vector<Trk::VxJetCandidate*>::const_iterator verticesIter=verticesBegin;
 	   verticesIter!=verticesEnd;++verticesIter) {
         Trk::VxJetCandidate* myCandidate=*verticesIter;
-        if (myCandidate!=0) {
+        if (myCandidate!=nullptr) {
 	  delete myCandidate;
         } else {
 	  std::cout << " Warning in VxSecVertexInfo: tried to delete a zero pointer --> Inconsistency found. " << std::endl;

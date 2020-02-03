@@ -30,8 +30,8 @@ find_package( nlohmann_json )
 atlas_add_component( PerfMonComps
    src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   ${PYTHON_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES}
+   ${Python_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${Python_LIBRARIES}
    ${CMAKE_DL_LIBS} AthenaBaseComps AthenaKernel RootUtils CxxUtils
    PerfMonEvent PerfMonKernel SGTools StoreGateLib GaudiKernel
    AthDSoCallBacks nlohmann_json::nlohmann_json)
@@ -39,3 +39,4 @@ atlas_add_component( PerfMonComps
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( scripts/PerfMonMTSvc_plotter.py )

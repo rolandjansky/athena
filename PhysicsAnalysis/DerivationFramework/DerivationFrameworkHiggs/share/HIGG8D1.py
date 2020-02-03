@@ -107,7 +107,7 @@ thinningTools.append(HIGG8D1JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 HIGG8D1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "HIGG8D1MuonTPThinningTool",
-                                                                           ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                           StreamName              = streamName,
                                                                            MuonKey                 = "Muons",
                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG8D1MuonTPThinningTool
@@ -116,7 +116,7 @@ thinningTools.append(HIGG8D1MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG8D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "HIGG8D1ElectronTPThinningTool",
-                                                                                 ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey                   = "Electrons",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG8D1ElectronTPThinningTool
@@ -125,7 +125,7 @@ thinningTools.append(HIGG8D1ElectronTPThinningTool)
 # Tracks associated with Taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG8D1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "HIGG8D1TauTPThinningTool",
-                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           TauKey                  = "TauJets",
                                                                           SelectionString         = "TauJets.pt > 15*GeV",
                                                                           ConeSize                = 0.6,
@@ -137,7 +137,7 @@ thinningTools.append(HIGG8D1TauTPThinningTool)
 #from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 HIGG8D1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "HIGG8D1ElectronCCThinningTool",
-                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           SGKey                   = "Electrons",
                                                                           CaloClCollectionSGKey   = "egammaClusters",
                                                                           SelectionString         = "Electrons.pt >= 5*GeV",

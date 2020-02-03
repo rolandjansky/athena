@@ -55,7 +55,7 @@ class ConfiguredPriVtxAndPartCreation:
 
       topSequence += InDetPriVxFinder
       if InDetFlags.doPrintConfigurables():
-        print InDetPriVxFinder
+        printfunc (InDetPriVxFinder)
 
 
 

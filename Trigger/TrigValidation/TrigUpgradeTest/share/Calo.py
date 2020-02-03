@@ -1,13 +1,15 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 if not 'doHLTCaloTopo' in dir() :
   doHLTCaloTopo=True
 if not 'doL2Egamma' in dir():
   doL2Egamma=True
-createHLTMenuExternally=True  
-include("TrigUpgradeTest/testHLT_MT.py")
+createHLTMenuExternally=True
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -18,10 +20,11 @@ doL2Egamma=True
 # ----------------------------------------------------------------
 # Setup Views
 # ----------------------------------------------------------------
-from AthenaCommon.CFElements import stepSeq,seqOR
+from AthenaCommon.CFElements import stepSeq,seqOR,findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
 
-from L1Decoder.L1DecoderConf import L1TestDecoder # this guy produces 
+topSequence.remove( findAlgorithm(topSequence, "L1Decoder") )
+from L1Decoder.L1DecoderConf import L1TestDecoder
 topSequence += L1TestDecoder("L1TestDecoder", OutputLevel=DEBUG)
 
 steps = seqOR("HLTTop")

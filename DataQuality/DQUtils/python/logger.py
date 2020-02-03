@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import os
 import logging
@@ -50,7 +50,12 @@ LoggerClass = logging.getLoggerClass()
 class ExtendedLogger(LoggerClass):
     def __init__(self, *args, **kwargs):
         LoggerClass.__init__(self, *args, **kwargs)
-        self.__dict__.update(logging._levelNames)
+        if hasattr (logging, '_levelNames'):
+            self.__dict__.update(logging._levelNames)
+        if hasattr (logging, '_nameToLevel'):
+            self.__dict__.update(logging._nameToLevel)
+        if hasattr (logging, '_levelToName'):
+            self.__dict__.update(logging._levelToName)
 
     def verbose(self, *args):
         self.log(VERBOSE_LEVEL, *args)

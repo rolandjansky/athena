@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 # LS2_v1.py menu for the long shutdown development
@@ -51,6 +51,12 @@ def setupMenu():
 
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
+
+        # Additional intermediate thresholds for validation comparisons
+        ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
+        ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
 
      ]
 

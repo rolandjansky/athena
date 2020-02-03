@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUCALIBRATELC_H
@@ -28,14 +28,12 @@ public:
   TauCalibrateLC(const std::string& name="TauCalibrateLC");
     ~TauCalibrateLC();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
-    virtual void print() const { }
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) override;
 
 
 private:
-    std::string m_configPath;
     std::string m_calibrationFile; //!< energy calibration file
 
     static const int s_nProngBins = 2;

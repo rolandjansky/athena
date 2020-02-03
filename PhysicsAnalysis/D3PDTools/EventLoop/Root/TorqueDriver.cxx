@@ -1,14 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -17,7 +11,10 @@
 
 #include <EventLoop/TorqueDriver.h>
 
+#include <AsgTools/StatusCode.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -46,28 +43,44 @@ namespace EL
 
 
 
-  std::string TorqueDriver ::
-  batchJobId () const
+  ::StatusCode TorqueDriver ::
+  doManagerStep (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
-    return "EL_JOBID=$PBS_ARRAYID\n";
-  }
-
-
-
-  void TorqueDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
-	       std::size_t njob) const
-  {
-    RCU_READ_INVARIANT (this);
-
+    using namespace msgEventLoop;
+    ANA_CHECK (BatchDriver::doManagerStep (data));
+    switch (data.step)
     {
-      std::ostringstream cmd;
-      cmd << "cd " << location << "/submit && qsub "
-	  << options.castString (Job::optSubmitFlags)
-	  << " -t 0-" << (njob-1) << " run";
-      if (gSystem->Exec (cmd.str().c_str()) != 0)
-	RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+    case Detail::ManagerStep::batchScriptVar:
+      {
+        data.batchJobId = "EL_JOBID=$PBS_ARRAYID\n";
+      }
+      break;
+
+
+    case Detail::ManagerStep::submitJob:
+    case Detail::ManagerStep::doResubmit:
+      {
+        if (data.resubmit)
+          RCU_THROW_MSG ("resubmission not supported for this driver");
+
+        assert (!data.batchJobIndices.empty());
+        assert (data.batchJobIndices.back() + 1 == data.batchJobIndices.size());
+        const std::size_t njob = data.batchJobIndices.size();
+
+        std::ostringstream cmd;
+        cmd << "cd " << data.submitDir << "/submit && qsub "
+            << data.options.castString (Job::optSubmitFlags)
+            << " -t 0-" << (njob-1) << " run";
+        if (gSystem->Exec (cmd.str().c_str()) != 0)
+          RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+        data.submitted = true;
+      }
+      break;
+
+    default:
+      break;
     }
+    return ::StatusCode::SUCCESS;
   }
 }

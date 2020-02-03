@@ -33,6 +33,14 @@ StatusCode CompareCells::execute( const EventContext& context ) const {
   CaloConstCellContainer c(SG::VIEW_ELEMENTS);
   m_dataAccessSvc->loadFullCollections( context, c).ignore();
 
+  TileCellCollection mbts (SG::VIEW_ELEMENTS); // testing
+  m_dataAccessSvc->loadMBTS( context, mbts).ignore();
+
+  ATH_MSG_DEBUG("MBTS Dump");
+  for (size_t i=0;i<mbts.size(); ++i)
+     ATH_MSG_DEBUG(mbts[i]->eta() << " " << mbts[i]->phi() << " " << mbts[i]->caloDDE()->getSampling() << " " << mbts[i]->energy() );
+
+
   SG::ReadHandle<CaloCellContainer> off(m_calocellcollectionKey,context);
 
   const EventIDBase eventInfo = context.eventID();

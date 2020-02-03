@@ -19,7 +19,7 @@ namespace TrigConf {
     *
     * Provides access to menu name and to the L1Topo putput lines
     */
-   class L1TopoMenu final : virtual public DataStructure {
+   class L1TopoMenu final : public DataStructure {
    public:
 
       /** Constructor */
@@ -34,7 +34,7 @@ namespace TrigConf {
       ~L1TopoMenu();
 
       /** Accessor to the menu name */
-      std::string name() const;
+      const std::string & name() const;
 
       /** Accessor to the menu version */
       unsigned int version() const;

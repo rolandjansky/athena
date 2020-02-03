@@ -1,35 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPC_CABLING_MUONRPC_CABLINGSVC_H
 #define MUONRPC_CABLING_MUONRPC_CABLINGSVC_H
 
-//#include "GaudiKernel/Service.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "MuonRPC_Cabling/CablingRPC.h"
-// added 
 #include "RPCcablingInterface/IRPCcablingSvc.h"
-//#include "MuonCondInterface/IRPCCablingDbTool.h"
 #include "MuonRPC_Cabling/ICallBackMuonRPC_Cabling.h"
+#include "MuonCondInterface/IRPCCablingDbTool.h"
+#include "MuonCondInterface/IRPCTriggerDbTool.h"
 
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "RPC_CondCabling/RPCPadParameters.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class MuonRPC_CablingMap;
-class RpcIdHelper;
-class IRPCCablingDbTool;
-class IRPCTriggerDbTool;
 class RpcPadIdHash;
-
-
-
-
-//static const InterfaceID IID_IMuonRPC_CablingSvc("MuonRPC_CablingSvc", 1, 0);
 
 class MuonRPC_CablingSvc : public AthService,  virtual public IRPCcablingSvc,
                            virtual public ICallBackMuonRPC_Cabling
@@ -39,13 +31,10 @@ class MuonRPC_CablingSvc : public AthService,  virtual public IRPCcablingSvc,
 public:
 
   MuonRPC_CablingSvc(const std::string& name,ISvcLocator* sl);
-  virtual ~MuonRPC_CablingSvc();
+  virtual ~MuonRPC_CablingSvc()=default;
   
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-
-    // NOT NEEDED ?
-    //  static const InterfaceID& interfaceID() { return IID_IMuonRPC_CablingSvc; }
 
     virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
 
@@ -253,8 +242,7 @@ public:
     // list of RPCPadParameters
     RPCPadParameters  m_RPCPadParameters_array[64][8];
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 

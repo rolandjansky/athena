@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_ELMUFINDER_H
@@ -10,9 +10,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// #include "MuonSelectorTools/IMuonSelectionTool.h"
-// #include "MuonSelectorTools/errorcheck.h"
-#include "MuonSelectorTools/MuonSelectionTool.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 

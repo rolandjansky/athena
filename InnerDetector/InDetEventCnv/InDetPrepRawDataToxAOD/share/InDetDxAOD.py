@@ -360,8 +360,8 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
-    TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    import InDetRecExample.TrackingCommon
+    TRT_dEdx_Tool = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool()
     ToolSvc += TRT_dEdx_Tool
 
     # to get shared hit info
@@ -412,9 +412,18 @@ if dumpPixInfo:
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDCSStateConditions=True,
+                                    UseDCSStatusConditions=True)
+
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+    if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
+      condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
 
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):

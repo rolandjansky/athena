@@ -15,7 +15,7 @@ namespace TrigConf {
     * Provides access to the name of the trigger line, to the connected algorithm
     *  and the lines the signals are being sent on.
     */
-   class L1TopoOutput final : virtual public DataStructure {
+   class L1TopoOutput final : public DataStructure {
    public:
       /** Constructor */
       L1TopoOutput();

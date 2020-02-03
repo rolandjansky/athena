@@ -19,7 +19,7 @@ from TrigValTools.TrigValSteering.Input import get_input
 # HLT step (BS->BS)
 hlt = ExecStep.ExecStep()
 hlt.type = 'athenaHLT'
-hlt.job_options = 'TrigUpgradeTest/full_menu.py'
+hlt.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 hlt.input = 'data'
 hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
 hlt.args += ' -o output'

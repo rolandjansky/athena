@@ -5,7 +5,7 @@ simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
 if not 'DECAYS' in simdict:
     simdict['DECAYS'] = True
 else:
-    print 'WARNING: DECAYS key already set to',simdict['DECAYS'],'not sure if I should change that.'
+    printfunc ('WARNING: DECAYS key already set to',simdict['DECAYS'],'not sure if I should change that.')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from G4AtlasApps.SimFlags import simFlags

@@ -10,7 +10,6 @@
 #include "VxVertex/PrimaryVertexSelector.h" // new since rel 17.2
 
 //general interface for secondary vertex finders
-#include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 #include "VxSecVertex/VxJetFitterVertexInfo.h"
@@ -32,7 +31,6 @@
 
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 
-#include "JetTagTools/JetFitterVariablesFactory.h"
 #include "JetTagTools/MSVVariablesFactory.h"
 
 #include "xAODBTagging/BTagging.h"
@@ -55,16 +53,11 @@ namespace Analysis {
 
   JetSecVertexingAlg::JetSecVertexingAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_secVertexFinderToolHandle(this),
-    m_JFvarFactory("Analysis::JetFitterVariablesFactory",this),
     m_MSVvarFactory("Analysis::MSVVariablesFactory",this),
     m_vxPrimaryName("PrimaryVertices")
   {
     declareProperty("PrimaryVertexName",  m_vxPrimaryName);
-    //List of the secondary vertex finders in jet to be run
-    declareProperty("SecVtxFinder",          m_secVertexFinderToolHandle);
     declareProperty("SecVtxFinderxAODBaseName", m_secVertexFinderBaseName);
-    declareProperty("JetFitterVariableFactory",          m_JFvarFactory);
     declareProperty("MSVVariableFactory",          m_MSVvarFactory);
   }
 
@@ -77,25 +70,16 @@ namespace Analysis {
     // by job configuration.
     ATH_CHECK( m_JetCollectionName.initialize() );
     ATH_CHECK( m_jetParticleLinkName.initialize() );
+    ATH_CHECK( m_VxSecVertexInfoName.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
-    ATH_CHECK( m_BTagSVCollectionName.initialize() );
-    ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
+    if ((m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV")) ATH_CHECK( m_BTagSVCollectionName.initialize() );
+    if (m_secVertexFinderBaseName == "JetFitter") ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
     ATH_CHECK( m_jetSVLinkName.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
     /* ----------------------------------------------------------------------------------- */
 
-    if ( m_secVertexFinderToolHandle.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("#BTAG# Failed to retrieve " << m_secVertexFinderToolHandle);
-    } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved " << m_secVertexFinderToolHandle);
-    }
-    if ( m_JFvarFactory.retrieve().isFailure() ) {
-       ATH_MSG_ERROR("#BTAG# Failed to retrieve " << m_JFvarFactory);
-    } else {
-       ATH_MSG_DEBUG("#BTAG# Retrieved " << m_JFvarFactory);
-    }
     if ( m_MSVvarFactory.retrieve().isFailure() ) {
        ATH_MSG_ERROR("#BTAG# Failed to retrieve " << m_MSVvarFactory);
     } else {
@@ -115,10 +99,10 @@ namespace Analysis {
     }
 
     SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::TrackParticleContainer> > > h_jetParticleLinkName (m_jetParticleLinkName);
-    /*if (!h_jetParticleLinkName.isAvailable()) { //isValid() is also crashing
+    if (!h_jetParticleLinkName.isAvailable()) {
       ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << m_jetParticleLinkName.key()  );
       return StatusCode::FAILURE;
-    }*/
+    }
  
     const xAOD::Vertex* primaryVertex(0);
 
@@ -128,6 +112,20 @@ namespace Analysis {
         ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VertexCollectionName.key()  );
         return StatusCode::FAILURE;
     }
+
+    //retrieve VxSecVertexInfo
+    SG::ReadHandle<Trk::VxSecVertexInfoContainer> h_VxSecVertexInfoName (m_VxSecVertexInfoName);
+    if (!h_VxSecVertexInfoName.isValid()) {
+        ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VxSecVertexInfoName.key()  );
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Size of VxSecVertexInfo: " << h_VxSecVertexInfoName->size());
+
+    if (h_VxSecVertexInfoName->size() != h_JetCollectionName->size()) {
+      ATH_MSG_ERROR("Size of jet container different than size of VxSecVertexInfo");
+      return StatusCode::FAILURE;
+    }
+
     unsigned int nVertexes = h_VertexCollectionName->size();
     if (nVertexes == 0) {
       ATH_MSG_DEBUG("#BTAG#  Vertex container is empty");
@@ -172,17 +170,19 @@ namespace Analysis {
                                         std::make_unique<xAOD::VertexAuxContainer>()) );
     }
 
-    for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter) {
+    Trk::VxSecVertexInfoContainer::const_iterator infoSVIter = h_VxSecVertexInfoName->begin();
+    for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter, ++infoSVIter) {
       const xAOD::Jet& jetToTag = **jetIter;
+      const Trk::VxSecVertexInfo& myVertexInfo = **infoSVIter;
       const xAOD::TrackParticleContainer* theTrackParticleContainer = 0;
 
       //Get it from decor jet
       const std::vector<ElementLink< xAOD::TrackParticleContainer > >& tracksInJet = h_jetParticleLinkName(jetToTag);
 
       if(tracksInJet.size()==0){
+        ATH_MSG_DEBUG("#BTAG# No track in Jet");
         continue;
-	      //return StatusCode::SUCCESS;
-      } 
+      }
    
       std::vector<const xAOD::IParticle*> inputIParticles;
 
@@ -201,51 +201,38 @@ namespace Analysis {
         inputIParticles.push_back(*inputTrackParticle);
       }
 
-      ATH_MSG_DEBUG("#BTAG#  Running " << m_secVertexFinderToolHandle);
-
-      const Trk::VxSecVertexInfo* myVertexInfo = m_secVertexFinderToolHandle->findSecVertex(PrimaryVtx, (*jetIter)->p4(), inputIParticles);        
-
-      ATH_MSG_DEBUG("#BTAG# Number of vertices found: " << myVertexInfo->vertices().size());
-
-      if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
+      if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(&myVertexInfo)) {
 	      ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
         if(basename.find("MSV") == 0){
           StatusCode sc = m_MSVvarFactory->createMSVContainer(jetToTag, myVertexInfoVKal, &(*h_BTagSVCollectionName), PrimaryVtx);
           if(sc.isFailure()){
             ATH_MSG_ERROR("#BTAG# error filling variables in MSVVariablesFactory" );
-            delete myVertexInfo;
             return sc;
           }
         }
         else { //SV1
-          ATH_MSG_DEBUG("#BTAG# error filling variables from VxSecVKalVertexInfo for tool 1 " << m_jetSVLinkName.key());
           SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
           std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
-      
 	        StatusCode sc = createSecVkalContainer(&(*h_BTagSVCollectionName), &SVertexLinks, myVertexInfoVKal);
-          ATH_MSG_DEBUG("#BTAG# error filling variables from VxSecVKalVertexInfo for tool 2 size " << SVertexLinks.size());
           h_jetSVLinkName(jetToTag) = SVertexLinks;
 	        if(sc.isFailure()){
-	          ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo for tool " << m_secVertexFinderToolHandle);
-            delete myVertexInfo;
+	          ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo " << m_VxSecVertexInfoName.key());
 	          return sc;
 	        }
         }
-      } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
+      } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(&myVertexInfo)) {
         ATH_MSG_DEBUG("#BTAG# Found VxJetFitterVertexInfo information");
         SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
         std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVtxLinks;
         StatusCode sc = createJFContainer(&(*h_BTagJFVtxCollectionName), &JFVtxLinks, myVertexInfoJetFitter, theTrackParticleContainer);
         h_jetSVLinkName(jetToTag) = JFVtxLinks;
         if(sc.isFailure()){
-          ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo for tool " << m_secVertexFinderToolHandle);
-          delete myVertexInfo;
+          ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo " << m_VxSecVertexInfoName.key());
           return sc;
         }
       } else {
-	        ATH_MSG_WARNING("#BTAG# VxSecVertexInfo pointer cannot be interpreted for tool " << m_secVertexFinderToolHandle);
-        }
-        delete myVertexInfo;
+	        ATH_MSG_WARNING("#BTAG# VxSecVertexInfo pointer cannot be interpreted for " << m_VxSecVertexInfoName.key());
+      }
     }// for loop on jets
 
     return StatusCode::SUCCESS;

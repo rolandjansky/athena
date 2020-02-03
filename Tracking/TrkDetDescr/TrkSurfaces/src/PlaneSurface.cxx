@@ -37,9 +37,8 @@ Trk::PlaneSurface::PlaneSurface()
 
 // copy constructor
 Trk::PlaneSurface::PlaneSurface(const PlaneSurface& psf)
-  : Trk::Surface(psf)
-  , m_bounds(psf.m_bounds)
-{}
+   
+= default;
 
 // copy constructor with shift
 Trk::PlaneSurface::PlaneSurface(const PlaneSurface& psf, const Amg::Transform3D& transf)
@@ -155,7 +154,7 @@ Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::SharedObject<cons
 {}
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::PlaneSurface::~PlaneSurface() {}
+Trk::PlaneSurface::~PlaneSurface() = default;
 
 Trk::PlaneSurface&
 Trk::PlaneSurface::operator=(const Trk::PlaneSurface& psf)
@@ -195,7 +194,7 @@ Trk::PlaneSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
   locpos = Amg::Vector2D(loc3Dframe.x(), loc3Dframe.y());
-  return ((loc3Dframe.z() * loc3Dframe.z() > s_onSurfaceTolerance * s_onSurfaceTolerance) ? false : true);
+  return (loc3Dframe.z() * loc3Dframe.z() <= s_onSurfaceTolerance * s_onSurfaceTolerance);
 }
 
 void

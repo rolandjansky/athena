@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef EGAMMACALOTOOLS_EGAMMACALOCLUSTERSELECTOR_H
 #define EGAMMACALOTOOLS_EGAMMACALOCLUSTERSELECTOR_H
@@ -29,7 +29,8 @@ public:
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
 
-  bool passSelection(const xAOD::CaloCluster* cluster) const override final;
+  bool passSelection(const xAOD::CaloCluster* cluster,
+                     const CaloDetDescrManager& cmgr) const override final;
 
 private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,8 +18,8 @@
 class TEnv;
 
 namespace AsgConfigHelper{
-  std::string  findConfigFile (std::string input, const std::map<std::string,std::string>& configmap);
-  unsigned int  findMask (std::string input, const std::map<std::string,unsigned int>& maskmap);
+  std::string  findConfigFile (const std::string& input, const std::map<std::string,std::string>& configmap);
+  unsigned int  findMask (const std::string& input, const std::map<std::string,unsigned int>& maskmap);
   std::vector<double> HelperDouble(const std::string& input,  TEnv& env);  
   std::vector<float> HelperFloat(const std::string& input,  TEnv& env);  
   std::vector<int> HelperInt(const std::string& input, TEnv& env);

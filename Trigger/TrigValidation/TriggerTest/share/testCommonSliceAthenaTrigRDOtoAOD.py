@@ -28,7 +28,7 @@ import imp
 try:
     imp.find_module('TrigCostD3PDMaker')
 except:
-    print 'CostMonitoring packages not available, setting  enableCostMonitoring=False'
+    printfunc ('CostMonitoring packages not available, setting  enableCostMonitoring=False')
     enableCostMonitoring=False
 
 # flags for RecExCommon
@@ -226,7 +226,7 @@ if 'sliceName' in dir() and 'minbias' in sliceName and hasattr(topSequence, "LVL
 #
 #import AthenaCommon.Configurable as Configurable
 #Configurable.log.setLevel( INFO )
-#print topSequence.getChildren()
+#print (topSequence.getChildren())
 
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out

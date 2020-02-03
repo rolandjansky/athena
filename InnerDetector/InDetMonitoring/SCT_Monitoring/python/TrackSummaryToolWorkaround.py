@@ -16,6 +16,16 @@ def TrackSummaryToolWorkaround(flags):
     ############################## TO RUN TRACKSUMMARYTOOL #####################
 
     # Taken from InnerDetector/InDetDigitization/PixelDigitization/python/PixelDigitizationConfigNew.py
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
+    result.merge(PixelConfigCondAlgCfg(flags,
+                                    UseCalibConditions=True,
+                                    UseDeadmapConditions=True,
+                                    UseDCSStateConditions=False,
+                                    UseDCSStatusConditions=False,
+                                    UseDCSHVConditions=True,
+                                    UseDCSTemperatureConditions=True,
+                                    UseTDAQConditions=False))
+
     from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
     InDetPixelConditionsSummaryTool = result.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
 

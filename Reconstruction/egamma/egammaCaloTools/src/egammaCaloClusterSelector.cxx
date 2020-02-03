@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "egammaCaloClusterSelector.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloCellList.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 egammaCaloClusterSelector::egammaCaloClusterSelector(const std::string& type, 
                                                      const std::string& name, 
                                                      const IInterface* parent) :
@@ -66,8 +66,9 @@ StatusCode egammaCaloClusterSelector::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) const
-{
+bool egammaCaloClusterSelector::passSelection(
+    const xAOD::CaloCluster* cluster, const CaloDetDescrManager& cmgr) const {
+  
   /* Minimum Cluster energy*/
   if ( cluster->et() < m_ClusterEtCut ){
     ATH_MSG_DEBUG("Cluster failed Energy Cut: dont make ROI");
@@ -123,7 +124,7 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
     SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
     if(m_doReta){
       IegammaMiddleShape::Info info;
-      StatusCode sc = m_egammaMiddleShape->execute(*cluster, *cellcoll, info);
+      StatusCode sc = m_egammaMiddleShape->execute(*cluster, cmgr,*cellcoll, info);
       if ( sc.isFailure() ) {
         ATH_MSG_WARNING("call to Middle shape returns failure for execute");
         return false;

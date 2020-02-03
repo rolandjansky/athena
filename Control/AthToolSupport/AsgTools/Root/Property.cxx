@@ -1,11 +1,13 @@
-// $Id: Property.cxx 802972 2017-04-15 18:13:17Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <iostream>
 
 // Local include(s):
 #include "AsgTools/Property.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 /// Macro used in implementing the type->name translation function
 #define DECLARE_TYPE( TYPE, NAME )              \

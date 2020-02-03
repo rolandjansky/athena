@@ -35,6 +35,7 @@ PURPOSE:  correct time for EM clusters
 #include <fstream>
 #include <sstream>
 
+#include "CxxUtils/checker_macros.h"
 class CaloClusterTimeTool : public AthAlgTool, virtual public ICaloClusterTimeTool 
 {
 public:

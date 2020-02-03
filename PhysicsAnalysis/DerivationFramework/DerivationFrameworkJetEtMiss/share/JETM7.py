@@ -80,7 +80,7 @@ thinningTools = []
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 JETM7MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name     = "JETM7MuonTPThinningTool",
-                                                                    ThinningService         = JETM7ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM7MuonTPThinningTool
@@ -89,7 +89,7 @@ thinningTools.append(JETM7MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM7ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM7ElectronTPThinningTool",
-                                                                               ThinningService         = JETM7ThinningHelper.ThinningSvc(),
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM7ElectronTPThinningTool
@@ -97,7 +97,7 @@ thinningTools.append(JETM7ElectronTPThinningTool)
 
 # TrackParticles associated with electrons
 JETM7PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM7PhotonTPThinningTool",
-                                                                             ThinningService         = JETM7ThinningHelper.ThinningSvc(),
+                                                                             StreamName              = streamName,
                                                                              SGKey                   = "Photons",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM7PhotonTPThinningTool
@@ -106,7 +106,7 @@ thinningTools.append(JETM7PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 JETM7TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM7TauTPThinningTool",
-                                                                        ThinningService = JETM7ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM7TauTPThinningTool

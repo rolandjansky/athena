@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.RecFlags                            import rec
 from AthenaCommon.SystemOfUnits                      import GeV
@@ -18,8 +18,6 @@ PyAthena.load_library('egammaEnumsDict')
 
 def PhotonCustomMET():
 
-    print "calculating PhotonCustomMET...."
-    
     from AthenaCommon.AppMgr                             import ToolSvc
     topSequence = AlgSequence()
 

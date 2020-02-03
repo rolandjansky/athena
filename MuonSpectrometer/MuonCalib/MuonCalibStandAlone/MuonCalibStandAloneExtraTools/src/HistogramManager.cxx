@@ -1,23 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.08.2008, AUTHOR: MAURO IODICE
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//
-// .L HistogramManager.C
-// HistogramManager * builder = new HistogramManager();
-// builder->METODO1();
-// builder->METODO2();
 
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
 
-//-------------------------
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "Identifier/IdentifierHash.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include <array>
 
@@ -268,23 +256,19 @@ namespace {
 
 }
 
-using namespace std;
 using namespace MuonCalib;
 
 HistogramManager::HistogramManager() {
-  // m_rootfile = new TFile();
-  m_rootfile = NULL;
+  m_idHelper = nullptr;
+  m_rootfile = nullptr;
   m_hList(0);
   m_doTracks = false;
 }
-HistogramManager::HistogramManager(const Muon::MuonIdHelperTool* muonIdHelperTool) {
-  // m_rootfile = new TFile();
-  m_muonIdHelperTool = muonIdHelperTool;
-  m_rootfile = NULL;
+HistogramManager::HistogramManager(const Muon::IMuonIdHelperSvc* idHelper) {
+  m_idHelper = idHelper;
+  m_rootfile = nullptr;
   m_hList(0);
   m_doTracks = false;
-}
-HistogramManager::~HistogramManager() {
 }
 
 void HistogramManager::SetDoTracks(bool the_tracks) {         
@@ -293,17 +277,14 @@ void HistogramManager::SetDoTracks(bool the_tracks) {
 
 void HistogramManager::buildGlobalHistos() {
 
-  //cout<<"Building Global Histos "  <<endl;
-
   if (!m_rootfile->IsOpen()){
-    //cout << "opening output file with default name"<< endl;
-    string defaultOutputFile="outDQA.root";
+    std::string defaultOutputFile="outDQA.root";
     openOutputFile(defaultOutputFile);
   }
 
   m_rootfile->cd();
 
-  string dir_name;
+  std::string dir_name;
   // Building Base directory :
   // /GLOBAL/ 
   dir_name="/GLOBAL";
@@ -339,23 +320,17 @@ void HistogramManager::buildGlobalHistos() {
   phiVseta->GetYaxis()->SetTitle("Segment_phi (deg)");
   phiVseta->GetXaxis()->SetTitle("Segment_eta");
 
-//   TH1F * segments;
-//   segments = new TH1F("seg","Segments per Event",40,0.,39.);
-//   segments->GetXaxis()->SetTitle("numSegments_per_event");
 }
   // TRACK Histograms ....
 void HistogramManager::buildTrackHistos() {
 
- //cout<<"Building Track Histos "  <<endl;
-
   if (!m_rootfile->IsOpen()){
-    //cout << "opening output file with default name"<< endl;
-    string defaultOutputFile="outDQA.root";
+    std::string defaultOutputFile="outDQA.root";
     openOutputFile(defaultOutputFile);
   }
 
   m_rootfile->cd();
-  string dir_name;
+  std::string dir_name;
   dir_name="TRACKS";
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
     // A new TDirectoryFile gets owned by the current directory (side effect).
@@ -363,10 +338,6 @@ void HistogramManager::buildTrackHistos() {
   }
 
   m_rootfile->cd("/TRACKS");
-
-    // TH1F * nmbts;
-    // nmbts=new TH1F("mbts_nb","number of mbts",12,-1.5,10.5);
-    // nmbts->GetXaxis()->SetTitle("number of mbts");
 
     TH1F * tmbts1;
     tmbts1=new TH1F("mbts1_time","Time mbts 1 (plus)",200,-100.,100.);
@@ -537,22 +508,16 @@ void HistogramManager::buildTrackHistos() {
 
 }
 
-  // DEBUG AND SPECIFIC-ANALYSIS Histograms ....
-  // buildDebugHistos();
-
-
 void HistogramManager::buildDebugHistos() {
 
-  //cout<<"Building DEBUG Histos "  <<endl;
 
   if (!m_rootfile->IsOpen()){
-    //cout << "opening output file with default name"<< endl;
-    string defaultOutputFile="outDQA.root";
+    std::string defaultOutputFile="outDQA.root";
     openOutputFile(defaultOutputFile);
   }
 
   m_rootfile->cd();
-  string dir_name;
+  std::string dir_name;
   // Building Base directory :
   // /DEBUG/ 
   dir_name=GetMdtDirectoryName();
@@ -561,10 +526,6 @@ void HistogramManager::buildDebugHistos() {
     new TDirectoryFile("DEBUG","DEBUG");
   }
   m_rootfile->cd("/DEBUG");
-
-  // new TH2F("t0FitVst0RPC","; t0RPC (ns); t0Refit (ns)",200,-50.,50.,200,-50.,50.);
-  // new TH2F("At0FitVsAt0RPC","; slope t0RPC; slope t0Refit (ns)",200,-50.,50.,200,-50.,50.);
-  // new TH2F("Bt0FitVsBt0RPC","; Intercept t0RPC; Intercept t0Refit",200,-50.,50.,200,-50.,50.);
   
   TH1F * h1 = new TH1F("nSegPerTrack","n Segments",21,-0.5,20.5);
   h1->GetXaxis()->SetTitle("nSegments");
@@ -591,17 +552,13 @@ void HistogramManager::buildDebugHistos() {
 }
 
 
-void HistogramManager::buildTopLevel(string region, string side,int sectorMin, int sectorMax) {
+void HistogramManager::buildTopLevel(std::string region, std::string side,int sectorMin, int sectorMax) {
 
-  //ToString _ts;
-  string regionSide = region+"_"+side;
-  string dir_name="none";
-
-  //cout<<"Building top level histograms for region : " << regionSide <<endl;
+  std::string regionSide = region+"_"+side;
+  std::string dir_name="none";
 
   if (!m_rootfile->IsOpen()){
-    //cout << "opening output file with default name"<< endl;
-    string defaultOutputFile="outDQA.root";
+    std::string defaultOutputFile="outDQA.root";
     openOutputFile(defaultOutputFile);
   }
 
@@ -676,7 +633,7 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
   // Building Base directory :
   // /MDTvsRPC/ (for Barrel) -  /MDTvsTGC/ (for Endcap)
   dir_name = GetTDaqDirectoryName(region);
-  string MDTvsTriggerChambers="Undefined";
+  std::string MDTvsTriggerChambers="Undefined";
   if (region == "Barrel") MDTvsTriggerChambers="MDTvsRPC";
   if (region == "Endcap") MDTvsTriggerChambers="MDTvsTGC";
   if (!m_rootfile->GetDirectory(dir_name.c_str())) {
@@ -686,7 +643,7 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
   
   // Building <region-side> (ex. Barrel_A) directories :
   // motherdir  =  /MDT/;
-  string motherdir; 
+  std::string motherdir; 
   motherdir = GetMdtDirectoryName();
   m_rootfile->cd(motherdir.c_str());
   dir_name=GetMdtDirectoryName(region,side);
@@ -702,8 +659,8 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
     float tdriftMax=800.;
     int tdriftNbins = 100;
 
-    string histoType;
-    string histoTitle;
+    std::string histoType;
+    std::string histoTitle;
     //
     histoType="t0PerSector_Inner";
     histoTitle = histoType;
@@ -758,86 +715,6 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
       h2->GetXaxis()->SetTitle("Sector nr.");
       h2->GetYaxis()->SetTitle("tdrift per ML (ns)");
     }
-
-    /*
-    histoType="t0PerSector_Inner";
-    histoTitle = histoType;
-    h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-    h->GetXaxis()->SetTitle("Sector nr.");
-    h->GetYaxis()->SetTitle("t0 (ns)");
-    h->SetMarkerStyle(20);
-    h->SetMarkerSize(1.0);
-    h->SetAxisRange(400.,800.,"Y"); 
-    //
-    histoType="t0PerSector_Middle";
-    histoTitle = histoType;
-    h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-    h->GetXaxis()->SetTitle("Sector nr.");
-    h->GetYaxis()->SetTitle("t0 (ns)");
-    h->SetMarkerStyle(20);
-    h->SetMarkerSize(1.0);
-    h->SetAxisRange(400.,800.,"Y"); 
-    //
-    histoType="t0PerSector_Outer";
-    histoTitle = histoType;
-    h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-    h->GetXaxis()->SetTitle("Sector nr.");
-    h->GetYaxis()->SetTitle("t0 (ns)");
-    h->SetMarkerStyle(20);
-    h->SetMarkerSize(1.0);
-    h->SetAxisRange(400.,800.,"Y"); 
-    //
-    if(region=="Endcap")
-    {
-      histoType="t0PerSector_extra";
-      histoTitle = histoType;
-      h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-      h->GetXaxis()->SetTitle("Sector nr.");
-      h->GetYaxis()->SetTitle("t0 (ns)");
-      h->SetMarkerStyle(20);
-      h->SetMarkerSize(1.0);
-      h->SetAxisRange(400.,800.,"Y"); 
-    }
-    //
-    histoType="tdriftPerSector_Inner";
-    histoTitle = histoType;
-    h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-    h->GetXaxis()->SetTitle("Sector nr.");
-    h->GetYaxis()->SetTitle("tdrift (ns)");
-    h->SetMarkerStyle(20);
-    h->SetMarkerSize(1.0);
-    h->SetAxisRange(600.,800.,"Y"); 
-    //
-    histoType="tdriftPerSector_Middle";
-    histoTitle = histoType;
-    h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-    h->GetXaxis()->SetTitle("Sector nr.");
-    h->GetYaxis()->SetTitle("tdrift (ns)");
-    h->SetMarkerStyle(20);
-    h->SetMarkerSize(1.0);
-    h->SetAxisRange(600.,800.,"Y"); 
-    //
-    histoType="tdriftPerSector_Outer";
-    histoTitle = histoType;
-    h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-    h->GetXaxis()->SetTitle("Sector nr.");
-    h->GetYaxis()->SetTitle("tdrift (ns)");
-    h->SetMarkerStyle(20);
-    h->SetMarkerSize(1.0);
-    h->SetAxisRange(600.,800.,"Y"); 
-    //
-    if(region=="Endcap")
-    {
-      histoType="tdriftPerSector_extra";
-      histoTitle = histoType;
-      h = new TH1F(histoType.c_str(),histoTitle.c_str(),16,0.5,16.5);
-      h->GetXaxis()->SetTitle("Sector nr.");
-      h->GetYaxis()->SetTitle("tdrift (ns)");
-      h->SetMarkerStyle(20);
-      h->SetMarkerSize(1.0);
-      h->SetAxisRange(600.,800.,"Y"); 
-    }
-    */
 
     histoType="time_Fit_t0";
     histoTitle = histoType;
@@ -992,15 +869,10 @@ void HistogramManager::buildTopLevel(string region, string side,int sectorMin, i
 }
 
 
-void HistogramManager::buildSector(string region, string side, int sector) {
+void HistogramManager::buildSector(std::string region, std::string side, int sector) {
 
-  // cout << " HistogramManager::buildSector - building sector: "<<sector
-  //      << " side "<<side<<" in the "<<region << endl;
-
-  string sectordir=GetMdtDirectoryName(region, side, sector);
+  std::string sectordir=GetMdtDirectoryName(region, side, sector);
   if (m_rootfile->GetDirectory(sectordir.c_str())) {
-    // cout << " Sector Histograms already built for : Region "<<region
-    // 	 <<" side "<<side<<" Sector "<<sector<<endl;
     return;
   } 
 
@@ -1010,7 +882,7 @@ void HistogramManager::buildSector(string region, string side, int sector) {
   std::stable_sort(chamberList.begin(), chamberList.end(), sortMdtChambersByName() ) ;
   int numTotChambers=chamberList.size();
 
-  string previousChamberType = "XXX";
+  std::string previousChamberType = "XXX";
   std::vector<MDTName> chamberListPerType[7];
   int totChamberTypes = 0;
   for (int ichamber = 0; ichamber<numTotChambers; ichamber++ ) {
@@ -1023,14 +895,12 @@ void HistogramManager::buildSector(string region, string side, int sector) {
 
 
   ToString ts;
-  //bool smallSector = (sector/2)*2==sector;
-  string sectorString=ts(sector);
+  std::string sectorString=ts(sector);
   if(sector<10) sectorString="0"+sectorString;
-  string sector_name="Sector"+sectorString;
-  string sector_title="Sector "+sectorString;
+  std::string sector_name="Sector"+sectorString;
+  std::string sector_title="Sector "+sectorString;
    
-  // string motherdir="/MDT/Barrel_"+side;
-  string motherdir= GetMdtDirectoryName(region,side);
+  std::string motherdir= GetMdtDirectoryName(region,side);
   m_rootfile->cd(motherdir.c_str());
   TH1F * h;
   TH1F * h1;
@@ -1040,29 +910,15 @@ void HistogramManager::buildSector(string region, string side, int sector) {
   TDirectoryFile * overview = new TDirectoryFile("OVERVIEW","OVERVIEW","",sector_dir);
    
   overview->cd();
-  string histoTitPart2 = region+"_"+side+" Sector "+sectorString;
-  string histoType;
-  string histoTitle;
+  std::string histoTitPart2 = region+"_"+side+" Sector "+sectorString;
+  std::string histoType;
+  std::string histoTitle;
 
   int nbinMultipl=50;
   float xminMultipl=0.5; 
   float xmaxMultipl=50.5;
   ///////////////////////////////////////////////////////////////////////
     // DEFINITION OF HISTOGRAMS in directory /MDT/<region>_{A,C}/SectorXX/OVERVIEW :
-    //
-//     histoType="HitMultiplicity";
-//     histoTitle = histoType+histoTitPart2;
-//     TH1F * HitMultiplicity = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinMultipl, xminMultipl, xmaxMultipl);
-//     HitMultiplicity->GetXaxis()->SetTitle("Tot nr. hits");
-    // 
-    //    histoType="HitMultiplicityAdcCut";
-    //    histoTitle = histoType+histoTitPart2;
-    //    TH1F * HitMultiplicityAdcCut = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinMultipl, xminMultipl, xmaxMultipl);
-    // 
-    //   histoType="HitMultiplicityVsEvent";
-    //   histoTitle = histoType+histoTitPart2;
-    //   TH2F * HitMultiplicityVsEvent = new TH2F(histoType.c_str(),histoTitle.c_str(),200,0.,2000000.,nbinMultipl, xminMultipl, xmaxMultipl);
-    //
     // - Occupancies
     //
     histoType="z_HitsVsMezzanine";
@@ -1071,9 +927,9 @@ void HistogramManager::buildSector(string region, string side, int sector) {
 				      numTotChambers,0.,(float)numTotChambers,20,-0.5,19.5);
     HitsVsMezzanine->GetYaxis()->SetTitle("Mezzanine nr.");
 
-    string chamberType;
+    std::string chamberType;
     for (int ichamber = 0; ichamber<numTotChambers; ichamber++ ) {
-      string chamberName = chamberList[ichamber].getOnlineName();
+      std::string chamberName = chamberList[ichamber].getOnlineName();
       HitsVsMezzanine->GetXaxis()->SetBinLabel(ichamber+1,chamberName.c_str());
     }
 
@@ -1117,22 +973,6 @@ void HistogramManager::buildSector(string region, string side, int sector) {
 	  h->GetXaxis()->SetTitle("Distance MDT segment to TGC hit (mm)");
     }
 
-    //
-    /*   
-	 histoType="TDC_AllChambers_Inner_AdcCut";
-	 histoTitle = histoType+" "+histoTitPart2;
-	 h = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinTDC,TDCmin,TDCmax);
-	 //
-	 histoType="TDC_AllChambers_Middle_AdcCut";
-	 histoTitle = histoType+" "+histoTitPart2;
-	 h = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinTDC,TDCmin,TDCmax);
-	 //
-	 histoType="TDC_AllChambers_Outer_AdcCut";
-	 histoTitle = histoType+" "+histoTitPart2;
-	 h = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinTDC,TDCmin,TDCmax);
-	 //
-	 */
-
     int etaMinI = 99;    // Inner chambers
     int etaMaxI = -99;   
     int etaMinM = 99;    // Middle
@@ -1159,7 +999,6 @@ void HistogramManager::buildSector(string region, string side, int sector) {
       // check if it is a reasonable name !
       // 
       if ( !(chamberType.substr(0,1)=="B" || chamberType.substr(0,1)=="E") ) {
-	//	cout << "HistogramManager::buildSector WARNING : unknown chamberType " << chamberType<<endl;
 	continue;
       }
       //
@@ -1259,7 +1098,6 @@ void HistogramManager::buildSector(string region, string side, int sector) {
     fetaMaxX = (float)etaMaxI+0.5;
     histoType="HitsPerML_Inner";
     histoTitle = histoType+" "+histoTitPart2;
-  //h = new TH1F(histoType.c_str(),histoTitle.c_str(),etaBins,fetaMin,fetaMax);
     h = new TH1F(histoType.c_str(),histoTitle.c_str(),etaBinsX,fetaMinX,fetaMaxX);
     h->GetXaxis()->SetTitle("eta_id");
     //
@@ -1268,7 +1106,6 @@ void HistogramManager::buildSector(string region, string side, int sector) {
     fetaMaxX = (float)etaMaxM+0.5;
     histoType="HitsPerML_Middle";
     histoTitle = histoType+" "+histoTitPart2;
-  //h = new TH1F(histoType.c_str(),histoTitle.c_str(),etaBins,fetaMin,fetaMax);
     h = new TH1F(histoType.c_str(),histoTitle.c_str(),etaBinsX,fetaMinX,fetaMaxX);
     h->GetXaxis()->SetTitle("eta_id");
     //
@@ -1277,7 +1114,6 @@ void HistogramManager::buildSector(string region, string side, int sector) {
     fetaMaxX = (float)etaMaxO+0.5;
     histoType="HitsPerML_Outer";
     histoTitle = histoType+" "+histoTitPart2;
-  //h = new TH1F(histoType.c_str(),histoTitle.c_str(),etaBins,fetaMin,fetaMax);
     h = new TH1F(histoType.c_str(),histoTitle.c_str(),etaBinsX,fetaMinX,fetaMaxX);
     h->GetXaxis()->SetTitle("eta_id");
 
@@ -1306,11 +1142,7 @@ void HistogramManager::buildSector(string region, string side, int sector) {
 	histoTitle = "Distance Segment to RPC "+histoTitPart2;
 	h = new TH1F(histoType.c_str(),histoTitle.c_str(),100,-50.,50.);
 	h->GetXaxis()->SetTitle("Distance MDT segment to RPC hit (mm)");
-	// 
-	//   histoType="MDT_RPC_Vs_Event";
-	//   histoTitle = "Distance Segment to RPC Vs Event "+histoTitPart2;
-	//   h2 = new TH2F(histoType.c_str(),histoTitle.c_str(),200,0.,2000000.,100,-50.,50.);
-	//
+
 	//  GLOBAL TIME FIT HISTOGRAMS :
 	//
 
@@ -1336,12 +1168,6 @@ void HistogramManager::buildSector(string region, string side, int sector) {
 	h2 = new TH2F(histoType.c_str(),histoTitle.c_str(),200,-5.,5.,6,0.5,6.5);
 	h2->GetXaxis()->SetTitle("Residuals (mm)");
 	h2->GetYaxis()->SetTitle("BM chamber eta_id");
-
-	// histoType="Hit_Residuals";
-	// histoTitle = "eta_id Vs Hit Residuals "+histoTitPart2;
-	// h2 = new TH2F(histoType.c_str(),histoTitle.c_str(),200,-5.,5.,6,0.5,6.5);
-	// h2->GetXaxis()->SetTitle("Hit Residuals (mm)");
-	// h2->GetYaxis()->SetTitle("BM chamber eta_id");
 
 	histoType="HitsOnSegment";
 	histoTitle = "eta_id Vs HitsOnSegment "+histoTitPart2;
@@ -1438,12 +1264,6 @@ void HistogramManager::buildSector(string region, string side, int sector) {
 	  h2->GetXaxis()->SetTitle("Residuals (mm)");
 	  h2->GetYaxis()->SetTitle("EM chamber eta_id");
 
-	  // histoType="Hit_Residuals";
-	  // histoTitle = "eta_id Vs Hit Residuals "+histoTitPart2;
-	  // h2 = new TH2F(histoType.c_str(),histoTitle.c_str(),200,-5.,5.,6,0.5,6.5);
-	  // h2->GetXaxis()->SetTitle("Hit Residuals (mm)");
-	  // h2->GetYaxis()->SetTitle("EM chamber eta_id");
-
           histoType="Hit_Res_Chi2DoF";
           histoTitle = "eta_id Vs Hit Residuals Chi2/DoF"+histoTitPart2;
           h2 = new TH2F(histoType.c_str(),histoTitle.c_str(),100,0.,50.,6,0.5,6.5);
@@ -1493,19 +1313,18 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
 
   ToString ts;
 
-  string sectorString=ts(sector);
+  std::string sectorString=ts(sector);
   if(sector<10) sectorString="0"+sectorString;
-  string sector_name="Sector"+sectorString;
-  string sector_title="Sector "+sectorString;
+  std::string sector_name="Sector"+sectorString;
+  std::string sector_title="Sector "+sectorString;
 
-  string region=chamb.getRegion();
-  string side=chamb.getSide();
+  std::string region=chamb.getRegion();
+  std::string side=chamb.getSide();
   
-  string chamberName=chamb.getOnlineName();
-  string chamberType=chamb.getName();
+  std::string chamberName=chamb.getOnlineName();
+  std::string chamberType=chamb.getName();
 
-  // string motherdir="/MDT/Barrel_"+side+"/"+sector_name;
-  string motherdir=GetMdtDirectoryName(region, side, sector);
+  std::string motherdir=GetMdtDirectoryName(region, side, sector);
   m_rootfile->cd(motherdir.c_str());
 
   TDirectoryFile * chamber_dir = new TDirectoryFile(chamberName.c_str(),chamberName.c_str());
@@ -1518,11 +1337,6 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
    
   //
   // The following values should be read in from a Chamber Layout File
-  // 
-  // int numML = 2;
-  // int numLayersPerML = 4;
-  // int numTubesPerLayer = 36;
-  // int numMezzanines = 10;
 
   int numTubesPerLayer[2], numOfMezzPerML[2];
   numTubesPerLayer[0] = 0;
@@ -1530,7 +1344,6 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
   numOfMezzPerML[0] = 0;
   numOfMezzPerML[1] = 0;
   int numLayersPerML, numML, numTubesPerMezz, numMezzanines, numMaxTubesPerLayer;
-  // int nTubes, numLayers;
   int numTotTubesML[2];
   int tubeNumberOffsetML[2];
   //
@@ -1540,22 +1353,20 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
   tubeNumberOffsetML[0] = GetTubeOffsetML1(chamberName);
   tubeNumberOffsetML[1] = 0;
 
-  if ( m_muonIdHelperTool ) {
-    Identifier  station_id = m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
-    numML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
-    Identifier  MdtML1_id = m_muonIdHelperTool->mdtIdHelper().multilayerID(station_id,1);
+  if ( m_idHelper ) {
+    Identifier  station_id = m_idHelper->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
+    numML = m_idHelper->mdtIdHelper().numberOfMultilayers(station_id);
+    Identifier  MdtML1_id = m_idHelper->mdtIdHelper().multilayerID(station_id,1);
     Identifier  MdtML2_id;
-    if ( numML>1) MdtML2_id = m_muonIdHelperTool->mdtIdHelper().multilayerID(station_id,2);
-    numLayersPerML = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(MdtML1_id) - m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(MdtML1_id) + 1; 
+    if ( numML>1) MdtML2_id = m_idHelper->mdtIdHelper().multilayerID(station_id,2);
+    numLayersPerML = m_idHelper->mdtIdHelper().tubeLayerMax(MdtML1_id) - m_idHelper->mdtIdHelper().tubeLayerMin(MdtML1_id) + 1; 
     if (chamberName.substr(0,4)=="BIS8") numLayersPerML=3; // PATCH TO MdtIdHelper BUG (should be fixed in next release)
-    numTubesPerLayer[0] = m_muonIdHelperTool->mdtIdHelper().tubeMax(MdtML1_id) - m_muonIdHelperTool->mdtIdHelper().tubeMin(MdtML1_id) + 1;
+    numTubesPerLayer[0] = m_idHelper->mdtIdHelper().tubeMax(MdtML1_id) - m_idHelper->mdtIdHelper().tubeMin(MdtML1_id) + 1;
 
-    if ( numML>1 ) numTubesPerLayer[1] = m_muonIdHelperTool->mdtIdHelper().tubeMax(MdtML2_id) - m_muonIdHelperTool->mdtIdHelper().tubeMin(MdtML2_id) + 1;
+    if ( numML>1 ) numTubesPerLayer[1] = m_idHelper->mdtIdHelper().tubeMax(MdtML2_id) - m_idHelper->mdtIdHelper().tubeMin(MdtML2_id) + 1;
 
     numMaxTubesPerLayer = numTubesPerLayer[0];
     if (numTubesPerLayer[1]>numTubesPerLayer[0]) numMaxTubesPerLayer = numTubesPerLayer[1];
-    // nTubes = numLayersPerML*(numTubesPerLayer[0]+numTubesPerLayer[1]);
-    // numLayers = numML*numLayersPerML;
     numTubesPerMezz = 8;
     if (numLayersPerML==4) numTubesPerMezz = 6;
     numOfMezzPerML[0] = numTubesPerLayer[0]/numTubesPerMezz;
@@ -1573,14 +1384,9 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
     numMaxTubesPerLayer = numTubesPerLayer[0];
     if (numTubesPerLayer[1]>numTubesPerLayer[0]) numMaxTubesPerLayer = numTubesPerLayer[1];
     numMezzanines = numOfMezzPerML[0]+numOfMezzPerML[1];
-    // nTubes = numLayersPerML*(numTubesPerLayer[0]+numTubesPerLayer[1]);
-    // numLayers = numML*numLayersPerML;
   }
   numTotTubesML[0]=numLayersPerML*numTubesPerLayer[0];
   numTotTubesML[1]=numLayersPerML*numTubesPerLayer[1];
-
-  //float tubeMin= 0.5;
-  //float tubeMax= (float)nTubes + 0.5;
 
   float allTubesMin = 0.5;
   float allTubesMax = (float) numTotTubesML[0];
@@ -1588,10 +1394,6 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
   if (numML>1) allTubesMax = 2.*allTubesMax;
   allTubesMax = allTubesMax + 0.5; 
   int nbinAllTubes = (int) (allTubesMax-allTubesMin);
-
-  // //cout << "numML ,numLayersPerML, numTotTubesML[0] , numTotTubesML[1] , allTubesMin , allTubesMax"
-  //      << numML <<" "<<numLayersPerML<<" " << numTotTubesML[0] <<" "<< numTotTubesML[1] <<" "<< allTubesMin
-  //      <<" "<< allTubesMax << endl;
 
   int nbinMultipl=50;
   float xminMultipl=0.; 
@@ -1611,9 +1413,9 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
   TH1F * h1;
   TH2F * h2;
 
-  string histoTitPart2=chamberName;
-  string histoType;
-  string histoTitle;
+  std::string histoTitPart2=chamberName;
+  std::string histoType;
+  std::string histoTitle;
   ///////////////////////////////////////////////////////////////////////////////
     //
     // DEFINITION OF HISTOGRAMS in directory /MDT/Barrel_{A,C}/SectorXX/<chamber> :
@@ -1624,21 +1426,13 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
     histoTitle = "ChamberHitMultiplicity "+histoTitPart2;
     TH1F * HitMult = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinMultipl, xminMultipl, xmaxMultipl);
     HitMult->GetXaxis()->SetTitle("Chamber tot nr. hits");
-    // 
-    //    histoType="ChamberHitMultiplicityAdcCut";
-    //    histoTitle = histoType+" "+histoTitPart2;
-    //    TH1F * HitMultAdcCut = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinMultipl, xminMultipl, xmaxMultipl);
-    // 
+
     histoType="D_ChamberHitsOnSegment";
     histoTitle = "ChamberHitsOnSegment "+histoTitPart2;
     TH1F * HitsOnSeg = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinMultipl, xminMultipl, xmaxMultipl);
     HitsOnSeg->GetXaxis()->SetTitle("nr. hits on segment");
     HitsOnSeg->SetAxisRange(xminMultipl,20.5);
-    //
-    //   histoType="ChamberHitMultiplicityVsEvent";
-    //   histoTitle = histoType+" "+histoTitPart2;
-    //  TH2F * HitMultVsEv = new TH2F(histoType.c_str(),histoTitle.c_str(),200,0.,2000000, nbinMultipl, xminMultipl, xmaxMultipl);
-    // 
+
     // - occupancies
     //
 
@@ -1666,16 +1460,6 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
     HitsPerTubeAdcCut->GetXaxis()->SetTitle("Tube_id");
     // 
     //  - efficiencies
-    // 
-    /*
-      histoType="EfficiencyPerLayer";
-      histoTitle = histoType+histoTitPart2;
-      TH1F * EfficiencyPerLayer = new TH1F(histoType.c_str(),histoTitle.c_str(),numLayers,0.5,numLayers+0.5);
-      EfficiencyPerLayer->SetMarkerStyle(20);
-      EfficiencyPerLayer->SetMarkerSize(1.0);
-      EfficiencyPerLayer->Sumw2();
-    */
-    //efficiency_dir->cd();
 
     histoType="b_EfficiencyPerTube";
     histoTitle = "EfficiencyPerTube "+histoTitPart2;
@@ -1769,9 +1553,6 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
     int tubesLayerExtended = tubesMLextended/numLayersPerML;
     for (int ibin=1;ibin<=nbinAllTubes;ibin++) {
 
-      // cout << " ibin, nbinAllTubes, numTotTubesML[0], numTubesPerLayer[1] " 
-      //      << ibin<<" "<< nbinAllTubes<<" "<< numTotTubesML[0]<<" "<< numTubesPerLayer[1]<<endl;
-
       int binSign, layercode;
       if (ibin<=tubesMLextended) {
 	binSign = -1;
@@ -1783,40 +1564,16 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
 	layercode = layercode*10*binSign;
       }
 
-      // cout << " layercode "<< layercode << endl;
-
       href->SetBinContent(ibin,layercode);
     }
 
     setChamberCutOut(chamberName, href );
-    //setChamberDisconnectedTubes(chamberName, href );
 
     histoType="DeadTubeMap";
     histoTitle = histoType+" "+histoTitPart2;
 
     h = (TH1F*) href->Clone(histoType.c_str());
     h->SetTitle(histoTitle.c_str());
-
-    /*
-      h = new TH1F(histoType.c_str(),histoTitle.c_str(),nbinAllTubes,allTubesMin,allTubesMax);
-      h->GetXaxis()->SetTitle("Tube_id");
-
-      for (int ibin=1;ibin<=nbinAllTubes;ibin++) {
-      int binSign, layercode;
-      if (ibin<=numTotTubesML[0]) {
-      binSign = -1;
-      layercode = (ibin/(numTubesPerLayer[0]+1)) + 1;
-      layercode = layercode*10*binSign;
-      } else {
-      binSign = 1;
-      layercode = ((ibin-numTotTubesML[0])/(numTubesPerLayer[1])+1) +1;
-      layercode = layercode*10*binSign;
-      }
-      h->SetBinContent(ibin,layercode);
-      }
-    */  
-
-
 
     histoType="ChamberDeadChannels";
     histoTitle = histoType+" "+histoTitPart2;
@@ -1828,8 +1585,6 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
 
      histoType="EffiResidVsRadius";
      histoTitle = histoType+" "+histoTitPart2;
-     // h2 = new TH2F(histoType.c_str(),histoTitle.c_str(),
-     //		  30,0.,15.,128,-16.,16.);
      h2 = new TH2F(histoType.c_str(),histoTitle.c_str(),
  		  30,0.,15.,640,-16.,16.);
      h2->GetXaxis()->SetTitle("Segment distance from wire (mm)");
@@ -1895,7 +1650,7 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
 }
 
 
-void HistogramManager::setChamberCutOut(string chamber, TH1F * href ) {
+void HistogramManager::setChamberCutOut(std::string chamber, TH1F * href ) {
  //find the 'setBinContent' vector corresponding to the chamber name
   auto pvecPair = string2Vec.find(chamber);
   if (pvecPair != string2Vec.end()){
@@ -1904,7 +1659,7 @@ void HistogramManager::setChamberCutOut(string chamber, TH1F * href ) {
   } //if not found, do nothing.
 }
 
-void HistogramManager::setChamberDisconnectedTubes(string chamber, TH1F * href ) {
+void HistogramManager::setChamberDisconnectedTubes(std::string chamber, TH1F * href ) {
   auto pdisconnectedVectorOfPairs = disconnected.find(chamber);
   if (pdisconnectedVectorOfPairs != disconnected.end()){
     for(const auto & thisPair:pdisconnectedVectorOfPairs->second){
@@ -1915,7 +1670,7 @@ void HistogramManager::setChamberDisconnectedTubes(string chamber, TH1F * href )
 }
 
 
-int HistogramManager::GetTubeOffsetML1(string chamber){
+int HistogramManager::GetTubeOffsetML1(std::string chamber){
   int tubeOffset=0;
   if (chamber=="BIR1A11" ) tubeOffset=6;
   if (chamber=="BIR1A15" ) tubeOffset=6;
@@ -1928,7 +1683,7 @@ int HistogramManager::GetTubeOffsetML1(string chamber){
   return tubeOffset;
 }
 
-int HistogramManager::GetTubeOffsetAtEndML1(string chamber){
+int HistogramManager::GetTubeOffsetAtEndML1(std::string chamber){
   int tubeOffset=0;
   if (chamber.substr(0,4)=="BMS4") tubeOffset=8;
   if (chamber.substr(0,4)=="BMS6") tubeOffset=8;
@@ -1946,35 +1701,35 @@ int HistogramManager::GetTubeOffsetAtEndML1(string chamber){
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-TObject * HistogramManager::GetMdtHisto(string histo_name) {
+TObject * HistogramManager::GetMdtHisto(std::string histo_name) {
   TObject * h = NULL;
-  string dir_name=GetMdtDirectoryName();
+  std::string dir_name=GetMdtDirectoryName();
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if(dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
-TObject * HistogramManager::GetMdtHisto(string histo_name, string region, string side) {
+TObject * HistogramManager::GetMdtHisto(std::string histo_name, std::string region, std::string side) {
   TObject * h = NULL;
-  string dir_name=GetMdtDirectoryName(region, side);
+  std::string dir_name=GetMdtDirectoryName(region, side);
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if(dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
-TObject * HistogramManager::GetMdtHisto(string histo_name,string region, string side, int sector) {
+TObject * HistogramManager::GetMdtHisto(std::string histo_name,std::string region, std::string side, int sector) {
   TObject * h = NULL;
 
-  string dir_name=GetMdtDirectoryName(region,side,sector);
+  std::string dir_name=GetMdtDirectoryName(region,side,sector);
   dir_name+="/OVERVIEW";
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if(dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
 
-TObject * HistogramManager::GetMdtHisto(string histo_name, MDTName chamb) {
+TObject * HistogramManager::GetMdtHisto(std::string histo_name, MDTName chamb) {
 
 
   TObject * h = NULL;
-  string dir_name=GetMdtDirectoryName(chamb);
+  std::string dir_name=GetMdtDirectoryName(chamb);
 
   if(histo_name.substr(0,14)=="HitsPerTube_ML"){
     dir_name += "/Occupancy";
@@ -1990,117 +1745,115 @@ TObject * HistogramManager::GetMdtHisto(string histo_name, MDTName chamb) {
   }
   if(histo_name=="EffiResidVsRadius"){
     dir_name=dir_name+"/Expert";
-    //dir_name=dir_name;
   }
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if(dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
 
-string HistogramManager::GetMdtDirectoryName() {
-  string Mdt_dirName="/MDT";
+std::string HistogramManager::GetMdtDirectoryName() {
+  std::string Mdt_dirName="/MDT";
   return Mdt_dirName;
 }
 
-string HistogramManager::GetMdtDirectoryName(string region, string side) {
-  string Mdt_dirName="/MDT/"+region+"_"+side;
+std::string HistogramManager::GetMdtDirectoryName(std::string region, std::string side) {
+  std::string Mdt_dirName="/MDT/"+region+"_"+side;
   return Mdt_dirName;
 }
 
-string HistogramManager::GetMdtDirectoryName(string region, string side, int sector) {
+std::string HistogramManager::GetMdtDirectoryName(std::string region, std::string side, int sector) {
   ToString ts;
-  string sectorString=ts(sector);
+  std::string sectorString=ts(sector);
   if(sector<10) sectorString="0"+sectorString;
-  string Mdt_dirName="/MDT/"+region+"_"+side+"/Sector"+sectorString;
+  std::string Mdt_dirName="/MDT/"+region+"_"+side+"/Sector"+sectorString;
   return Mdt_dirName;
 }
 
-string HistogramManager::GetMdtDirectoryName(string region, string side, int sector, string chamberType, int eta) {
+std::string HistogramManager::GetMdtDirectoryName(std::string region, std::string side, int sector, std::string chamberType, int eta) {
   ToString ts;
-  string sectorString=ts(sector);
+  std::string sectorString=ts(sector);
   if(sector<10) sectorString="0"+sectorString;
-  string chamberName = chamberType+ts(eta)+side+sectorString;
-  string Mdt_dirName="/MDT/"+region+"_"+side+"/Sector"+sectorString+"/"+chamberName;
+  std::string chamberName = chamberType+ts(eta)+side+sectorString;
+  std::string Mdt_dirName="/MDT/"+region+"_"+side+"/Sector"+sectorString+"/"+chamberName;
   return Mdt_dirName;
 }
 
-string HistogramManager::GetMdtDirectoryName(MDTName chamb) {
+std::string HistogramManager::GetMdtDirectoryName(MDTName chamb) {
 
   int sector=chamb.getOnlineSector();
   ToString ts;
-  string sectorString=ts(sector);
+  std::string sectorString=ts(sector);
   if(sector<10) sectorString="0"+sectorString;
-  string Mdt_dirName="/MDT/"+chamb.getRegion()+"_"+chamb.getSide()+"/Sector"+sectorString+"/"+chamb.getOnlineName();
-  //std::cout<<Mdt_dirName<<endl;
+  std::string Mdt_dirName="/MDT/"+chamb.getRegion()+"_"+chamb.getSide()+"/Sector"+sectorString+"/"+chamb.getOnlineName();
   return Mdt_dirName;
 
 }
 
-TObject * HistogramManager::GetTDaqHisto(string histo_name, string region) {
+TObject * HistogramManager::GetTDaqHisto(std::string histo_name, std::string region) {
   TObject * h = NULL;
-  string dir_name=GetTDaqDirectoryName(region);
+  std::string dir_name=GetTDaqDirectoryName(region);
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if (dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
-TObject * HistogramManager::GetTDaqHisto(string histo_name, string region, string side) {
+TObject * HistogramManager::GetTDaqHisto(std::string histo_name, std::string region, std::string side) {
   TObject * h = NULL;
-  string dir_name=GetTDaqDirectoryName(region, side);
+  std::string dir_name=GetTDaqDirectoryName(region, side);
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if (dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
-TObject * HistogramManager::GetTDaqHisto(string histo_name, string region, string side, int sector) {
+TObject * HistogramManager::GetTDaqHisto(std::string histo_name, std::string region, std::string side, int sector) {
   TObject * h = NULL;
-  string dir_name=GetTDaqDirectoryName(region, side,sector);
+  std::string dir_name=GetTDaqDirectoryName(region, side,sector);
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if (dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
-TObject * HistogramManager::GetTDaqHisto(string histo_name, string region, string side, int sector, string chamberType, int eta) {
+TObject * HistogramManager::GetTDaqHisto(std::string histo_name, std::string region, std::string side, int sector, std::string chamberType, int eta) {
   TObject * h = NULL;
-  string dir_name=GetTDaqDirectoryName(region,side,sector,chamberType,eta);
+  std::string dir_name=GetTDaqDirectoryName(region,side,sector,chamberType,eta);
   TDirectory* dir = m_rootfile->GetDirectory(dir_name.c_str());
   if (dir) h = dir->FindObjectAny(histo_name.c_str());
   return h;
 }
 
-string HistogramManager::GetTDaqDirectoryName(string region) {
-  string TDaq_dirName="Undefined";
+std::string HistogramManager::GetTDaqDirectoryName(std::string region) {
+  std::string TDaq_dirName="Undefined";
   if (region=="Barrel") TDaq_dirName="/MDTvsRPC";
   if (region=="Endcap") TDaq_dirName="/MDTvsTGC";
   return TDaq_dirName;
 }
 
-string HistogramManager::GetTDaqDirectoryName(string region, string side) {
-  string TDaq_dirName="undefined";
+std::string HistogramManager::GetTDaqDirectoryName(std::string region, std::string side) {
+  std::string TDaq_dirName="undefined";
   if (region=="Barrel") TDaq_dirName="/MDTvsRPC/"+region+"_"+side;
   if (region=="Endcap") TDaq_dirName="/MDTvsTGC/"+region+"_"+side;
   return TDaq_dirName;
 }
 
-string HistogramManager::GetTDaqDirectoryName(string region, string side, int sector) {
+std::string HistogramManager::GetTDaqDirectoryName(std::string region, std::string side, int sector) {
   ToString ts;
-  string sectorString=ts(sector);
+  std::string sectorString=ts(sector);
   if(sector<10) sectorString="0"+sectorString;
-  string TDaq_dirName="undefined";
+  std::string TDaq_dirName="undefined";
   if (region=="Barrel") TDaq_dirName="/MDTvsRPC/"+region+"_"+side+"/Sector"+sectorString;
   if (region=="Endcap") TDaq_dirName="/MDTvsTGC/"+region+"_"+side+"/Sector"+sectorString;
   return TDaq_dirName;
 }
 
-string HistogramManager::GetTDaqDirectoryName(string region, string side, int sector, string chamberType, int eta) {
+std::string HistogramManager::GetTDaqDirectoryName(std::string region, std::string side, int sector, std::string chamberType, int eta) {
   ToString ts;
-  string sectorString=ts(sector);
+  std::string sectorString=ts(sector);
   if(sector<10) sectorString="0"+sectorString;
-  string chamberName = chamberType+ts(eta)+side+sectorString;
-  string TDaq_dirName="undefined";
+  std::string chamberName = chamberType+ts(eta)+side+sectorString;
+  std::string TDaq_dirName="undefined";
   if (region=="Barrel") TDaq_dirName="/MDTvsRPC/"+region+"_"+side+"/Sector"+sectorString+"/"+chamberName;
   if (region=="Endcap") TDaq_dirName="/MDTvsTGC/"+region+"_"+side+"/Sector"+sectorString+"/"+chamberName;
   return TDaq_dirName;
 }
 
-TObject * HistogramManager::GetHisto(string main_dir, string histo_name) {
+TObject * HistogramManager::GetHisto(std::string main_dir, std::string histo_name) {
   TObject * h = NULL;
   TDirectory* dir = m_rootfile->GetDirectory(main_dir.c_str());
   if(dir) h = dir->FindObjectAny(histo_name.c_str());
@@ -2108,33 +1861,27 @@ TObject * HistogramManager::GetHisto(string main_dir, string histo_name) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-bool HistogramManager::openOutputFile(string outFileName) {
-  //cout<<"Opening Output File: "<< outFileName << endl;
+bool HistogramManager::openOutputFile(std::string outFileName) {
   m_rootfile = new TFile(outFileName.c_str(),"recreate");
   if (!m_rootfile) {
-    //cout<<"HistogramManager::openOutputFile : FAILING OPENING NEW FILE "<< outFileName << endl;
     return false;
   } else {
     return true;
   }
 }
 
-bool HistogramManager::openReadOnlyFile(string outFileName) {
-  //cout<<"Opening Output File: "<< outFileName << endl;
+bool HistogramManager::openReadOnlyFile(std::string outFileName) {
   m_rootfile = new TFile(outFileName.c_str(),"readonly");
   if (!m_rootfile) {
-    //cout<<"HistogramManager::openReadOnlyFile : FAILING OPENING FILE "<< outFileName << endl;
     return false;
   } else {
     return true;
   }
 }
 
-bool HistogramManager::openUpdateFile(string outFileName) {
-  //cout<<"Opening Output File: "<< outFileName << endl;
+bool HistogramManager::openUpdateFile(std::string outFileName) {
   m_rootfile = new TFile(outFileName.c_str(),"update");
   if (!m_rootfile) {
-    //cout<<"HistogramManager::openUpdateFile : FAILING OPENING FILE "<< outFileName << endl;
     return false;
   } else {
     return true;
@@ -2151,27 +1898,27 @@ void HistogramManager::WriteAndCloseFile() {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-int HistogramManager::GetEtaMax(string /* region*/, string /*side*/, int /*sector*/, string /*chamberType*/) {
+int HistogramManager::GetEtaMax(std::string /* region*/, std::string /*side*/, int /*sector*/, std::string /*chamberType*/) {
   int etaMax = 6;
   return etaMax;
 }
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-std::vector<MDTName> HistogramManager::GetChamberList(string region, string side, int sector) {
+std::vector<MDTName> HistogramManager::GetChamberList(std::string region, std::string side, int sector) {
 
   //ToString ts;
   std::vector<MDTName> chamberList;
 
-    if ( m_muonIdHelperTool ) {
-      MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
-      MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
+    if ( m_idHelper ) {
+      MdtIdHelper::const_id_iterator it     = m_idHelper->mdtIdHelper().module_begin();
+      MdtIdHelper::const_id_iterator it_end = m_idHelper->mdtIdHelper().module_end();
       for(; it!=it_end;++it ) {
 
-	if  ( !m_muonIdHelperTool->mdtIdHelper().is_mdt(*it) ) continue;
-	int station_index = m_muonIdHelperTool->mdtIdHelper().stationName(*it);
-	string stationName = m_muonIdHelperTool->mdtIdHelper().stationNameString(station_index);
-	int phi_id = m_muonIdHelperTool->mdtIdHelper().stationPhi(*it);
-	int eta_id = m_muonIdHelperTool->mdtIdHelper().stationEta(*it);
+	if  ( !m_idHelper->mdtIdHelper().is_mdt(*it) ) continue;
+	int station_index = m_idHelper->mdtIdHelper().stationName(*it);
+	std::string stationName = m_idHelper->mdtIdHelper().stationNameString(station_index);
+	int phi_id = m_idHelper->mdtIdHelper().stationPhi(*it);
+	int eta_id = m_idHelper->mdtIdHelper().stationEta(*it);
                 
 	MDTName chamber(stationName,phi_id,eta_id);
 
@@ -2195,7 +1942,7 @@ std::vector<MDTName> HistogramManager::GetChamberList(string region, string side
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-int HistogramManager::GetChamberNumOfML (string chamberName){
+int HistogramManager::GetChamberNumOfML (std::string chamberName){
   int numOfML=0;
   const int numParams=10;
   int chamberGeo[numParams];
@@ -2204,7 +1951,7 @@ int HistogramManager::GetChamberNumOfML (string chamberName){
   numOfML=chamberGeo[0];
   return numOfML;
 }
-int HistogramManager::GetChamberNumOfMezzPerML (string chamberName){
+int HistogramManager::GetChamberNumOfMezzPerML (std::string chamberName){
   int numOfMezzPerML=0;
   const int numParams=10;
   int chamberGeo[numParams];
@@ -2213,7 +1960,7 @@ int HistogramManager::GetChamberNumOfMezzPerML (string chamberName){
   numOfMezzPerML=chamberGeo[1];
   return numOfMezzPerML;
 }
-int HistogramManager::GetChamberTubesPerMezz (string chamberName){
+int HistogramManager::GetChamberTubesPerMezz (std::string chamberName){
   int numOfTubesPerMezz=0;
   const int numParams=10;
   int chamberGeo[numParams];
@@ -2223,14 +1970,13 @@ int HistogramManager::GetChamberTubesPerMezz (string chamberName){
   return numOfTubesPerMezz;
 }
 
-void HistogramManager::ReadChamberMapFile(string chamberName, int * chamberGeoParams, int numParams) {
+void HistogramManager::ReadChamberMapFile(std::string chamberName, int * chamberGeoParams, int numParams) {
 
   for (int i=0; i<numParams; i++) chamberGeoParams[i]=0;
-  string s;
-  ifstream inf("ChambersLayout.txt");
+  std::string s;
+  std::ifstream inf("ChambersLayout.txt");
  
   if(!inf.good()){
-    //cout << "Text mapfile ChambersLayout.txt is missing! Check configuration."<<endl;
     return; 
   }
 
@@ -2238,14 +1984,13 @@ void HistogramManager::ReadChamberMapFile(string chamberName, int * chamberGeoPa
   while(getline(inf,s)){
 
     // bool test=false;    
-    string name, tag;
-    istringstream is(s);
+    std::string name, tag;
+    std::istringstream is(s);
     is>>tag;
 
     if(tag=="name"){ //scan chamber block
       
       if(!(is>>name).good()){//1. take the name
-	//cout<< " chamber name missing on mapfile "<<s.c_str() <<endl;
 	break;
       }
 
@@ -2258,7 +2003,6 @@ void HistogramManager::ReadChamberMapFile(string chamberName, int * chamberGeoPa
 	//if what I find in file is NOT a chamber to be tested
 	continue;
       } else { //3. read full information
-	// test=true;
 	unsigned int ReadInfo=0;
 
 	for(int i=0;i<20;i++){ 
@@ -2274,24 +2018,20 @@ void HistogramManager::ReadChamberMapFile(string chamberName, int * chamberGeoPa
 	    break; //out of "for" over 20 lines
 	  }
 
-	  istringstream is(s);
+	  std::istringstream is(s);
 	  is>>tag;
 
 	  if (tag=="MLayers"){
 	    if (!(is>>chamberGeoParams[0]).good()) { 
-	      //cout << "WRONG MAP FILE FORMAT "<<endl;
 	      break;
 	    }
-	    // cout << " Number of Multilayers = " << chamberGeoParams[0] << endl;
 	    ReadInfo++;
 	  }
 	    
 	  if(tag=="MezzPerML"){
 	    if (!(is>>chamberGeoParams[1]).good()) { 
-	      //std::cout << "WRONG MAP FILE FORMAT "<<std::endl;
 	      break;
 	    }
-	    // cout << " Mezzanines Per ML = " << chamberGeoParams[1] << endl;
 	    ReadInfo++;
 	  }
 	    
@@ -2300,13 +2040,11 @@ void HistogramManager::ReadChamberMapFile(string chamberName, int * chamberGeoPa
 	    int tubesPerMezz=0;
 	    is>>mezzType;
 	    if (mezzType<1 || mezzType>4) { 
-	      //cout << "WRONG MAP FILE FORMAT "<<endl;
 	      break;
 	    }
 	    if (mezzType==1 || mezzType==2) tubesPerMezz=8;
 	    if (mezzType==3 || mezzType==4) tubesPerMezz=6;
 	    chamberGeoParams[2]=tubesPerMezz;
-	    // cout << " Tubes Per Layer Per Mezzanine = " << chamberGeoParams[2] << endl;
 	    ReadInfo++;
 	  }
 	    
@@ -2325,11 +2063,6 @@ void HistogramManager::ReadChamberMapFile(string chamberName, int * chamberGeoPa
 	    
 	}// end for over 20 lines 
 
-	if(ReadInfo!=6) {
-	  // ERS_WARNING ("Incomplete map for "<<ChambList->at(it).name);
-	  // ChambList->erase(ChambList->begin()+it);
-	  // it--;
-	}
 	break; //out of "for" loop on ChambList       
       }// else if(name...) 
 	
@@ -2339,39 +2072,3 @@ void HistogramManager::ReadChamberMapFile(string chamberName, int * chamberGeoPa
 
   return;
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//
-// TEST METHODS :
-// 
-/*
-  void HistogramManager::test() {
-  cout << " You are in the test method. Opening output file with default name"<< endl;
-  string defaultOutputFile="outDQA.root";
-  openOutputFile(defaultOutputFile);
-
-  cout << " Now building All histograms buildAll()" <<endl;
-  buildAll(3,5);
-
-  TH1F * h;
-  cout << " Now trying to retrieve histogram HitsPerTube from BML1A03 : " <<endl;
-  h = (TH1F*) GetMdtHisto("HitsPerTube","A",3,"BML",1);
-  cout << " Filling it with 1 entry " << endl;
-  h->Fill(14.);
-  cout <<" Check number of Entries :" << h->GetEntries() << endl;
-    
-  cout << " Now trying to retrieve histogram MDT_RPC for Sector 1 side C in MDTvsRPC directory : " <<endl;
-  h = (TH1F*) GetTDaqHisto("MDT_RPC","C",2);
-  cout << " Filling it with 1 entry " << endl;
-  h->Fill(3.5);
-  cout <<" Check number of Entries :" << h->GetEntries() << endl;
-
-  cout <<" Writing and Closing File"<< endl;
-  m_rootfile->Write();
-  m_rootfile->Close();
-  }
-*/

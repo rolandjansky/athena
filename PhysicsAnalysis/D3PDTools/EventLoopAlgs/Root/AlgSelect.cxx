@@ -18,7 +18,7 @@
 
 #include <TH1.h>
 #include <EventLoop/StatusCode.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <EventLoopAlgs/NTupleSvc.h>
 #include <MultiDraw/Formula.h>
 #include <MultiDraw/FormulaSvc.h>

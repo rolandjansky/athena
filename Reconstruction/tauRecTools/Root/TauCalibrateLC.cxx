@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //tau
@@ -17,7 +17,7 @@
 #include "TH1D.h"
 
 //included eventually from ITauToolBase
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 using CLHEP::GeV;
@@ -34,7 +34,6 @@ TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   m_usePantauAxis(false),
   m_isCaloOnly(false)
 {
-  declareProperty("ConfigPath", m_configPath);
   declareProperty("calibrationFile", m_calibrationFile = "EnergyCalibrationLC2012.root");
   declareProperty("doEnergyCorrection", m_doEnergyCorr);
   declareProperty("doPtResponse", m_doPtResponse);
@@ -216,10 +215,6 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     double slopeNPV = m_slopeNPVHist[prongBin]->GetBinContent(etaBin + 1);
     double offset = slopeNPV * (nVertex - m_averageNPV);
 
-    // FF: March,2014
-    // no offset correction for trigger        
-    //if (inTrigger) offset = 0.;
-
     // energy response parameterized as a function of pileup-corrected E_LC
     double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV;            //was sumClusterVector.e() / GeV;
     if(m_doPtResponse) energyLC = pTau.ptDetectorAxis() / GeV;
@@ -303,7 +298,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 
-  if (m_isCaloOnly == true && tauEventData()->inTrigger() == true){
+  if (m_isCaloOnly == true && m_in_trigger == true){
 
     pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
       
@@ -318,17 +313,5 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 //-----------------------------------------------------------------------------
 
 StatusCode TauCalibrateLC::finalize() {
-  
-  // these are already out of scope?
-  // does it matter if they are deleted? This is at the end of the run anyway...
-  //for (int i = 0; i<s_nProngBins; i++)
-  //{
-  //ATH_MSG_INFO(i);
-  // delete m_slopeNPVHist[i];
-  //}
-
-  //delete m_etaBinHist;
-  //delete m_etaCorrectionHist;
-  
   return StatusCode::SUCCESS;
 }

@@ -24,11 +24,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 
+#include "CxxUtils/checker_macros.h"
 class CaloTowerContainer;
 class CaloCellContainer;
 class IGeoAlignTool;
 
-class CaloTowerBuilderToolBase: public AthAlgTool,
+class ATLAS_NOT_THREAD_SAFE CaloTowerBuilderToolBase: public AthAlgTool,
     virtual public ICaloTowerBuilderToolBase,
     public IIncidentListener
 {

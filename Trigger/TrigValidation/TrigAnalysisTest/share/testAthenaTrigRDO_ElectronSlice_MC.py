@@ -171,4 +171,4 @@ include("TriggerTest/TriggerTestCommon.py")
 #
 #import AthenaCommon.Configurable as Configurable
 #Configurable.log.setLevel( INFO )
-#print topSequence.getChildren()
+#printfunc (topSequence.getChildren())

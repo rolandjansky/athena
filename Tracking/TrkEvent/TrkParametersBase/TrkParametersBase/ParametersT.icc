@@ -193,7 +193,7 @@ namespace Trk
   ParametersT<DIM,T,S>::ParametersT(const ParametersT<DIM,T,S>& rhs):
     ParametersBase<DIM,T>(rhs),
     m_parameters(rhs.m_parameters),
-    m_covariance(0),
+    m_covariance(nullptr),
     m_position(rhs.position()),
     m_momentum(rhs.momentum()),  
     m_surface(nullptr),
@@ -237,7 +237,7 @@ namespace Trk
       m_parameters = rhs.m_parameters;
       m_covariance = rhs.covariance() ?
         (new AmgSymMatrix(DIM)(*rhs.covariance()))
-        : 0;
+        : nullptr;
       m_position   = rhs.position();
       m_momentum   = rhs.momentum();
       m_surface.reset( (rhs.m_surface && rhs.m_surface->isFree()) ? rhs.m_surface->clone() : rhs.m_surface.get());
@@ -278,7 +278,7 @@ namespace Trk
     if(m_covariance)
     {
       delete m_covariance;
-      m_covariance = 0;
+      m_covariance = nullptr;
     }
   }
 
@@ -304,8 +304,8 @@ namespace Trk
       return false;
     
     // compare covariance 
-    if(((covariance() != 0) &&
-	     (pCasted->covariance() != 0) &&
+    if(((covariance() != nullptr) &&
+	     (pCasted->covariance() != nullptr) &&
 	     !covariance()->isApprox(*pCasted->covariance(),tolerance))
        || (!covariance() != !pCasted->covariance()))  // <-- this is: covariance() XOR pCast->covariance()
       return false;
@@ -332,7 +332,7 @@ namespace Trk
 
   // return the measurementFrame
   template<int DIM,class T,class S>
-  const Amg::RotationMatrix3D ParametersT<DIM,T,S>::measurementFrame() const
+  Amg::RotationMatrix3D ParametersT<DIM,T,S>::measurementFrame() const
   {
     return associatedSurface().measurementFrame(position(),momentum());
   }

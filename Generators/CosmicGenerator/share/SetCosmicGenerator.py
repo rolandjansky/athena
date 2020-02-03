@@ -26,7 +26,7 @@ else:
 #from TruthExamples.TruthExamplesConf import DumpMC
 #topSequence += DumpMC()
 
-print cosmicGen
+printfunc (cosmicGen)
 
 #FIXME temporary hacks to ensure that BeamEffectsAlg runs after the Cosmic Generators
 def moveAlgInSequence(alg, seq, newpos):

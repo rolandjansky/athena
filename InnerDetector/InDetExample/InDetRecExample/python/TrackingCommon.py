@@ -733,18 +733,15 @@ def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwar
 
 def getInDetPixelConditionsSummaryTool() :
     from AthenaCommon.GlobalFlags import globalflags
-    from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", 
+                                                                 UseByteStream=(globalflags.DataSource=='data'))
+    if InDetFlags.usePixelDCS():
+        pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        pixelConditionsSummaryToolSetup.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
 
-    from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-    pixelConditionsSummaryToolSetup.setUseConditions(True)
-    pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-    pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
-    pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
-    pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-    pixelConditionsSummaryToolSetup.setup()
-    return pixelConditionsSummaryToolSetup.getTool()
+    return pixelConditionsSummaryToolSetup
 
 @makePublicTool
 def getInDetTestPixelLayerTool(name = "InDetTestPixelLayerTool", **kwargs) :
@@ -872,17 +869,28 @@ def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
     from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
     return InDet__InDetTestBLayerTool(name=the_name, **kwargs)
 
+@makePublicTool
+def getInDetTRTStrawStatusSummaryTool(name = "InDetTRT_StrawStatusSummaryTool", **kwargs) :
+    the_name = makeName( name, kwargs)
+    from AthenaCommon.GlobalFlags import globalflags
+    kwargs = setDefaults( kwargs, isGEANT4 = (globalflags.DataSource == 'geant4'))
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+    return TRT_StrawStatusSummaryTool(name = the_name, **kwargs )
+
+@makePublicTool
+def getInDetTRTCalDbTool(name = "InDetTRT_CalDbTool", **kwargs) :
+    the_name = makeName( name, kwargs)
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    return TRT_CalDbTool(name = the_name, **kwargs)
 
 @makePublicTool
 def getInDetTRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy", **kwargs) :
     the_name = makeName( name, kwargs)
     if 'TRTCalDbTool' not in kwargs :
-        import InDetRecExample.TRTCommon as TRTCommon
-        kwargs = setDefaults( kwargs, TRTCalDbTool = TRTCommon.getInDetTRTCalDbTool() )
+        kwargs = setDefaults( kwargs, TRTCalDbTool = getInDetTRTCalDbTool() )
 
     if 'TRTStrawStatusSummaryTool' not in kwargs :
-        import InDetRecExample.TRTCommon as TRTCommon
-        kwargs = setDefaults( kwargs, TRTStrawStatusSummaryTool = TRTCommon.getInDetTRTStrawStatusSummaryTool() )
+        kwargs = setDefaults( kwargs, TRTStrawStatusSummaryTool = getInDetTRTStrawStatusSummaryTool() )
 
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
     return InDet__TRT_LocalOccupancy(name=the_name, **setDefaults( kwargs, isTrigger = False) )
@@ -890,18 +898,17 @@ def getInDetTRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy", **kwargs) :
 @makePublicTool
 def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.DetFlags    import DetFlags
+    from AthenaCommon.DetFlags import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
     if not DetFlags.haveRIO.TRT_on() or  InDetFlags.doSLHC() or  InDetFlags.doHighPileup() \
-            or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used byt the TRT_LocalOccupancy tool) are not present in ESD
+            or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
-    if 'Extrapolator' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy())
+    if 'TRTStrawSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, TRTStrawSummaryTool = getInDetTRTStrawStatusSummaryTool())
 
-    if 'Extrapolator' not in kwargs :
-        import InDetRecExample.TRTCommon as TRTCommon
-        kwargs = setDefaults( kwargs, TRTStrawSummaryTool       = TRTCommon.getInDetTRTStrawStatusSummaryTool())
+    if 'TRT_LocalOccupancyTool' not in kwargs :
+        kwargs = setDefaults( kwargs, TRT_LocalOccupancyTool = getInDetTRT_LocalOccupancy())
 
     from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, isData = (globalflags.DataSource == 'data'))
@@ -909,6 +916,20 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
     return InDet__TRT_ElectronPidToolRun2(name = the_name, **kwargs)
 
+@makePublicTool
+def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
+    the_name = makeName( name, kwargs)
+    from AthenaCommon.DetFlags import DetFlags
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if not DetFlags.haveRIO.TRT_on() or InDetFlags.doSLHC() or InDetFlags.doHighPileup() \
+            or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
+        return None
+    
+    from AthenaCommon.GlobalFlags import globalflags
+    kwargs = setDefaults( kwargs, TRT_dEdx_isData = (globalflags.DataSource == 'data'))
+
+    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    return TRT_ToT_dEdx(name = the_name, **kwargs)
 
 
 @makePublicTool
@@ -1001,8 +1022,7 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
         kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool())
 
     if 'TRT_ToT_dEdxTool' not in kwargs :
-        import InDetRecExample.TRTCommon as TRTCommon
-        kwargs = setDefaults( kwargs, TRT_ToT_dEdxTool       = TRTCommon.getInDetTRT_dEdxTool())
+        kwargs = setDefaults( kwargs, TRT_ToT_dEdxTool       = getInDetTRT_dEdxTool())
 
     if 'PixelToTPIDTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelToTPIDTool        = getInDetPixelToTPIDTool())
@@ -1078,7 +1098,6 @@ def getInDetTRT_RoadMaker(name='InDetTRT_RoadMaker',**kwargs) :
     the_name = makeName( name, kwargs)
     from InDetRecExample.InDetKeys import InDetKeys
     kwargs=setDefaults(kwargs,
-                       TRTManagerLocation    = InDetKeys.TRT_Manager(),
                        RoadWidth             = 20.,
                        PropagatorTool        = getInDetPatternPropagator())
     from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
@@ -1173,3 +1192,9 @@ def getInDetTRT_ExtensionTool(TrackingCuts=None, **kwargs) :
             return getInDetTRT_TrackExtensionTool_xk(TrackingCuts=TrackingCuts, **kwargs)
     elif InDetFlags.trtExtensionType() == 'DAF' :
         return getInDetTRT_TrackExtensionTool_DAF('InDetTRT_ExtensionTool',**kwargs)
+
+
+def getTRT_DetElementsRoadCondAlg(**kwargs):
+    the_name=kwargs.pop("name","InDet__TRT_DetElementsRoadCondAlg_xk")
+    from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
+    return InDet__TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs)

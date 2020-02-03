@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
@@ -21,11 +21,10 @@ class MvaTESVariableDecorator
   MvaTESVariableDecorator(const std::string& name="MvaTESVariableDecorator");
   virtual ~MvaTESVariableDecorator();
     
-  StatusCode initialize();
-  StatusCode eventInitialize();
-  StatusCode execute(xAOD::TauJet& xTau);
-  StatusCode eventFinalize();
-  
+  StatusCode initialize() override;
+  StatusCode execute(xAOD::TauJet& xTau) override;
+  StatusCode finalize() override;
+
  private:
   int m_mu; //!
   int m_nVtxPU; //!

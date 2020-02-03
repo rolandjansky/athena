@@ -178,11 +178,12 @@ int main(int argc, char** argv) {
             TrigConf::L1Menu l1menu;
             fileLoader.loadFile( fn, l1menu);
             cout << "Loaded L1 menu file " << fn << endl;
-            l1menu.printStats();
+            l1menu.printMenu(cfg.detail);
          } else if(filetype == "hltmenu" ) {
             TrigConf::HLTMenu hltmenu;
             fileLoader.loadFile( fn, hltmenu);
             cout << "Loaded HLT menu file " << fn << " with " << hltmenu.size() << " chains" << endl;
+            hltmenu.printMenu(cfg.detail);
          } else if(filetype == "l1prescale" ) {
             TrigConf::L1PrescalesSet l1pss;
             fileLoader.loadFile( fn, l1pss);
@@ -191,6 +192,7 @@ int main(int argc, char** argv) {
             TrigConf::HLTPrescalesSet hltpss;
             fileLoader.loadFile( fn, hltpss);
             cout << "Loaded HLT prescales set file " << fn << " with " << hltpss.size() << " prescales" << endl;
+            hltpss.printPrescaleSet(cfg.detail);
          } else {
             cerr << "File " << fn << " not recognized as being an L1 or HLT menu or prescale set" << endl;
          }
@@ -210,7 +212,7 @@ int main(int argc, char** argv) {
       dbloader.loadL1Menu( cfg.smk, l1menu );
       if (l1menu) {
          cout << "Loaded L1 menu with " << l1menu.size() << " items" <<  endl;
-         l1menu.printStats();
+         l1menu.printMenu(cfg.detail);
       } else {
          cout << "Did not load an L1 menu" << endl;
       }

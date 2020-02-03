@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ namespace Trk {
                                 const std::string& volumeName="undefined");
              
         /**Destructor*/
-        ~AlignableTrackingVolume();
+        virtual ~AlignableTrackingVolume() override;
         
         /** returns the alignedTrackingVolume */
         const TrackingVolume* alignedTrackingVolume() const;
@@ -59,6 +59,7 @@ namespace Trk {
         /** access to binned material */
         const BinnedMaterial* binnedMaterial() const;
 
+        virtual bool isAlignable () const override final;
     private:
          
         const TrackingVolume*                                              m_alignedTV;
@@ -72,6 +73,7 @@ inline int AlignableTrackingVolume::identify() const { return (m_sampleID); }
 
 inline const BinnedMaterial* AlignableTrackingVolume::binnedMaterial() const { return m_binnedMaterial; }
  
+inline bool AlignableTrackingVolume::isAlignable () const{return true;}
 } // end of namespace
 
 #endif // TRKGEOMETRY_ALIGNABLETRACKINGVOLUME_H

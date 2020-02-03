@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCAST_TOOLTESTER_H
@@ -10,8 +10,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 // Root include(s)
 #include "TTree.h"

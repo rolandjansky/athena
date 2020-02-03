@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import subprocess, threading, os, sys 
 import urllib2
@@ -21,7 +23,7 @@ try:
     from dq2.clientapi.cli.cliutil import getDQ2
     from dq2.filecatalog.lfc.lfcconventions import to_native_lfn
 except ImportError:
-    print "Environment not set [error importing DQ2 dependencies]!"
+    print ("Environment not set [error importing DQ2 dependencies]!")
     sys.exit(1)
 
 
@@ -33,7 +35,7 @@ class Command(object):
     
     def run(self, timeout):
         def target():
-#            print 'command started: ', self.cmd
+#            print ('command started: ', self.cmd)
             self.process = subprocess.Popen(self.cmd, shell=True)
             self.process.communicate()
         
@@ -42,13 +44,13 @@ class Command(object):
         
         thread.join(timeout)
         if thread.is_alive():
-            print 'Terminating process'
+            print ('Terminating process')
             self.process.terminate()
             thread.join()
         return self.process.returncode
 
 
-#print 'Geting data from AGIS ...'
+#print ('Geting data from AGIS ...')
 
 class site:    
     name=''
@@ -64,7 +66,7 @@ class site:
     
     def prnt(self, what):
         if (what>=0 and self.redirector!=what): return
-        print  'name:', self.name, '\thost:', self.host, '\tport:', self.port 
+        print ( 'name:', self.name, '\thost:', self.host, '\tport:', self.port )
 
 sites=[];
 
@@ -74,14 +76,14 @@ try:
     f = opener.open(req)
     res=json.load(f)
     for s in res:
-#        print s["name"], s["rc_site"], s["endpoint"]
+#        print (s["name"], s["rc_site"], s["endpoint"])
         ns = site( s["rc_site"], s["endpoint"] )
         sites.append(ns)
-#    print res
-#    print ' got FAX SEs from AGIS.'
+#    print (res)
+#    print (' got FAX SEs from AGIS.')
 
 except:
-    print "Unexpected error:", sys.exc_info()[0]    
+    print ("Unexpected error:", sys.exc_info()[0]    )
 
 #for s in sites: s.prnt(-1)
 
@@ -95,13 +97,13 @@ try:
     for s in res:
         for c in sites:
             if s["rc_site"]==c.name:
- #               print s["rc_site"], s["name"]
+ #               print (s["rc_site"], s["name"])
                 allddms.add(s["name"])
                 break
-#    print ' got related ddmendpoints from agis.'
+#    print (' got related ddmendpoints from agis.')
 
 except:
-    print "Unexpected error:", sys.exc_info()[0]    
+    print ("Unexpected error:", sys.exc_info()[0]    )
 
 
 DS=args['dataset']
@@ -116,7 +118,7 @@ for line in f:
     line=line.strip()
     if line.count(':')==0:continue
     line=line.split(":")
-  #  print line
+  #  print (line)
 
     if line[0]=='INCOMPLETE':
         if len(line[1])==0: continue
@@ -138,4 +140,4 @@ for line in f:
     dsets[cds]=[0,0]
 
 for d  in dsets.keys():
-    print d,'\tcomplete replicas:',dsets[d][1],'\tincomplete:',dsets[d][0]
+    print (d,'\tcomplete replicas:',dsets[d][1],'\tincomplete:',dsets[d][0])

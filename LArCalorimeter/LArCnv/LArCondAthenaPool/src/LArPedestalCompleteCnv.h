@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -12,11 +12,7 @@
 #define LArPedestalCompleteCnv_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCoolMultChanCnv.h"
-#define private public
-#define protected public
 #include "LArRawConditions/LArPedestalComplete.h"
-#undef private
-#undef protected
 #include "LArRawConditions/LArPedestalP.h"
 #include "LArCondTPCnv/LArPedestalSubsetCnv_p1.h"
 #include "LArCondTPCnv/LArPedestalSubsetCnv_p2.h"

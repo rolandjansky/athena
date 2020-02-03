@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMACALOTOOLS_EGAMMAPRESAMPLERSHAPE_H
@@ -43,12 +43,10 @@ class egammaPreSamplerShape : public AthAlgTool, virtual public IegammaPreSample
   StatusCode finalize() override ;
 
   /** @brief AlgTool main method */
-  virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-			     const CaloCellContainer& cell_container, Info& info) const override final;
-  private: 
-
-  const CaloDetDescrManager* m_calo_dd;
-  /** @brief CaloSample */
+  virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                             const CaloDetDescrManager& cmgr,
+                             const CaloCellContainer& cell_container,
+                             Info& info) const override final;
 };
 
 #endif

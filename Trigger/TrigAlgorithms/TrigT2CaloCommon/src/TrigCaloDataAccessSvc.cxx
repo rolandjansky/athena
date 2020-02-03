@@ -346,6 +346,11 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   }
   m_tileDecoder->loadMBTS_Ptr( tilecell->MBTS_collection(),
 	tilecell->MBTS_map(), tilecell->MBTS_channel() );
+  m_mbts_rods = tilecell->MBTS_RODs();
+  for(size_t i = 0 ; i < m_mbts_rods->size(); i++)
+  m_mbts_add_rods.insert(m_mbts_add_rods.end(),(*m_mbts_rods).begin(),(*m_mbts_rods).end());
+  sort(m_mbts_add_rods.begin(),m_mbts_add_rods.end());
+  m_mbts_add_rods.erase(std::unique(m_mbts_add_rods.begin(),m_mbts_add_rods.end()),m_mbts_add_rods.end());
   for(unsigned int lcidx=0; lcidx < tilecell->size(); lcidx++){
           TileCellCollection* lcc = tilecell->at(lcidx);
           unsigned int lccsize = lcc->size();
@@ -615,4 +620,53 @@ unsigned int TrigCaloDataAccessSvc::prepareTileCollections( const EventContext& 
   unsigned int status = convertROBs( rIds, (cache->tileContainer) );
 
   return status;
+}
+
+unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& context ) {
+
+  // If the full event was already unpacked, don't need to unpack RoI
+  if ( !m_lateInitDone && lateInit() ) {
+    return 0x0; // dummy code
+  }
+  HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
+  if ( cache->lastFSEvent == context.evt() ) return 0x0;
+
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
+  {
+    std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
+    m_robDataProvider->addROBData( m_mbts_add_rods );
+  }
+  std::lock_guard<std::mutex> collectionLock { cache->mutex };  
+  TileCellCont* tilecell = cache->tileContainer;
+  m_tileDecoder->loadMBTS_Ptr( tilecell->MBTS_collection(),
+        tilecell->MBTS_map(), tilecell->MBTS_channel() );
+  cache->tileContainer->eventNumber( context.evt() );
+ 
+  const std::vector<unsigned int>* ids = tilecell->MBTS_IDs();
+  std::vector<IdentifierHash> tileIds;
+  for(size_t i=0;i<ids->size(); i++) tileIds.push_back( (*ids)[i] );
+  unsigned int status = convertROBs( tileIds, (cache->tileContainer) );
+
+  return status;
+}
+
+
+
+StatusCode TrigCaloDataAccessSvc::loadMBTS ( const EventContext& context,
+                                                    TileCellCollection& loadedCells ) {
+
+  ATH_MSG_DEBUG( "MBTS requested for event " << context );
+  unsigned int sc = prepareMBTSCollections(context);
+
+  if ( sc ) return StatusCode::FAILURE;
+
+  HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
+  std::lock_guard<std::mutex> collectionLock { cache->mutex };  
+  TileCellCont* tilecell = cache->tileContainer;
+  TileCellCollection* mbts = tilecell->MBTS_collection();
+  loadedCells.reserve(mbts->size());
+  for (size_t i=0;i<mbts->size(); ++i)
+        loadedCells.push_back(mbts->at(i));
+  return StatusCode::SUCCESS;
+
 }

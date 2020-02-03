@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNEVENT_MUONHOUGHHISTO2DCONTAINER_H
@@ -14,7 +14,7 @@ class MuonHoughHisto2DContainer
   /** constructor */
   MuonHoughHisto2DContainer();
   /** destructor */
-  ~MuonHoughHisto2DContainer();
+  virtual ~MuonHoughHisto2DContainer() = default;
 
   /** return histogram at place id */
   MuonHoughHisto2D* getHisto(int id)const;

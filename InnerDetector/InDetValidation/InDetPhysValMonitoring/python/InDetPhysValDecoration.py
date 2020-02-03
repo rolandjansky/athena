@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # ---- definitions
 def metaDataKey() :
@@ -29,7 +31,7 @@ def findAlg(alg_name, search_outputstream_otherwise=True) :
   for child in topSequence.getChildren() :
      # if child.getName() in alg_name :
      if child.getName() in alg_name :
-         # print 'DEBUG findAlg %s =?=  %s ' %(child.getName(),alg_name)
+         # print ('DEBUG findAlg %s =?=  %s ' %(child.getName(),alg_name))
          mon_man_index = count
          if len(alg_name) == 1 :
            break
@@ -40,7 +42,7 @@ def findAlg(alg_name, search_outputstream_otherwise=True) :
      exclude_streams=['StreamBS']
      for child in topSequence.getChildren() :
          if child.getType() == 'AthenaOutputStream' and child.getName() not in exclude_streams:
-             # print 'DEBUG found %s at postion %i/%i' % (child.getFullName(),count,len(topSequence.getChildren() ) )
+             # print ('DEBUG found %s at postion %i/%i' % (child.getFullName(),count,len(topSequence.getChildren() ) ))
              mon_man_index = count
              break
          count += 1
@@ -87,13 +89,13 @@ def setMetaData() :
 
    if metaDataKey() not in svcMgr.TagInfoMgr.ExtraTagValuePairs :
       svcMgr.TagInfoMgr.ExtraTagValuePairs[metaDataKey()]=str
-   # print 'DEBUG add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
+   # print ('DEBUG add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs)
 
 
 from InDetRecExample.TrackingCommon import setDefaults
-from ConfigUtils import toolFactory
-from ConfigUtils import createExtendNameIfNotDefault
-from ConfigUtils import createPublicTool
+from .ConfigUtils import toolFactory
+from .ConfigUtils import createExtendNameIfNotDefault
+from .ConfigUtils import createPublicTool
 
 def getPhysValMonInDetHoleSearchTool(**kwargs) :
     from InDetRecExample.TrackingCommon import getInDetHoleSearchTool
@@ -249,7 +251,7 @@ def _addDecorators(decorator_alg_list, add_after=None) :
   # Access the algorithm sequence:
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  # print 'DEBUG add _addDecorators add after %s ' % (add_after)
+  # print ('DEBUG add _addDecorators add after %s ' % (add_after))
 
   # if there is a monitoring manager add decorator before
   mon_man_index=findMonMan()
@@ -258,22 +260,22 @@ def _addDecorators(decorator_alg_list, add_after=None) :
       if alg_index is not None :
           # add after the found algorithm
           mon_man_index =alg_index + 1
-  # print 'DEBUG _addDecorators after this %s ' % (mon_man_index)
+  # print ('DEBUG _addDecorators after this %s ' % (mon_man_index))
 
   if mon_man_index is None :
      for decorator_alg in decorator_alg_list :
         if findAlg([decorator_alg.getName()], search_outputstream_otherwise=False) is not None :
-            print 'DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName())
+            print ('DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName()))
             continue
-        print 'DEBUG add decorator %s at end of top sequence:' % (decorator_alg.getFullName())
+        print ('DEBUG add decorator %s at end of top sequence:' % (decorator_alg.getFullName()))
         topSequence += decorator_alg
 
   else :
       for decorator_alg in decorator_alg_list :
          if findAlg([decorator_alg.getName()], search_outputstream_otherwise=False) is not None :
-            print 'DEBUG decorator %s already in sequence. Not inserting again.' % (decorator_alg.getFullName())
+            print ('DEBUG decorator %s already in sequence. Not inserting again.' % (decorator_alg.getFullName()))
             continue
-         print 'DEBUG insert decorator %s at position %i' % (decorator_alg.getFullName(),mon_man_index)
+         print ('DEBUG insert decorator %s at position %i' % (decorator_alg.getFullName(),mon_man_index))
          topSequence.insert(mon_man_index,decorator_alg)
          mon_man_index += 1
   setMetaData()
@@ -286,7 +288,7 @@ def addGSFTrackDecoratorAlg() :
 
    from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
    if InDetPhysValFlags.doValidateGSFTracks() :
-      # print 'DEBUG add addGSFTrackDecoratorAlg'
+      # print ('DEBUG add addGSFTrackDecoratorAlg')
       decorators = getGSFTrackDecorators()
       from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
       from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
@@ -302,8 +304,8 @@ def addGSFTrackDecoratorAlg() :
       #  - must slim GSF Tracks after decoration since the unslimmed GSF Tracks cannot be persistified
 
       from AthenaCommon.AppMgr import ToolSvc
-      # print ToolSvc
-      # print 'DEBUG has EMBremCollectionBuilder %s' % hasattr(ToolSvc,'EMBremCollectionBuilder')
+      # print (ToolSvc)
+      # print ('DEBUG has EMBremCollectionBuilder %s' % hasattr(ToolSvc,'EMBremCollectionBuilder'))
       if hasattr(ToolSvc,'EMBremCollectionBuilder') :
           decor_index = findAlg([decorators[0].getName()], search_outputstream_otherwise=False)
           if decor_index is not None :
@@ -384,12 +386,12 @@ def addExtraMonitoring() :
   except ImportError :
     import sys,traceback
     exc_type, exc_value, exc_traceback = sys.exc_info()
-    print "*** print_tb:"
+    print ("*** print_tb:")
     traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-    print "*** print_exception:"
+    print ("*** print_exception:")
     traceback.print_exception(exc_type, exc_value, exc_traceback,
                               limit=2, file=sys.stdout)
-    print "*** print_exc:"
+    print ("*** print_exc:")
     traceback.print_exc()
     raise
 
@@ -434,7 +436,7 @@ def addDecoratorIfNeeded() :
    '''
 
    if  not canAddDecorator() :
-         print 'DEBUG addDecoratorIfNeeded ? Stage is too early or too late for running the decoration. Needs reconstructed tracks. Try again during next stage ?'
+         print ('DEBUG addDecoratorIfNeeded ? Stage is too early or too late for running the decoration. Needs reconstructed tracks. Try again during next stage ?')
          return
 
    meta_data = getMetaData()
@@ -448,4 +450,4 @@ def addDecoratorIfNeeded() :
    InDetPhysValFlags.init()
 
    # from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-   # print 'DEBUG addDecoratorIfNeeded add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
+   # print ('DEBUG addDecoratorIfNeeded add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs)

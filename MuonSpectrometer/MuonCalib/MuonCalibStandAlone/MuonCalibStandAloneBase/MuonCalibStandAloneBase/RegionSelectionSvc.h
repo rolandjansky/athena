@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RegionSelectionSvc_H
@@ -15,6 +15,7 @@
 //gaudi
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/ServiceHandle.h" 
 #include "GaudiKernel/ToolHandle.h"
 
 //MuonCalibITools
@@ -22,7 +23,7 @@
 
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace MuonCalib {
 
@@ -57,16 +58,13 @@ class RegionSelectionSvc : public AthService
 	/**contructor */
 		RegionSelectionSvc(const std::string & name, ISvcLocator *svc_locator);
 	/**destructor */
-		virtual ~RegionSelectionSvc();
+		virtual ~RegionSelectionSvc()=default;
  		static const InterfaceID& interfaceID() { return IID_IRegionSelectionSvc; }
 	/** just some crazy atheta function */	
 		virtual StatusCode queryInterface(const InterfaceID& riid, 
 							void** ppvUnknown);
 	/**initialize */
 		StatusCode initialize();	
-	/**finalize function */
-		inline 	StatusCode finalize() {
-		return StatusCode::SUCCESS;}
 	/** debug print */
 		void Print(std::ostream &os) const;
 	/** return true if id is in selected region */
@@ -98,12 +96,12 @@ class RegionSelectionSvc : public AthService
 	//! chambers/mutlilayers in calibraition region
 		std::vector<MuonCalib::NtupleStationId> m_stations_in_region;
 		std::set<MuonCalib::NtupleStationId> m_unique_chambers;
-		ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
 		StoreGateSvc* m_detStore;
+		const MuonGM::MuonDetectorManager* m_detMgr;//! search for chambers and multilayers in selected region
 	//!towers in selected region
-		ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-			"Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-		const MuonGM::MuonDetectorManager* m_detMgr;	//! search for chambers and multilayers in selected region
+		ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+		ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
+		
 		inline void search_chambers_in_region();
 	/** process string */
 		inline bool ProcessString(const std::string & input);

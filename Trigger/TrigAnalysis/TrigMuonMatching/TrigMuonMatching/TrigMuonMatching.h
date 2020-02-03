@@ -8,7 +8,6 @@
 
 #include "TrigMuonMatching/ITrigMuonMatching.h"
 
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"

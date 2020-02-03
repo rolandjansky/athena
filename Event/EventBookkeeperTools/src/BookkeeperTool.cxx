@@ -29,9 +29,9 @@ BookkeeperTool::BookkeeperTool(const std::string& name)
     "The default name of the xAOD::CutBookkeeperContainer for input files");
   declareProperty("CutFlowCollName", m_cutflowCollName = "CutBookkeepersFile",
     "The default name of the xAOD::CutBookkeeperContainer for CutFlowSvc");
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 }
 
 
@@ -282,11 +282,6 @@ resolveLink (const xAOD::CutBookkeeper* old,
 
 } // anonymous namespace
 
-//
-// (Merge) method required by base clase GenericMetdataTool
-//   Note that the implementation of the IMetaDataTool interface 
-//   is done in GenericMetadataTool and configured by properties 
-//   of that class
 StatusCode
 BookkeeperTool::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                              const xAOD::CutBookkeeperContainer* otherCont ) 

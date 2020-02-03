@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,36 +10,39 @@
 #define DERIVATIONFRAMEWORK_MUONTRACKPARTICLETHINNING_H
 
 #include <string>
+#include <atomic>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInDet/TracksInCone.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ThinningHandleKey.h"
 
 namespace ExpressionParsing {
   class ExpressionParser;
 }
 
-class IThinningSvc;
 
 namespace DerivationFramework {
 
-  class MuonTrackParticleThinning : public AthAlgTool, public IThinningTool {
+  class MuonTrackParticleThinning : public extends<AthAlgTool, IThinningTool> {
     public: 
       MuonTrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~MuonTrackParticleThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+      virtual ~MuonTrackParticleThinning();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
+      virtual StatusCode doThinning() const override;
 
     private:
-      ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntot, m_npass;
+      mutable std::atomic<unsigned int> m_ntot, m_npass;
+      StringProperty m_streamName
+        { this, "StreamName", "", "Name of the stream being thinned" };
+      SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_inDetSGKey
+        { this, "InDetTrackParticlesKey", "InDetTrackParticles", "" };
       std::string m_muonSGKey;
-      std::string m_inDetSGKey; 
       std::string m_selectionString; 
       float m_coneSize;	
-      bool m_and;
       ExpressionParsing::ExpressionParser *m_parser;
   }; 
 }

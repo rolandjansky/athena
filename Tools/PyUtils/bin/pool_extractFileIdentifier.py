@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    pool_extractFileIdentifier.py
 # @purpose: extract the GUID of a POOL file.
@@ -15,20 +15,23 @@
 # if pool_extractFileIdentifier.py has been made 'chmod +x' one can just do:
 # ./pool_extractFileIdentifier.py aod.pool.root
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
+
+from future import standard_library
+standard_library.install_aliases()
 
 def pool_extract(files):
-    print ":: extracting GUID for [%i] files... "% len(files)
+    print (":: extracting GUID for [%i] files... "% len(files))
     import os, sys
-    import commands
-    sc,exe = commands.getstatusoutput('which pool_extractFileIdentifier')
+    import subprocess
+    sc,exe = subprocess.getstatusoutput('which pool_extractFileIdentifier')
     if sc != 0:
-        print ":: could not find 'pool_extractFileIdentifier' !"
-        print exe
+        print (":: could not find 'pool_extractFileIdentifier' !")
+        print (exe)
         return 1
 
-     cmd = "%s %s" % (exe, " ".join(files))
-     sc, out = commands.getstatusoutput(cmd)
+    cmd = "%s %s" % (exe, " ".join(files))
+    sc, out = subprocess.getstatusoutput(cmd)
 
     out = os.linesep.join(
         [o for o in out.splitlines()
@@ -37,12 +40,12 @@ def pool_extract(files):
         )
 
     if sc != 0:
-        print ":: problem running pool_extractFileIdentifier:"
-        print out
+        print (":: problem running pool_extractFileIdentifier:")
+        print (out)
         return sc
 
-    print out
-    print ":: extracting GUID for [%i] files... [done]" % len(files)
+    print (out)
+    print (":: extracting GUID for [%i] files... [done]" % len(files))
     return sc
     
 if __name__ == "__main__":
@@ -61,8 +64,8 @@ if __name__ == "__main__":
 
     if options.files is None and len(files) == 0:
         str(parser.print_help() or "")
-        print ":: You have to provide at least one POOL file to extract a GUID from:"
-        print " shell> pool_extractFileIdentifier.py aod.pool"
+        print (":: You have to provide at least one POOL file to extract a GUID from:")
+        print (" shell> pool_extractFileIdentifier.py aod.pool")
         sys.exit(1)
 
     if not (options.files is None):

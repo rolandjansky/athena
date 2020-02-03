@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,10 +61,10 @@ namespace Trk {
       CompressedLayerMaterial(const CompressedLayerMaterial& mprop);
       
       /**Destructor*/
-      virtual ~CompressedLayerMaterial();
+      virtual ~CompressedLayerMaterial() override;
       
       /**Pseudo-Constructor clone()*/ 
-      CompressedLayerMaterial* clone() const override;
+      virtual CompressedLayerMaterial* clone() const override;
       
       /** Assignment operator */
       CompressedLayerMaterial& operator=(const CompressedLayerMaterial& lmp);
@@ -73,10 +73,10 @@ namespace Trk {
       virtual CompressedLayerMaterial& operator*=(double scale) override;
 
       /** Return the BinUtility */
-      const BinUtility* binUtility() const override;
+      virtual const BinUtility* binUtility() const override;
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
-      virtual void updateBinning(BinUtility* bu) const override;
+      virtual void updateBinning(BinUtility* bu) override;
        
       /**Return method for full material description of the Layer - for all bins*/
       const MaterialPropertiesVector& fullMaterial() const;
@@ -85,18 +85,18 @@ namespace Trk {
       const std::vector<unsigned short int>& materialBins() const;
  
       /**Return method for full material description of the Layer */
-      const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
+      virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
       
        /** Access the single bin */
-      const MaterialProperties* material(size_t bin0, size_t bin1) const override;
+      virtual const MaterialProperties* material(size_t bin0, size_t bin1) const override;
             
       /** Output Method for MsgStream, to be overloaded by child classes */
-      MsgStream& dump(MsgStream& sl) const override;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       /** Output Method for std::ostream, to be overloaded by child classes */
-      std::ostream& dump(std::ostream& sl) const override;      
+      virtual std::ostream& dump(std::ostream& sl) const override;      
 
     private:
-      mutable BinUtility*                             m_binUtility; //!< the helper for the bin finding 
+      BinUtility*                             m_binUtility; //!< the helper for the bin finding 
 
       /** The five different MaterialProperties */
       MaterialPropertiesVector                        m_fullMaterial;
@@ -125,12 +125,12 @@ namespace Trk {
       int accessBin = bin1*(m_binUtility->max(0)+1)+bin0;
       // safety check
       if (bin0 <= (unsigned int)m_binUtility->max(0) && bin1 <= (unsigned int)m_binUtility->max(1) 
-         && m_fullMaterial.size() && accessBin < int(m_materialBins.size()))
+         && !m_fullMaterial.empty() && accessBin < int(m_materialBins.size()))
           return m_fullMaterial[m_materialBins[accessBin]];
-     return 0;
+     return nullptr;
   }
   
-  inline void CompressedLayerMaterial::updateBinning(BinUtility* bu) const {
+  inline void CompressedLayerMaterial::updateBinning(BinUtility* bu){
       if (bu){
           delete m_binUtility;
           m_binUtility = bu;

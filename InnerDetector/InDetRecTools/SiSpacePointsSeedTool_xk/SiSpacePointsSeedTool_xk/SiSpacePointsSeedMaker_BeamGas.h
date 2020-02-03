@@ -233,10 +233,10 @@ namespace InDet {
     void production3Sp(EventData& data) const;
     void production3Sp
     (EventData& data,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
-     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
+     std::vector<InDet::SiSpacePointForSeed*>::iterator*,
      int,int,int&) const;
 
     void findNext(EventData& data) const;

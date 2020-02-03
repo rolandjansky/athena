@@ -428,7 +428,6 @@ def muEFSARecoSequence( RoIs, name ):
 
 
   theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
-  theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
   from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
   TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "MuonSegments", 
                                           TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering"), 
@@ -447,7 +446,6 @@ def muEFSARecoSequence( RoIs, name ):
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
-  efAlgs.append( theSegmentCnvAlg )
   efAlgs.append( TrackBuilder )
   efAlgs.append( xAODTrackParticleCnvAlg )
   efAlgs.append( theMuonCandidateAlg )
@@ -484,8 +482,7 @@ def muEFCBRecoSequence( RoIs, name ):
   ViewVerifyMS = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
   ViewVerifyMS.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  
                               ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
-                              ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
-                              ( 'xAOD::MuonSegmentContainer' , 'StoreGateSvc+MuonSegments' ) ]
+                              ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates') ]
   muEFCBRecoSequence += ViewVerifyMS
   if "FS" in name:
     #Need to run tracking for full scan chains
@@ -582,6 +579,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
   from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedInDetCandidateAlg, MuonInsideOutRecoAlg, MuGirlStauAlg, MuonCreatorAlg, StauCreatorAlg
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
   efAlgs = []
 
@@ -604,9 +602,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
       from MuonRecExample import MuonAlignConfig # noqa: F401
 
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
-    theSegmentCnvAlg = CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
     efAlgs.append(theSegmentFinderAlg)
-    efAlgs.append(theSegmentCnvAlg)
 
     # need to run precisions tracking for late muons, since we don't run it anywhere else
     TrackCollection="TrigFastTrackFinder_Tracks_MuonLate" 
@@ -640,8 +636,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
                                        ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                        ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec'),
-                                       ( 'xAOD::MuonSegmentContainer' , 'StoreGateSvc+MuonSegments' )]
+                                       ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
     efmuInsideOutRecoSequence += ViewVerifyInsideOut
 
 
@@ -652,12 +647,12 @@ def muEFInsideOutRecoSequence(RoIs, name):
     cbMuonName = cbMuonName+"_Late"
     theInsideOutRecoAlg = MuGirlStauAlg("TrigMuonLateInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name)
     insideoutcreatoralg = StauCreatorAlg("TrigLateMuonCreatorAlg_"+name, TagMaps=["stauTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
-                                         MuonContainerLocation = cbMuonName)
+                                         MuonContainerLocation = cbMuonName, MonTool = MuonCreatorAlgMonitoring("LateMuonCreatorAlg_"+name))
   else:
     theInsideOutRecoAlg = MuonInsideOutRecoAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name)
     insideoutcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgInsideOut_"+name, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
                                          MuonContainerLocation = cbMuonName, SegmentContainerName = "InsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
-                                         MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon")
+                                         MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon", MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgInsideOut_"+name))
 
   efAlgs.append(theInsideOutRecoAlg)
   efAlgs.append(insideoutcreatoralg)

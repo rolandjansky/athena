@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Lightweight and simplified version of AthFile
 # As the transform knows which files are bytestream and which are
@@ -270,7 +270,7 @@ class AthBSFile(object):
         ievt = iter(bs)
         for i in range(evtmax):
             try:
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check() # may raise a RuntimeError
                 stream_tags = [dict(stream_type=tag.type,
                                     stream_name=tag.name,
@@ -391,7 +391,7 @@ class AthInpFile(object):
             f = root.TFile.Open(self._filename, 'READ')
 
             if f:
-                # FIXME EventStreamInfo is more autoritative source for nentries
+                # FIXME EventStreamInfo is more authoritative source for nentries
                 tree = f.Get('POOLContainer')
                 if not tree: # support for old files
                     tree = f.Get("POOLContainer_DataHeader")
@@ -407,7 +407,13 @@ class AthInpFile(object):
                     params = []
                     for i in range(pool.GetEntries()):
                         if pool.GetEntry(i)>0:
-                            match = pool_token(pool.db_string)
+                            # Work around apparent pyroot issue:
+                            # If we try to access pool.db_string directly,
+                            # we see trailing garbage, which can confuse
+                            # python's bytes->utf8 conversion
+                            # and result in an error.
+                            param = pool.GetLeaf('db_string').GetValueString()
+                            match = pool_token(param)
                             if not match:
                                 continue
                             d = match.groupdict()

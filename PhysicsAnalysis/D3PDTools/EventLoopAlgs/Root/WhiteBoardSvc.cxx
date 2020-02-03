@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -20,7 +20,7 @@
 
 #include <memory>
 #include <RootCoreUtils/Assert.h>
-#include <EventLoop/Worker.h>
+#include <EventLoop/IWorker.h>
 #include <SampleHandler/MetaData.h>
 #include <SampleHandler/MetaVector.h>
 
@@ -32,7 +32,7 @@ ClassImp (EL::WhiteBoardSvc)
 
 namespace EL
 {
-  WhiteBoardSvc *getWhiteBoardSvc (Worker *worker)
+  WhiteBoardSvc *getWhiteBoardSvc (IWorker *worker)
   {
     RCU_REQUIRE_SOFT (worker != 0);
     WhiteBoardSvc *const result
@@ -202,7 +202,7 @@ namespace EL
   {
     /// no invariant used
 
-    std::auto_ptr<SH::MetaData<float> > meta (new SH::MetaData<float>);
+    std::unique_ptr<SH::MetaData<float> > meta (new SH::MetaData<float>);
     meta->SetName (name.c_str());
     meta->value = value;
     setTObject (meta.release(), true);
@@ -215,7 +215,7 @@ namespace EL
   {
     /// no invariant used
 
-    std::auto_ptr<SH::MetaVector<float> > meta (new SH::MetaVector<float>);
+    std::unique_ptr<SH::MetaVector<float> > meta (new SH::MetaVector<float>);
     meta->SetName (name.c_str());
     std::vector<float> (values, values+size).swap (meta->value);
     setTObject (meta.release(), true);

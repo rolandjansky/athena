@@ -227,7 +227,7 @@ namespace xAODMaker {
          }
          else {
            ATH_MSG_WARNING("Did not find beam_energy in TagInfo setting to -1");
-           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::beamEnergy, -1.0 ) );
+           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::beamEnergy, -1.0f ) );
          }
 
          if (al.exists("beam_type")) {
@@ -252,6 +252,16 @@ namespace xAODMaker {
          }
          else {
            ATH_MSG_ERROR("Unable to retrieve SimulationFlavour from " << SIMFOLDER_NAME);
+         }
+
+         if (simInfo->exists("IsEventOverlayInputSim")) {
+           bool isDataOverlay = (*simInfo)[ "IsEventOverlayInputSim" ].data< std::string >()=="True";
+           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::isDataOverlay,
+                       isDataOverlay ) );
+         }
+         else {
+           ATH_MSG_INFO("Unable to retrieve IsEventOverlayInputSim from " << SIMFOLDER_NAME << " - assuming not data overlay");
+           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::isDataOverlay, false ) );
          }
       }
 

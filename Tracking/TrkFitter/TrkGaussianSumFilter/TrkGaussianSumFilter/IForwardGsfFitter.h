@@ -25,7 +25,6 @@ decription           : Abstract interface for the forward GSF fitter
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class MultiComponentStateCombiner;
 class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;
@@ -40,7 +39,7 @@ public:
   static const InterfaceID& interfaceID() { return InterfaceID_ForwardGsfFitter; };
 
   /** Virtual destructor */
-  virtual ~IForwardGsfFitter(){};
+  virtual ~IForwardGsfFitter()= default;
 
   /** Configure the forward GSF fitter
       - Configure the extrapolator

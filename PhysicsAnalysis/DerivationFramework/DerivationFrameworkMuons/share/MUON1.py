@@ -225,7 +225,7 @@ MUON1ThinningTools.append(MUON1ThinningTool1)
 thinning_expression2 = ""
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON1ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON1ThinningTool2",
-                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = MUON1Stream.Name,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.5,
@@ -238,7 +238,7 @@ MUON1ThinningTools.append(MUON1ThinningTool2)
 # keep topoclusters around muons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 MUON1ThinningTool4 = DerivationFramework__CaloClusterThinning(name                    = "MUON1ThinningTool4",
-                                                              ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                              StreamName              = MUON1Stream.Name,
                                                               SGKey                   = "Muons",
                                                               SelectionString         = "Muons.pt>4*GeV",
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -250,7 +250,7 @@ MUON1ThinningTools.append(MUON1ThinningTool4)
 ### also for forward tracks
 thinning_expression3 = "Muons.muonType==4"
 MUON1ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON1ThinningTool2f",
-                                                                    ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = MUON1Stream.Name,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression3,
                                                                     ConeSize                = 0.5,

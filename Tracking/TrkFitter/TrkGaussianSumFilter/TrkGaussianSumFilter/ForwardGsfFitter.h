@@ -15,8 +15,6 @@ decription           : Class definition for the forward GSF fitter
 #define TrkForwardGsfFitter_H
 
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
-
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
@@ -42,7 +40,7 @@ public:
   ForwardGsfFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~ForwardGsfFitter(){};
+  virtual ~ForwardGsfFitter()= default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
@@ -87,11 +85,6 @@ private:
   ToolHandle<IMultiStateExtrapolator> m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator;
-  /** MultiComponentStateCombiner tool*/
-  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{ this,
-                                                            "MultiComponentStateCombiner",
-                                                            "Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",
-                                                            "" };
   double m_cutChiSquaredPerNumberDOF;
   int m_overideMaterialEffects;
   ParticleHypothesis m_overideParticleHypothesis;
