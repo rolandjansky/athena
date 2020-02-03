@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 def getForwardTransportSvc(name="ForwardTransportSvc", **kwargs):
     from ForwardTransportSvc.ForwardTransportFlags import forwardTransportFlags
@@ -12,10 +14,10 @@ def getForwardTransportSvc(name="ForwardTransportSvc", **kwargs):
     detFlag = forwardTransportFlags.detectorFlag.get_Value()
     if   detFlag == "ALFA": return getALFAForwardTransportSvc(name, **kwargs)
     elif detFlag == "ZDC":  return getZDCForwardTransportSvc (name, **kwargs)
-    else:                   print "Uknown operation for detectorFlag: ", detFlag
+    else:                   print ("Uknown operation for detectorFlag: ", detFlag)
 
 def getALFAForwardTransportSvc(name="ForwardTransportSvc", **kwargs):
-    print "getALFAForwardTransportSvc"
+    print ("getALFAForwardTransportSvc")
     kwargs.setdefault("EndMarker",     236.888);
     kwargs.setdefault("TransportFlag", 1);
     kwargs.setdefault("EtaCut",        7.5);
@@ -24,7 +26,7 @@ def getALFAForwardTransportSvc(name="ForwardTransportSvc", **kwargs):
     return CfgMgr.ForwardTransportSvc(name,**kwargs)
 
 def getZDCForwardTransportSvc(name="ForwardTransportSvc", **kwargs):
-    print "getZDCForwardTransportSvc"
+    print ("getZDCForwardTransportSvc")
     kwargs.setdefault("EndMarker",     141.580);
     kwargs.setdefault("TransportFlag", 0);
     kwargs.setdefault("EtaCut",        7.5);
