@@ -551,15 +551,15 @@ StatusCode MdtCalibDbAlg::loadRt(){
     
     //Create resolution function from ts_points
     MuonCalib::IRtResolution *reso = getRtResolutionInterpolation(ts_points);
-    if (msgLvl(MSG::DEBUG)) {
-      ATH_MSG_DEBUG( "Resolution points :");
+    if (msgLvl(MSG::VERBOSE)) {
+      ATH_MSG_VERBOSE( "Resolution points :");
       for(std::vector<MuonCalib::SamplePoint>::const_iterator it=tr_points.begin(); it!=tr_points.end(); it++) {
-	ATH_MSG_DEBUG( it->x1()<<"|"<<it->x2()<<"|"<<it->error());
+	ATH_MSG_VERBOSE( it->x1()<<"|"<<it->x2()<<"|"<<it->error());
       }
 	
       ATH_MSG_DEBUG( "Resolution parameters :");
       for(unsigned int i=0; i<reso->nPar(); i++) {
-	ATH_MSG_DEBUG(  i<<" "<<reso->par(i) );
+	ATH_MSG_VERBOSE(  i<<" "<<reso->par(i) );
       }
     }
 

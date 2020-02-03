@@ -109,7 +109,7 @@ private:
         std::istringstream iss(data);
         iss >> token;
         
-        ATH_MSG_DEBUG("Recorded token " << token << " for channelHash " << chanHash);
+        ATH_MSG_VERBOSE("Recorded token " << token << " for channelHash " << chanHash);
         return StatusCode::SUCCESS;
     }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -28,6 +28,7 @@ OddPhiCMA::OddPhiCMA(int num,int stat,int type,CMAcoverage coverage,
     m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, name());
     m_debug = log.level() <= MSG::DEBUG;
+    m_verbose = log.level() <= MSG::VERBOSE;
 
     m_inversion = false;
     m_conf_type = CMAparameters::Atlas;
@@ -750,14 +751,14 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
           std::map<std::string, std::string>::const_iterator itc;
           itc=p_trigroads->find(name);
           if(itc != p_trigroads->end()){
-            if(m_debug) {
-              log<<MSG::DEBUG
+            if(m_verbose) {
+              log<<MSG::VERBOSE
   	         << "OddPhiCMA low: key " << name << "found in the Trigger Road Map --> OK" <<endmsg;
-              log<<MSG::DEBUG
+              log<<MSG::VERBOSE
 		 << "OddPhiCMA low: key " <<  itc->second.c_str()<<endmsg;
 	    }
             CMAprogLow_COOL.str(itc->second.c_str());
-            if(m_debug) log<<MSG::DEBUG
+            if(m_verbose) log<<MSG::VERBOSE
 			   << "CMAPROGLOW " << CMAprogLow_COOL.str()<<endmsg;
           }
 	}
@@ -870,14 +871,14 @@ OddPhiCMA::setup(SectorLogicSetup& setup)
           std::map<std::string, std::string>::const_iterator itc;
           itc=p_trigroads->find(name);
           if(itc != p_trigroads->end()){
-            if(m_debug) {
-              log<<MSG::DEBUG
+            if(m_verbose) {
+              log<<MSG::VERBOSE
 		 << "OddPhiCMA high: key " << name << "found in the Trigger Road Map --> OK" <<endmsg;
-              log<<MSG::DEBUG
+              log<<MSG::VERBOSE
 	         << "OddPhiCMA high: key " <<  itc->second.c_str()<<endmsg;
 	    }
             CMAprogHigh_COOL.str(itc->second.c_str());
-            if(m_debug) log<<MSG::DEBUG
+            if(m_verbose) log<<MSG::VERBOSE
 			   << "CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endmsg;
           }
 	}
