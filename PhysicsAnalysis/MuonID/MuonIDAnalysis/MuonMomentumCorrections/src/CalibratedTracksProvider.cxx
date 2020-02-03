@@ -2,34 +2,34 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "xAODMuon/MuonContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 // Local include(s):
-#include "CalibratedMuonsProvider.h"
+#include "CalibratedTracksProvider.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODEventInfo/EventInfo.h"
 
 namespace CP {
-static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
- 
-CalibratedMuonsProvider::CalibratedMuonsProvider( const std::string& name, ISvcLocator* svcLoc ):
-       AthAlgorithm( name, svcLoc ),
-         m_tool( "CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool"),
-         m_prwTool(""),
-         m_useRndNumber(false) {
-      declareProperty( "Input", m_inputKey = "Muons" );
-      declareProperty( "Output", m_outputKey = "CalibratedMuons"); 
-      declareProperty( "Tool", m_tool );
-      declareProperty( "prwTool", m_prwTool );
-      
 
+static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
+CalibratedTracksProvider::CalibratedTracksProvider( const std::string& name, ISvcLocator* svcLoc ): 
+         AthAlgorithm( name, svcLoc ),
+         m_tool( "CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool"),
+         m_prwTool(""),         
+         m_detType(2), // MS = 1, ID = 2
+         m_useRndNumber(false) {
+      declareProperty( "Input", m_inputKey = "InDetTrackParticles" ); // or ExtrapolatedMuonTrackParticles
+      declareProperty( "Output", m_outputKey = "CalibratedInDetTrackParticles");
+      declareProperty( "Tool", m_tool );
+      declareProperty( "prwTool", m_prwTool );      
+      declareProperty( "DetType", m_detType );
 
 }
 
-StatusCode CalibratedMuonsProvider::initialize() {
-      ATH_CHECK( m_tool.retrieve() );
-      if (!m_prwTool.empty()){
+StatusCode CalibratedTracksProvider::initialize() {
+      ATH_CHECK( m_tool.retrieve());
+       if (!m_prwTool.empty()){
          m_useRndNumber = true;
          ATH_MSG_DEBUG("prwTool is given assume that the selection of the periods is based on the random run number");
          ATH_CHECK(m_prwTool.retrieve());
@@ -37,24 +37,24 @@ StatusCode CalibratedMuonsProvider::initialize() {
       return StatusCode::SUCCESS;
 }
 
-StatusCode CalibratedMuonsProvider::execute() {
-       
-      xAOD::MuonContainer* nonconst_muons = 0;
-      const xAOD::MuonContainer* muons = 0;
-      std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > out;
-    
+StatusCode CalibratedTracksProvider::execute() {
+
+      xAOD::TrackParticleContainer* nonconst_tracks = 0;
+      const xAOD::TrackParticleContainer* tracks = 0;
+      std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > out;
+
       if(m_inputKey==m_outputKey) { //attempt to modify in-situ, but must retrieve as non-const
-         CHECK( evtStore()->retrieve( nonconst_muons, m_inputKey ) );
-              muons = nonconst_muons;
-               out.first = nonconst_muons;
+         CHECK( evtStore()->retrieve( nonconst_tracks, m_inputKey ) );
+              tracks = nonconst_tracks;
+               out.first = nonconst_tracks;
       } else {
-         CHECK( evtStore()->retrieve( muons, m_inputKey ) );
-         out = xAOD::shallowCopyContainer( *muons );
+         CHECK( evtStore()->retrieve( tracks, m_inputKey ) );
+         out = xAOD::shallowCopyContainer( *tracks );
          //record to storegate 
          CHECK( evtStore()->record( out.first, m_outputKey ) );
          CHECK( evtStore()->record( out.second, m_outputKey+"Aux.") );
          //add original object link to met recalculations work
-         if(!setOriginalObjectLink( *muons, *out.first )) { 
+         if(!setOriginalObjectLink( *tracks, *out.first )) { 
             ATH_MSG_ERROR("Failed to add original object links to shallow copy of " << m_inputKey);
             return StatusCode::FAILURE;
          }  
@@ -69,13 +69,12 @@ StatusCode CalibratedMuonsProvider::execute() {
                  ATH_MSG_DEBUG("Apply the prw tool");
                  ATH_CHECK(m_prwTool->apply(*evInfo));
             }
-      }      
+      }
       for(auto iParticle : *(out.first)) {
-         ATH_MSG_DEBUG(" Old pt=" << iParticle->pt());
-         if(m_tool->applyCorrection(*iParticle).code()==CorrectionCode::Error) return StatusCode::FAILURE;
-         ATH_MSG_DEBUG(" New pt=" << iParticle->pt());
-     }
-
+        ATH_MSG_VERBOSE("Old pt=" << iParticle->pt());
+        if(m_tool->applyCorrectionTrkOnly(*iParticle, m_detType).code()==CorrectionCode::Error) return StatusCode::FAILURE;
+        ATH_MSG_VERBOSE("New pt=" << iParticle->pt());
+      }
 
       // Return gracefully:
       return StatusCode::SUCCESS;

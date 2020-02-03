@@ -13,7 +13,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "TrigMuonMatching/ITrigMuonMatching.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATInterfaces/SystematicVariation.h"

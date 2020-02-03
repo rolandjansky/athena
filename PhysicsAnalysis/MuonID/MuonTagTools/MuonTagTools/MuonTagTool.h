@@ -18,7 +18,7 @@ Purpose : build the Muon Tag objects - MuonTagCollection.h.
 #include "GaudiKernel/ToolHandle.h"
 #include <inttypes.h>
 #include "xAODMuon/MuonContainer.h"
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
