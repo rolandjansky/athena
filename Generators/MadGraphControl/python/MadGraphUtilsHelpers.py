@@ -70,7 +70,6 @@ def is_version_or_newer(args):
     if not version:
         raise RuntimeError('Failed to find MadGraph/MadGraph5_aMC@NLO version in '+version_file)
 
-    version=MadGraphUtils.getMadGraphVersion()
     vs=[int(v) for v in version.split('.')]
 
     # this is lazy, let's hope there wont be a subversion > 100...
