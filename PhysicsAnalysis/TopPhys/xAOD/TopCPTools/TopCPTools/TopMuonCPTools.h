@@ -16,7 +16,7 @@
 #include "AsgTools/AnaToolHandle.h"
 
 // Muon include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"

@@ -26,7 +26,7 @@
 #include "xAODMuon/MuonContainer.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h" 
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "TMVA/Reader.h"
 #include "TList.h"
 #include "TObjString.h"
