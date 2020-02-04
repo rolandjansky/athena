@@ -50,6 +50,7 @@ namespace MuonGM {
     m_delta = NULL;
     m_ml = mL;
 
+    m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:MMReadoutElement");
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
 
@@ -531,8 +532,8 @@ namespace MuonGM {
 
   void sTgcReadoutElement::setBLinePar(BLinePar* bLine) const
   {
-    if(reLog().level() <= MSG::DEBUG) 
-      reLog()<<MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
+    
+      (*m_Log)<<MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
     
     m_BLinePar = bLine;
   }
