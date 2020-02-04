@@ -340,6 +340,19 @@ namespace xAOD {
      }
    }
 
+   bool TrigComposite_v1::typelessGetObjectLink( const std::string& name, uint32_t& key, uint32_t& clid, uint16_t& index ) const {
+      std::vector<std::string>::const_iterator it = std::find(linkColNames().begin(), linkColNames().end(), name);
+      if (it == linkColNames().end()) {
+         return false;
+      }
+      const size_t location = std::distance(linkColNames().begin(), it);
+      key = linkColKeys().at(location);
+      clid = linkColClids().at(location);
+      index = linkColIndices().at(location);
+      return true;
+   }
+
+
    bool TrigComposite_v1::isRemapped() const {
       static const Accessor< std::vector< uint32_t > > key_remap( "remap_linkColKeys" );
       static const Accessor< std::vector< uint16_t > > index_remap( "remap_linkColIndices" );
