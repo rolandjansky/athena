@@ -36,22 +36,14 @@ svcMgr                                          += createThinningSvc(
 # ==========================================================================================================================
 # MET/Jet tracks
 thinning_expression                              = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-TAUP3MetTPThinningTool                           = DerivationFramework__TrackParticleThinning(
-                                                     name                      = "TAUP3MetTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
-                                                     SelectionString           = thinning_expression,
-                                                     InDetTrackParticlesKey    = "InDetTrackParticles",
-                                                     ApplyAnd                  = True)
-ToolSvc                                         += TAUP3MetTPThinningTool
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 TAUP3JetTPThinningTool                           = DerivationFramework__JetTrackParticleThinning(
                                                      name                      = "TAUP3JetTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName                = streamName,
                                                      JetKey                    = "AntiKt4LCTopoJets",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
-                                                     ApplyAnd                  = True)
+                                                     TrackSelectionString      = thinning_expression)
 ToolSvc                                         += TAUP3JetTPThinningTool
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
