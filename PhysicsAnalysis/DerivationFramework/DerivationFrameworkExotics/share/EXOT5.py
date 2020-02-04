@@ -83,7 +83,7 @@ thinningTools.append(EXOT5TauTPThinningTool)
 # Keep tracks associated with jets
 #EXOT5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
     #name                    = 'EXOT5JetTPThinningTool',
-    #ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    #StreamName              = streamName,
     #JetKey                  = 'AntiKt4EMTopoJets',
     #InDetTrackParticlesKey  = 'InDetTrackParticles',
     #SelectionString         = 'AntiKt4EMTopoJets.pt > 20*GeV')
