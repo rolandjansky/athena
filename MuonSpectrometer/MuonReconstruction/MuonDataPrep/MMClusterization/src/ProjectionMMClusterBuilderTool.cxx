@@ -6,7 +6,8 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 
-#include "GaudiKernel/MsgStream.h" 
+#include "GaudiKernel/MsgStream.h"
+#include <cmath>
 
 namespace{
 template <class T>
@@ -15,6 +16,10 @@ std::string printVec(std::vector<T> vec){
     std::copy(vec.begin(),vec.end(),std::ostream_iterator<T>(outstream,", "));
     return outstream.str();
 }
+
+// Parametrization of the strip error after the projection
+constexpr double stripErrorSlope = 0.2;
+constexpr double stripErrorIntercept = 0.15;
 
 
 }
@@ -35,9 +40,12 @@ Muon::ProjectionMMClusterBuilderTool::ProjectionMMClusterBuilderTool(const std::
   declareProperty("vDrift",m_vDrift = 0.048);
   declareProperty("tmin", m_tmin=30);
   declareProperty("tmax", m_tmax=130);
+  declareProperty("tOffset", m_tOffset=10.);
   declareProperty("corr_p0",m_p0=2.48741e-01);
   declareProperty("corr_p1",m_p1=-4.54356e-01);
   declareProperty("corr_p2",m_p2=3.77574e-01);
+  declareProperty("t0",m_t0=100);
+  declareProperty("minClusterSize",m_minClusterSize=2);
 }
 
 
@@ -86,9 +94,9 @@ for(const auto& prdsOfLayer : prdsPerLayer){
       double distToIp=prd.globalPosition().norm();
       double tof=distToIp/299.792; // divide by speed of light in mm/ns
       //determine angle to IP for debug reasons
-      double globalR=TMath::Sqrt(pow(prd.globalPosition().x(),2)+pow(prd.globalPosition().y(),2));
+      double globalR=std::sqrt(std::pow(prd.globalPosition().x(),2)+std::pow(prd.globalPosition().y(),2));
       double Tan=globalR/prd.globalPosition().z();
-      double angleToIp=TMath::ATan(Tan)/(180./M_PI);
+      double angleToIp=std::atan(Tan)/(180./M_PI);
       ATH_MSG_DEBUG("Hit channel: "<< m_mmIdHelper->channel(id_prd) <<" time "<< prd.time() << " localPosX "<< prd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_mmIdHelper->gasGap(id_prd) << " multiplet " << m_mmIdHelper->multilayer(id_prd) << " stationname " <<m_mmIdHelper->stationName(id_prd)  << " stationPhi " <<m_mmIdHelper->stationPhi(id_prd) << " stationEta "<<m_mmIdHelper->stationEta(id_prd));
     }
 
@@ -112,7 +120,7 @@ for(const auto& prdsOfLayer : prdsPerLayer){
       ATH_MSG_DEBUG("idx_selected"<<printVec(idx_selected));
       ATH_MSG_DEBUG("did fine scan and selected strips: "<< idx_selected.size() << " Status code: " << sc);
 
-      if(sc.isFailure()) break; //returns FAILURE if less then three strips in a cluster
+      if(sc.isFailure()){ATH_MSG_DEBUG("Fine scan failed"); break;} //returns FAILURE if less then three strips in a cluster
       sc = doPositionCalculation(v_posxc,v_cor,idx_selected,xmean,xerr,qtot,prdsOfLayer);
       ATH_MSG_DEBUG("calculated positions "<<sc);
       if(sc.isFailure()) break;
@@ -121,7 +129,7 @@ for(const auto& prdsOfLayer : prdsPerLayer){
       if(sc.isFailure()) break;  
 
       ATH_MSG_DEBUG("Remaining good strips "<< flag.size()-std::accumulate(flag.begin(),flag.end(),0));
-      if(flag.size()-std::accumulate(flag.begin(),flag.end(),0)<3){
+      if(flag.size()-std::accumulate(flag.begin(),flag.end(),0)<m_minClusterSize){
         ATH_MSG_DEBUG("Remaining good strips break: "<< flag.size()-std::accumulate(flag.begin(),flag.end(),0));
         break; // break if less then three strips are left for clustering
       }
@@ -139,14 +147,18 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::calculateCorrection(
   const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor){
     for(const auto& prd : prdsOfLayer){
       double posx = prd.localPosition().x();
-      double posz = prd.globalPosition().z();
-      double tm = prd.time()-prd.globalPosition().norm()/299.792;
+      double posz = std::fabs(prd.globalPosition().z()); // use std::fabs of z to not break symetrie for A and C side
+      double tm = prd.time()-prd.globalPosition().norm()/299.792-m_t0;
+      //std::printf("Time after tof: %.2f tmin: %.1f tmax: %.1f \n",tm,m_tmin,m_tmax);
       if(tm<m_tmin) tm=m_tmin;
       if(tm>m_tmax) tm=m_tmax;
-      double globalR=TMath::Sqrt(pow(prd.globalPosition().x(),2) + pow(prd.globalPosition().y(),2));
-      double cor=m_vDrift*(tm-m_tmin-10)*(1.0*globalR/posz);
-      ATH_MSG_DEBUG("globalR: "<< globalR << " Time: " << tm-m_tmin-10 << "globalZ: " << posz << " R/Z: "<<1.0*globalR/posz);
-      v_cor.push_back(cor);
+      double globalR=std::sqrt(std::pow(prd.globalPosition().x(),2) + std::pow(prd.globalPosition().y(),2));
+      double cor=m_vDrift*(tm-m_tmin-m_tOffset)*(1.0*globalR/posz);
+      //cor*=(m_mmIdHelper->gasGap(prd.identify())%2==1? 1:-1);//correct for the local drift time directions. Gas gap 2 and 4 have "negativ" time, therefore correction is applied negative
+      
+      ATH_MSG_DEBUG("globalR: "<< globalR << " Time: " << tm-m_tmin-m_tOffset << "globalZ: " << posz << " R/Z: "<<1.0*globalR/posz);
+
+      v_cor.push_back(cor); // 
       v_posxc.push_back(posx + cor);
     }
     return StatusCode::SUCCESS;
@@ -159,15 +171,15 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::doFineScan(std::vector<int>& fl
     double stepSize = 0.1;
     double nSteps = (xmax-xmin)/stepSize;
 
-    int maxGoodStrips=0;
+    uint maxGoodStrips=0;
     double bestPos=-99999;
     for(int i_step=0;i_step<nSteps;i_step++){
       double testPos=xmin+stepSize*i_step;
-      int nGoodStrips = 0;
+      uint nGoodStrips = 0;
       for(size_t i_strip=0; i_strip<v_posxc.size(); i_strip++){
         if(flag.at(i_strip)==1) continue;
         double sigma=getSigma(v_cor.at(i_strip));
-        if(fabs(testPos-v_posxc.at(i_strip)) < 3*sigma) nGoodStrips++;
+        if(std::fabs(testPos-v_posxc.at(i_strip)) < 3*sigma) nGoodStrips++;
       }
       if(nGoodStrips>maxGoodStrips){
         maxGoodStrips=nGoodStrips;
@@ -176,11 +188,11 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::doFineScan(std::vector<int>& fl
       }
     }
     ATH_MSG_DEBUG("maxGoodStrips: "<< maxGoodStrips<<" best Pos: "<< bestPos);
-    if(maxGoodStrips<3) return StatusCode::FAILURE;
+    if(maxGoodStrips<m_minClusterSize) return StatusCode::FAILURE;
     for (size_t i_strip=0;i_strip<v_posxc.size();i_strip++){
       if(flag.at(i_strip)==1) continue;
       double sigma=getSigma(v_cor.at(i_strip));
-      if(fabs(bestPos-v_posxc.at(i_strip)) < 3*sigma){
+      if(std::fabs(bestPos-v_posxc.at(i_strip)) < 3*sigma){
         idx_selected.push_back(i_strip);
         flag.at(i_strip)=1;
       }
@@ -199,11 +211,12 @@ StatusCode  Muon::ProjectionMMClusterBuilderTool::doPositionCalculation(std::vec
     for(const auto& idx:idx_selected){
       double qrat = prdsOfLayer.at(idx).charge()/qtot;
       v_posxc.at(idx) -= m_p0/(m_p1-qrat) +m_p2;
-      numerator+=v_posxc.at(idx)/pow(getSigma(v_cor.at(idx)),2);
-      denominator+=pow(getSigma(v_cor.at(idx)),-2);
+      numerator+=v_posxc.at(idx)/std::pow(getSigma(v_cor.at(idx)),2);
+      denominator+=std::pow(getSigma(v_cor.at(idx)),-2);
     }
     xmean=numerator/denominator;
-    xmeanErr=TMath::Sqrt(denominator);
+    xmeanErr=1./std::sqrt(denominator);
+    ATH_MSG_DEBUG("do Position Calculation mean: "<< xmean <<" err: "<< xmeanErr);
     return StatusCode::SUCCESS;
   }
 
@@ -224,7 +237,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
       double meanTime=0;
       for(const auto& id_goodStrip:idx_selected){
         stripsOfCluster.push_back(prdsOfLayer.at(id_goodStrip).identify());
-        stripsOfClusterDriftTime.push_back(int(prdsOfLayer.at(id_goodStrip).time()-prdsOfLayer.at(id_goodStrip).globalPosition().norm()/299.792));
+        stripsOfClusterDriftTime.push_back(int(prdsOfLayer.at(id_goodStrip).time()-prdsOfLayer.at(id_goodStrip).globalPosition().norm()/299.792-m_t0));
         stripsOfClusterCharge.push_back(int(prdsOfLayer.at(id_goodStrip).charge()));
         stripsOfClusterStripNumber.push_back(m_mmIdHelper->channel(prdsOfLayer.at(id_goodStrip).identify()));
 
@@ -244,10 +257,16 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
 
       clustersVect.push_back(prdN);
       ATH_MSG_VERBOSE("pushedBack  prdN");
+      ATH_MSG_VERBOSE("pushedBack PRDs: stationEta: "<< m_mmIdHelper->stationEta(prdN->identify())
+                       <<" stationPhi "<< m_mmIdHelper->stationPhi(prdN->identify()) 
+                       <<" stationName "<< m_mmIdHelper->stationName(prdN->identify())
+                       << " gasGap "<< m_mmIdHelper->gasGap(prdN->identify()) 
+                       <<" multiplet "<<m_mmIdHelper->multilayer(prdN->identify()) 
+                       <<" channel "<< m_mmIdHelper->channel(prdN->identify()));
       return StatusCode::SUCCESS;
 } 
 
 
 double Muon::ProjectionMMClusterBuilderTool::getSigma(double correction){
-  return 0.15+0.2*fabs(correction);
+  return stripErrorIntercept+stripErrorSlope*std::fabs(correction);
 }
