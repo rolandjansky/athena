@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package AtlasErrorCodes
 #
@@ -10,8 +10,8 @@
 
 from __future__ import with_statement, print_function
 import os,re,sys,traceback
-from envutil import find_file_env
-from xmlutil import XMLNode
+from .envutil import find_file_env
+from .xmlutil import XMLNode
 
 __all__ = [ 'AtlasErrorCodeException', 'ErrorInfo', 'ErrorCategory' ]
 
