@@ -8,6 +8,7 @@
 
 ## Create sequences for generators, clean-up algs, filters and analyses
 ## and import standard framework objects with standard local scope names
+
 import ast
 import os, re, string, subprocess
 import AthenaCommon.AlgSequence as acas
@@ -61,6 +62,11 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
 evgenLog = logging.getLogger('Generate_tf')
+
+# warning that the transform obsolete
+evgenLog.warning(" ############################################################################### ")
+evgenLog.warning(" Generate_tf is obsolete in rel. 21.6.X - Use Gen_tf ")
+evgenLog.warning(" ############################################################################### ")
 
 ##==============================================================
 ## Run arg handling
@@ -132,8 +138,8 @@ if not hasattr(postSeq, "CountHepMC"):
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = False
+postSeq.CountHepMC.CorrectHepMC = True
+postSeq.CountHepMC.CorrectEventID = True
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args

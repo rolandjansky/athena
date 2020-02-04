@@ -41,12 +41,22 @@ def getParameters():
 
     #--- Read parts of the job option
     jonamelist = str(runArgs.jobConfig[0]).replace(".py", "").split("_")
-    process = jonamelist[1]
-    ma = float(jonamelist[3].split("a")[-1].replace("p", "."))
-    decayChan = str(jonamelist[4])
+    
+    tune=0
+    count=0
+    for substr in jonamelist:
+        if "AZNLO" in substr:
+            tune = count
+            break
+        count += 1
+
+    print("squirrel",jonamelist,tune)
+    process = jonamelist[tune+1]
+    ma = float(jonamelist[tune+3].split("a")[-1].replace("p", "."))
+    decayChan = str(jonamelist[tune+4])
     partFilter = None
-    if len(jonamelist)>5:
-        partFilter = str(jonamelist[5])
+    if len(jonamelist)-tune>5:
+        partFilter = str(jonamelist[tune+5])
 
     #--- list of decays, e.g. [mu, tau] for 2mu2tau
     decayProducts = []
@@ -200,6 +210,15 @@ if process=="ggZH" and decayChan=="4b":
     evgenConfig.process     ="ggZH, H->2a->4b, Z->ll"
     evgenConfig.contact     = [ 'roger.caminal.armadans@cern.ch' ]
 
+if process=="ZH" and decayChan=="4g":
+    evgenConfig.description = "POWHEG+MiNLO+Pythia8 H+Z+jet->l+l-gggg production"
+    evgenConfig.process     = "ZH, H->aa->4g, Z->ll"
+    evgenConfig.contact     = [ 'bnachman@cern.ch' ]
+
+if process=="ggH" and decayChan=="4y":
+    evgenConfig.description = "POWHEG+Pythia8 H+jet production with NNLOPS and the A14 tune, H->aa->4\gamma mh=125 GeV"
+    evgenConfig.process     = "ggH, H->aa->4y"
+    evgenConfig.contact     = [ 'bnachman@cern.ch' ]
 
 #--------------------------------------------------------------
 # FILTERS (if needed)
@@ -230,5 +249,18 @@ if partFilter=="filterXXYY" or partFilter=="filterlh" or partFilter=="filterll":
         filtSeq.tauscalarFilter.PDGChild2 = [111,130,211,221,223,310,311,321,323]
 
 elif partFilter=="filter2taulep2tauhad":
-    from GeneratorFilters.GeneratorFiltersConf import FourTauLepLepHadHadFilter
-    filtSeq += FourTauLepLepHadHadFilter()
+    #from GeneratorFilters.GeneratorFiltersConf import FourTauLepLepHadHadFilter
+    #filtSeq += FourTauLepLepHadHadFilter()
+    from GeneratorFilters.GeneratorFiltersConf import TauFilter
+    lfvfilter = TauFilter("lfvfilter")
+    filtSeq += lfvfilter
+    filtSeq.lfvfilter.UseNewOptions = True
+    filtSeq.lfvfilter.Ntaus = 4
+    filtSeq.lfvfilter.Nleptaus = 2
+    filtSeq.lfvfilter.Nhadtaus = 2
+    filtSeq.lfvfilter.EtaMaxlep = 2.7
+    filtSeq.lfvfilter.EtaMaxhad = 2.7
+    filtSeq.lfvfilter.Ptcutlep = 3000.0 #MeV
+    filtSeq.lfvfilter.Ptcutlep_lead = 3000.0 #MeV
+    filtSeq.lfvfilter.Ptcuthad = 12500.0 #MeV
+    filtSeq.lfvfilter.Ptcuthad_lead = 12500.0 #MeV

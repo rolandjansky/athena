@@ -194,34 +194,28 @@ def OutputTXTFile():
 if len(runArgs.jobConfig) != 1:
     evgenLog.error("You must supply one and only one jobConfig file argument")
     sys.exit(1)
-jo = runArgs.jobConfig[0]
-jofile = os.path.basename(jo)
-joparts = jofile.split(".")
-## Perform some consistency checks if this appears to be an "official" production JO
-officialJO = False
-if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:]):
+print "Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOPTSEARCHPATH"])
+FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
+#print "The first search dir = ", FIRST_DIR
+
+jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
+
+if len(jofiles) !=1:
+    evgenLog.error("You must supply one and only one jobOption file in DSID directory")
+    sys.exit(1)
+
+jofile = jofiles[0]
+joparts = (os.path.basename(jofile)).split(".")
+
+if joparts[0].startswith("mc"): #and all(c in string.digits for c in joparts[0][2:]):
     officialJO = True
-    ## Check that the JO does not appear to be an old one, since we can't use those
-    if int(joparts[0][2:]) < 14:
-        evgenLog.error("MC14 (or later) job option scripts are needed to work with Gen_tf!")
-        evgenLog.error(jo + " will not be processed: please rename or otherwise update to a >= MC14 JO.")
+    ## Check that there are exactly 3 name parts separated by '.': mc, physicsShort, .py
+    if len(joparts) != 3:
+        evgenLog.error(jofile + " name format is wrong: must be of the form mc.<physicsShort>.py: please rename.")
         sys.exit(1)
-    ## Check that there are exactly 4 name parts separated by '.': MCxx, DSID, physicsShort, .py
-    if len(joparts) != 4:
-        evgenLog.error(jofile + " name format is wrong: must be of the form MC<xx>.<yyyyyy>.<physicsShort>.py: please rename.")
-        sys.exit(1)
-    ## Check the DSID part of the name
-    jo_dsidpart = joparts[1]
-#    try:
-#        jo_dsidpart = int(jo_dsidpart)
-#        if runArgs.runNumber != jo_dsidpart:
-#            raise Exception()
-#    except:
-#        evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % (str(runArgs.runNumber), jo_dsidpart))
-#        sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
-    jo_physshortpart = joparts[2]
-    if len(jo_physshortpart) > 60:
+    jo_physshortpart = joparts[1]
+    if len(jo_physshortpart) > 50:
         evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
@@ -230,10 +224,16 @@ if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:
         evgenLog.error(jofile + " has too few physicsShort fields separated by '_': should contain <generators>(_<tune+PDF_if_available>)_<process>. Please rename.")
         sys.exit(1)
     ## NOTE: a further check on physicsShort consistency is done below, after fragment loading
+    check_jofiles="/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/scripts/check_jo_consistency.py"
+    if os.path.exists(check_jofiles):
+        include(check_jofiles)
+        check_naming(os.path.basename(jofile))
+    else:
+        evgenLog.error("check_jo_consistency.py not found")
+        sys.exit(1)
 
 ## Include the JO fragment
-include(jo)
-
+include(jofile)
 
 ##==============================================================
 ## Config validation and propagation to services, generators, etc.
@@ -246,6 +246,7 @@ evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION ****************
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
 
+evgenLog.info(".transform =                  Gen_tf")
 ## Sort and check generator name / JO name consistency
 ##
 ## Check that the generators list is not empty:
@@ -292,6 +293,7 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
 
 ## Check that the evgenConfig.nEventsPerJob setting is acceptable
 ## nEventsPerJob defines the production event sizes and must be sufficiently "round"
+rounding = 0
 if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   
    multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
@@ -299,19 +301,17 @@ else:
 if evgenConfig.nEventsPerJob < 1:
     raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
 else:
-    allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
+    allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
     if multiInput !=0 :
-        dummy_minevents = evgenConfig.nEventsPerJob*(multiInput)
-        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_minevents) + ' rounded 
-to ' + str(int(round(dummy_minevents))))
-        
-evgenConfig.nEventsPerJob = dummy_minevents
+        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
+        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob) + ' rounded to ' + str(int(round(dummy_nEventsPerJob))))
+        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
         rest1000 = evgenConfig.nEventsPerJob % 1000
         if multiInput !=0 :
             rounding=1
             if rest1000 < 1000-rest1000:
-                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.minevents-rest1000))
+                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000))
                 evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
             else:
                 evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
@@ -319,19 +319,19 @@ evgenConfig.nEventsPerJob = dummy_minevents
         else:    
            msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000"
            raise RuntimeError(msg)
-    elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_minevents_lt1000:
+    elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
         if multiInput !=0:
            rounding=1 
-           evgenConfig.minevents=min(allowed_minevents_lt1000,key=lambda x:abs(x-evgenConfig.minevents))
+           evgenConfig.nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
         else:
-           msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_minevents_lt1000
+           msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "MC15JobOptions/evgenkeywords.txt"
+    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
     kwpath = None
     for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
@@ -343,7 +343,7 @@ if evgenConfig.keywords:
     if kwpath:
         kwf = open(kwpath, "r")
         for l in kwf:
-            allowed_keywords += l.strip().split()
+            allowed_keywords += l.strip().lower().split()
         #allowed_keywords.sort()
         ## Check the JO keywords against the allowed ones
         evil_keywords = []
@@ -394,8 +394,14 @@ if evgenConfig.saveJets:
     StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
 
 ## Set the run numbers
+dsid = os.path.basename(runArgs.jobConfig[0])
+if not dsid.isdigit():
+    dsid = "999999"
+svcMgr.EventSelector.RunNumber = int(dsid)
+
 #svcMgr.EventSelector.RunNumber = runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
+
 
 ## Handle beam info
 import EventInfoMgt.EventInfoMgtInit
@@ -551,6 +557,8 @@ if _checkattr("hardPDF"):
     print "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
 if _checkattr("softPDF"):
     print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
+if _checkattr("nEventsPerJob"):
+    print "MetaData: %s = %s" % ("nEventsPerJob", evgenConfig.nEventsPerJob)
 if _checkattr("keywords"):
     print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())
 if _checkattr("specialConfig"):
@@ -572,7 +580,7 @@ print "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
 
 from PyJobTransformsCore.runargs import RunArguments
 runPars = RunArguments()
-runPars.minevents = evgenConfig.nEventsPerJob
+runPars.nEventsPerJob = evgenConfig.nEventsPerJob
 runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
 with open("config.pickle", 'w') as f:
     import cPickle
@@ -582,4 +590,4 @@ with open("config.pickle", 'w') as f:
 ##==============================================================
 ## Get ready to run...
 ##==============================================================
-evgenLog.debug("****************** STARTING EVENT GENERATION *****************")
+evgenLog.info("****************** STARTING EVENT GENERATION *****************")

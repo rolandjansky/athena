@@ -310,7 +310,7 @@ else:
 #        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob))
 #        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0:
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0 and 10000 % evgenConfig.nEventsPerJob != 0:
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
 #        rest1000 = evgenConfig.nEventsPerJob % 1000
 #        if multiInput !=0 :
@@ -322,7 +322,7 @@ else:
 #                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
 #                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
 #        else:    
-           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000"
+           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000 and a divisor of 10000"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
@@ -516,22 +516,22 @@ elif "AcerMC" in evgenConfig.generators:
 elif "CompHep" in evgenConfig.generators:
     datFile = "inparmCompHep.dat"
 
-if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
+#if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
 ## Events files
-eventsFile = outputTXTFile
-#if "Alpgen" in evgenConfig.generators:
-#    eventsFile = "alpgen.unw_events"
-#elif "Protos" in evgenConfig.generators: 
-#    eventsFile = "protos.events"
-#elif "ProtosLHEF" in evgenConfig.generators:
-#    eventsFile = "protoslhef.events"
-#elif "BeamHaloGenerator" in evgenConfig.generators:
-#    eventsFile = "beamhalogen.events"
-#elif "HepMCAscii" in evgenConfig.generators:
-#    eventsFile = "events.hepmc"
-#elif gens_lhef(evgenConfig.generators):
-#    eventsFile = outputTXTFile
-#    eventsFile = "events.lhe"
+#eventsFile = outputTXTFile
+if "Alpgen" in evgenConfig.generators:
+   eventsFile = "alpgen.unw_events"
+elif "Protos" in evgenConfig.generators:
+   eventsFile = "protos.events"
+elif "ProtosLHEF" in evgenConfig.generators:
+   eventsFile = "protoslhef.events"
+elif "BeamHaloGenerator" in evgenConfig.generators:
+   eventsFile = "beamhalogen.events"
+elif "HepMCAscii" in evgenConfig.generators:
+   eventsFile = "events.hepmc"
+elif gens_lhef(evgenConfig.generators):
+   #eventsFile = outputTXTFile
+   eventsFile = "events.lhe"
 
 
 ## Helper functions for input file handling
@@ -691,7 +691,7 @@ def _checkattr(attr, required=False):
         return False
     return True
 # counting the number of events in LHE output
-with open(outputTXTFile) as f:
+with open(eventsFile) as f:
     contents = f.read()
     count_ev = contents.count("<event>")
     

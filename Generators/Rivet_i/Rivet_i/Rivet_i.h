@@ -15,7 +15,7 @@
 
 class ISvcLocator;
 class StoreGateSvc;
-class ITHistSvc;
+//class ITHistSvc;
 
 
 /// Interface to the Rivet analysis package
@@ -53,13 +53,16 @@ private:
   const HepMC::GenEvent* checkEvent(const HepMC::GenEvent* event);
 
   /// A pointer to the THistSvc
-  ServiceHandle<ITHistSvc> m_histSvc;
+  //ServiceHandle<ITHistSvc> m_histSvc;
 
   /// The stream name for storing the output plots under (default "/Rivet")
   std::string m_stream;
 
   /// The base file name to write results to.
   std::string m_file;
+
+  //specify a pre-existing yoda file to initialize from
+  std::string m_preload;
 
   /// @brief The analysis plugin search path
   ///
@@ -72,11 +75,6 @@ private:
   /// events have beams of the sort that the analysis was written to expect.
   bool m_ignorebeams;
 
-  /// @brief Whether to avoid the finalize() Rivet step
-  ///
-  /// Default is false: analyses will finalize event loop histograms with normalizations,
-  /// scalings, divisions, etc. This may be useful for run combining iy yodamerge is not working.
-  bool m_skipfinalize;
 
   /// @brief Will we convert Rivet's internal histo format into a ROOT histo for streaming with THistSvc?
   ///
@@ -84,11 +82,6 @@ private:
   /// Currently (03.01.12) there is no conversion for 2D distributions, in which case you
   /// want to set this to False
   bool m_doRootHistos;
-
-  /// @brief Will the a ROOT histo (see above) be as a TGraphAsymmErrs?
-  ///
-  /// The default is no: it'll be written as a TH1D (easier to merge, but a bit dangerous).
-  bool m_doRootAsTGraph;
 
   /// The name of the run (prepended to plot paths).
   std::string m_runname;
@@ -104,12 +97,18 @@ private:
 
   /// The cross section for this run of events, set from the job properties.
   double m_crossSection;
-
-  /// The name of the weight to use in case the input HepMC contains multiple weights
-  std::string m_weightName;
+  
+  /// The uncertainity of the cross section for this run of events, set from the job properties.
+  double m_crossSection_uncert;
   
   /// Flag to determine whether Rivet init has already happened (in execute())
   bool m_init;
+
+  ///Skip variation weights and only run nominal
+  bool m_skipweights;
+  
+  ///Weight cap to set allowed maximum for weights 
+  double m_weightcap;
 
 };
 
