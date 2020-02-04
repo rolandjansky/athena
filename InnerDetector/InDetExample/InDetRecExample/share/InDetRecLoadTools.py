@@ -633,8 +633,12 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     # --- load Configured Annealing Maker
     #
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__DetAnnealingMaker
-    InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
-                                                 SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
+    if(InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
+      InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
+                                                   SetOfTemperatures = [8.,4.,2.,1.4142136,1.2247449,1.]) # 'standard' annealing temps raised to 0.5
+    else:
+      InDetAnnealingMaker = Trk__DetAnnealingMaker(name = "InDetAnnealingMaker",
+                                                   SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
     ToolSvc += InDetAnnealingMaker
     if (InDetFlags.doPrintConfigurables()):
       printfunc (InDetAnnealingMaker)
