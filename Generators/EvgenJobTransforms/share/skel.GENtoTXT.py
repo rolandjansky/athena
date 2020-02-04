@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Generate_tf transform"""
 
@@ -65,6 +65,13 @@ evgenLog = logging.getLogger('Gen_tf_txt')
 evgenLog.debug("****************** CHECKING EVENT GENERATION ARGS *****************")
 evgenLog.debug(str(runArgs))
 print ("****************** CHECKING EVENT GENERATION ARGS *****************")
+if hasattr(runArgs, "runNumber"):
+   evgenLog.warning("##########################################################################" )         
+   evgenLog.warning("runNumber - no longer a valid argument, do not use it ! " )         
+   evgenLog.warning("##########################################################################")
+
+if hasattr(runArgs, "inputGenConfFile"):
+   raise RuntimeError("inputGenConfFile is invalid !! Gridpacks and config. files/links to be put into DSID directory ")
 
 ## Announce start of job configuration
 evgenLog.debug("****************** CONFIGURING EVENT GENERATION *****************")
