@@ -171,6 +171,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     Gaudi::Property<double> m_mcCrossSection{this, "MCCrossSection", 0.0, "If running over MC. The process cross section in nb (AMI gives thins in nb)"};
     Gaudi::Property<double> m_mcFilterEfficiency{this, "MCFilterEfficiency", 1.0, "If running over MC. The process filter efficiency (0.0-1.0)"}; 
     Gaudi::Property<double> m_mcKFactor{this, "MCKFactor", 1.0, "If running over MC. The process filter efficiency (0.0-1.0)"}; 
+    Gaudi::Property<bool> m_mcIgnoreGeneratorWeights{this, "MCIgnoreGeneratorWeights", false, "If running over MC. Flag to ignore the generator weight."}; 
     Gaudi::Property<double> m_inelasticCrossSection{this, "InelasticCrossSection", 8e-26, "Inelastic cross section in units cm^2. Default 80 mb at 13 TeV."}; 
 
     double m_deadtime; //!< Online deadtime to correct for in rate prediction. Currently a constant for the EB period

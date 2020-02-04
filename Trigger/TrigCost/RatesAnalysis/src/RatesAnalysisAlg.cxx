@@ -510,7 +510,7 @@ StatusCode RatesAnalysisAlg::execute() {
 
   if (m_doHistograms) {
     m_bcidHist->Fill(eventInfo->bcid(), m_weightingValues.m_enhancedBiasWeight);
-    m_scalingHist->Fill(m_weightingValues.m_eventLiveTime);
+    m_scalingHist->Fill(0.5, m_weightingValues.m_eventLiveTime);
   }
 
   // Some debug info
