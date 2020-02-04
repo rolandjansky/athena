@@ -47,7 +47,7 @@
 #include "egammaInterfaces/IegammaBaseTool.h" 
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
-
+#include "egammaInterfaces/IEMShowerBuilder.h" 
 #include "GaudiKernel/SystemOfUnits.h"
 
 class egammaRec;
@@ -104,6 +104,11 @@ class egammaBuilder : public AthAlgorithm
   /** @brief Vector of tools for dressing ONLY photons **/
   ToolHandleArray<IegammaBaseTool> m_photonTools {this,
       "PhotonTools", {}, "Tools for dressing ONLY photons"};
+
+   /** @brief Tool to do the final electron/photon cluster building */
+    ToolHandle<IEMShowerBuilder> m_ShowerTool {this, 
+        "EMShowerTool", "egammaTools/EMShowerBuilder", 
+        "Tool that does electron/photon shower shape building"};
 
   /** @brief Tool to do the final electron/photon cluster building */
   ToolHandle<IEMClusterTool> m_clusterTool {this, 

@@ -18,6 +18,7 @@
 */
 
 static const InterfaceID IID_IEMClusterTool("IEMClusterTool", 1, 0);
+class CaloDetDescrManager;
 
 class IEMClusterTool : virtual public IAlgTool {
 
@@ -32,13 +33,12 @@ class IEMClusterTool : virtual public IAlgTool {
   virtual StatusCode initialize() = 0;
   /** @brief execute on containers */
   virtual StatusCode contExecute(const EventContext& ctx,
-                                 xAOD::ElectronContainer *electronContainer, 
-				 xAOD::PhotonContainer *photonContainer) const = 0;
+                                 const CaloDetDescrManager& cmgr,
+                                 xAOD::ElectronContainer* electronContainer,
+                                 xAOD::PhotonContainer* photonContainer) const = 0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   
-  /** @brief build extra positions in calo frame*/
-  virtual void fillPositionsInCalo(xAOD::CaloCluster* cluster) const =0;
 };
 
 inline const InterfaceID& IEMClusterTool::interfaceID()
