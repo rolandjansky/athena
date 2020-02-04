@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ======================================================================
@@ -98,6 +98,9 @@ StatusCode Pythia8B_i::genInitialize() {
         return RndmStatus;
     }
     
+    // Call the base class genInitialize()
+    ATH_CHECK (Pythia8_i::genInitialize());
+
     // This over-rides the genInitialize in the base class Pythia8_i, but then calls it
     // Sets the built-in UserHook called SuppressLowPT
     // FOR ONIA USE ONLY
@@ -107,11 +110,7 @@ StatusCode Pythia8B_i::genInitialize() {
         Pythia8_i::m_pythia->setUserHooksPtr(m_SuppressSmallPT);
     }
 
-    // Call the base class genInitialize()
-    if (Pythia8_i::genInitialize().isSuccess()) {
-        return StatusCode::SUCCESS;
-    } else {return StatusCode::FAILURE;}
-    
+    return StatusCode::SUCCESS;
 }
 
 
