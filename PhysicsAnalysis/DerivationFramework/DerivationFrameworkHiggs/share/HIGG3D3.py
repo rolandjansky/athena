@@ -98,10 +98,9 @@ thinningTools=[]
 # MET/Jet tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG3D3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG3D3JetTPThinningTool",
-                                                                ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4EMTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D3JetTPThinningTool
 thinningTools.append(HIGG3D3JetTPThinningTool)
 

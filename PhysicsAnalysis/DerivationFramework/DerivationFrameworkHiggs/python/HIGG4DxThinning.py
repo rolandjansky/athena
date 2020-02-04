@@ -29,7 +29,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
     #jets and tracks
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
     HIGG4DxJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          		= HIGG4DxName+"JetTPThinningTool",
-                                                                              ThinningService         	= HIGG4DxThinningSvc,
+                                                                              StreamName              = streamName,
                                                                               JetKey                  = "AntiKt4EMTopoJets",
                                                                               SelectionString         = "AntiKt4EMTopoJets.pt > 18*GeV",
                                                                               InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -38,7 +38,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
     thinningTools.append(HIGG4DxJetTPThinningTool)
     
     HIGG4DxJetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = HIGG4DxName+"JetLCTPThinningTool",
-                                                                                ThinningService         = HIGG4DxThinningSvc,
+                                                                                StreamName              = streamName,
                                                                                 JetKey                  = "AntiKt4LCTopoJets",
                                                                                 SelectionString         = "AntiKt4LCTopoJets.pt > 18*GeV",
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -50,7 +50,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         HIGG4DxJetTrackThinningTool1 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool1",
-                                                                                      ThinningService        = HIGG4DxThinningSvc,
+                                                                                      StreamName              = streamName,
                                                                                       JetKey                 = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                                       SelectionString        = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV",
                                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
@@ -61,7 +61,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         HIGG4DxJetTrackThinningTool2 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool2",
-                                                                                      ThinningService        = HIGG4DxThinningSvc,
+                                                                                      StreamName              = streamName,
                                                                                       JetKey                 = "AntiKt2PV0TrackJets",
                                                                                       SelectionString        = "AntiKt2PV0TrackJets.pt > 6*GeV",
                                                                                       InDetTrackParticlesKey = "InDetTrackParticles",

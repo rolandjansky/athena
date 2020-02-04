@@ -36,21 +36,13 @@ HIGG2D2ThinningHelper.AppendToStream(HIGG2D2Stream)
 
 # MET/Jet tracks
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG2D2TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D2TPThinningTool",
-                                                                   ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
-                                                                   SelectionString        = thinning_expression,
-                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                   ApplyAnd               = True)
-ToolSvc += HIGG2D2TPThinningTool
-thinningTools.append(HIGG2D2TPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG2D2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D2JetTPThinningTool",
-                                                                         ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          JetKey                 = "AntiKt4LCTopoJets",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                         ApplyAnd               = True)
+                                                                         TrackSelectionString   = thinning_expression)
 ToolSvc += HIGG2D2JetTPThinningTool
 thinningTools.append(HIGG2D2JetTPThinningTool)
 
