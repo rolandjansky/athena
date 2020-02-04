@@ -591,13 +591,13 @@ class SlimmingHelper:
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
