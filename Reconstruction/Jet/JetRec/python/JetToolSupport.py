@@ -150,7 +150,7 @@ class JetToolManager:
   # Return the list of modifiers associated with a name.
   # If the argument is a list, a copy is returned directly.
   # Also configures any necessary container names in the copy.
-  def getModifiers(self, modifiersin, output, altname =None):
+  def getModifiers(self, modifiersin, altname =None):
     if modifiersin == None:
       if altname in ["lctopo","emtopo"]:
         return self.modifiersMap[altname+"_ungroomed"]
@@ -793,7 +793,10 @@ class JetToolManager:
     for m in modifiers:
       self.setOutputLevel(m, OutputLevel)
 
-    self.configureContainerName(modifiers, name.split('_')[1])
+    # Temporary hard-coded solution until this config is deprecated.
+    triggerPrefix = "HLT_xAOD__JetContainer_"
+
+    self.configureContainerName(modifiers, triggerPrefix + name.split('_')[1])
 
     self.ptminFilter = ptminSave
     
@@ -819,6 +822,7 @@ class JetToolManager:
     return builder
 
   def addTriggerJetTrimmer(self,
+                           output,
                            name,
                            rclus,
                            ptfrac,
