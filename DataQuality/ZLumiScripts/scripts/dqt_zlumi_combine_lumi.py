@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                    
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                    
+
 import ROOT
 import sys
 import argparse
 from array import array
 
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('recofile', type=str, help='File with per-LB yields')
@@ -64,18 +64,23 @@ entrydict = {}
 
 for i in xrange(recoztree.GetEntries()):
     recoztree.GetEntry(i)
-    if not recoztree.pass_grl: continue
+    if not recoztree.pass_grl: 
+        continue
     # If livetime less than 10 sec, ignore
-    if recoztree.lblive < 10 : continue
+    if recoztree.lblive < 10 : 
+        continue
+    
     effztree.Draw('alleff:alleffstat', 'run==%s&&lb==%s' % (recoztree.run, recoztree.lb), 'goff')
     if effztree.GetSelectedRows() == 0:
         print 'Broken for run, lb %s %s' % (recoztree.run, recoztree.lb)
         print 'We THINK there are %d events here ...' % (recoztree.zraw)
         continue
+    
     lbzero = (recoztree.lb // LUMIBLOCKS)*LUMIBLOCKS
     run = recoztree.run
     if (run, lbzero) not in entrydict: 
         entrydict[(run, lbzero)] = {'zcount': 0., 'zcounterrsq': 0., 'livetime': 0., 'lbwhen': [-1, -1], 'mu': 0., 'offlumi': 0., 'rolleff': 0., 'rollefferrsq': 0., 'lhcfill': recoztree.lhcfill}
+    
     thisdict = entrydict[(run, lbzero)]
     effcy = (effztree.GetV1()[0]*correction(recoztree.mu))
     #thisdict['zcount'] += recoztree.zraw/effcy
@@ -90,8 +95,9 @@ for i in xrange(recoztree.GetEntries()):
     thisdict['livetime'] += loclivetime
     thisdict['mu'] += recoztree.mu*loclivetime
     thisdict['offlumi'] += recoztree.offlumi*loclivetime
+    
     if thisdict['lbwhen'][0] > recoztree.lbwhen[0] or thisdict['lbwhen'][0] == -1:
-        thisdict['lbwhen'][0] = recoztree.lbwhen[0]
+        thisdict['lbwhen'][0] = recoztree.lbwhen[0]    
     if thisdict['lbwhen'][1] < recoztree.lbwhen[1] or thisdict['lbwhen'][1] == -1:
         thisdict['lbwhen'][1] = recoztree.lbwhen[1]
 
@@ -156,4 +162,3 @@ newezt = effztree.CloneTree()
 newezt.SetName("efflumitree")
 fout.Write()
 fout.Close()
-        

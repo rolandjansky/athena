@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -7,21 +7,18 @@ import sys, os
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--grl', type=str, help='Specify an input GRL')
 parser.add_argument('--out', type=str, help='output ROOT file')
-parser.add_argument('--tag', type=str, help='Lumi tag',
-                    default='OflLumiAcct-001')
+parser.add_argument('--tag', type=str, help='Lumi tag', default='OflLumiAcct-001')
 parser.add_argument('--useofficial', action='store_true', help='Use official lumi folder (otherwise, use OflLumiAcct')
 parser.add_argument('--lumifolder', type=str, help='Lumi folder', default='/TRIGGER/OFLLUMI/OflPrefLumi')
 parser.add_argument('--lumitag', type=str, help='Lumi tag', default='OflLumi-13TeV-009')
-parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
-                    default='plots')
-parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
-                    default=0)
-parser.add_argument('--dblivetime', action='store_true',
-                    help='Look up livetime from DB')
+parser.add_argument('--plotdir', type=str, help='Directory to dump plots', default='plots')
+parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies', default=0)
+parser.add_argument('--dblivetime', action='store_true', help='Look up livetime from DB')
 parser.add_argument('--mode', type=str, help='Zee or Zmumu')
 
 args = parser.parse_args()
@@ -297,6 +294,7 @@ if fout:
     fout.Close()
 
 c1 = ROOT.TCanvas()
+c1.SetBatch(ROOT.kTRUE)
 c1.SetTickx()
 c1.SetTicky()
 leg = ROOT.TLegend(0.6, 0.75, 0.89, 0.88)
@@ -311,6 +309,7 @@ c1.Print(os.path.join(args.plotdir, '%s_lumi.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi.png' % runname[4:]))
 
 c1.Clear()
+c1.SetBatch(ROOT.kTRUE)
 lumiplot_m_ratio.Draw()
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.png' % runname[4:]))
