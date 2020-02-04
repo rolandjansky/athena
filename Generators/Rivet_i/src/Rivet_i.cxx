@@ -133,7 +133,7 @@ StatusCode Rivet_i::initialize() {
   assert(m_analysisHandler);
   m_analysisHandler->setIgnoreBeams(m_ignorebeams); //< Whether to do beam ID/energy consistency checks
   m_analysisHandler->skipMultiWeights(m_skipweights); //< Whether to skip weights or not
-  //if(m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
+  if(m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
   Rivet::Log::setLevel("Rivet", rivetLevel(msg().level()));
@@ -295,8 +295,8 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     modEvent->set_event_number(eventNumber);
   }
 
-  if (!event->valid_beam_particles()) {
-    for (HepMC::GenEvent::particle_const_iterator p = event->particles_begin(); p != event->particles_end(); ++p) {
+  if (!modEvent->valid_beam_particles()) {
+    for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
         beams.push_back(*p);
       }
@@ -305,24 +305,19 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     beams.resize(2);
   } else {
     beams.resize(2);
-    beams[0] = event->beam_particles().first;
-    beams[1] = event->beam_particles().second;
+    beams[0] = modEvent->beam_particles().first;
+    beams[1] = modEvent->beam_particles().second;
   }
 
   double scalefactor = 1.0;
-  // ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
-  // ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (event->momentum_unit() == HepMC::Units::MEV));
+  //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
+  //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
   #ifdef HEPMC_HAS_UNITS
-  if (event->momentum_unit() == HepMC::Units::MEV) {
-    if (beams[0]->momentum().e() < 50000.0) scalefactor = 1000.0;
-  } else if (event->momentum_unit() == HepMC::Units::GEV) {
-    if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
-  }
-  #else
-  if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
+  modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
   #endif
+  if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
 
-  if (scalefactor == 1.0 && event->valid_beam_particles()) {
+  if (scalefactor == 1.0 && modEvent->valid_beam_particles()) {
     return modEvent;
   } else {
     if (scalefactor != 1.0) {
