@@ -116,6 +116,8 @@ public:
 
   void SetFitTimeMax(float tmax);
 
+  void SetSaveFitFunc(bool save);
+
   void SetADCOverUnderflowValues(const ZDCModuleFloatArray& HGOverflowADC, const ZDCModuleFloatArray& HGUnderflowADC,
                                  const ZDCModuleFloatArray& LGOverflowADC);
 

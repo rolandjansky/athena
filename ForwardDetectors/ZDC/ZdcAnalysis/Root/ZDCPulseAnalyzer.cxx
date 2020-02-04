@@ -19,13 +19,14 @@
 
 extern int gErrorIgnoreLevel;
 
-bool ZDCPulseAnalyzer::s_quietFits = true;
+bool ZDCPulseAnalyzer::s_quietFits         = true;
+bool ZDCPulseAnalyzer::s_saveFitFunc       = false;
 std::string ZDCPulseAnalyzer::s_fitOptions = "";
-TH1* ZDCPulseAnalyzer::s_undelayedFitHist = 0;
-TH1* ZDCPulseAnalyzer::s_delayedFitHist = 0;
-TF1* ZDCPulseAnalyzer::s_combinedFitFunc = 0;
-float ZDCPulseAnalyzer::s_combinedFitTMax = 1000;
-float ZDCPulseAnalyzer::s_combinedFitTMin = -0.5;   // add to allow switch to high gain by skipping early samples
+TH1* ZDCPulseAnalyzer::s_undelayedFitHist  = 0;
+TH1* ZDCPulseAnalyzer::s_delayedFitHist    = 0;
+TF1* ZDCPulseAnalyzer::s_combinedFitFunc   = 0;
+float ZDCPulseAnalyzer::s_combinedFitTMax  = 1000;
+float ZDCPulseAnalyzer::s_combinedFitTMin  = -0.5;   // add to allow switch to high gain by skipping early samples
 std::vector<float> ZDCPulseAnalyzer::pullValues;
 
 void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, double* par, int flag)
@@ -122,8 +123,8 @@ ZDCPulseAnalyzer::~ZDCPulseAnalyzer()
   if (m_defaultFitWrapper)  delete m_defaultFitWrapper;
   if (m_prePulseFitWrapper) delete m_prePulseFitWrapper;
 
-  // if (m_fitHist)     delete m_fitHist;
-  // if (m_delayedHist) delete m_delayedHist;
+  if (m_fitHist)     delete m_fitHist;
+  if (m_delayedHist) delete m_delayedHist;
 }
 
 void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline)
@@ -1100,8 +1101,13 @@ void ZDCPulseAnalyzer::DoFitCombined()
   s_combinedFitFunc->SetNDF(ndf);
 
   // add to list of functions
-  s_undelayedFitHist->GetListOfFunctions()->Add(s_combinedFitFunc);
-  s_delayedFitHist->GetListOfFunctions()->Add(s_combinedFitFunc);
+  if (s_saveFitFunc) {
+    s_undelayedFitHist->GetListOfFunctions()->Clear();
+    s_undelayedFitHist->GetListOfFunctions()->Add(s_combinedFitFunc);
+
+    s_delayedFitHist->GetListOfFunctions()->Clear();
+    s_delayedFitHist->GetListOfFunctions()->Add(s_combinedFitFunc);
+  }
 
   // Save the pull values from the last call to FCN
   //

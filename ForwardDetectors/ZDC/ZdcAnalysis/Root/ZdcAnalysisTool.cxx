@@ -300,6 +300,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2015G4()
     zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
 
     zdcDataAnalyzer->SetFitTimeMax(85);
+    zdcDataAnalyzer->SetSaveFitFunc(false);
 
     return zdcDataAnalyzer;
 }
@@ -408,6 +409,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 
     zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting
+    zdcDataAnalyzer->SetSaveFitFunc(false);
     zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
     // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
@@ -517,6 +519,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting, requested by BAC 4/6/19
+    zdcDataAnalyzer->SetSaveFitFunc(false);
     zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
     // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
@@ -628,6 +631,7 @@ void ZdcAnalysisTool::initialize40MHz()
     m_zdcDataAnalyzer_40MHz->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
     m_zdcDataAnalyzer_40MHz->SetTimingCorrParams(slewingParamsHG, slewingParamsLG);
     m_zdcDataAnalyzer_40MHz->SetNonlinCorrParams(moduleHGNonLinCorr);
+    m_zdcDataAnalyzer_40MHz->SetSaveFitFunc(false);
 
 }
 
@@ -735,6 +739,7 @@ void ZdcAnalysisTool::initialize80MHz()
     m_zdcDataAnalyzer_80MHz->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
     m_zdcDataAnalyzer_80MHz->SetTimingCorrParams(slewingParamsHG, slewingParamsLG);
     m_zdcDataAnalyzer_80MHz->SetNonlinCorrParams(moduleHGNonLinCorr);
+    m_zdcDataAnalyzer_80MHz->SetSaveFitFunc(false);
 }
 
 StatusCode ZdcAnalysisTool::initialize()
