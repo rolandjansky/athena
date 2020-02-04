@@ -114,12 +114,12 @@ TrigSignatureMoniMT                                 INFO HLT_j45_ftf_L1J15      
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_L1J15 decisions                       6         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_pf_L1J20          20        20        4         0         0         0         0         4         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_pf_L1J20 decisions                    4         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_011jvt_L1J1520        20        6         0         0         0         0         6         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_011jvt_L1J15 decisions                    6         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_015jvt_L1J1520        20        6         0         0         0         0         6         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_015jvt_L1J15 decisions                    6         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_059jvt_L1J1520        20        6         0         0         0         0         6         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_059jvt_L1J15 decisions                    6         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_011jvt_L1J1520        20        4         0         0         0         0         4         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_011jvt_L1J15 decisions                    4         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_015jvt_L1J1520        20        4         0         0         0         0         4         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_015jvt_L1J15 decisions                    4         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_059jvt_L1J1520        20        4         0         0         0         0         4         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_059jvt_L1J15 decisions                    4         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 20        20        6         0         0         0         0         6         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 decisions                    6         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J2020        20        5         5         5         0         0         5         
