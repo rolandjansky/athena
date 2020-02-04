@@ -7,11 +7,11 @@
 # art-output: dcube*
 
 echo "Input Parameters"
-echo '$1 = ' $1
-echo '$2 = ' $2
+
 particle=$1
 energy=$2
-echo 'particle type '$particle' energy '$energy
+geometry=$3
+echo 'particle type '$particle' energy '$energy' geometry '${geometry} 
 
 
 
@@ -126,7 +126,7 @@ if [ $dosim -ne 0 ]; then
     --skipEvents      0 \
     --maxEvents       10000 \
     --randomSeed      873254 \
-    --geometryVersion ATLAS-P2-ITK-17-06-00_VALIDATION \
+    --geometryVersion ${geometry}_VALIDATION \
     --conditionsTag   OFLCOND-MC15c-SDR-14-04 \
     --truthStrategy   MC15aPlus \
     --DataRunNumber   242000 \
@@ -176,7 +176,7 @@ if [ $dorec -ne 0 ]; then
       --outputDAOD_IDTRKVALIDFile "$daod_particle_energy" \
       --maxEvents        -1 \
       --digiSteeringConf StandardInTimeOnlyTruth \
-      --geometryVersion  ATLAS-P2-ITK-17-06-00 \
+      --geometryVersion  ${geometry} \
       --conditionsTag    OFLCOND-MC15c-SDR-14-04 \
       --DataRunNumber    242000 \
       --steering doRAWtoALL \
