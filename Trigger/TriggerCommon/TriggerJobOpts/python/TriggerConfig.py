@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
+from builtins import str
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences
@@ -43,7 +44,7 @@ def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
     if hypo.getType() == 'ComboHypo':
-        return [key for key in hypo.MultiplicitiesMap.keys() if not isLegId(key)], hypo.HypoOutputDecisions[0]
+        return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
         return [ t.name() for t in hypo.HypoTools if not isLegId(t.name())], hypo.HypoOutputDecisions
 
@@ -215,7 +216,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     mon.L1Decisions  = l1Decoder.getProperties()['L1DecoderSummaryKey'] if l1Decoder.getProperties()['L1DecoderSummaryKey'] != '<no value>' else l1Decoder.getDefaultProperty('L1DecoderSummary')
 
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
-    [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in filters.values() ]
+    [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in list(filters.values()) ]
 
 
     return acc, mon
@@ -294,7 +295,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     from TrigEDMConfig.TriggerEDM import getRun3BSList
 
     # handle the collectiosn defined in the EDM config
-    collectionsToBS = getRun3BSList( ["BS"]+ EventBuildingInfo.DataScoutingIdentifiers.keys() )
+    collectionsToBS = getRun3BSList( ["BS"]+ list(EventBuildingInfo.DataScoutingIdentifiers.keys()) )
 
     
     from collections import OrderedDict
@@ -312,9 +313,9 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
             dynamic = '.' # Include dynamic
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
-        if typeName not in ItemModuleDict.keys():
+        if typeName not in list(ItemModuleDict.keys()):
             ItemModuleDict[typeName] = [EventBuildingInfo.getFullHLTResultID()]
-        if typeNameAux not in ItemModuleDict.keys():
+        if typeNameAux not in list(ItemModuleDict.keys()):
             ItemModuleDict[typeNameAux] = [EventBuildingInfo.getFullHLTResultID()]
 
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
@@ -330,7 +331,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    pebDecisionKeys = [key for key in summaryAlg.getProperties()['FinalStepDecisions'].values() if 'PEBInfoWriter' in key]
+    pebDecisionKeys = [key for key in list(summaryAlg.getProperties()['FinalStepDecisions'].values()) if 'PEBInfoWriter' in key]
     stmaker.PEBDecisionKeys = pebDecisionKeys
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
@@ -423,7 +424,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")
 
     # configure views merging
-    needMerging = filter( lambda x: len(x) >= 4 and x[3].startswith("inViews:"),  TriggerHLTListRun3 )
+    needMerging = [x for x in TriggerHLTListRun3 if len(x) >= 4 and x[3].startswith("inViews:")]
     __log.info("These collections need merging: {}".format( " ".join([ c[0] for c in needMerging ])) )
     # group by the view collection name/(the view maker algorithm in practice)
     from collections import defaultdict
