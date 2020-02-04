@@ -184,11 +184,11 @@ def humanize_bytes(bytes, precision=2):
   # http://code.activestate.com/recipes/577081-humanized-representation-of-a-number-of-bytes/
 
   abbrevs = (
-      (1<<50L, 'PiB'),
-      (1<<40L, 'TiB'),
-      (1<<30L, 'GiB'),
-      (1<<20L, 'MiB'),
-      (1<<10L, 'KiB'),
+      (1<<50, 'PiB'),
+      (1<<40, 'TiB'),
+      (1<<30, 'GiB'),
+      (1<<20, 'MiB'),
+      (1<<10, 'KiB'),
       (1, 'byte(s)')
   )
   if bytes == 1:
