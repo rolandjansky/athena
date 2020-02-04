@@ -425,7 +425,7 @@ if __name__ == "__main__":
             try:
                 print(u":::😀😀😀 everything fine: LGBM output == MVAUtils output 😀😀😀:::")
             except UnicodeEncodeError:
-                print(":::😀😀😀 everything fine: LGBM output == MVAUtils output 😀😀😀:::")
+                print(":::==> everything fine: LGBM output == MVAUtils output <==:::")
             booster = lgb.Booster(model_file=args.input)
             objective = booster.dump_model()['objective']
             if 'multiclass' in objective:
