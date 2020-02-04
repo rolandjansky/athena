@@ -37,7 +37,7 @@ public:
   static const InterfaceID& interfaceID() { return InterfaceID_GsfSmoother; };
 
   /** Virtual destructor */
-  virtual ~IGsfSmoother()= default;
+  virtual ~IGsfSmoother() = default;
 
   /** Configure the GSF smoother
       - Configure the extrapolator

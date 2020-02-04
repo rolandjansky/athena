@@ -31,8 +31,8 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMultiComponentStateMerger; };
 
   /** Abstract base class virtual destructor */
-  virtual ~IMultiComponentStateMerger()= default;
-  
+  virtual ~IMultiComponentStateMerger() = default;
+
   /** Method for merging components - ownership of objects is passed */
   virtual std::unique_ptr<MultiComponentState> merge(Trk::MultiComponentState) const = 0;
 };

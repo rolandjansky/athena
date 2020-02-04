@@ -41,7 +41,7 @@ public:
   GsfSmoother(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfSmoother()= default;
+  virtual ~GsfSmoother() = default;
 
   /** AlgTool initialise method */
   StatusCode initialize();

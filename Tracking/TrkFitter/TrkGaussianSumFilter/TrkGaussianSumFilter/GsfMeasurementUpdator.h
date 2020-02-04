@@ -36,7 +36,8 @@ class GsfMeasurementUpdator
 {
 
 private:
-  /** Private typedef for calling the correct updator member function depending of direction of fitting */
+  /** Private typedef for calling the correct updator member function depending of direction of
+   * fitting */
   typedef Trk::TrackParameters* (Trk::IUpdator::*Updator)(const Trk::TrackParameters&,
                                                           const LocalParameters&,
                                                           const Amg::MatrixX&,
@@ -47,7 +48,7 @@ public:
   GsfMeasurementUpdator(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfMeasurementUpdator()= default;
+  virtual ~GsfMeasurementUpdator() = default;
 
   /** AlgTool initialise method */
   StatusCode initialize() override;
@@ -59,18 +60,19 @@ public:
   virtual std::unique_ptr<MultiComponentState> update(MultiComponentState&&,
                                                       const MeasurementBase&) const override final;
 
-  /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at the same time*/
+  /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at
+   * the same time*/
   virtual std::unique_ptr<MultiComponentState> update(
     Trk::MultiComponentState&&,
     const Trk::MeasurementBase&,
     std::unique_ptr<FitQualityOnSurface>& fitQoS) const override final;
 
   /** Method for GSF smoother to calculate unbiased parameters of the multi-component state */
-  virtual std::unique_ptr<MultiComponentState> 
-    getUnbiasedTrackParameters(MultiComponentState&&,
-                               const MeasurementBase&) const override final;
+  virtual std::unique_ptr<MultiComponentState> getUnbiasedTrackParameters(MultiComponentState&&,
+                                                                          const MeasurementBase&) const override final;
 
-  /** Method for determining the chi2 of the multi-component state and the number of degrees of freedom */
+  /** Method for determining the chi2 of the multi-component state and the number of degrees of
+   * freedom */
   virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const override;
 
 private:

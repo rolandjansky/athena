@@ -16,9 +16,9 @@ decription           : Class for describing multiple scattering effects only.
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "GaudiKernel/ToolHandle.h"

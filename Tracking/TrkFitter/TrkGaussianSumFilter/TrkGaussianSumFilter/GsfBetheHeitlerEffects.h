@@ -34,7 +34,7 @@ private:
   {
   public:
     // Default constructor
-    Polynomial()= default;
+    Polynomial() = default;
 
     /** Constructor from a vector of coefficients (in decreasing order of powers of x */
     Polynomial(const std::vector<double>& coefficients)
@@ -66,7 +66,7 @@ private:
 public:
   GsfBetheHeitlerEffects(const std::string&, const std::string&, const IInterface*);
 
-  virtual ~GsfBetheHeitlerEffects()= default;
+  virtual ~GsfBetheHeitlerEffects() = default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;

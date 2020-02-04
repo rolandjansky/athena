@@ -44,7 +44,7 @@ Trk::GsfEnergyLossEffects::initialize()
     ATH_MSG_FATAL("Failed to retrieve tool " << m_EnergyLossUpdator
                                              << ". No energy effects will be taken into account.");
     return StatusCode::FAILURE;
-  } else{
+  } else {
     ATH_MSG_INFO("Retrieved tool " << m_EnergyLossUpdator);
   }
   ATH_MSG_INFO("Initialisation of " << name() << " was successful");
@@ -54,17 +54,17 @@ Trk::GsfEnergyLossEffects::initialize()
 StatusCode
 Trk::GsfEnergyLossEffects::finalize()
 {
-  ATH_MSG_INFO("Finalisation of " << name() << " was successful" );
+  ATH_MSG_INFO("Finalisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
 
-
-void Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache,
-                                               const ComponentParameters& componentParameters,
-                                               const MaterialProperties& materialProperties,
-                                               double pathLength,
-                                               PropDirection direction,
-                                               ParticleHypothesis particleHypothesis) const
+void
+Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache,
+                                   const ComponentParameters& componentParameters,
+                                   const MaterialProperties& materialProperties,
+                                   double pathLength,
+                                   PropDirection direction,
+                                   ParticleHypothesis particleHypothesis) const
 {
   // Reset the cache
   cache.reset();
@@ -74,10 +74,9 @@ void Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
   if (!measuredCov) {
-      ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
-      return;
+    ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
+    return;
   }
-
 
   double pathcorrection = pathLength / materialProperties.thickness();
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
@@ -104,9 +103,7 @@ void Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache
   deltaCov->setZero();
   (*deltaCov)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
 
-
   cache.weights.push_back(1.);
   cache.deltaPs.push_back(deltaE);
   cache.deltaCovariances.push_back(std::move(deltaCov));
-
 }

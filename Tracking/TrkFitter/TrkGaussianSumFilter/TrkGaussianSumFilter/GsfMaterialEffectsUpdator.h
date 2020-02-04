@@ -15,9 +15,9 @@ decription           : Material effects for the GsfExtrapolator. It is an Alg
 #ifndef TrkGsfMaterialEffectsUpdator_H
 #define TrkGsfMaterialEffectsUpdator_H
 
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
 
 namespace Trk {
 
@@ -48,7 +48,8 @@ public:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method for updating the state with material effects provided by a material properties object and a pathlength */
+  /** Method for updating the state with material effects provided by a material properties object
+   * and a pathlength */
   virtual std::unique_ptr<Trk::MultiComponentState> updateState(
     const ComponentParameters&,
     const MaterialProperties&,
@@ -56,7 +57,8 @@ public:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method for the state with material effects provided by the layer object prior to propagation */
+  /** Method for the state with material effects provided by the layer object prior to propagation
+   */
   virtual std::unique_ptr<Trk::MultiComponentState> preUpdateState(
     const ComponentParameters&,
     const Layer&,
@@ -72,15 +74,14 @@ public:
 
 private:
   /** Method to perform centralised calculation of updated state */
-  std::unique_ptr<Trk::MultiComponentState>  compute(
-    const ComponentParameters&,
-    const MaterialProperties&,
-    double,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<Trk::MultiComponentState> compute(const ComponentParameters&,
+                                                    const MaterialProperties&,
+                                                    double,
+                                                    PropDirection direction = anyDirection,
+                                                    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Method to calculate the updated momentum based on material effects */
-  bool updateP(AmgVector(5)&, double) const;
+  bool updateP(AmgVector(5) &, double) const;
 
 private:
   ToolHandle<IMultiStateMaterialEffects>

@@ -18,21 +18,20 @@ description          : Implementation code for PosteriorWeightsCalculator class
 #include "TrkParameters/TrackParameters.h"
 
 std::unique_ptr<std::vector<Trk::ComponentParameters>>
-Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
-                                         const MeasurementBase& measurement) const
+Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState, const MeasurementBase& measurement) const
 {
 
-  const size_t predictedStateSize=predictedState.size();
-  if (predictedStateSize==0) {
+  const size_t predictedStateSize = predictedState.size();
+  if (predictedStateSize == 0) {
     return nullptr;
   }
-  auto returnMultiComponentState = std::make_unique<std::vector<Trk::ComponentParameters> >();
+  auto returnMultiComponentState = std::make_unique<std::vector<Trk::ComponentParameters>>();
   std::vector<double> componentDeterminantR;
   std::vector<double> componentChi2;
   returnMultiComponentState->reserve(predictedStateSize);
   componentDeterminantR.reserve(predictedStateSize);
   componentChi2.reserve(predictedStateSize);
-  
+
   // Calculate chi2 and determinant of each component.
   double minimumChi2(10.e10); // Initalise high
 
@@ -129,12 +128,11 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     double chi2 = componentChi2[index] - minimumChi2;
 
     double updatedWeight(0.);
-    // Determinant can not be belowe 1e-19 in CLHEP .... rather ugly but protect against 0 determinants
-    // Normally occur when the component is a poor fit
-    if (componentDeterminantR[index] > 1e-20){
+    // Determinant can not be belowe 1e-19 in CLHEP .... rather ugly but protect against 0
+    // determinants Normally occur when the component is a poor fit
+    if (componentDeterminantR[index] > 1e-20) {
       updatedWeight = priorWeight * sqrt(1. / componentDeterminantR[index]) * exp(-0.5 * chi2);
-    }
-    else{
+    } else {
       updatedWeight = 1e-10;
     }
     returnMultiComponentState->emplace_back(component->first.release(), updatedWeight);
@@ -148,8 +146,7 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
       (*returnComponent).second /= sumWeights;
     }
-  }
-  else {
+  } else {
     for (; returnComponent != returnMultiComponentState->end(); ++returnComponent, ++component) {
       (*returnComponent).second = component->second;
     }
@@ -177,15 +174,15 @@ Trk::PosteriorWeightsCalculator::calculateWeight_1D(const TrackParameters* compo
   // Calculate the residual
   const double r = measPar - (componentTrackParameters->parameters())(mk);
 
-  // Residual covariance. Posterior weights is calculated used predicted state and measurement. 
+  // Residual covariance. Posterior weights is calculated used predicted state and measurement.
   // Therefore add covariances
   const double R = measCov + (*predictedCov)(mk, mk);
 
   if (R == 0) {
-    return std::pair<double,double>(0,0);
+    return std::pair<double, double>(0, 0);
   }
   // Compute Chi2
-  return std::pair<double,double>(R,r * r / R);
+  return std::pair<double, double>(R, r * r / R);
 }
 
 std::pair<double, double>
@@ -196,15 +193,15 @@ Trk::PosteriorWeightsCalculator::calculateWeight_2D_3(const TrackParameters* com
 {
   // Calculate the residual
   AmgVector(2) r = measPar - componentTrackParameters->parameters().block<2, 1>(0, 0);
-  // Residual covariance. Posterior weights is calculated used predicted state and measurement. Therefore add
-  // covariances
+  // Residual covariance. Posterior weights is calculated used predicted state and measurement.
+  // Therefore add covariances
   AmgSymMatrix(2) R(measCov + predictedCov->block<2, 2>(0, 0));
   // compute determinant of residual
-  const double det = R.determinant(); 
-  if (det== 0) {
+  const double det = R.determinant();
+  if (det == 0) {
     // ATH_MSG_WARNING( "Determinant is 0, cannot invert matrix... Ignoring component" );
-    return std::pair<double,double>(0,0);
+    return std::pair<double, double>(0, 0);
   }
   // Compute Chi2
-  return std::pair<double,double> (det,0.5 * ((r.transpose() * R.inverse() * r)(0, 0)));
+  return std::pair<double, double>(det, 0.5 * ((r.transpose() * R.inverse() * r)(0, 0)));
 }

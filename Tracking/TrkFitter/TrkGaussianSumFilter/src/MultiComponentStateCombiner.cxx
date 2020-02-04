@@ -20,8 +20,7 @@ Trk::MultiComponentStateCombiner::combine(const Trk::MultiComponentState& uncomb
                                           const bool useMode,
                                           const double fractionPDFused)
 {
-  std::unique_ptr<Trk::ComponentParameters> combinedComponent =
-    compute(&uncombinedState, useMode, fractionPDFused);
+  std::unique_ptr<Trk::ComponentParameters> combinedComponent = compute(&uncombinedState, useMode, fractionPDFused);
   return std::move(combinedComponent->first);
 }
 
@@ -191,8 +190,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
         if (remainingComponentIterator == component)
           continue;
 
-        AmgVector(5) parameterDifference =
-          parameters - ((*remainingComponentIterator).first)->parameters();
+        AmgVector(5) parameterDifference = parameters - ((*remainingComponentIterator).first)->parameters();
 
         double remainingComponentIteratorWeight = (*remainingComponentIterator).second;
 
@@ -226,7 +224,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
   if (useMode && dimension == 5) {
 
     // Calculate the mode of the q/p distribution
-    std::array<double,10> modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState);
+    std::array<double, 10> modes = Trk::MultiComponentStateModeCalculator::calculateMode(*uncombinedState);
 
     //  Replace mean with mode if qOverP mode is not 0
     if (modes[4] != 0) {
@@ -292,11 +290,11 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
   double theta = mean[Trk::theta];
   double qoverp = mean[Trk::qOverP];
   if (firstMeasuredCov)
-    combinedTrackParameters.reset(firstParameters->associatedSurface().createTrackParameters(
-      loc1, loc2, phi, theta, qoverp, covariance));
+    combinedTrackParameters.reset(
+      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, covariance));
   else {
-    combinedTrackParameters.reset(firstParameters->associatedSurface().createTrackParameters(
-      loc1, loc2, phi, theta, qoverp, nullptr));
+    combinedTrackParameters.reset(
+      firstParameters->associatedSurface().createTrackParameters(loc1, loc2, phi, theta, qoverp, nullptr));
     delete covariance;
   }
 

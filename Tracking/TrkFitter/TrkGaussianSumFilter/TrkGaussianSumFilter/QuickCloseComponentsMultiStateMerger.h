@@ -21,10 +21,9 @@ decription           : Class for merging components of a multi-state based on
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
+#include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
-
 
 namespace Trk {
 
@@ -61,9 +60,7 @@ private:
   ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
 
   std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
-                                                          Trk::MultiComponentState& ) const;
-
-
+                                                          Trk::MultiComponentState&) const;
 };
 
 }

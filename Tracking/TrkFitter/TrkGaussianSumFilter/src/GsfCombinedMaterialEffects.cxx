@@ -93,7 +93,8 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
      ======================================================================== */
 
   IMultiStateMaterialEffects::Cache cache_multipleScatter;
-  m_multipleScatterEffects->compute(cache_multipleScatter, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
+  m_multipleScatterEffects->compute(
+    cache_multipleScatter, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
 
   // Protect if there are no new components
   if (cache_multipleScatter.weights.empty()) {
@@ -119,8 +120,8 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
   } else if (particleHypothesis != nonInteracting) {
     ATH_MSG_VERBOSE("Considering standard energy loss effects");
 
-    m_energyLossEffects->compute(cache_energyLoss, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
-
+    m_energyLossEffects->compute(
+      cache_energyLoss, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
   }
 
   // Protect if there are no new components

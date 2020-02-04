@@ -14,10 +14,10 @@ decription           : Abstract base class for convolution of material effects
 #ifndef TrkIMaterialMixtureConvolution_H
 #define TrkIMaterialMixtureConvolution_H
 
+#include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-#include "GaudiKernel/IAlgTool.h"
 
 namespace Trk {
 class Layer;
@@ -31,34 +31,33 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMaterialMixtureConvolution; };
 
   //!< Virtual destructor
-  virtual ~IMaterialMixtureConvolution()= default;
+  virtual ~IMaterialMixtureConvolution() = default;
 
   //!< Convolution with full material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    update(const MultiComponentState&,
-           const Layer&,
-           PropDirection direction = anyDirection,
-           ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual std::unique_ptr<MultiComponentState> update(const MultiComponentState&,
+                                                      const Layer&,
+                                                      PropDirection direction = anyDirection,
+                                                      ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    preUpdate(const MultiComponentState&,
-              const Layer&,
-              PropDirection direction = anyDirection,
-              ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual std::unique_ptr<MultiComponentState> preUpdate(
+    const MultiComponentState&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   //!< Convolution with post-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    postUpdate(const MultiComponentState&,
-               const Layer&,
-               PropDirection direction = anyDirection,
-               ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual std::unique_ptr<MultiComponentState> postUpdate(
+    const MultiComponentState&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   //!< Retain for now redundant simplified material effects
-  virtual std::unique_ptr<MultiComponentState>
-    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
-                             PropDirection direction = anyDirection,
-                             ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual std::unique_ptr<MultiComponentState> simplifiedMaterialUpdate(
+    const MultiComponentState& multiComponentState,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 
 } // end Trk namespace
