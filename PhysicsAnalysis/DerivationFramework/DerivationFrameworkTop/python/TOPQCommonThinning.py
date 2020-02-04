@@ -72,11 +72,10 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
   TOPQJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
                             name                    = TOPQname + "JetTPThinningTool",
-                            ThinningService         = TOPQThinningSvc,
+                            StreamName              = streamName,
                             JetKey                  = "AntiKt4EMTopoJets",
                             InDetTrackParticlesKey  = "InDetTrackParticles",      
-                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)",
-                            ApplyAnd                = False)
+                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)")
 
   ToolSvc += TOPQJetTPThinningTool
   thinningTools.append(TOPQJetTPThinningTool)
@@ -97,11 +96,10 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
 
   TOPQLargeJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
                             name                    = TOPQname + "LargeJetTPThinningTool",
-                            ThinningService         = TOPQThinningSvc,
+                            StreamName              = streamName,
                             JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                             InDetTrackParticlesKey  = "InDetTrackParticles",
-                            SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>25*GeV",
-                            ApplyAnd                = False)
+                            SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>25*GeV")
 
   ToolSvc += TOPQLargeJetTPThinningTool
   thinningTools.append(TOPQLargeJetTPThinningTool)
