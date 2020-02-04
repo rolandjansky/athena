@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FATRASSIMTOOL_h
@@ -33,8 +33,6 @@ namespace ISF {
     virtual StatusCode releaseEvent() override { return StatusCode::SUCCESS; };
 
     virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
-
-    virtual void push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent ) override;
 
   private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,23 +46,23 @@ namespace Trk {
         MaterialLayer(const MaterialLayer& lay);
                                       
         /**Destructor*/
-        virtual ~MaterialLayer();
+        virtual  ~MaterialLayer() override;
         
         /** Assignment operator */
         MaterialLayer& operator=(const MaterialLayer& lay);
                     
         /** Transforms the layer into a Surface representation for extrapolation */
-        const Surface& surfaceRepresentation() const  override;
+        virtual const Surface& surfaceRepresentation() const  override;
         
         /** isOnLayer() method, using isOnSurface() with Layer specific tolerance */
-        bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck = BoundaryCheck(true)) const override;
+        virtual bool isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck = BoundaryCheck(true)) const override;
         
     protected:
        /** Resize the layer to the tracking volume - not implemented */
       virtual void resizeLayer(const VolumeBounds&, double) override {}
       /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds&,
-                                                           double) const override
+      virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                     double) const override
       {}
 
       /** Resize the layer to the tracking volume - not implemented */
@@ -71,9 +71,9 @@ namespace Trk {
                                             double) override
       {}
       /** Resize the layer to the tracking volume - not implemented */
-      virtual void resizeAndRepositionLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds&,
-                                                                        const Amg::Vector3D&,
-                                                                        double) const override
+      virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                                                                  const Amg::Vector3D&,
+                                                                  double) const override
       {}
 
       SharedObject<const Surface>

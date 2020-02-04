@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
@@ -16,7 +16,7 @@
 #endif
 
 void
-KLGaussianMixtureReduction::resetDistances(floatPtrRestrict distancesIn,
+GSFUtils::resetDistances(floatPtrRestrict distancesIn,
                                            const int mini,
                                            const int n) 
 {
@@ -35,7 +35,7 @@ KLGaussianMixtureReduction::resetDistances(floatPtrRestrict distancesIn,
 }
 
 void
-KLGaussianMixtureReduction::calculateAllDistances(floatPtrRestrict qonpIn,
+GSFUtils::calculateAllDistances(floatPtrRestrict qonpIn,
                                                   floatPtrRestrict qonpCovIn,
                                                   floatPtrRestrict qonpGIn,
                                                   floatPtrRestrict distancesIn,
@@ -66,7 +66,7 @@ KLGaussianMixtureReduction::calculateAllDistances(floatPtrRestrict qonpIn,
 }
 
 int
-KLGaussianMixtureReduction::recalculateDistances(floatPtrRestrict qonpIn,
+GSFUtils::recalculateDistances(floatPtrRestrict qonpIn,
                                                  floatPtrRestrict qonpCovIn,
                                                  floatPtrRestrict qonpGIn,
                                                  floatPtrRestrict distancesIn,
@@ -122,7 +122,7 @@ KLGaussianMixtureReduction::recalculateDistances(floatPtrRestrict qonpIn,
 }
 
 std::pair<int, int>
-KLGaussianMixtureReduction::findMinimumIndex(const floatPtrRestrict distancesIn, const int n) 
+GSFUtils::findMinimumIndex(const floatPtrRestrict distancesIn, const int n) 
 {
 
   float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);

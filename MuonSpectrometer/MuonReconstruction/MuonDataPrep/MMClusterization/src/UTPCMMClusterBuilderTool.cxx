@@ -5,7 +5,11 @@
 #include "UTPCMMClusterBuilderTool.h"
 #include "GaudiKernel/MsgStream.h"
 
+#include <cmath>
+
 namespace{
+
+static constexpr double const& toRad = M_PI/180;
 
 template <class T>
 std::string printVec(std::vector<T> vec){
@@ -37,7 +41,7 @@ Muon::UTPCMMClusterBuilderTool::UTPCMMClusterBuilderTool(const std::string& t,
 {
     declareInterface<IMMClusterBuilderTool>(this);
     declareProperty("HoughAlphaMin",m_alphaMin=-90); //degree
-    declareProperty("HoughAlphaMax",m_alphaMax=90); //degree
+    declareProperty("HoughAlphaMax",m_alphaMax=0); //degree
     declareProperty("HoughAlphaResolution",m_alphaResolution=1.0); // degree
     declareProperty("HoughDMax",m_dMax=0);
     declareProperty("HoughDMin",m_dMin=0);
@@ -55,6 +59,8 @@ Muon::UTPCMMClusterBuilderTool::UTPCMMClusterBuilderTool(const std::string& t,
     declareProperty("scaleYerror",m_scaleYerror=1.);
     declareProperty("outerChargeRatioCut",m_outerChargeRatioCut=0.); //charge ratio cut to supress cross talk
     declareProperty("maxStripRemove",m_maxStripsCut=4); //max number of strips cut by cross talk cut
+    declareProperty("digiHasNegativeAngle",m_digiHasNegativeAngles=true);
+    declareProperty("scaleClusterError",m_scaleClusterError=2);
 
 }
 
@@ -92,14 +98,15 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
         for( auto MMprd: MMprdsOfLayer){
             Identifier id_prd=MMprd.identify();
             strips_id.push_back(id_prd);
-            stripsLocalPosX.push_back(MMprd.localPosition().x());
+            int gasGap=m_muonIdHelperTool->mmIdHelper().gasGap(id_prd);
+            stripsLocalPosX.push_back(((gasGap%2==0 && m_digiHasNegativeAngles) ? -1:1)*MMprd.localPosition().x()); //flip local positions for even gas gaps to reduce hough space to positiv angles
             //determine time of flight from strip position
             double distToIp=MMprd.globalPosition().norm();
             double tof=distToIp/299.792; // divide by speed of light in mm/ns
             //determine angle to IP for debug reasons
-            double globalR=TMath::Sqrt(pow(MMprd.globalPosition().x(),2)+pow(MMprd.globalPosition().y(),2));
+            double globalR=std::sqrt(std::pow(MMprd.globalPosition().x(),2)+std::pow(MMprd.globalPosition().y(),2));
             double Tan=globalR/MMprd.globalPosition().z();
-            double angleToIp=TMath::ATan(Tan)/m_toRad;
+            double angleToIp=std::atan(Tan)/toRad;
 
             stripsTime.push_back(MMprd.time()-tof+m_timeOffset); // use time minus tof minus vmm integration time as actual time
             stripsChannel.push_back(m_muonIdHelperTool->mmIdHelper().channel(id_prd));
@@ -139,8 +146,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             double localClusterPosition=-9999;
             double sigmaLocalClusterPosition=0;
             double finalFitAngle,finalFitChiSqProb;
-            sc=finalFit(stripsLocalPosX,stripsTime,idx_goodStrips,localClusterPosition, sigmaLocalClusterPosition,finalFitAngle,finalFitChiSqProb);
-            localClusterPosition+=meanX;
+            sc=finalFit(MMprdsOfLayer,stripsTime,idx_goodStrips,localClusterPosition, sigmaLocalClusterPosition,finalFitAngle,finalFitChiSqProb);
             ATH_MSG_DEBUG("final fit done"); 
             
             if(sc.isFailure()) break;
@@ -164,10 +170,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             }
             Amg::MatrixX* covN = new Amg::MatrixX(1,1);
             covN->coeffRef(0,0)=sigmaLocalClusterPosition;
-            //covN->coeffRef(0,0)=0.25;
             ATH_MSG_DEBUG("Did set covN Matrix");
             int idx = idx_goodStrips[0];
-            ATH_MSG_DEBUG("idx_goodStrips[0]: "<<idx<<"MMPRDs size: "<< MMprdsOfLayer.at(idx) << " size: " <<MMprdsOfLayer.size());
+            ATH_MSG_DEBUG("idx_goodStrips[0]: "<<idx << " size: " <<MMprdsOfLayer.size());
             Amg::Vector2D localClusterPositionV(localClusterPosition,MMprdsOfLayer.at(idx).localPosition().y()); // y position is the same for all strips
             ATH_MSG_DEBUG("Did set local position");
 
@@ -224,18 +229,16 @@ StatusCode Muon::UTPCMMClusterBuilderTool::runHoughTrafo(std::vector<int>& flag,
     if(sc.isFailure()) return sc;
     return StatusCode::SUCCESS;   
 }
-
 StatusCode Muon::UTPCMMClusterBuilderTool::houghInitCummulator(std::unique_ptr<TH2D>& h_hough,double xmax,double xmin){
-    ATH_MSG_VERBOSE("xmax: "<< xmax <<" xmin: "<< xmin <<" m_dResolution "<< m_dResolution <<" m_alphaMin "<< m_alphaMin <<" m_alphaMax: "<< m_alphaMax <<" m_toRad: "<< m_toRad <<" m_alphaResolution: "<<m_alphaResolution);
-
-    double dmax=std::max(fabs(xmin),fabs(xmax));
-    dmax=TMath::Sqrt(pow(dmax,2)+pow(m_driftRange,2)); // rspace =sqrt(xmax*xmax+driftrange*driftrange) where driftrange is assumed to be 6mm
+   ATH_MSG_VERBOSE("xmax: "<< xmax <<" xmin: "<< xmin <<" m_dResolution "<< m_dResolution <<" m_alphaMin "<< m_alphaMin <<" m_alphaMax: "<< m_alphaMax <<" toRad: "<< toRad <<" m_alphaResolution: "<<m_alphaResolution);
+    double dmax=std::max(std::fabs(xmin),std::fabs(xmax));
+    dmax=std::sqrt(std::pow(dmax,2)+std::pow(m_driftRange,2)); // rspace =sqrt(xmax*xmax+driftrange*driftrange) where driftrange is assumed to be 6mm
     int nbinsd = static_cast<int>(1.0*dmax*2/m_dResolution);
     int nbinsa = static_cast<int>((1.0*m_alphaMax-m_alphaMin)/m_alphaResolution);
 
     ATH_MSG_VERBOSE("Hough Using nBinsA "<< nbinsa <<" nBinsd "<< nbinsd<<" dmax "<< dmax);
 
-    h_hough = std::unique_ptr<TH2D>(new TH2D("h_hough","h_hough",nbinsa,m_alphaMin*m_toRad,m_alphaMax*m_toRad,nbinsd,-dmax,dmax));
+    h_hough = std::unique_ptr<TH2D>(new TH2D("h_hough","h_hough",nbinsa,m_alphaMin*toRad,m_alphaMax*toRad,nbinsd,-dmax,dmax));
 
     return StatusCode::SUCCESS;
 }
@@ -247,7 +250,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::fillHoughTrafo(std::unique_ptr<TH2D>&
     double y=time.at(i_hit)*m_vDrift;
     for(int i_alpha=1;i_alpha<h_hough->GetNbinsX();i_alpha++){
         double alpha=h_hough->GetXaxis()->GetBinCenter(i_alpha);
-        double d= x*TMath::Cos(alpha) - y*TMath::Sin(alpha);
+        double d= x*std::cos(alpha) - y*std::sin(alpha);
         ATH_MSG_VERBOSE("Fill Hough alpha: "<< alpha <<" d "<< d  << " x "<< x << " y "<< y);
         h_hough->Fill(alpha,d);
     }
@@ -265,7 +268,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::findAlphaMax(std::unique_ptr<TH2D>& h
     for(int i_binX=0; i_binX<=h_hough->GetNbinsX();i_binX++){
         for(int i_binY=0; i_binY<=h_hough->GetNbinsY();i_binY++){
             if(h_hough->GetBinContent(i_binX,i_binY)==cmax){
-            ATH_MSG_DEBUG("Find Max Alpha: BinX "<< i_binX << " Alpha: "<< h_hough->GetXaxis()->GetBinCenter(i_binX)/m_toRad <<" BinY: "<< i_binY <<" over threshold: "<< h_hough->GetBinContent(i_binX,i_binY));
+            ATH_MSG_DEBUG("Find Max Alpha: BinX "<< i_binX << " Alpha: "<< h_hough->GetXaxis()->GetBinCenter(i_binX)/toRad <<" BinY: "<< i_binY <<" over threshold: "<< h_hough->GetBinContent(i_binX,i_binY));
             maxPos.push_back(std::make_tuple(h_hough->GetXaxis()->GetBinCenter(i_binX),h_hough->GetYaxis()->GetBinCenter(i_binY)));
             }
         }
@@ -301,8 +304,8 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(std::vector<std::tuple<do
         for(size_t i_hit: indexUsedForDist){
             double d=time.at(i_hit)*m_vDrift-slope*xpos.at(i_hit)-intercept;
             ATH_MSG_VERBOSE("dist: "<<d<<" for index "<<i_hit);
-            if (fabs(d)<m_selectionCut){  
-                dist.push_back(pow(d/m_vDrift/10,2)); //determine dummy chi2
+            if (std::fabs(d)<m_selectionCut){  
+                dist.push_back(std::pow(d/m_vDrift/10,2)); //determine dummy chi2
                 goodStrips.push_back(i_hit);
             }
         }
@@ -331,9 +334,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::selectTrack(std::vector<std::tuple<do
 
 StatusCode Muon::UTPCMMClusterBuilderTool::transformParameters(double alpha, double d, double dRMS, double& slope,
     double& intercept, double& interceptRMS){
-        slope=1./TMath::Tan(alpha);
-        intercept=-d/TMath::Sin(alpha);
-        interceptRMS=fabs(dRMS);
+        slope=1./std::tan(alpha);
+        intercept=-d/std::sin(alpha);
+        interceptRMS=std::fabs(dRMS);
         ATH_MSG_VERBOSE("transformParameters alpha: "<<alpha<<" d: "<< d << " dRMS: " << dRMS << " slope: " << slope << " intercept: " << intercept);
         return StatusCode::SUCCESS;
 }
@@ -362,25 +365,32 @@ StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &i
 }
 
 
-StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<double>& xpos, std::vector<double>& time, std::vector<int>& idxSelected, double& x0, double &sigmaX0 ,double &fitAngle, double &chiSqProb){
+StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& time, std::vector<int>& idxSelected, double& x0, double &sigmaX0 ,double &fitAngle, double &chiSqProb){
     std::unique_ptr<TGraphErrors> fitGraph=std::unique_ptr<TGraphErrors>(new TGraphErrors());
     std::unique_ptr<TF1> ffit=std::unique_ptr<TF1>(new TF1("ffit","pol1"));
     
     double xmin = 5000;
     double xmax = -5000;
+    double xmean = std::accumulate(mmPrd.begin(),mmPrd.end(),0.0,[&](double a,const Muon::MMPrepData &b){return a+b.localPosition().x();})/mmPrd.size(); //get mean x value
+    
     std::unique_ptr<TLinearFitter> lf=std::unique_ptr<TLinearFitter>(new TLinearFitter(1,"1++x"));
     
     for(int idx:idxSelected){
-        if(xmin>xpos.at(idx)) xmin = xpos.at(idx);
-        else if(xmax<xpos.at(idx)) xmax = xpos.at(idx);
-        lf->AddPoint(&xpos.at(idx),time.at(idx)*m_vDrift);
-        fitGraph->SetPoint(fitGraph->GetN(),xpos.at(idx),time.at(idx)*m_vDrift);
-        fitGraph->SetPointError(fitGraph->GetN()-1,m_scaleXerror*pow(pow(0.425/3.464101615/*sqrt(12)*/,2)+pow(m_transDiff*time.at(idx)*m_vDrift,2),0.5), m_scaleYerror*pow(pow(m_ionUncertainty*m_vDrift,2)+pow(m_longDiff*time.at(idx)*m_vDrift,2),0.5));
+        double xpos=mmPrd.at(idx).localPosition().x()-xmean; // substract mean value from x to center fit around 0
+        if(xmin>xpos) xmin = xpos;
+        else if(xmax<xpos) xmax = xpos;
+        lf->AddPoint(&xpos,time.at(idx)*m_vDrift);
+        fitGraph->SetPoint(fitGraph->GetN(),xpos,time.at(idx)*m_vDrift);
+        fitGraph->SetPointError(fitGraph->GetN()-1,m_scaleXerror*std::pow(pow(0.425/3.464101615/*sqrt(12)*/,2)+std::pow(m_transDiff*time.at(idx)*m_vDrift,2),0.5), m_scaleYerror*std::pow(std::pow(m_ionUncertainty*m_vDrift,2)+std::pow(m_longDiff*time.at(idx)*m_vDrift,2),0.5));
     }
-    
     lf->Eval(); 
 
-    ffit->SetParLimits(1,-11.5,-0.15); //5 to 81 degree
+    if(m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles){
+        ffit->SetParLimits(1,-11.5,-0.15); //5 to 81 degree
+    }else{
+        ffit->SetParLimits(1,0.15,11.5); //5 to 81 degree
+
+    }
     ffit->SetParameters(lf->GetParameter(0),lf->GetParameter(1));
     TFitResultPtr s=fitGraph->Fit("ffit","SMQ","",xmin-.5,xmax+.5);
 
@@ -390,8 +400,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<double>& xpos, s
     double fitSlope = ffit->GetParameter(1);
     double interceptCorr = m_dHalf - ffit->GetParameter(0);
     x0 = interceptCorr/fitSlope;
-    sigmaX0 = (pow(ffit->GetParError(0)/interceptCorr,2)+pow(ffit->GetParError(1)/fitSlope,2) - 2./(fitSlope*interceptCorr)*cov)*pow(x0,2);
-    fitAngle = TMath::ATan(-1/fitSlope);
+    sigmaX0 = pow(m_scaleClusterError,2)*(pow(ffit->GetParError(0)/interceptCorr,2)+pow(ffit->GetParError(1)/fitSlope,2) - 2./(fitSlope*interceptCorr)*cov)*pow(x0,2);
+    x0 += xmean; //adding back mean value after error was calculated
+    fitAngle = std::tan(-1/fitSlope);
     chiSqProb=ffit->GetProb();
 
     if(true){
@@ -403,11 +414,13 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(std::vector<double>& xpos, s
         ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./M_PI);
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
         ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
+        ATH_MSG_DEBUG("gas gap:"<<m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify()));
     }
     if(s!=0 && s!=4000){ //4000 means fit succesfull but error optimization by minos failed; fit is still usable.
         ATH_MSG_DEBUG("Final fit failed with error code "<<s);
         return StatusCode::FAILURE;
     }
-    if(ffit->GetParameter(1)<=-11.5 || ffit->GetParameter(1)>=-0.15) return StatusCode::FAILURE;
+    if((m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles) && (ffit->GetParameter(1)<=-11.49 || ffit->GetParameter(1)>=-0.151)) return StatusCode::FAILURE; // fit should have negativ slope for odd gas gaps
+    if(m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==0  && m_digiHasNegativeAngles && (ffit->GetParameter(1)>=11.49 || ffit->GetParameter(1)<=0.151)) return StatusCode::FAILURE; // fit should have positiv slope for even gas gaps
     return StatusCode::SUCCESS;
 }

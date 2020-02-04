@@ -32,7 +32,7 @@ svcMgr += createThinningSvc( svcName="EXOT14ThinningSvc", outStreams=[evtStream]
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT14MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EXOT14MuonTPThinningTool",
-                                                                           ThinningService         = "EXOT14ThinningSvc",
+                                                                           StreamName              = streamName,
                                                                            MuonKey                 = "Muons",
                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                            SelectionString         = "Muons.pt > 8*GeV",
@@ -42,7 +42,7 @@ ToolSvc += EXOT14MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT14ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EXOT14ElectronTPThinningTool",
-                                                                                 ThinningService         = "EXOT14ThinningSvc",
+                                                                                 StreamName              = streamName,
                                                                                  SGKey             	 = "Electrons",
                                                                                  GSFTrackParticlesKey    = "GSFTrackParticles",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -53,7 +53,7 @@ ToolSvc += EXOT14ElectronTPThinningTool
 
 # Tracks associated with Photons
 EXOT14PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EXOT14PhotonTPThinningTool",
-                                                                               ThinningService         = "EXOT14ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Photons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                SelectionString         = "Photons.pt > 8*GeV",

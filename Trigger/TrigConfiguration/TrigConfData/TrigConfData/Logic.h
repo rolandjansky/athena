@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_LOGIC_H
@@ -72,8 +72,7 @@ namespace TrigConf {
       bool evaluate(const std::map<std::string, unsigned int> & elementsCount) const override;
 
    private:
-      void print(std::ostream &, size_t indSize, size_t indLevel) const;
-      mutable bool m_state ATLAS_THREAD_SAFE { false };
+      virtual void print(std::ostream &, size_t indSize, size_t indLevel) const override;
       std::string m_content { "" };
       std::string m_name { "" };
       unsigned int m_count { 1 };

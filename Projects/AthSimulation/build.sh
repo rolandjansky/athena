@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script for building the release on top of externals built using one of the
 # scripts in this directory.
 #
@@ -140,7 +142,7 @@ fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    { DESTDIR=${BUILDDIR}/install/AthSimulation/${NICOS_PROJECT_VERSION} _time_ ${BUILDTOOL} ${INSTALLRULE}; } \
+    { DESTDIR=${BUILDDIR}/install _time_ ${BUILDTOOL} ${INSTALLRULE}; } \
 	 2>&1 | tee cmake_install.log
 fi
 

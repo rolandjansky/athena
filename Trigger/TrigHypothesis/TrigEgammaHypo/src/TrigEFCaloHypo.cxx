@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -35,7 +35,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODTrigger/TrigPassBits.h"
 #include "PATCore/AcceptData.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 class ISvcLocator;
 
 /////////////////////////////////////////////////////////////////////
@@ -317,7 +317,11 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
       m_avgmu.push_back(avg_mu);
   }
-  
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){
+    ATH_MSG_ERROR("Retrieval of CaloDetDescManager DetStore failed");
+    return HLT::ERROR; 
+  }
   unsigned int iclus=0;
   for(const auto clus : *clusContainer){
       if(m_acceptAll){
@@ -344,7 +348,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       ATH_MSG_DEBUG("REGTEST: Run the tools on eg object");
       if(m_fourMomBuilder->hltExecute(&eg));
       else ATH_MSG_DEBUG("Problem with FourMomBuilder");
-      if(m_showerBuilder->recoExecute(&eg,pCaloCellContainer));
+      if(m_showerBuilder->executeWithCells(pCaloCellContainer,*calodetdescrmgr,&eg));
       else ATH_MSG_DEBUG("Problem with ShowerBuilder");
       ATH_MSG_DEBUG("REGTEST: cluster e " << clus->e());
       ATH_MSG_DEBUG("REGTEST: e " << eg.e());

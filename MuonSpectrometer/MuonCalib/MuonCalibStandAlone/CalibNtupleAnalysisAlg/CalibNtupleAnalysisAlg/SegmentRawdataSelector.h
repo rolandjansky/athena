@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_SegmentRawdataSelector_h
@@ -12,12 +12,11 @@
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibSegmentPreparationTool.h"
 
-//c - c++
 #include "set"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class RegionSelectionSvc;
@@ -31,13 +30,11 @@ class SegmentRawdataSelector : public AthAlgTool, virtual public CalibSegmentPre
  public:
 //=========================constructor==========================================
   SegmentRawdataSelector(const std::string &t, const std::string &n, const IInterface *p);
-  inline ~SegmentRawdataSelector() {}
+  inline ~SegmentRawdataSelector()=default;
 //=========================public member functions==============================
   //initialize and finalize
-  StatusCode initialize(void);
-  inline StatusCode finalize(void) {
-    return StatusCode :: SUCCESS;
-  }
+  StatusCode initialize();
+
   //load event
   void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
@@ -49,11 +46,9 @@ class SegmentRawdataSelector : public AthAlgTool, virtual public CalibSegmentPre
   //! pointer to region selection service
   ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
   // helpers //
-  std::string m_MDT_ID_helper; // name of the MDT ID helper
   std::string m_idToFixedIdToolType; // type of the muon fixed id tool
   std::string m_idToFixedIdToolName; // name of the muon fixed id tool
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 

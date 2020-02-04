@@ -102,7 +102,7 @@ Trk::GsfBetheHeitlerEffects::readParameters()
 
   std::string resolvedFileName = PathResolver::find_file(m_parameterisationFileName, "DATAPATH");
 
-  if (resolvedFileName != "")
+  if (!resolvedFileName.empty())
     ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
   else {
     msg(MSG::ERROR) << "Parameterisation file not found" << endmsg;
@@ -152,7 +152,7 @@ Trk::GsfBetheHeitlerEffects::readParameters()
 
   if (m_useHighX0) {
     resolvedFileName = PathResolver::find_file(m_parameterisationFileNameHighX0, "DATAPATH");
-    if (resolvedFileName != "")
+    if (!resolvedFileName.empty())
       ATH_MSG_INFO("Parameterisation file found: " << resolvedFileName);
     else {
       msg(MSG::ERROR) << "Parameterisation file not found" << endmsg;

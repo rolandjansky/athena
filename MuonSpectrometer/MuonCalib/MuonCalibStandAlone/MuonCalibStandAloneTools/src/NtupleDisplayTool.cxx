@@ -1,18 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 19.10.2007, AUTHOR: STEFFEN KAISER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS NtupleDisplay ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 // standard C++ //
 #include <iostream>
@@ -22,13 +10,9 @@
 #include <cstdlib>
 #include <sstream>
 
-// Athena //
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "Identifier/IdentifierHash.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "MdtCalibInterfaces/IMdtSegmentFitter.h"
 
@@ -43,11 +27,9 @@
 // NtupleDisplayTool //
 #include "MuonCalibStandAloneTools/NtupleDisplayTool.h"
 
-
 //this
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
-
 
 //root
 #include "TCanvas.h"
@@ -62,17 +44,11 @@
 // STL //
 #include <string>
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 namespace MuonCalib {
 
 //*****************************************************************************
 
 // constructor
-
 NtupleDisplayTool::NtupleDisplayTool( const std::string& t, 
                                                     const std::string& n, 
                                                     const IInterface* p) : 
@@ -86,7 +62,7 @@ NtupleDisplayTool::NtupleDisplayTool( const std::string& t,
     //-- Job Options --//
     //-----------------//
 
-    m_fitter_name = string("QuasianalyticLineReconstruction");
+    m_fitter_name = std::string("QuasianalyticLineReconstruction");
     declareProperty("fitterName", m_fitter_name);
 
     m_nb_hits = 5;
@@ -132,7 +108,7 @@ StatusCode NtupleDisplayTool::initialize() {
     //-- Get the StoreGate Stuff --//
     //-----------------------------//
 
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     //retrieve detector manager from the conditions store
     ATH_CHECK(m_DetectorManagerKey.initialize());
@@ -154,7 +130,7 @@ StatusCode NtupleDisplayTool::initialize() {
     m_nb_tubes       = -1;
     
     //vector of colors to be used
-    m_colors = vector<int>(5);
+    m_colors = std::vector<int>(5);
     m_colors[0] = 3;  //segment hit
     m_colors[1] = 14; //raw hit
     m_colors[2] = 1;  //drift radius>14.6
@@ -162,14 +138,14 @@ StatusCode NtupleDisplayTool::initialize() {
     m_colors[4] = 0;  //drift time<0
 
     // tube circles
-    m_tube_circle = vector< vector< vector<TubeCircle*> > >(2); //up to two multilayers 
+    m_tube_circle = std::vector< std::vector< std::vector<TubeCircle*> > >(2); //up to two multilayers 
         
     for (unsigned int k=0; k<m_tube_circle.size(); k++) {
     
-	m_tube_circle[k] = vector< vector<TubeCircle*> >(4); // up to four layers per multilayer
+	m_tube_circle[k] = std::vector< std::vector<TubeCircle*> >(4); // up to four layers per multilayer
 	for (unsigned int l=0; l<m_tube_circle[k].size(); l++) {
         
-	    m_tube_circle[k][l] = vector<TubeCircle*>(72); // up to 72 tubes per layer
+	    m_tube_circle[k][l] = std::vector<TubeCircle*>(72); // up to 72 tubes per layer
 	    for (unsigned int m=0; m<m_tube_circle[k][l].size(); m++) {
 	
 		m_tube_circle[k][l][m] = new TubeCircle(m_colors,m_adc_cut);
@@ -181,20 +157,6 @@ StatusCode NtupleDisplayTool::initialize() {
 //get region selection service
 	ATH_CHECK( m_reg_sel_svc.retrieve() );
    
-    return StatusCode::SUCCESS;
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD finalize ::
-//:::::::::::::::::::::
-
-StatusCode NtupleDisplayTool::finalize(void) {
-
-    ATH_MSG_INFO( "Finalizing NtupleDisplayTool" );
-    
     return StatusCode::SUCCESS;
 
 }
@@ -228,14 +190,14 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     //---------------//
     
     if(m_qfitter==NULL){
-       if (m_fitter_name==string("QuasianalyticLineReconstruction")) {
+       if (m_fitter_name==std::string("QuasianalyticLineReconstruction")) {
         m_qfitter = new QuasianalyticLineReconstruction();
        }
-       if (m_fitter_name==string("StraightPatRec")) {
+       if (m_fitter_name==std::string("StraightPatRec")) {
         m_qfitter = new StraightPatRec();
        }
-       if (m_fitter_name!=string("QuasianalyticLineReconstruction") &&
-           m_fitter_name!=string("StraightPatRec")) {
+       if (m_fitter_name!=std::string("QuasianalyticLineReconstruction") &&
+           m_fitter_name!=std::string("StraightPatRec")) {
            ATH_MSG_FATAL( "Unknown track fitter!" );
            return StatusCode::FAILURE;
        }
@@ -260,11 +222,11 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     Identifier station_id = m_id_tool->fixedIdToId(Mid);
     NtupleStationId st_id((segment.mdtHOT()[0])->identify());
     st_id.SetMultilayer(0);
-    if (!st_id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr))
+    if (!st_id.InitializeGeometry(m_idHelperSvc->mdtIdHelper(), MuonDetMgr))
     	return StatusCode::SUCCESS;
 
     if(m_nb_multilayers<0){  
- 	m_nb_multilayers = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
+ 	m_nb_multilayers = m_idHelperSvc->mdtIdHelper().numberOfMultilayers(station_id);
     }
 
 
@@ -283,7 +245,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
         for (int multilayer=1; multilayer<m_nb_multilayers+1; multilayer++) {
             
             const MuonGM::MdtReadoutElement* MdtRoEl = 
-                MuonDetMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
+                MuonDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(station_id,multilayer,1,1) );
              
             //loop over layers
             for (int layer=st_id.LayerMin(multilayer-1); layer<=st_id.LayerMax(multilayer-1); layer++) {
@@ -293,10 +255,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
                     Amg::Vector3D TubePos = 
                         MdtRoEl->GlobalToAmdbLRSCoords(MdtRoEl->tubePos(multilayer,layer,k));
                                           
-                    //ATH_MSG_INFO( "ml: " << multilayer << ", " << TubePos );
-                    
                     //set the tube position
-//              ATH_MSG_INFO( multilayer   <<" "<< layer<<" "<<k );
 			m_tube_circle[multilayer-1][layer-1][k-1] ->setPosition(TubePos);
 			m_tube_circle[multilayer-1][layer-1][k-1]->multilayer= multilayer;
 			m_tube_circle[multilayer-1][layer-1][k-1]->layer= layer;
@@ -595,7 +554,6 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
 		std::ostringstream ostr;
 		ostr << m_tube_circle_lin[k]->multilayer << "/" << m_tube_circle_lin[k]->layer << "/" <<m_tube_circle_lin[k]->tube;
 		TLatex *txt=new TLatex( m_tube_circle_lin[k]->GetX1() - 2* m_tube_circle_lin[k]->GetR1(), m_tube_circle_lin[k]->GetY1(), ostr.str().c_str());
-//	txt->SetTextSize(1);
 		txt->Draw();
 		ATH_MSG_INFO( ostr.str() );
 		}
@@ -604,7 +562,6 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     line->Draw();
 
     if(fit_success){
-        //if(fit_success && m_qfitter->numberOfTrackHits()>=m_nb_hits){ 
         line_refit->Draw();
     }
     else{
@@ -613,19 +570,6 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
 
     m_canvas->Update();
     m_root->Run(true);  //run the TApplication
-
-    //old control mechanism
-    //if(m_chosen_event!=-1){
-    //return StatusCode::SUCCESS;
-    //}
-     
-    // ATH_MSG_INFO( "Event: " << eventnumber << " -> Press Return to continue to the next event! (q for exit)" );
-    //char c = getchar();
-   
-    //if(c==char('q')){
-    // exit(0);
-    //}
-
 
     //------------------//
     //-- Reset Canvas --//
@@ -667,13 +611,13 @@ TubeCircle::TubeCircle(void) : TEllipse(){
     layer=0; multilayer=0; tube=0;
     
     this->reset();
-    this->setColors(vector<int>(5,1));
+    this->setColors(std::vector<int>(5,1));
     this->setAdcCut(50.);
     
     
 }
 
-TubeCircle::TubeCircle(vector<int> colors, double adc_cut) : TEllipse(){
+TubeCircle::TubeCircle(std::vector<int> colors, double adc_cut) : TEllipse(){
      layer=0; multilayer=0; tube=0;
    
     this->reset();
@@ -682,7 +626,7 @@ TubeCircle::TubeCircle(vector<int> colors, double adc_cut) : TEllipse(){
 }
 
 
-TubeCircle::TubeCircle(Amg::Vector3D TubePos, vector<int> colors, double adc_cut) : TEllipse(){
+TubeCircle::TubeCircle(Amg::Vector3D TubePos, std::vector<int> colors, double adc_cut) : TEllipse(){
    
     layer=0; multilayer=0; tube=0;
     this->reset();

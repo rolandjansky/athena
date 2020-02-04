@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EMClusterTool.h"
@@ -263,7 +263,8 @@ void EMClusterTool::fillPositionsInCalo(xAOD::CaloCluster* cluster) const{
   bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
   CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
   // eta and phi of the cluster in the calorimeter frame
-  double eta, phi;
+  double eta;
+  double phi;
   m_caloCellDetPos->getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi); 
 
   cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);

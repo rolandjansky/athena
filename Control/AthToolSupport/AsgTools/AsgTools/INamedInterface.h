@@ -2,33 +2,15 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/// @author Nils Krumnack
+#ifndef FILE_AsgTools_INamedInterface_h
+#define FILE_AsgTools_INamedInterface_h
 
+// this file is likely used in a variety of places, so this warning is
+// disabled in 21.2.  once this gets swept to master it may be a good
+// idea to include this warning and remove all the users.
 
+// #warning "use of this file is deprecated, please include the header from AsgMessaging instead"
 
-#ifndef ASG_TOOLS__I_NAMED_INTERFACE_H
-#define ASG_TOOLS__I_NAMED_INTERFACE_H
-
-#ifndef XAOD_STANDALONE
-
-#include "GaudiKernel/INamedInterface.h"
-
-#else
-
-#include <string>
-
-class INamedInterface
-{
-  /// virtual destructor for base class
-public:
-  virtual ~INamedInterface () noexcept = default;
-
-  /// Return the name of the tool
-public:
-  virtual const std::string& name() const = 0;
-};
-
-#endif
-
+#include <AsgMessaging/INamedInterface.h>
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -54,6 +54,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ICaloCellIsolationTool.h"
 #include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 // xAOD
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -1122,8 +1123,11 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             }
         } //Photon
     }//end loop of egRec
-
-    
+      const CaloDetDescrManager* calodetdescrmgr = nullptr;                                                                 
+      if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){                                                                  
+        ATH_MSG_ERROR("Retrieval of CaloDetDescManager DetStore failed");                                                   
+        return HLT::ERROR;                                                                                                  
+      }           
     //Dress the Electron objects
     for (const auto& eg : *m_electron_container){
         // EMFourMomentum
@@ -1137,7 +1141,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // Track Isolation tool no longer runs for trigger in showershape, but we can do ourselves
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilder::recoExecute(eg,pCaloCellContainer)");
-        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
+        if( m_showerBuilder->executeWithCells(pCaloCellContainer,*calodetdescrmgr,eg) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endmsg;
         if (timerSvc()) m_timerTool5->stop(); //timer
         
@@ -1233,7 +1237,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // Shower Shape
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilderrecoExecute(eg,pCaloCellContainer)");
-        if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
+        if( m_showerBuilder->executeWithCells(pCaloCellContainer,*calodetdescrmgr,eg) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endmsg;
         if (timerSvc()) m_timerTool5->stop(); //timer
         

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonObjectCollectionMaker.h 799839 2017-03-08 11:07:28Z grancagn $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_MUONOBJECTCOLLECTIONMAKER_H
 #define ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_MUONOBJECTCOLLECTIONMAKER_H
 
@@ -32,10 +31,10 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 // Forward declaration(s):
 namespace top{

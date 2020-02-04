@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // INCLUDE HEADER FILES:
@@ -116,7 +116,7 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
     }
   }
 
-  if(trkMatches.size()>0){
+  if(!trkMatches.empty()){
     //sort the track matches
     std::sort(trkMatches.begin(), trkMatches.end(), m_sorter);
     //set the matching values

@@ -238,7 +238,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    Trk::Track *refittedtrack=m_trackFitter->fit(track,false,materialInteractions);
   
    //!<  @todo : add documentation & find out why we need the fit twice ?
-   Trk::Track *refittedtrack2=0;
+   Trk::Track *refittedtrack2=nullptr;
    if (refittedtrack && (int)clusters.size()-i>=9){
      Trk::MeasurementSet measset;
      const Trk::TrackParameters *prevpar=refittedtrack->trackParameters()->back();
@@ -263,19 +263,19 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
        refittedtrack2=new Trk::Track(refittedtrack->info(),traj2,refittedtrack->fitQuality()->clone());
      }
      else for (int j=0;j<(int)measset.size();j++) delete measset[j];
+   } else {
+    ATH_MSG_VERBOSE("Track fit of truth trajectory NOT successful, NO track created. ");
+    return nullptr;
    }
+
    if (refittedtrack2) delete refittedtrack;
    if (!refittedtrack2 && refittedtrack) refittedtrack2=refittedtrack;
 
-   //        
-    
-    if ( refittedtrack2 ) 
-        ATH_MSG_VERBOSE("Track fit of truth trajectory successful, track created. ");
-    else 
-        ATH_MSG_VERBOSE("Track fit of truth trajectory NOT successful, NO track created. ");
-    // return what you have
-    // Before returning, fix the creator
-    refittedtrack2 ->  info().setPatternRecognitionInfo( Trk::TrackInfo::Pseudotracking);
+   //         
+   ATH_MSG_WARNING("Track fit of truth trajectory successful, track created. ");
+   // return what you have
+   // Before returning, fix the creator
+   refittedtrack2->info().setPatternRecognitionInfo( Trk::TrackInfo::Pseudotracking);
 
-    return refittedtrack2;
+   return refittedtrack2;
 }

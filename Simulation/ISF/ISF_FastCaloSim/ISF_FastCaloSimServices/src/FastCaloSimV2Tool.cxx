@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -99,7 +99,7 @@ StatusCode ISF::FastCaloSimV2Tool::commonSetup()
   const EventContext& ctx = Gaudi::Hive::currentContext();
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
   rngWrapper->setSeed( m_randomEngineName, Gaudi::Hive::currentContext() );
 
   for (const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerToolsSetup)
@@ -180,25 +180,22 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
     return StatusCode::SUCCESS;
   }
 
-
-  /// for anti protons and anti neutrons the kinetic energy should be
-  /// calculated as Ekin = E() + M() instead of E() - M()
-  /// this is achieved by constructing the TFCSTruthState with negative mass
-  float isfp_mass = isfp.mass();
-  if(isfp.pdgCode() == -2212 or isfp.pdgCode() == -2112) {
-    isfp_mass = - isfp_mass;
-    ATH_MSG_VERBOSE("Found anti-proton/neutron, negative mass is used for TFCSTruthState ");
-  }
-
-
   TFCSTruthState truth;
-  truth.SetPtEtaPhiM(particle_direction.perp(), particle_direction.eta(), particle_direction.phi(), isfp_mass);
+  truth.SetPtEtaPhiM(particle_direction.perp(), particle_direction.eta(), particle_direction.phi(), isfp.mass());
   truth.set_pdgid(isfp.pdgCode());
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
 
+  /// for anti protons and anti neutrons the kinetic energy should be
+  /// calculated as Ekin = E() + M() instead of E() - M()
+  /// this is achieved by setting an Ekin offset of 2*M() to the truth state
+  if(isfp.pdgCode() == -2212 || isfp.pdgCode() == -2112) {
+    truth.set_Ekin_off(2*isfp.mass());
+    ATH_MSG_VERBOSE("Found anti-proton/neutron, setting Ekin offset in TFCSTruthState.");
+  }
+
   TFCSExtrapolationState extrapol;
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomEngineName);
   TFCSSimulationState simulstate(*rngWrapper);
 
   ATH_MSG_DEBUG(" particle: " << isfp.pdgCode() << " Ekin: " << isfp.ekin() << " position eta: " << particle_position.eta() << " direction eta: " << particle_direction.eta() << " position phi: " << particle_position.phi() << " direction phi: " << particle_direction.phi());
@@ -208,7 +205,7 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
   ATH_MSG_DEBUG("Energy returned: " << simulstate.E());
   ATH_MSG_VERBOSE("Energy fraction for layer: ");
   for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-    ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
+  ATH_MSG_VERBOSE(" Sampling " << s << " energy " << simulstate.E(s));
 
   //Now deposit all cell energies into the CaloCellContainer
   for(const auto& iter : simulstate.cells()) {
@@ -217,4 +214,5 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
   }
 
   return StatusCode::SUCCESS;
+
 }

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # This script sets up the build enironment for an Athena
 # build, on top of a built set of externals (including Gaudi)
 #
@@ -17,15 +19,15 @@ env_setup() {
     # As this script can be sourced we need to support zsh and
     # possibly other Bourne shells
     if [ "x${BASH_SOURCE[0]}" = "x" ]; then
-    # This trick should do the right thing under ZSH:
-	thisdir=$(dirname `print -P %x`)
-	if [ $? != 0 ]; then
+        # This trick should do the right thing under ZSH:
+        thisdir=$(dirname `print -P %x`)
+        if [ $? != 0 ]; then
             echo "ERROR: This script must be sourced from BASH or ZSH"
             return 1
-	fi
+        fi
     else
-    # The BASH solution is a bit more straight forward:
-	thisdir=$(dirname ${BASH_SOURCE[0]})
+        # The BASH solution is a bit more straight forward:
+        thisdir=$(dirname ${BASH_SOURCE[0]})
     fi
     AthenaSrcDir=$(cd ${thisdir};pwd)
 
@@ -40,10 +42,10 @@ env_setup() {
 	    BUILDDIR=${AthenaSrcDir}/../../../build
     fi
 
+    # Get the version of Athena for the build.
+    version=`cat ${AthenaSrcDir}/version.txt`
+
     # Set up the environment for the build:
-    export NICOS_PROJECT_VERSION=`cat ${AthenaSrcDir}/version.txt`
-    export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-    export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
     export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/Athena
 
     # Set up the environment variables for finding LCG and the TDAQ externals:
@@ -51,7 +53,7 @@ env_setup() {
     source ${scriptsdir}/TDAQ_RELEASE_BASE.sh
 
     # Set up the AthenaExternals project:
-    extDir=${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea
+    extDir=${BUILDDIR}/install/AthenaExternals/${version}/InstallArea
     if [ ! -d ${extDir} ]; then
 	    echo "Didn't find the AthenaExternals project under ${extDir}"
         echo "(Hopefully this is intentional and you have done e.g. asetup AthenaExternals,master,latest)"
@@ -63,8 +65,8 @@ env_setup() {
     # Point to Gaudi:
     # Get platform from the GAUDI build - we're assuming here that there's only one platform installed.
     if [ -z "${GAUDI_ROOT+1}" ]; then
-        platform=$(cd ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION}/InstallArea/;ls)
-        export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION}/InstallArea/${platform}
+        platform=$(cd ${BUILDDIR}/install/GAUDI/${version}/InstallArea/;ls)
+        export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${version}/InstallArea/${platform}
     fi
     echo "Taking Gaudi from: ${GAUDI_ROOT}"
 

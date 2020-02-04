@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -40,6 +40,12 @@ namespace MuonGM {
 					 MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
+    m_rots = 0.;
+    m_rotz = 0.;
+    m_rott = 0.;
+
+    m_hasALines = false;
+    m_delta = NULL;
     m_ml = mL;
 
     // get the setting of the caching flag from the manager
@@ -243,11 +249,11 @@ namespace MuonGM {
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
       m_etaDesign[il].inputWidth = stgc->stripWidth();
       if (!tech){
-	(*m_Log) <<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
-	m_etaDesign[il].thickness = 0;
+       (*m_Log) <<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;
+       m_etaDesign[il].thickness = 0;
       }
       else{
-	m_etaDesign[il].thickness = stgc->GetTechnology()->gasThickness;//+stgc->GetTechnology()->pcbThickness;
+	     m_etaDesign[il].thickness = stgc->GetTechnology()->gasThickness;//+stgc->GetTechnology()->pcbThickness;
       }
 	
       // These values depend on local geometry. When using DiamondBounds for QL3, the origin (0,0) is not at the center of the gas volume, but rather where the yCutout begins.
@@ -363,8 +369,7 @@ namespace MuonGM {
 
 
 	
-	(*m_Log)  << MSG::DEBUG<<"initDesign stationname "<<getStationName()<<" layer " << il << ",pad phi angular width " << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch <<"  Length: "<< m_padDesign[il].Length<<" sWidth: "<< m_padDesign[il].sWidth<<" lWidth: "<<m_padDesign[il].lWidth<<" firstPhiPos:"<<m_padDesign[il].firstPhiPos<<" padEtaMin:"<<m_padDesign[il].padEtaMin<<" padEtaMax:"<<m_padDesign[il].padEtaMax<<" firstRowPos:"<<m_padDesign[il].firstRowPos<<" inputRowPitch:"<<m_padDesign[il].inputRowPitch<<" thickness:"<<m_padDesign[il].thickness<<" sPadWidth: " <<m_padDesign[il].sPadWidth<<" lPadWidth: "<< m_padDesign[il].lPadWidth<<" xFrame: "<< m_padDesign[il].xFrame <<" ysFrame: "<< m_padDesign[il].ysFrame<<" ylFrame: "<< m_padDesign[il].ylFrame << " yCutout: "<< m_padDesign[il].yCutout<<endmsg;
-
+       (*m_Log)  << MSG::DEBUG<<"initDesign stationname "<<getStationName()<<" layer " << il << ",pad phi angular width " << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch <<"  Length: "<< m_padDesign[il].Length<<" sWidth: "<< m_padDesign[il].sWidth<<" lWidth: "<<m_padDesign[il].lWidth<<" firstPhiPos:"<<m_padDesign[il].firstPhiPos<<" padEtaMin:"<<m_padDesign[il].padEtaMin<<" padEtaMax:"<<m_padDesign[il].padEtaMax<<" firstRowPos:"<<m_padDesign[il].firstRowPos<<" inputRowPitch:"<<m_padDesign[il].inputRowPitch<<" thickness:"<<m_padDesign[il].thickness<<" sPadWidth: " <<m_padDesign[il].sPadWidth<<" lPadWidth: "<< m_padDesign[il].lPadWidth<<" xFrame: "<< m_padDesign[il].xFrame <<" ysFrame: "<< m_padDesign[il].ysFrame<<" ylFrame: "<< m_padDesign[il].ylFrame << " yCutout: "<< m_padDesign[il].yCutout<<endmsg;
 
 
     }
@@ -416,8 +421,6 @@ namespace MuonGM {
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
-
-      //std::cerr<<"center of wire plane, layer:"<<layer<<","<< m_surfaceData->m_layerCenters.back().perp()<< std::endl;
 
       // strip plane moved along normal, pad plane in the opposite direction
       // We no longer want the readout elements to be seperated by the gas gas volume
@@ -504,6 +507,24 @@ namespace MuonGM {
     (*m_Log)  << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
     
     return absTransform()*locP;
+  }
+
+  void sTgcReadoutElement::setDelta(double tras, double traz, double trat,
+                                  double rots, double rotz, double rott)
+  {
+    m_rots = rots;
+    m_rotz = rotz;
+    m_rott = rott;
+
+    HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
+     if (fabs(tras)+fabs(traz)+fabs(trat)+(fabs(rots)+fabs(rotz)+fabs(rott))*1000. > 0.01)
+    {
+       // compute the delta transform
+       delta = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
+                     HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
+                    HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
+       m_hasALines = true;
+    }
   }
 
 

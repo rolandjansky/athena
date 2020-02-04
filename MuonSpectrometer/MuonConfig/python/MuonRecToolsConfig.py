@@ -394,3 +394,10 @@ def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
     
     result.setPrivateTools(Muon__MuPatHitTool(name,**kwargs))
     return result
+
+def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
+    # FIXME - many tools are not yet explicitly configured here.
+    result= ComponentAccumulator()
+    result.setPrivateTools(CompFactory.Muon__MuonRefitTool(name, **kwargs))
+    return result
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,7 +10,6 @@
 // which removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkInDet/TauTrackParticleThinning.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
@@ -18,6 +17,8 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauxAODHelpers.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -25,24 +26,17 @@
 DerivationFramework::TauTrackParticleThinning::TauTrackParticleThinning(const std::string& t,
                                                                         const std::string& n,
                                                                         const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_thinningSvc("ThinningSvc",n),
+base_class(t,n,p),
 m_ntot(0),
 m_npass(0),
 m_tauSGKey(""),
-m_inDetSGKey("InDetTrackParticles"),
 m_selectionString(""),
 m_coneSize(-1.0),
-m_and(false),
 m_parser(0)
 {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
     declareProperty("TauKey", m_tauSGKey);
-    declareProperty("InDetTrackParticlesKey", m_inDetSGKey);
     declareProperty("SelectionString", m_selectionString);
     declareProperty("ConeSize", m_coneSize);
-    declareProperty("ApplyAnd", m_and);
 }
 
 // Destructor
@@ -54,10 +48,8 @@ StatusCode DerivationFramework::TauTrackParticleThinning::initialize()
 {
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_inDetSGKey=="") {
-        ATH_MSG_FATAL("No inner detector track collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");}
+    ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");
     if (m_tauSGKey=="") {
         ATH_MSG_FATAL("No tau collection provided for thinning.");
         return StatusCode::FAILURE;
@@ -88,13 +80,11 @@ StatusCode DerivationFramework::TauTrackParticleThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     
     // Retrieve main TrackParticle collection
-    const xAOD::TrackParticleContainer* importedTrackParticles;
-    if (evtStore()->retrieve(importedTrackParticles,m_inDetSGKey).isFailure()) {
-        ATH_MSG_ERROR("No TrackParticle collection with name " << m_inDetSGKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TrackParticleContainer> importedTrackParticles
+      (m_inDetSGKey, ctx);
     
     // Check the event contains tracks
     unsigned int nTracks = importedTrackParticles->size();
@@ -134,7 +124,7 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
     DerivationFramework::TracksInCone trIC;
     if (m_selectionString=="") { // check all taus as user didn't provide a selection string
 	    for (xAOD::TauJetContainer::const_iterator tauIt=importedTaus->begin(); tauIt!=importedTaus->end(); ++tauIt) {
-		if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles,mask); // check tracks in a cone around the tau if req'd
+                if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles.cptr(),mask); // check tracks in a cone around the tau if req'd
             	for (unsigned int i=0; i<(*tauIt)->nTracks(); ++i) {
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
 		  int index = (*tauIt)->trackLinks().at(i).index();
@@ -146,7 +136,7 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
 	    }
     } else { // check only taus passing user selection string
         for (std::vector<const xAOD::TauJet*>::iterator tauIt = tauToCheck.begin(); tauIt!=tauToCheck.end(); ++tauIt) {
-	    if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles,mask); // check tracks in a cone around the tau if req'd	
+            if (m_coneSize>0.0) trIC.select(*tauIt,m_coneSize,importedTrackParticles.cptr(),mask); // check tracks in a cone around the tau if req'd	
             for (unsigned int i=0; i<(*tauIt)->nTracks(); ++i) {
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
 	      int index = (*tauIt)->trackLinks().at(i).index();
@@ -164,18 +154,7 @@ StatusCode DerivationFramework::TauTrackParticleThinning::doThinning() const
     }
     
     // Execute the thinning service based on the mask. Finish.
-    if (m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::And).isFailure()) {
-                ATH_MSG_ERROR("Application of thinning service failed! ");
-                return StatusCode::FAILURE;
-        }
-    }
-    if (!m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::Or).isFailure()) {
-                ATH_MSG_ERROR("Application of thinning service failed! ");
-                return StatusCode::FAILURE;
-        }
-    }
+    importedTrackParticles.keep (mask);
 
     return StatusCode::SUCCESS;
 }

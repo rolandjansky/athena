@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /*********************************************************************************
@@ -105,7 +105,7 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
@@ -114,7 +114,7 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation method (1) */
@@ -122,7 +122,7 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
@@ -130,14 +130,14 @@ public:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM(
     const MultiComponentState&,
     const Surface& sf,
     PropDirection dir,
-    BoundaryCheck bcheck,
+    const BoundaryCheck& bcheck,
     ParticleHypothesis particle) const override final;
 
 private:
@@ -177,7 +177,7 @@ private:
                                                        const MultiComponentState&,
                                                        const Surface&,
                                                        PropDirection direction = anyDirection,
-                                                       BoundaryCheck boundaryCheck = true,
+                                                       const BoundaryCheck& boundaryCheck = true,
                                                        ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Two primary private extrapolation methods
@@ -243,7 +243,7 @@ private:
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** GSF Method to propagate a number of components simultaneously */

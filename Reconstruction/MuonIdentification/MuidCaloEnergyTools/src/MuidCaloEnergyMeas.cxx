@@ -37,7 +37,7 @@ MuidCaloEnergyMeas::MuidCaloEnergyMeas (const std::string&	type,
 					const std::string&	name,
 					const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
-	m_caloParamTool		(""),
+	m_caloParamTool		("", this),
 	m_tileID                (0),
 	m_emID                  (0),
 	m_hecID                 (0),

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -20,49 +20,16 @@ class LArSingleFloatUpdater {
  public:
   template<class P>
   void update(const LArConditionsSubset<P>* old,
-	      LArConditionsSubset<LArSingleFloatP>* newObj) {
-
-       // Get the number of febs and corrections
-    unsigned int nFebs       = old->m_subset.size();
-    unsigned int nCorrs      = old->m_correctionVec.size();
-
-    //log << MSG::DEBUG << "LArMphysOverMcalCompleteCnv::createTransient old 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endmsg; 
-
-    // Copy conditions
-
-    // Resize subset
-    newObj->m_subset.resize(nFebs);
-    
-    // Loop over febs
-    for (unsigned int i = 0; i < nFebs; ++i){
-        newObj->m_subset[i].first = old->m_subset[i].first;
-	unsigned nChannels=old->m_subset[i].second.size();
-        newObj->m_subset[i].second.resize(nChannels);
-        // Loop over channels in feb
-        for (unsigned int j = 0; j < nChannels; ++j)
-	  newObj->m_subset[i].second[j].m_data=getPayload(old->m_subset[i].second[j]);
-    }// end loop over Febs
-
-    //log << MSG::DEBUG << "LArMphysOverMcalCompleteCnv::createTransient old 2 " << old << endmsg; 
-
-    // Copy corrections
-    newObj->m_correctionVec.resize(nCorrs);
-
-    // Loop over corrections
-    for (unsigned int i = 0; i < nCorrs; ++i){
-      newObj->m_correctionVec[i].first = old->m_correctionVec[i].first;
-      newObj->m_correctionVec[i].second.m_data = getPayload(old->m_correctionVec[i].second);
-    }
-
-    // Copy the rest
-    newObj->m_gain          = old->m_gain; 
-    newObj->m_channel       = old->m_channel;
-    newObj->m_groupingType  = old->m_groupingType;
+	      LArConditionsSubset<LArSingleFloatP>* newObj)
+  {
+    newObj->assign (*old,
+                    [] (const P& from,
+                        LArSingleFloatP& to)
+                    { to.m_data = getPayload(from); });
   }
 
  private:
-  float getPayload(const LArMphysOverMcalP& p) {
+  static float getPayload(const LArMphysOverMcalP& p) {
     return p.m_MphysOverMcal;
   }
 
@@ -70,14 +37,14 @@ class LArSingleFloatUpdater {
 //  return p.m_MphysOverMcal;
 //}
 
-  float getPayload(const LArDAC2uAP& p) {
+  static float getPayload(const LArDAC2uAP& p) {
     return p.m_DAC2uA;
   }
-  float getPayload(const LAruA2MeVP& p) {
+  static float getPayload(const LAruA2MeVP& p) {
     return p.m_uA2MeV;
   }
 
-  float getPayload(const LArfSamplP& p) {
+  static float getPayload(const LArfSamplP& p) {
     return p.m_fSampl;
   }
 

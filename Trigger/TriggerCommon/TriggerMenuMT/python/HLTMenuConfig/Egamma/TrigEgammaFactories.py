@@ -72,7 +72,7 @@ TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
 
 def TrigEgammaDecorationTools():
     #Return a list with the tools that decorate both electrons and photons. 
-    return [ EMFourMomBuilder(), TrigEMShowerBuilder() ] 
+    return [ EMFourMomBuilder() ] 
 
 def TrigPhotonDecorationTools():
     #Return a list with the tools that decorate only photons

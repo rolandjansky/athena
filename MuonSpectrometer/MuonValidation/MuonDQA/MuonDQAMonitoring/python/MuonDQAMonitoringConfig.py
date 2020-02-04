@@ -14,11 +14,9 @@ def MuonDQAMonitoringConfig(flags):
             result.merge(MdtMonitoringConfig(flags))
 
         from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
-        from MdtRawDataMonitoring.MDTMonitorAlgorithm import MdtMonitoringConfig
         from RpcRawDataMonitoring.RpcMonitorAlgorithm import RpcMonitoringConfig
     
         result.merge(TgcRawDataMonitoringConfig(flags))
-        result.merge(MdtMonitoringConfig(flags))
         result.merge(RpcMonitoringConfig(flags))
         
     return result

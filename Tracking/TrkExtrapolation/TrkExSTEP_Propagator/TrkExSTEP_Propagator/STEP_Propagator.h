@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ namespace Trk {
       propagate (const Trk::NeutralParameters&,
                  const Trk::Surface&,
                  Trk::PropDirection,
-                 Trk::BoundaryCheck,
+                 const Trk::BoundaryCheck&,
                  bool rC=false) const override final;
 
 
@@ -177,8 +177,8 @@ namespace Trk {
     virtual Trk::TrackParameters*
       propagate (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
-                 Trk::PropDirection            propagationDirection,
-                 Trk::BoundaryCheck            boundaryCheck,
+                 Trk::PropDirection                  propagationDirection,
+                 const Trk::BoundaryCheck&           boundaryCheck,
                  const      MagneticFieldProperties& magneticFieldProperties,
                  ParticleHypothesis            particle,
                  bool                          returnCurv = false,
@@ -232,7 +232,7 @@ namespace Trk {
       propagate (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  Trk::PropDirection                  propagationDirection,
-                 Trk::BoundaryCheck                  boundaryCheck,
+                 const Trk::BoundaryCheck&           boundaryCheck,
                  const MagneticFieldProperties&      magneticFieldProperties,
                  Trk::TransportJacobian*&            jacobian,
                  double&                             pathLimit,
@@ -246,7 +246,7 @@ namespace Trk {
       propagateParameters (const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
-                           Trk::BoundaryCheck                  boundaryCheck,
+                           const Trk::BoundaryCheck&           boundaryCheck,
                            const MagneticFieldProperties&      magneticFieldProperties,
                            ParticleHypothesis                  particle,
                            bool                                returnCurv = false,
@@ -258,7 +258,7 @@ namespace Trk {
       propagateParameters (const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
-                           Trk::BoundaryCheck                  boundaryCheck,
+                           const Trk::BoundaryCheck&           boundaryCheck,
                            const MagneticFieldProperties&      magneticFieldProperties,
                            Trk::TransportJacobian*&            jacobian,
                            ParticleHypothesis                  particle,
@@ -267,7 +267,7 @@ namespace Trk {
 
 
     /** Propagate parameters and return path (Similar to propagateParameters */
-    virtual const IntersectionSolution*
+    virtual IntersectionSolution*
       intersect (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  const Trk::MagneticFieldProperties& magneticFieldProperties,
@@ -277,11 +277,11 @@ namespace Trk {
     /** Intersection and propagation:
      */
 
-    virtual const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
-                                                             const TrackSurfaceIntersection*    trackIntersection,
-                                                             const double               qOverP,
-                                                             const MagneticFieldProperties& mft,
-                                                             ParticleHypothesis       particle) const override final; 
+    virtual TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
+                                                       const TrackSurfaceIntersection*    trackIntersection,
+                                                       const double               qOverP,
+                                                       const MagneticFieldProperties& mft,
+                                                       ParticleHypothesis       particle) const override final; 
 
     /** Return a list of positions along the track */
     virtual void

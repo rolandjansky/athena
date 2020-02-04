@@ -38,7 +38,7 @@
 #include "FourMomUtils/P4Helpers.h"
 
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
 #include "MuonResonanceTools/IMuonResonancePairingTool.h"
 

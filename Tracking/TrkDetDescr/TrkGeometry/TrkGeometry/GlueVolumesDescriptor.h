@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ namespace Trk {
  
         /** register the volumes */
         void registerGlueVolumes(BoundarySurfaceFace, std::vector<const TrackingVolume*>&);
-        void registerGlueVolumes ATLAS_NOT_CONST_THREAD_SAFE (BoundarySurfaceFace, std::vector<const TrackingVolume*>&) const;
+        void registerGlueVolumes ATLAS_NOT_THREAD_SAFE (BoundarySurfaceFace, std::vector<const TrackingVolume*>&) const;
      
         /** retrieve them again */
         const std::vector<const TrackingVolume*>& glueVolumes(BoundarySurfaceFace) const;

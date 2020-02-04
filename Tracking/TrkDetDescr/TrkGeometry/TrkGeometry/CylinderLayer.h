@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,14 +48,14 @@ class IApproachDescriptor;
                       CylinderBounds* cbounds,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
+                      OverlapDescriptor* od = nullptr,
                       int laytyp=int(Trk::active));
 
         /**Constructor with CylinderSurface and  MaterialProperties */
         CylinderLayer(CylinderSurface* cyl,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
+                      OverlapDescriptor* od = nullptr,
                       int laytyp=int(Trk::active));
                               
         /**Constructor with CylinderSurface components and pointer to SurfaceArray (passing ownership) 
@@ -65,8 +65,8 @@ class IApproachDescriptor;
                       CylinderBounds* cbounds,
                       SurfaceArray* surfaceArray,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                 
         /**Constructor with CylinderSurface components,
@@ -76,23 +76,23 @@ class IApproachDescriptor;
                       SurfaceArray* surfaceArray,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                       
         /**Concentric Layer: Constructor with CylinderSurface components and  MaterialProperties */
         CylinderLayer(CylinderBounds* cbounds,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
+                      OverlapDescriptor* od = nullptr,
                       int laytyp=int(Trk::active));
 
         /**Concentric Layer: Constructor with CylinderSurface components and pointer to SurfaceArray (passing ownership) */
         CylinderLayer(CylinderBounds* cbounds,
                       SurfaceArray* surfaceArray,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                 
         /**Concentric Layer: Constructor with CylinderSurface components,
@@ -101,8 +101,8 @@ class IApproachDescriptor;
                       SurfaceArray* surfaceArray,
                       const LayerMaterialProperties& laymatprop,
                       double thickness = 0.,
-                      OverlapDescriptor* od = 0,
-                      IApproachDescriptor* ad = 0,
+                      OverlapDescriptor* od = nullptr,
+                      IApproachDescriptor* ad = nullptr,
                       int laytyp=int(Trk::active));
                               
         /**Copy constructor of CylinderLayer*/
@@ -115,42 +115,42 @@ class IApproachDescriptor;
         CylinderLayer& operator=(const CylinderLayer&);
                       
         /**Destructor*/
-        virtual ~CylinderLayer();
+        virtual ~CylinderLayer() override;
                 
         /** Transforms the layer into a Surface representation for extrapolation */
-        const CylinderSurface& surfaceRepresentation() const override;
+        virtual const CylinderSurface& surfaceRepresentation() const override;
         
         /** getting the MaterialProperties back - for pre-update*/ 
-        double preUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                       Trk::PropDirection dir) const override;
+        virtual double preUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                               Trk::PropDirection dir) const override;
 
         /** getting the MaterialProperties back - for post-update*/ 
-        double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
-                                         Trk::PropDirection dir) const override;
+        virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
+                                                 Trk::PropDirection dir) const override;
                                          
         /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
-        const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
-                                         const Amg::Vector3D& dir,
-                                         PropDirection pdir,
-                                         const BoundaryCheck& bcheck,
-                                         bool resolveSubSurfaces = 0,
-                                         const ICompatibilityEstimator* ice = 0) const override;
+        virtual const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
+                                                 const Amg::Vector3D& dir,
+                                                 PropDirection pdir,
+                                                 const BoundaryCheck& bcheck,
+                                                 bool resolveSubSurfaces = 0,
+                                                 const ICompatibilityEstimator* ice = nullptr) const override;
         
        /** move the Layer */
        virtual void moveLayer ( Amg::Transform3D& shift ) override;
  
        /** move the Layer */
-       virtual void moveLayer ATLAS_NOT_CONST_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
+       virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
            const_cast<CylinderLayer*>(this)->moveLayer(shift);
        }
      
      private:   
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope)  override; 
+       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
    
        /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
-       virtual void resizeLayer ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds& vBounds,
-                                                            double envelope) const override
+       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
+                                                      double envelope) const override
        {
          const_cast<CylinderLayer*>(this)->resizeLayer(vBounds,envelope);
        }
@@ -162,9 +162,9 @@ class IApproachDescriptor;
 
        /** Resize the layer to the tracking volume */
        virtual void resizeAndRepositionLayer
-       ATLAS_NOT_CONST_THREAD_SAFE(const VolumeBounds& vBounds,
-                                   const Amg::Vector3D& cCenter,
-                                   double envelope) const override
+       ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
+                             const Amg::Vector3D& cCenter,
+                             double envelope) const override
        {
          const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(vBounds,cCenter,envelope);
        }

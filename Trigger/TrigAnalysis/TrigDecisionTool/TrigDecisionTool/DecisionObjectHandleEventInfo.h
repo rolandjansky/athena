@@ -12,7 +12,6 @@
 #define TrigDecisionTool_DecisionObjectHandleEventInfo_h
 
 #include <string>
-#include "AsgTools/AsgToolsConf.h"
 #include "StoreGate/DataHandle.h"
 
 #include "TrigDecisionTool/EventPtrDef.h"

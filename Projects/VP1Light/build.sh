@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script for building the release on top of externals built using the
 # script in this directory.
 #
@@ -153,7 +155,7 @@ fi
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
     time make install/fast \
-         DESTDIR=${BUILDDIR}/install/VP1Light/${NICOS_PROJECT_VERSION} \
+         DESTDIR=${BUILDDIR}/install \
          2>&1 | tee cmake_install.log
 fi
 

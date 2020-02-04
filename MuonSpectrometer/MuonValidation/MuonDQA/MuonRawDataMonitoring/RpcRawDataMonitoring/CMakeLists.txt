@@ -39,7 +39,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigT1/TrigT1Result
-                          PhysicsAnalysis/MuonID/MuonSelectorTools )
+                          PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces )
 
 # External dependencies:
 find_package( Eigen )

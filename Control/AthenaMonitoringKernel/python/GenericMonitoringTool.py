@@ -143,7 +143,7 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Alias
     variableAliasSplit = varname.split(';')
-    varList = variableAliasSplit[0].split(',')
+    varList = [v.strip() for v in variableAliasSplit[0].split(',')]
     if len(variableAliasSplit)==1:
         alias = '_vs_'.join(reversed(varList))
     elif len(variableAliasSplit)==2:
@@ -235,7 +235,7 @@ def defineHistogram(varname, type='TH1F', path=None,
         settings['zmax'] = zmax
 
     # Bin labels
-    # First, handle the depricated labels argument
+    # First, handle the deprecated labels argument
     if labels is not None:
         assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
         depricated "labels" argument with [xyz]labels arguments.'
@@ -245,11 +245,12 @@ def defineHistogram(varname, type='TH1F', path=None,
         if nLabels==xbins:
             xlabels = labels
         elif nLabels>xbins:
-            if nLabels > xbins+ybins:
+            nybins = 0 if ybins is None else ybins
+            if nLabels > xbins+nybins:
                 log.warning('More labels specified for %s (%d) than there are x+y bins (%d+%d)',
-                            settings['title'], nLabels, xbins, ybins)
+                            settings['title'], nLabels, xbins, nybins)
             xlabels = labels[:xbins]
-            ylabels = labels[xbins:xbins+ybins]
+            ylabels = labels[xbins:xbins+nybins]
     # Then, parse the [xyz]label arguments
     if xlabels is not None and len(xlabels)>0:
         assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'

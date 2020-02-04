@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFEBTIMEOFFSET_H
@@ -27,7 +27,7 @@ class LArFEBTimeOffset: public ILArFEBTimeOffset{
 
  private:
   std::map <HWIdentifier,float> m_febTimeMap;
-  float m_defaultReturnValue;
+  float m_defaultReturnValue = 0;
 };
 
 inline float LArFEBTimeOffset::TimeOffset(const HWIdentifier fId) const

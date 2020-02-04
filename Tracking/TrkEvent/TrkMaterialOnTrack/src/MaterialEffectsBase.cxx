@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 
 Trk::MaterialEffectsBase::MaterialEffectsBase() :
   m_tInX0(0.0),
-  m_associatedSurface(0),
+  m_associatedSurface(nullptr),
   m_typeFlags(0)
 {
 }
@@ -30,11 +30,11 @@ Trk::MaterialEffectsBase::MaterialEffectsBase(double tInX0,
 
 Trk::MaterialEffectsBase::MaterialEffectsBase(const Trk::MaterialEffectsBase& meot) :
   m_tInX0(meot.m_tInX0),
-  m_associatedSurface(meot.m_associatedSurface!=0?
-                      ( meot.m_associatedSurface->associatedDetectorElement()!=0?
+  m_associatedSurface(meot.m_associatedSurface!=nullptr?
+                      ( meot.m_associatedSurface->associatedDetectorElement()!=nullptr?
                         meot.m_associatedSurface :
                         meot.m_associatedSurface->clone() ) :
-                      0 ),
+                      nullptr ),
   m_typeFlags(meot.m_typeFlags)
 {}
 
@@ -49,14 +49,14 @@ Trk::MaterialEffectsBase& Trk::MaterialEffectsBase::operator= (const Trk::Materi
     if (rhs.m_associatedSurface) {
       m_associatedSurface = (!rhs.m_associatedSurface->associatedDetectorElement()) ?
         rhs.m_associatedSurface->clone() : rhs.m_associatedSurface;
-    } else { m_associatedSurface = 0; }
+    } else { m_associatedSurface = nullptr; }
   }
   return *this;
 }
 
 Trk::MaterialEffectsBase::~MaterialEffectsBase()
 {
-  if (m_associatedSurface!=0 && m_associatedSurface->associatedDetectorElement()==0)
+  if (m_associatedSurface!=nullptr && m_associatedSurface->associatedDetectorElement()==nullptr)
     delete m_associatedSurface;
 }
 
@@ -102,10 +102,10 @@ MsgStream& Trk::MaterialEffectsBase::dump ( MsgStream& sl ) const
 	sl << name<<"type        : " << dumpType() <<endmsg;
 	sl << name<<"thickness/X0: " << thicknessInX0()<<endmsg;
     sl << name<<"Surface     : " ;
-    if (m_associatedSurface==NULL) {
+    if (m_associatedSurface==nullptr) {
       sl << "NULL";
     } else {
-      if (m_associatedSurface->associatedDetectorElement()!=NULL)
+      if (m_associatedSurface->associatedDetectorElement()!=nullptr)
         sl << "from detector Element";
       else sl << associatedSurface() << endmsg;
     }
@@ -118,10 +118,10 @@ std::ostream& Trk::MaterialEffectsBase::dump ( std::ostream& sl ) const
 	sl <<"MaterialEffects type        : " <<dumpType() <<std::endl;
 	sl <<"MaterialEffects thickness/X0: " <<thicknessInX0()<<std::endl;
     sl <<"MaterialEffects Surface     : ";
-    if (m_associatedSurface==NULL) {
+    if (m_associatedSurface==nullptr) {
       sl << "NULL";
     } else {
-      if (m_associatedSurface->associatedDetectorElement()!=NULL)
+      if (m_associatedSurface->associatedDetectorElement()!=nullptr)
         sl << "from detector Element";
       else sl << associatedSurface() << std::endl;
     }

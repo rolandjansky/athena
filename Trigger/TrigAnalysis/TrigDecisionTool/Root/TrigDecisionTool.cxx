@@ -14,7 +14,6 @@
  *
  ***********************************************************************************/
 
-#include "AsgTools/AsgToolsConf.h"
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
 
 
@@ -26,7 +25,7 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #include "AthenaKernel/getMessageSvc.h"
 #endif
 
@@ -36,7 +35,7 @@ static std::vector<std::string> s_instances;
 
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   asg::AsgMetadataTool(name),
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   AthMessaging( Athena::getMessageSvc(), name)
 #endif
 #ifndef XAOD_ANALYSIS
@@ -72,7 +71,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 
 }
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 void Trig::TrigDecisionTool::outputlevelupdateHandler(Property& /*p*/) {
    //call the original update handler
    Logger::msg().setLevel(AthMessaging::msg().level());
@@ -114,7 +113,7 @@ Trig::TrigDecisionTool::initialize() {
 
    ATH_MSG_INFO("Initializing Trig::TrigDecisionTool (standalone version even for athena)");
   
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
    //This is the full Athena Environment
    //we setup the full TrigConfigSvc
    
@@ -142,7 +141,7 @@ Trig::TrigDecisionTool::initialize() {
    cgm()->navigation(&*m_navigation);
    cgm()->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
    
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
    if (incSvc.retrieve().isFailure()) {
      ATH_MSG_ERROR("Cannot retrieve IncidentSvc");

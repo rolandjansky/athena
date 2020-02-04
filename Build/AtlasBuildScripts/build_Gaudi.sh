@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script used for building Gaudi.
 #
 
@@ -14,7 +16,8 @@ set -o pipefail
 usage() {
     echo "Usage: build_Gaudi.sh <-s source dir> <-b build dir> " \
         "<-i install dir> <-e externals dir> <-p externals project name> " \
-        "<-f platform name> [-r RPM dir] [-t build type] [-x extra CMake arguments]"
+        "<-f platform name> [-r RPM dir] [-t build type] [-v version] " \
+        "[-x extra CMake arguments]"
 }
 
 # Parse the command line arguments:
@@ -26,8 +29,9 @@ EXTPROJECT=""
 PLATFORM=""
 RPMDIR=""
 BUILDTYPE="Release"
+PROJECTVERSION=""
 EXTRACMAKE=()
-while getopts ":s:b:i:e:p:f:r:t:x:h" opt; do
+while getopts ":s:b:i:e:p:f:r:t:x:v:h" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -56,6 +60,9 @@ while getopts ":s:b:i:e:p:f:r:t:x:h" opt; do
         x)
             EXTRACMAKE+=($OPTARG)
             ;;
+        v)
+            PROJECTVERSION=$OPTARG
+            ;;
         h)
             usage
             exit 0
@@ -76,7 +83,7 @@ done
 # Make sure that the required options were all specified:
 if [ "$SOURCEDIR" = "" ] || [ "$BUILDDIR" = "" ] || [ "$INSTALLDIR" = "" ] \
     || [ "$EXTDIR" = "" ] || [ "$EXTPROJECT" = "" ] \
-    || [ "$PLATFORM" = "" ]; then
+    || [ "$PLATFORM" = "" ] || [ "$PROJECTVERSION" = "" ]; then
     echo "Not all required parameters received!"
     usage
     exit 1
@@ -89,8 +96,6 @@ cd ${BUILDDIR} || ((ERROR_COUNT++))
 # Set up the externals project:
 source ${EXTDIR}/setup.sh || ((ERROR_COUNT++))
 
-#FIXME: simplify error counting below while keeping '| tee ...'
-
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
@@ -98,8 +103,8 @@ rm -f CMakeCache.txt
 rm -rf * # Remove the full build temporarily, to fix GAUDI-1315
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     -DGAUDI_ATLAS:BOOL=TRUE -DGAUDI_ATLAS_BASE_PROJECT:STRING=${EXTPROJECT} \
-    -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} ${EXTRACMAKE[@]} \
-    ${SOURCEDIR} || touch $error_stamp
+    -DCMAKE_INSTALL_PREFIX:PATH=/GAUDI/${PROJECTVERSION}/InstallArea/${PLATFORM} \
+    ${EXTRACMAKE[@]} ${SOURCEDIR} || touch $error_stamp
 } 2>&1 | tee cmake_config.log 
 test -f $error_stamp && ((ERROR_COUNT++))
 rm -f $error_stamp

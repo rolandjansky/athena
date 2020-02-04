@@ -16,7 +16,7 @@ from egammaRec.Factories import AlgFactory,  FcnWrapper
 from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool,  EMConversionBuilder
 
 # Tools and funtions from TrigEgammaFactories
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder ,TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
@@ -62,6 +62,7 @@ TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.topoEgammaBuilder,
         PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
         AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
+        EMShowerTool=TrigEMShowerBuilder,
         egammaTools = FcnWrapper(TrigEgammaDecorationTools),
         PhotonTools = FcnWrapper(TrigPhotonDecorationTools),
         doAdd = False,

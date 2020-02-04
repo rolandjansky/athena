@@ -142,10 +142,9 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
   TOPQElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
                                  name                    = TOPQname + "ElectronTPThinningTool",
-                                 ThinningService         = TOPQThinningSvc,
+                                 StreamName              = streamName,
                                  SGKey                   = "Electrons",
-                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                 ApplyAnd                = False)
+                                 InDetTrackParticlesKey  = "InDetTrackParticles")
 
   ToolSvc += TOPQElectronTPThinningTool
   thinningTools.append(TOPQElectronTPThinningTool)
@@ -174,7 +173,7 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
   TOPQPhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
     name                    = TOPQname + "PhotonTPThinningTool",
-    ThinningService         = TOPQThinningSvc,
+    StreamName              = streamName,
     SGKey                   = "Photons",
     InDetTrackParticlesKey  = "InDetTrackParticles"
   )
@@ -207,10 +206,9 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
   TOPQMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(
                              name                    = TOPQname + "MuonTPThinningTool",
-                             ThinningService         = TOPQThinningSvc,
+                             StreamName              = streamName,
                              MuonKey                 = "Muons",
-                             InDetTrackParticlesKey  = "InDetTrackParticles",
-                             ApplyAnd                = False)
+                             InDetTrackParticlesKey  = "InDetTrackParticles")
 
   ToolSvc += TOPQMuonTPThinningTool
   thinningTools.append(TOPQMuonTPThinningTool)
@@ -223,10 +221,9 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
   TOPQTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
                             name                    = TOPQname + "TauTPThinningTool",
-                            ThinningService         = TOPQThinningSvc,
+                            StreamName              = streamName,
                             TauKey                  = "TauJets",
-                            InDetTrackParticlesKey  = "InDetTrackParticles",
-                            ApplyAnd                = False)
+                            InDetTrackParticlesKey  = "InDetTrackParticles")
 
   ToolSvc += TOPQTauTPThinningTool
   thinningTools.append(TOPQTauTPThinningTool)

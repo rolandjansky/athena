@@ -56,6 +56,7 @@ muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
+muonRecFlags.doTGCs                = False
 
 muonStandaloneFlags.printSummary         = True
 muonCombinedRecFlags.doTrackPerformance  = True
@@ -73,7 +74,7 @@ try:
 except:
     # print the stacktrace (saving could fail, and would then obscure the real problem)
     import traceback
-    print traceback.format_exc().rstrip()
+    traceback.print_exc()
     
     # always write config so far for debugging
     from AthenaCommon.ConfigurationShelve import saveToAscii

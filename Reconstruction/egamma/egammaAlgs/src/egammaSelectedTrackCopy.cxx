@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019  CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020  CERN for the benefit of the ATLAS collaboration
  */
 
 /*
@@ -23,7 +23,7 @@ UPDATE : 25/06/2018
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -115,11 +115,13 @@ egammaSelectedTrackCopy::execute()
   auto allTRTTracks = m_AllTRTTracks.buffer();
   auto selectedTRTTracks = m_SelectedTRTTracks.buffer();
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
   // // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster*> passingClusters;
   for (const xAOD::CaloCluster* cluster : *clusterTES) {
     ++allClusters;
-    if (m_egammaCaloClusterSelector->passSelection(cluster)) {
+    if (m_egammaCaloClusterSelector->passSelection(cluster,*calodetdescrmgr)) {
       passingClusters.push_back(cluster);
       ++selectedClusters;
     }

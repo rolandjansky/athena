@@ -39,7 +39,7 @@ thinningTools=[]
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "EXOT8MuonTPThinningTool",
-                                                                         ThinningService        = "EXOT8ThinningSvc",
+                                                                         StreamName              = streamName,
                                                                          MuonKey                = "Muons",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles",
                                                                          SelectionString        = "Muons.pt > 5*GeV",
@@ -52,7 +52,7 @@ thinningTools.append(EXOT8MuonTPThinningTool)
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "EXOT8ElectronTPThinningTool",
-                                                                               ThinningService        = "EXOT8ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                SGKey                  = "Electrons",
                                                                                InDetTrackParticlesKey = "InDetTrackParticles",
                                                                                SelectionString        = "Electrons.pt > 25*GeV",

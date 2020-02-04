@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,21 +90,21 @@ namespace Trk {
                                                                           const TrackingVolume& vol  ) const = 0;
                                                                
      /** INavigator interface method - - getting the next Volume and the parameter for the next Navigation */
-     virtual const NavigationCell nextTrackingVolume(const IPropagator& prop,
-                                                     const TrackParameters& parms,
-                                                     PropDirection dir,
-                                                     const TrackingVolume& vol) const = 0;
+     virtual NavigationCell nextTrackingVolume(const IPropagator& prop,
+                                               const TrackParameters& parms,
+                                               PropDirection dir,
+                                               const TrackingVolume& vol) const = 0;
 
       /** INavigator interface method - getting the next Volume and the parameter for the next Navigation
         - contains full loop over volume boundaries
       */
-      virtual const NavigationCell nextDenseTrackingVolume( const IPropagator& prop,
-							                              const TrackParameters& parms,
-                                                          const Surface* destination,
-							                              PropDirection dir, 
-							                              ParticleHypothesis particle, 
-							                              const TrackingVolume& vol,
-							                              double& path) const=0;
+      virtual NavigationCell nextDenseTrackingVolume( const IPropagator& prop,
+                                                      const TrackParameters& parms,
+                                                      const Surface* destination,
+                                                      PropDirection dir, 
+                                                      ParticleHypothesis particle, 
+                                                      const TrackingVolume& vol,
+                                                      double& path) const=0;
 
      /** INavigator interface method - getting the closest TrackParameters from a Track to a Surface */
      virtual const TrackParameters*  closestParameters( const Track& trk,

@@ -1,11 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.08.2008, AUTHOR: MAURO IODICE
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
 #ifndef SRC_HISTOGRAMMANAGER_H
 #define SRC_HISTOGRAMMANAGER_H
 
@@ -30,11 +26,8 @@
 
 #define UPDATETIME 2000
 
-//using namespace std;
-//using namespace MuonCalib;
-
 namespace Muon {
-  class MuonIdHelperTool;
+  class IMuonIdHelperSvc;
 }
 
 class MdtChamber {
@@ -82,8 +75,8 @@ struct sortMdtChambersByName {
 class HistogramManager {
 public:
   HistogramManager();
-  HistogramManager(const Muon::MuonIdHelperTool *muonIdHelperTool);
-  ~HistogramManager();
+  HistogramManager(const Muon::IMuonIdHelperSvc *idHelper);
+  ~HistogramManager()=default;
   void buildGlobalHistos();
   void buildTrackHistos(); 
   void buildDebugHistos();
@@ -133,72 +126,18 @@ public:
   int GetChamberNumOfMezzPerML (std::string chamberName);
   int GetChamberTubesPerMezz (std::string chamberName);
 
-  // std::vector<std::string> GetChamberTypeList(std::string region, std::string side, int sector);
   int GetEtaMax(std::string region, std::string side, int sector, std::string chamberType);
-
-  // void buildAll(int sectorMin, int sectorMax);
-  // void test();
  
   TFile* rootFile(){return m_rootfile;};
   TFile *m_rootfile;
 
  private:
   TObjArray m_hList;
-  const Muon::MuonIdHelperTool * m_muonIdHelperTool;
+  const Muon::IMuonIdHelperSvc* m_idHelper;
 
   bool m_doTracks;
-
-  // ToString ts;
-  // ToChar _tc;
   
 };
-
-////////////////////////////////////////////////////////////////////
-//
-// UTILITIES of General usage
-//
-
-/*********************
-//
-class ToString{
-  public:
-  template< class T >
-    std::string operator()( const T& i )
-  {
-    std::ostringstream os;
-    os << i;
-    return os.str();
-  }
-};
-*********************************/
-
-
-/*********************************
-class ToChar {
- public:
-    char* operator()( const std::string i )
-  {
-    return i.c_str();
-  }
-    char* operator()( const int i )
-  {
-    ToString ts;
-    return ts(i).c_str();
-  }
-    char* operator()( const float i )
-  {
-    ToString ts;
-    return ts(i).c_str();
-  }
-    char* operator()( const char * i )
-  {
-    return i;
-  }
-
-};
-
-
-*********************************/
 
 #endif //SRC_HISTOMANAGER_H
 

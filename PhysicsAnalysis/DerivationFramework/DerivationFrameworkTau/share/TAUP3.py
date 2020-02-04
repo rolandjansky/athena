@@ -66,7 +66,7 @@ ToolSvc                                         += TAUP3CaloClusterThinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 TAUP3ElectronTPThinningTool                      = DerivationFramework__EgammaTrackParticleThinning(
                                                      name                      = "TAUP3ElectronTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName              = streamName,
                                                      SGKey                     = "Electrons",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 ToolSvc                                         += TAUP3ElectronTPThinningTool
@@ -75,7 +75,7 @@ ToolSvc                                         += TAUP3ElectronTPThinningTool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 TAUP3MuonTPThinningTool                          = DerivationFramework__MuonTrackParticleThinning(
                                                      name                      = "TAUP3MuonTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName              = streamName,
                                                      MuonKey                   = "Muons",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 ToolSvc                                         += TAUP3MuonTPThinningTool
@@ -84,7 +84,7 @@ ToolSvc                                         += TAUP3MuonTPThinningTool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 TAUP3TauTPThinningTool                           = DerivationFramework__TauTrackParticleThinning(
                                                      name                      = "TAUP3TauTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName              = streamName,
                                                      TauKey                    = "TauJets",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
                                                      ConeSize                  = 0.6)

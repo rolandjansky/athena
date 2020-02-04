@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaTrkRefitterTool.h"
@@ -280,10 +280,10 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     * some not. For the ones that are not put them in a vector of unique_ptr which
     * we will also return to the caller*/
 
-  if (track && track->trackParameters() && track->trackParameters()->size() > 0) {
+  if (track && track->trackParameters() && !track->trackParameters()->empty()) {
     std::unique_ptr<const Trk::VertexOnTrack> vot (provideVotFromBeamspot(ctx,track));
     // fill the beamSpot if you have it
-    if (vot.get()!=nullptr){
+    if (vot!=nullptr){
       collect.m_trash.push_back(std::move(vot));
       collect.m_measurements.push_back(collect.m_trash.back().get());
     }
@@ -302,7 +302,7 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     int charge(0);
     if( track->perigeeParameters() ) charge  = (int)track->perigeeParameters()->charge(); 
     std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot (m_CCOTBuilder->buildClusterOnTrack(eg,charge));
-    if (ccot.get()!=nullptr){
+    if (ccot!=nullptr){
       collect.m_trash.push_back(std::move(ccot));
       collect.m_measurements.push_back(collect.m_trash.back().get());
     }
@@ -347,7 +347,7 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Ev
   beamSpotCov.setZero();
   beamSpotCov(0,0) = beamSigmaX * beamSigmaX;
   beamSpotCov(1,1) = beamSigmaY * beamSigmaY; 
-  Amg::Vector3D globPos(BSC);
+  const Amg::Vector3D& globPos(BSC);
   surface = new Trk::PerigeeSurface(globPos);
   
   // create a measurement for the beamspot

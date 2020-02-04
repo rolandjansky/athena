@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -103,28 +103,28 @@ namespace Trk {
       
       /** Constructor for a full equipped Tracking Volume 
       - explicitely  ======> 1 a) static confinement */
-      TrackingVolume(Amg::Transform3D* htrans,
-                     VolumeBounds* volbounds,
-                     const LayerArray* subLayers=0,
-                     const TrackingVolumeArray* subVolumes=0,
-                     const std::string& volumeName="undefined");
+      TrackingVolume (Amg::Transform3D* htrans,
+                      VolumeBounds* volbounds,
+                      const LayerArray* subLayers=nullptr,
+                      const TrackingVolumeArray* subVolumes=nullptr,
+                      const std::string& volumeName="undefined");
       
       /** Constructor for a full equipped Tracking Volume
          - full by inheritance  ======> 2 a) static confinement */
-      TrackingVolume(const Volume& volume,
-                     const Material& matprop,
-                     const LayerArray* subLayers=0,
-                     const TrackingVolumeArray* subVolumes=0,
-                     const std::string& volumeName="undefined");
+      TrackingVolume (const Volume& volume,
+                      const Material& matprop,
+                      const LayerArray* subLayers=nullptr,
+                      const TrackingVolumeArray* subVolumes=nullptr,
+                      const std::string& volumeName="undefined");
                      
       /** Constructor for a full equipped Tracking Volume
         - mixed  ======> 3 a) static confinement */
-      TrackingVolume(Amg::Transform3D* htrans,
-                     VolumeBounds*   volbounds,
-                     const Material& matprop,
-                     const LayerArray* subLayers=0,
-                     const TrackingVolumeArray* subVolumes=0,
-                     const std::string& volumeName="undefined");
+      TrackingVolume (Amg::Transform3D* htrans,
+                      VolumeBounds*   volbounds,
+                      const Material& matprop,
+                      const LayerArray* subLayers=nullptr,
+                      const TrackingVolumeArray* subVolumes=nullptr,
+                      const std::string& volumeName="undefined");
 
 
       /** Constructor for a full equipped Tracking Volume with detached subvolumes
@@ -193,7 +193,7 @@ namespace Trk {
       TrackingVolume(const TrackingVolume& trVol, Amg::Transform3D& transform);
       
       /** Destructor */
-      ~TrackingVolume();
+      ~TrackingVolume() override;
       
       /** Return the associated Layer */
       const Layer*   associatedLayer(const Amg::Vector3D& gp) const;
@@ -227,7 +227,7 @@ namespace Trk {
             - does not step down to eventually confined TrackingVolumes
             - navigates to the next trackign volume IF PropDirection == mappingMode
         */
-      const LayerIntersection<Amg::Vector3D>
+      LayerIntersection<Amg::Vector3D>
                             closestMaterialLayer(const Amg::Vector3D& gp, 
                                                  const Amg::Vector3D& dir, 
                                                  PropDirection pDir = alongMomentum,
@@ -296,17 +296,15 @@ namespace Trk {
            - positiveFaceXY
       */
 
-      void registerOutsideGlueVolumes(GlueVolumesDescriptor* gvd) const;            
-      /** Register the outside glue volumes -
-          ordering is in the TrackingVolume Frame:
-           - negativeFaceXY
-           - (faces YZ, ZY, radial faces)
-           - positiveFaceXY
-      */      
-      const GlueVolumesDescriptor& glueVolumesDescriptor() const;
+      void registerOutsideGlueVolumes (GlueVolumesDescriptor* gvd);            
+      void registerOutsideGlueVolumes ATLAS_NOT_THREAD_SAFE (GlueVolumesDescriptor* gvd) const;            
+      
+      const GlueVolumesDescriptor& glueVolumesDescriptor();
+      const GlueVolumesDescriptor& glueVolumesDescriptor ATLAS_NOT_THREAD_SAFE() const;
 
       /** the sensitive area */
-      void registerSensitiveVolume(const AbstractVolume* svol) const;
+      void registerSensitiveVolume(const AbstractVolume* svol);
+      void registerSensitiveVolume ATLAS_NOT_THREAD_SAFE (const AbstractVolume* svol) const;
       
       /** return the sensitive volume */
       const AbstractVolume* sensitiveVolume() const;
@@ -315,7 +313,7 @@ namespace Trk {
       const AbstractVolume* checkoutSensitiveVolume() const;
 
       /** sign the volume - the geometry builder has to do that */
-      void sign(GeometrySignature signat, GeometryType gtype = Static) const;
+      void sign ATLAS_NOT_THREAD_SAFE(GeometrySignature signat, GeometryType gtype = Static) const;
 
       /** return the Signature */
       GeometrySignature geometrySignature() const;
@@ -324,13 +322,15 @@ namespace Trk {
       GeometryType geometryType() const;
                         
       /** Register the color code */
-      void registerColorCode(unsigned int icolor) const;
+      void registerColorCode(unsigned int icolor);
+      void registerColorCode ATLAS_NOT_THREAD_SAFE (unsigned int icolor) const;
 
       /** Get the color code */
       unsigned int colorCode() const; 
 
       /** force a navigation check */
-      void forceNavigationCheck() const;
+      void forceNavigationCheck();
+      void forceNavigationCheck ATLAS_NOT_THREAD_SAFE() const;
       
       /** Boolean, if true navigation needs to be redone when hitting this volume */
       bool redoNavigation() const; 
@@ -339,37 +339,37 @@ namespace Trk {
       const TrackingVolume* getMotherVolume() const;
 
       /** Return the MotherVolume - if it exists */
-      void setMotherVolume(const TrackingVolume* mvol) const;
+      void setMotherVolume(const TrackingVolume* mvol);
+      void setMotherVolume ATLAS_NOT_THREAD_SAFE (const TrackingVolume* mvol) const;
 
       /** move Volume */
-      void moveVolume( Amg::Transform3D& shift ) const;
+      void moveVolume ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const;
 
       /** add Material */
       void addMaterial( const Material& mat, float fact=1. );
-      void addMaterial ATLAS_NOT_CONST_THREAD_SAFE (const Material& mat, float fact=1.) const ;
+      void addMaterial ATLAS_NOT_THREAD_SAFE (const Material& mat, float fact=1.) const ;
 
-
+      virtual bool isAlignable () const;
       /** remove content */
       void clear();
 
-      /** dump to screen */
       void screenDump(MsgStream& msg) const;
 
     protected:
 
       /** clone at new position */
-      const TrackingVolume* cloneTV(Amg::Transform3D& transform) const;
+      const TrackingVolume* cloneTV ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const;
             
     private:          
       /** reIndex the static layers of the TrackingVolume */
-      void indexContainedStaticLayers(GeometrySignature geoSig, int& offset) const;
+      void indexContainedStaticLayers ATLAS_NOT_THREAD_SAFE(GeometrySignature geoSig, int& offset) const;
 
       /** reIndex the material layers of the TrackingVolume */
-      void indexContainedMaterialLayers(GeometrySignature geoSig, int& offset) const;
+      void indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE (GeometrySignature geoSig, int& offset) const;
       
       /** propagate material properties to subvolumes */
-      void propagateMaterialProperties(const Material& mprop);
-      void propagateMaterialProperties ATLAS_NOT_CONST_THREAD_SAFE (const Material& mprop) const;
+      void propagateMaterialProperties ATLAS_NOT_THREAD_SAFE (const Material& mprop);
+      void propagateMaterialProperties ATLAS_NOT_THREAD_SAFE (const Material& mprop) const;
       
       /** Create Boundary Surface */
       void createBoundarySurfaces();
@@ -380,7 +380,7 @@ namespace Trk {
       /** compactify the memory usage in the event by setting ownership to TackingGeometry 
         the referenced types are the number of registered surfaces & total surfaces
       */
-      void compactify(size_t& rSurfaces, size_t& tSurfaces) const;
+      void compactify ATLAS_NOT_THREAD_SAFE (size_t& rSurfaces, size_t& tSurfaces) const;
 
       /** method to synchronize the layers with potentially updated volume bounds:
           - adapts the layer dimensions to the new volumebounds + envelope
@@ -389,7 +389,7 @@ namespace Trk {
       void synchronizeLayers(MsgStream& msgstream, double envelope = 1.) const;
 
       /** Register Next - Previous for Layers, set volumelink */
-      void interlinkLayers();
+      void interlinkLayers ATLAS_NOT_THREAD_SAFE();
 
       /** Helper method - find closest of two layers */
       const Layer* closest(const Amg::Vector3D& pos,
@@ -399,7 +399,7 @@ namespace Trk {
                                 
       
       /** move the Tracking Volume*/
-      void moveTV(Amg::Transform3D& transform) const;
+      void moveTV ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const;
            
       /** Forbidden copy constructor */   
       TrackingVolume(const TrackingVolume&): Volume(), Material() {} 
@@ -407,11 +407,11 @@ namespace Trk {
       /** Forbid assignment. */
       TrackingVolume &operator=(const TrackingVolume&) { return *this; }
        
-      mutable const TrackingVolume*        m_motherVolume;  //!< mother volume of this volume
+      const TrackingVolume*        m_motherVolume;  //!< mother volume of this volume
 
       std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >* m_boundarySurfaces;  //!< boundary Surfaces
       //(a)
-      mutable const LayerArray*                                             m_confinedLayers;   //!< Array of Layers inside the Volume
+      const LayerArray*                                                     m_confinedLayers;   //!< Array of Layers inside the Volume
       const TrackingVolumeArray*                                            m_confinedVolumes;  //!< Array of Volumes inside the Volume
       //(b)                                                                 
       const std::vector<const DetachedTrackingVolume*>*                     m_confinedDetachedVolumes; //!< Detached subvolumes
@@ -420,28 +420,21 @@ namespace Trk {
       //(b)                                                                      
       const std::vector<const Layer*>*                                      m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
                                                                             
-      mutable GlueVolumesDescriptor*                                        m_outsideGlueVolumes;      //!< Volumes to glue Volumes from the outside
+      GlueVolumesDescriptor*                                                m_outsideGlueVolumes;      //!< Volumes to glue Volumes from the outside
                                                                             
-      mutable const AbstractVolume*                                         m_sensitiveVolume;         //!< Sensitive volume
+      const AbstractVolume*                                                 m_sensitiveVolume;         //!< Sensitive volume
                                                                             
       LayerAttemptsCalculator*                                              m_layerAttemptsCalculator; //!< provided the number of layer attempts
                                                                             
-      mutable GeometrySignature            m_geometrySignature;             //!< The Signature done by the GeometryBuilder 
-      mutable GeometryType                 m_geometryType;                  //!< defines how the Extrapolator propagates through this
+      GeometrySignature            m_geometrySignature;             //!< The Signature done by the GeometryBuilder 
+      GeometryType                 m_geometryType;                  //!< defines how the Extrapolator propagates through this
                                                                             
-      std::string                          m_name;                          //!< Volume name for debug reasons
-      mutable unsigned int                 m_colorCode;                     //!< Color code for displaying 
-      mutable bool                         m_redoNavigation;                //!< Navigation boolean. If true navigation needs to be redone when entering this volume
+      std::string                  m_name;                          //!< Volume name for debug reasons
+      unsigned int                 m_colorCode;                     //!< Color code for displaying 
+      bool                         m_redoNavigation;                //!< Navigation boolean. If true navigation needs to be redone when entering this volume
 
     public:
-      /// Log a message using the Athena controlled logging system
-      MsgStream& msg( MSG::Level lvl ) const { return m_msg.get() << lvl ; }
-      /// Check whether the logging system is active at the provided verbosity level
-      bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
       
-    private:
-      /// Private message stream member
-      mutable Athena::MsgStreamMember m_msg;
 
   };
 
@@ -474,16 +467,17 @@ namespace Trk {
   inline const  std::vector<const TrackingVolume*>*  TrackingVolume::confinedDenseVolumes() const 
   { return m_confinedDenseVolumes; }
 
-  inline void TrackingVolume::registerSensitiveVolume(const AbstractVolume* svol) const
+  inline void TrackingVolume::registerSensitiveVolume(const AbstractVolume* svol)
   { m_sensitiveVolume = svol; }
+  inline void TrackingVolume::registerSensitiveVolume ATLAS_NOT_THREAD_SAFE (const AbstractVolume* svol) const{
+    const_cast<TrackingVolume&>(*this).registerSensitiveVolume(svol);
+  }
 
   inline const AbstractVolume* TrackingVolume::sensitiveVolume() const
   { return m_sensitiveVolume; }
-   
-  inline const AbstractVolume* TrackingVolume::checkoutSensitiveVolume() const
-  {
+
+  inline const AbstractVolume* TrackingVolume::checkoutSensitiveVolume() const{
       const AbstractVolume* returnVolume = m_sensitiveVolume;
-      m_sensitiveVolume = 0;
       return returnVolume; 
   }
     
@@ -530,7 +524,7 @@ namespace Trk {
       if (m_confinedLayers){
           // cache the longest path length to avoid punch-through to the other side
           Trk::Intersection     sLayerIntersection(Amg::Vector3D(0.,0.,0),0.,true,0.);
-          const Trk::Surface*   sLayerSurface  = 0;
+          const Trk::Surface*   sLayerSurface  = nullptr;
           double validPathLength = 0.;
           // start layer given or not - test layer
           const Trk::Layer* tLayer = sLayer ? sLayer : associatedLayer(gp);
@@ -558,7 +552,7 @@ namespace Trk {
                       }
                   } 
                   // move to next one or break because you reached the end layer
-                  tLayer = (tLayer == eLayer ) ? 0 :  tLayer->nextLayer(gp,dir);
+                  tLayer = (tLayer == eLayer ) ? nullptr :  tLayer->nextLayer(gp,dir);
               } while (tLayer);
           }
           
@@ -618,14 +612,19 @@ namespace Trk {
   inline GeometryType TrackingVolume::geometryType() const
   { return m_geometryType; }      
     
-  inline void TrackingVolume::registerColorCode(unsigned int icolor) const
+  inline void TrackingVolume::registerColorCode(unsigned int icolor)
   { m_colorCode = icolor; }
+  inline void TrackingVolume::registerColorCode(unsigned int icolor) const
+  { const_cast<TrackingVolume&> (*this).registerColorCode(icolor);}
+
 
   inline unsigned int TrackingVolume::colorCode() const
   { return m_colorCode; }
 
-  inline void TrackingVolume::forceNavigationCheck() const
+  inline void TrackingVolume::forceNavigationCheck()
   { m_redoNavigation = true; }
+  inline void TrackingVolume::forceNavigationCheck ATLAS_NOT_THREAD_SAFE() const
+  { const_cast<TrackingVolume&>(*this).forceNavigationCheck(); }
       
   inline bool TrackingVolume::redoNavigation() const
   { return m_redoNavigation; }
@@ -633,17 +632,16 @@ namespace Trk {
   inline const TrackingVolume* TrackingVolume::getMotherVolume() const
   { return m_motherVolume; }
 
-  inline void TrackingVolume::setMotherVolume(const TrackingVolume* mvol) const
+  inline void TrackingVolume::setMotherVolume(const TrackingVolume* mvol) 
   { m_motherVolume = mvol; }
+  inline void TrackingVolume::setMotherVolume ATLAS_NOT_THREAD_SAFE (const TrackingVolume* mvol) const
+  { const_cast<TrackingVolume&>(*this).setMotherVolume(mvol); }
 
-  inline void TrackingVolume::addMaterial ATLAS_NOT_CONST_THREAD_SAFE(const Material &mat,
-                                                                     float fact) const{
-  const_cast<TrackingVolume*>(this)->addMaterial(mat,fact);
-  }
-
-  inline void TrackingVolume::propagateMaterialProperties ATLAS_NOT_CONST_THREAD_SAFE (const Material &mprop) const {
+  inline void TrackingVolume::propagateMaterialProperties ATLAS_NOT_THREAD_SAFE(const Material& mprop) const {
     const_cast<TrackingVolume *>(this)->propagateMaterialProperties(mprop);
   }
+
+ inline bool TrackingVolume::isAlignable () const{return false;}
 } // end of namespace
 
 #endif // TRKGEOMETRY_TRACKINGVOLUME_H

@@ -54,6 +54,11 @@ class Test( unittest.TestCase ):
       true = '{"alias": "varY_vs_varX", "allvars": ["varX", "varY"], "convention": "", "opt": "", "path": "", "title": "varX,varY", "treeDef": "", "type": "TH2F", "weight": "", "cutMask": "", "xarray": [], "xbins": 10, "xlabels": [], "xmax": 10.0, "xmin": 0.0, "xvar": "varX", "yarray": [], "ybins": 40, "ylabels": [], "ymax": 20.0, "ymin": 0.0, "yvar": "varY", "zbins": 0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": ""}'
       self.assertEqual(json.loads(check), json.loads(true))
 
+   def test_2D_space( self ):
+      check = defineHistogram(' varX , varY ', type='TH2F', xbins=10, xmin=0.0, xmax=10.0, ybins=40, ymin=0.0, ymax=20.0)
+      true = '{"alias": "varY_vs_varX", "allvars": ["varX", "varY"], "convention": "", "opt": "", "path": "", "title": " varX , varY ", "treeDef": "", "type": "TH2F", "weight": "", "cutMask": "", "xarray": [], "xbins": 10, "xlabels": [], "xmax": 10.0, "xmin": 0.0, "xvar": "varX", "yarray": [], "ybins": 40, "ylabels": [], "ymax": 20.0, "ymin": 0.0, "yvar": "varY", "zbins": 0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": ""}'
+      self.assertEqual(json.loads(check), json.loads(true))
+
    def test_2D_array( self ):
       check = defineHistogram('varX,varY', 'TH2F', xbins=[0,1,2], ybins=[1,2,3,7])
       true = '{"alias": "varY_vs_varX", "allvars": ["varX", "varY"], "convention": "", "opt": "", "path": "", "title": "varX,varY", "treeDef": "", "type": "TH2F", "weight": "", "cutMask": "", "xarray": [0, 1, 2], "xbins": 2, "xlabels": [], "xmax": 1, "xmin": 0, "xvar": "varX", "yarray": [1, 2, 3, 7], "ybins": 3, "ylabels": [], "ymax": 0.0, "ymin": 0.0, "yvar": "varY", "zbins": 0, "zlabels": [], "zmax": 0.0, "zmin": 0.0, "zvar": ""}'

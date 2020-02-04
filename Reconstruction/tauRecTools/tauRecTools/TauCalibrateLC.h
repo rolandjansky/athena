@@ -34,7 +34,6 @@ public:
 
 
 private:
-    std::string m_configPath;
     std::string m_calibrationFile; //!< energy calibration file
 
     static const int s_nProngBins = 2;

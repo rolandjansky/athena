@@ -2,9 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AsgTools/AsgToolsConf.h"
 #include <iostream>
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 
 #include "vector"
 

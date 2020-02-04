@@ -18,7 +18,7 @@
 #include <exception>
 #include "TrigDecisionTool/ExpertMethods.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigNavigation/AccessProxy.h"
 #endif
@@ -76,7 +76,7 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
 {
   if (!(checkExperimentalAndExpertMethods())) return 0;
@@ -104,7 +104,7 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
 
 
 bool Trig::ExpertMethods::isHLTTruncated() const {
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     const HLT::HLTResult* res(0);
     const xAOD::TrigDecision* trigDec(0);
     auto navigation = getNavigation();

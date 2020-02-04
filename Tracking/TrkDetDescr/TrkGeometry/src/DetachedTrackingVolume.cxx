@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,6 +7,8 @@
 ///////////////////////////////////////////////////////////////////
 
 // Trk
+#include <utility>
+
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
@@ -14,21 +16,21 @@
 Trk::DetachedTrackingVolume::DetachedTrackingVolume() :
   m_trkVolume(),
   m_name("undefined"),
-  m_layerRepresentation(0),
-  m_multilayerRepresentation(0),
-  m_baseTransform(0),
-  m_constituents(0)
+  m_layerRepresentation(nullptr),
+  m_multilayerRepresentation(nullptr),
+  m_baseTransform(nullptr),
+  m_constituents(nullptr)
 {}
 
 Trk::DetachedTrackingVolume::DetachedTrackingVolume(std::string name,
                                     const Trk::TrackingVolume* volume
                                     ) :
   m_trkVolume(volume),
-  m_name(name),
-  m_layerRepresentation(0),
-  m_multilayerRepresentation(0),
-  m_baseTransform(0),
-  m_constituents(0)
+  m_name(std::move(name)),
+  m_layerRepresentation(nullptr),
+  m_multilayerRepresentation(nullptr),
+  m_baseTransform(nullptr),
+  m_constituents(nullptr)
 {}   
 
 Trk::DetachedTrackingVolume::DetachedTrackingVolume(std::string name,
@@ -37,11 +39,11 @@ Trk::DetachedTrackingVolume::DetachedTrackingVolume(std::string name,
                                                     const std::vector<const Trk::Layer*>* multilay  
                                     ) :
   m_trkVolume(volume),
-  m_name(name),
+  m_name(std::move(name)),
   m_layerRepresentation(lay),
   m_multilayerRepresentation(multilay),
-  m_baseTransform(0),
-  m_constituents(0)
+  m_baseTransform(nullptr),
+  m_constituents(nullptr)
 {}   
   
 Trk::DetachedTrackingVolume::~DetachedTrackingVolume()
@@ -55,21 +57,21 @@ Trk::DetachedTrackingVolume::~DetachedTrackingVolume()
   delete m_baseTransform;
 }
 
-void Trk::DetachedTrackingVolume::move( Amg::Transform3D& shift) const 
+void Trk::DetachedTrackingVolume::move ATLAS_NOT_THREAD_SAFE( Amg::Transform3D& shift) const 
 {
   m_trkVolume->moveTV( shift );
   if (m_layerRepresentation) m_layerRepresentation->moveLayer(shift);
   if (m_multilayerRepresentation) for (unsigned int i=0;i<m_multilayerRepresentation->size();i++) (*m_multilayerRepresentation)[i]->moveLayer(shift);
 }
 
-const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone( std::string name, Amg::Transform3D& shift) const
+const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone ATLAS_NOT_THREAD_SAFE( const std::string& name, Amg::Transform3D& shift) const
 {
-    const Trk::TrackingVolume* newTV = new TrackingVolume(*(this->trackingVolume()),shift );
-    const Trk::DetachedTrackingVolume* newStat = 0;
+    Trk::TrackingVolume* newTV = new TrackingVolume(*(this->trackingVolume()),shift );
+    Trk::DetachedTrackingVolume* newStat = nullptr;
     // layer representation ?
-    const Trk::PlaneLayer* newLay=0;
+    const Trk::PlaneLayer* newLay=nullptr;
     if (this->layerRepresentation()) {
-        std::vector<const Trk::Layer*>* newMulti = 0;
+        std::vector<const Trk::Layer*>* newMulti = nullptr;
         const Trk::PlaneLayer* pl = dynamic_cast<const Trk::PlaneLayer*> (this->layerRepresentation());
         if (pl) {
             newLay = new Trk::PlaneLayer(*pl);
@@ -103,7 +105,7 @@ const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone( std::stri
             const Trk::LayerArray* layAr = vols[ivol]->confinedLayers();
             const std::vector<const Trk::Layer*>* alays = vols[ivol]->confinedArbitraryLayers();
             if (layAr) {
-                const std::vector<const Trk::Layer*> lays = layAr->arrayObjects();
+                const std::vector<const Trk::Layer*>& lays = layAr->arrayObjects();
                 for ( unsigned int il=0; il<lays.size(); il++)
                     lays[il]->encloseDetachedTrackingVolume(*newStat);
             }
@@ -128,7 +130,7 @@ const Trk::DetachedTrackingVolume* Trk::DetachedTrackingVolume::clone( std::stri
     return newStat;
 }
 
-void Trk::DetachedTrackingVolume::compactify(size_t& cSurfaces, size_t& tSurfaces) const
+void Trk::DetachedTrackingVolume::compactify ATLAS_NOT_THREAD_SAFE(size_t& cSurfaces, size_t& tSurfaces) const
 {
  
     // deal with the Tracking Volume representation
@@ -157,7 +159,7 @@ void Trk::DetachedTrackingVolume::compactify(size_t& cSurfaces, size_t& tSurface
 }
 
 
-void Trk::DetachedTrackingVolume::sign(GeometrySignature signat, GeometryType geotype) const 
+void Trk::DetachedTrackingVolume::sign ATLAS_NOT_THREAD_SAFE (GeometrySignature signat, GeometryType geotype) const 
 { m_trkVolume->sign(signat, geotype); }
 
 Trk::GeometrySignature Trk::DetachedTrackingVolume::geometrySignature() const 
@@ -175,7 +177,7 @@ void Trk::DetachedTrackingVolume::setBaseTransform( Amg::Transform3D* transf )
   }
 }
 
-void Trk::DetachedTrackingVolume::realign( Amg::Transform3D* transf ) const 
+void Trk::DetachedTrackingVolume::realign ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D* transf ) const 
 {
   if ( transf ) {
     Amg::Transform3D shift = (*transf)*this->trackingVolume()->transform().inverse();

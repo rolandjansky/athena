@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 //////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ class IntersectorWrapper: public AthAlgTool,
     virtual  NeutralParameters* propagate(const NeutralParameters&,
                                        const Surface&,
                                        PropDirection,
-                                       BoundaryCheck,
+                                       const BoundaryCheck& ,
                                        bool) const override;
 
     /** [TrackParameters] --------------------------------------------------------- */
@@ -60,7 +60,7 @@ class IntersectorWrapper: public AthAlgTool,
     virtual  TrackParameters*      propagate( const TrackParameters& parm,
                                               const Surface& sf,
                                               PropDirection dir,
-                                              BoundaryCheck bcheck,
+                                              const BoundaryCheck&  bcheck,
                                               const MagneticFieldProperties& mprop,
                                               ParticleHypothesis particle,
                                               bool returnCurv,
@@ -81,7 +81,7 @@ class IntersectorWrapper: public AthAlgTool,
                                       double&,
                                       bool,
                                       bool,
-                                      const TrackingVolume*) const override{ return 0; }
+                                      const TrackingVolume*) const override{ return nullptr; }
 
     /** Propagation interface:
 
@@ -97,7 +97,7 @@ class IntersectorWrapper: public AthAlgTool,
                                        PathLimit&, TimeLimit&,
                                        bool,
                                        const TrackingVolume*,
-                                       std::vector<Trk::HitInfo>*&) const override{ return 0; }
+                                       std::vector<Trk::HitInfo>*&) const override{ return nullptr; }
 
 
     /** Propagation interface:
@@ -109,7 +109,7 @@ class IntersectorWrapper: public AthAlgTool,
     virtual  TrackParameters*      propagate( const TrackParameters&,
                                            const Surface&,
                                            PropDirection,
-                                           BoundaryCheck,
+                                           const BoundaryCheck& ,
                                            const MagneticFieldProperties&,
                                            TransportJacobian*&,
                                            double&,
@@ -125,22 +125,22 @@ class IntersectorWrapper: public AthAlgTool,
     virtual  TrackParameters*      propagateParameters( const TrackParameters& parm,
                                                      const Surface& sf,
                                                      PropDirection dir,
-                                                     BoundaryCheck bcheck,
+                                                     const BoundaryCheck&  bcheck,
                                                      const MagneticFieldProperties& mprop,
                                                      ParticleHypothesis particle=pion,
                                                      bool returnCurv = false,
-                                                     const TrackingVolume* tVol=0) const override;
+                                                     const TrackingVolume* tVol=nullptr) const override;
 
     /// implemented
     virtual  TrackParameters*      propagateParameters( const TrackParameters& parm,
                                                      const Surface& sf,
                                                      PropDirection dir,
-                                                     BoundaryCheck bcheck,
+                                                     const BoundaryCheck&  bcheck,
                                                      const MagneticFieldProperties& mprop,
                                                      TransportJacobian*&,
                                                      ParticleHypothesis particle=pion,
                                                      bool returnCurv = false,
-                                                     const TrackingVolume* tVol=0) const override;
+                                                     const TrackingVolume* tVol=nullptr) const override;
 
 
     /** Intersection interface:
@@ -148,11 +148,11 @@ class IntersectorWrapper: public AthAlgTool,
       The intersection interface might be used by the material service as well to estimate
       the surfaces (sensitive and nonesensitive) while propagation
       */
-    virtual const IntersectionSolution* intersect( const TrackParameters& parm,
-                                           const Surface& sf,
-                                           const MagneticFieldProperties& mprop,
-                                           ParticleHypothesis particle=pion,
-                                           const TrackingVolume* tVol=0) const override;
+    virtual IntersectionSolution* intersect( const TrackParameters& parm,
+                                             const Surface& sf,
+                                             const MagneticFieldProperties& mprop,
+                                             ParticleHypothesis particle=pion,
+                                             const TrackingVolume* tVol=nullptr) const override;
 
     /** GlobalPositions list interface:
       This is used mostly in pattern recognition in the road finder, the propagation direction is intrinsically given
@@ -168,14 +168,14 @@ class IntersectorWrapper: public AthAlgTool,
                          const CylinderBounds& cylbo,
                          double stepSize,
                          ParticleHypothesis particle=pion,
-                         const TrackingVolume* tVol=0) const override;
+                         const TrackingVolume* tVol=nullptr) const override;
 
     //placeholder for compatibility with new interface                                                                                                                        
-    virtual const TrackSurfaceIntersection* intersectSurface(const Surface&,
-                                                     const TrackSurfaceIntersection*,
-                                                     const double,
-                                                     const MagneticFieldProperties&,
-                                                     ParticleHypothesis) const override{return 0;}
+    virtual TrackSurfaceIntersection* intersectSurface(const Surface&,
+                                                       const TrackSurfaceIntersection*,
+                                                       const double,
+                                                       const MagneticFieldProperties&,
+                                                       ParticleHypothesis) const override{return nullptr;}
 
     /** Validation Action:
       Can be implemented optionally, outside access to internal validation steps */
@@ -205,7 +205,7 @@ class IntersectorWrapper: public AthAlgTool,
     void			
       createParameters (Cache& cache, 
                         const Surface&	surface,
-                        BoundaryCheck		boundsCheck,
+                        const BoundaryCheck& 		boundsCheck,
                         bool			curvilinear) const;
     void			
       findIntersection (Cache& cache, 

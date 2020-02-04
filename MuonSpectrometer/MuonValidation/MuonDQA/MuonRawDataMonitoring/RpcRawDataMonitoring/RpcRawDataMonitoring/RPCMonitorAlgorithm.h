@@ -13,7 +13,7 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonRDO/RpcPadContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 class RPCMonitorAlgorithm : public AthMonitorAlgorithm
 {

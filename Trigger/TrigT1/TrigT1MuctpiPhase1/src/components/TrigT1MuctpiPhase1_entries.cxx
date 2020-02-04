@@ -1,0 +1,5 @@
+#include "../../TrigT1MuctpiPhase1/MUCTPI_AthAlg.h"
+#include "../../TrigT1MuctpiPhase1/MUCTPI_AthTool.h"
+
+DECLARE_COMPONENT( LVL1MUCTPIPHASE1::MUCTPI_AthAlg )
+DECLARE_COMPONENT( LVL1MUCTPIPHASE1::MUCTPI_AthTool )

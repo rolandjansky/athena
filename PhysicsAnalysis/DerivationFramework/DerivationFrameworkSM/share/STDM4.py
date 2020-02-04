@@ -59,7 +59,7 @@ thinningTools.append(STDM4JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 STDM4MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "STDM4MuonTPThinningTool",
-                                                                         ThinningService         = STDM4ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM4MuonTPThinningTool
@@ -68,7 +68,7 @@ thinningTools.append(STDM4MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(      name                    = "STDM4ElectronTPThinningTool",
-                                                                                     ThinningService         = STDM4ThinningHelper.ThinningSvc(),
+                                                                                     StreamName              = streamName,
                                                                                      SGKey                   = "Electrons",
                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM4ElectronTPThinningTool
@@ -77,7 +77,7 @@ thinningTools.append(STDM4ElectronTPThinningTool)
 # Tracks associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 STDM4TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                 = "STDM4TauTPThinningTool",
-                                                                        ThinningService         = STDM4ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey                  = "TauJets",
                                                                         SelectionString         = "TauJets.pt > 15*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")

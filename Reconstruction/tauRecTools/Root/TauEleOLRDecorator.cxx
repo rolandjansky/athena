@@ -36,21 +36,9 @@ StatusCode TauEleOLRDecorator::initialize()
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150712/";
   m_tEMLHTool = std::make_unique<AsgElectronLikelihoodTool>(name()+"_ELHTool");
   m_tEMLHTool->msg().setLevel( msg().level() );
-  if (m_tEMLHTool->setProperty("primaryVertexContainer","PrimaryVertices").isFailure())
-    {
-      ATH_MSG_FATAL("SelectionCutEleOLR constructor failed setting property primaryVertexContainer");
-      return StatusCode::FAILURE;
-    }
-  if (m_tEMLHTool->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2015.conf").isFailure())
-    {
-      ATH_MSG_FATAL("SelectionCutEleOLR constructor failed setting property ConfigFile");
-      return StatusCode::FAILURE;
-    }
-  if (m_tEMLHTool->initialize().isFailure())
-    {
-      ATH_MSG_FATAL("SelectionCutEleOLR constructor failed initializing AsgElectronLikelihoodTool");
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK (m_tEMLHTool->setProperty("primaryVertexContainer","PrimaryVertices"));
+  ATH_CHECK (m_tEMLHTool->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2015.conf"));
+  ATH_CHECK (m_tEMLHTool->initialize());
 
   m_sEleOLRFilePath = find_file(m_sEleOLRFilePath);
   TFile tmpFile(m_sEleOLRFilePath.c_str());
@@ -158,7 +146,6 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
 
 StatusCode TauEleOLRDecorator::finalize()
 {
-  
   return StatusCode::SUCCESS;
 }
 
@@ -169,4 +156,3 @@ float TauEleOLRDecorator::getCutVal(float fEta, float fPt)
   int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
   return m_hCutValues->GetBinContent(iBin);
 }
-

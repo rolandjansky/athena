@@ -49,7 +49,7 @@ EXOT10TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT10
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT10MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EXOT10MuonTPThinningTool",
-		                                                                   ThinningService         = EXOT10ThinningHelper.ThinningSvc(),
+                                                                                   StreamName              = streamName,
 		                                                                   MuonKey                 = "Muons",
 		                                                                   InDetTrackParticlesKey  = "InDetTrackParticles"
 		                                                                   )
@@ -58,7 +58,7 @@ EXOT10MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT10ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EXOT10ElectronTPThinningTool",
-                                                                                 ThinningService         = EXOT10ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey             	 = "Electrons",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                  #SelectionString         = "Electrons.pt > 30*GeV",
@@ -67,7 +67,7 @@ EXOT10ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
 
 # Tracks associated with Photons
 EXOT10PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EXOT10PhotonTPThinningTool",
-                                                                               ThinningService         = EXOT10ThinningHelper.ThinningSvc(),
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Photons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                #SelectionString         = "Photons.pt > 30*GeV",
