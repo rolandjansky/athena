@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl NonBlockingStreamReader
 # Read an output stream without blocking
@@ -8,14 +8,14 @@
 
 #! /usr/bin/env python
 import threading
-import Queue
+import queue
 
 class NonBlockingStreamReader(object) :
 
   ## Set up input stream, output queue and process to transfer between them
   def __init__(self, input_stream):
     self._stream = input_stream
-    self._queue = Queue.Queue()
+    self._queue = queue.Queue()
     self._running = True
 
     self._output_thread = threading.Thread( target=self.populate_queue, args=(self._stream, self._queue) )
@@ -34,7 +34,7 @@ class NonBlockingStreamReader(object) :
   def readline(self, timeout = None):
     try:
       return self._queue.get( block=(timeout is not None), timeout=timeout ).rstrip()
-    except Queue.Empty :
+    except queue.Empty :
       return None
 
 
