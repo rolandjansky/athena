@@ -59,7 +59,7 @@ ToolSvc += EXOT6TPThinningTool
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT6MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT6MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT6ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6MuonTPThinningTool
@@ -67,13 +67,13 @@ ToolSvc += EXOT6MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT6ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT6ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey             	= "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6ElectronTPThinningTool
 
 EXOT6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT6PhotonTPThinningTool",
-                                                                                        ThinningService         = "EXOT6ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey             	= "Photons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6PhotonTPThinningTool

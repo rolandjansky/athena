@@ -170,13 +170,23 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
       }
     }
 
-    if (ATH_UNLIKELY(fillerVariables.size() != variables.size()
-	                  || (fillerWeight != "" && !weight)
-	                  || (fillerCutMask != "" && !cutmask))) {
-      ATH_MSG_DEBUG("Filler has different variables than monitoredVariables");
-      ATH_MSG_DEBUG("Filler variables            : " << fillerVariables);
-      ATH_MSG_DEBUG("Asked to fill from mon. vars: " << monitoredVariables);
-      ATH_MSG_DEBUG("Selected monitored variables: " << variables);
+    if (ATH_UNLIKELY(fillerVariables.size() != variables.size())) {
+      ATH_MSG_WARNING("Filler has different variables than monitoredVariables:"
+                      << "\n  Filler variables            : " << fillerVariables
+                      << "\n  Asked to fill from mon. vars: " << monitoredVariables
+                      << "\n  Selected monitored variables: " << variables);
+      continue;
+    }
+    if (ATH_UNLIKELY(!fillerWeight.empty() && !weight)) {
+      ATH_MSG_WARNING("Filler weight not found in monitoredVariables:"
+                      << "\n  Filler weight               : " << fillerWeight
+                      << "\n  Asked to fill from mon. vars: " << monitoredVariables);
+      continue;
+    }
+    if (ATH_UNLIKELY(!fillerCutMask.empty() && !cutmask)) {
+      ATH_MSG_WARNING("Filler cut mask not found in monitoredVariables:"
+                      << "\n  Filler cut mask             : " << fillerCutMask
+                      << "\n  Asked to fill from mon. vars: " << monitoredVariables);
       continue;
     }
     HistogramFiller* fillerCopy(filler->clone());

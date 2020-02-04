@@ -15,6 +15,27 @@ RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
 #====================================================================
+# SET UP STREAM
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EGAM1Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM1Stream )
+EGAM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM1Stream.AcceptAlgs(["EGAM1Kernel"])
+
+
+#Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="EGAM1ThinningSvc", outStreams=[evtStream] )
+
+
+#====================================================================
 # SKIMMING TOOLS
 #====================================================================
 
@@ -195,7 +216,7 @@ print EGAM1JetLCTPThinningTool
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EGAM1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM1MuonTPThinningTool",
-                                                                          ThinningService         = "EGAM1ThinningSvc",
+                                                                          StreamName              = streamName,
                                                                           MuonKey                 = "Muons",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM1MuonTPThinningTool
@@ -205,7 +226,7 @@ print EGAM1MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EGAM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM1ElectronTPThinningTool",
-                                                                                ThinningService         = "EGAM1ThinningSvc",
+                                                                                Streamname              = streamName,
                                                                                 SGKey                   = "Electrons",
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM1ElectronTPThinningTool
@@ -215,7 +236,7 @@ print EGAM1ElectronTPThinningTool
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EGAM1PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM1PhotonTPThinningTool",
-                                                                              ThinningService         = "EGAM1ThinningSvc",
+                                                                              StreamName              = streamName,
                                                                               SGKey                   = "Photons",
                                                                               InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EGAM1PhotonTPThinningTool
@@ -225,7 +246,7 @@ print EGAM1PhotonTPThinningTool
 # Tracks associated with Taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 EGAM1TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "EGAM1TauTPThinningTool",
-                                                                        ThinningService         = "EGAM1ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         TauKey                  = "TauJets",
                                                                         ConeSize                = 0.6,
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -289,27 +310,6 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
 DerivationFrameworkJob += Config.GetDecoratePromptLeptonAlgs()
 
 #========================================================================
-
-
-#====================================================================
-# SET UP STREAM
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EGAM1Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM1Stream )
-EGAM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM1Stream.AcceptAlgs(["EGAM1Kernel"])
-
-
-#Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EGAM1ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================

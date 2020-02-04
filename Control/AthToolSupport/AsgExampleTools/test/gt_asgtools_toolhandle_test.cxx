@@ -11,7 +11,7 @@
 
 using namespace testing;
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
 struct ToolHandleTest : public Test
 {

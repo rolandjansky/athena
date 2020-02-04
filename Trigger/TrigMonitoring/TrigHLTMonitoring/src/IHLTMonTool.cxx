@@ -34,7 +34,9 @@
 using namespace std;
 
 IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, const IInterface* parent)
-  : ManagedMonitorToolBase(type, myname, parent), m_log(0), m_cafonly(0),
+  : ManagedMonitorToolBase(type, myname, parent), 
+    m_log(0), m_cafonly(0),
+    m_ignoringTruncationCheck(true),
     m_storeGate("StoreGateSvc",myname),
     m_inputMetaStore("StoreGateSvc/InputMetaDataStore",myname),
     m_configsvc("TrigConf::TrigConfigSvc/TrigConfigSvc",myname), //pickup previously configured configSvc from svcMgr (same as TDT)
@@ -65,6 +67,19 @@ StatusCode IHLTMonTool::initialize() {
 
   // After retrieve enable Expert methods
   getTDT()->ExperimentalAndExpertMethods()->enable();
+
+  /// only allow setting of truncation check if this is the legacy monitoring
+  if ( getTDT()->getNavigationFormat() == "TriggerElement") { 
+    m_ignoringTruncationCheck = m_ignoreTruncationCheck;
+  }
+  else { 
+    /// disable the truncation check unless this is the legacy monitoring
+    if ( !m_ignoreTruncationCheck ) { 
+      ATH_MSG_WARNING("Can only check HLT result truncation in legacy monitoring - disabling truncation check");
+    }
+    m_ignoringTruncationCheck = true;
+  }
+
 
   ATH_CHECK( m_storeGate.retrieve() );
   ATH_CHECK( m_inputMetaStore.retrieve() );
@@ -660,15 +675,17 @@ StatusCode IHLTMonTool::fillHistograms() {
   try {
     ATH_MSG_DEBUG("Running fill() for " << name());
    
-    // Do not require check on truncated HLTResult 
-    if(m_ignoreTruncationCheck)
+    // Require non-truncated HLTResult - only set for legacy monitoring
+    if(m_ignoringTruncationCheck) {
         sc=fill();
+    }
     else {
-    // Require non-truncated HLTResult
-        if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) 
-            ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
-        else 
-            sc= fill();
+      if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) {
+	ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
+      }
+      else { 
+	sc= fill();
+      }
     }
 
     if (sc.isFailure()) {
@@ -683,6 +700,7 @@ StatusCode IHLTMonTool::fillHistograms() {
   }
   return sc;
 }
+
 
 StatusCode IHLTMonTool::procHistograms() {
   StatusCode sc = StatusCode::SUCCESS;

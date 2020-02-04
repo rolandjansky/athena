@@ -11,7 +11,7 @@
 //
 
 #include <AsgTools/ToolHandle.h>
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <AsgTesting/UnitTest.h>
 #include <AsgExampleTools/UnitTestTool1.h>
 #include <AsgExampleTools/UnitTestTool2.h>
@@ -44,7 +44,7 @@ namespace asg
 
   TEST (ToolHandleTest, nonempty_tool)
   {
-#ifndef ASGTOOL_ATHENA
+#ifdef XAOD_STANDALONE
     // This never worked properly in Athena --- in that case the ToolHandle
     // ctor matches the signature:
     // ToolHandle( const IInterface* parent = nullptr, bool createIf = true )

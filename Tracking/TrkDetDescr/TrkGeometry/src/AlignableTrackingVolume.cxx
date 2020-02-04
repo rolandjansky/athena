@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 
 Trk::AlignableTrackingVolume::AlignableTrackingVolume() :
   Trk::TrackingVolume(),
-  m_alignedTV(0),
+  m_alignedTV(nullptr),
   m_sampleID(0),
-  m_alignment(0),
+  m_alignment(nullptr),
   m_binnedMaterial(nullptr)
 {}
 
@@ -25,8 +25,8 @@ ATLAS_NOT_THREAD_SAFE Trk::AlignableTrackingVolume::AlignableTrackingVolume(Amg:
                                                                             const Trk::BinnedMaterial* matprop,
                                                                             int sampleID,
                                                                             const std::string& volumeName):
-  Trk::TrackingVolume(htrans, volbounds,*matprop,0,0,volumeName),
-  m_alignedTV(0),
+  Trk::TrackingVolume(htrans, volbounds,*matprop,nullptr,nullptr,volumeName),
+  m_alignedTV(nullptr),
   m_sampleID(sampleID),
   m_alignment(align),
   m_binnedMaterial(matprop) 

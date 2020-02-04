@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKCaloCluster_OnTrack_H
@@ -41,7 +41,7 @@ namespace Trk {
       CaloCluster_OnTrack( const LocalParameters& locpars,
                            const Amg::MatrixX& locerr,
                            const Surface& surf,
-                           const EnergyLoss* eloss = 0);
+                           const EnergyLoss* eloss = nullptr);
     
       /** Destructor */
       virtual ~CaloCluster_OnTrack();

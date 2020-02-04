@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Example script used for building one of the projects from the atlasexternals
 # repository.
 #
@@ -84,12 +86,8 @@ cd ${BUILDDIR} || ((ERROR_COUNT++))
 # Extra settings for providing a project version for the build if necessary:
 EXTRACONF=
 if [ "$PROJECTVERSION" != "" ]; then
-    PNAME=$(echo ${PROJECT} | awk '{print toupper($0)}')
-    EXTRACONF=-D${PNAME}_PROJECT_VERSION:STRING=${PROJECTVERSION}
+    EXTRACONF=-DCMAKE_PROJECT_VERSION=${PROJECTVERSION}
 fi
-
-#FIXME: simplify error counting:
-
 
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp

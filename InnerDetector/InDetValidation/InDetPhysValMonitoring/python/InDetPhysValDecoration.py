@@ -93,9 +93,9 @@ def setMetaData() :
 
 
 from InDetRecExample.TrackingCommon import setDefaults
-from ConfigUtils import toolFactory
-from ConfigUtils import createExtendNameIfNotDefault
-from ConfigUtils import createPublicTool
+from .ConfigUtils import toolFactory
+from .ConfigUtils import createExtendNameIfNotDefault
+from .ConfigUtils import createPublicTool
 
 def getPhysValMonInDetHoleSearchTool(**kwargs) :
     from InDetRecExample.TrackingCommon import getInDetHoleSearchTool

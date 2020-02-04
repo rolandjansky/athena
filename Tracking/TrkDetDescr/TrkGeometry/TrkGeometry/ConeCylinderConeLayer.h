@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ namespace Trk {
 			  SurfaceArray* surfaceArray,
 			  const LayerMaterialProperties& laymatprop,
 			  double thickness = 0.,
-			  OverlapDescriptor* od = 0,
+			  OverlapDescriptor* od = nullptr,
 			  int laytyp=int(Trk::active));
 
     virtual const ConeCylinderConeLayer& layerRepresentation() const override {return (*this);}

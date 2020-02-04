@@ -25,12 +25,12 @@ namespace Muon {
   {
     declareProperty("Printer", m_printer );
     declareProperty("IdHelper", m_idHelper );
-    declareProperty("TrackSummeryTool", m_trackSummaryTool );
+    declareProperty("TrackSummaryTool", m_trackSummaryTool );
     declareProperty("RefitTool",m_refitTool ); 
 
-    declareProperty("PrepareForFit",		 m_refitSettings.prepareForFit = true );
+    declareProperty("PrepareForFit",		         m_refitSettings.prepareForFit = true );
     declareProperty("RecreateStartingParameters",m_refitSettings.recreateStartingParameters = true );
-    declareProperty("UpdateErrors",		 m_refitSettings.updateErrors = true );
+    declareProperty("UpdateErrors",		           m_refitSettings.updateErrors = true );
     declareProperty("RemoveOutliers",            m_refitSettings.removeOutliers = false );
     declareProperty("RemoveOtherSectors",        m_refitSettings.removeOtherSectors = false);
     declareProperty("RemoveBarrelEndcapOverlap", m_refitSettings.removeBarrelEndcapOverlap = false);

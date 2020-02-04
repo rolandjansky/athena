@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -171,14 +171,14 @@ StreamESD.ItemList+=CaloESDList
 include ("egammaRec/egammaOutputItemList_jobOptions.py")
 StreamESD.ItemList+=egammaESDList
 
-print StreamESD.ItemList
+printfunc (StreamESD.ItemList)
 
 include ( "RecExRecoTest/RecExRecoTest_EgammaHiveRenames.py" )
 
 ServiceMgr.MessageSvc.enableSuppression = False
 ServiceMgr.MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 
-print "==========================================================================================\n"
+printfunc ("==========================================================================================\n")
 
 #
 ## set which Algorithms can be cloned

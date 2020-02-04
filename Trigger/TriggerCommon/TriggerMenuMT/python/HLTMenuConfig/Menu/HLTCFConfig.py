@@ -421,7 +421,7 @@ def createControlFlow(HLTNode, CFseqList):
         for CFseq in CFseqList[nstep]:
             stepDecisions.extend(CFseq.decisions)
 
-        summary=makeSummary( stepSequenceName, stepSequenceName )
+        summary=makeSummary( stepSequenceName, stepDecisions )
 
         HLTNode += summary
 

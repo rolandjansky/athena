@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,12 +8,7 @@
  * @author Ilija Vukotic <ivukotic@cern.ch>
  */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected  
-
 #include "LArPhysWaveContainerCnv.h"
 #include "LArCondTPCnv/LArPhysWaveSubsetCnv_p1.h"
 
@@ -68,7 +63,12 @@ LArPhysWaveContainerCnv::createTransient(LArConditionsSubset<LArPhysWave>* orig)
     LArConditionsSubset<LArPhysWave>* result = new LArConditionsSubset<LArPhysWave>();
     
     // Copy from orig to result
-	
+
+    result->assign (*orig,
+                    [] (const LArPhysWave& from,
+                        LArPhysWave& to)
+                    { to = from; });
+#if 0
     result->m_gain          = orig->m_gain; 
     result->m_channel       = orig->m_channel;
     result->m_groupingType  = orig->m_groupingType;
@@ -93,6 +93,7 @@ LArPhysWaveContainerCnv::createTransient(LArConditionsSubset<LArPhysWave>* orig)
 		}		
 	
 	result->m_subsetMap.swap(orig->m_subsetMap); // copy of subsetMap (what's this?)
+#endif
 	
 	log << MSG::DEBUG <<"No T/P split copy ok."<<endmsg;
 

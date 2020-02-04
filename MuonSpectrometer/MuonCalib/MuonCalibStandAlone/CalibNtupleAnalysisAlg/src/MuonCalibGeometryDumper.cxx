@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -28,10 +28,10 @@
 
 namespace MuonCalib {
 
-MuonCalibGeometryDumper::MuonCalibGeometryDumper(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator){
-
-  m_MDT_ID_helper = std::string("MDTIDHELPER");
-  declareProperty("MDTIdHelper", m_MDT_ID_helper);
+MuonCalibGeometryDumper::MuonCalibGeometryDumper(const std::string &name, ISvcLocator *pSvcLocator) : 
+    AthAlgorithm(name, pSvcLocator),
+    m_detMgr(nullptr),
+    m_id_tool(nullptr) {
 
   m_idToFixedIdToolType = std::string("MuonCalib::IdToFixedIdTool");
   declareProperty("idToFixedIdToolType", m_idToFixedIdToolType);
@@ -41,29 +41,24 @@ MuonCalibGeometryDumper::MuonCalibGeometryDumper(const std::string &name, ISvcLo
   
   m_rootFile = "geom.root";
   declareProperty("RootFile", m_rootFile);
-		
-  //for the sake of coverity
-  m_detMgr =NULL;
-  m_id_tool=NULL;
-}  //end MuonCalibGeometryDumper::MuonCalibGeometryDumper
 
-MuonCalibGeometryDumper::~MuonCalibGeometryDumper() {
-}
+}  //end MuonCalibGeometryDumper::MuonCalibGeometryDumper
 
 StatusCode MuonCalibGeometryDumper::initialize() {
 
-// MDT ID helper //
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
 // muon detector manager //
-  ATH_CHECK( detStore()->retrieve(m_detMgr) );
+  ATH_CHECK(detStore()->retrieve(m_detMgr));
 
 // muon fixed id tool //
-  ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
-			       m_idToFixedIdToolName, m_id_tool) );
+  ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType, m_idToFixedIdToolName, m_id_tool));
 
-  const IGeoModelSvc *geoModel;
+  const IGeoModelSvc *geoModel=nullptr;
   ATH_CHECK( service ("GeoModelSvc", geoModel) );
+  if (!geoModel) {
+    ATH_MSG_FATAL("Could not retrieve GeoModelSvc");
+    return StatusCode::FAILURE;
+  }
 	
   TFile *output_file = new TFile(m_rootFile.c_str(), "RECREATE");
   TNamed geometry_version("ATLASVersion", geoModel->atlasVersion().c_str());
@@ -86,25 +81,21 @@ inline bool MuonCalibGeometryDumper::dump_mdt_geometry() {
   mdt_station->Branch("id", &station_id, "id/i");
   station_row.CreateBranches(mdt_station);
 //loop on chambers
-  MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
-  MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
+  MdtIdHelper::const_id_iterator it     = m_idHelperSvc->mdtIdHelper().module_begin();
+  MdtIdHelper::const_id_iterator it_end = m_idHelperSvc->mdtIdHelper().module_end();
   for( ; it!=it_end;++it ) {
-    std::cout<<"."<<std::flush;
-    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(*it,1,1,1));
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(*it,1,1,1));
     if(!detEl) continue;
     station_row.ReadHepTransform(detEl->AmdbLRSToGlobalTransform());
     MuonFixedId fixed_id(m_id_tool->idToFixedId(*it));
     station_id=fixed_id.mdtChamberId().getIdInt();
     mdt_station->Fill();
     //get number of mls;
-    int n_mls=m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(*it);
+    int n_mls=m_idHelperSvc->mdtIdHelper().numberOfMultilayers(*it);
     //loop on multilayers
     for(int ml=1; ml<=n_mls; ml++) {
-      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(*it,ml ,1,1));
+      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(*it,ml ,1,1));
       int n_layers=detEl_ml->getNLayers();
-//			if(detEl_ml==NULL) {
-//				std::cerr<<"detEl_ml==NULL"<<std::endl;
-//				}
       for(int ly=1; ly<=n_layers; ly++)	{
 	fillLayer(*it, detEl_ml, row, mdt_tubes, ml, ly);
       }
@@ -115,10 +106,9 @@ inline bool MuonCalibGeometryDumper::dump_mdt_geometry() {
 
 inline void MuonCalibGeometryDumper::fillLayer(const Identifier &ch_id,
 const MuonGM::MdtReadoutElement *detEl, MdtTubeGeomertyRow &row, TTree *tree, const int &ml, const int &ly) {
-//	std::cout<<"fillTubePos for "<<ml<<", "<<ly<<", "<<tb<<std::endl;
   int n_tubes=detEl->getNtubesperlayer();
   for(int tb=1; tb<=n_tubes; tb++) {
-    Identifier tid(m_muonIdHelperTool->mdtIdHelper().channelID(ch_id ,ml ,ly, tb));
+    Identifier tid(m_idHelperSvc->mdtIdHelper().channelID(ch_id ,ml ,ly, tb));
     MuonFixedId fixed_id(m_id_tool->idToFixedId(tid));
     row.tube_id=fixed_id.getIdInt();
     Amg::Vector3D tube_pos_g=detEl->tubePos(ml, ly, tb);

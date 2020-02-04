@@ -109,7 +109,7 @@ thinningTools.append(HIGG3D3JetTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 HIGG3D3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "HIGG3D3MuonTPThinningTool",
-                                                                           ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
+                                                                           StreamName              = streamName,
                                                                            MuonKey                 = "Muons",
                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D3MuonTPThinningTool
@@ -118,7 +118,7 @@ thinningTools.append(HIGG3D3MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG3D3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "HIGG3D3ElectronTPThinningTool",
-                                                                                 ThinningService         = HIGG3D3ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey                   = "Electrons",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D3ElectronTPThinningTool

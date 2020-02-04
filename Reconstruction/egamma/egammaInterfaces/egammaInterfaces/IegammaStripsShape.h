@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
 class CaloCellContainer;
-
+class CaloDetDescrManager;
 static const InterfaceID IID_IegammaStripsShape("IegammaStripsShape", 1, 0);
 
 class IegammaStripsShape : virtual public IAlgTool {
@@ -73,9 +73,9 @@ public:
 
     };
     /** @brief AlgTool method.*/
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-             Info& info) const = 0;
-
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               Info& info) const = 0;
     };
 
 inline const InterfaceID& IegammaStripsShape::interfaceID()

@@ -62,8 +62,6 @@ StatusCode TauConversionTagger::finalize() {
 //-----------------------------------------------------------------------------
 StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
 
-  //2012 data reporocessing bug
-  //events with no vertices had taus w/ associated tracks
   if(pTau.vertexLink().isValid()==0) return StatusCode::SUCCESS;
 
   for(unsigned int j=0; j<pTau.nTracks(); j++ ) {
@@ -147,8 +145,6 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
     }
 
     ATH_MSG_VERBOSE("Is tau track a conversion? : " << m_TrkIsConv);
-    // if (m_TrkIsConv && !pTau.trackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion))
-    //   pTau.setTrackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion, true);
     xAOD::TauTrack* tauTrack = pTau.trackNonConst(j);
     if(m_TrkIsConv && !tauTrack->flag(xAOD::TauJetParameters::isConversionOld))
       tauTrack->setFlag( xAOD::TauJetParameters::isConversionOld, true);

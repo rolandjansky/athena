@@ -9,6 +9,7 @@ atlas_subdir( LArCondAthenaPool )
 atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           PRIVATE
+                          AtlasTest/TestTools
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           LArCalorimeter/LArCnv/LArCondTPCnv
                           LArCalorimeter/LArRawConditions )
@@ -23,3 +24,68 @@ atlas_add_poolcnv_library( LArCondAthenaPoolPoolCnv
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
+
+atlas_add_test( LArAutoCorrCompleteCnv_test
+                SOURCES
+                test/LArAutoCorrCompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArCaliWaveContainerCnv_test
+                SOURCES
+                test/LArCaliWaveContainerCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArOFCompleteCnv_test
+                SOURCES
+                test/LArOFCCompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArPedestalCompleteCnv_test
+                SOURCES
+                test/LArPedestalCompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArPhysWaveContainerCnv_test
+                SOURCES
+                test/LArPhysWaveContainerCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArRampCompleteCnv_test
+                SOURCES
+                test/LArRampCompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArShapeCompleteCnv_test
+                SOURCES
+                test/LArShapeCompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArDAC2uACompleteCnv_test
+                SOURCES
+                test/LArDAC2uACompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArDAC2uAMCCnv_test
+                SOURCES
+                test/LArDAC2uAMCCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArMphysOverMcalCompleteCnv_test
+                SOURCES
+                test/LArMphysOverMcalCompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LArMphysOverMcalMCCnv_test
+                SOURCES
+                test/LArMphysOverMcalMCCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LAruA2MeVCompleteCnv_test
+                SOURCES
+                test/LAruA2MeVCompleteCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )
+
+atlas_add_test( LAruA2MeVMCCnv_test
+                SOURCES
+                test/LAruA2MeVMCCnv_test.cxx
+                LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib LArCondTPCnv LArRawConditions TestTools )

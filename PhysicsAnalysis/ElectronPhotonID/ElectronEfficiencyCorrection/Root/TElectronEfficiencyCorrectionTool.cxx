@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -116,7 +116,7 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
                 << __LINE__ << ")\n" << "Debug flag set. Printing verbose output!");
 
   //Check if files are present
-  if (m_corrFileNameList.size() == 0) {
+  if (m_corrFileNameList.empty()) {
     ATH_MSG_ERROR(" No file added!");
     return 0;
   }
@@ -199,7 +199,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   /* 
    * Determine Simulation flavour and find the run period
    */
-  const bool isFastSim=(dataType == PATCore::ParticleDataType::Fast) ? true: false;
+  const bool isFastSim=dataType == PATCore::ParticleDataType::Fast;
   int runnumberIndex = -1;
   if (isFastSim) {
     for (unsigned int i = 0; i < m_begRunNumberListFastSim.size(); ++i) {
@@ -244,7 +244,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     return 0;
   } 
   const std::vector<TObjArray>& currentVector=currentVector_itr->second;
-  if (currentVector.size()<=0 || runnumberIndex>= static_cast <int> (currentVector.size())) {
+  if (currentVector.empty() || runnumberIndex>= static_cast <int> (currentVector.size())) {
     ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ")\n"<<
                   "No valid  sf ObjArray found for the current run number " 
                   << runnumber<<" for simulation type: " << dataType);  
@@ -262,11 +262,13 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
    */
   double xValue(et);
   double yValue(cluster_eta);
-  int smallEt(0), etaCov(0), nSF(0);
+  int smallEt(0);
+  int etaCov(0);
+  int nSF(0);
   bool invalid = false;
   bool changedEt = false;
   int index = -1;
-  TH2 *tmpHist(0);
+  TH2 *tmpHist(nullptr);
 
   for (int i = 0; i < entries ; ++i) {
     invalid = false;
@@ -331,7 +333,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
    * Now we have the index of the histogram 
    * for this region in the TObjectArray
    */
-  TH2* currentHist(0);
+  TH2* currentHist(nullptr);
   if (index >= 0) {
     currentHist = static_cast<TH2*> (currentObjectArray.At(index));
   }
@@ -444,7 +446,8 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(const TH2 *sf,
                 << "Entering function buildSingleToyMC");
   std::vector<TH2*> tmpHists;
   int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
-  for (int toy = 0; toy < m_nToyMC; toy++) {
+  tmpHists.reserve(m_nToyMC);
+for (int toy = 0; toy < m_nToyMC; toy++) {
     tmpHists.push_back((TH2 *) corr.At(0)->Clone());
   }
   // Loop over all bins
@@ -452,14 +455,14 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(const TH2 *sf,
     double val = stat->GetBinContent(bin);
 
     // Add uncorrelated systematics
-    if (uncorr != 0) {
+    if (uncorr != nullptr) {
       double valAdd = uncorr->GetBinContent(bin);
       val = sqrt(val * val + valAdd * valAdd);
     }
     for (int toy = 0; toy < m_nToyMC; toy++) {
       tmpHists.at(toy)->SetBinContent(bin, (val * m_Rndm.Gaus(0, 1)) + sf->GetBinContent(bin));
       randomCounter++;
-      tmpHists.at(toy)->SetDirectory(0);
+      tmpHists.at(toy)->SetDirectory(nullptr);
     }
   }
   return tmpHists;
@@ -494,7 +497,7 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(const TH2 *sf,
     double val = stat->GetBinContent(bin);
 
     // Add uncorrelated systematics
-    if (uncorr != 0) {
+    if (uncorr != nullptr) {
       double valAdd = uncorr->GetBinContent(bin);
       val = sqrt(val * val + valAdd * valAdd);
     }
@@ -502,13 +505,13 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(const TH2 *sf,
     randomCounter++;
     // Add larger correlated systematics
     for (int s = 0; s < nSys; ++s) {
-      if (corr.At(s) != 0) {
+      if (corr.At(s) != nullptr) {
         val += ((TH2 *) corr.At(s))->GetBinContent(bin) * rnd[s];
       }
     }
     tmpHist->SetBinContent(bin, val + sf->GetBinContent(bin));
   }
-  tmpHist->SetDirectory(0);
+  tmpHist->SetDirectory(nullptr);
   return tmpHist;
 }
 /*
@@ -543,7 +546,7 @@ Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(const TObjArray& sf,
         }else {
           tmpArray.Add(buildSingleCombToyMC((TH2*) sf.At(i), 
                                             (TH2*) stat.At(i), 
-                                            0, 
+                                            nullptr, 
                                             corr.at(i) ,
                                             nSys,
                                             randomCounter));
@@ -868,7 +871,7 @@ bool Root::TElectronEfficiencyCorrectionTool::setupUncorrToySyst(std::unordered_
                                                                  std::vector<TObjArray>& sysObjs,
                                                                  std::vector< std::vector<TObjArray>>& uncorrToyMCSyst){
   bool toysBooked = false;
-  if (m_histList[mapkey::sf].size() > 0) {
+  if (!m_histList[mapkey::sf].empty()) {
     if (objs.find(mapkey::eig)->second.GetEntries() < 1 || objs.find(mapkey::stat)->second.GetEntries() < 1 ||
         objs.find(mapkey::uncorr)->second.GetEntries() < 1) {
 
@@ -913,21 +916,21 @@ Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
     ATH_MSG_ERROR( "! Could NOT find histogram with name *_sf in folder");
     return 0;
   }
-  TH1 *tmpHist(0);
+  TH1 *tmpHist(nullptr);
   for (int i = 0; i < hists.GetEntries(); ++i) {
     tmpHist = (TH1 *) hists.At(i);
-    tmpHist->SetDirectory(0);
+    tmpHist->SetDirectory(nullptr);
   }
   // Now, we have all the needed info. Fill the vectors accordingly
   histList.push_back(hists);
-  if (beginRunNumberList.size() > 0) {
+  if (!beginRunNumberList.empty()) {
     if (runNumBegin != (int) beginRunNumberList.back()) {
       beginRunNumberList.push_back(runNumBegin);
     }
   }else {
     beginRunNumberList.push_back(runNumBegin);
   }
-  if (endRunNumberList.size() > 0) {
+  if (!endRunNumberList.empty()) {
     if (runNumEnd != (int) endRunNumberList.back()) {
       endRunNumberList.push_back(runNumEnd);
     }

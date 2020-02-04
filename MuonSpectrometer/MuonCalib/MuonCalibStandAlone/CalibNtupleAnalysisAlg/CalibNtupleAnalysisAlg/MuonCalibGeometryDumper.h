@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalibGeometryDumper_h
@@ -7,7 +7,8 @@
 
 //athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h" 
+#include "GaudiKernel/ServiceHandle.h"
+
 
 namespace coral {
   class IRelationalDomain;
@@ -18,7 +19,7 @@ namespace coral {
   class ITableDataEditor;
 }
  
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 namespace MuonGM {
   class MuonDetectorManager;
   class MdtReadoutElement;
@@ -28,9 +29,9 @@ class TFile;
 class TTree;
 #include "CLHEP/Geometry/Transform3D.h"
 namespace ROOT {
-namespace Math{
-class Transform3D;
-}
+  namespace Math{
+    class Transform3D;
+  }
 }
 
 namespace MuonCalib {
@@ -45,7 +46,7 @@ class MuonCalibGeometryDumper : public AthAlgorithm {
   /** Algorithm Constructor */
   MuonCalibGeometryDumper(const std::string& name, ISvcLocator *pSvcLocator);
   /** Algorithm destrucrtor*/
-  ~MuonCalibGeometryDumper();
+  ~MuonCalibGeometryDumper()=default;
 //=============================public members===================================
   /** Is called at the beginning of the analysis */
   StatusCode initialize();
@@ -53,19 +54,13 @@ class MuonCalibGeometryDumper : public AthAlgorithm {
   inline StatusCode execute() {
     return StatusCode::SUCCESS;
   }
-  /** finalize functions */
-  inline StatusCode finalize() {
-    return StatusCode::SUCCESS;
-  }
 //============================private members===================================
  private:
   void loadServices();
   std::string m_rootFile;
-  std::string m_MDT_ID_helper;       // name of the MDT ID helper
   std::string m_idToFixedIdToolType; // type of the muon fixed id tool
   std::string m_idToFixedIdToolName; // name of the muon fixed id tool
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon detector manager
   const IIdToFixedIdTool *m_id_tool; // identifier converter
   inline bool dump_mdt_geometry();

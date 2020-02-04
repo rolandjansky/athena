@@ -1,8 +1,8 @@
 #  Defines a long lived particle decay strategy strategy
 #       (standard simulation uses level 1)
 def add_LLP_truth_strategy():
-    print "ERROR add_LLP_truth_strategy is obsolete"
-    print "Please request replacment configuration."
+    printfunc ("ERROR add_LLP_truth_strategy is obsolete")
+    printfunc ("Please request replacment configuration.")
     import sys
     sys.exit(1)
     ## from G4AtlasApps import PyG4Atlas

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,13 +29,13 @@
 // Default constructor
 Trk::AbstractVolume::AbstractVolume() :
   Volume(),
-  m_boundarySurfaces(0)
+  m_boundarySurfaces(nullptr)
 {}
 
 // constructor with Amg::Transform3D
 Trk::AbstractVolume::AbstractVolume(Amg::Transform3D* htrans, Trk::VolumeBounds* volbounds) :
   Volume(htrans, volbounds),
-  m_boundarySurfaces(0)
+  m_boundarySurfaces(nullptr)
 {
  createBoundarySurfaces();
 }
@@ -43,7 +43,7 @@ Trk::AbstractVolume::AbstractVolume(Amg::Transform3D* htrans, Trk::VolumeBounds*
 // copy constructor - will up to now not copy the sub structure!
 Trk::AbstractVolume::AbstractVolume(const Trk::AbstractVolume& vol) :
   Volume(vol),
-  m_boundarySurfaces(0)
+  m_boundarySurfaces(nullptr)
 {}
 
 // destructor
@@ -84,18 +84,18 @@ void Trk::AbstractVolume::createBoundarySurfaces()
       sfCounter++;
       const Trk::PlaneSurface*      psf = dynamic_cast<const Trk::PlaneSurface*>(*surfIter);
       if (psf){ m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface<Trk::AbstractVolume> >
-                  (new Trk::BoundaryPlaneSurface<Trk::AbstractVolume>(this, 0, *psf)));    
+                  (new Trk::BoundaryPlaneSurface<Trk::AbstractVolume>(this, nullptr, *psf)));    
         delete psf; continue;
       }
       const Trk::DiscSurface*       dsf = dynamic_cast<const Trk::DiscSurface*>(*surfIter);
       if (dsf){ m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface<Trk::AbstractVolume> >
-                  (new Trk::BoundaryDiscSurface<Trk::AbstractVolume>(this, 0, *dsf)));
+                  (new Trk::BoundaryDiscSurface<Trk::AbstractVolume>(this, nullptr, *dsf)));
         delete dsf; continue;
       }
       const Trk::CylinderSurface*   csf = dynamic_cast<const Trk::CylinderSurface*>(*surfIter);
       if (csf){
-        Trk::AbstractVolume* inner = (sfCounter == 3 && sfNumber > 3) ? 0 : this;
-        Trk::AbstractVolume* outer = (inner) ? 0 : this;
+        Trk::AbstractVolume* inner = (sfCounter == 3 && sfNumber > 3) ? nullptr : this;
+        Trk::AbstractVolume* outer = (inner) ? nullptr : this;
         m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::AbstractVolume> >
             (new Trk::BoundaryCylinderSurface<Trk::AbstractVolume>(inner, outer, *csf)));
         delete csf; continue;

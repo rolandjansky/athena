@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,10 +21,10 @@ namespace Trk
 		if ( isValid() )
 		{
 			const Trk::TrackParticleBase * trk = this->cachedElement();
-			if ( 0 != trk ) return & ( trk->definingParameters() );
-			return 0;
+			if ( nullptr != trk ) return & ( trk->definingParameters() );
+			return nullptr;
 		}//end of validity check
-		return 0;
+		return nullptr;
 	}//end of parameters method
 
          Trk::LinkToTrackParticleBase* Trk::LinkToTrackParticleBase::clone() const

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -83,51 +83,13 @@ void
 LArPedestalCopy::copyOldtoNew(const LArConditionsSubset<LArPedestalP>* oldPedestal,
                               LArConditionsSubset<LArPedestalP1>* newPedestal)
 {
-    // Get the number of febs and corrections
-    unsigned int nFebs       = oldPedestal->m_subset.size();
-    unsigned int nCorrs      = oldPedestal->m_correctionVec.size();
-
-    //log << MSG::DEBUG << "LArPedestalCompleteCnv::createTransient oldPedestal 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endmsg; 
-
-    // Copy conditions
-
-    // Resize subset
-    newPedestal->m_subset.resize(nFebs);
-    
-    // Loop over febs
-    for (unsigned int i = 0; i < nFebs; ++i){
-        newPedestal->m_subset[i].first = oldPedestal->m_subset[i].first;
-	unsigned nChannels=oldPedestal->m_subset[i].second.size();
-        newPedestal->m_subset[i].second.resize(nChannels);
-        // Loop over channels in feb
-        for (unsigned int j = 0; j < nChannels; ++j){
-	  if (oldPedestal->m_subset[i].second[j].m_vPedestal.size()>0)
-	    newPedestal->m_subset[i].second[j].m_Pedestal=oldPedestal->m_subset[i].second[j].m_vPedestal[0];
-	  if (oldPedestal->m_subset[i].second[j].m_vPedestalRMS.size()>0)
-	    newPedestal->m_subset[i].second[j].m_PedestalRMS=oldPedestal->m_subset[i].second[j].m_vPedestalRMS[0];
-	  
-	}//end loop over channels in feb
-    }//end loop over febs
-    
-    // Copy corrections
-    newPedestal->m_correctionVec.resize(nCorrs);
-
-    // Loop over corrections
-    for (unsigned int i = 0; i < nCorrs; ++i){
-        newPedestal->m_correctionVec[i].first = oldPedestal->m_correctionVec[i].first;
-	if (oldPedestal->m_correctionVec[i].second.m_vPedestal.size()>0)
-	  newPedestal->m_correctionVec[i].second.m_Pedestal=oldPedestal->m_correctionVec[i].second.m_vPedestal[0];
-	
-	if (oldPedestal->m_correctionVec[i].second.m_vPedestalRMS.size()>0)
-	  newPedestal->m_correctionVec[i].second.m_PedestalRMS=oldPedestal->m_correctionVec[i].second.m_vPedestalRMS[0];
-    }//end loop over corrections
-
-
-    // Copy the rest
-    newPedestal->m_gain          = oldPedestal->m_gain; 
-    newPedestal->m_channel       = oldPedestal->m_channel;
-    newPedestal->m_groupingType  = oldPedestal->m_groupingType;
+  newPedestal->assign (*oldPedestal,
+                       [] (const LArPedestalP& from,
+                           LArPedestalP1& to)
+                       {
+                         to.m_Pedestal = from.m_vPedestal.empty() ? 0 : from.m_vPedestal[0];
+                         to.m_PedestalRMS = from.m_vPedestalRMS.empty() ? 0 : from.m_vPedestalRMS[0];
+                       });
 }
 
 

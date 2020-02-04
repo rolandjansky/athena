@@ -115,7 +115,6 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
 StatusCode AthenaPoolConverter::fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj) {
    std::lock_guard<CallMutex> lock(m_conv_mut);
    try {
-      pObj->registry()->setAddress(pAddr);
       if (!DataObjectToPool(pAddr, pObj).isSuccess()) {
          ATH_MSG_ERROR("FillRepRefs failed, key = " << pObj->name());
          return(StatusCode::FAILURE);

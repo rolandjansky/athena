@@ -15,7 +15,7 @@
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigNavigation/NavigationCore.h"
 #endif
 
@@ -138,7 +138,7 @@ namespace Trig {
       
       bool navi_nonempty = !(serializedNav->serialized().empty());
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
       if(!fullNav){

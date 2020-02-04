@@ -169,7 +169,7 @@ namespace Trk {
       propagate (const Trk::NeutralParameters&,
                  const Trk::Surface&,
                  Trk::PropDirection,
-                 Trk::BoundaryCheck,
+                 const Trk::BoundaryCheck&,
                  bool rC=false) const override final;
 
 
@@ -177,8 +177,8 @@ namespace Trk {
     virtual Trk::TrackParameters*
       propagate (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
-                 Trk::PropDirection            propagationDirection,
-                 Trk::BoundaryCheck            boundaryCheck,
+                 Trk::PropDirection                  propagationDirection,
+                 const Trk::BoundaryCheck&           boundaryCheck,
                  const      MagneticFieldProperties& magneticFieldProperties,
                  ParticleHypothesis            particle,
                  bool                          returnCurv = false,
@@ -232,7 +232,7 @@ namespace Trk {
       propagate (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  Trk::PropDirection                  propagationDirection,
-                 Trk::BoundaryCheck                  boundaryCheck,
+                 const Trk::BoundaryCheck&           boundaryCheck,
                  const MagneticFieldProperties&      magneticFieldProperties,
                  Trk::TransportJacobian*&            jacobian,
                  double&                             pathLimit,
@@ -246,7 +246,7 @@ namespace Trk {
       propagateParameters (const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
-                           Trk::BoundaryCheck                  boundaryCheck,
+                           const Trk::BoundaryCheck&           boundaryCheck,
                            const MagneticFieldProperties&      magneticFieldProperties,
                            ParticleHypothesis                  particle,
                            bool                                returnCurv = false,
@@ -258,7 +258,7 @@ namespace Trk {
       propagateParameters (const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
-                           Trk::BoundaryCheck                  boundaryCheck,
+                           const Trk::BoundaryCheck&           boundaryCheck,
                            const MagneticFieldProperties&      magneticFieldProperties,
                            Trk::TransportJacobian*&            jacobian,
                            ParticleHypothesis                  particle,

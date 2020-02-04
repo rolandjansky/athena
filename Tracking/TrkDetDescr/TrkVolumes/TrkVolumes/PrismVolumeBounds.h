@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ namespace Trk {
 #define double float
 #endif                                                                                              
     /**This method returns the set of xy generating vertices*/
-    const std::vector<std::pair<double, double> >  xyVertices() const;
+    std::vector<std::pair<double, double> >  xyVertices() const;
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
 #endif
@@ -94,7 +94,7 @@ namespace Trk {
 
   private:   
     /** method to construct side boundary planes */
-    Trk::PlaneSurface* sideSurf(Amg::Transform3D,unsigned int,unsigned int) const;
+    Trk::PlaneSurface* sideSurf(const Amg::Transform3D&,unsigned int,unsigned int) const;
     
     /** mirror the input vertices for down-side boundary */   
     std::vector<std::pair<double,double> > mirror_xyVtx() const;   
@@ -125,7 +125,7 @@ namespace Trk {
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif     
- inline const std::vector<std::pair<double,double> > PrismVolumeBounds::xyVertices() const { return m_xyVtx; }
+ inline std::vector<std::pair<double,double> > PrismVolumeBounds::xyVertices() const { return m_xyVtx; }
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
 #endif    

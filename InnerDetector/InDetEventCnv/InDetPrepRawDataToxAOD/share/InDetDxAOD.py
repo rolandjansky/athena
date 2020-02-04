@@ -360,8 +360,8 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
-    TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    import InDetRecExample.TrackingCommon
+    TRT_dEdx_Tool = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool()
     ToolSvc += TRT_dEdx_Tool
 
     # to get shared hit info

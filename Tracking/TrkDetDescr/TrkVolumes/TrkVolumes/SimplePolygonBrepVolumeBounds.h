@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ namespace Trk {
 #define double float
 #endif                                            
     /**This method returns the set of xy generating vertices*/
-    const std::vector<std::pair<double, double> >  xyVertices() const;
+    std::vector<std::pair<double, double> >  xyVertices() const;
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
 #endif    
@@ -98,7 +98,7 @@ namespace Trk {
 
   private:  
     void processSubVols();
-    Trk::PlaneSurface* sideSurf(Amg::Transform3D,unsigned int,unsigned int) const;
+    Trk::PlaneSurface* sideSurf(const Amg::Transform3D&,unsigned int,unsigned int) const;
     bool Xor(bool x, bool y) const;
     
 #ifdef TRKDETDESCR_USEFLOATPRECISON
@@ -113,7 +113,7 @@ namespace Trk {
     
     bool Diagonalie(int  i , int j  ,std::vector<std::pair<double,double> > inputVertices) const;
     
-    bool Diagonal(int i, int j, std::vector<std::pair<double,double> > inputVertices) const;
+    bool Diagonal(int i, int j, const std::vector<std::pair<double,double> >& inputVertices) const;
     
 
     std::vector<std::pair<double,double> > TriangulatePolygon(const std::vector<std::pair<double,double> >& Vertices ) const;
@@ -143,7 +143,7 @@ namespace Trk {
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif 
- inline const std::vector<std::pair<double,double> > SimplePolygonBrepVolumeBounds::xyVertices() const { return m_xyVtx; }
+ inline std::vector<std::pair<double,double> > SimplePolygonBrepVolumeBounds::xyVertices() const { return m_xyVtx; }
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
 #endif     

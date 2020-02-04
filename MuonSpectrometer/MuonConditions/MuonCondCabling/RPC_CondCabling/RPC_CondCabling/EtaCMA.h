@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ETACMA_H
@@ -34,6 +34,7 @@ class EtaCMA : public CMAparameters
      bool end_at_RPC_Z_boundary(void) const;
      bool begin_at_RPC_Z_boundary(void) const;
      bool m_debug;
+     bool m_verbose;
      IMessageSvc* m_msgSvc;
 
      public:

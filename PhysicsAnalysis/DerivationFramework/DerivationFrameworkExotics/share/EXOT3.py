@@ -69,7 +69,7 @@ thinningTools.append(EXOT3TPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT3MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT3ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3MuonTPThinningTool
@@ -78,14 +78,14 @@ thinningTools.append(EXOT3MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT3ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT3ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey             	= "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3ElectronTPThinningTool
 thinningTools.append(EXOT3ElectronTPThinningTool)
 
 EXOT3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT3PhotonTPThinningTool",
-                                                                                        ThinningService         = "EXOT3ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey             	= "Photons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3PhotonTPThinningTool

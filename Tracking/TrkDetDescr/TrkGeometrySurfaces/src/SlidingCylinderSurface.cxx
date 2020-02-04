@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ Trk::SlidingCylinderSurface::SlidingCylinderSurface(const SlidingCylinderSurface
   : Trk::CylinderSurface(dsf)
   , m_depth(new std::vector<float>(*(dsf.m_depth)))
   , m_etaBin(dsf.m_etaBin->clone())
-  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
+  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : nullptr)
 {}
 
 // copy constructor with shift
@@ -41,7 +41,7 @@ Trk::SlidingCylinderSurface::SlidingCylinderSurface(const SlidingCylinderSurface
   : Trk::CylinderSurface(dsf, transf)
   , m_depth(new std::vector<float>(*(dsf.m_depth)))
   , m_etaBin(dsf.m_etaBin->clone())
-  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : 0)
+  , m_align(dsf.m_align ? new Amg::Transform3D(*dsf.m_align) : nullptr)
 {}
 
 // constructor
@@ -139,7 +139,7 @@ Trk::SlidingCylinderSurface::globalToLocal(const Amg::Vector3D& glopos,
     radius = glopos.perp();
   }
   // return true or false
-  return ((fabs(radius - bounds().r() - offset) > inttol) ? false : true);
+  return (fabs(radius - bounds().r() - offset) <= inttol);
 }
 
 bool

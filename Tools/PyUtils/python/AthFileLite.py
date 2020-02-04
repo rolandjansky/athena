@@ -391,7 +391,7 @@ class AthInpFile(object):
             f = root.TFile.Open(self._filename, 'READ')
 
             if f:
-                # FIXME EventStreamInfo is more autoritative source for nentries
+                # FIXME EventStreamInfo is more authoritative source for nentries
                 tree = f.Get('POOLContainer')
                 if not tree: # support for old files
                     tree = f.Get("POOLContainer_DataHeader")
@@ -407,7 +407,13 @@ class AthInpFile(object):
                     params = []
                     for i in range(pool.GetEntries()):
                         if pool.GetEntry(i)>0:
-                            match = pool_token(pool.db_string)
+                            # Work around apparent pyroot issue:
+                            # If we try to access pool.db_string directly,
+                            # we see trailing garbage, which can confuse
+                            # python's bytes->utf8 conversion
+                            # and result in an error.
+                            param = pool.GetLeaf('db_string').GetValueString()
+                            match = pool_token(param)
                             if not match:
                                 continue
                             d = match.groupdict()

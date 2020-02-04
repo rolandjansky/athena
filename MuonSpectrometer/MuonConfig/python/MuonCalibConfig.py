@@ -5,7 +5,6 @@
 from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 MuonCalib__CscCoolStrSvc=CompFactory.MuonCalib__CscCoolStrSvc
-MuonCalib__MdtCalibDbCoolStrTool=CompFactory.MuonCalib__MdtCalibDbCoolStrTool
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -102,33 +101,6 @@ def MdtCalibrationDbToolCfg(flags, **kwargs):
     result.setPrivateTools(mdt_calibration_db_tool)
     return result
     
-
-def MdtCalibDbCoolStrToolCfg(flags,name="MdtCalibDbTool",**kwargs):    
-    # result.merge( IOVDbSvcCfg(flags) )
-    
-    # setup COOL folders
-    result, mdt_folder_name_appendix = _setupMdtCondDB(flags)
-    
-    # set some default proper ties
-    from IOVDbSvc.CondDB import conddb
-    if conddb.isOnline and not conddb.isMC:
-       kwargs.setdefault("TubeFolder", "/MDT/T0")
-       kwargs.setdefault("RtFolder",  "/MDT/RT")
-    else:
-       kwargs.setdefault("TubeFolder", "/MDT/T0"+ mdt_folder_name_appendix)
-       kwargs.setdefault("RtFolder",  "/MDT/RT"+ mdt_folder_name_appendix)
-    kwargs.setdefault("RT_InputFiles" , ["Muon_RT_default.data"])
-    if flags.Input.isMC is False: # Should be " if flags.Input.isMC=='data' " ?
-        kwargs.setdefault("defaultT0", 40)
-    else:
-        kwargs.setdefault("defaultT0", 799)
-    kwargs.setdefault("UseMLRt",  flags.Muon.Calib.useMLRt )
-    kwargs.setdefault("TimeSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
-    kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
-    kwargs.setdefault("PropagationSpeedBeta", flags.Muon.Calib.mdtPropagationSpeedBeta)
-    result.setPrivateTools(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
-    return result
-
 def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     result = ComponentAccumulator()
 
@@ -155,7 +127,7 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     kwargs.setdefault("TimeSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
     kwargs.setdefault("PropagationSpeedBeta", flags.Muon.Calib.mdtPropagationSpeedBeta)
-
+    # the same as MdtCalibrationDbTool
     kwargs.setdefault("CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField)
     kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
     kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)

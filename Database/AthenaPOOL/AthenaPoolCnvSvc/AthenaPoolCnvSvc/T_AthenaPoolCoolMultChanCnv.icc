@@ -219,7 +219,6 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createRep(DataOb
 								token->toString());
     addr->setAttrListColl(coll);
     delete pAddr; pAddr = addr;
-    pObj->registry()->setAddress(pAddr);
     delete token; token = 0;
 
     ATH_MSG_DEBUG("End createRep");

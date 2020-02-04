@@ -45,6 +45,7 @@
 // Trk
 #include "TrkSurfaces/PlaneSurface.h"
 #include <memory>
+#include <utility>
 
 namespace{
 constexpr double s_distIncreaseTolerance = 100. * Gaudi::Units::millimeter;
@@ -340,7 +341,7 @@ const Trk::NeutralParameters *
 Trk::Extrapolator::extrapolate(const xAOD::NeutralParticle &xnParticle,
                                const Surface &sf,
                                PropDirection dir,
-                               BoundaryCheck bcheck) const {
+                               const BoundaryCheck&  bcheck) const {
   const Trk::NeutralPerigee &nPerigee = xnParticle.perigeeParameters();
 
   return extrapolate(nPerigee, sf, dir, bcheck);
@@ -350,7 +351,7 @@ const Trk::TrackParameters *
 Trk::Extrapolator::extrapolate(const xAOD::TrackParticle &xtParticle,
                                const Surface &sf,
                                PropDirection dir,
-                               BoundaryCheck bcheck,
+                               const BoundaryCheck&  bcheck,
                                ParticleHypothesis particle,
                                MaterialUpdateMode matupmode) const {
   const Trk::Perigee &tPerigee = xtParticle.perigeeParameters();
@@ -364,7 +365,7 @@ const Trk::NeutralParameters *
 Trk::Extrapolator::extrapolate(const NeutralParameters &parameters,
                                const Surface &sf,
                                PropDirection dir,
-                               BoundaryCheck bcheck) const {
+                               const BoundaryCheck&  bcheck) const {
   if (m_configurationLevel < 10) {
     const IPropagator *currentPropagator = !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
     if (currentPropagator) {
@@ -382,7 +383,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
                                const Trk::TrackParameters &parm,
                                const Trk::Surface &sf,
                                Trk::PropDirection dir,
-                               Trk::BoundaryCheck bcheck,
+                               const Trk::BoundaryCheck&  bcheck,
                                Trk::ParticleHypothesis particle,
                                MaterialUpdateMode matupmode) const {
    Cache cache{};
@@ -397,7 +398,7 @@ Trk::Extrapolator::extrapolateStepwise(const IPropagator &prop,
                                        const Trk::TrackParameters &parm,
                                        const Trk::Surface &sf,
                                        Trk::PropDirection dir,
-                                       Trk::BoundaryCheck bcheck,
+                                       const Trk::BoundaryCheck&  bcheck,
                                        Trk::ParticleHypothesis particle) const {
 
   Cache cache{};
@@ -433,7 +434,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
                                const Trk::Track &trk,
                                const Trk::Surface &sf,
                                Trk::PropDirection dir,
-                               Trk::BoundaryCheck bcheck,
+                               const Trk::BoundaryCheck&  bcheck,
                                Trk::ParticleHypothesis particle,
                                MaterialUpdateMode matupmode) const {
   
@@ -468,7 +469,7 @@ Trk::Extrapolator::extrapolateBlindly(
   const IPropagator &prop,
   const Trk::TrackParameters &parm,
   Trk::PropDirection dir,
-  Trk::BoundaryCheck bcheck,
+  const Trk::BoundaryCheck&  bcheck,
   Trk::ParticleHypothesis particle,
   const Trk::Volume *boundaryVol) const {
  
@@ -480,7 +481,7 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
   const IPropagator &prop,
   const Trk::TrackParameters &parm,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode) const {
 
@@ -552,7 +553,7 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
   const IPropagator &prop,
   const Trk::TrackParameters &parm,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   std::vector<const Trk::TrackStateOnSurface *> &material,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode) const {
@@ -628,7 +629,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                                                   const Trk::Surface *destSurf,
                                                   const Trk::TrackingVolume *vol,
                                                   PropDirection dir,
-                                                  BoundaryCheck bcheck,
+                                                  const BoundaryCheck&  bcheck,
                                                   ParticleHypothesis particle,
                                                   MaterialUpdateMode matupmode) const {
   ATH_MSG_DEBUG("M-[" << ++m_methodSequence << "] extrapolateToNextMaterialLayer(...) ");
@@ -684,10 +685,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
   }
   // alignable frame volume ?
   if (staticVol && staticVol->geometrySignature() == Trk::Calo) {
-    const Trk::AlignableTrackingVolume *alignTV = dynamic_cast<const Trk::AlignableTrackingVolume *> (staticVol);
-    if (alignTV) {
-      cache.m_identifiedParameters.reset();
-      return extrapolateInAlignableTV(cache,prop, *currPar, destSurf, alignTV, dir, particle);
+    if (staticVol->isAlignable()){
+        const Trk::AlignableTrackingVolume *alignTV = static_cast<const Trk::AlignableTrackingVolume *> (staticVol);
+        cache.m_identifiedParameters.reset();
+        return extrapolateInAlignableTV(cache,prop, *currPar, destSurf, alignTV, dir, particle);
     }
   }
 
@@ -1037,8 +1038,6 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
   }
   delete detVols;
 
-  // cache.m_navigSurfs contains destination surface (if it exists), static volume boundaries
-  // complete with TG cache.m_layers/dynamic layers, cache.m_denseBoundaries, cache.m_navigBoundaries, cache.m_detachedBoundaries
 
   if (not cache.m_layers.empty()) {
     cache.m_navigSurfs.insert(cache.m_navigSurfs.end(), cache.m_layers.begin(), cache.m_layers.end());
@@ -1246,9 +1245,6 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(Cache& cache,
                              layThick /
                              fabs(nextPar->momentum().normalized().dot(mb->surfaceRepresentation().normal())));
               } else {
-                // const Trk::CylinderBounds* cyl = dynamic_cast<const Trk::CylinderBounds*>
-                // (&(nextLayer->surfaceRepresentation().bounds()));
-                // double hmax = cyl ? cyl->halflengthZ() : nextLayer->surfaceRepresentation().bounds().r();
                 thick = fmin(2 * mb->thickness(), layThick / (1 - costr));
               }
 
@@ -1624,9 +1620,9 @@ Trk::Extrapolator::extrapolateInAlignableTV(Cache& cache,
       currVol = nextStatVol;
     }
     if (currVol && currVol != vol) {
-      const Trk::AlignableTrackingVolume *aliTG = dynamic_cast<const Trk::AlignableTrackingVolume *> (currVol);
-      if (aliTG) {
-        staticVol = aliTG;
+      if(currVol->isAlignable()){
+      const Trk::AlignableTrackingVolume *aliTG = static_cast<const Trk::AlignableTrackingVolume *> (currVol);
+      staticVol = aliTG;
       }
     }
   }
@@ -1826,7 +1822,7 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
   const IPropagator &prop,
   const Trk::TrackParameters &parm,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode) const {
   ATH_MSG_DEBUG("M-[" << ++m_methodSequence << "] extrapolateToNextStation(...) ");
@@ -1893,8 +1889,8 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
     for (; dIter != detVols->end(); dIter++) {
       const Trk::Layer *lay = (*dIter)->layerRepresentation();
       if (lay) {
-        Trk::BoundaryCheck checkBounds = lay->layerType() > 0 ? bcheck : Trk::BoundaryCheck(true);
-        std::pair<const Trk::Surface *, Trk::BoundaryCheck>  newSurf(&(lay->surfaceRepresentation()), checkBounds);
+        const Trk::BoundaryCheck  checkBounds = lay->layerType() > 0 ? bcheck : Trk::BoundaryCheck(true);
+        std::pair<const Trk::Surface *, const Trk::BoundaryCheck>  newSurf(&(lay->surfaceRepresentation()), checkBounds);
         cache.m_navigSurfs.push_back(newSurf);
         cache.m_navigVols.push_back(*dIter);
       }
@@ -1941,7 +1937,7 @@ std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::e
         }
       }
       // next layer representation ? active(->return) or passive(->loop back) ?
-      std::vector<std::pair<const Trk::Surface *, Trk::BoundaryCheck> >::iterator vsIter = cache.m_navigSurfs.begin();
+      std::vector<std::pair<const Trk::Surface *,Trk::BoundaryCheck > >::iterator vsIter = cache.m_navigSurfs.begin();
       for (; vsIter != cache.m_navigSurfs.end(); vsIter++) {
         if ((*vsIter).first->isOnSurface(gp, bcheck, m_tolerance, m_tolerance)) {
           break;
@@ -2008,7 +2004,7 @@ Trk::Extrapolator::extrapolateDirectly(const IPropagator &prop,
                                        const Trk::TrackParameters &parm,
                                        const Trk::Surface &sf,
                                        Trk::PropDirection dir,
-                                       Trk::BoundaryCheck bcheck,
+                                       const Trk::BoundaryCheck&  bcheck,
                                        Trk::ParticleHypothesis particle) const {
   // statistics && sequence output ----------------------------------------
   ++m_extrapolateDirectlyCalls;
@@ -2109,7 +2105,7 @@ const Trk::TrackParameters *
 Trk::Extrapolator::extrapolate(const TrackParameters &parm,
                                const Surface &sf,
                                PropDirection dir,
-                               BoundaryCheck bcheck,
+                               const BoundaryCheck&  bcheck,
                                ParticleHypothesis particle,
                                MaterialUpdateMode matupmode,
                                Trk::ExtrapolationCache *extrapolationCache) const {
@@ -2122,7 +2118,7 @@ Trk::Extrapolator::extrapolateStepwise(
   const Trk::TrackParameters &parm,
   const Trk::Surface &sf,
   Trk::PropDirection dir,
-  Trk::BoundaryCheck bcheck,
+  const Trk::BoundaryCheck&  bcheck,
   Trk::ParticleHypothesis particle) const {
   if (m_configurationLevel < 10) {
     // set propagator to the sticky one, will be adopted if m_stickyConfiguration == false
@@ -2139,7 +2135,7 @@ const Trk::TrackParameters *
 Trk::Extrapolator::extrapolate(const Trk::Track &trk,
                                const Trk::Surface &sf,
                                Trk::PropDirection dir,
-                               Trk::BoundaryCheck bcheck,
+                               const Trk::BoundaryCheck&  bcheck,
                                Trk::ParticleHypothesis particle,
                                MaterialUpdateMode matupmode,
                                Trk::ExtrapolationCache *extrapolationCache) const {
@@ -2167,7 +2163,7 @@ const std::vector<const Trk::TrackParameters *> *
 Trk::Extrapolator::extrapolateBlindly(
   const Trk::TrackParameters &parm,
   Trk::PropDirection dir,
-  Trk::BoundaryCheck bcheck,
+  const Trk::BoundaryCheck&  bcheck,
   Trk::ParticleHypothesis particle,
   const Trk::Volume *boundaryVol) const {
   if (m_configurationLevel < 10) {
@@ -2185,7 +2181,7 @@ const Trk::TrackParameters *
 Trk::Extrapolator::extrapolateDirectly(const Trk::TrackParameters &parm,
                                        const Trk::Surface &sf,
                                        Trk::PropDirection dir,
-                                       Trk::BoundaryCheck bcheck,
+                                       const Trk::BoundaryCheck&  bcheck,
                                        Trk::ParticleHypothesis particle) const {
   if (m_configurationLevel < 10) {
     // set propagator to the global one - can be reset inside the next methode (once volume information is there)
@@ -2201,7 +2197,7 @@ Trk::Extrapolator::extrapolateDirectly(const Trk::TrackParameters &parm,
 std::pair<const Trk::TrackParameters *, const Trk::Layer *>  Trk::Extrapolator::extrapolateToNextActiveLayer(
   const TrackParameters &parm,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode)
 const {
@@ -2219,7 +2215,7 @@ const {
 std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextActiveLayerM(
   const TrackParameters &parm,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   std::vector<const Trk::TrackStateOnSurface *> &material,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode)
@@ -2239,7 +2235,7 @@ const {
 std::pair<const Trk::TrackParameters *, const Trk::Layer *> Trk::Extrapolator::extrapolateToNextStation(
   const TrackParameters &parm,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode)
 const {
@@ -2274,7 +2270,7 @@ std::vector<const Trk::TrackStateOnSurface *> *
 Trk::Extrapolator::extrapolateM(const TrackParameters &parameters,
                                 const Surface &sf,
                                 PropDirection dir,
-                                BoundaryCheck bcheck,
+                                const BoundaryCheck&  bcheck,
                                 ParticleHypothesis particle,
                                 Trk::ExtrapolationCache *extrapolationCache) const {
   ATH_MSG_DEBUG("C-[" << m_methodSequence << "] extrapolateM()");
@@ -2321,7 +2317,7 @@ std::vector<const Trk::TrackParameters *> *
 Trk::Extrapolator::extrapolateM(const TrackParameters &,
                                 const Surface &,
                                 PropDirection,
-                                BoundaryCheck,
+                                const BoundaryCheck& ,
                                 std::vector<MaterialEffectsOnTrack> &,
                                 std::vector<Trk::TransportJacobian *> &,
                                 ParticleHypothesis,
@@ -2356,7 +2352,7 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                                    const Trk::TrackParameters &parm,
                                    const Trk::Surface &sf,
                                    Trk::PropDirection dir,
-                                   Trk::BoundaryCheck bcheck,
+                                   const Trk::BoundaryCheck& bcheck,
                                    Trk::ParticleHypothesis particle,
                                    MaterialUpdateMode matupmode) const {
   // set the model action of the material effects updators
@@ -2848,13 +2844,13 @@ Trk::Extrapolator::extrapolateImpl(Cache& cache,
                                    const TrackParameters &parm,
                                    const Surface &sf,
                                    PropDirection dir,
-                                   BoundaryCheck bcheck,
+                                   const BoundaryCheck&  bcheck,
                                    ParticleHypothesis particle,
                                    MaterialUpdateMode matupmode,
                                    Trk::ExtrapolationCache *extrapolationCache) const {
   
   cache.m_extrapolationCache = extrapolationCache;
-  cache.m_cacheEloss = extrapolationCache ? dynamic_cast<const Trk::EnergyLoss *>(extrapolationCache->eloss()) : nullptr;
+  cache.m_cacheEloss = extrapolationCache ? extrapolationCache->eloss() : nullptr;
 
   if (extrapolationCache && m_dumpCache) {
     ATH_MSG_DEBUG("  In extrapolate cache pointer input: " << extrapolationCache << " cache.m_extrapolationCache " <<
@@ -2881,7 +2877,7 @@ Trk::Extrapolator::extrapolateBlindlyImpl(
   const IPropagator &prop,
   const Trk::TrackParameters &parm,
   Trk::PropDirection dir,
-  Trk::BoundaryCheck bcheck,
+  const Trk::BoundaryCheck& bcheck,
   Trk::ParticleHypothesis particle,
   const Trk::Volume *boundaryVol) const {
   // statistics && sequence output ----------------------------------------
@@ -2919,7 +2915,7 @@ Trk::Extrapolator::extrapolateInsideVolume(Cache& cache,
                                            const Layer *assLayer,
                                            const TrackingVolume &tvol,
                                            PropDirection dir,
-                                           BoundaryCheck bcheck,
+                                           const BoundaryCheck&  bcheck,
                                            ParticleHypothesis particle,
                                            MaterialUpdateMode matupmode
                                            ) const {
@@ -2939,7 +2935,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(
   const Surface &sf,
   const TrackingVolume &tvol,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode
   ) const {
@@ -3015,7 +3011,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(
   // ---------------------------------------------------
   const ::Trk::TrackParameters *last_boudnary_parameters = nullptr;
   while (nextParameters) {
-    Trk::BoundaryCheck bchk = false;
+    const Trk::BoundaryCheck&  bchk = false;
     const Trk::TrackParameters *onNextLayer = extrapolateToNextMaterialLayer(cache,
                                                                              prop,
                                                                              *nextParameters,
@@ -3110,7 +3106,7 @@ Trk::Extrapolator::extrapolateToVolumeBoundary(Cache& cache,
                                                const Layer *assLayer,
                                                const TrackingVolume &tvol,
                                                PropDirection dir,
-                                               BoundaryCheck bcheck,
+                                               const BoundaryCheck&  bcheck,
                                                ParticleHypothesis particle,
                                                MaterialUpdateMode matupmode
                                                ) const {
@@ -3136,7 +3132,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(
   const Trk::Layer *assLayer,
   const TrackingVolume &tvol,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode
   ) const {
@@ -3513,7 +3509,7 @@ Trk::Extrapolator::extrapolateFromLayerToLayer(
   const Layer *destinationLayer,
   const TrackParameters *navParm,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode) const {
   // method sequence output ---------------------------------
@@ -3634,7 +3630,7 @@ Trk::Extrapolator::extrapolateToDestinationLayer(
   const TrackingVolume &tvol,
   const Layer *startLayer,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode) const {
   // method sequence output ---------------------------------
@@ -3714,7 +3710,7 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(
   const Layer &lay,
   const TrackingVolume &tvol,
   PropDirection dir,
-  BoundaryCheck bcheck,
+  const BoundaryCheck&  bcheck,
   ParticleHypothesis particle,
   MaterialUpdateMode matupmode,
   bool doPerpCheck) const {
@@ -3829,7 +3825,7 @@ Trk::Extrapolator::overlapSearch(Cache& cache,
                                  const Layer &lay,
                                  const TrackingVolume & /*tvol*/,
                                  PropDirection dir,
-                                 BoundaryCheck bcheck, // bcheck
+                                 const BoundaryCheck&  bcheck, // bcheck
                                  ParticleHypothesis particle,
                                  bool startingLayer) const {
   // indicate destination layer
@@ -4444,7 +4440,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(Cache& cache,
 }
 
 void
-Trk::Extrapolator::dumpCache(Cache& cache, std::string txt) const {
+Trk::Extrapolator::dumpCache(Cache& cache, const std::string& txt) const {
   if (cache.m_cacheEloss != nullptr && cache.m_cacheEloss != cache.m_extrapolationCache->eloss()) {
     ATH_MSG_DEBUG(
       " NO dumpCache: Eloss cache pointer overwritten " << cache.m_cacheEloss << " from extrapolationCache " <<
@@ -4461,7 +4457,7 @@ Trk::Extrapolator::dumpCache(Cache& cache, std::string txt) const {
 }
 
 bool
-Trk::Extrapolator::checkCache(Cache& cache,std:: string txt) const {
+Trk::Extrapolator::checkCache(Cache& cache,const std:: string& txt) const {
   if (cache.m_cacheEloss != nullptr && cache.m_cacheEloss != cache.m_extrapolationCache->eloss()) {
     ATH_MSG_DEBUG(
       txt << " PROBLEM Eloss cache pointer overwritten " << cache.m_cacheEloss << " from extrapolationCache " <<
@@ -4681,8 +4677,8 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
 
   // alignable volume ?
   if (cache.m_currentStatic && cache.m_currentStatic->geometrySignature() == Trk::Calo) {
-    const Trk::AlignableTrackingVolume *alignTV = dynamic_cast<const Trk::AlignableTrackingVolume *> (cache.m_currentStatic);
-    if (alignTV) {
+    if(cache.m_currentStatic->isAlignable()){
+      const Trk::AlignableTrackingVolume *alignTV = static_cast<const Trk::AlignableTrackingVolume *> (cache.m_currentStatic);
       const Trk::TrackParameters *nextPar = extrapolateInAlignableTV(cache,*m_stepPropagator, *currPar, nullptr, alignTV, dir,
                                                                      particle);
       if (nextPar) {
