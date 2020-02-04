@@ -78,36 +78,29 @@ ToolSvc += JETM6OfflineSkimmingTool
 thinningTools = []
 
 # thinning_expression = "InDetTrackParticles.pt > 0.5*GeV"
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# JETM6TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "JETM6ThinningTool",
-#                                                                   ThinningService         = "JETM6ThinningSvc",
-#                                                                   SelectionString         = thinning_expression,
-#                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 # JETM6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
-#                                                                         ThinningService         = "JETM6ThinningSvc",
+#                                                                         StreamName              = streamName,
 #                                                                         JetKey                  = "AntiKt4EMTopoJets",
 #                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                         ApplyAnd                = True)
+#                                                                         TrackSelectionString    = thinning_expression)
 # ToolSvc += JETM6JetTPThinningTool
 # thinningTools.append(JETM6JetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 JETM6Akt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
-                                                                        ThinningService         = "JETM6ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt4EMTopoJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6Akt4JetTPThinningTool
 thinningTools.append(JETM6Akt4JetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 JETM6Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetTPThinningTool",
-                                                                        ThinningService         = "JETM6ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt10LCTopoJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6Akt10JetTPThinningTool
 thinningTools.append(JETM6Akt10JetTPThinningTool)
 
