@@ -325,7 +325,7 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     kwargs.setdefault("MdtRotCreator", mdt_dcot_creator)
     
     acc = CscClusterOnTrackCreatorCfg(flags)
-    csc_cluster_creator = acc.getPrimary()
+    csc_cluster_creator = acc.popPrivateTools()
     result.merge(acc)
     kwargs.setdefault("CscRotCreator", csc_cluster_creator)
         
@@ -344,7 +344,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
         if flags.Muon.enableErrorTuning or not flags.Input.isMC:
             extrakwargs["ErrorScalerBeta"] = 0.200
         acc = CscClusterOnTrackCreatorCfg(flags, **extrakwargs)
-        csc_cluster_creator = acc.getPrimary()
+        csc_cluster_creator = acc.popPrivateTools()
         result.merge(acc)
         kwargs.setdefault("CscRotCreator", csc_cluster_creator)
     else:

@@ -388,7 +388,7 @@ def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
     kwargs.setdefault("MdtRotCreator", mdt_creator)
     
     acc = CscClusterOnTrackCreatorCfg(flags)
-    csc_cluster_creator = acc.getPrimary()
+    csc_cluster_creator = acc.popPrivateTools()
     result.merge(acc)
     kwargs.setdefault("CscRotCreator", csc_cluster_creator)
     

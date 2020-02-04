@@ -16,7 +16,6 @@
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrkEventPrimitives/FitQuality.h"
 #include "MuonSegment/MuonSegment.h"
@@ -25,7 +24,6 @@
 #include "TrkSegment/Segment.h"
 #include "TrkRoad/TrackRoad.h"
 
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h" 
 
 #include "MuonCondInterface/ICSCConditionsSvc.h"
 
@@ -74,19 +72,9 @@ std::string chamber(int istation, int zsec, int phi) {
 
 Csc2dSegmentMaker::
 Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent),
-    m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool", this),
-    m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-    //m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", aname)
-    //m_cscCondSvc("CSCCondSummarySvc",name())
+  : AthAlgTool(type, aname, parent)
 {
   declareInterface<ICscSegmentFinder>(this);
-  declareProperty("segmentTool", m_segmentTool);
-  declareProperty("cscRotCreator", m_cscClusterOnTrackCreator);
-  declareProperty("IdHelper", m_idHelper);
-  declareProperty("cscdig_sg_inkey", m_cscdig_sg_inkey = "CSC_Measurements");
 }
 
 //******************************************************************************
@@ -116,9 +104,14 @@ StatusCode Csc2dSegmentMaker::initialize(){
     return StatusCode::FAILURE;
   }
   if ( m_idHelper.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_idHelper );
+    ATH_MSG_ERROR ( "Unable to retrieve MuonIdHelperTool " << m_idHelper );
     return StatusCode::FAILURE;
   }  
+  if ( m_printer.retrieve().isFailure() ) {
+    ATH_MSG_ERROR ( "Unable to retrieve " << m_printer );
+    return StatusCode::FAILURE;
+  }  
+
   /*
   if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
     ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );

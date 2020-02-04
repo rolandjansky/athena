@@ -400,7 +400,6 @@ def QratCscClusterFitterCfg(flags, **kwargs):
     kwargs.setdefault("qratcor_csl_eta",qratcor_csl_eta)
     kwargs.setdefault("qratcor_css_eta",qratcor_css_eta)
     csc_align_tool = CscAlignmentTool(flags)
-    result.addPublicTool(csc_align_tool) # TODO remove once private
     kwargs.setdefault("CscAlignmentTool", csc_align_tool )
     result.setPrivateTools(QratCscClusterFitter(**kwargs))
     
@@ -431,7 +430,7 @@ def CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool', **kwargs):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg
     
     result=CscClusterOnTrackCreatorCfg(flags)
-    csc_cluster_creator = result.getPrimary()
+    csc_cluster_creator = result.popPrivateTools()
     kwargs.setdefault("rot_creator", csc_cluster_creator )
     
     result.setPrivateTools(CscSegmentUtilTool( name=name, **kwargs))

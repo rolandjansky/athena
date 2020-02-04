@@ -93,8 +93,7 @@ namespace {
 // Constructor.
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent), 
-    m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator")
+  : AthAlgTool(type,name,parent)
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
@@ -114,7 +113,6 @@ CscSegmentUtilTool::CscSegmentUtilTool
   declareProperty("IPconstraint", m_IPconstraint = true);
   declareProperty("IPerror", m_IPerror = 250.);
   declareProperty("allEtaPhiMatches", m_allEtaPhiMatches = true);  
-  declareProperty("rot_creator", m_rotCreator);
   declareProperty("TightenChi2", m_TightenChi2 = true);
   declareProperty("Remove4Overlap", m_remove4Overlap = true);
   declareProperty("Remove3Overlap", m_remove3Overlap = true);

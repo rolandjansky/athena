@@ -110,7 +110,7 @@ private:  // data
   bool m_remove3Overlap; 
   int  m_nunspoil;
  
-  ToolHandle<Muon::ICscClusterOnTrackCreator> m_rotCreator;
+  ToolHandle<Muon::ICscClusterOnTrackCreator> m_rotCreator{this, "rot_creator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   
   SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
