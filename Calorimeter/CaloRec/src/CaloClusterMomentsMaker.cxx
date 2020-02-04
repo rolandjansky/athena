@@ -235,10 +235,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
     }
   }
   */
-  // pointer to detector manager:
-  //m_calo_dd_man = CaloDetDescrManager::instance(); 
   
-  //m_calo_id = m_calo_dd_man->getCaloCell_ID();
   CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   
   CHECK(m_caloDepthTool.retrieve());

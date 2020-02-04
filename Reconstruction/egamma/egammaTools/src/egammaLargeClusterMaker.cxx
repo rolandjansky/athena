@@ -54,7 +54,10 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
   SG::ReadHandle<xAOD::CaloClusterContainer> inputClusters(m_inputClusterCollection, ctx);
   // retrieve the cell containers
   SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
-
+  
+  const CaloDetDescrManager* dd_man= nullptr;
+  ATH_CHECK( detStore()->retrieve(dd_man,"CaloMgr") );
+  
   // The main loop over clusters
   for (auto cluster : *inputClusters) {
 
@@ -82,9 +85,7 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
     if ((eta==0. && phi==0.) || fabs(eta)>100) {
         return StatusCode::SUCCESS;
     }
-    
-    const CaloDetDescrManager* dd_man = CaloDetDescrManager::instance();
-
+   
     // Should get overritten
     bool  barrel=false;
     CaloCell_ID::SUBCALO subcalo=CaloCell_ID::LAREM;

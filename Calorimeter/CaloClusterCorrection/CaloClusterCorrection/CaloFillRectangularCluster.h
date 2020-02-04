@@ -43,6 +43,7 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+class CaloDetDescrManager;
 
 // Helper object used for the per-sampling calculations.
 namespace CaloClusterCorr {
@@ -148,6 +149,7 @@ private:
    * @param samplings List of samplings for this region.
    */
   void makeCorrection1 (const EventContext& ctx,
+                        const CaloDetDescrManager& dd_man,
                         CaloClusterCorr::SamplingHelper& helper,
                         double eta,
                         double phi,
@@ -160,6 +162,7 @@ private:
    * @param helper Sampling calculation helper object.
    */
   void makeCorrection2 (const EventContext& ctx,
+                        const CaloDetDescrManager& dd_man,
                         CaloClusterCorr::SamplingHelper& helper) const;
 
 

@@ -93,7 +93,8 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
         
         double oldEnergy = theCluster->e();           
         
-        const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance(); 
+        const CaloDetDescrManager* calo_dd_man = nullptr;                                                          
+        ATH_CHECK( detStore()->retrieve(calo_dd_man,"CaloMgr"));
         const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();   
               
 //         Make new Cluster and CellColl

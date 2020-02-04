@@ -152,8 +152,6 @@ class CaloClusterLocalCalibCone : public AthAlgTool, virtual public CaloClusterC
 
   std::vector<std::vector<TProfile2D *> > m_data;
 
-  const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd_man; 
   ICalorimeterNoiseTool * m_noiseTool;
 };
 

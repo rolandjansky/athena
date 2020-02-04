@@ -120,10 +120,6 @@ StatusCode RoIFCalHadCellContMaker::execute(CaloCellContainer &pCaloCellContaine
 
     if (m_do_LArCells_noise_suppression!=0){
 
-      //const CaloDetDescrManager* m_CaloDetDescrManager = CaloDetDescrManager::instance();
-      //if ( m_CaloDetDescrManager == 0 ) {
-      //   return StatusCode::FAILURE;
-      //}
 
       for(it = m_iBegin;it != m_iEnd; ++it) {
         //const CaloDetDescrElement* caloDDE = (*it)->caloDDE();

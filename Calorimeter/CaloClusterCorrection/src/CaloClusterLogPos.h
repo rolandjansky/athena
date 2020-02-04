@@ -69,8 +69,6 @@ class CaloClusterLogPos : public CaloClusterProcessor
   // property: offset for the logarithmic weighting
   double m_offset;
   
-  const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd_man; 
 };
 
 

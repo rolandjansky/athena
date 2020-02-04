@@ -50,8 +50,6 @@ CaloClusterLocalCalibCone::CaloClusterLocalCalibCone(const std::string& type,
     m_hadWeightFileName(""),
     m_signalOverNoiseCut(2),
     m_hadWeightFile(0),
-    m_calo_id(0),
-    m_calo_dd_man(0),
     m_noiseTool(0)
 { 
   m_etaBins.resize(0);
@@ -84,9 +82,6 @@ StatusCode CaloClusterLocalCalibCone::initialize()
   msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
 
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
    
   //---- retrieve the noise tool ----------------
    
@@ -221,127 +216,105 @@ CaloClusterLocalCalibCone::execute(const EventContext& /*ctx*/,
   xAOD::CaloClusterContainer::iterator clusIter = clusColl->begin();
   xAOD::CaloClusterContainer::iterator clusIterEnd = clusColl->end();
   unsigned int iClus=0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-    xAOD::CaloCluster * thisCluster = *clusIter;
+  for (; clusIter != clusIterEnd; clusIter++, iClus++) {
+    xAOD::CaloCluster* thisCluster = *clusIter;
     // check existing jets
-    for(unsigned int ijet=0;ijet<jets.size();ijet++) {
-      if ( ( m_coneSchema == Angle 
-	     && jets[ijet]->Angle(thisCluster->p4().Vect()) < m_coneDistance ) 
-	   || ( m_coneSchema == DeltaR 
-		&& jets[ijet]->DeltaR(thisCluster->p4()) < m_coneDistance ) ) {
-	if ( thisCluster->e()+jets[ijet]->E() > 0 ) {
-	  pjet[iClus] = jets[ijet];
-	  // add energy only - don't change jet direction
-	  (*jets[ijet]) *= ((thisCluster->e()+jets[ijet]->E())
-			    /jets[ijet]->E());
-	  
-	  ATH_MSG_DEBUG(
-	      "added cluster with E/eta/phi = " << thisCluster->e()
-	      << "/" << thisCluster->eta() 
-	      << "/" << thisCluster->phi() 
-	      << " to jet " << ijet << " which has now E/eta/phi/M = " 
-	      << jets[ijet]->E()
-	      << "/" << jets[ijet]->Eta()
-	      << "/" << jets[ijet]->Phi()
-	      << "/" << jets[ijet]->M()
-	      << endmsg);
-	}
-	break;
+    for (unsigned int ijet = 0; ijet < jets.size(); ijet++) {
+      if ((m_coneSchema == Angle && jets[ijet]->Angle(thisCluster->p4().Vect()) < m_coneDistance) ||
+          (m_coneSchema == DeltaR && jets[ijet]->DeltaR(thisCluster->p4()) < m_coneDistance)) {
+        if (thisCluster->e() + jets[ijet]->E() > 0) {
+          pjet[iClus] = jets[ijet];
+          // add energy only - don't change jet direction
+          (*jets[ijet]) *= ((thisCluster->e() + jets[ijet]->E()) / jets[ijet]->E());
+
+          ATH_MSG_DEBUG("added cluster with E/eta/phi = "
+                        << thisCluster->e() << "/" << thisCluster->eta() << "/" << thisCluster->phi() << " to jet "
+                        << ijet << " which has now E/eta/phi/M = " << jets[ijet]->E() << "/" << jets[ijet]->Eta() << "/"
+                        << jets[ijet]->Phi() << "/" << jets[ijet]->M() << endmsg);
+        }
+        break;
       }
     }
-    if ( !pjet[iClus] && thisCluster->e() > 0 ) {
+    if (!pjet[iClus] && thisCluster->e() > 0) {
       // make new jet
-      TLorentzVector *theJet = new TLorentzVector(thisCluster->p4());
+      TLorentzVector* theJet = new TLorentzVector(thisCluster->p4());
       pjet[iClus] = theJet;
       jets.push_back(theJet);
-      ATH_MSG_DEBUG(
-	   "cluster with E/eta/phi = " << thisCluster->e()
-	  << "/" << thisCluster->eta() 
-	  << "/" << thisCluster->phi() 
-	  << " started new jet " << jets.size()-1 
-	  << " which has now E/eta/phi/M = " 
-	  << theJet->E()
-	  << "/" << theJet->Eta()
-	  << "/" << theJet->Phi()
-	  << "/" << theJet->M()
-	  << endmsg);
+      ATH_MSG_DEBUG("cluster with E/eta/phi = "
+                    << thisCluster->e() << "/" << thisCluster->eta() << "/" << thisCluster->phi() << " started new jet "
+                    << jets.size() - 1 << " which has now E/eta/phi/M = " << theJet->E() << "/" << theJet->Eta() << "/"
+                    << theJet->Phi() << "/" << theJet->M() << endmsg);
     }
   }
+  const CaloDetDescrManager* calo_dd_man = nullptr;
+  ATH_CHECK( detStore()->retrieve(calo_dd_man,"CaloMgr") );
+
   clusIter = clusColl->begin();
-  iClus=0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-    xAOD::CaloCluster * thisCluster = *clusIter;
-    if ( pjet[iClus] 
-	 && thisCluster->recoStatus().checkStatus(CaloRecoStatus::StatusIndicator(m_recoStatus))) {
-      TLorentzVector *thisJet = pjet[iClus];
+  iClus = 0;
+  for (; clusIter != clusIterEnd; clusIter++, iClus++) {
+    xAOD::CaloCluster* thisCluster = *clusIter;
+    if (pjet[iClus] && thisCluster->recoStatus().checkStatus(CaloRecoStatus::StatusIndicator(m_recoStatus))) {
+      TLorentzVector* thisJet = pjet[iClus];
       // weight all cells in selected cluster
       xAOD::CaloCluster::cell_iterator itrCell = thisCluster->cell_begin();
       xAOD::CaloCluster::cell_iterator itrCell_e = thisCluster->cell_end();
-      for (;itrCell!=itrCell_e;++itrCell) {
-	const CaloCell* thisCell = *itrCell;
-	double weight = itrCell.weight();
-	// check calo and sampling index for current cell
-	Identifier myId = thisCell->ID();
-	CaloCell_ID::CaloSample theSample = thisCell->caloDDE()->getSampling();
-	if ( theSample < (int)m_caloIndices.size() 
-	     && m_caloIndices[theSample] >= 0 
-	     && m_samplingIndices[theSample] >= 0 ) {
-	  // check noise level and energy density of the current cell 
-	  double sigma =  m_noiseTool->getNoise(thisCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-	  double energy = fabs(thisCell->e());
-	  double ratio = 0;
-	  if ( finite(sigma) && sigma > 0 ) 
-	    ratio = energy/sigma;
-	  if ( ratio > m_signalOverNoiseCut ) {
-	    double volume = 0;
-	    double density = 0;
-	    const CaloDetDescrElement* myCDDE = m_calo_dd_man->get_element(myId);
-	    if ( myCDDE ) {
-	      volume = myCDDE->volume();
-	    }
-	    if ( volume > 0 ) 
-	      density = energy/volume;
-	    if ( density > 0 ) {
-	      int neta    = m_etaBins.size()-1;
-	      int ieta;
-	      double abseta = fabs(thisCell->eta());
-	      for(ieta=0;ieta<neta;ieta++) {
-		if (abseta >= m_etaBins[ieta]
-		    && abseta < m_etaBins[ieta+1])
-		  break;
-	      }
-	      if ( ieta < neta && m_data[theSample][ieta]) {
-		double log10edens = log10(density);
-		double log10conee = log10(thisJet->E());
-		double lemax = m_data[theSample][ieta]->GetXaxis()->GetBinCenter(m_data[theSample][ieta]->GetNbinsX());
-		if ( log10conee > lemax ) 
-		  log10conee = lemax;
-		int iBin = m_data[theSample][ieta]->FindBin(log10conee,log10edens);
-		double num = m_data[theSample][ieta]->GetBinEntries(iBin);
-		if (num > 10 ) {
-		  weight *= m_data[theSample][ieta]->GetBinContent(iBin);
-		  thisCluster->reweightCell(itrCell,weight);
-		  ATH_MSG_VERBOSE( 
-		       "cell with E/eta/phi = " << thisCell->e()
-		      << "/" << thisCell->eta() 
-		      << "/" << thisCell->phi() 
-		      << " in jet with E/eta/phi/M = " 
-		      << thisJet->E()
-		      << "/" << thisJet->Eta()
-		      << "/" << thisJet->Phi()
-		      << "/" << thisJet->M()
-		      << " weighted with w = " << weight
-		      << endmsg);
-		}
-	      }
-	    }//end if density >0
-	  }//end if noise cut
-	}
-      }//end loop over cells
+      for (; itrCell != itrCell_e; ++itrCell) {
+        const CaloCell* thisCell = *itrCell;
+        double weight = itrCell.weight();
+        // check calo and sampling index for current cell
+        Identifier myId = thisCell->ID();
+        CaloCell_ID::CaloSample theSample = thisCell->caloDDE()->getSampling();
+        if (theSample < (int)m_caloIndices.size() && m_caloIndices[theSample] >= 0 &&
+            m_samplingIndices[theSample] >= 0) {
+          // check noise level and energy density of the current cell
+          double sigma = m_noiseTool->getNoise(thisCell, ICalorimeterNoiseTool::ELECTRONICNOISE);
+          double energy = fabs(thisCell->e());
+          double ratio = 0;
+          if (finite(sigma) && sigma > 0)
+            ratio = energy / sigma;
+          if (ratio > m_signalOverNoiseCut) {
+            double volume = 0;
+            double density = 0;
+            const CaloDetDescrElement* myCDDE = calo_dd_man->get_element(myId);
+            if (myCDDE) {
+              volume = myCDDE->volume();
+            }
+            if (volume > 0)
+              density = energy / volume;
+            if (density > 0) {
+              int neta = m_etaBins.size() - 1;
+              int ieta;
+              double abseta = fabs(thisCell->eta());
+              for (ieta = 0; ieta < neta; ieta++) {
+                if (abseta >= m_etaBins[ieta] && abseta < m_etaBins[ieta + 1])
+                  break;
+              }
+              if (ieta < neta && m_data[theSample][ieta]) {
+                double log10edens = log10(density);
+                double log10conee = log10(thisJet->E());
+                double lemax = m_data[theSample][ieta]->GetXaxis()->GetBinCenter(m_data[theSample][ieta]->GetNbinsX());
+                if (log10conee > lemax)
+                  log10conee = lemax;
+                int iBin = m_data[theSample][ieta]->FindBin(log10conee, log10edens);
+                double num = m_data[theSample][ieta]->GetBinEntries(iBin);
+                if (num > 10) {
+                  weight *= m_data[theSample][ieta]->GetBinContent(iBin);
+                  thisCluster->reweightCell(itrCell, weight);
+                  ATH_MSG_VERBOSE("cell with E/eta/phi = "
+                                  << thisCell->e() << "/" << thisCell->eta() << "/" << thisCell->phi()
+                                  << " in jet with E/eta/phi/M = " << thisJet->E() << "/" << thisJet->Eta() << "/"
+                                  << thisJet->Phi() << "/" << thisJet->M() << " weighted with w = " << weight
+                                  << endmsg);
+                }
+              }
+            } // end if density >0
+          }   // end if noise cut
+        }
+      } // end loop over cells
       CaloClusterKineHelper::calculateKine(thisCluster,true,m_updateSamplingVars);
-      
-    }//end if reco status
-  }//end loop over clusters
+
+    } // end if reco status
+  }   // end loop over clusters
   for(unsigned int ijet=0;ijet<jets.size();ijet++) {
     delete jets[ijet];
   }
