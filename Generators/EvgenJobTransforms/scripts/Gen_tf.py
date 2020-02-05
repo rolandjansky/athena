@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 """
-# Run event simulation and produce an EVNT file.
+# Run event generation and produce an EVNT file.
 """
 
 import os, sys, time, shutil
@@ -67,17 +67,21 @@ class EvgenExecutor(athenaExecutor):
             cwd_ful = os.path.join(cwdir, dsidparam)
             if (os.path.isdir(cwd_ful)):
                os.environ["JOBOPTSEARCHPATH"] = cwd_ful+":"+os.environ["JOBOPTSEARCHPATH"]
+               os.environ["DATAPATH"] = cwd_ful+":"+os.environ["DATAPATH"]
             else:               
                cwd_Jodir = os.path.join(cwdir,Jodir)
                cwd_Jodir_ful = os.path.join(cwd_Jodir,dsidparam)
                if (os.path.isdir(cwd_Jodir_ful)):
                   os.environ["JOBOPTSEARCHPATH"] = cwd_Jodir_ful+":"+os.environ["JOBOPTSEARCHPATH"]
+                  os.environ["DATAPATH"] = cwd_Jodir_ful+":"+os.environ["DATAPATH"]
                else:
                   JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
                   JoCvmfsPath_ful = os.path.join(JoCvmfsPath, dsidparam)
                   os.environ["JOBOPTSEARCHPATH"] = JoCvmfsPath_ful+":"+os.environ["JOBOPTSEARCHPATH"]
+                  os.environ["DATAPATH"] = JoCvmfsPath_ful+":"+os.environ["DATAPATH"]
 #                  print '!! JoCvmfsPath_ful ',JoCvmfsPath_ful
-            msg.info("Using JOBOPTSEARCHPATH! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+#            msg.info("Using JOBOPTSEARCHPATH! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+#            msg.info("Using DATAPATH! = '%s'" % os.environ["DATAPATH"]) 
             #os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
 #            print "!! Jodir ",Jodir
            
@@ -86,6 +90,7 @@ class EvgenExecutor(athenaExecutor):
 #            dsid_part=os.path.basename(dsidparam)
             if (os.path.isdir(dsidparam)):
                os.environ["JOBOPTSEARCHPATH"] = dsidparam+":"+os.environ["JOBOPTSEARCHPATH"]
+               os.environ["DATAPATH"] = dsidparam+":"+os.environ["DATAPATH"]
             else:
                 msg.error("JOs not found, please check = '%s'" % dsidparam) 
 #                Jodir = dsidparam[:3]+'xxx'
@@ -104,6 +109,7 @@ class EvgenExecutor(athenaExecutor):
                 
 
         msg.info("Using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+        msg.info("Using DATAPATH = '%s'" % os.environ["DATAPATH"])
                 
         if "evgenJobOpts" in self._trf.argdict: ## Use a specified JO tarball
             tarball = self._trf.argdict["evgenJobOpts"].value
