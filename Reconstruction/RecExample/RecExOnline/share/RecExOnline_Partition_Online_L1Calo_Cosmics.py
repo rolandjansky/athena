@@ -202,70 +202,70 @@ include ("RecExOnline/RecExOnline_jobOptions.py")
 
 
 
-print ' '
-print '-------------------------------------------------------------'
-print '|     RecExOnline_globalconfig settings'
-print '| usePickleConfig    = ',usePickleConfig
-print '| DataSource         = ',DataSource
-print '| InputFormat        = ',InputFormat
-print '| fileName           = ',fileName
-#print '| doESD              = ',doESD
-print '| writeESD           = ',writeESD
-#print '| doAOD              = ',doAOD
-print '| writeAOD           = ',writeAOD
-print '| isOnlineStateless  = ',isOnlineStateless
-print '| beamType           = ',beamType
-print '| is_T0_project_tag  = ',is_T0_project_tag
-print '| ConditionsTag      = ',ConditionsTag
-#print '| DetDescrVersion    = ',DetDescrVersion
-print '| doPixelOnlyMon     = ',doPixelOnlyMon
-print '| evtMax             = ',evtMax
-print '-------------------------------------------------------------'
-print '|     RecExOnline_recoflags settings'
-print '| doAllReco          = ',doAllReco
-print '| doInDet            = ',doInDet
-print '| doMuon             = ',doMuon
-print '| doLArg             = ',doLArg
-print '| doTile             = ',doTile
-print '| doLucid            = ',doLucid
-#print '| doTrigger          = ',doTrigger
-#print '| doHist             = ',doHist
+printfunc (' ')
+printfunc ('-------------------------------------------------------------')
+printfunc ('|     RecExOnline_globalconfig settings')
+printfunc ('| usePickleConfig    = ',usePickleConfig)
+printfunc ('| DataSource         = ',DataSource)
+printfunc ('| InputFormat        = ',InputFormat)
+printfunc ('| fileName           = ',fileName)
+#printfunc ('| doESD              = ',doESD)
+printfunc ('| writeESD           = ',writeESD)
+#printfunc ('| doAOD              = ',doAOD)
+printfunc ('| writeAOD           = ',writeAOD)
+printfunc ('| isOnlineStateless  = ',isOnlineStateless)
+printfunc ('| beamType           = ',beamType)
+printfunc ('| is_T0_project_tag  = ',is_T0_project_tag)
+printfunc ('| ConditionsTag      = ',ConditionsTag)
+#printfunc ('| DetDescrVersion    = ',DetDescrVersion)
+printfunc ('| doPixelOnlyMon     = ',doPixelOnlyMon)
+printfunc ('| evtMax             = ',evtMax)
+printfunc ('-------------------------------------------------------------')
+printfunc ('|     RecExOnline_recoflags settings')
+printfunc ('| doAllReco          = ',doAllReco)
+printfunc ('| doInDet            = ',doInDet)
+printfunc ('| doMuon             = ',doMuon)
+printfunc ('| doLArg             = ',doLArg)
+printfunc ('| doTile             = ',doTile)
+printfunc ('| doLucid            = ',doLucid)
+#printfunc ('| doTrigger          = ',doTrigger)
+#printfunc ('| doHist             = ',doHist)
 #print '| doJiveXML          = ',doJiveXML
-print '| doEgammaTau        = ',doEgammaTau
-print '| doCommissioning    = ',doCommissioning
-print '| abortonuncheckedstatuscode = ',abortonuncheckedstatuscode
-print '-------------------------------------------------------------'
-print '|     RecExOnline_monitoring settings'
-print '| doAllMon           = ',doAllMon
-print '| doCaloMon          = ',doCaloMon
-print '| doPhysMon          = ',doPhysMon
-print '| doHLTMon           = ',doHLTMon
-print '| doLVL1CaloMon      = ',doLVL1CaloMon
-print '| doCTPMon           = ',doCTPMon
-print '| doIDMon            = ',doIDMon
-print '| doPixelOnlyMon     = ',doPixelOnlyMon
-print '| doSCTMon           = ',doSCTMon
-print '| doMuonMon          = ',doMuonMon
-print '| doTRTMon           = ',doTRTMon
-print '| doLucidMon         = ',doLucidMon
-print '| isOnline           = ',isOnline
-print '-------------------------------------------------------------'
-print '|     RecExOnline: emonsvc settings'
-print '| partitionName      = ',partitionName
-print '| publishName        = ',publishName
-print '| streamNames        = ',streamName
-print '| streamType         = ',streamType
-print '| streamLogic        = ',streamLogic
-print '| lvl1Name           = ',lvl1Name
-print '| lvl1Logic          = ',lvl1Logic
-print '| keyname            = ',keyname
-print '| keycount           = ',keycount
-print '| buffersize         = ',buffersize
-print '| updateperiod       = ',updateperiod
-print '| timeout            = ',timeout
-print '| isserverName       = ',isserverName
-print '| isGlobalMonitoring = ',isGlobalMonitoring
-print '--------------------------------------------------------------'
+printfunc ('| doEgammaTau        = ',doEgammaTau)
+printfunc ('| doCommissioning    = ',doCommissioning)
+printfunc ('| abortonuncheckedstatuscode = ',abortonuncheckedstatuscode)
+printfunc ('-------------------------------------------------------------')
+printfunc ('|     RecExOnline_monitoring settings')
+printfunc ('| doAllMon           = ',doAllMon)
+printfunc ('| doCaloMon          = ',doCaloMon)
+printfunc ('| doPhysMon          = ',doPhysMon)
+printfunc ('| doHLTMon           = ',doHLTMon)
+printfunc ('| doLVL1CaloMon      = ',doLVL1CaloMon)
+printfunc ('| doCTPMon           = ',doCTPMon)
+printfunc ('| doIDMon            = ',doIDMon)
+printfunc ('| doPixelOnlyMon     = ',doPixelOnlyMon)
+printfunc ('| doSCTMon           = ',doSCTMon)
+printfunc ('| doMuonMon          = ',doMuonMon)
+printfunc ('| doTRTMon           = ',doTRTMon)
+printfunc ('| doLucidMon         = ',doLucidMon)
+printfunc ('| isOnline           = ',isOnline)
+printfunc ('-------------------------------------------------------------')
+printfunc ('|     RecExOnline: emonsvc settings')
+printfunc ('| partitionName      = ',partitionName)
+printfunc ('| publishName        = ',publishName)
+printfunc ('| streamNames        = ',streamName)
+printfunc ('| streamType         = ',streamType)
+printfunc ('| streamLogic        = ',streamLogic)
+printfunc ('| lvl1Name           = ',lvl1Name)
+printfunc ('| lvl1Logic          = ',lvl1Logic)
+printfunc ('| keyname            = ',keyname)
+printfunc ('| keycount           = ',keycount)
+printfunc ('| buffersize         = ',buffersize)
+printfunc ('| updateperiod       = ',updateperiod)
+printfunc ('| timeout            = ',timeout)
+printfunc ('| isserverName       = ',isserverName)
+printfunc ('| isGlobalMonitoring = ',isGlobalMonitoring)
+printfunc ('--------------------------------------------------------------')
 
 #from AthenaCommon.AppMgr import ServiceMgr
 #from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
@@ -362,10 +362,10 @@ print '--------------------------------------------------------------'
 
 if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS") >= 0) :
 #if (partitionName.find("L1CaloStandalone") >= 0) :
-  print "L1Calo Monitoring is overriding the run number and lumiblock number."
+  printfunc ("L1Calo Monitoring is overriding the run number and lumiblock number.")
   svcMgr.IOVDbSvc.forceRunNumber=313285 #312649 #312424(HI) #309640 #271733 #182519 #238735
   svcMgr.IOVDbSvc.forceLumiblockNumber=1
-  print "L1Calo Monitoring set run to ",svcMgr.IOVDbSvc.forceRunNumber,"and lumi block to",svcMgr.IOVDbSvc.forceLumiblockNumber
+  printfunc ("L1Calo Monitoring set run to ",svcMgr.IOVDbSvc.forceRunNumber,"and lumi block to",svcMgr.IOVDbSvc.forceLumiblockNumber)
 
   #from IOVDbSvc.CondDB import conddb
   #conddb.addFolder("TRIGGER","/TRIGGER/HLT/Menu <tag>HEAD</tag>") 
@@ -398,7 +398,7 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
 
   # only offline
   from RecExConfig.InputFilePeeker import inputFileSummary
-  print "inputFileSummary =",inputFileSummary
+  printfunc ("inputFileSummary =",inputFileSummary)
   if inputFileSummary.__contains__('bs_metadata'):
     # get the run number and lumi_block for the input
     run_number = inputFileSummary['bs_metadata']['run_number']
@@ -406,7 +406,7 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
     pointintime = (int(run_number)<<32) + int(lumi_block) # start from lumiblock 0 (or 1?)
 
     DBInstance = svcMgr.IOVDbSvc.properties()['DBInstance']
-    print "L1Calo Monitoring check DBInstance ",DBInstance
+    printfunc ("L1Calo Monitoring check DBInstance ",DBInstance)
     connstring = "COOLONL_TRIGGER/"+str(DBInstance) 
     from CoolConvUtilities.AtlCoolLib import indirectOpen
     coolDB=indirectOpen(connstring,oracle='True')
@@ -416,9 +416,9 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
     retrieved_payload=retrieved_obj.payload()
     retrieved_format=retrieved_payload['MasterConfigurationKey']
     SuperMasterKey=int(999)
-    print "SMK SuperMasterKey default =",SuperMasterKey
+    printfunc ("SMK SuperMasterKey default =",SuperMasterKey)
     SuperMasterKey = int(retrieved_format)                                 
-    print "SMK SuperMasterKey from Cool =",SuperMasterKey
+    printfunc ("SMK SuperMasterKey from Cool =",SuperMasterKey)
     coolDB.closeDatabase()
 
    #from IOVDbSvc.CondDB import conddb

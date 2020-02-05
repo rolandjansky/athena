@@ -1,4 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 import ispy
 
@@ -10,7 +15,7 @@ def GetAtlasReady():
       r4p.checkout()
       return r4p.ready4physics
    except:
-      print "#### Failed to determine if we are ready for physics"
+      print ("#### Failed to determine if we are ready for physics")
       raise
 
 def GetRunType():
@@ -41,7 +46,7 @@ def GetRunType():
     runparams.checkout()
     beamEnergy = runparams.beam_energy
     projectTag = runparams.T0_project_tag
-  except UserWarning, err:
+  except UserWarning as err:
     mlog.error(err)
     beamEnergy = None
     projectTag = None
@@ -94,7 +99,7 @@ def GetBFields():
     #And calculate the flags
     solOn = ((solCurrent.value > 1000.) and (solInvalid.value == 0))
     torOn = ((torCurrent.value > 1000.) and (torInvalid.value == 0))
-  except UserWarning, err:
+  except UserWarning as err:
     mlog.error(err)
     #Should always be able to access initial parititon
     mlog.fatal("Failed to read magnetic field configuration from IS, aborting")
@@ -110,6 +115,6 @@ def GetBFields():
 
 if __name__ == "__main__":
   runType = GetRunType()
-  print "(BeamType, BeamEnergy, ProjectTag): ", runType
+  print ("(BeamType, BeamEnergy, ProjectTag): ", runType)
   bFields = GetBFields()
-  print "(SolCurrent, TorCurrent):", (bFields[0].value, bFields[1].value)
+  print ("(SolCurrent, TorCurrent):", (bFields[0].value, bFields[1].value))
