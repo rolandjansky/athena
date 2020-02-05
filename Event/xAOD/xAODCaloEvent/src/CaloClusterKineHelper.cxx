@@ -300,8 +300,7 @@ void CaloClusterKineHelper::calculateKine(xAOD::CaloCluster* clu, const bool use
     clu->setPhimax(sam,accum.PhiMaxEnergyInSample[i]);
   }
 
-  return; 
-}
+  }
 
 #endif //not XAOD_ANALYSIS
 #endif //not SIMULATIONBASE

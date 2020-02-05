@@ -147,7 +147,7 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::CaloCluster_v1 ERROR Unknown moment ("
                    << moment << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
 } // namespace xAOD

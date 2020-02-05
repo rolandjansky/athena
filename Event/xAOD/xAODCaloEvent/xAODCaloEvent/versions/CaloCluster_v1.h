@@ -679,14 +679,14 @@ namespace xAOD {
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
          return CaloClusterCellLink::dummyIt;
-       else
+       
          return links->begin();
      }
      const_cell_iterator cell_cend() const { 
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
          return CaloClusterCellLink::dummyIt;
-       else
+       
          return getCellLinks()->end();
      } 
 
@@ -738,7 +738,7 @@ namespace xAOD {
   inline  double CaloCluster_v1::et() const {
     if (this->m()==0) 
       return this->pt();
-    else
+    
       return this->p4().Et();
   }
 
@@ -751,14 +751,14 @@ namespace xAOD {
     //std::cout << "Pattern=" << std::hex << pattern << std::dec << ", Sampling=" << s << std::endl;
     if ((pattern & (0x1U << s))==0)
       return CaloSampling::Unknown;
-    else {
+    
       if (s==0) return 0; //shifting a 32-bit int by 32 bits is undefined behavior! 
       return __builtin_popcount(pattern << (32-s)); 
       //Explanation: Need to get the number of bit (=samples) before the sampling in question
       //Shift to the left, so bits after the sampling in question fall off the 32bit integer
       //Then use gcc builtin popcount to count the numbers of 1 in the rest
       //AFAIK, this builtin is available for gcc, icc and clang (as well on ARM)
-    }
+    
   }
 
 

@@ -158,7 +158,7 @@ inline const xAOD::CaloTower_v1* xAOD::CaloTowerContainer_v1::tower(double eta, 
   int idx=index(eta,phi);
   if (idx>0 && idx<(int)this->size()) 
     return (*this)[idx];
-  else
+  
     return nullptr;
 }
 

@@ -123,7 +123,7 @@ namespace xAOD {
            &phisizeAcc } };
       for( auto a : allAcc ) {
          if( a->isAvailable( *this ) ) {
-            if( ( *a )( *this ).size() > 0 ) {
+            if( !( *a )( *this ).empty() ) {
 	      if (clearSamplingVars) 
 		(*a)(*this).clear();
 	      else
@@ -301,8 +301,7 @@ namespace xAOD {
   void CaloCluster_v1::setBadChannelList(const CaloClusterBadChannelList& bcl) {
     static const Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
     accBCL(*this)=bcl;
-    return;
-  }
+ }
     
    const CaloClusterBadChannelList& CaloCluster_v1::badChannelList() const {
     static const Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
@@ -414,8 +413,7 @@ namespace xAOD {
      default:
        break;
      }
-    return;
-  }
+     }
 
   void CaloCluster_v1::setEta(CaloCluster_v1::flt_t theEta) {
     switch (m_signalState) {
@@ -431,8 +429,7 @@ namespace xAOD {
      default:
        break;
      }
-    return;
-  }
+     }
   
   void CaloCluster_v1::setPhi(CaloCluster_v1::flt_t thePhi) {
     switch (m_signalState) {
@@ -448,8 +445,7 @@ namespace xAOD {
      default:
        break;
      }
-    return;
-  }
+     }
 
 
   void CaloCluster_v1::setM(CaloCluster_v1::flt_t theM) {
@@ -466,8 +462,7 @@ namespace xAOD {
      default:
        break;
      }
-    return;
-  }
+     }
  
   bool CaloCluster_v1::setSignalState( CaloCluster_v1::State s)  {
     m_signalState=s;
@@ -529,7 +524,7 @@ namespace xAOD {
     if (idx<vec.size() ) {
       return vec[idx];
     }
-    else
+    
       //std::cout <<Sampling " << sampling << ", Pattern=" << std::hex <<m_samplingPattern << std::dec << ", index=" << idx << " size=" << vec.size() << std::endl;
       return errorvalue;
   }
@@ -565,7 +560,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > etaAcc("eta_sampl");
     if (!etaAcc.isAvailable( *this ))
       return -999;
-    else
+    
       return getSamplVarFromAcc(etaAcc,sampling);
   }
 
@@ -579,7 +574,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > phiAcc("phi_sampl");
     if (!phiAcc.isAvailable( *this ))
       return -999;
-    else
+    
       return getSamplVarFromAcc(phiAcc,sampling);
   }
 
@@ -594,7 +589,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > emaxAcc("emax_sampl");
     if (!emaxAcc.isAvailable( *this ))
       return 0.0;
-    else
+    
       return getSamplVarFromAcc(emaxAcc,sampling,0.0); //Return energy 0 in case of failure (eg. sampling not set)
   }
 
@@ -607,7 +602,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
     if (!etamaxAcc.isAvailable( *this ))
       return -999;
-    else
+    
       return getSamplVarFromAcc(etamaxAcc,sampling);
   }
 
@@ -620,7 +615,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
     if (!phimaxAcc.isAvailable( *this ))
       return -999;
-    else
+    
       return getSamplVarFromAcc(phimaxAcc,sampling);
   }
 
@@ -634,7 +629,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
     if (!etasizeAcc.isAvailable( *this ))
       return -999;
-    else
+    
       return getSamplVarFromAcc(etasizeAcc,sampling);
   }
 
@@ -647,7 +642,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
     if (!phisizeAcc.isAvailable( *this ))
       return -999;
-    else
+    
       return getSamplVarFromAcc(phisizeAcc,sampling);
   }
 
@@ -718,12 +713,12 @@ namespace xAOD {
        float phiEndcap=phiSample(endcapSample);
        static CaloPhiRange phiRange;
        if (eSum!=0.0) {
-	 float phiSum = eSum * phiBarrel + eEndcap * phiRange.diff(phiEndcap,phiBarrel);
-	 return phiRange.fix(phiSum/(eBarrel+eEndcap));
+	 float phiSum = eSum * phiBarrel + eEndcap * CaloPhiRange::diff(phiEndcap,phiBarrel);
+	 return CaloPhiRange::fix(phiSum/(eBarrel+eEndcap));
        }
-       else {// energy==0 case, should never happen
-	 return phiRange.fix(0.5*(phiBarrel+phiEndcap));
-       }
+       // energy==0 case, should never happen
+	 return CaloPhiRange::fix(0.5*(phiBarrel+phiEndcap));
+       
     }
     if  (haveBarrel) {
       return phiSample(barrelSample);
@@ -780,8 +775,7 @@ namespace xAOD {
       }
 #endif // C++11
 
-      return;
-   }
+        }
 
   bool CaloCluster_v1::retrieveMoment( MomentType type, double& value ) const {
 
@@ -800,8 +794,7 @@ namespace xAOD {
 
  void CaloCluster_v1::insertMoment( MomentType type, double value ) {
    ( *( momentAccessorV1( type ) ) )( *this ) = value;
-   return;
-  }
+ }
   
 
   /** for debugging only ...
@@ -884,13 +877,13 @@ namespace xAOD {
   const CaloClusterCellLink* CaloCluster_v1::getCellLinks() const {
     if (m_cellLinks) return m_cellLinks.get();
     static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
-    if (!accCellLinks.isAvailable(*this)) return 0;
+    if (!accCellLinks.isAvailable(*this)) return nullptr;
 
     ElementLink<CaloClusterCellLinkContainer> el=accCellLinks(*this);
     if (el.isValid()) 
       return *el;
-    else
-      return 0;
+    
+      return nullptr;
   }
 
   bool CaloCluster_v1::removeCell(const CaloCell* ptrToDelete) {
@@ -923,17 +916,16 @@ namespace xAOD {
       }
       
       // Return gracefully:
-      return;
-   }
+        }
 
   const CaloCluster_v1* CaloCluster_v1::getSisterCluster() const {
     static const Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
-    if (!accSisterCluster.isAvailable(*this)) return 0;
+    if (!accSisterCluster.isAvailable(*this)) return nullptr;
     ElementLink<CaloClusterContainer_v1> el=accSisterCluster(*this);
     if (el.isValid()) 
       return *el;
-    else
-      return 0;
+    
+      return nullptr;
   }
 
   const ElementLink<xAOD::CaloClusterContainer_v1>& CaloCluster_v1::getSisterClusterLink() const {
