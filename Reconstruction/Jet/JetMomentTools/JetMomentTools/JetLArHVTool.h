@@ -30,9 +30,9 @@ class JetLArHVTool: public asg::AsgTool,
 public:
   JetLArHVTool(const std::string & name);
 
-  virtual StatusCode decorate(const xAOD::JetContainer& jets) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
  private:
 

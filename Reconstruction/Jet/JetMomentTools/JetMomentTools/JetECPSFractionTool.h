@@ -35,10 +35,10 @@ public:
   JetECPSFractionTool(std::string myname);
 
   // Inherited method to decorate a jet.
-  virtual StatusCode decorate(const xAOD::JetContainer& jets) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
   // Inherited from AsgTool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Local method to calculate and return the energy fraction.
   double energyFraction(const xAOD::Jet& jet) const;

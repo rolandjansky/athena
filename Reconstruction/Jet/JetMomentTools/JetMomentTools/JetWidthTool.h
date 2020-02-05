@@ -28,11 +28,11 @@ public:
   // Constructor from tool name.
   JetWidthTool(std::string myname);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Inherited method to decorate a jet container.
   // Calls width and puts the result on the jets.
-  virtual StatusCode decorate(const xAOD::JetContainer& jets) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
   // Local method to calculate and return the width.
   float width(const xAOD::Jet& jet, float& widthEta, float& widthPhi) const;

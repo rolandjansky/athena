@@ -35,10 +35,10 @@ public:
   JetVoronoiMomentsTool(const std::string& name);
 
   // Inherited from AsgTool via IJetDecorator
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Inherited method to decorate a jet container
-  virtual StatusCode decorate(const xAOD::JetContainer& jets) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
 private:
 
