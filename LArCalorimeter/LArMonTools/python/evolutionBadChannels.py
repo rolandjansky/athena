@@ -1,6 +1,8 @@
 #!/usr/bin env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # ======================================================================
 def extractBad(histo,sp,hi,bin):
@@ -116,7 +118,7 @@ for index in range(0,nbOfRun):
     nameFile = "/castor/cern.ch/grid/atlas/tzero/prod1/perm/data10_7TeV/physics_CosmicCalo/0%d/data10_7TeV.00%d.physics_CosmicCalo.merge.HIST.x%d_m%d/data10_7TeV.00%d.physics_CosmicCalo.merge.HIST.x%d_m%d._0001.1"%(runNumber[index],runNumber[index],tagxf[index],tagm[index],runNumber[index],tagxf[index],tagm[index])
   if tag == "UPD4":
     nameFile = "/castor/cern.ch/grid/atlas/tzero/prod1/perm/data10_7TeV/physics_CosmicCalo/0%d/data10_7TeV.00%d.physics_CosmicCalo.merge.HIST.f%d_m%d/data10_7TeV.00%d.physics_CosmicCalo.merge.HIST.f%d_m%d._0001.1"%(runNumber[index],runNumber[index],tagxf[index],tagm[index],runNumber[index],tagxf[index],tagm[index])
-  print nameFile
+  print (nameFile)
   myfile = TRFIOFile(nameFile)
 
   emba = gDirectory.Get("run_%d/LAr/Coverage/BadChannels/DBBadChannelsBarrelA"%(runNumber[index]))
@@ -128,11 +130,11 @@ for index in range(0,nbOfRun):
   ecc  = gDirectory.Get("run_%d/LAr/Coverage/BadChannels/DBBadChannelsEndcapC"%(runNumber[index]))
   extractBad(ecc,sporadic,highNoise,index)
 
-  print "**EMB   : sporadicBurst=",sporadic[0][index]," - highNoise=",highNoise[0][index]
-  print "**EMB PS: sporadicBurst=",sporadic[1][index]," - highNoise=",highNoise[1][index]
-  print "**EMEC  : sporadicBurst=",sporadic[2][index]," - highNoise=",highNoise[2][index]
-  print "**FCAL  : sporadicBurst=",sporadic[3][index]," - highNoise=",highNoise[3][index]
-  print "**HEC   : sporadicBurst=",sporadic[4][index]," - highNoise=",highNoise[4][index]
+  print ("**EMB   : sporadicBurst=",sporadic[0][index]," - highNoise=",highNoise[0][index])
+  print ("**EMB PS: sporadicBurst=",sporadic[1][index]," - highNoise=",highNoise[1][index])
+  print ("**EMEC  : sporadicBurst=",sporadic[2][index]," - highNoise=",highNoise[2][index])
+  print ("**FCAL  : sporadicBurst=",sporadic[3][index]," - highNoise=",highNoise[3][index])
+  print ("**HEC   : sporadicBurst=",sporadic[4][index]," - highNoise=",highNoise[4][index])
   
 #Create 1 TGraph for each errorType/run
 
