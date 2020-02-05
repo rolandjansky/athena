@@ -15,7 +15,7 @@ def getCampaign(ami_tag = None, project = None):
         from RecExConfig.InputFilePeeker import inputFileSummary
         if inputFileSummary is not None:
             ami_tag = inputFileSummary['tag_info']['AMITag'] if ami_tag is None else ami_tag
-        project = inputFileSummary['tag_info']['project_name'] if projcet is None else project
+            project = inputFileSummary['tag_info']['project_name'] if project is None else project
 
     assert ami_tag is not None
     assert project is not None
@@ -54,7 +54,7 @@ def getMCMuFiles(data_type = None, campaign = None, dsid = None):
         from RecExConfig.InputFilePeeker import inputFileSummary
         if inputFileSummary is not None and 'IS_SIMULATION' in inputFileSummary['evt_type']:
             # We are in an MC file - get the AMI tag
-            ami_tag = inputFileSummary['tag_info']['AMITag'] if ami_tag is None else ami_tag
+            ami_tag = inputFileSummary['tag_info']['AMITag']
             campaign = getCampaign(ami_tag=ami_tag)
             dsid = str(inputFileSummary['mc_channel_number'][0]) if dsid is None else dsid
             sim_flavor = inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour']
