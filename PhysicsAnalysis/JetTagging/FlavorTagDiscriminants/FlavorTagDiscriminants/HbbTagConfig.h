@@ -12,6 +12,7 @@ namespace FlavorTagDiscriminants {
   struct HbbTagConfig
   {
     HbbTagConfig(const boost::filesystem::path& path);
+    HbbTagConfig() = default;
     boost::filesystem::path input_file_path;
     std::string subjet_link_name;
     double min_subjet_pt = 7e3;
