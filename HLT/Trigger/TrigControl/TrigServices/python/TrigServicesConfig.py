@@ -3,7 +3,7 @@
 # @file: TrigServicesConfig.py
 # @purpose: customized configurables
 
-from TrigServicesConf import TrigCOOLUpdateHelper as _TrigCOOLUpdateHelper
+from TrigServices.TrigServicesConf import TrigCOOLUpdateHelper as _TrigCOOLUpdateHelper
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigCOOLUpdateHelper')
  
@@ -48,7 +48,7 @@ def setupMessageSvc():
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from AthenaCommon.Constants import DEBUG, WARNING
 
-   svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
+   svcMgr.MessageSvc = theApp.service( "TrigMessageSvc" )     # already instantiated
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
@@ -88,7 +88,7 @@ def setupMessageSvc():
    MessageSvc.statLevel = WARNING
 
 # online ROB data provider service
-from TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
+from TrigServices.TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
 class HltROBDataProviderSvc(_HltROBDataProviderSvc):
    __slots__ = ()
 
@@ -119,7 +119,7 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
       return
 
 # online event loop manager
-from TrigServicesConf import HltEventLoopMgr as _HltEventLoopMgr
+from TrigServices.TrigServicesConf import HltEventLoopMgr as _HltEventLoopMgr
 class HltEventLoopMgr(_HltEventLoopMgr):
    __slots__ = ()
 

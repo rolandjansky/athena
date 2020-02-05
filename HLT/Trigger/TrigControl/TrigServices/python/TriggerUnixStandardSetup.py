@@ -115,7 +115,7 @@ def setupCommonServices():
     theApp.EvtSel = "EventSelector"
 
     # Online event loop manager
-    from TrigServicesConfig import HltEventLoopMgr
+    from TrigServices.TrigServicesConfig import HltEventLoopMgr
     loopMgr = HltEventLoopMgr("HltEventLoopMgr")
     loopMgr.WhiteboardSvc = "EventDataSvc"
     loopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
