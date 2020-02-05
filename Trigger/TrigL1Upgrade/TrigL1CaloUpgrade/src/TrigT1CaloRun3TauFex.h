@@ -58,6 +58,8 @@ private :
 
 	SG::AuxElement::Accessor<float>* acc_clusterET;
 	SG::AuxElement::Accessor<float>* acc_clusterIso;
+	SG::AuxElement::Accessor<float>* acc_Ore_clusterET;
+	SG::AuxElement::Accessor<float>* acc_Ore_clusterIso;
 
         /** output name */
         std::string m_outputClusterName;
