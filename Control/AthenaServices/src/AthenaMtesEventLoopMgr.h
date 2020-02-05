@@ -1,50 +1,38 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAMTESEVENTLOOPMGR_H
 #define ATHENASERVICES_ATHENAMTESEVENTLOOPMGR_H
 
-#include <string>
-#include <vector>
-
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IAlgResourcePool.h"
+#include "GaudiKernel/IHiveWhiteBoard.h"
+#include "GaudiKernel/IScheduler.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
+
 #include "AthenaKernel/Timeout.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IConditionsCleanerSvc.h"
+#include "StoreGate/ActiveStoreSvc.h"
 
-//////////////////////////////////////////////////
-#include "GaudiKernel/IAlgResourcePool.h"
-#include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/IHiveWhiteBoard.h"
-#include "GaudiKernel/IScheduler.h"
-#include "GaudiKernel/IAlgExecStateSvc.h"
-
-// Standard includes
+#include <memory>
+#include <string>
+#include <vector>
 #include <functional>
-
-// External Libraries
-#include "tbb/concurrent_queue.h"
-//////////////////////////////////////////////////
 
 #ifndef EVENTINFO_EVENTID_H
 # include "EventInfo/EventID.h"  /* number_type */
 #endif
-
-#include "StoreGate/ActiveStoreSvc.h"
-
-#include <memory>
-#include <fstream>
 
 // Forward declarations
 class IConversionSvc;
@@ -152,12 +140,6 @@ protected:
 
   /// Run the algorithms for the current event
   virtual StatusCode executeAlgorithms();
-
-  /// Fire BeginRun Incident, run the algorithms beginRun hook
-  StatusCode beginRunAlgorithms();
-
-  /// Fire EndEvtLoop,EndRun, run the algorithms endRun hook
-  StatusCode endRunAlgorithms();
 
   /// Initialize all algorithms and output streams
   StatusCode initializeAlgorithms();
@@ -282,18 +264,34 @@ private:
   // at the end of event processing.
   EventContext m_lastEventContext;
 
+  // Event Service Specific stuff
+  struct RangeStruct{
+    RangeStruct()
+      : eventRangeID{""}
+      , pfn{""}
+      , startEvent{-1}
+      , lastEvent{-1} {}
 
-  typedef struct {
     std::string eventRangeID;
     std::string pfn;
     int startEvent;
     int lastEvent;
-  } RangeStruct_t;
+  };
 
-  std::unique_ptr<RangeStruct_t> getNextRange(yampl::ISocket* socket);
+  std::unique_ptr<RangeStruct> getNextRange(yampl::ISocket* socket);
   void trimRangeStrings(std::string& str);
 
   ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
+
+  Gaudi::Property<std::string> m_eventRangeChannel{this
+      , "EventRangeChannel"
+      , "EventService_EventRanges"
+      , "The name of the Yampl channel between AthenaMT and the Pilot"
+      };
+
+  // Hopefully a temporary measurement. For the time being we cannot
+  // support event ranges from different input files.
+  std::string m_pfn{""};
 };
 
 #endif // ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
