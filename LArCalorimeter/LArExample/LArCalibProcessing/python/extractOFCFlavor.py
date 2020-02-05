@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #!/bin/env python
 from PyCool import cool
@@ -13,8 +13,8 @@ def getOFCFlavor():
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     try:
         db= dbSvc.openDatabase("COOLONL_LAR/CONDBR2")
-    except Exception,e:
-        print "ERROR: Problems connecting to database:",e
+    except Exception as e:
+        print ("ERROR: Problems connecting to database:",e)
         return None
 
     if db.existsFolder(onlineOFCFolder):
@@ -23,13 +23,13 @@ def getOFCFlavor():
             currObj=pFldr.findObject(cool.ValidityKeyMax-1,0) #Check only high gain
             pl=currObj.payload()
             curr_nsamples=pl["nSamples"]
-        except Exception,e:
-            print "Failed to extract data from online OFC folder"
-            print e
+        except Exception as e:
+            print ("Failed to extract data from online OFC folder")
+            print (e)
             curr_nsamples=None
             pass
     else:
-        print "ERROR: Folder",onlineOFCFolder,"doesn't exist!"
+        print ("ERROR: Folder",onlineOFCFolder,"doesn't exist!")
         curr_nsamples=None
         pass
     
@@ -47,9 +47,9 @@ def getOFCFlavor():
             try:
                 pFldr=db.getFolder(offlineOFCFolder)
                 ofctaglist=pFldr.listTags()
-            except Exception,e:
-                print "Failed to extract data from offline database"
-                print e
+            except Exception as e:
+                print ("Failed to extract data from offline database")
+                print (e)
                 pass
         
             for t in ofctaglist:
@@ -61,20 +61,20 @@ def getOFCFlavor():
                     try:
                         currentOFCOption=(offlineOFCFolder,pFldr.resolveTag("LARCALIB-RUN2-00"))
                     except:
-                        print "Could not resolve global tag in folder ",offlineOFCFolder
+                        print ("Could not resolve global tag in folder ",offlineOFCFolder)
                         pass
                     pass
                 pass #end if "%isamples1phase
             pass #end if curr_nsamples is not None: 
         else: 
-            print "Folder",offlineOFCFolder,"does not exist"
+            print ("Folder",offlineOFCFolder,"does not exist")
             pass
         pass
 
 
-    print "Current number of samples:", curr_nsamples
+    print ("Current number of samples:", curr_nsamples)
 
-    print "OFC flavor for production [%s]: " % currentOFCOption[1]
+    print ("OFC flavor for production [%s]: " % currentOFCOption[1])
 
     if "mu" in currentOFCOption[1]:
         return 20
@@ -89,9 +89,9 @@ if __name__=="__main__":
 
     ofcForOnline=getOFCFlavor()
     if ofcForOnline is None:
-        print "Failed to get OFC/Shapes for online database"
+        print ("Failed to get OFC/Shapes for online database")
         
     else: 
-        print "Mu: ",ofcForOnline
+        print ("Mu: ",ofcForOnline)
     
 

@@ -77,8 +77,8 @@ LArExtendedSubDetGrouping = LArExtendedSubDetGrouping()
 GroupingType="ExtendedSubDetector"
 selection = LArExtendedSubDetGrouping.getChannelSelection(partition,gain)
 ChannelSelection='<channelSelection>'+selection+'</channelSelection>'
-print ChannelSelection
-print "CoolChannel Selection for ", partition, " and ",gain, " gain. "
+printfunc (ChannelSelection)
+printfunc ("CoolChannel Selection for ", partition, " and ",gain, " gain. ")
 
 #svcMgr.PoolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_comcond_castor.xml" ]
     

@@ -1,4 +1,3 @@
-import commands
 
 #input bytestream files
 

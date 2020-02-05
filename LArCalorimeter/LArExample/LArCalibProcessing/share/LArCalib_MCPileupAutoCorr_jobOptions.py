@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 if not "SuperCells" in dir():
    SuperCells=False
@@ -95,10 +97,10 @@ if not 'DBConnectionCOOL' in dir():
    DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
 
 if not 'OutputPedAutoCorrRootFileDir' in dir():
-   OutputPedAutoCorrRootFileDir  = commands.getoutput("pwd")
+   OutputPedAutoCorrRootFileDir  = subprocess.getoutput("pwd")
    
 if not 'OutputPedAutoCorrPoolFileDir' in dir():
-   OutputPedAutoCorrPoolFileDir  = commands.getoutput("pwd")
+   OutputPedAutoCorrPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'ACLArCalibFolderTag' in dir():
    rs=FolderTagResover()
@@ -246,7 +248,7 @@ if SuperCells:
 #times= cursor.fetchall()
 #d=times[0][1]
 #iovtemp=int(time.mktime(d.timetuple()))
-##print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+##print ("Setting timestamp for run ",RunNumberList[0]," to ",iovtemp)
 ##svcMgr.IOVDbSvc.forceTimestamp = 1283145454
 #svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
@@ -281,8 +283,8 @@ if SuperCells:
   # Will for now use a local db for SC coefficients
   InputDBLocalCalib = "sqlite://;schema=localCalibConstants.db;dbname=CONDBR2"
   
-  print "LAr conf flags FEB gain threshold"
-  print larCondFlags.useLArFEBGainThresholds()
+  printfunc ("LAr conf flags FEB gain threshold")
+  printfunc (larCondFlags.useLArFEBGainThresholds())
   
   conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Pedestals/Pedestal")
   conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>/LAR/ElecCalibOflSC/Ramps/RampLinea")

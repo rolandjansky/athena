@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from PyCool import cool
 
 
@@ -8,13 +8,13 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     try:
         db= dbSvc.openDatabase(dbname)
-    except Exception,e:
-        print "Problems connecting to database:",e
+    except Exception as e:
+        print ("Problems connecting to database:",e)
         return None
 
     #Set up Channel Selection:
     sel=None
-    print selection
+    print (selection)
     ss=selection.split(",")
     for s in ss:
         if len(s)==0:continue
@@ -25,14 +25,14 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
         else:
             c1=cool.ChannelId(int(s[:idx]))
             c2=cool.ChannelId(int(s[1+idx:]))
-        #print "ExtractFolderInfo: Add channel range",c1,"to",c2
+        #print ("ExtractFolderInfo: Add channel range",c1,"to",c2)
         if sel is None:
             sel=cool.ChannelSelection(c1,c2,cool.ChannelSelection.sinceBeforeChannel);
         else:
             sel.addRange(c1,c2);
                                
     if sel is None:
-        print "ExtractFolderInfo: No COOL channel selection given, work on all channels"
+        print ("ExtractFolderInfo: No COOL channel selection given, work on all channels")
         sel=cool.ChannelSelection.all()
         
         
@@ -52,7 +52,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
             if not takeFolder: continue
             
         f=db.getFolder(fn)
-        print "Analyzing",fn
+        print ("Analyzing",fn)
         #Parse Folder description:
         #Model:
         #<timeStamp>run-lumi</timeStamp><symlinks>ILArAutoCorr</symlinks><key>LArAutoCorr</key><addrHeader><address_header service_type="71" clid="255786016" /></addrHeader><typeName>LArAutoCorrComplete</typeName>  -
@@ -61,7 +61,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
         i1=descr.find("<typeName>")+len("<typeName>")
         i2=descr.find("</typeName>",i1)
         if (i1==-1 or i2==-1):
-            print "ERROR could not get typename of object stored in folder",fn
+            print ("ERROR could not get typename of object stored in folder",fn)
             continue
         typename=descr[i1:i2]
 
@@ -69,7 +69,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
         i1=descr.find("<key>")+len("<key>")
         i2=descr.find("</key>",i1)
         if (i1==-1 or i2==-1):
-            print "ERROR could not get SG key of object stored in folder",fn
+            print ("ERROR could not get SG key of object stored in folder",fn)
             continue
         key=descr[i1:i2]
 
@@ -83,7 +83,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
             try:
                 tagList=[f.resolveTag(globaltag)]
             except Exception:
-                print "Hierachical tag", globaltag,"not defined in folder",fn
+                print ("Hierachical tag", globaltag,"not defined in folder",fn)
                 return None
 
         for t in tagList:
@@ -96,7 +96,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
                 #payload=obj.payload()
                 since=obj.since()>>32
                 until=obj.until()>>32
-                #print fn,t,since,until
+                #print (fn,t,since,until)
                 if minIOV>since: minIOV=since
                 if maxIOV<until: maxIOV=until
             itr.close()
@@ -113,4 +113,4 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
 #x=extractFolderInfo("sqlite://;schema=/scratch/wlampl/DBwrites/Sep13AllCalo_v2/freshConstants.db;dbname=COMP200")
 
 #for i in x:
-#    print i
+#    print (i)
