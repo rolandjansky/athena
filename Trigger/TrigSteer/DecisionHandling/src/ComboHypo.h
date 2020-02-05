@@ -16,7 +16,7 @@
 
 /**
  * @class ComboHypo for combined hypotheses required only counting (multiplicity requirements)
- * @warning while configuring it the order of specified multiplicities has to mach order of input decision containers
+ * @warning while configuring it the order of specified multiplicities has to match order of input decision containers
  * i.e. if feed with:
  * electronDecisions
  * muonDecisions

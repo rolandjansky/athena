@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef DECISIONHANDLING_COMBOHYPOCOMBINATION_H
-#define DECISIONHANDLING_CCOMBOHYPOCOMBINATION_H
+#define DECISIONHANDLING_COMBOHYPOCOMBINATION_H
 
 // STL includes
 #include <map>

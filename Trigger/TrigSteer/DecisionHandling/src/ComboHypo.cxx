@@ -90,7 +90,7 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
         DecisionIDContainer inputDecisionIDs;
         decisionIDs( inputDecision, inputDecisionIDs );
 
-        // from all poitive decision in the input only the ones that survived counting are passed over
+        // from all positive decision in the input only the ones that survived counting are passed over
         DecisionIDContainer common;      
         std::set_intersection( inputDecisionIDs.begin(), inputDecisionIDs.end(), passing.begin(), passing.end(),
           std::inserter( common, common.end() ) );
@@ -108,7 +108,7 @@ StatusCode ComboHypo::copyDecisions( const DecisionIDContainer& passing, const E
 
         Decision* newDec = newDecisionIn( outDecisions );
         linkToPrevious( newDec, inputDecision, context );
-        ATH_MSG_DEBUG("New decision (Conatiner Index:" << input_counter << ", Element Index:"<< newDec->index() <<") has "
+        ATH_MSG_DEBUG("New decision (Container Index:" << input_counter << ", Element Index:"<< newDec->index() <<") has "
           << (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDec, initialRoIString())).isValid()
           << " valid initialRoI and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions; valid Ids="<<finalIds.size()) ;   
 
