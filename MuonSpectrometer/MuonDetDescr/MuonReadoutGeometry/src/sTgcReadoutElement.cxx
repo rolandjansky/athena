@@ -49,8 +49,7 @@ namespace MuonGM {
     m_hasBLines = false;
     m_delta = NULL;
     m_ml = mL;
-
-    m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:sTgcReadoutElement");
+    
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
 

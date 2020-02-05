@@ -47,7 +47,6 @@ namespace MuonGM {
     m_delta = NULL;
     m_ml = mL;
     
-    m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM::MMReadoutElement");
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
 
