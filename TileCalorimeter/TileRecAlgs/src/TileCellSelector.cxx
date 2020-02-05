@@ -94,6 +94,10 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "MaxTimeMBTS", m_maxTimeChan[2] =  100.);  // cut on channel time
   declareProperty( "PtnTimeMBTS", m_ptnTimeChan[2] =  10);  // channel time pattern
 
+  declareProperty( "SelectGain",  m_selectGain = 2); // 0 - select LG only,  1 - HG only, 2 - both gains
+  m_skipGain[TileID::LOWGAIN] = false;
+  m_skipGain[TileID::HIGHGAIN] = false;
+
   // pattern - decimal number with up to 5 digits
   // only values 1(=true) and 0(=false) for every digit are used
   // digit 0 set to 1  - accept event if value < min
@@ -204,6 +208,19 @@ StatusCode TileCellSelector::initialize() {
     ATH_MSG_INFO( "MinTimeMBTS < " << m_minTimeChan[2]);
     ATH_MSG_INFO( "MaxTimeMBTS > " << m_maxTimeChan[2]);
     ATH_MSG_INFO( "PtnTimeMBTS = " << m_ptnTimeChan[2]);
+  }
+
+  switch (m_selectGain) {
+    case 0:
+      ATH_MSG_INFO( "Select Low gain channels only");
+      m_skipGain[TileID::LOWGAIN] = false;
+      m_skipGain[TileID::HIGHGAIN] = true;
+      break;
+    case 1:
+      ATH_MSG_INFO( "Select High gain channels only"); break;
+      m_skipGain[TileID::LOWGAIN] = true;
+      m_skipGain[TileID::HIGHGAIN] = false;
+    default: ATH_MSG_INFO( "Select both gains");
   }
 
   if (m_digitsContName.size() > 0 && m_checkJumps) {
@@ -633,7 +650,7 @@ StatusCode TileCellSelector::execute() {
             bool ene1Ok = false;
             bool time1Ok = false;
 
-            if (!bad1) {
+            if ( !(bad1 || m_skipGain[tile_cell->gain1()]) ) {
               if (time1 < m_minTimeChan[ch_type] ) {
                 time1Ok = m_bitTimeChan[ch_type][0];
               } else if (time1 > m_maxTimeChan[ch_type] ) {
@@ -666,7 +683,7 @@ StatusCode TileCellSelector::execute() {
             bool ene2Ok = false;
             bool time2Ok = false;
 
-            if (!bad2) {
+            if ( !(bad2 || m_skipGain[tile_cell->gain2()]) ) {
               if (ene2 < m_minEneChan[ch_type] ) {
                 ene2Ok = m_bitEneChan[ch_type][0];
               } else if (ene2 > m_maxEneChan[ch_type] ) {
@@ -700,7 +717,7 @@ StatusCode TileCellSelector::execute() {
             bool over2=false;
             if (checkOver) {
               over1 = ( (!bad1) && (tile_cell->qbit1() & TileCell::MASK_OVER) && tile_cell->gain1()==TileID::LOWGAIN);
-              over2 = ( (!bad2) && (tile_cell->qbit2() & TileCell::MASK_OVER) && tile_cell->gain1()==TileID::LOWGAIN);
+              over2 = ( (!bad2) && (tile_cell->qbit2() & TileCell::MASK_OVER) && tile_cell->gain2()==TileID::LOWGAIN);
             }
             
             if ((ene1Ok && time1Ok) || over1) {
@@ -1178,6 +1195,7 @@ StatusCode TileCellSelector::execute() {
             HWIdentifier chId = m_tileHWID->channel_id(adcId);
             m_tileHWID->get_hash(chId, hash, &chan_context);
             if ( m_chanToSkip[hash] ) continue;
+            int adc = m_tileHWID->adc(adcId);
             int channel = m_tileHWID->channel(adcId);
             int ch_type = 0;
             if (channel == chMBTS) {
@@ -1187,7 +1205,6 @@ StatusCode TileCellSelector::execute() {
               ch_type = 1;
             }
             if (emptyBad  && !m_chanBad[hash] ) {
-              int adc = m_tileHWID->adc(adcId);
               m_chanBad[hash] = m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc).isBad() ||
                 (DQstatus && !DQstatus->isAdcDQgood(ros,drawer,channel,adc)) ||
                 (m_checkDCS && m_tileDCSSvc->getDCSSTATUS(ros,drawer,channel) > TileDCSSvc::WARNING);
@@ -1208,7 +1225,8 @@ StatusCode TileCellSelector::execute() {
 
               if ( (m_skipMasked && m_chanBad[hash]) ||
                    (m_skipMBTS && channel == chMBTS) ||
-                   (m_skipEmpty && TileDQstatus::isChEmpty(ros, drawer, channel) > 0) )
+                   (m_skipEmpty && TileDQstatus::isChEmpty(ros, drawer, channel) > 0) ||
+                   m_skipGain[adc] )
                 continue;
 
               bool ampOk = false;
