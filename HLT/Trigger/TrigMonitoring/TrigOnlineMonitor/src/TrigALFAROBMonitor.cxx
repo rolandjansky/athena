@@ -233,7 +233,7 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   if(sc.isFailure()){
       ATH_MSG_ERROR("Can't get EventIinfo object");
       return StatusCode::SUCCESS;
-  } 
+  }
   */
     
   //--------------------------------------------------------------------------
@@ -324,7 +324,7 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
           ATH_MSG_DEBUG(" roiAV "<<std::hex<<roIWord<<std::dec);
     }
  }
-  
+
   // get the ALFA ROBs
   //std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> ALFARobFragmentVec;
   const std::vector<uint32_t> mc_ALFARobIds = {0x840000,0x840001};
@@ -336,7 +336,7 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
     ATH_MSG_INFO(" No ALFA ROB found.");
     return StatusCode::SUCCESS;
   } 
- 
+
 
   // loop over retrieved ROBs and do checks
   for (std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::iterator it = ALFARobFragmentVec.begin();
@@ -394,20 +394,20 @@ StatusCode TrigALFAROBMonitor::start() {
   }
 
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
-  ATH_CHECK( l1MenuHandle.isValid() );
-  for ( const TrigConf::L1Item& item: *l1MenuHandle ){
-    ATH_MSG_INFO("new L1 item: "<<item.name() << "; ctpId: " << item.ctpId() <<"; definition: " <<item.definition());
-  }
-
-  for (const TrigConf::L1Item& item: *l1MenuHandle) {
-     ATH_MSG_DEBUG(" triggerItem "<<item.name().c_str()<< "ctpId "<<item.ctpId());
-     std::map<std::string, int>::iterator it = m_map_TrgNamesToHistGroups.find(item.name());
-     if (it != m_map_TrgNamesToHistGroups.end()) {
-       m_map_TrgItemNumbersToHistGroups[item.ctpId()] = it->second;
-       // locate golden alfa triggers for data quality assesment base on the ratio of tracks in elastic triggered events
-       if (item.name().compare("L1_ALFA_ELAST15") == 0) { m_elast15 = item.ctpId(); continue; }
-       if (item.name().compare("L1_ALFA_ELAST18") == 0) m_elast18 = item.ctpId();
-     }
+  if( l1MenuHandle.isValid() ) {
+    for ( const TrigConf::L1Item& item: *l1MenuHandle ){
+      ATH_MSG_DEBUG("new L1 item: "<<item.name() << "; ctpId: " << item.ctpId() <<"; definition: " <<item.definition());
+    }
+    for (const TrigConf::L1Item& item: *l1MenuHandle) {
+      ATH_MSG_DEBUG(" triggerItem "<<item.name().c_str()<< "ctpId "<<item.ctpId());
+      std::map<std::string, int>::iterator it = m_map_TrgNamesToHistGroups.find(item.name());
+      if (it != m_map_TrgNamesToHistGroups.end()) {
+        m_map_TrgItemNumbersToHistGroups[item.ctpId()] = it->second;
+        // locate golden alfa triggers for data quality assesment base on the ratio of tracks in elastic triggered events
+        if (item.name().compare("L1_ALFA_ELAST15") == 0) { m_elast15 = item.ctpId(); continue; }
+        if (item.name().compare("L1_ALFA_ELAST18") == 0) m_elast18 = item.ctpId();
+      }
+    }
   }
 
   ATH_MSG_DEBUG("TrigALFAROBMonitor::start() 2 ; m_map_TrgItemNumbersToHistGroups.size() = "<<m_map_TrgItemNumbersToHistGroups.size());
@@ -583,6 +583,7 @@ StatusCode TrigALFAROBMonitor::start() {
               }
      }
   }
+
 
   if ( m_doODDistance.value() ) {
 

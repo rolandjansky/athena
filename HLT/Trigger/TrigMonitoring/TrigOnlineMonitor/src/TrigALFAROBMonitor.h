@@ -156,7 +156,7 @@ private:
 
   //TrigConf::HLTChain* m_HLTcostMon_chain;
 
-  int m_elast15, m_elast18;     // ctp-items id numbers to select golden alfa trigger for data quality assesment
+  int m_elast15 {0}, m_elast18 {0};     // ctp-items id numbers to select golden alfa trigger for data quality assesment
   //mutable int m_nbOfTracksInDetectors[8]; // counters for track candidates - needed in data quality assesment
 
 // ALFA extensions
