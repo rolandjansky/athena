@@ -3174,7 +3174,7 @@ namespace Trk {
     return true;
   }
 
-  class GXFlayersort: public std::binary_function<const std::pair<const Layer *, const Layer *>&, const std::pair<const Layer *, const Layer *> &, bool> {
+  class GXFlayersort {
   public:
     /** Default Constructor */
     GXFlayersort() {} 
@@ -3250,7 +3250,7 @@ namespace Trk {
     }
   };
 
-  class GXFlayersort2: public std::binary_function<const Layer *, const Layer *, bool> {
+  class GXFlayersort2 {
   public:
     /** Default Constructor */
     GXFlayersort2() {} 
