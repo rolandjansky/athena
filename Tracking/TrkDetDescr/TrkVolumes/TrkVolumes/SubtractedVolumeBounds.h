@@ -39,7 +39,7 @@ namespace Trk {
     @author Sarka.Todorova@cern.ch 
     */
     
- class ATLAS_NOT_THREAD_SAFE SubtractedVolumeBounds : public VolumeBounds {
+ class SubtractedVolumeBounds : public VolumeBounds {
   
   public:
     /**Default Constructor*/
@@ -64,7 +64,7 @@ namespace Trk {
     bool inside(const Amg::Vector3D& , double tol=0.) const override;
          
     /** Method to decompose the Bounds into boundarySurfaces */
-    const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
+    const std::vector<const Trk::Surface*>* decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,
@@ -72,10 +72,10 @@ namespace Trk {
                                            bool forceInside=false) const override;
                                                 
     /**This method returns the outer Volume*/
-    Volume* outer() const;
+    const Volume* outer() const;
     
     /**This method returns the inner Volume*/
-    Volume* inner() const;    
+    const Volume* inner() const;    
     
     /**This method returns bounds orientation*/
     std::vector<bool> boundsOrientation() const;
@@ -97,7 +97,7 @@ namespace Trk {
        has to be implemented if Subtracteds are used more widely */
     EightObjectsAccessor m_objectAccessor;
 
-    mutable std::vector<bool> m_boundsOrientation;        
+    mutable std::vector<bool> m_boundsOrientation ATLAS_THREAD_SAFE;        
     
  };
 
@@ -109,9 +109,9 @@ namespace Trk {
    return (m_outer->inside(pos,tol) && !m_inner->inside(pos,-tol) );
  }
 
- inline Volume* SubtractedVolumeBounds::outer() const { return m_outer; }
+ inline const Volume* SubtractedVolumeBounds::outer() const { return m_outer; }
  
- inline Volume* SubtractedVolumeBounds::inner() const { return m_inner; }
+ inline const Volume* SubtractedVolumeBounds::inner() const { return m_inner; }
 
  inline ObjectAccessor SubtractedVolumeBounds::boundarySurfaceAccessor(const Amg::Vector3D&,
                                                                        const Amg::Vector3D&,

@@ -135,7 +135,7 @@ Trk::SimplePolygonBrepVolumeBounds& Trk::SimplePolygonBrepVolumeBounds::operator
   return *this;
 }
 
-const std::vector<const Trk::Surface*>* Trk::SimplePolygonBrepVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transform) const
+const std::vector<const Trk::Surface*>* Trk::SimplePolygonBrepVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const
 {
   std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;  
       

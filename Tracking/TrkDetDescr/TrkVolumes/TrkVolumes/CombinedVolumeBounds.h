@@ -40,7 +40,7 @@ namespace Trk {
    @author Sarka.Todorova@cern.ch 
   */
     
- class ATLAS_NOT_THREAD_SAFE CombinedVolumeBounds : public VolumeBounds {
+ class CombinedVolumeBounds : public VolumeBounds {
   
   public:
     /**Default Constructor*/
@@ -65,7 +65,7 @@ namespace Trk {
     virtual bool inside(const Amg::Vector3D&, double tol=0.) const override;
          
     /** Method to decompose the Bounds into boundarySurfaces */
-    virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces (const Amg::Transform3D& transform) const override;
+    virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     virtual
@@ -74,10 +74,10 @@ namespace Trk {
                                                   bool forceInside=false) const override;
                                                 
     /**This method returns the first VolumeBounds*/
-    Volume* first() const;
+    const Volume* first() const;
     
     /**This method returns the second VolumeBounds*/
-    Volume* second() const;    
+    const Volume* second() const;    
     
     /**This method distinguishes between Union(0) and Intersection(1)*/
     bool intersection() const;
@@ -99,7 +99,7 @@ namespace Trk {
     Volume* m_second;
     bool m_intersection;
     EightObjectsAccessor m_objectAccessor;   
-    mutable std::vector<bool> m_boundsOrientation;        
+    mutable std::vector<bool> m_boundsOrientation ATLAS_THREAD_SAFE;        
   
  };
 
@@ -112,9 +112,9 @@ namespace Trk {
    return (m_first->inside(pos,tol) || m_second->inside(pos,tol) );
  }
 
- inline Volume* CombinedVolumeBounds::first() const { return m_first; }
+ inline const Volume* CombinedVolumeBounds::first() const { return m_first; }
 
- inline Volume* CombinedVolumeBounds::second() const { return m_second; }
+ inline const Volume* CombinedVolumeBounds::second() const { return m_second; }
 
  inline bool CombinedVolumeBounds::intersection() const { return m_intersection; }
 
