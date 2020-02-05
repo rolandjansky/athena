@@ -15,7 +15,7 @@ def getCampaign(ami_tag = None, project = None):
         from RecExConfig.InputFilePeeker import inputFileSummary
         if inputFileSummary is not None:
             ami_tag = inputFileSummary['tag_info']['AMITag'] if ami_tag is None else ami_tag
-        project = inputFileSummary['tag_info']['project_name'] if project is None else project
+            project = inputFileSummary['tag_info']['project_name'] if project is None else project
 
     assert ami_tag is not None
     assert project is not None
