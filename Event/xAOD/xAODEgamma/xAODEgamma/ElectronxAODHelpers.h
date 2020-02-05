@@ -31,7 +31,7 @@ namespace xAOD {
     ///This is useful when a std::set of the original track Particles is required, which is mainly the case for the 
     //isolation interface,
     ///as it will re-order the elements in pointer order and not best match.
-    const std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Electron* el,
+    std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Electron* el,
 								 bool useBremAssoc = true, bool allParticles = true);
 
 
@@ -39,7 +39,7 @@ namespace xAOD {
     ///If useBremAssoc is set, get the original TrackParticle 
     ///This one returns a vector so as to be more "user friendly",as it retains the original
     ///best match ordering
-    const std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Electron* el,
+    std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Electron* el,
 								       bool useBremAssoc = true, bool allParticles = true);
 
     

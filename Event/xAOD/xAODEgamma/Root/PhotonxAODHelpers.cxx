@@ -24,8 +24,8 @@ xAOD::EgammaParameters::ConversionType xAOD::EgammaHelpers::conversionType(const
 xAOD::EgammaParameters::ConversionType xAOD::EgammaHelpers::conversionType(const xAOD::Vertex *vx){
   if (!vx) return xAOD::EgammaParameters::unconverted;
 
-  const TrackParticle *trk1 = ( vx->nTrackParticles() ? vx->trackParticle(0) : 0 );
-  const TrackParticle *trk2 = ( vx->nTrackParticles() > 1 ? vx->trackParticle(1) : 0 );
+  const TrackParticle *trk1 = ( vx->nTrackParticles() ? vx->trackParticle(0) : nullptr );
+  const TrackParticle *trk2 = ( vx->nTrackParticles() > 1 ? vx->trackParticle(1) : nullptr );
   uint8_t nSiHits1 = numberOfSiHits(trk1);
   uint8_t nSiHits2 = numberOfSiHits(trk2);
 
@@ -37,7 +37,7 @@ xAOD::EgammaParameters::ConversionType xAOD::EgammaHelpers::conversionType(const
   if (nSiHits1 && nSiHits2){
     return xAOD::EgammaParameters::doubleSi;
   }
-  else if (nSiHits1 || nSiHits2){
+  if (nSiHits1 || nSiHits2){
     return xAOD::EgammaParameters::doubleSiTRT;
   }  
   else{
@@ -98,14 +98,14 @@ Amg::Vector3D xAOD::EgammaHelpers::momentumAtVertex(const xAOD::Vertex& vertex, 
 			   accPy(vertex),  
 			   accPz(vertex)); 
     }
-  else if (debug){
+  if (debug){
     std::cout << "Vertex not decorated with momentum" << std::endl;
   }
   return Amg::Vector3D(0., 0., 0.);
 }
 
 // ==================================================================
-const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Photon* ph,  
+std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Photon* ph,  
 										  bool useBremAssoc /* = true */){
 
   std::set<const xAOD::TrackParticle*> tps;
@@ -121,7 +121,7 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
   return tps;
 }
 // ==================================================================
-const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Photon* ph,
+std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Photon* ph,
 											bool useBremAssoc /* = true */){
   std::vector<const xAOD::TrackParticle*> tps;
   if (!ph) return tps;

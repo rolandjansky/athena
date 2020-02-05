@@ -54,10 +54,10 @@ const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD:
 const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD::TruthParticle* truthel, const  int barcodecut/*=0*/){
 
   std::vector<const xAOD::TruthParticle*>  vec = xAOD::EgammaHelpers::getBkgElectronLineage(truthel,barcodecut);
-  if(vec.size()>0){ 
+  if(!vec.empty()){ 
     return vec.back();
   }
-  return 0;
+  return nullptr;
 }
 
 std::vector<const xAOD::TruthParticle*> 

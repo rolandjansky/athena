@@ -55,11 +55,11 @@ namespace xAOD {
   const xAOD::TrackParticle* Electron_v1::trackParticle( size_t index ) const {
 
      if( index >= nTrackParticles() ) {
-        return 0;
+        return nullptr;
      }
      const TPELVec_t& links = trackParticleLinks();
      if( ! links[ index ].isValid() ) {
-        return 0;
+        return nullptr;
      }
      return *( links[ index ] );
   }

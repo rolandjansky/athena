@@ -16,14 +16,14 @@ const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticle(const x
       return getOriginalTrackParticleFromGSF(trkPar);
     }
   }
-  return 0;
+  return nullptr;
 }
 // ==================================================================
 const xAOD::TrackParticle* xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(const xAOD::TrackParticle* trkPar){
   
-  if(! trkPar) {return 0;}
+  if(! trkPar) {return nullptr;}
   static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer> > orig ("originalTrackParticle");
-  if (!orig.isAvailable(*trkPar) || !orig(*trkPar).isValid()) {return 0;}
+  if (!orig.isAvailable(*trkPar) || !orig(*trkPar).isValid()) {return nullptr;}
 
   return (*orig(*trkPar));
 }
@@ -36,7 +36,7 @@ float xAOD::EgammaHelpers::getLastMeasurementQoverP(const xAOD::TrackParticle *t
   return -999 ; 
 }
 // ==================================================================
-const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Electron* el, 
+std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Electron* el, 
 										  bool useBremAssoc /* = true */, 
 										  bool allParticles /* = true */){
   std::set<const xAOD::TrackParticle*> tps;
@@ -49,7 +49,7 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
   return tps;
 }
 // ==================================================================
-const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Electron* el, 
+std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Electron* el, 
 											bool useBremAssoc /* = true */, 
 											bool allParticles /* = true */){
 
@@ -65,7 +65,8 @@ const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParti
 // ==================================================================
 std::size_t xAOD::EgammaHelpers::numberOfSiHits(const xAOD::TrackParticle *tp){
   if (!tp) return 0;
-  uint8_t dummy(0), nSiHits(0);
+  uint8_t dummy(0);
+  uint8_t nSiHits(0);
   if (tp->summaryValue(dummy, xAOD::numberOfPixelHits)){
     nSiHits += dummy;
   }

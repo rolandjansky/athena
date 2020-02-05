@@ -46,24 +46,24 @@ namespace xAOD {
     bool isBarrel(const xAOD::CaloCluster *cluster);
 
     ///@brief Return a vector of all the elementlinks to the topo clusters associated with the egamma cluster
-    const std::vector< ElementLink< xAOD::CaloClusterContainer > > getAssociatedTopoClustersLinks(const xAOD::CaloCluster *cluster); 
+    std::vector< ElementLink< xAOD::CaloClusterContainer > > getAssociatedTopoClustersLinks(const xAOD::CaloCluster *cluster); 
     
     ///@brief Return a vector of all the topo clusters associated with the egamma cluster
-    const std::vector<const xAOD::CaloCluster*> getAssociatedTopoClusters(const xAOD::CaloCluster *cluster);
+    std::vector<const xAOD::CaloCluster*> getAssociatedTopoClusters(const xAOD::CaloCluster *cluster);
 
     ///@brief Return a list of all or only the best TrackParticle associated to the object. 
     ///If useBremAssoc is set, get the original TrackParticle 
     ///This is useful when a std::set of the original track Particles is required, which is mainly the case for the 
     //isolation interface,
     ///as it will re-order the elements in pointer order and not best match.
-    const std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Egamma *eg,
+    std::set<const xAOD::TrackParticle*> getTrackParticles(const xAOD::Egamma *eg,
 								 bool useBremAssoc = true, bool allParticles = true);
 
     ///@brief Return a list of all or only the best TrackParticle associated to the object. 
     ///If useBremAssoc is set, get the original TrackParticle 
     ///This one returns a vector so as to be more "user friendly", as it retains the original
     ///best match ordering
-    const std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Egamma *eg,
+    std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Egamma *eg,
 								       bool useBremAssoc = true, bool allParticles = true);
 
 

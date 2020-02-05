@@ -42,7 +42,7 @@ bool xAOD::EgammaHelpers::isBarrel(const xAOD::CaloCluster *cluster){
   return cluster->inBarrel();
 }
 // ==================================================================
-const std::vector< ElementLink< xAOD::CaloClusterContainer > > xAOD::EgammaHelpers::getAssociatedTopoClustersLinks(const xAOD::CaloCluster *cluster){ 
+std::vector< ElementLink< xAOD::CaloClusterContainer > > xAOD::EgammaHelpers::getAssociatedTopoClustersLinks(const xAOD::CaloCluster *cluster){ 
 
   static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   std::vector< ElementLink< xAOD::CaloClusterContainer > > veclinks; 
@@ -52,21 +52,21 @@ const std::vector< ElementLink< xAOD::CaloClusterContainer > > xAOD::EgammaHelpe
   return veclinks;
 }
 // ==================================================================
-const std::vector<const xAOD::CaloCluster*> xAOD::EgammaHelpers::getAssociatedTopoClusters(const xAOD::CaloCluster *cluster){ 
+std::vector<const xAOD::CaloCluster*> xAOD::EgammaHelpers::getAssociatedTopoClusters(const xAOD::CaloCluster *cluster){ 
   std::vector< const xAOD::CaloCluster* > topoclusters;
   std::vector< ElementLink< xAOD::CaloClusterContainer > > veclinks = xAOD::EgammaHelpers::getAssociatedTopoClustersLinks(cluster);
-  for (auto i : veclinks){
+  for (const auto& i : veclinks){
     if(i.isValid()){
       topoclusters.push_back(*i);
     }
     else{
-      topoclusters.push_back(0);
+      topoclusters.push_back(nullptr);
     }
   }  
   return topoclusters;
 }
 // ==================================================================
-const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Egamma *eg, 
+std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Egamma *eg, 
 										  bool useBremAssoc /* = true */, 
 										  bool allParticles /* = true */){  
 
@@ -87,7 +87,7 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
   return std::set<const xAOD::TrackParticle*>{};
 }
 // ==================================================================
-const std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Egamma *eg, 
+std::vector<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticlesVec(const xAOD::Egamma *eg, 
 											bool useBremAssoc /* = true */, 
 											bool allParticles /* = true */){  
   if (eg) {

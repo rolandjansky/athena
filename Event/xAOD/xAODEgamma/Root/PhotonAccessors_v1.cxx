@@ -32,7 +32,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Photon  ERROR Unknown float VertexCaloMatchType ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    
    }     

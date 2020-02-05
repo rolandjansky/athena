@@ -41,7 +41,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Electron  ERROR Unknown float TrackCaloMatchType ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    
    }     

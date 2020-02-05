@@ -46,11 +46,11 @@ namespace xAOD {
    const xAOD::Vertex* Photon_v1::vertex( size_t index ) const {
 
       if( index >= nVertices() ) {
-         return 0;
+         return nullptr;
       }
       const VxELVec_t& links = vertexLinks();
       if( ! links[ index ].isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *( links[ index ] );
    }

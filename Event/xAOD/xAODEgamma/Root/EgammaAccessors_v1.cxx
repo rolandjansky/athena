@@ -73,7 +73,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Egamma  ERROR Unknown float ShowerShapeType ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    
    }  
@@ -92,7 +92,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Egamma ERROR Unknown char ElectronSelectionMenu ("
                    << menu << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
 
@@ -110,7 +110,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Egamma ERROR Unknown unsigned int ElectronSelectionisEM ("
                    << isEM << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
 

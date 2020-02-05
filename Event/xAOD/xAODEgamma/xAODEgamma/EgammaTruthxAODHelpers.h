@@ -25,15 +25,15 @@ namespace xAOD {
     /// @brief Access to element link to object of type T stored in auxdata
     template<class T>
     const T* getLink(const xAOD::IParticle* particle, std::string name){
-      if (!particle) return 0;
+      if (!particle) return nullptr;
       typedef ElementLink< DataVector<T> > Link_t;
       
       if (!particle->isAvailable< Link_t >(name) ) { 
-	  return 0; 
+	  return nullptr; 
 	}  
       const Link_t link = particle->auxdata<Link_t>(name);
       if (!link.isValid()) { 
-	  return 0; 
+	  return nullptr; 
 	}
       return *link;
     }
