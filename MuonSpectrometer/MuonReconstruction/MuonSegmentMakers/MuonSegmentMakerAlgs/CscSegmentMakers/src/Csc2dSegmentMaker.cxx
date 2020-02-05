@@ -108,7 +108,7 @@ StatusCode Csc2dSegmentMaker::initialize(){
     return StatusCode::FAILURE;
   }  
   if ( m_printer.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Unable to retrieve " << m_printer );
+    ATH_MSG_ERROR ( "Unable to retrieve MuonEDMPrinterTool" << m_printer );
     return StatusCode::FAILURE;
   }  
 
