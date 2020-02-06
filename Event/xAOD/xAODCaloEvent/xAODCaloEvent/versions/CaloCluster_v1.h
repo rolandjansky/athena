@@ -657,7 +657,7 @@ namespace xAOD {
        if (!m_cellLinks) {
          return false;
        }
-       return m_cellLinks->addCell(index,weight);
+       return m_cellLinks->addCell(index, weight);
      }
 
      /**@brief Method to remove a cell to the cluster (slow!) (Beware: Kinematics not updated!)
@@ -672,25 +672,26 @@ namespace xAOD {
      /**@brief size method (forwarded from CaloClusterCellLink obj)
       *@return The number of cells 
       */
-     size_t size() const {return getCellLinks()->size();}
+      size_t size() const { return getCellLinks()->size(); }
 
-     ///Iterator of the underlying CaloClusterCellLink (explicitly const version)
-     typedef CaloClusterCellLink::const_iterator const_cell_iterator; 
-     //Fixme: Check ret-val of getCellLinks (might be NULL);
-     const_cell_iterator cell_cbegin() const { 
-       const CaloClusterCellLink* links=getCellLinks();
-       if (!links){ 
-         return CaloClusterCellLink::dummyIt;
-       }
-         return links->begin();
-     }
+      /// Iterator of the underlying CaloClusterCellLink (explicitly const version)
+      typedef CaloClusterCellLink::const_iterator const_cell_iterator;
+      // Fixme: Check ret-val of getCellLinks (might be NULL);
+      const_cell_iterator cell_cbegin() const
+      {
+        const CaloClusterCellLink* links = getCellLinks();
+        if (!links) {
+          return CaloClusterCellLink::dummyIt;
+        }
+        return links->begin();
+      }
      const_cell_iterator cell_cend() const { 
        const CaloClusterCellLink* links=getCellLinks();
-       if (!links){
+       if (!links) {
          return CaloClusterCellLink::dummyIt;
        }
          return getCellLinks()->end();
-     } 
+     }
 
      ///Iterator of the underlying CaloClusterCellLink (const version)
      const_cell_iterator cell_begin() const { return cell_cbegin(); } 
@@ -738,10 +739,10 @@ namespace xAOD {
 
 
   inline  double CaloCluster_v1::et() const {
-    if (this->m()==0){ 
+    if (this->m() == 0) {
       return this->pt();
     }
-    
+
       return this->p4().Et();
   }
 
@@ -752,17 +753,17 @@ namespace xAOD {
   inline unsigned CaloCluster_v1::sampVarIdx(const CaloCluster_v1::CaloSample s) const {
     const uint32_t& pattern= m_samplingPattern;
     //std::cout << "Pattern=" << std::hex << pattern << std::dec << ", Sampling=" << s << std::endl;
-    if ((pattern & (0x1U << s))==0){
+    if ((pattern & (0x1U << s)) == 0) {
       return CaloSampling::Unknown;
     }
-    
-      if (s==0) {return 0;} //shifting a 32-bit int by 32 bits is undefined behavior! 
-      return __builtin_popcount(pattern << (32-s)); 
-      //Explanation: Need to get the number of bit (=samples) before the sampling in question
-      //Shift to the left, so bits after the sampling in question fall off the 32bit integer
-      //Then use gcc builtin popcount to count the numbers of 1 in the rest
-      //AFAIK, this builtin is available for gcc, icc and clang (as well on ARM)
-    
+    if (s == 0) {
+      return 0;
+    } // shifting a 32-bit int by 32 bits is undefined behavior!
+    return __builtin_popcount(pattern << (32 - s));
+    // Explanation: Need to get the number of bit (=samples) before the sampling in question
+    // Shift to the left, so bits after the sampling in question fall off the 32bit integer
+    // Then use gcc builtin popcount to count the numbers of 1 in the rest
+    // AFAIK, this builtin is available for gcc, icc and clang (as well on ARM)
   }
 
 
