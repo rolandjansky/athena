@@ -6,8 +6,6 @@
 # art-athena-mt: 8
 # art-output: EVNT.root
 
-set -e
-
 export ATHENA_PROC_NUMBER=8
 unset ATHENA_CORE_NUMBER # This is not an MT job!
 
