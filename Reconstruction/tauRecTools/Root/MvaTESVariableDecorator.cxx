@@ -39,7 +39,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   int mu = 0;
   SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
   if (!eventinfoInHandle.isValid()) {
-    ATH_MSG_WARNING( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
+    ATH_MSG_ERROR ( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
     mu = 0.;
   }
   else {
