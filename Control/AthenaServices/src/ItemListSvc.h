@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ItemListSvc.h 
@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
 
 // FrameWork includes
 #include "GaudiKernel/IAlgManager.h"
@@ -90,6 +91,8 @@ private:
   // Map between streams and items
   std::map<std::string, std::set<std::string> > m_streamItems;
   float m_verboseThresh;
+  mutable std::mutex m_mutex;
+  typedef std::lock_guard<std::mutex> lock_t;
 
   // Avoid coverity warnings.
   ItemListSvc (const ItemListSvc&);
