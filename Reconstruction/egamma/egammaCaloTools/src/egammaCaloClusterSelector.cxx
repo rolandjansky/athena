@@ -58,6 +58,7 @@ StatusCode egammaCaloClusterSelector::initialize()
 		  << ", must be zero or the number of Et bins: " <<  numBins);
     return StatusCode::FAILURE;
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -106,7 +107,11 @@ bool egammaCaloClusterSelector::passSelection(
   static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
   const double emFrac = acc.isAvailable(*cluster)? acc(*cluster) : 0.;
   const double EMEnergy= cluster->e()* emFrac;
-  const double EMEt = EMEnergy/cosh(eta2);
+  double EMEt = EMEnergy/std::cosh(eta2);
+  const double rescaleFactor = 1.0/m_EMEtSplittingFraction;
+  if ((std::abs(cluster->eta()) > 1.37 && std::abs(cluster->eta()) < 1.52)) {
+    EMEt*=rescaleFactor;
+  }
   const double bin = findETBin(EMEt);
   /* Check for the minimum EM Et required this should be the 0th entry in EMEtRanges*/
   if (bin<0){
@@ -172,6 +177,7 @@ int egammaCaloClusterSelector::findETBin(double EMEt) const
 {
   const int numBins = m_EMEtRanges.size();
   int newBin = 0;
+
   while (newBin < numBins && EMEt > m_EMEtRanges[newBin]) {
     newBin++;
   }
