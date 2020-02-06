@@ -217,10 +217,13 @@ StatusCode TileCellSelector::initialize() {
       m_skipGain[TileID::HIGHGAIN] = true;
       break;
     case 1:
-      ATH_MSG_INFO( "Select High gain channels only"); break;
+      ATH_MSG_INFO( "Select High gain channels only");
       m_skipGain[TileID::LOWGAIN] = true;
       m_skipGain[TileID::HIGHGAIN] = false;
-    default: ATH_MSG_INFO( "Select both gains");
+      break;
+    default:
+      ATH_MSG_INFO( "Select both gains");
+      break;
   }
 
   if (m_digitsContName.size() > 0 && m_checkJumps) {
