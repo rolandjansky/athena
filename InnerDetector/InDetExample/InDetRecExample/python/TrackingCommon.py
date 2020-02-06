@@ -931,7 +931,7 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
     if 'TRT_LocalOccupancyTool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_LocalOccupancyTool = getInDetTRT_LocalOccupancy())
 
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     return TRT_ToT_dEdx(name = the_name, **kwargs)
 
 
