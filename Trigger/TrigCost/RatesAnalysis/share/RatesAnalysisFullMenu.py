@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 if __name__=='__main__':
@@ -121,6 +121,7 @@ if __name__=='__main__':
   rates.EnableLumiExtrapolation = args.disableLumiExtrapolation
   rates.EnhancedBiasRatesTool = ebw
   rates.TrigDecisionTool = tdt
+  rates.TrigConfigSvc = cfgsvc
   cfg.addEventAlgo(rates)
 
   # Setup for accessing bunchgroup data from the DB
