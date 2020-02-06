@@ -109,9 +109,7 @@ HLT::ErrorCode TrigAFPJetAllTE::hltInitialize() {
   return HLT::OK;
 }
 
-struct DescendingEt: std::binary_function<const xAOD::Jet*,
-                                          const xAOD::Jet*,
-                                          bool> {
+struct DescendingEt {
   bool operator () (const xAOD::Jet* l, const xAOD::Jet* r)  const {
     return l->p4().Et() > r->p4().Et();
   }
