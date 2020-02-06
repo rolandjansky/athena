@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -309,7 +309,7 @@ class cutLevel(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['int']
     allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-    StoredValue  = 14
+    StoredValue  = 16
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -615,7 +615,7 @@ class primaryVertexSetup(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['str']
     allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding', 'GaussIterativeFinding', 'GaussAdaptiveMultiFinding' ]
-    StoredValue  = 'IterativeFinding'
+    StoredValue  = 'GaussAdaptiveMultiFinding'
 
 class primaryVertexCutSetup(InDetFlagsJobProperty):
     """ string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'SLHC' 'HeavyIon' """
@@ -1642,7 +1642,7 @@ class InDetJobProperties(JobPropertyContainer):
           self.checkThenSet(self.priVtxCutLevel         , 1    )
        else:
           # --- vertexing setup is the pileup one now (if not set already above)
-          self.checkThenSet(self.primaryVertexSetup   , "IterativeFinding")
+          self.checkThenSet(self.primaryVertexSetup   , "GaussAdaptiveMultiFinding")
           self.checkThenSet(self.primaryVertexCutSetup, "Offline")
 
     # --- turn off brem reco for non collision reconstruction
