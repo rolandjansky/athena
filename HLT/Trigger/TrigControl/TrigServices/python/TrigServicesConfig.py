@@ -48,7 +48,7 @@ def setupMessageSvc():
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from AthenaCommon.Constants import DEBUG, WARNING
 
-   svcMgr.MessageSvc = theApp.service( "TrigMessageSvc" )     # already instantiated
+   svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
