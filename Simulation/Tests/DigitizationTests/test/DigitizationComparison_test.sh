@@ -34,7 +34,9 @@ print(AthSequencer('AthCondSeq'))\
 
 _preInclude="\
 HITtoRDO:Digitization/ForceUseOfAlgorithms.py,\
-SimulationJobOptions/preInclude.LArOnlyConfig.py\
+SimulationJobOptions/preInclude.LArOnlyConfig.py,\
+SimulationJobOptions/preInclude.PixelOnlyConfig.py,\
+SimulationJobOptions/preInclude.TruthOnlyConfig.py\
 "
 
 rc2=-9999
