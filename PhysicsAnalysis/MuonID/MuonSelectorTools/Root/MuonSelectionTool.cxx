@@ -1422,6 +1422,148 @@ namespace CP {
   }
 
 
+  // Returns an integer corresponding to categorization of muons with different resolutions
+  int MuonSelectionTool::getResolutionCategory(const xAOD::Muon& mu) const{
+
+    //Resolutions have only been evaluated for medium combined muons
+    if (getQuality(mu) > xAOD::Muon::Medium || mu.muonType() != xAOD::Muon::Combined)
+      return -1;
+
+
+    // :: Access MS hits information 
+    uint8_t nprecisionLayers(0), nGoodPrecLayers(0), innerSmallHits(0), innerLargeHits(0), middleSmallHits(0), middleLargeHits(0), 
+      outerSmallHits(0), outerLargeHits(0), extendedSmallHits(0), extendedLargeHits(0), extendedSmallHoles(0), isSmallGoodSectors(0), cscUnspoiledEtaHits(0);
+    if ( !mu.summaryValue( nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers ) || 
+	 !mu.summaryValue( nGoodPrecLayers, xAOD::numberOfGoodPrecisionLayers ) ||
+	 !mu.summaryValue(innerSmallHits, xAOD::MuonSummaryType::innerSmallHits) ||
+	 !mu.summaryValue(innerLargeHits, xAOD::MuonSummaryType::innerLargeHits) ||
+	 !mu.summaryValue(middleSmallHits, xAOD::MuonSummaryType::middleSmallHits) ||
+	 !mu.summaryValue(middleLargeHits, xAOD::MuonSummaryType::middleLargeHits) ||
+	 !mu.summaryValue(outerSmallHits, xAOD::MuonSummaryType::outerSmallHits) ||
+	 !mu.summaryValue(outerLargeHits, xAOD::MuonSummaryType::outerLargeHits) ||
+	 !mu.summaryValue(extendedSmallHits, xAOD::MuonSummaryType::extendedSmallHits) ||
+	 !mu.summaryValue(extendedLargeHits, xAOD::MuonSummaryType::extendedLargeHits) ||
+	 !mu.summaryValue(extendedSmallHoles, xAOD::MuonSummaryType::extendedSmallHoles) ||
+	 !mu.summaryValue(isSmallGoodSectors, xAOD::MuonSummaryType::isSmallGoodSectors) ||
+	 !mu.summaryValue(cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits)
+	 ){
+      ATH_MSG_WARNING("getResolutionCategory - MS hits information missing!!! Returning -999 ...");
+      return -999;
+    }
+
+  
+    //For muons passing the high-pT working point, use default smearing except for 2-station tracks
+    if (passedHighPtCuts(mu)) {
+      
+      if (nprecisionLayers == 2)
+	return 3;
+      else
+	return -1;
+    }
+
+
+    const xAOD::TrackParticle* CB_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
+    const xAOD::TrackParticle* MS_track = NULL;
+    if( mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "muonSpectrometerTrackParticleLink" )
+	&& ( mu.muonSpectrometerTrackParticleLink() ).isValid() 
+	) MS_track = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );    
+    else{
+      ATH_MSG_VERBOSE( "getResolutionCategory - No MS track available for muon. Using combined track." );
+      MS_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
+    }
+    
+    float etaMS = 0.0;
+    float etaCB = 0.0;
+    float phiMS = 0.0; 
+
+    if( MS_track != NULL) 
+      phiMS = MS_track->phi();
+
+    if( MS_track != NULL && CB_track !=NULL ) {
+      
+      etaMS = MS_track->eta();
+      etaCB = CB_track->eta();
+    }
+
+
+    int category = -1; //use category = -1 as "unclassified" - only default smearing will be applied
+
+    if ( (isSmallGoodSectors && innerSmallHits < 3) || (!isSmallGoodSectors && innerLargeHits < 3)) {
+ 
+      category = 0; //missing-inner
+    }
+
+    if ( (isSmallGoodSectors && middleSmallHits < 3) || (!isSmallGoodSectors && middleLargeHits < 3) ){
+ 
+      category = 1; //missing-middle
+    }
+
+    if ( (isSmallGoodSectors && outerSmallHits < 3 && extendedSmallHits < 3) || (!isSmallGoodSectors && outerLargeHits < 3 && extendedLargeHits < 3) ){
+ 
+      category = 2; //missing-outer
+    }
+
+    if ((fabs(etaMS)>2.0 || fabs(etaCB)>2.0) && cscUnspoiledEtaHits == 0){
+ 
+      category = 0; //spoiled CSC -> add to missing-inner
+    }
+		
+    if( (1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1) || (1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1) ) {
+ 
+      category = 0; //barrel-end-cap overlap -> add to missing-inner
+    }
+
+
+    //::: BIS78
+    float BIS78_eta[ 2 ] = { 1.05, 1.3 };
+    float BIS78_phi[ 8 ] = { 0.21, 0.57, 1.00, 1.33, 1.78, 2.14, 2.57, 2.93 };
+	
+    if ( fabs( etaMS ) >= BIS78_eta[ 0 ] && fabs( etaMS ) <= BIS78_eta[ 1 ] ) {
+      if ( ( fabs( phiMS ) >= BIS78_phi[ 0 ] && fabs( phiMS ) <= BIS78_phi[ 1 ] ) 
+	   || ( fabs( phiMS ) >= BIS78_phi[ 2 ] && fabs( phiMS ) <= BIS78_phi[ 3 ] ) 
+	   || ( fabs( phiMS ) >= BIS78_phi[ 4 ] && fabs( phiMS ) <= BIS78_phi[ 5 ] ) 
+	   || ( fabs( phiMS ) >= BIS78_phi[ 6 ] && fabs( phiMS ) <= BIS78_phi[ 7 ] ) 
+	   ) {
+
+	category = 0; //BIS7/8 -> add to missing-inner
+      }
+    }
+
+	
+    //::: BEE
+    float BEE_eta[ 2 ] = { 1.440, 1.692 };
+    float BEE_phi[ 8 ] = { 0.301, 0.478, 1.086, 1.263, 1.872, 2.049, 2.657, 2.834 };     
+    if ( ( (fabs( etaMS ) >= BEE_eta[ 0 ] && fabs( etaMS ) <= BEE_eta[ 1 ]) &&
+	   ( ( fabs( phiMS ) >= BEE_phi[ 0 ] && fabs( phiMS ) <= BEE_phi[ 1 ] ) 
+	     || ( fabs( phiMS ) >= BEE_phi[ 2 ] && fabs( phiMS ) <= BEE_phi[ 3 ] ) 
+	     || ( fabs( phiMS ) >= BEE_phi[ 4 ] && fabs( phiMS ) <= BEE_phi[ 5 ] ) 
+	     || ( fabs( phiMS ) >= BEE_phi[ 6 ] && fabs( phiMS ) <= BEE_phi[ 7 ] ) ) )
+	 || (fabs(etaCB)>1.4 && (extendedSmallHits>0||extendedSmallHoles>0) )
+	 ) {
+      if (extendedSmallHits < 3 && middleSmallHits >= 3 && outerSmallHits >= 3) {
+
+	category = 0; //missing-BEE -> add to missing-inner
+      }
+      if (extendedSmallHits >= 3 && outerSmallHits < 3) {
+
+	category = 2; //missing-outer
+      }
+      if (!isSmallGoodSectors) {
+
+	category = -1; //weird BEE -> add to "unclassified"
+      }
+    }
+
+
+    if ( nprecisionLayers == 1 ) {
+
+      category = 1; //one-station -> add to missing-middle
+    }
+  
+    return category;
+  }
+
+
   //need run number (or random run number) to apply period-dependent selections
   unsigned int MuonSelectionTool::getRunNumber(bool needOnlyCorrectYear) const {
 

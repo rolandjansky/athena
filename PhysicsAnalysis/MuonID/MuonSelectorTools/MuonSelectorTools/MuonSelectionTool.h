@@ -114,6 +114,9 @@ namespace CP {
 
       /// Returns true if the muon passed the tight working point cuts    
       bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
+
+      /// Returns an integer corresponding to categorization of muons with different resolutions
+      int getResolutionCategory(const xAOD::Muon&) const;
       /// @}
 
 
