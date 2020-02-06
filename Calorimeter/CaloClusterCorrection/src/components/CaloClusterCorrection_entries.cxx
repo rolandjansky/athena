@@ -52,8 +52,6 @@
 #include "../CaloRunClusterCorrections.h"
 #include "../CaloDummyCorrection.h"
 
-#include "../CaloClusterTimeTool.h"
-
 
 DECLARE_COMPONENT( CaloClusterLocalCalibCone )
 DECLARE_COMPONENT( CaloClusterLocalCalib )
@@ -108,6 +106,4 @@ DECLARE_COMPONENT( CaloClusterRemoveBad )
 
 DECLARE_COMPONENT( CaloRunClusterCorrections )
 DECLARE_COMPONENT( CaloDummyCorrection )
-
-DECLARE_COMPONENT( CaloClusterTimeTool )
 
