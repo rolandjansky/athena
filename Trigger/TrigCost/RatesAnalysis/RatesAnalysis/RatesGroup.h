@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESTGROUP_H
@@ -79,13 +79,13 @@ class RatesGroup : public RatesHistoBase {
    */
   void execute(const WeightingValuesSummary_t& weights); 
 
-  void setExpressGroup(const bool i) { m_isExpressGroup = i; } //!< Flag this group as the express group (modifies group trigger's prescales)
-  void setDoCachedWeights(const bool i) { m_doCachedWeights = i; } //!< Flag group to cache weights. Called only on the Master group
-  void setUseCachedWeights(const bool i) { m_useCachedWeights = i; } //!< Set to use cached weights from the Master group (need ptr to m_masterGroup)
-  void duplicateChildren(const RatesGroup* toDuplicate) { m_children = toDuplicate->getChildren(); m_masterGroup = toDuplicate; } //!< Copy in triggers from another group. Sets my master
-  double getCachedWeight(const size_t l1Hash) const { return m_cachedWeights.at(l1Hash); } //!< Get cached weight from triggers seeding from a given L1 item.
-  void setUniqueTrigger(RatesTrigger* trigger) { m_uniqueTrigger = trigger; } //!< Set trigger I am doing unique rates for
-  RatesTrigger* getUniqueTrigger() { return m_uniqueTrigger; } //!< Get the trigger I am doing unique rates for
+  void setExpressGroup(const bool i); //!< Flag this group as the express group (modifies group trigger's prescales)
+  void setDoCachedWeights(const bool i); //!< Flag group to cache weights. Called only on the Master group
+  void setUseCachedWeights(const bool i); //!< Set to use cached weights from the Master group (need ptr to m_masterGroup)
+  void duplicateChildren(const RatesGroup* toDuplicate); //!< Copy in triggers from another group. Sets my master
+  double getCachedWeight(const size_t l1Hash) const; //!< Get cached weight from triggers seeding from a given L1 item.
+  void setUniqueTrigger(RatesTrigger* trigger); //!< Set trigger I am doing unique rates for
+  RatesTrigger* getUniqueTrigger(); //!< Get the trigger I am doing unique rates for
 
   /**
    * @brief Get the unique rate of a unique-rate group
@@ -95,7 +95,7 @@ class RatesGroup : public RatesHistoBase {
    */
   double getUniqueWeight(const double ratesDenominator) const;
 
-  const std::unordered_map<size_t, std::set<const RatesTrigger*>>& getChildren() const { return m_children; } //<! Return all triggers in the group, ordered by common L1
+  const std::unordered_map<size_t, std::set<const RatesTrigger*>>& getChildren() const; //<! Return all triggers in the group, ordered by common L1
 
   const std::string printConfig() const; //!< Prints the RatesGroup's configuration
 

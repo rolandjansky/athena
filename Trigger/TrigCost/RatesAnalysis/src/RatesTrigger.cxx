@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesTrigger.h"
@@ -8,8 +8,9 @@
 RatesTrigger::RatesTrigger(const std::string& name, const MsgStream& log, const double prescale, const double expressPrescale,
                            const std::string& seedName, const double seedPrescale, const bool doHistograms,
                            const ExtrapStrat_t extrapolation) :
-  RatesHistoBase(name, log, (prescale < 1. || seedPrescale < 1. ? false : doHistograms)),
+  RatesHistoBase(name, log, doHistograms),
   m_pass(false),
+  m_active(false),
   m_seedsFromRandom(false),
   m_rateAccumulator(0.),
   m_rateAccumulator2(0.),
@@ -32,36 +33,60 @@ RatesTrigger::RatesTrigger(const std::string& name, const MsgStream& log, const 
 
 RatesTrigger::~RatesTrigger() {}
 
-void RatesTrigger::setPassed(const bool i, const bool unbiasedEvent) { 
+void RatesTrigger::setPassed(const bool passed, const bool active, const bool unbiasedEvent) { 
   if (m_seedsFromRandom == true && unbiasedEvent == false) return;
-  m_pass = i;
+  if (m_active && !m_pass) throw std::runtime_error("Cannot pass if not active");
+  m_pass = passed;
+  m_active = active;
 }
 
-void RatesTrigger::setPassedAndExecute(const bool i, const WeightingValuesSummary_t& weights) { 
+void RatesTrigger::setPassedAndExecute(const bool passed, const bool active, const WeightingValuesSummary_t& weights) { 
   if (m_seedsFromRandom == true && weights.m_isUnbiased == false) return;
-  if (m_pass == false) { // Protect against two positive calls/event
-    m_pass = i;
+  if (m_pass == false && m_active == false) { // Protect against two positive calls/event
+    if (m_active && !m_pass) throw std::runtime_error("Cannot pass if not active");
+    m_pass = passed;
+    m_active = active;
     execute(weights);
   }
 }
 
+
 void RatesTrigger::execute(const WeightingValuesSummary_t& weights) {
-  if (m_pass == false) return; 
-  double w =  m_totalPrescaleWeight * weights.m_enhancedBiasWeight;
-  // The vs. mu histogram is a property of the INPUT event so we don't apply any L scaling here
-  if (m_rateVsMuCachedPtr != nullptr) m_rateVsMuCachedPtr->Fill(weights.m_eventMu, w);
-  w *= getExtrapolationFactor(weights, m_extrapolationStrategy);
-  // The vs. position in train is agnostic to INPUT event & TARGET conditions - i.e. the bunch train structure is not
-  // re-weighted in any way. Hence we can apply whatever extrapolation strategy we want here.
-  if (m_rateVsTrainCachedPtr != nullptr) m_rateVsTrainCachedPtr->Fill(weights.m_distanceInTrain, w);
-  m_rateAccumulator  += w;
-  m_rateAccumulator2 += w * w;
-  if (m_dataCachedPtr != nullptr) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, w);
-  if (m_expressPrescale >= 1) {
-    const double wExp = m_totalPrescaleWeightExpress * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights, m_extrapolationStrategy);
-    m_rateExpressAccumulator  += wExp;
-    m_rateExpressAccumulator2 += wExp * wExp;
-    if (m_dataCachedPtr != nullptr) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kEXPRESS_BIN, wExp);
+  // Efficiency
+  if (getDisabled()) {
+    return;
+  }
+
+  const double w_noLScale = m_totalPrescaleWeight * weights.m_enhancedBiasWeight;
+  const double w = w_noLScale * getExtrapolationFactor(weights, m_extrapolationStrategy);
+  const double wExp = m_totalPrescaleWeightExpress * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights, m_extrapolationStrategy);
+
+  if (m_active) {
+    m_ratesActive  += w;
+    m_ratesActive2 += w * w;
+    if (m_dataCachedPtr != nullptr) {
+      m_dataCachedPtr->Fill(RatesBinIdentifier_t::kACTIVE_RAW_BIN, 1.);
+      m_dataCachedPtr->Fill(RatesBinIdentifier_t::kACTIVE_WEIGHTED_BIN, w);
+    }
+  }
+
+  if (m_pass) {
+    // The vs. mu histogram is a property of the INPUT event so we don't apply any L scaling here
+    if (m_rateVsMuCachedPtr != nullptr) m_rateVsMuCachedPtr->Fill(weights.m_eventMu, w_noLScale);
+    // The vs. position in train is agnostic to INPUT event & TARGET conditions - i.e. the bunch train structure is not
+    // re-weighted in any way. Hence we can apply whatever extrapolation strategy we want here.
+    if (m_rateVsTrainCachedPtr != nullptr) m_rateVsTrainCachedPtr->Fill(weights.m_distanceInTrain, w);
+    m_rateAccumulator  += w;
+    m_rateAccumulator2 += w * w;
+    if (m_dataCachedPtr != nullptr) {
+      m_dataCachedPtr->Fill(RatesBinIdentifier_t::kPASS_RAW_BIN, 1.);
+      m_dataCachedPtr->Fill(RatesBinIdentifier_t::kPASS_WEIGHTED_OR_BIN, w);
+    }
+    if (m_expressPrescale >= 1) {
+      m_rateExpressAccumulator  += wExp;
+      m_rateExpressAccumulator2 += wExp * wExp;
+      if (m_dataCachedPtr != nullptr) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kEXPRESS_BIN, wExp);
+    }
   }
 }
 
@@ -113,3 +138,32 @@ const std::string RatesTrigger::printExpressRate(const double ratesDenominator) 
   return ss.str();
 }
 
+void RatesTrigger::reset() { m_pass = false; m_active = false; }
+
+void RatesTrigger::setSeedsFromRandom(const bool i) { m_seedsFromRandom = i; }
+
+size_t RatesTrigger::getSeedHash() const { return m_seedHash; }
+
+const std::string& RatesTrigger::getSeedName() const { return m_seed; }
+
+double RatesTrigger::getSeedPrescale() const { return m_seedPrescale; }
+
+size_t RatesTrigger::getHash() const { return m_nameHash; }
+
+const std::string& RatesTrigger::getName() const { return m_name; }
+
+bool RatesTrigger::getPassed() const { return m_pass; }
+
+bool RatesTrigger::getActive() const { return m_active; }
+
+bool RatesTrigger::getDisabled() const { return (isZero(m_prescale) || isZero(m_seedPrescale)); }
+
+void RatesTrigger::setUniqueGroup(const RatesGroup* unique) { m_uniqueGroup = unique; } 
+
+void RatesTrigger::setCoherentFactor(const double lowestCommonPrescale) { m_coherentFactor = lowestCommonPrescale; } 
+
+void RatesTrigger::setCPS(const std::string& group) { m_CPSID = std::hash<std::string>{}(group); }
+
+size_t RatesTrigger::getCPSID() const { return m_CPSID; }
+
+double RatesTrigger::getCoherentFactor() const { return m_coherentFactor; } 

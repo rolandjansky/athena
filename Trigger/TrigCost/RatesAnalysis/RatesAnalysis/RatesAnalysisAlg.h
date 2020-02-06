@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESANALYSISALG_H
@@ -16,7 +16,13 @@
 #include "RatesScanTrigger.h"
 #include "RatesGroup.h"
 
+#include "TTree.h"
+
 #include <unordered_set>
+
+namespace TrigConf {
+   class ITrigConfigSvc;
+}
 
 /**
  * @brief virtual analysis class for performing rates studies on AOD
@@ -129,7 +135,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
    * @param name Name of the registered trigger
    * @param triggerIsPassed Trigger decision.
    */
-  StatusCode setTriggerDesicison(const std::string& name, const bool triggerIsPassed = true);
+  StatusCode setTriggerDesicison(const std::string& name, const bool triggerIsPassed = true, const bool triggerIsActive = true);
 
   /**
    * Set the pass threshold for a Scan Trigger item.
@@ -204,6 +210,8 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
 
   void printStatistics() const;  //!< Print some extra statistics on events processed
   void printTarget() const; //!< Print the target instantaneous luminosity, mu and number of bunches.
+  void writeMetadata(); //!< Write to outpute tree (if any) the metadata needed downstream.
+
 
   /**
    * @brief String match coherent prescale groups.
@@ -239,7 +247,9 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   std::unordered_set<RatesGroup*> m_activeGroups; //!< All groups which are enabled (PS >= 1)
   std::unordered_map<size_t, double> m_lowestPrescale; //!< Lowest prescale within a CPS group, key is the hash of the CPS group name.
   std::vector<std::string> m_autoTriggers; //!< List of triggers which it is up to us to the algorithm to work out the pass/fail for
+
   std::unordered_map<std::string, const Trig::ChainGroup*> m_existingTriggers; //!< Map of triggers which we ask the TDT ChainGroup for the pass/fail 
+  std::unordered_map<std::string, std::string> m_lowerTrigger; //!< Map of triggers lower chain, to tell if a HLT trigger ran or not. 
 
   std::unordered_map<std::string, ChainDetail> m_loadedXML; //!< Details loaded from a prescale XML are stored here
 
@@ -249,6 +259,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
 
   ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasRatesTool{this, "EnhancedBiasRatesTool", "EnhancedBiasWeighter/EnhancedBiasRatesTool"};
   ToolHandle<Trig::TrigDecisionTool> m_tdt{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"};
+  ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", ""};
 
   Gaudi::Property<double> m_expoScalingFactor{this, "ExpoScalingFactor", 0.1, "Optional. Exponential factor if using exponential-mu rates scaling."};
   Gaudi::Property<double> m_inelasticCrossSection{this, "InelasticCrossSection", 8e-26, "Inelastic cross section in units cm^2. Default 80 mb at 13 TeV."};
@@ -272,6 +283,8 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
 
   TH1D* m_scalingHist; //!< One-bin histogram to store the normalisation of the sample, for use in later combinations
   TH1D* m_bcidHist; //!< Histogram of the BCIDs distribution of the processing
+
+  TTree* m_metadataTree; //!< Used to write out some metadata needed by post-processing (e.g. bunchgroup, lumi)
 
   WeightingValuesSummary_t m_weightingValues; //!< Possible weighting & lumi extrapolation values for the current event 
 }; 
