@@ -24,6 +24,7 @@
 #include "ActsGeometry/ActsMaterialStepConverterTool.h"
 // #include "ActsGeometry/ActsMaterialJsonWriterTool.h"
 
+#include "ActsGeometry/MaterialStepToActsMaterialTrack.h"
 
 DECLARE_COMPONENT( ActsExtrapolationAlg )
 DECLARE_COMPONENT( ActsWriteTrackingGeometry )
@@ -46,3 +47,5 @@ DECLARE_COMPONENT( ActsTrackingGeometryTool )
 DECLARE_COMPONENT( ActsPropStepRootWriterSvc )
 DECLARE_COMPONENT( ActsAlignmentCondAlg )
 DECLARE_COMPONENT( ActsCaloTrackingVolumeBuilder )
+
+DECLARE_COMPONENT( MaterialStepToActsMaterialTrack )
