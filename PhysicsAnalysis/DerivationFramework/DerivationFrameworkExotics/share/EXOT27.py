@@ -233,7 +233,7 @@ toAssociate = {
   vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower()
 }
 for collection in toBeAssociatedTo:
-  ungroomed, labels = EXOT27Utils.linkPseudoJetGettersToExistingJetCollection(
+  ungroomed, labels = HbbCommon.linkVRJetsToLargeRJets(
       EXOT27Seq, collection, toAssociate)
   EXOT27ExtraVariables[ungroomed].update(labels)
 

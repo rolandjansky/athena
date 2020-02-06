@@ -444,10 +444,11 @@ def linkVRJetsToLargeRJets(
   comb_name = "_".join(getters.keys() )
   LargeRJetFindingAlg = "jfind_{0}_{1}".format(collection, comb_name).lower()
   LargeRJetPrefix     = "{0}_{1}".format(collection, comb_name)
+  LargeRJets = LargeRJetPrefix
   if '_BTagging' in LargeRJetPrefix:
-    LargeRJets = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
+    LargeRJetPrefix = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
   else:
-    LargeRJets       = "%sJets" % (LargeRJetPrefix)
+    LargeRJetPrefix       = "%sJets" % (LargeRJetPrefix)
   LinkTransferAlg     = "LinkTransfer_{0}_{1}".format(collection, comb_name)
 
   # Check to see if this large R jet collection is already known to JetCommon
