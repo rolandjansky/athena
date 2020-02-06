@@ -141,17 +141,6 @@ int main() {
    testValue(prw1->expert()->GetPrimaryWeight(101,2002,2.5),0.6666);
    testValue(prw1->expert()->GetPrimaryWeight(101,2002,3.5),0);
 
-   bool exceptionThrown=false;
-   try {
-    prw1->expert()->GetPrimaryWeight(101,2002,0.5); //should throw exception because of unavvailable MC
-   } catch(const std::exception&) {
-    exceptionThrown=true;
-   }
-   if(!exceptionThrown) {
-    std::cout << "did not throw exception when expected" << std::endl;
-    throw std::runtime_error("no exception when expected");
-   }
-
    //test the random run number and lumiblock number generating 
    int num1(0); int lnum1(0);
    for(int i=0;i<1000000;i++) {
