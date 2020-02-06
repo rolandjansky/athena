@@ -156,8 +156,9 @@ inline double xAOD::CaloTowerContainer_v1::deltaPhi() const { return m_deltaPhi;
 
 inline const xAOD::CaloTower_v1* xAOD::CaloTowerContainer_v1::tower(double eta, double phi) const {
   int idx=index(eta,phi);
-  if (idx>0 && idx<(int)this->size()) 
+  if (idx>0 && idx<(int)this->size()) {
     return (*this)[idx];
+  }
   
     return nullptr;
 }
