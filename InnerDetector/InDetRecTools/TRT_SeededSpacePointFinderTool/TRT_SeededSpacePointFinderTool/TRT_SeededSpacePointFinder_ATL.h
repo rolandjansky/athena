@@ -43,8 +43,7 @@ class SiSpacePointsSeed;
 namespace InDet{
 
   /** Sorting function according to space point radial position */
-  class MyNewDataSortPredicate
-    : public std::binary_function<std::pair<const Trk::SpacePoint*,int>, std::pair<const Trk::SpacePoint*,int>, bool> {
+  class MyNewDataSortPredicate {
     public:
     bool operator()(std::pair<const Trk::SpacePoint*,int> sp1, std::pair<const Trk::SpacePoint*,int> sp2) const
       {return (sp1.first)->r() > (sp2.first)->r();}
