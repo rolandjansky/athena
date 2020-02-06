@@ -11,9 +11,6 @@
 #ifndef ASSOCIATIONCOMPS_IOVERLAPFILTER_H 
 #define ASSOCIATIONCOMPS_IOVERLAPFILTER_H 
 
-// STL includes
-#include <functional>
-
 // EventKernel includes
 #include "EventKernel/INavigable4Momentum.h"
 
@@ -21,12 +18,7 @@
 
 namespace AssociationComps {
 
-class IOverlapFilter : public std::binary_function< 
-                                                    const INavigable4Momentum*,
-	                                            const INavigable4Momentum*,
-	                                            bool 
-	                                          >
-{ 
+class IOverlapFilter { 
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
