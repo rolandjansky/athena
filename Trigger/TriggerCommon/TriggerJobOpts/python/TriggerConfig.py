@@ -50,16 +50,17 @@ def __decisionsFromHypo( hypo ):
 
 def collectViewMakers( steps ):
     """ collect all view maker algorithms in the configuration """
-    makers = set() # map with name, instance and encompasing recoSequence
+    makers = [] # map with name, instance and encompasing recoSequence
     for stepSeq in steps.getChildren():
         for recoSeq in stepSeq.getChildren():
             algsInSeq = flatAlgorithmSequences( recoSeq )
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
                     if "EventViewCreator" in alg.getFullName(): # TODO base it on checking types of write handles once available
-                        makers.add(alg)
-    __log.info("Found View Makers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
-    return list(makers)
+                        makers.append(alg)
+    makers = sorted(set(makers)) #Remove duplicates and return in reproducible order
+    __log.debug("Found ViewMakers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
+    return makers
 
 
 
@@ -143,7 +144,7 @@ def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
     decisionObjects.update(decObjHypo)
     decisionObjects.update(decObjFilter)
     decisionObjects.update(decObjSummary)
-    return decisionObjects
+    return sorted(decisionObjects)
 
 def triggerSummaryCfg(flags, hypos):
     """
