@@ -262,9 +262,11 @@ def __compareComponent(compRef, compChk, prefix, args):
                 % (prefix, prop, str(refVal), str(chkVal), diffmarker)
             )
 
-            if "StoreGateSvc" not in refVal and "/" not in refVal:
+            try:
                 refVal = ast.literal_eval(str(refVal))
                 chkVal = ast.literal_eval(str(chkVal))
+            except ValueError:
+                pass # literal_eval exception when parsing particular strings
 
             if refVal and (isinstance(refVal, list) or isinstance(refVal, dict)):
                 __compareComponent(refVal, chkVal, "\t" + prefix + ">> ", args)
