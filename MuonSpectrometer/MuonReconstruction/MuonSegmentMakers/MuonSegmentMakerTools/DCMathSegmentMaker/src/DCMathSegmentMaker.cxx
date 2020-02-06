@@ -1849,13 +1849,13 @@ namespace Muon {
   };
 
   template<class T>
-  struct SortIdDataVec : public std::binary_function<const IdDataVec<T>&,const IdDataVec<T>&,bool> {
+  struct SortIdDataVec {
     bool operator()(const IdDataVec<T>& d1, const IdDataVec<T>& d2 ){
       return d1.id < d2.id;
     }
   };
 
-  struct SortClByPull : public std::binary_function<const std::pair<double,DCMathSegmentMaker::Cluster2D>&,const std::pair<double,DCMathSegmentMaker::Cluster2D>&,bool> {
+  struct SortClByPull {
     bool operator()(const std::pair<double,DCMathSegmentMaker::Cluster2D>& d1, const std::pair<double,DCMathSegmentMaker::Cluster2D>& d2 ){
       return fabs(d1.first) < fabs(d2.first);
     }  
