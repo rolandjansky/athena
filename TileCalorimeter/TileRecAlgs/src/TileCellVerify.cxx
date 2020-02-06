@@ -34,7 +34,7 @@
 
 using namespace std;
 
-class CompCell: public binary_function<const CaloCell*, const CaloCell*, bool> {
+class CompCell {
   public:
     bool operator()(const CaloCell* p1, const CaloCell* p2) {
       return p1->energy() < p2->energy();
