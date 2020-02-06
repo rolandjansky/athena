@@ -43,7 +43,8 @@ atlas_add_library( ActsGeometryLib
                    AthenaKernel
                    ActsInteropLib
                    ActsGeometryInterfacesLib
-                   ActsCore)
+                   ActsCore
+		   PixelReadoutGeometry)
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
