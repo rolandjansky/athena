@@ -11,7 +11,6 @@
 #include "../egammaMaxECellAlg.h"
 #include "../egammaSumCellsGainAlg.h" 
 #include "../egammaNbCellsGainAlg.h"
-#include "../egammaTimeCorrAlg.h"
 
 
 
@@ -30,5 +29,4 @@ DECLARE_COMPONENT( D3PD::PhotonTruthTool )
 DECLARE_COMPONENT( D3PD::egammaMaxECellAlg )
 DECLARE_COMPONENT( D3PD::egammaSumCellsGainAlg )
 DECLARE_COMPONENT( D3PD::egammaNbCellsGainAlg )
-DECLARE_COMPONENT( D3PD::egammaTimeCorrAlg )
 
