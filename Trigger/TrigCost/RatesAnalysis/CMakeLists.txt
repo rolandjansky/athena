@@ -38,4 +38,4 @@ atlas_add_test( RatesAnalysis_test
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( share/RatesAnalysisFullMenu.py share/RatesPostProcessing.py )
+atlas_install_scripts( share/RatesAnalysisFullMenu.py share/RatesAnalysisPostProcessing.py )
