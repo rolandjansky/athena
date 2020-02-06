@@ -59,7 +59,7 @@ namespace FlavorTagDiscriminants {
           "no file found at '" + config.input_file_path.string() + "'");
       }
     }
-    std::ifstream input_stream(nn_path);
+    std::ifstream input_stream(nn_path.string());
     lwt::GraphConfig graph_cfg = lwt::parse_json_graph(input_stream);
     m_graph.reset(new lwt::LightweightGraph(graph_cfg));
 
