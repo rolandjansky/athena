@@ -611,61 +611,30 @@ namespace Muon {
     for(std::vector<std::vector<const Muon::MuonClusterOnTrack*> >::const_iterator cvecIt=clusters.begin(); cvecIt!=clusters.end(); ++cvecIt) {
       const Muon::MuonClusterOnTrack* rio = 0;      
       double bestDist(9999.);      
-      double bestTimeDist(9999.);
-      if (m_idHelperTool->isMM((*((*cvecIt).begin()))->identify())) {  // MM specific algorithm
-        for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
-	  double tdrift = (dynamic_cast<const MMPrepData *>((*cit)->prepRawData()))->time();
-	  double dist = clusterDistanceToSeed( *cit, seed);
-	  double timedist = std::abs(clusterDistanceToSeed( *cit, seed)) + std::abs(tdrift*0.015); // std::abs(tdrift*0.015) is an ad hoc penalty factor, to be optimised when time resolution is known
-	  double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	  if (!tight) error += 15.;
-	  ATH_MSG_VERBOSE(" lay " << layer << " tdrift " << tdrift << " dist " << dist  << " timedist " << timedist << " pull " << dist/error
-			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	  if( std::abs(dist/error) < m_maxClustDist) {
-	    if(std::abs(timedist) < bestTimeDist) {
-	      bestTimeDist = std::abs(timedist);
-	      bestDist = dist;
-	    }
-	  }	 
-        }
-        if(bestDist<9999.) {  // check if at least one cluster present close to seed 
-	  ATH_MSG_VERBOSE(" Best distance " << bestDist);
-	  ATH_MSG_VERBOSE(" Looking for RIOs from mTPC around the best distance");
-          for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
-	    double dist = clusterDistanceToSeed( *cit, seed);
-	    double window = std::abs(2.*5.*0.047 * ((*cit)->globalPosition().perp() / (*cit)->globalPosition().z()));  // all hits in the range [bestDist-window;bestDist-window] will be accepted; 2-safety factor; 5-time resolution; 0.047-drift velocity; (hardcoded values to be removed once time resolution model is known) 
-	    double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	    if (!tight) error += 15.;
-	    ATH_MSG_VERBOSE(" Current RIO : distance " << dist << " window " << window << " to be attached " << ( (std::abs(std::abs(dist)-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) );
-	    if( (std::abs(dist-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) {
-	      rios.push_back( (*cit) );
-	      ATH_MSG_VERBOSE(" adding  " << dist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	    }	 
-          }
-        }
-      } else {  // algorithm for all the technoligies but MM
-        for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
-	  double dist = clusterDistanceToSeed( *cit, seed);
-	  double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	  ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/error
-			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	  if( std::abs(dist/error) < m_maxClustDist) {
-	    if(std::abs(dist) < bestDist) {
-	      bestDist = std::abs(dist);
-	      rio = (*cit);
-	    }
-	  }	 
-        }
-        if(rio) {
-	  ATH_MSG_VERBOSE(" adding  " << bestDist << "  " << m_idHelperTool->toString(rio->identify()) );
-	  rios.push_back( rio );
-        }
+      
+      for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
+	      double dist = clusterDistanceToSeed( *cit, seed);
+	      double error = Amg::error((*cit)->localCovariance(),Trk::locX);
+        if (!tight && m_idHelperTool->isMM((*cit)->identify())) error += 15.;
+
+	      ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/error
+		                    	<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
+	      if( std::abs(dist/error) < m_maxClustDist) {
+	       if(std::abs(dist) < bestDist) {
+	         bestDist = std::abs(dist);
+	         rio = (*cit);
+	        }
+	      }	 
+      }
+      if(rio) {
+	      ATH_MSG_VERBOSE(" adding  " << bestDist << "  " << m_idHelperTool->toString(rio->identify()) );
+	      rios.push_back( rio );
       }
       ++layer;
-    }    
-    ATH_MSG_VERBOSE(" getClustersOnSegment: returning hits " << rios.size() );
-    return rios;
-  }
+  }    
+  ATH_MSG_VERBOSE(" getClustersOnSegment: returning hits " << rios.size() );
+  return rios;
+ }
 
 
   Amg::Vector3D MuonClusterSegmentFinderTool::intersectPlane( const Trk::PlaneSurface& surf, const Amg::Vector3D& pos,
