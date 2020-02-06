@@ -155,10 +155,10 @@ JetCommon.OutputJets.setdefault("EXOT27Jets", [])
 # do_ghost is ghost *tagging* - future improvement, not yet calibrated
 vrTrackJets, vrTrackJetGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = False, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets+"Jets")
+JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrTrackJets))
 vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
+JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrGhostTagTrackJets))
 
 
 # schedule pflow tagging
@@ -433,8 +433,8 @@ EXOT27ThinningTools.append(
 ToolSvc += EleLinkThinningTool(
     "EXOT27SubjetThinningTool",
     LinkName = "Parent.{glink}({jets}).btaggingLink({btag})".format(
-        glink="GhostVR30Rmax4Rmin02TrackJetGhostTag",
-        jets="AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+        glink=vrGhostTagTrackJetsGhosts,
+        jets=ExtendedJetCommon.nameJetsFromAlg(vrGhostTagTrackJets),
         btag="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag"),
     ThinningService = EXOT27ThinningHelper.ThinningSvc() )
 large_r = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"

@@ -279,7 +279,8 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     # Build VR jets
     #==========================================================
 
-    VRJetRecToolName = VRJetName.replace('_BTagging','Jets_BTagging')
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
+    VRJetRecToolName = nameJetsFromAlg(VRJetName)
     VRJetAlgName = "jfind_%s" % (VRJetRecToolName)
     VRJetBTagName = "BTagging_%s" % (VRJetName.replace('BTagging',''))
 
@@ -356,13 +357,14 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     #==========================================================
 
     pjgettername = VRGhostLabel.lower()
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
 
     if hasattr(jtm, pjgettername):
         logger.info("Found %s in jtm in sequence %s" % (pjgettername, sequence))
     else:
         logger.info("Add %s to jtm in sequence %s" % (pjgettername, sequence))
-
-        inputContainerName = jetFlags.containerNamePrefix() + VRJetName + "Jets" if "BTagging" not in VRJetName else jetFlags.containerNamePrefix() + VRJetName.replace("_BTagging", "Jets_BTagging")
+        
+        inputContainerName = jetFlags.containerNamePrefix() + nameJetsFromAlg(VRJetName)
 
 
         from JetRec.JetRecConf import PseudoJetGetter
@@ -426,6 +428,7 @@ def linkVRJetsToLargeRJets(
   """
   from JetRec.JetRecStandardToolManager import jtm
   import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
+  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
   logger = Logging.logging.getLogger('HbbTaggerLog')
   # First, retrieve the original JetRecTool - this is the one that made the
   # *ungroomed* jets, not the groomed ones. Ghost association is done to
@@ -444,11 +447,7 @@ def linkVRJetsToLargeRJets(
   comb_name = "_".join(getters.keys() )
   LargeRJetFindingAlg = "jfind_{0}_{1}".format(collection, comb_name).lower()
   LargeRJetPrefix     = "{0}_{1}".format(collection, comb_name)
-  LargeRJets = LargeRJetPrefix
-  if '_BTagging' in LargeRJetPrefix:
-    LargeRJetPrefix = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
-  else:
-    LargeRJetPrefix       = "%sJets" % (LargeRJetPrefix)
+  LargeRJets = nameJetsFromAlg(LargeRJetPrefix)
   LinkTransferAlg     = "LinkTransfer_{0}_{1}".format(collection, comb_name)
 
   # Check to see if this large R jet collection is already known to JetCommon

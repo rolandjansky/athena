@@ -21,6 +21,20 @@ extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 # for debugging output
 from AthenaCommon.Constants import INFO,DEBUG,WARNING
 
+def nameJetsFromAlg(alg):
+    """ Name a jet collection from its algorithm
+
+        The jet code likes to pass around the algorithm name (e.g.
+        AntiKt4EMTopo) rather than the jet collection. This was previously fine
+        as all that was needed to do was to append 'Jets' to the name, however
+        now that we have date-stamped b-tagging containers, this simple rule is
+        not so simple...
+    """
+    if "_BTagging" in alg:
+        return alg.replace("_BTagging", "Jets_BTagging")
+    else:
+        return alg+"Jets"
+
 ##################################################################
 # Jet helpers for large-radius groomed jets
 ##################################################################
