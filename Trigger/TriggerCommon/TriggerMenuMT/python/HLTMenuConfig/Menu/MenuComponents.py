@@ -227,16 +227,13 @@ class ComboMaker(AlgNode):
         #Alg = RecoFragmentsPool.retrieve( self.create, name )
         log.debug("ComboMaker init: Alg %s", name)
         Alg = ComboHypo(name)
-        Alg.OutputLevel = 1
         AlgNode.__init__(self,  Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.prop="MultiplicitiesMap"
         self.mult=list(multiplicity)
 
     def create (self, name):
         log.debug("ComboMaker.create %s",name)
-        C = ComboHypo(name)
-        C.OutputLevel = 1
-        return C
+        return ComboHypo(name)
 
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
