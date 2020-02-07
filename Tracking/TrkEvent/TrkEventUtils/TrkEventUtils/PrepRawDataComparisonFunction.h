@@ -25,10 +25,9 @@
 #include <ext/algorithm>
 
 namespace Trk {
-
-  /** Class inheriting from std::binary_function to provide a
-    * comparison function, or relational definition, for PrepRawData
-    */
+  /**
+   * Class providing comparison function, or relational definition, for PrepRawData
+   */
   class PrepRawDataComparisonFunction :
     public std::binary_function<const Trk::PrepRawData*, const Trk::PrepRawData*, bool>
   {

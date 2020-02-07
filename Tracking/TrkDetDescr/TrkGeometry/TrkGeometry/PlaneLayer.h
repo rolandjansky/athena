@@ -215,7 +215,7 @@ class LayerMaterialProperties;
   /** @class PlaneLayerSorterX
      Functor for PlaneLayer X-Sorting */
      
-  class PlaneLayerSorterX : public std::binary_function<const PlaneLayer*, const PlaneLayer*, bool> {
+  class PlaneLayerSorterX {
     public:       
        /** Default Constructor */
        PlaneLayerSorterX()
@@ -229,7 +229,7 @@ class LayerMaterialProperties;
   /** @class PlaneLayerSorterY
      Functor for PlaneLayer Y-Sorting */
      
-  class PlaneLayerSorterY : public std::binary_function<const PlaneLayer*, const PlaneLayer*, bool> {
+  class PlaneLayerSorterY {
     public:       
        /** Default Constructor */
        PlaneLayerSorterY()
@@ -243,7 +243,7 @@ class LayerMaterialProperties;
   /** @class PlaneLayerSorterZ
      Functor for PlaneLayer Z-Sorting */
      
-  class PlaneLayerSorterZ : public std::binary_function<const PlaneLayer*, const PlaneLayer*, bool> {
+  class PlaneLayerSorterZ {
     public:       
        /** Default Constructor */
        PlaneLayerSorterZ()
