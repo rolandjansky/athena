@@ -13,7 +13,7 @@ def __getStepsDataFromAlgSequence(HLTAllSteps):
     stepsData = []
     if HLTAllSteps is not None:
         for HLTStep in HLTAllSteps.getChildren():
-            if "HLTAllSteps_Step" not in HLTStep.name(): # Avoid the pre-step Filter execution
+            if "_reco" not in HLTStep.name(): # Avoid the pre-step Filter execution
                 continue
             stepsData.append( HLTStep.getChildren() )
     else:
@@ -39,6 +39,8 @@ def __getChainSequencers(stepsData, chainName):
                 mySequencer = sequencer
         if mySequencer is None:
             endOfChain = True
+            if counter == 1 and  'noalg' not in chainName:
+                __log.warn("No Filter found for %s in Step 1", chainName)
         else:
             if endOfChain is True:
                 __log.error( "Found another Step, (Step %i) for chain %s "
@@ -60,7 +62,7 @@ def __getSequencerAlgs(stepsData):
 def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     """ Generates JSON given the ChainProps and sequences
     """
-    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", []) ])
+    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", {}) ])
 
     # List of steps data
     stepsData = __getStepsDataFromAlgSequence(HLTAllSteps)
@@ -92,11 +94,12 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
         menuDict["chains"].append( chainDict )
 
     # All algorithms executed by a given Sequencer
-    menuDict["sequencers"].append( __getSequencerAlgs(stepsData) )
+    menuDict["sequencers"].update( __getSequencerAlgs(stepsData) )
 
     __log.info( "Writing trigger menu to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=False )
+
 
 def generateJSON():
     __log.info("Generating HLT JSON config in the rec-ex-common job")
