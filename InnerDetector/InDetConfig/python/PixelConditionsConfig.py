@@ -1,6 +1,6 @@
 """Define functions to configure Pixel conditions algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -127,7 +127,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         
     elif not flags.Input.isMC:
-        runNum = flags.Input.RunNumber
+        runNum = flags.Input.RunNumber[0]
         if runNum < 222222:
             useCablingConditions = False
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
@@ -232,7 +232,7 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         
     elif not flags.Input.isMC:
-        runNum = flags.Input.RunNumber
+        runNum = flags.Input.RunNumber[0]
         if runNum < 222222:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
             rodIDForSingleLink40=1300000
@@ -349,6 +349,9 @@ def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
 def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelHitDiscCnfgAlg"""
     acc = ComponentAccumulator()
+    # not for Run-1 data/MC
+    if flags.GeoModel.IBLLayout in ("noIBL", "UNDEFINED"):
+        return acc
     if (flags.IOVDb.DatabaseInstance=="CONDBR2"):
         acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
     elif (flags.Input.isMC and flags.GeoModel.Run=="RUN2") or (flags.Input.isMC and flags.GeoModel.Run=="RUN3"):
@@ -394,6 +397,51 @@ def PixelTDAQCondAlgCfg(flags, name="PixelTDAQCondAlg", **kwargs):
     kwargs.setdefault("ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules")
     kwargs.setdefault("WriteKey", "PixelTDAQCondData")
     acc.addCondAlgo(CompFactory.PixelTDAQCondAlg(name, **kwargs))
+    return acc
+
+
+def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummaryCfg", **kwargs):
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    acc = PixelGeometryCfg(flags)
+    
+    # module parameters
+    acc.merge( PixelConfigCondAlgCfg(flags) )
+                                    #UseCalibConditions=True,
+                                    #UseDeadmapConditions=True,
+                                    #UseDCSStateConditions=True,
+                                    #UseDCSStatusConditions=True,
+                                    #UseDCSHVConditions=True,
+                                    #UseDCSTemperatureConditions=True,
+                                    #UseTDAQConditions=True )
+    
+    #acc.merge(PixelConfigCondAlgCfg(flags,
+    #                                UseCalibConditions=True,
+    #                                UseDeadmapConditions=True,
+    #                                UseDCSStateConditions=False,
+    #                                UseDCSStatusConditions=False,
+    #                                UseDCSHVConditions=True,
+    #                                UseDCSTemperatureConditions=True,
+    #                                UseTDAQConditions=False))
+    
+					
+    # charge calibration
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    # DCS setup
+#    acc.merge(PixelDCSCondHVAlgCfg(flags))
+#    acc.merge(PixelDCSCondTempAlgCfg(flags))
+    # cabling setup
+#    acc.merge(PixelHitDiscCnfgAlgCfg(flags))
+#    acc.merge(PixelReadoutSpeedAlgCfg(flags))
+#    acc.merge(PixelCablingCondAlgCfg(flags))
+    # deadmap
+    acc.merge(PixelDCSCondStateAlgCfg(flags))
+    acc.merge(PixelDCSCondStatusAlgCfg(flags))
+    # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelTDAQCondAlgCfg(flags))
+    # offline calibration
+#   acc.merge(PixelDistortionAlgCfg(flags))
+#   acc.merge(PixelOfflineCalibCondAlgCfg(flags))
+    ########print('digitization')
     return acc
 
 
