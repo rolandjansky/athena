@@ -410,6 +410,13 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     # Produce trigger metadata
     TrigConf__xAODMenuWriterMT=CompFactory.TrigConf__xAODMenuWriterMT
     menuwriter = TrigConf__xAODMenuWriterMT()
+    menuwriter.IsHLTJSONConfig = True
+    menuwriter.IsL1JSONConfig = True
+    from .TriggerFlags import TriggerFlags
+    if TriggerFlags.triggerMenuSetup != 'LS2_v1':
+      menuwriter.IsL1JSONConfig = False
+      log = logging.getLogger( "triggerPOOLOutputCfg" )
+      log.warn("Menu other than LS2_v1 (%s), will continue to take the L1 menu from XML rather than JSON. See ATR-20873", TriggerFlags.triggerMenuSetup)
     acc.addEventAlgo( menuwriter )
 
     return acc
