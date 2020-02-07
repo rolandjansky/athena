@@ -227,7 +227,6 @@ SiDetectorElement::updateCache() const
       if (isBarrel() && !barrelLike) {      
         msg(MSG::DEBUG) << "Element has endcap like orientation with barrel identifier. This is OK for Inclined modules or Barrel Disks in ITK pixel layouts, but is otherwise suspicious..." 
         << endreq;
-        std::cout << "NOEMI --> isBarrel() && !barrelLike" << std::endl;
       } else if (!isBarrel() && barrelLike) {
         msg(MSG::DEBUG) << "Element has barrel like orientation with endcap identifier."
         << endreq;
