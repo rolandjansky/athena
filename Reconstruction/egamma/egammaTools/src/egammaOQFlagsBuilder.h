@@ -78,7 +78,7 @@ class egammaOQFlagsBuilder : public egammaBaseTool
   bool isbadtilecell (CaloCellList& ccl, float clusterEta, float clusterPhi, 
 		      double sizeEta, double sizePhi, CaloSampling::CaloSample sample) const ;   
 
-  bool findCentralCell(const xAOD::CaloCluster* cluster, Identifier cellCentrId) const;
+  bool findCentralCell(const xAOD::CaloCluster* cluster, Identifier& cellCentrId) const;
 
   Gaudi::Property<double> m_QCellCut {this, "QCellCut", 4000.};
   Gaudi::Property<double> m_QCellHECCut {this, "QCellHECCut", 60000.};
