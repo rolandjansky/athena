@@ -11,7 +11,7 @@ logging.getLogger().info("Importing %s", __name__)
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon import CfgMgr
-MagField__AtlasFieldSvc=CfgMr.MagField__AtlasFieldSvc
+MagField__AtlasFieldSvc=CfgMgr.MagField__AtlasFieldSvc
 
 #--------------------------------------------------------------
 
