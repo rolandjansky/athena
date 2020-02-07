@@ -93,7 +93,7 @@ Trk::BevelledCylinderVolumeBounds&
 }
 
 
-const std::vector<const Trk::Surface*>* Trk::BevelledCylinderVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transform) const
+const std::vector<const Trk::Surface*>* Trk::BevelledCylinderVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const
 {
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;
     // memory optimisation (reserve a save number of 20)

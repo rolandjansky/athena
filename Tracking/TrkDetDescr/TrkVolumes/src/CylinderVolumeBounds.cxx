@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ Trk::CylinderVolumeBounds& Trk::CylinderVolumeBounds::operator=(const Trk::Cylin
 }
 
 
-const std::vector<const Trk::Surface*>* Trk::CylinderVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transform) const
+const std::vector<const Trk::Surface*>* Trk::CylinderVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const
 {
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;
     // memory optimisation --- reserve the maximum

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ Trk::CuboidVolumeBounds& Trk::CuboidVolumeBounds::operator=(const Trk::CuboidVol
   return *this;
 }
 
-const std::vector<const Trk::Surface*>* Trk::CuboidVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transform) const
+const std::vector<const Trk::Surface*>* Trk::CuboidVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const
 {
 
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;
