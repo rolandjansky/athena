@@ -31,12 +31,13 @@ namespace CP {
     m_SagittaCorrPhaseSpace(false),
     m_doSagittaCorrection(false),
     m_doSagittaMCDistortion(false),
-    m_SagittaRelease("sagittaBiasDataAll_03_02_19"){
-
+    m_SagittaRelease("sagittaBiasDataAll_03_02_19"),
+    m_MuonSelectionTool("") {
+    
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2019_05_30" );
+    declareProperty("Release", m_release = "Recs2019_10_12" );
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("FilesPath", m_FilesPath = "" );
     declareProperty("StatComb", m_useStatComb = false);
@@ -65,6 +66,7 @@ namespace CP {
     m_sagittaPhaseSpaceCB=nullptr;
     m_sagittaPhaseSpaceID=nullptr;
     m_sagittaPhaseSpaceME=nullptr;
+
   }
 
   MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool ) :
@@ -221,6 +223,12 @@ namespace CP {
     ATH_MSG_DEBUG( "Checking Initialization - Algo: " << m_algo );
     ATH_MSG_DEBUG( "Checking Initialization - Type: " << m_type );
     ATH_MSG_DEBUG( "Checking Initialization - Release: " << m_release );
+
+    m_MuonSelectionTool.setTypeAndName("CP::MuonSelectionTool/MCaST_Own_MST");
+    ATH_CHECK(m_MuonSelectionTool.setProperty("MaxEta", 2.7));
+    ATH_CHECK(m_MuonSelectionTool.setProperty("MuQuality", 1));
+    ATH_CHECK(m_MuonSelectionTool.setProperty("TurnOffMomCorr", true));
+    ATH_CHECK(m_MuonSelectionTool.retrieve());
 
     std::string regionsPath;
     int regionMode = 0; // simple Eta Bins
@@ -891,6 +899,7 @@ namespace CP {
 
     ATH_MSG_VERBOSE( "Muon Type = " << mu.muonType() << " ( 0: Combined, 1: StandAlone, 2: SegmentTagged, 3: CaloTagged )" );
     ATH_MSG_VERBOSE( "Muon Author = " << mu.author() );
+    ATH_MSG_VERBOSE( "Passes MST Selection = " << m_MuonSelectionTool->accept(mu));
 
     // Make InfoHelper for passing muon info between functions
     InfoHelper muonInfo;
@@ -999,6 +1008,9 @@ namespace CP {
           muonInfo.ptcb = sin(parsCB[3])/fabs(parsCB[4])/ 1000;
         }
       }
+    }
+    if( m_Trel >= MCAST::Release::Recs2019_10_12 ) {
+      muonInfo.sel_category = m_MuonSelectionTool->getResolutionCategory(mu);
     }
 
     // Retrieve the event information:
@@ -1616,9 +1628,12 @@ namespace CP {
     else if (rel == "Recs2017_08_02") {
       m_Trel = MCAST::Release::Recs2017_08_02;
     }
+    else if (rel == "Recs2019_10_12") {
+      m_Trel = MCAST::Release::Recs2019_10_12;
+    }
     else {
-      m_Trel = MCAST::Release::Recs2017_08_02;
-      ATH_MSG_DEBUG( "Unrecognized value for SetRelease, using Recs2017_08_02" );
+      m_Trel = MCAST::Release::Recs2019_10_12;
+      ATH_MSG_DEBUG( "Unrecognized value for SetRelease, using Recs2019_10_12" );
       //return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
@@ -1998,6 +2013,63 @@ namespace CP {
     InValues.close();
     InValues.clear();
 
+    // Retrieving values for extra-smearing
+    if (m_Trel >= MCAST::Release::Recs2019_10_12) {
+      m_p2_MS_Categories = 5;
+      std::map<std::string, std::map<std::pair<int, int>, double>* > files_and_maps;
+      files_and_maps["Extra_p2_scaling"] = &m_p2_MS_Scaling;
+      files_and_maps["Extra_p2_systUP"] = &m_p2_MS_SystUp;
+      files_and_maps["Extra_p2_systDW"] = &m_p2_MS_SystDw;
+
+      for(auto& kv: files_and_maps) {
+        std::string extra_p2_ms_file;
+        if ( m_FilesPath == "" ) {
+          extra_p2_ms_file = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_release + "/" + kv.first + "_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
+        }
+        else {
+          extra_p2_ms_file = m_FilesPath + m_release + "/" + kv.first + "_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+        }
+        ATH_MSG_DEBUG( "Checking Files - Extra p2 smearing: " << extra_p2_ms_file );
+        std::map<std::pair<int, int>, double>* this_map = kv.second;
+
+        InValues.open( extra_p2_ms_file.c_str() );
+        i = 0;
+        unsigned int reg_index = 0;
+        if( !InValues.good() ) {
+          ATH_MSG_ERROR( "File " << extra_p2_ms_file << " not found!!" );
+          return StatusCode::FAILURE;
+        }
+        else {
+          while(InValues.good() && reg_index < GetNRegions()) {
+            tmpval = 0;
+            if( i == 0 ) {
+              getline(InValues, tmpname);
+            }
+            for(int cat_index = 0; cat_index < m_p2_MS_Categories; cat_index++) {
+                InValues>>tmpval;
+                (*this_map)[std::make_pair(reg_index, cat_index)] = tmpval;
+            }
+            reg_index++;
+          }
+        }
+        InValues.close();
+        InValues.clear();
+      }
+
+      ATH_MSG_VERBOSE("Checking Values - Extra p2 smearing: ");
+      for(auto kv: m_p2_MS_Scaling) { 
+          std::cout << "Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second << std::endl;
+      }
+      ATH_MSG_VERBOSE("Checking Values - Extra p2 syst UP: ");
+      for(auto kv: m_p2_MS_SystUp) { 
+          std::cout << "Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second << std::endl;
+      }
+      ATH_MSG_VERBOSE("Checking Values - Extra p2 syst DW: ");
+      for(auto kv: m_p2_MS_SystDw) { 
+          std::cout << "Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second << std::endl;
+      }
+    }
+
     return StatusCode::SUCCESS;
 
   }
@@ -2013,7 +2085,13 @@ namespace CP {
         return 0.;
       }
       else {
-        smear = m_p0_MS[muonInfo.detRegion]*muonInfo.g0/muonInfo.ptms + m_p1_MS[muonInfo.detRegion]*muonInfo.g1 + m_p2_MS[muonInfo.detRegion]*muonInfo.g2*muonInfo.ptms;
+        double p2_ms_scaling_factor = 1.; // i.e. no scaling :D
+        if( m_Trel >= MCAST::Release::Recs2019_10_12 ) {
+          if( muonInfo.sel_category >= 0 && muonInfo.sel_category < m_p2_MS_Categories ) {
+            p2_ms_scaling_factor = m_p2_MS_Scaling.at(std::make_pair(muonInfo.detRegion, muonInfo.sel_category));
+          }
+        }
+        smear = m_p0_MS[muonInfo.detRegion]*muonInfo.g0/muonInfo.ptms + m_p1_MS[muonInfo.detRegion]*muonInfo.g1 + p2_ms_scaling_factor*m_p2_MS[muonInfo.detRegion]*muonInfo.g2*muonInfo.ptms;
         return smear;
       }
     }
@@ -2720,6 +2798,12 @@ namespace CP {
         p0_MS_var = m_p0_MS[ muonInfo.detRegion ] + var * p0_MS_var;
         p1_MS_var = m_p1_MS[ muonInfo.detRegion ] + var * p1_MS_var;
         p2_MS_var = m_p2_MS[ muonInfo.detRegion ] + var * p2_MS_var;
+
+        if( m_Trel >= MCAST::Release::Recs2019_10_12 ) {
+          if( muonInfo.sel_category >= 0 && muonInfo.sel_category < m_p2_MS_Categories ) {
+            p2_MS_var = var > 0. ? m_p2_MS_SystUp.at(std::make_pair(muonInfo.detRegion, muonInfo.sel_category)) : m_p2_MS_SystDw.at(std::make_pair(muonInfo.detRegion, muonInfo.sel_category)); 
+          }
+        }
 
         if( p0_MS_var < 0. ) p0_MS_var = 0.; //Truncation of unphysical variations
         if( p1_MS_var < 0. ) p1_MS_var = 0.;

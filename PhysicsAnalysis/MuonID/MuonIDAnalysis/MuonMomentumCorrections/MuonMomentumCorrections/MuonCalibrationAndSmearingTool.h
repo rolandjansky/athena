@@ -6,6 +6,7 @@
 #define MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
 
 // Framework include(s):
+#include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
 
 // ROOT include(s)
@@ -25,6 +26,7 @@
 
 // Local include(s):
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 #define EPSILON 1.0E-6
 #define DEFAULT_INIT_VAL -999
@@ -37,7 +39,7 @@ namespace MCAST {
 
   namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5, Data17=6, Data18=7}; }
   namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
-  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15}; }
+  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07=14, Recs2017_08_02=15, Recs2019_10_12=16}; }
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
@@ -93,6 +95,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double smearDeltaMS = 0;
       double smearDeltaID = 0;
       double smearDeltaCB = 0;
+      int    sel_category = -1;
     };
 
   public:
@@ -200,6 +203,12 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector<double> m_SUp_p1_ID, m_SUp_p2_ID, m_SUp_p2_ID_TAN, m_SUp_p0_MS, m_SUp_p1_MS, m_SUp_p2_MS;
     std::vector<double> m_SDw_p1_ID, m_SDw_p2_ID, m_SDw_p2_ID_TAN, m_SDw_p0_MS, m_SDw_p1_MS, m_SDw_p2_MS;
     std::vector<double> m_MC_p1_ID, m_MC_p2_ID, m_MC_p2_ID_TAN, m_MC_p0_MS, m_MC_p1_MS, m_MC_p2_MS;
+    // Special "p2" systematics for non-three-station muons
+    // Maps have two keys: detector region and category
+    int m_p2_MS_Categories;
+    std::map<std::pair<int, int>, double> m_p2_MS_Scaling;
+    std::map<std::pair<int, int>, double> m_p2_MS_SystUp;
+    std::map<std::pair<int, int>, double> m_p2_MS_SystDw;
 
     std::vector<std::string> m_names;
     bool m_loadNames;
@@ -241,7 +250,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector <unsigned int > m_SagittaIterations;
     std::vector <double> m_GlobalZScales;
 
-
+    asg::AnaToolHandle<CP::IMuonSelectionTool> m_MuonSelectionTool;
 
   }; // class MuonCalibrationAndSmearingTool
 

@@ -12,6 +12,7 @@
 // Local include(s):
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "TrackInfo.h"
 
 // Root include(s)
 #include "TTree.h"
@@ -19,30 +20,33 @@
 
 namespace CP {
 
-class TestMCASTTool : public AthAlgorithm {
-
-public:
-  //::: Regular Algorithm constructor
-  TestMCASTTool( const std::string& name, ISvcLocator* svcLoc );
-  //::: Function initialising the algorithm
-  virtual StatusCode initialize();
-  //::: Function executing the algorithm
-  virtual StatusCode execute();
-  //::: Function finalizing the algoritm
-  virtual StatusCode finalize();
-
-private:
-  //::: StoreGate key for the muon container to investigate
-  std::string m_sgKey;
-  //::: Connection to the smearing tool
-  ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_Tool;
-
-  TFile* m_smearfile;
-  TTree* m_smeartree;
-  Float_t m_eta, m_phi, m_pt, m_ptcorr, m_ptdiff, m_ptdiffabs, m_ptid, m_ptms;
-
-
-}; // class TestMCASTTool
+  class TestMCASTTool : public AthAlgorithm {
+  
+  public:
+    //::: Regular Algorithm constructor
+    TestMCASTTool( const std::string& name, ISvcLocator* svcLoc );
+    //::: Function initialising the algorithm
+    virtual StatusCode initialize();
+    //::: Function executing the algorithm
+    virtual StatusCode execute();
+    //::: Function finalizing the algoritm
+    virtual StatusCode finalize();
+  
+  private:
+    //::: StoreGate key for the muon container to investigate
+    std::string m_sgKey;
+    //::: Connection to the smearing tool
+    ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_MCaSTool;
+  
+    TFile* m_DebugFile;
+    TTree* m_DebugTree;
+    std::unique_ptr<TrackInfo> m_Combined;
+    std::unique_ptr<TrackInfo> m_InnerDet;
+    std::unique_ptr<TrackInfo> m_MSExtr;
+    std::unique_ptr<TrackInfo> m_MSOnlyExtr;
+  
+  
+  }; // class TestMCASTTool
 
 } // namespace CP
 
