@@ -1458,7 +1458,7 @@ namespace CP {
       if (nprecisionLayers == 2)
 	return 3;
       else
-	return -1;
+	return 4;
     }
 
 
