@@ -76,8 +76,8 @@ public:
     const Amg::Vector3D globalPosition() const;
     const Amg::Transform3D & absTransform() const;
     const Amg::Transform3D & defTransform() const;
-    const HepGeom::Transform3D & absTransformCLHEP() const;
-    const HepGeom::Transform3D & defTransformCLHEP() const;
+    /* const HepGeom::Transform3D & absTransformCLHEP() const; */
+    /* const HepGeom::Transform3D & defTransformCLHEP() const; */
 
     //Amdb local (szt) to global coord
     const Amg::Vector3D AmdbLRSToGlobalCoords(Amg::Vector3D x) const;
@@ -189,7 +189,8 @@ protected:
    Identifier m_id;       //!< extended data-collection identifier 
    IdentifierHash m_idhash;   //!< data-collection hash identifier
    IdentifierHash m_detectorElIdhash;   //!< detector element hash identifier 
-   mutable int m_caching;
+   int m_caching;
+   /* mutable int m_caching; */
    //!< 0 if we want to avoid caching geometry info for tracking interface
    int m_indexOfREinMuonStation; //!<  index of this RE in the mother MuonStation
    bool m_hasCutouts; //!<  true is there are cutouts in the readdout-element
@@ -210,8 +211,8 @@ private:
    const MuonStation* m_parentMuonStation; 
    MuonDetectorManager* m_muon_mgr;
 
-   mutable const HepGeom::Transform3D* m_absTransform;
-   mutable const HepGeom::Transform3D* m_defTransform;
+   /* mutable const HepGeom::Transform3D* m_absTransform; */
+   /* mutable const HepGeom::Transform3D* m_defTransform; */
 };
 
 const Identifier MuonReadoutElement::identifyATLAS() const    {return m_id;}
@@ -284,17 +285,17 @@ inline const Amg::Transform3D & MuonReadoutElement::defTransform() const
 {
   return getMaterialGeom()->getDefAbsoluteTransform();
 }
-inline const HepGeom::Transform3D & MuonReadoutElement::absTransformCLHEP() const
-{
-  if( !m_absTransform ) m_absTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform()));
-  return *m_absTransform;
-}
+/* inline const HepGeom::Transform3D & MuonReadoutElement::absTransformCLHEP() const */
+/* { */
+/*   if( !m_absTransform ) m_absTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform())); */
+/*   return *m_absTransform; */
+/* } */
 
-inline const HepGeom::Transform3D & MuonReadoutElement::defTransformCLHEP() const
-{
-  if( !m_defTransform ) m_defTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()));
-  return *m_defTransform;
-}
+/* inline const HepGeom::Transform3D & MuonReadoutElement::defTransformCLHEP() const */
+/* { */
+/*   if( !m_defTransform ) m_defTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform())); */
+/*   return *m_defTransform; */
+/* } */
 
 } // namespace MuonGM
 

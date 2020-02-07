@@ -31,7 +31,8 @@ namespace MuonGM {
     : TrkDetElementBase(pv),
       m_Ssize(-9999.), m_Rsize(-9999.), m_Zsize(-9999.), m_LongSsize(-9999.),
       m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), 
-      m_eta(-1), m_phi(-1), m_id_max_init_field(-1), m_absTransform(nullptr),m_defTransform(nullptr)
+      m_eta(-1), m_phi(-1), m_id_max_init_field(-1)// , m_absTransform(nullptr),
+      // m_defTransform(nullptr)
   {
     m_stationS = 0.;
     m_zi = zi;
@@ -62,8 +63,8 @@ namespace MuonGM {
   }
 
   void MuonReadoutElement::clear() const {
-    delete m_absTransform; m_absTransform = nullptr;
-    delete m_defTransform; m_defTransform = nullptr;    
+    // delete m_absTransform; m_absTransform = nullptr;
+    // delete m_defTransform; m_defTransform = nullptr;    
   }
 
   const Amg::Vector3D MuonReadoutElement::globalPosition() const

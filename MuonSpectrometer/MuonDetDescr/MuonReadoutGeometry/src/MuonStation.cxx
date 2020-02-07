@@ -335,7 +335,8 @@ MuonStation::setDelta_fromAline_forComp(int jobindex,
                                   HepGeom::RotateX3D(rots)*HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
   //The station to component transform is static and must be computed in terms of "nominal geometry parameters"; fixing here bug 87693 - SS 9/11/2011
   //HepGeom::Point3D<double> thisREcenter = getMuonReadoutElement(jobindex)->center();
-  HepGeom::Point3D<double> thisREnominalCenter=(getMuonReadoutElement(jobindex)->defTransformCLHEP())*HepGeom::Point3D<double>(0.,0.,0.); 
+  HepGeom::Point3D<double> thisREnominalCenter=(HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMuonReadoutElement(jobindex)->defTransform())))*HepGeom::Point3D<double>(0.,0.,0.); 
+  // HepGeom::Point3D<double> thisREnominalCenter=(getMuonReadoutElement(jobindex)->defTransformCLHEP())*HepGeom::Point3D<double>(0.,0.,0.); 
   double  Rcomp =  thisREnominalCenter.perp()-(getMuonReadoutElement(jobindex)->getRsize())/2.;
   double  DZcomp = std::fabs(thisREnominalCenter.z())-std::fabs(((*m_amdbl_to_global)*HepGeom::Point3D<double>(0.,0.,0)).z())-std::fabs((getMuonReadoutElement(jobindex)->getZsize())/2.);
 
