@@ -1,5 +1,6 @@
 # This comes after all Simplified Model setup files
 from MadGraphControl.MadGraphUtils import SUSY_SM_Generation
+from MadGraphControl.MadGraphUtils import build_param_card
 try:
     from MadGraphControl.MadGraphUtils import update_lhe_file
 except ImportError:
@@ -69,7 +70,7 @@ if not SLHAonly and (not hasattr(runArgs,'inputGeneratorFile') or runArgs.inputG
                     })
     try:
         [qcut,outputDS] = SUSY_SM_Generation(**argdict)
-    
+
     except TypeError:
         # Older version of MadGraphControl
         try:
@@ -99,8 +100,9 @@ elif not hasattr(runArgs,'inputGeneratorFile') or runArgs.inputGeneratorFile is 
             [qcut,outputDS] = SUSY_SM_Generation(**argdict)
 
 else:
-
-    param_card_old = 'param_card.SM.%s.%s.dat'%(gentype,decaytype)
+    build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='param_card_updated.dat',decays=decays)
+    param_card_old = 'param_card_updated.dat'
+    #param_card_old = 'param_card.SM.%s.%s.dat'%(gentype,decaytype)
     qcut = -1
     import tarfile
     myTarball = tarfile.open(runArgs.inputGeneratorFile)
@@ -116,7 +118,7 @@ else:
             print lhe_file_new_tmp
         except NameError:
             print "WARNING: Will not overwrite LHE file - make sure the LHE file you're using is specific to the model you're generating!"
-        
+
         for aline in events_file:
             if 'ktdurham' in aline and "=" in aline:
                 qcut = float(aline.split('=')[0].strip())
@@ -128,7 +130,7 @@ else:
 
     outputDS = runArgs.inputGeneratorFile
 
-    
+
 from __main__ import opts
 if ((qcut<0 and njets>0) or outputDS is None or ''==outputDS) and not opts.config_only:
     evgenLog.warning('Looks like something went wrong with the MadGraph generation - bailing out!')
