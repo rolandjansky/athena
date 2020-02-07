@@ -173,7 +173,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	    m_SupercellMapEM1->Fill(currentEta,currentPhi,currentCellEt);
 	    m_SupercellMapEM1_coarse->Fill(currentEta,currentPhi,currentCellEt);
 	  }
-	  else if (currentSampling==2 || currentSampling==6)
+	  else if (currentSampling==2 || currentSampling==6){
 	    m_SupercellMapEM2->Fill(currentEta,currentPhi,currentCellEt);
 	    m_SupercellMapEM2_coarse->Fill(currentEta,currentPhi,currentCellEt);
 	  }
@@ -271,7 +271,9 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM2_coarse->GetBinContent(i, j) << endreq;
 	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter("<< i<<") "<< m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(i) << endreq;
 	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter("<< j<<") "<< m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter(j) << endreq;
-
+	        }
+	      }
+	    }
 	// Now loop over local maxima, decide what to do
 	for( auto myMaximum : m_localMaxima ) {
 	  
@@ -524,7 +526,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 
 	  //First find eta bin in EM2
 	  int etaTWR = -999;
-	  int etaEM2 = -999;
+	  //int etaEM2 = -999;
 	  etaTWR = m_SupercellMapTWR->GetXaxis()->GetBinCenter(i);
 	  //because of the granularity, the bin of the seed in TWR contains 2 EM2_coarse bins
 	  //so its centre lies in the border of the two bins... to get the one on the left: -0.001
@@ -532,19 +534,19 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  binEM2 = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(etaTWR-0.001);
 	  //make a vector with the 5 possible energies in the central phi row
 	  // First eta bin of this row is binE<2-0.025*4 (each bin's width is 0.5)
-	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*4,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*4,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*2,j);
-	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*0,j);
-	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-2),j);
-	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-4),j);
-	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-6),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-6),j);
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*4,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*4,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*2,j));
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*0,j));
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-2),j));
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-4),j));
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-6),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-6),j));
 	  //For upper and lower phi rows take the bin with highest energy
 	  for(int k=-4;k<=6;k+=2){
 	    E_EM12_above.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2+0.025*k,aboveInPhi)+m_SupercellMapEM1_coarse->GetBinContent(binEM2+0.025*k,aboveInPhi));
 	    E_EM12_below.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2+0.025*k,belowInPhi)+m_SupercellMapEM1_coarse->GetBinContent(binEM2+0.025*k,belowInPhi));
 	  }
 
-	  double E_EM2=0;
-	  double E_EM1=0;
+	  //double E_EM2=0;
+	  //double E_EM1=0;
 	  //msg << MSG::INFO << "before sorting" << endreq;
 	  //for (auto x : E_EM0) {
 	  //  msg << MSG::INFO << X << endreq;
