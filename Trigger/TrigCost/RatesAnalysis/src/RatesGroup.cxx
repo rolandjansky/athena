@@ -181,8 +181,6 @@ double RatesGroup::getUniqueWeight(const double ratesDenominator) const {
   return diff / ratesDenominator; 
 }
 
-void RatesGroup::execute(const WeightingValuesSummary_t& weights); 
-
 void RatesGroup::setExpressGroup(const bool i) { m_isExpressGroup = i; }
 
 void RatesGroup::setDoCachedWeights(const bool i) { m_doCachedWeights = i; } 
