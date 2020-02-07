@@ -71,15 +71,18 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          jetContainerName           ='',
                          FillTrackInJetPlots        = False)
 
-   # hack to remove example phyval monitor
+   # hack to remove example physval monitor
    from RecExConfig.AutoConfiguration import IsInInputFile
    if not IsInInputFile('xAOD::JetContainer','AntiKt4EMTopoJets') :
       add_remover=True
       from RecExConfig.RecFlags import rec
-      for elm in rec.UserExecs :
-         if elm.find('removePhysValExample')>0 :
-            add_remover=False
-            break
+      try:
+        for elm in rec.UserExecs :
+           if elm.find('removePhysValExample')>0 :
+              add_remover=False
+              break
+      except:
+        pass
       if add_remover :
          rec.UserExecs += ['from InDetPhysValMonitoring.InDetPhysValMonitoringTool import removePhysValExample;removePhysValExample();']
 
