@@ -43,6 +43,16 @@ StatusCode RpcCablingCondAlg::execute()
 {
   ATH_MSG_DEBUG( "executing" << name() );
 
+  // Write CondHandle
+  SG::WriteCondHandle<RpcCablingCondData> writeHandle{m_writeKey};
+  if (writeHandle.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
+        << ". In theory this should not be called, but may happen"
+        << " if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS;
+  }  
+  // define the write condDataObj. Will only  read in the 4 different cond objects
+  std::unique_ptr<RpcCablingCondData> writeCdo{std::make_unique<RpcCablingCondData>()};
 
   // Read CondHandle
 
@@ -114,7 +124,15 @@ StatusCode RpcCablingCondAlg::execute()
 
   ATH_CHECK(loadParameters(readCdoMap));
   ATH_CHECK(ReadConf());
-  ATH_CHECK(buildRDOmap(range_map_schema));
+  ATH_CHECK(buildRDOmap(writeCdo.get()));
+
+  if (writeHandle.record( range_map_schema, std::move(writeCdo)).isFailure())
+  { 
+    ATH_MSG_FATAL("Could not record RpcCondCablingData " << writeHandle.key() << " with EventRange " <<  range_map_schema << " into Conditions Store");
+    return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " <<  range_map_schema );
 
   return StatusCode::SUCCESS;
 }
@@ -255,21 +273,9 @@ StatusCode RpcCablingCondAlg::ReadConf()
 
 
 // build and init the map for the PAD RDO
-StatusCode RpcCablingCondAlg::buildRDOmap(EventIDRange range_map_schema)
+StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
 {
   ATH_MSG_DEBUG("RpcCablingCondAlg--- buildRDOmap"); 
-
-  // Write CondHandle
-  SG::WriteCondHandle<RpcCablingCondData> writeHandle{m_writeKey};
-  if (writeHandle.isValid()) {
-    ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
-        << ". In theory this should not be called, but may happen"
-        << " if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS;
-  }  
-  // define the write condDataObj. Will only  read in the 4 different cond objects
-  std::unique_ptr<RpcCablingCondData> writeCdo{std::make_unique<RpcCablingCondData>()};
-
 
   for (int sector = 0; sector < 64; ++sector)
   {
@@ -541,14 +547,6 @@ StatusCode RpcCablingCondAlg::buildRDOmap(EventIDRange range_map_schema)
     ATH_MSG_DEBUG("Could not read any HashID");
     return StatusCode::FAILURE;
   }
-  if (writeHandle.record( range_map_schema, std::move(writeCdo)).isFailure())
-  { 
-    ATH_MSG_FATAL("Could not record RpcCondCablingData " << writeHandle.key() << " with EventRange " <<  range_map_schema << " into Conditions Store");
-    return StatusCode::SUCCESS;
-  }
-
-
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " <<  range_map_schema );
 
   return StatusCode::SUCCESS;
 
