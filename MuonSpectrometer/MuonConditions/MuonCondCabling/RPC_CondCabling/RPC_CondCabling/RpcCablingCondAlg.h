@@ -55,7 +55,7 @@ class RpcCablingCondAlg: public AthAlgorithm {
 
     StatusCode loadParameters(const CondAttrListCollection* readCdoMap);
     StatusCode ReadConf();
-    StatusCode buildRDOmap(EventIDRange range_map_schema);
+    StatusCode buildRDOmap(RpcCablingCondData* writeCdo);
     std::list<Identifier> give_strip_id (unsigned short int SubsystemId,
                                          unsigned short int SectorId,
                                          unsigned short int PADId,
@@ -85,10 +85,10 @@ class RpcCablingCondAlg: public AthAlgorithm {
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_map_schema{this, "ReadKey", "/RPC/CABLING/MAP_SCHEMA", "Key of input muon rpc map schema condition data"};
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_map_schema_corr{this, "ReadKey", "/RPC/CABLING/MAP_SCHEMA_CORR", "Key of input muon rpc map correction schema condition data"};
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_cm_thr_eta{this, "ReadKey", "/RPC/TRIGGER/CM_THR_ETA", "Key of input muon rpc trigger eta condition data"};
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_cm_thr_phi{this, "ReadKey", "/RPC/TRIGGER/CM_THR_PHI", "Key of input muon rpc trigger phi condition data"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_map_schema{this, "ReadKeySchema", "/RPC/CABLING/MAP_SCHEMA", "Key of input muon rpc map schema condition data"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_map_schema_corr{this, "ReadKeySchemaCorr", "/RPC/CABLING/MAP_SCHEMA_CORR", "Key of input muon rpc map correction schema condition data"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_cm_thr_eta{this, "ReadKeyThrEta", "/RPC/TRIGGER/CM_THR_ETA", "Key of input muon rpc trigger eta condition data"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_cm_thr_phi{this, "ReadKeyThrPhi", "/RPC/TRIGGER/CM_THR_PHI", "Key of input muon rpc trigger phi condition data"};
 
     SG::WriteCondHandleKey<RpcCablingCondData>  m_writeKey{this, "WriteKey", "RpcCablingCondData", "Key of output RPC cabling condition data"};
 
