@@ -186,11 +186,11 @@ private:
   // production database instance, used to cross-check global tag
   Gaudi::Property<std::string>    m_par_dbinst{this,"DBInstance","","Database instance (like OFLP200)"};
   //  a list of folders to preload
-  Gaudi::Property<std::vector<std::string> >  m_par_folders{this,"Folders",{},"List of database folders to preload"};
+  Gaudi::Property<std::vector<std::string> >  m_par_folders{this,"Folders",{},"List of database folders to preload","Set<std::string>"};
   //  a list of overriding tags definitions
-  Gaudi::Property<std::vector<std::string> >  m_par_overrideTags{this,"overrideTags",{},"List of foolder-tag overrides"};
+  Gaudi::Property<std::vector<std::string> >  m_par_overrideTags{this,"overrideTags",{},"List of foolder-tag overrides","Set<std::string>"};
   //  a list of folders to write to file meta data
-  Gaudi::Property<std::vector<std::string> >  m_par_foldersToWrite{this,"FoldersToMetaData",{},"list of folders to write to file meta data"};    
+  Gaudi::Property<std::vector<std::string> >  m_par_foldersToWrite{this,"FoldersToMetaData",{},"list of folders to write to file meta data","Set<std::string>"};    
   //  a flag to trigger the connections management
   BooleanProperty                m_par_manageConnections{this,"ManageConnections",true,"flag to trigger the connections management"};
   //  a flag to manage pool connections
@@ -211,7 +211,7 @@ private:
   IntegerProperty m_par_cacheTime{this,"CacheTime",0,"force larger timeranges to be cached (seconds)"};
   // cache alignment - divide cache into N slices and align queries on slice
   // should be useful to improve Frontier cache hit rate
-  UnsignedIntegerProperty m_par_cacheAlign{this,"CacheAlign",0,"cache alignment - divide cache into N slices and align queries on slice"};
+  UnsignedIntegerProperty m_par_cacheAlign{this,"CacheAlign",0,"cache alignment - divide cache into N slices and align queries on slice"}; 
   // online mode flag to ignore missing channels outside cache range
   BooleanProperty m_par_onlineMode{this,"OnlineMode",false,"online mode flag to ignore missing channels outside cache range"};
   // check to ensure global/HVS tags are locked (for production)
