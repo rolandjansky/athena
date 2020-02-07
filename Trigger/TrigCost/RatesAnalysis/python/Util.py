@@ -72,7 +72,7 @@ def getMetadata(inputFile):
 
 
 def populateTriggers(inputFile, metadata, globalGroup, filter):
-  from RatesTrigger import RatesTrigger
+  from .RatesTrigger import RatesTrigger
   triggerList = []
   for key in inputFile.GetListOfKeys():
     if key.GetName() == 'Triggers':
