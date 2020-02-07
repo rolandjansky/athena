@@ -49,7 +49,7 @@ QStringList VP1RawDataHandle_PixelRDO::clicked(bool verbose) const
       Identifier id(m_data->identify());
       const bool barrel = idhelper->is_barrel(id);
       l << "   Barrel: "+QString(barrel?"Yes":"No");
-      l << "   B-Layer: "+QString(idhelper->is_blayer(id)?"Yes":"No");
+      l << "   B-Layer: "+QString(idhelper->is_innermost(id)?"Yes":"No");
       l << "   "+QString(barrel?"Layer":"Disk")+": "+QString::number(idhelper->layer_disk(id));
       l << "   Phi module: "+QString::number(idhelper->phi_module(id));
       l << "   Eta module: "+QString::number(idhelper->eta_module(id));

@@ -100,17 +100,25 @@ SiDetectorElement::commonConstructor()
 
   // Set IdHash. Also set m_isBarrel.
   m_isDBM=false; 
+  m_isInnermostPixel=false;
+  m_isNextToInnermostPixel=false;
   if (isPixel()) {
     const PixelID* pixelId = dynamic_cast<const PixelID *>(getIdHelper());
-    if(pixelId){
+    if(pixelId) {
       m_isBarrel = pixelId->is_barrel(m_id);
       m_idHash = pixelId->wafer_hash(m_id);
+      
+      m_isInnermostPixel = pixelId->is_innermost(m_id);
+      if (not m_isInnermostPixel)
+        m_isNextToInnermostPixel = pixelId->is_nexttoinnermost(m_id);
 
       if(pixelId->is_dbm(m_id)){
-	m_isBarrel=false; 
-	m_isDBM=true; 
-      } 
-    }
+        m_isBarrel=false; 
+        m_isDBM=true; 
+        m_isInnermostPixel=false;
+        m_isNextToInnermostPixel=false;
+      }       
+    }    
   } else {
     const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper()); 
     if(sctId){
@@ -217,11 +225,12 @@ SiDetectorElement::updateCache() const
     
     if(msgLvl(MSG::DEBUG)){
       if (isBarrel() && !barrelLike) {      
-	msg(MSG::DEBUG) << "Element has endcap like orientation with barrel identifier. This is OK for Inclined modules or Barrel Disks in ITK pixel layouts, but is otherwise suspicious..." 
-			  << endreq;
+        msg(MSG::DEBUG) << "Element has endcap like orientation with barrel identifier. This is OK for Inclined modules or Barrel Disks in ITK pixel layouts, but is otherwise suspicious..." 
+        << endreq;
+        std::cout << "NOEMI --> isBarrel() && !barrelLike" << std::endl;
       } else if (!isBarrel() && barrelLike) {
-	msg(MSG::DEBUG) << "Element has barrel like orientation with endcap identifier."
-			  << endreq;
+        msg(MSG::DEBUG) << "Element has barrel like orientation with endcap identifier."
+        << endreq;
       }
     }
     
@@ -242,9 +251,9 @@ SiDetectorElement::updateCache() const
     m_depthDirection = true;
     if (depthDir < 0) {
       if (m_design->depthSymmetric()) {
-	m_depthDirection = false;
+        m_depthDirection = false;
       } else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local depth axis." << endreq;
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local depth axis." << endreq;
       }
     }
     if (std::abs(depthDir) < 0.5) { // Check that it is in roughly the right direction.
@@ -260,9 +269,9 @@ SiDetectorElement::updateCache() const
     m_phiDirection = true;
     if (phiDir < 0) {
       if (m_design->phiSymmetric()) {
-	m_phiDirection = false;
+        m_phiDirection = false;
       } else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xPhi axis." << endreq;
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xPhi axis." << endreq;
       }
     }
     
@@ -279,9 +288,9 @@ SiDetectorElement::updateCache() const
     m_etaDirection = true;
     if (etaDir < 0) {
       if (m_design->etaSymmetric()) {
-	m_etaDirection = false;
+        m_etaDirection = false;
       } else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
       }
     }
     if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
@@ -338,23 +347,21 @@ SiDetectorElement::updateCache() const
       double sinStereoThis = std::abs(sinStereo());
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
       if (std::fabs(sinStereoThis- sinStereoOther)<1.e-6) {
-	// If they happend to be equal then set side0 as axial and side1 as stereo.
-	const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper()); 
+        // If they happend to be equal then set side0 as axial and side1 as stereo.
+        const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper()); 
         if(sctId){
-	  int side = sctId->side(m_id);
-	  m_isStereo = (side == 1);
-	}
+          int side = sctId->side(m_id);
+          m_isStereo = (side == 1);
+        }
       } else {
-	// set the stereo side as the one with largest absolute sinStereo. 
-	m_isStereo = (sinStereoThis > sinStereoOther);
+        // set the stereo side as the one with largest absolute sinStereo. 
+        m_isStereo = (sinStereoThis > sinStereoOther);
       }
     } else {
-  m_isStereo = false;
+      m_isStereo = false;
+    }
+  }
 }
-}    
- 
-}
-
 
 void 
 SiDetectorElement::updateConditionsCache() const
@@ -397,8 +404,6 @@ SiDetectorElement::transform() const
 const HepGeom::Transform3D &
 SiDetectorElement::transformCLHEP() const
 {
-  //if (!m_cacheValid) updateCache();
-  //return m_transform;
   //stuff to get the CLHEP version of the local to global transform.
   if (!m_cacheValid) updateCache();
   return m_transformCLHEP;
@@ -423,7 +428,7 @@ SiDetectorElement::recoToHitTransform() const
 
   // Determine the reconstruction local (LocalPosition) to global transform.
 
-  if (m_firstTime) updateCache();
+  if (!m_cacheValid) updateCache();
 
   // global = transform * recoLocal
   //        = transfromHit * hitLocal
@@ -599,34 +604,14 @@ bool SiDetectorElement::isDBM() const
   return m_isDBM; 
 } 
 
-bool SiDetectorElement::isBlayer() const
-{
-  if (isPixel() && isBarrel()) {
-    const PixelID* p_pixelId = static_cast<const PixelID *>(getIdHelper());
-    return (0==p_pixelId->layer_disk(m_id));
-  } else {
-    return false;
-  }
-} 
-
 bool SiDetectorElement::isInnermostPixelLayer() const
 {
-  if (isPixel() && isBarrel()) {
-    const PixelID* p_pixelId = static_cast<const PixelID *>(getIdHelper());
-    return (0==p_pixelId->layer_disk(m_id));
-  } else {
-    return false;
-  }
+  return m_isInnermostPixel;
 }  
 
 bool SiDetectorElement::isNextToInnermostPixelLayer() const
 {
-  if (isPixel() && isBarrel()) {
-    const PixelID* p_pixelId = static_cast<const PixelID *>(getIdHelper());
-    return (1==p_pixelId->layer_disk(m_id));
-  } else {
-    return false;
-  }
+  return m_isNextToInnermostPixel;
 }  
 
 int SiDetectorElement::getPixelLayer() const {
@@ -640,25 +625,24 @@ int SiDetectorElement::getPixelLayer() const {
 
 bool SiDetectorElement::isInclined() const {
   if (isPixel() && isBarrel()) {
-  if (m_firstTime) updateCache();
-  if (this->normal().norm() == 0.0){
-  msg(MSG::ERROR) << "Normal does not appear to have been initialized yet! Returning false, but this may not be reliable! " << endreq;
-  return false;
-}
-  double myNormalZ = this->normal()[Amg::z];
-  // Inclined barrel modules (in the ITk Step 2.2 Inclined Duals layout)
-  // have myNormalZ values of -0.965926 or -0.829044.
-  // Flat barrel modules have myNormalZ = 0
-  // in a perfectly-aligned detector
-  // but once misalignment is added, perhaps the value of 0 below should be changed
-  // to 0.1 or whatever is a reasonable value.
-  double epsilon = 0.1;
-  
-  return(fabs(myNormalZ) > epsilon);
-}
-  else {
-  return false;
-}
+    if (!m_cacheValid) updateCache();
+    // Used for ITk Layout
+    // allows to distinguish flat from inclined barrel modules
+    // In a perfect aligned detector
+    // - The z component of the normal vector to the surface of flat barrel modules is 0 
+    // - For inclined modules, it is !=0
+    // Since inclined modules have an inclination > 45 degrees wrt the beam line, 
+    // it should be safe to ask for the z component of the normal vector 
+    // to be bigger than cos(45) = sqrt(2)/2 = , considering that alignment 
+    // constants wouldn't apply a big change    
+    double myNormalZ = this->normal()[Amg::z];
+    double exp_value = 0.7071; // sqrt(2)/2
+    
+    return(fabs(myNormalZ) > exp_value);
+    
+  } else {
+    return false;
+  }
 }
 
 bool SiDetectorElement::isBarrelRing() const {

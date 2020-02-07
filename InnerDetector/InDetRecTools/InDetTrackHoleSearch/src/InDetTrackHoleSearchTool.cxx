@@ -702,7 +702,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
   // counters to steer first/last Si hit logic
   unsigned int foundTSOS = 0;
   int  PixelHoles = 0, SctHoles = 0, SctDoubleHoles = 0, PixelDead=0, SctDead=0;
-  int  PixelFlatHoles = 0, PixelInclinedHoles = 0, PixelBarrelRingHoles = 0, PixelEndcapHoles = 0;
+  int  PixelFlatHoles = 0, PixelInclinedHoles = 0, PixelEndcapHoles = 0;
   std::set<Identifier> SctHoleIds;
   
   ATH_MSG_DEBUG ("Start iteration");
@@ -760,8 +760,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
              continue;
            }
            if (thisElement->isBarrel()) {
-             if (thisElement->isBarrelRing()) PixelBarrelRingHoles++;
-             else if (thisElement->isInclined()) PixelInclinedHoles++;
+             if (thisElement->isInclined()) PixelInclinedHoles++;
              else PixelFlatHoles++;             
            } else PixelEndcapHoles++; 
          }
@@ -863,7 +862,6 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
       if (m_ITkGeometry) {
         (*information)[Trk::numberOfPixelBarrelFlatHoles]       = PixelFlatHoles;
         (*information)[Trk::numberOfPixelBarrelInclinedHoles]   = PixelInclinedHoles;
-        (*information)[Trk::numberOfPixelBarrelRingHoles]       = PixelBarrelRingHoles;
         (*information)[Trk::numberOfPixelEndcapHoles]           = PixelEndcapHoles;  
       }
     }

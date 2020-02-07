@@ -46,8 +46,11 @@ private:
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
   };
+  enum LayerType {
+    INVALID_LAYER=-1, INNERMOST, NEXT_TO_INNERMOST, OTHER, N_TYPES
+  };
   
-  const static int N_LAYERS = 33;
+  const static int N_LAYERS = 5;
   const static int N_SCTLAYERS = 4;
 
   void initializePlots();
@@ -56,7 +59,11 @@ private:
 
   //TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
   TEfficiency* m_hitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];
+  
+  // only if m_fillAdditionalITkPlots==True
   TEfficiency* m_hitEfficiencyVsEta_PerLayer[N_LAYERS][N_SUBDETECTORS][N_REGIONS];
+  TEfficiency* m_hitEfficiencyVsEta_PerType[N_TYPES];
+  
   bool m_debug;
 };
 

@@ -64,7 +64,6 @@ private:
   std::vector<bool>* m_siDetSCT;
   std::vector<bool>* m_siDetBrl;
   std::vector<bool>* m_siDetEc;
-  std::vector<bool>* m_siDetBlay;
   std::vector<bool>* m_siDetInPixLay;
   std::vector<bool>* m_siDetNtInPixLay;
   std::vector<bool>* m_siDetDBM;
@@ -119,7 +118,6 @@ private:
   TH1* m_h_siDetSCT;
   TH1* m_h_siDetBrl;
   TH1* m_h_siDetEc;
-  TH1* m_h_siDetBlay;
   TH1* m_h_siDetInPixLay;
   TH1* m_h_siDetNtInPixLay;
   TH1* m_h_siDetDBM;

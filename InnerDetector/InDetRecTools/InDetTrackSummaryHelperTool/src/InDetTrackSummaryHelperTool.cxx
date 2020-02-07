@@ -230,8 +230,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
      
      if (m_pixelId->is_barrel(id)) {
        const InDetDD::SiDetectorElement* detEl = dynamic_cast<const InDetDD::SiDetectorElement*>(rot->detectorElement()); 
-       if (detEl->isBarrelRing()) region = Trk::pixelBarrelRing;
-       else if (detEl->isInclined())  region = Trk::pixelBarrelInclined;
+       if (detEl->isInclined())  region = Trk::pixelBarrelInclined;
        else region = Trk::pixelBarrelFlat;
      } else region = Trk::pixelEndcap;
 
@@ -241,12 +240,10 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
      
      information[Trk::numberOfContribPixelBarrelFlatLayers]     = detailedInfo.getContributionFromRegion(Trk::pixelBarrelFlat    );
      information[Trk::numberOfContribPixelBarrelInclinedLayers] = detailedInfo.getContributionFromRegion(Trk::pixelBarrelInclined);
-     information[Trk::numberOfContribPixelBarrelRings]          = detailedInfo.getContributionFromRegion(Trk::pixelBarrelRing    );    
      information[Trk::numberOfContribPixelEndcap]               = detailedInfo.getContributionFromRegion(Trk::pixelEndcap        );    
      
      information[Trk::numberOfPixelBarrelFlatHits]     = detailedInfo.getHitsFromRegion(Trk::pixelBarrelFlat    );        
      information[Trk::numberOfPixelBarrelInclinedHits] = detailedInfo.getHitsFromRegion(Trk::pixelBarrelInclined);       
-     information[Trk::numberOfPixelBarrelRingHits]     = detailedInfo.getHitsFromRegion(Trk::pixelBarrelRing    );           
      information[Trk::numberOfPixelEndcapHits]         = detailedInfo.getHitsFromRegion(Trk::pixelEndcap        );             
    }   
    

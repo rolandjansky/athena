@@ -40,6 +40,10 @@ public:
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP
   };
+  enum LayerType {
+    INVALID_LAYER=-1, INNERMOST, NEXT_TO_INNERMOST, OTHER, N_TYPES
+  };
+  
   InDetPhysHitDecoratorTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual
   ~InDetPhysHitDecoratorTool ();
@@ -61,7 +65,7 @@ private:
   const TRT_ID* m_trtID;
 
   // private member functions
-  bool decideDetectorRegion(const Identifier& id, Subdetector& det, Region& r, int& layer);
+  bool decideDetectorRegion(const Identifier& id, Subdetector& det, Region& r, int& layer, LayerType& lType);
   const Trk::TrackParameters*
   getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement);
 };

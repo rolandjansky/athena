@@ -131,8 +131,6 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
     out << " * Number of contrib. Pixel Barrel Flat Layer: "<<trackSum.get(numberOfContribPixelBarrelFlatLayers    )<<"\n";
   if (trackSum.get(numberOfContribPixelBarrelInclinedLayers    )>0)
     out << " * Number of contrib. Pixel Barrel Inclined  : "<<trackSum.get(numberOfContribPixelBarrelInclinedLayers)<<"\n";
-  if (trackSum.get(numberOfContribPixelBarrelRings    )>0)
-    out << " * Number of contrib. Pixel Barrel Rings     : "<<trackSum.get(numberOfContribPixelBarrelRings         )<<"\n";
   if (trackSum.get(numberOfContribPixelEndcap    )>0)
     out << " * Number of contrib. Pixel Endcap Rings     : "<<trackSum.get(numberOfContribPixelEndcap              )<<"\n";  
   out << " * Number of Innermost Pixel layer hits        : "<<trackSum.get(numberOfInnermostPixelLayerHits)<<"\n";
@@ -148,8 +146,6 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
     out << " * Number of pixel barrel flat hits     : "<<trackSum.get(numberOfPixelBarrelFlatHits    )<<"\n";
   if (trackSum.get(numberOfPixelBarrelInclinedHits    )>0)
     out << " * Number of pixel barrel inclined hits : "<<trackSum.get(numberOfPixelBarrelInclinedHits)<<"\n";
-  if (trackSum.get(numberOfPixelBarrelRingHits    )>0)
-    out << " * Number of pixel barrel ring hits     : "<<trackSum.get(numberOfPixelBarrelRingHits    )<<"\n";
   if (trackSum.get(numberOfPixelEndcapHits    )>0)
     out << " * Number of pixel endcap ring hits     : "<<trackSum.get(numberOfPixelEndcapHits        )<<"\n";
   out << " * Number of pixel outliers      : "<<trackSum.get(numberOfPixelOutliers)<<"\n";
@@ -159,8 +155,6 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
     out << " * Number of pixel barrel flat holes     : "<<trackSum.get(numberOfPixelBarrelFlatHoles    )<<"\n";
   if (trackSum.get(numberOfPixelBarrelInclinedHoles    )>0)
     out << " * Number of pixel barrel inclined holes : "<<trackSum.get(numberOfPixelBarrelInclinedHoles)<<"\n";
-  if (trackSum.get(numberOfPixelBarrelRingHoles    )>0)
-    out << " * Number of pixel barrel ring holes     : "<<trackSum.get(numberOfPixelBarrelRingHoles    )<<"\n";
   if (trackSum.get(numberOfPixelEndcapHoles    )>0)
     out << " * Number of pixel endcap ring holes     : "<<trackSum.get(numberOfPixelEndcapHoles        )<<"\n";
   out << " * Number of pixel shared hits   : "<<trackSum.get(numberOfPixelSharedHits)<<"\n";

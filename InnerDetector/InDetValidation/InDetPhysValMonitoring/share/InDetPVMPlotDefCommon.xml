@@ -668,89 +668,6 @@
   <y title="Cluster Efficiency" lo="0" hi="2.0"/>
 </h>
 
-<!--Splitting all layers-->
-
-<h id="eff_hit_vs_eta_pix_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 0">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_pix_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 0">
-  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_pix_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 1">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_pix_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 1">
-  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_pix_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 2">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_pix_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 2">
-  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_pix_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 3">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_pix_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 3">
-  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_pix_barrel_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Barrel - Layer 4">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_pix_endcap_layer4" type="TEfficiency" title="Cluster Efficiency: Pixel Endcaps - Layer 4">
-  <x title="#eta" n="20" lo="&ETAPixECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_sct_barrel_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 0">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_sct_endcap_layer0" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 0">
-  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_sct_barrel_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 1">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_sct_endcap_layer1" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 1">
-  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_sct_barrel_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 2">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_sct_endcap_layer2" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 2">
-  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
-<h id="eff_hit_vs_eta_sct_barrel_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Barrel - Layer 3">
-  <x title="#eta" n="20" lo="0" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-<h id="eff_hit_vs_eta_sct_endcap_layer3" type="TEfficiency" title="Cluster Efficiency: SCT Endcaps - Layer 3">
-  <x title="#eta" n="20" lo="&ETASctECMin;" hi="&ETA;"/>
-  <y title="Cluster Efficiency" lo="0" hi="2.0"/>
-</h>
-
 <!--
    =======================================================
    end of hit efficiency plots
@@ -896,6 +813,14 @@
   <x title="Number of Clusters" n="10" lo="-0.5" hi="9.5"/>
   <y title="Entries"/>
 </h>
+<h id="HitContent_NInnermostLayerHits" type="TH1F" title="Number of Innermost Layer clusters">
+  <x title="Number of Innermost Layer Clusters" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NNextToInnermostLayerHits" type="TH1F" title="Number of Next-To-Innermost Layer clusters">
+  <x title="Number of Next-To-Innermost Layer Clusters" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
 <h id="HitContent_NPixelHits" type="TH1F" title="Number of Pixel clusters">
   <x title="Number of Clusters" n="50" lo="-0.5" hi="49.5"/>
   <y title="Entries"/>
@@ -916,6 +841,14 @@
 <h id="HitContent_vs_eta_NBlayerHits" type="TProfile" title="Number of B-Layer clusters">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="&lt;Number of B-layer clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NInnermostLayerHits" type="TProfile" title="Number of Innermost Layer clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Innermost Layer clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NNextToInnermostLayerHits" type="TProfile" title="Number of Next-To-Innermost Layer clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Next-To-Innermost Layer clusters&gt;" lo="0" hi="100"/>
 </h>
 <h id="HitContent_vs_eta_NPixelHits" type="TProfile" title="Number of Pixel clusters">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
@@ -945,6 +878,29 @@
 </h>
 <h id="HitContent_NBLayerSplitHits" type="TH1F" title="Number of split B-layer clusters">
   <x title="Number of Split Clusters" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+<h id="HitContent_NInnermostLayerOutliers" type="TH1F" title="Number of Innermost Layer Outliers">
+  <x title="Number of Innermost Layer Outliers" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NInnermostLayerSharedHits" type="TH1F" title="Number of Innermost Layer Shared Clusters">
+  <x title="Number of Innermost Layer Shared Clusters" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NInnermostLayerSplitHits" type="TH1F" title="Number of Innermost Layer Split Clusters">
+  <x title="Number of Innermost Layer Split Clusters" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NNextToInnermostLayerOutliers" type="TH1F" title="Number of Next-To-Innermost Layer Outliers">
+  <x title="Number of Next-To-Innermost Layer Outliers" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NNextToInnermostLayerSharedHits" type="TH1F" title="Number of Next-To-Innermost Layer Shared Clusters">
+  <x title="Number of Next-To-Innermost Layer Shared Clusters" n="21" lo="-0.5" hi="20.5"/>
+  <y title="Entries"/>
+</h>
+<h id="HitContent_NNextToInnermostLayerSplitHits" type="TH1F" title="Number of Next-To-Innermost Layer Split Clusters">
+  <x title="Number of Next-To-Innermost Layer Split Clusters" n="21" lo="-0.5" hi="20.5"/>
   <y title="Entries"/>
 </h>
 <h id="HitContent_NPixelOutliers" type="TH1F" title="Number of Pixel outliers">
@@ -996,6 +952,34 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="&lt;Number of B-layer Split Hits&gt;" lo="0" hi="100"/>
 </h>
+
+<h id="HitContent_vs_eta_NInnermostLayerOutliers" type="TProfile" title="Number of Innermost Layer outliers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Innermost Layer Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NInnermostLayerSharedHits" type="TProfile" title="Number of Innermost Layer Shared Clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Innermost Layer Shared Clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NInnermostLayerSplitHits" type="TProfile" title="Number of Innermost Layer Split Clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Innermost Layer Split Clusters&gt;" lo="0" hi="100"/>
+</h>
+
+<h id="HitContent_vs_eta_NNextToInnermostLayerOutliers" type="TProfile" title="Number of Next-To-Innermost Layer outliers">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Next-To-Innermost Layer Outliers&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NNextToInnermostLayerSharedHits" type="TProfile" title="Number of Next-To-Innermost Layer Shared Clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Next-To-Innermost Layer Shared Clusters&gt;" lo="0" hi="100"/>
+</h>
+<h id="HitContent_vs_eta_NNextToInnermostLayerSplitHits" type="TProfile" title="Number of Next-To-Innermost Layer Split Clusters">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="&lt;Number of Next-To-Innermost Layer Split Clusters&gt;" lo="0" hi="100"/>
+</h>
+
+
 <h id="HitContent_vs_eta_NPixelOutliers" type="TProfile" title="Number of Pixel outliers">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="&lt;Number of Pixel Outliers&gt;" lo="0" hi="100"/>

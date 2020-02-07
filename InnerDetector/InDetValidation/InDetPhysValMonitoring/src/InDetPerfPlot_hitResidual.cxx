@@ -24,7 +24,21 @@ InDetPerfPlot_hitResidual::InDetPerfPlot_hitResidual(InDetPlotBase* pParent, con
   m_phiWidth{},
   m_etaWidth{},
   m_phiWidth_eta{},
-  m_etaWidth_eta{}
+  m_etaWidth_eta{},
+  m_phiWidth_eta_perLayer{},
+  m_etaWidth_eta_perLayer{},
+  m_residualx_1hit_perType{},
+  m_residualx_2ormorehits_perType{},
+  m_residualx_perType{},
+  m_residualy_1hit_perType{},
+  m_residualy_2ormorehits_perType{},
+  m_residualy_perType{},
+  m_residualpullx_perType{},
+  m_residualpully_perType{},
+  m_phiWidth_perType{},
+  m_etaWidth_perType{},
+  m_phiWidth_eta_perType{},
+  m_etaWidth_eta_perType{}
   {
 //
 }
@@ -125,6 +139,7 @@ InDetPerfPlot_hitResidual::initializePlots() {
   //
   book(m_phiWidth_eta[SCT][BARREL], "clusterPhiWidth_eta_sct_barrel");
   book(m_phiWidth_eta[SCT][ENDCAP], "clusterPhiWidth_eta_sct_endcap");
+  
 }
 
 void InDetPerfPlot_hitResidual::bookProfileForLayer(TProfile*& pHisto, const std::string& histoIdentifier, int index,const std::string& folder){
@@ -162,6 +177,30 @@ void InDetPerfPlot_hitResidual::FillAdditionalITkPlots(bool fill) {
     bookProfileForLayer(m_etaWidth_eta_perLayer[layer][SCT][BARREL]  , "clusterEtaWidth_eta_sct_barrel",layer);
     bookProfileForLayer(m_etaWidth_eta_perLayer[layer][SCT][ENDCAP]  , "clusterEtaWidth_eta_sct_endcap",layer);
   }
+  
+  std::vector < std::string > labels = {"innermost", "nextToInnermost", "others"};
+  for (int type = 0; type<N_TYPES; type++) {
+    // x residuals
+    bookProfileForType<TH1>(m_residualx_perType[type]            , "residualx_pixel", labels.at(type));
+    bookProfileForType<TH1>(m_residualx_1hit_perType[type]       , "residualx_pixel_1hit", labels.at(type));
+    bookProfileForType<TH1>(m_residualx_2ormorehits_perType[type], "residualx_pixel_2ormorehits", labels.at(type));
+    
+    // y residuals
+    bookProfileForType<TH1>(m_residualy_perType[type]            , "residualy_pixel", labels.at(type));
+    bookProfileForType<TH1>(m_residualy_1hit_perType[type]       , "residualy_pixel_1hit", labels.at(type));
+    bookProfileForType<TH1>(m_residualy_2ormorehits_perType[type], "residualy_pixel_2ormorehits", labels.at(type));
+    
+    // residual pulls
+    bookProfileForType<TH1>(m_residualpullx_perType[type], "residualpullx_pixel", labels.at(type));
+    bookProfileForType<TH1>(m_residualpully_perType[type], "residualpully_pixel", labels.at(type));
+    
+    // introduce cluster width histograms
+    bookProfileForType<TH1>(m_phiWidth_perType[type], "clusterPhiWidth_pixel", labels.at(type));
+    bookProfileForType<TH1>(m_etaWidth_perType[type], "clusterEtaWidth_pixel", labels.at(type));
+    bookProfileForType<TProfile>(m_phiWidth_eta_perType[type], "clusterPhiWidth_eta_pixel", labels.at(type));
+    bookProfileForType<TProfile>(m_etaWidth_eta_perType[type], "clusterEtaWidth_eta_pixel", labels.at(type));
+  }
+  
 }
 
 void
@@ -180,7 +219,11 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
       const std::vector<int>& result_measureType = trkprt.auxdata< std::vector<int> >("measurement_type");
       const std::vector<int>& result_region = trkprt.auxdata< std::vector<int> >("measurement_region");
       std::vector<int> result_iLayer;
-      if (m_fillAdditionalITkPlots) result_iLayer = trkprt.auxdata< std::vector<int> >("measurement_iLayer");
+      std::vector<int> result_lType;
+      if (m_fillAdditionalITkPlots) {
+        result_iLayer = trkprt.auxdata< std::vector<int> >("measurement_iLayer");
+        result_lType = trkprt.auxdata< std::vector<int> >("measurement_lType");
+      }
       const std::vector<float>& result_residualLocX = trkprt.auxdata< std::vector<float> >("hitResiduals_residualLocX");
       const std::vector<float>& result_pullLocX = trkprt.auxdata< std::vector<float> >("hitResiduals_pullLocX");
       const std::vector<float>& result_residualLocY = trkprt.auxdata< std::vector<float> >("hitResiduals_residualLocY");
@@ -201,7 +244,11 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
         const int det = result_det[idx];
         const int region = result_region[idx];
         int layer = 0;
-	if (m_fillAdditionalITkPlots) layer = result_iLayer[idx];
+        int type = INVALID_LAYER;
+        if (m_fillAdditionalITkPlots) {
+          layer = result_iLayer[idx];
+          type = result_lType[idx];
+        }
         const int width = result_phiWidth[idx];
         const int etaWidth = result_etaWidth[idx];
         const float residualLocX = result_residualLocX[idx];
@@ -222,28 +269,42 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
           if (m_fillAdditionalITkPlots and (det==PIXEL or det==L0PIXBARR or (det==SCT and layer<N_SCTLAYERS))) {
             fillHisto(m_phiWidth_eta_perLayer[layer][det][region], trkprt.eta(), width);
             fillHisto(m_etaWidth_eta_perLayer[layer][det][region], trkprt.eta(), etaWidth);
+            if (type!=INVALID_LAYER) {
+              fillHisto(m_phiWidth_perType[type], width);
+              fillHisto(m_etaWidth_perType[type], etaWidth);
+              fillHisto(m_phiWidth_eta_perType[type], trkprt.eta(), width);
+              fillHisto(m_etaWidth_eta_perType[type], trkprt.eta(), etaWidth);              
+            }              
           }
           fillHisto(m_residualx[det][region], residualLocX);
+          if (type!=INVALID_LAYER) fillHisto(m_residualx_perType[type], residualLocX);
           const bool hasYCoordinate = (det != SCT)and(det != TRT); // SCT & TRT do not have LocY
           if (hasYCoordinate) {
             fillHisto(m_residualy[det][region], residualLocY);
+            if (type!=INVALID_LAYER) fillHisto(m_residualy_perType[type], residualLocX);
           }
           fillHisto(m_residualpullx[det][region], pullLocX);
+          if (type!=INVALID_LAYER) fillHisto(m_residualpullx_perType[type], residualLocX);
           if (hasYCoordinate) { // SCT & TRT do not have LocY
             fillHisto(m_residualpully[det][region], pullLocY);
+            if (type!=INVALID_LAYER) fillHisto(m_residualpully_perType[type], residualLocX);
           }
           if ((det == TRT)or(det == DBM) ) {
             continue;
           }
           if (width == 1) {
             fillHisto(m_residualx_1hit[det][region], residualLocX);
+            if (type!=INVALID_LAYER) fillHisto(m_residualx_1hit_perType[type], residualLocX);
             if (hasYCoordinate) {
               fillHisto(m_residualy_1hit[det][region], residualLocY);
+              if (type!=INVALID_LAYER) fillHisto(m_residualy_1hit_perType[type], residualLocX);
             }
           } else {
             fillHisto(m_residualx_2ormorehits[det][region], residualLocX);
+            if (type!=INVALID_LAYER) fillHisto(m_residualx_2ormorehits_perType[type], residualLocX);
             if (hasYCoordinate) {
               fillHisto(m_residualy_2ormorehits[det][region], residualLocY);
+              if (type!=INVALID_LAYER) fillHisto(m_residualy_2ormorehits_perType[type], residualLocX);
             }
           }
         }

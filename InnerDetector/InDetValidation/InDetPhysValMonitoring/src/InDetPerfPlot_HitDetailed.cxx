@@ -15,6 +15,14 @@ InDetPerfPlot_HitDetailed::InDetPerfPlot_HitDetailed(InDetPlotBase* pParent, std
   nBLayerOutliers{},
   nBLayerSharedHits{},
   nBLayerSplitHits{},
+  nInnermostLayerHits{},             
+  nInnermostLayerOutliers{},
+  nInnermostLayerSharedHits{},
+  nInnermostLayerSplitHits{},
+  nNextToInnermostLayerHits{},
+  nNextToInnermostLayerOutliers{},
+  nNextToInnermostLayerSharedHits{},
+  nNextToInnermostLayerSplitHits{},  
   nPixelHits{},
   nPixelHoles{},
   nPixelOutliers{},
@@ -37,6 +45,14 @@ InDetPerfPlot_HitDetailed::InDetPerfPlot_HitDetailed(InDetPlotBase* pParent, std
   n_vs_eta_BLayerOutliers{},
   n_vs_eta_BLayerSharedHits{},
   n_vs_eta_BLayerSplitHits{},
+  n_vs_eta_InnermostLayerHits{},
+  n_vs_eta_InnermostLayerOutliers{},
+  n_vs_eta_InnermostLayerSharedHits{},
+  n_vs_eta_InnermostLayerSplitHits{},
+  n_vs_eta_NextToInnermostLayerHits{},
+  n_vs_eta_NextToInnermostLayerOutliers{},
+  n_vs_eta_NextToInnermostLayerSharedHits{},
+  n_vs_eta_NextToInnermostLayerSplitHits{},
   n_vs_eta_PixelHits{},
   n_vs_eta_PixelHoles{},
   n_vs_eta_PixelOutliers{},
@@ -60,6 +76,8 @@ void
 InDetPerfPlot_HitDetailed::initializePlots() {
   // 1D histograms
   book(nBLayerHits, "HitContent_NBlayerHits");
+  book(nInnermostLayerHits, "HitContent_NInnermostLayerHits");
+  book(nNextToInnermostLayerHits, "HitContent_NNextToInnermostLayerHits");
   book(nPixelHits, "HitContent_NPixelHits");
   book(nPixelHoles, "HitContent_NPixelHoles");
   book(nSCTHits, "HitContent_NSCTHits");
@@ -68,6 +86,8 @@ InDetPerfPlot_HitDetailed::initializePlots() {
   book(nTRTHighThresholdHits, "HitContent_NTRTHighThresholdHits");
   // eta profiles
   book(n_vs_eta_BLayerHits, "HitContent_vs_eta_NBlayerHits");
+  book(n_vs_eta_InnermostLayerHits, "HitContent_vs_eta_NInnermostLayerHits");
+  book(n_vs_eta_NextToInnermostLayerHits, "HitContent_vs_eta_NNextToInnermostLayerHits");
   book(n_vs_eta_PixelHits, "HitContent_vs_eta_NPixelHits");
   book(n_vs_eta_PixelHoles, "HitContent_vs_eta_NPixelHoles");
   book(n_vs_eta_SCTHits, "HitContent_vs_eta_NSCTHits");
@@ -79,6 +99,12 @@ InDetPerfPlot_HitDetailed::initializePlots() {
     book(nBLayerOutliers, "HitContent_NBlayerOutliers");
     book(nBLayerSharedHits, "HitContent_NBlayerSharedHits");
     book(nBLayerSplitHits, "HitContent_NBLayerSplitHits");
+    book(nInnermostLayerOutliers, "HitContent_NInnermostLayerOutliers");
+    book(nInnermostLayerSharedHits, "HitContent_NInnermostLayerSharedHits");
+    book(nInnermostLayerSplitHits, "HitContent_NInnermostLayerSplitHits");
+    book(nNextToInnermostLayerOutliers, "HitContent_NNextToInnermostLayerOutliers");
+    book(nNextToInnermostLayerSharedHits, "HitContent_NNextToInnermostLayerSharedHits");
+    book(nNextToInnermostLayerSplitHits, "HitContent_NNextToInnermostLayerSplitHits");
     book(nPixelOutliers, "HitContent_NPixelOutliers");
     book(nPixelContribLayers, "HitContent_NPixelContribLayers");
     book(nPixelSharedHits, "HitContent_NPixelSharedHits");
@@ -98,6 +124,12 @@ InDetPerfPlot_HitDetailed::initializePlots() {
     book(n_vs_eta_PixelContribLayers, "HitContent_vs_eta_NPixelContribLayers");
     book(n_vs_eta_PixelSharedHits, "HitContent_vs_eta_NPixelSharedHits");
     book(n_vs_eta_PixelSplitHits, "HitContent_vs_eta_NPixelSplitHits");
+    book(n_vs_eta_InnermostLayerOutliers, "HitContent_vs_eta_NInnermostLayerOutliers");
+    book(n_vs_eta_InnermostLayerSharedHits, "HitContent_vs_eta_NInnermostLayerSharedHits");
+    book(n_vs_eta_InnermostLayerSplitHits, "HitContent_vs_eta_NInnermostLayerSplitHits");
+    book(n_vs_eta_NextToInnermostLayerOutliers, "HitContent_vs_eta_NNextToInnermostLayerOutliers");
+    book(n_vs_eta_NextToInnermostLayerSharedHits, "HitContent_vs_eta_NNextToInnermostLayerSharedHits");
+    book(n_vs_eta_NextToInnermostLayerSplitHits, "HitContent_vs_eta_NNextToInnermostLayerSplitHits");
     book(n_vs_eta_PixelGangedHits, "HitContent_vs_eta_NPixelGangedHits");
     book(n_vs_eta_PixelGangedHitsFlaggedFakes, "HitContent_vs_eta_NPixelGangedHitsFlaggedFakes");
     book(n_vs_eta_SCTOutliers, "HitContent_vs_eta_NSCTOutliers");
@@ -114,10 +146,20 @@ InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle& trk) {
 
   uint8_t iBLayerHits(0), iPixHits(0), iSctHits(0), iTrtHits(0);
   uint8_t iPixHoles(0), iSCTHoles(0), iTrtHTHits(0);
+  
+  uint8_t iInnermostHits(0), iNextToInnermostHits(0);
 
   if (trk.summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
     fillHisto(nBLayerHits, iBLayerHits);
     fillHisto(n_vs_eta_BLayerHits, eta, iBLayerHits);
+  }
+  if (trk.summaryValue(iInnermostHits, xAOD::numberOfInnermostPixelLayerHits)) {
+    fillHisto(nInnermostLayerHits, iInnermostHits);
+    fillHisto(n_vs_eta_InnermostLayerHits, eta, iInnermostHits);
+  }
+  if (trk.summaryValue(iNextToInnermostHits, xAOD::numberOfNextToInnermostPixelLayerHits)) {
+    fillHisto(nNextToInnermostLayerHits, iNextToInnermostHits);
+    fillHisto(n_vs_eta_NextToInnermostLayerHits, eta, iNextToInnermostHits);
   }
   if (trk.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
     fillHisto(nPixelHits, iPixHits);
@@ -151,6 +193,11 @@ InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle& trk) {
       0);
     uint8_t iSCTOutliers(0), iSCTDoubleHoles(0), iSCTShared(0);
     uint8_t iTRTOutliers(0), iTRTHTOutliers(0);
+    
+    uint8_t iInnermostOutliers(0), iNextToInnermostOutliers(0);
+    uint8_t iInnermostShared(0)  , iNextToInnermostShared(0)  ;
+    uint8_t iInnermostSplit(0)   , iNextToInnermostSplit(0)   ;
+    
     if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
       fillHisto(nBLayerOutliers, iBLayerOutliers);
       fillHisto(n_vs_eta_BLayerOutliers, eta, iBLayerOutliers);
@@ -163,6 +210,33 @@ InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle& trk) {
       fillHisto(nBLayerSplitHits, iBLayerSplit);
       fillHisto(n_vs_eta_BLayerSplitHits, eta, iBLayerSplit);
     }
+    
+    if (trk.summaryValue(iInnermostOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
+      fillHisto(nInnermostLayerOutliers, iInnermostOutliers);
+      fillHisto(n_vs_eta_InnermostLayerOutliers, eta, iInnermostOutliers);
+    }
+    if (trk.summaryValue(iInnermostShared, xAOD::numberOfInnermostPixelLayerSharedHits)) {
+      fillHisto(nInnermostLayerSharedHits, iInnermostShared);
+      fillHisto(n_vs_eta_InnermostLayerSharedHits, eta, iInnermostShared);
+    }
+    if (trk.summaryValue(iInnermostSplit, xAOD::numberOfInnermostPixelLayerSplitHits)) {
+      fillHisto(nInnermostLayerSplitHits, iInnermostSplit);
+      fillHisto(n_vs_eta_InnermostLayerSplitHits, eta, iInnermostSplit);
+    }
+    
+    if (trk.summaryValue(iNextToInnermostOutliers, xAOD::numberOfNextToInnermostPixelLayerOutliers)) {
+      fillHisto(nNextToInnermostLayerOutliers, iNextToInnermostOutliers);
+      fillHisto(n_vs_eta_NextToInnermostLayerOutliers, eta, iNextToInnermostOutliers);
+    }
+    if (trk.summaryValue(iNextToInnermostShared, xAOD::numberOfNextToInnermostPixelLayerSharedHits)) {
+      fillHisto(nNextToInnermostLayerSharedHits, iNextToInnermostShared);
+      fillHisto(n_vs_eta_NextToInnermostLayerSharedHits, eta, iNextToInnermostShared);
+    }
+    if (trk.summaryValue(iNextToInnermostSplit, xAOD::numberOfNextToInnermostPixelLayerSplitHits)) {
+      fillHisto(nNextToInnermostLayerSplitHits, iNextToInnermostSplit);
+      fillHisto(n_vs_eta_NextToInnermostLayerSplitHits, eta, iNextToInnermostSplit);
+    }
+    
     if (trk.summaryValue(iPixelOutliers, xAOD::numberOfPixelOutliers)) {
       fillHisto(nPixelOutliers, iPixelOutliers);
       fillHisto(n_vs_eta_PixelOutliers, eta, iPixelOutliers);

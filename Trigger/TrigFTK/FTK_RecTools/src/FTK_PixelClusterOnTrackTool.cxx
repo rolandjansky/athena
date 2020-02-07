@@ -308,7 +308,7 @@ FTK_PixelClusterOnTrackTool::correct
 
 
   if (!m_applyNNcorrection ||
-      ((dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement()))->isBlayer() && !m_NNIBLcorrection &&
+      ((dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement()))->isInnermostPixelLayer() && !m_NNIBLcorrection &&
        !m_IBLAbsent)) {
     return correctDefault(rio, trackPar);
   }else {
@@ -359,7 +359,7 @@ FTK_PixelClusterOnTrackTool::correctDefault
   if (!element) {
     return 0;
   }
-  bool blayer = element->isBlayer();
+  bool blayer = element->isInnermostPixelLayer();
   IdentifierHash iH = element->identifyHash();
 
   double errphi = -1;

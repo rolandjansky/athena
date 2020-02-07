@@ -58,6 +58,8 @@ private:
   std::vector<int>* m_etaModule;
   std::vector<int>* m_phiIndex;
   std::vector<int>* m_etaIndex;
+  std::vector<int>* m_isInnermost;
+  std::vector<int>* m_isNextToInnermost;  
   // PixelRDORawData
   std::vector<int>* m_ToT;
   std::vector<int>* m_BCID;
@@ -147,17 +149,23 @@ private:
   TH1* m_h_disabled_brl;  
   TH1* m_h_disabled_ec;
   
-  TH1* m_h_brlinclPhiIndex_perLayer[33];
-  TH1* m_h_brlinclEtaIndex_perLayer[33];
+  TH1* m_h_brlinclPhiIndex_perLayer[5];
+  TH1* m_h_brlinclEtaIndex_perLayer[5];
    
-  TH1* m_h_brlflatPhiIndex_perLayer[33];
-  TH1* m_h_brlflatEtaIndex_perLayer[33];
+  TH1* m_h_brlflatPhiIndex_perLayer[5];
+  TH1* m_h_brlflatEtaIndex_perLayer[5];
    
-  TH1* m_h_brlPhiIndex_perLayer[33];
-  TH1* m_h_brlEtaIndex_perLayer[33];
+  TH1* m_h_brlPhiIndex_perLayer[5];
+  TH1* m_h_brlEtaIndex_perLayer[5];
    
-  TH1* m_h_ecPhiIndex_perLayer[33];
-  TH1* m_h_ecEtaIndex_perLayer[33];
+  TH1* m_h_ecPhiIndex_perLayer[5];
+  TH1* m_h_ecEtaIndex_perLayer[5];
+  
+  TH1* m_h_PhiIndexInnermost;
+  TH1* m_h_EtaIndexInnermost;
+  
+  TH1* m_h_PhiIndexNextToInnermost;
+  TH1* m_h_EtaIndexNextToInnermost;
 
   TH2* m_h_globalZR;
   TH1* m_h_globalX;
