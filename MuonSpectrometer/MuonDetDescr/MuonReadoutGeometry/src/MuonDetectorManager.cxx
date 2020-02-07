@@ -1453,15 +1453,16 @@ const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1
 }
 const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i2, int i3, int i4, int i5)const
 {
-   MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
   if (i1<0 || i1 >= NRpcStatType) 
   {
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getRpcReadoutElement stNameindex out of range "
                <<i1<<" 0-"<<NRpcStatType-1<<endmsg;
       throw;
   }
   if (i2<0 || i2 >= NRpcStatEta) 
   {
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getRpcReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NRpcStatEta-1<<endmsg;
       return 0;
@@ -1469,18 +1470,21 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i
   }
   if (i3<0 ||  i3 >= NRpcStatPhi) 
   {
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getRpcReadoutElement stPhiindex out of range "
                <<i3<<" 0-"<<NRpcStatPhi-1<<endmsg;
       throw;
   }
   if (i4 < 0 || i4 >= NDoubletR)
   {
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getRpcReadoutElement dbr_index out of range "
                <<i4<<" 0-" <<NDoubletR-1<<endmsg;
       throw;
   }
   if (i5 < 0 || i5 >= NDoubletZ)
   {
+      MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
       log<<MSG::ERROR<<"ERROR MuonDetectorManager::getRpcReadoutElement dbz_index out of range "
                <<i5<<" 0-" <<NDoubletZ-1<<endmsg;
       return 0;
