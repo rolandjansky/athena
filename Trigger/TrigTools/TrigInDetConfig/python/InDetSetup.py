@@ -104,34 +104,34 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
 
     #TRT
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    InDetTRTCalDbSvc = TRT_CalDbSvc()
-    ServiceMgr += InDetTRTCalDbSvc
+    #from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
+    #InDetTRTCalDbSvc = TRT_CalDbSvc()
+    #ServiceMgr += InDetTRTCalDbSvc
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc" + signature)
-    ServiceMgr += InDetTRTStrawStatusSummarySvc
+    #from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
+    #InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc" + signature)
+    #ServiceMgr += InDetTRTStrawStatusSummarySvc
 
-    from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
-    InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder" + signature,
-                                        LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))
-    ToolSvc += InDetTRTRodDecoder
+    #from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
+    #InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder" + signature,
+    #                                    LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))
+    #ToolSvc += InDetTRTRodDecoder
 
-    from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
-    InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool" + signature,
-                                                          Decoder = InDetTRTRodDecoder)
-    ToolSvc += InDetTRTRawDataProviderTool
+    #from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
+    #InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool" + signature,
+    #                                                      Decoder = InDetTRTRodDecoder)
+    #ToolSvc += InDetTRTRawDataProviderTool
 
 
-    # load the TRTRawDataProvider
-    from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
-    InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider" + signature,
-                                                 RDOKey       = "TRT_RDOs",
-                                                  ProviderTool = InDetTRTRawDataProviderTool)
-    InDetTRTRawDataProvider.isRoI_Seeded = True
-    InDetTRTRawDataProvider.RoIs = rois
+    ## load the TRTRawDataProvider
+    #from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
+    #InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider" + signature,
+    #                                             RDOKey       = "TRT_RDOs",
+    #                                              ProviderTool = InDetTRTRawDataProviderTool)
+    #InDetTRTRawDataProvider.isRoI_Seeded = True
+    #InDetTRTRawDataProvider.RoIs = rois
 
-    viewAlgs.append(InDetTRTRawDataProvider)
+    #viewAlgs.append(InDetTRTRawDataProvider)
 
 
   #Pixel clusterisation
