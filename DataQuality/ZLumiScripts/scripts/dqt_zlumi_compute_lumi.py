@@ -146,23 +146,24 @@ from DQUtils import fetch_iovs
 from DQUtils.iov_arrangement import inverse_lblb
 lblb = fetch_iovs("LBLB", runs=int(runname[4:]))
 lbtime = inverse_lblb(lblb)
-#print list(lbtime)
+
 iovs_acct = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', lbtime.first.since, lbtime.last.until, tag=args.tag)
 if args.useofficial:
     iovs_lum = fetch_iovs('COOLOFL_TRIGGER::%s' % args.lumifolder, lblb.first.since, lblb.last.until, tag=args.lumitag, channels=[0])
-    #print list(iovs_lum)
+
 lb_start_end = {}
-lb_lhcfill = {}
+lb_lhcfill   = {}
 for iov in lblb:
     lb_start_end[iov.since & 0xffffffff] = (iov.StartTime/1e9, iov.EndTime/1e9)
 
 for iov in iovs_acct:
     if not lbmin < iov.LumiBlock < lbmax:
         continue
+    
     lb_lhcfill[iov.LumiBlock] = iov.FillNumber
     if args.dblivetime:
         livetime.Fill(iov.LumiBlock, iov.LiveFraction)
-    #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
+    
     if not args.useofficial:
         official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
         official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
@@ -232,7 +233,6 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
 
     # fill tree
     if t:
-        #print ibin, lumiplot_raw_m.GetBinCenter(ibin)
         o_lb[0] = int(lumiplot_raw_m.GetBinCenter(ibin))
         o_lbwhen[0] = lb_start_end[o_lb[0]][0]
         o_lbwhen[1] = lb_start_end[o_lb[0]][1]

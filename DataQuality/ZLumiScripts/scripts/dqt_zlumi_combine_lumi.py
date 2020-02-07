@@ -40,11 +40,6 @@ def correction(mu):
         if campaign == "mc16d":
             return 8.74735e-01 - 1.64286e-04*mu - 7.32040e-06*mu*mu
         if campaign == "mc16e":
-            # old method
-            #return 8.74217e-01 - 1.66188e-04*mu - 7.75133e-06*mu*mu
-            # template method - OS = OS+SS
-            #return 9.32014e-01 + 1.49928e-06*mu - 5.28293e-06*mu*mu
-            # template method - OS = OS
             return 9.02495e-01 + 2.15661e-05*mu - 7.04916e-06*mu*mu 
 
     if runmode == "Zmumu":

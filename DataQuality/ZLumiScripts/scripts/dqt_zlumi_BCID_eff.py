@@ -42,14 +42,11 @@ def calculate_chi2(histo1, histo2):
         x2 = histo2.GetBinContent(mybin)
         
         numer = (x1 - x2)**2
-        #denom = (histo2.GetBinError(mybin))**2# + (histo1.GetBinError(mybin))**2
         covariance = (x1 - mean_x1)*(x2 - mean_x2)/(N-1)
         denom = (histo2.GetBinError(mybin))**2 + (histo1.GetBinError(mybin))**2 - 2*covariance
         if (denom != 0 and numer !=0):
             chi += numer/denom
             NDF += 1
-            #print x1, x2, histo2.GetBinError(mybin), numer, denom, numer/denom
-
 
     NDF -= 1
 

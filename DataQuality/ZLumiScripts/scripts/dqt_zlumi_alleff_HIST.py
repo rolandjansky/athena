@@ -438,8 +438,3 @@ if sumweights:
     effcyrat.Draw('PE')
     effcyrat.Fit('pol1')
     c1.Print(os.path.join(args.plotdir, '%s_tp_correction.eps' % runname[4:]))
-
-
-
-
-

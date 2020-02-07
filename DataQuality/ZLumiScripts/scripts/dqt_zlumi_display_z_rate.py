@@ -106,4 +106,3 @@ if lumitree.GetSelectedRows() > 0:
     gr3.GetHistogram().SetYTitle('Z Counting/Official Lumi')
     c1.Print(os.path.join(args.plotdir, '%s_lumicompratio.eps' % runnum))
     f.WriteTObject(c1, 'lumicompratio_canvas')
-    
