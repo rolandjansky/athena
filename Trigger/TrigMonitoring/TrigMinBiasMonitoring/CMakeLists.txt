@@ -27,8 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileEvent
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigInDetEvent
-			  Control/AthenaMonitroing
-			  Control/AthenaMOnitoringKernel )
+			  Control/AthenaMonitoringKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
