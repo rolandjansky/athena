@@ -65,6 +65,8 @@ StatusCode TrigT1CaloRun3TauFex::initialize(){
 	m_SupercellMapEM0 = new TH2F("SupercellMapEM0","Supercell map of EM0",98,-4.9,4.9,64,0,2*M_PI);
 	m_SupercellMapEM1 = new TH2F("SupercellMapEM1","Supercell map of EM1",392,-4.9,4.9,64,0,2*M_PI);
 	m_SupercellMapEM2 = new TH2F("SupercellMapEM2","Supercell map of EM2",392,-4.9,4.9,64,0,2*M_PI);
+	m_SupercellMapEM1_coarse = new TH2F("SupercellMapEM1_coarse","Supercell map of EM1 coarse",196,-4.9,4.9,64,0,2*M_PI);
+	m_SupercellMapEM2_coarse = new TH2F("SupercellMapEM2_coarse","Supercell map of EM2 coarse",196,-4.9,4.9,64,0,2*M_PI);
 	m_SupercellMapEM3 = new TH2F("SupercellMapEM3","Supercell map of EM3",98,-4.9,4.9,64,0,2*M_PI);
 	m_SupercellMapHAD = new TH2F("SupercellMapHAD","Supercell map of HAD",98,-4.9,4.9,64,0,2*M_PI);
 	m_SupercellMapTWR = new TH2F("SupercellMapTWR","Supercell map of TWR",98,-4.9,4.9,64,0,2*M_PI);
@@ -76,6 +78,7 @@ StatusCode TrigT1CaloRun3TauFex::initialize(){
 	acc_clusterIso = new SG::AuxElement::Accessor<float>("R3ClusterIso");
 	acc_Ore_clusterET = new SG::AuxElement::Accessor<float>("R3_Ore_ClusterET");
 	acc_Ore_clusterIso = new SG::AuxElement::Accessor<float>("R3_Ore_ClusterIso");
+	acc_BC_clusterET = new SG::AuxElement::Accessor<float>("R3_BC_ClusterET");
 	return StatusCode::SUCCESS;
 }
 
@@ -91,6 +94,7 @@ StatusCode TrigT1CaloRun3TauFex::finalize(){
 	delete acc_clusterIso;
 	delete acc_Ore_clusterET;
 	delete acc_Ore_clusterIso;
+	delete acc_BC_clusterET;
 	return StatusCode::SUCCESS;
 }
 
@@ -129,6 +133,8 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	m_SupercellMapEM0->Reset();
 	m_SupercellMapEM1->Reset();
 	m_SupercellMapEM2->Reset();
+	m_SupercellMapEM1_coarse->Reset();
+	m_SupercellMapEM2_coarse->Reset();
 	m_SupercellMapEM3->Reset();
 	m_SupercellMapHAD->Reset();
 	m_SupercellMapTWR->Reset();
@@ -163,17 +169,21 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  // Store maps per layer
 	  if (currentSampling==0 || currentSampling==4)
 	    m_SupercellMapEM0->Fill(currentEta,currentPhi,currentCellEt);
-	  else if (currentSampling==1 || currentSampling==5)
+	  else if (currentSampling==1 || currentSampling==5){
 	    m_SupercellMapEM1->Fill(currentEta,currentPhi,currentCellEt);
+	    m_SupercellMapEM1_coarse->Fill(currentEta,currentPhi,currentCellEt);
+	  }
 	  else if (currentSampling==2 || currentSampling==6)
 	    m_SupercellMapEM2->Fill(currentEta,currentPhi,currentCellEt);
+	    m_SupercellMapEM2_coarse->Fill(currentEta,currentPhi,currentCellEt);
+	  }
 	  else if (currentSampling==3 || currentSampling==7)
 	    m_SupercellMapEM3->Fill(currentEta,currentPhi,currentCellEt);
 	  else m_SupercellMapHAD->Fill(currentEta,currentPhi,currentCellEt);
 	  
 	  // Store a map sum of all layers
 	  
-	    m_SupercellMapTWR->Fill(currentEta,currentPhi,currentCellEt);
+	  m_SupercellMapTWR->Fill(currentEta,currentPhi,currentCellEt);
 	}
 
 	// Need to also loop over Run-I towers to get central region hadronic energy
@@ -252,6 +262,15 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  }
 	}	  
 	
+
+	bool printInfo=0;
+	  if(printInfo==1){
+	    for (int i=1;i<m_SupercellMapEM1_coarse->GetNbinsX()+1;i++){
+	      for (int j=1;j<m_SupercellMapEM1_coarse->GetNbinsY()+1;j++){
+	        msg << MSG::INFO <<"m_SupercellMapEM1_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM1_coarse->GetBinContent(i, j) << endreq;
+	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetBinContent(" << i<<","<<j<<") "<< m_SupercellMapEM2_coarse->GetBinContent(i, j) << endreq;
+	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter("<< i<<") "<< m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(i) << endreq;
+	        msg << MSG::INFO <<"m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter("<< j<<") "<< m_SupercellMapEM2_coarse->GetYaxis()->GetBinCenter(j) << endreq;
 
 	// Now loop over local maxima, decide what to do
 	for( auto myMaximum : m_localMaxima ) {
@@ -394,7 +413,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  hadOregonET += m_SupercellMapHAD->GetBinContent(i + 1, offPhiCoordinate);
 	  
 	  // Add individual layer energies to get the full Oregon reconstructed energy
-	  double fullOregonET = em0OregonET + em1OregonET + em2OregonET + em3OregonET + hadOregonET; 
+	  double eFEX_OregonET = em0OregonET + em1OregonET + em2OregonET + em3OregonET + hadOregonET; 
 	  
 	  // Calculate Oregon algorithm isolation value
 	  // Construct inner 3x2 energy
@@ -428,7 +447,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  oreIsoOuterET += m_SupercellMapEM2->GetBinContent(i + 4, offPhiCoordinate);
 	  
 	  // Calculate isolation value as the ratio of inner over outer energies
-	  double oregonIso = oreIsoInnerET / oreIsoOuterET;
+	  double eFEX_OregonIso = oreIsoInnerET / oreIsoOuterET;
 	  
 	  //msg << MSG::DEBUG << "eFEXOldCluster:" << std::endl;
 	  //msg << MSG::DEBUG << eFEXOldCluster << std::endl;
@@ -445,13 +464,13 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  //msg << MSG::DEBUG << "Layer Had Et:" << std::endl;
 	  //msg << MSG::DEBUG << hadOregonET << std::endl;
 	  //msg << MSG::DEBUG << "Oregon reconstructed energy:" << std::endl;
-	  //msg << MSG::DEBUG << fullOregonET << std::endl;
+	  //msg << MSG::DEBUG << eFEX_OregonET << std::endl;
 	  //msg << MSG::DEBUG << "Isolation Inner Et:" << std::endl;
 	  //msg << MSG::DEBUG << oreIsoInnerET << std::endl;
 	  //msg << MSG::DEBUG << "Isolation Outer Et:" << std::endl;
 	  //msg << MSG::DEBUG << oreIsoOuterET << std::endl;
 	  //msg << MSG::DEBUG << "Oregon isolation value:" << std::endl;
-	  //msg << MSG::DEBUG << oregonIso << std::endl;
+	  //msg << MSG::DEBUG << eFEX_OregonIso << std::endl;
 	  
 	  // Code Oregon cluster later
 	  // Will need to write a library of shape summation functions
@@ -461,6 +480,98 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  // EM3: 3x2
 	  // HAD: 3x2
 
+	  //msg << MSG::INFO <<"" << << endreq;
+	  //Code TLV bigCluster algorithm
+
+	  //make vectors with EM0/3/HAD energies in each of 3x3 bins
+	  //Make a function since this is disgusting but vim does it very fast
+	  std::vector<double> E_EM0;
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i, j)              );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i-1, j)            );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i-1, aboveInPhi)   );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i, aboveInPhi)     );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i+1, aboveInPhi)   );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i+1, j)            );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i+1, belowInPhi)   );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i, belowInPhi)     );
+	  E_EM0.push_back(m_SupercellMapEM0->GetBinContent(i-1, belowInPhi)   );
+	  std::vector<double> E_EM3;
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i, j)              );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i-1, j)            );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i-1, aboveInPhi)   );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i, aboveInPhi)     );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i+1, aboveInPhi)   );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i+1, j)            );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i+1, belowInPhi)   );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i, belowInPhi)     );
+	  E_EM3.push_back(m_SupercellMapEM3->GetBinContent(i-1, belowInPhi)   );
+	  std::vector<double> E_HAD;
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i, j)              );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i-1, j)            );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i-1, aboveInPhi)   );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i, aboveInPhi)     );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i+1, aboveInPhi)   );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i+1, j)            );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i+1, belowInPhi)   );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i, belowInPhi)     );
+	  E_HAD.push_back(m_SupercellMapHAD->GetBinContent(i-1, belowInPhi)   );
+	  std::vector<double> E_EM12_central;
+	  std::vector<double> E_EM12_above;
+	  std::vector<double> E_EM12_below;
+	  //msg << MSG::INFO << "CT eta bin m_SupercellMapTWR->GetXaxis()->GetBinCenter(i) " << m_SupercellMapTWR->GetXaxis()->GetBinCenter(i) << endreq;
+    //msg << MSG::INFO << "m_SupercellMapEM2_coarse->GetXaxis()->FindBin(m_SupercellMapTWR->GetXaxis()->GetBinCenter(i)) " << m_SupercellMapEM2_coarse->GetXaxis()->FindBin(m_SupercellMapTWR->GetXaxis()->GetBinCenter(i))<< endreq;
+    //msg << MSG::INFO << "m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(m_SupercellMapEM2_coarse->GetXaxis()->FindBin(m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(m_SupercellMapEM2_coarse->GetXaxis()->GetBinCenter(m_SupercellMapEM2_coarse->GetXaxis()->FindBin(m_SupercellMapTWR->GetXaxis()->GetBinCenter(i))) << endreq;
+
+	  //First find eta bin in EM2
+	  int etaTWR = -999;
+	  int etaEM2 = -999;
+	  etaTWR = m_SupercellMapTWR->GetXaxis()->GetBinCenter(i);
+	  //because of the granularity, the bin of the seed in TWR contains 2 EM2_coarse bins
+	  //so its centre lies in the border of the two bins... to get the one on the left: -0.001
+	  int binEM2 = -999;
+	  binEM2 = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(etaTWR-0.001);
+	  //make a vector with the 5 possible energies in the central phi row
+	  // First eta bin of this row is binE<2-0.025*4 (each bin's width is 0.5)
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*4,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*4,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*2,j);
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*2,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*0,j);
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*0,j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-2),j);
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-2),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-4),j);
+	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM2_coarse->GetBinContent(binEM2-0.025*(-6),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-4),j)+m_SupercellMapEM1_coarse->GetBinContent(binEM2-0.025*(-6),j);
+	  //For upper and lower phi rows take the bin with highest energy
+	  for(int k=-4;k<=6;k+=2){
+	    E_EM12_above.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2+0.025*k,aboveInPhi)+m_SupercellMapEM1_coarse->GetBinContent(binEM2+0.025*k,aboveInPhi));
+	    E_EM12_below.push_back(m_SupercellMapEM2_coarse->GetBinContent(binEM2+0.025*k,belowInPhi)+m_SupercellMapEM1_coarse->GetBinContent(binEM2+0.025*k,belowInPhi));
+	  }
+
+	  double E_EM2=0;
+	  double E_EM1=0;
+	  //msg << MSG::INFO << "before sorting" << endreq;
+	  //for (auto x : E_EM0) {
+	  //  msg << MSG::INFO << X << endreq;
+	  //}
+
+	  sort(E_EM0.begin(), E_EM0.end());
+	  sort(E_EM3.begin(), E_EM3.end());
+	  sort(E_HAD.begin(), E_HAD.end());
+	  sort(E_EM12_central.begin(), E_EM12_central.end());
+	  sort(E_EM12_above.begin(), E_EM12_above.end());
+	  sort(E_EM12_below.begin(), E_EM12_below.end());
+
+	  double eFEX_BC=0;
+
+	  //Three hottest bins in EM0
+	  eFEX_BC = E_EM0.at(E_EM0.size()-1)+E_EM0.at(E_EM0.size()-2)+E_EM0.at(E_EM0.size()-3);
+	  //Two hottest bins in EM3
+	  eFEX_BC += E_EM3.at(E_EM3.size()-1)+E_EM3.at(E_EM3.size()-2);
+	  //Three hottest bins in HAD
+	  eFEX_BC += E_HAD.at(E_HAD.size()-1)+E_HAD.at(E_HAD.size()-2)+E_HAD.at(E_HAD.size()-3);
+	  eFEX_BC += E_EM12_central.at(E_EM12_central.size()-1);
+	  eFEX_BC += E_EM12_above.at(E_EM12_above.size()-1);
+	  eFEX_BC += E_EM12_below.at(E_EM12_below.size()-1);
+	  //msg << MSG::INFO << "eFEX_BC " << eFEX_BC << endreq;
+	  //msg << MSG::INFO << "eFEX_BC HAD 0" << E_HAD.at(0) << endreq;
+	  //msg << MSG::INFO << "eFEX_BC HAD 1" << E_HAD.at(1) << endreq;
+	  //msg << MSG::INFO << "eFEX_BC HAD 2" << E_HAD.at(2) << endreq;
 
 	  // Calculate an EM2-based isolation
 	  // Center in EM2, offset to the right in eta:
@@ -506,9 +617,11 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  clForTau->setPhi( myMaximum.Phi() );
 	  
 	  (*acc_clusterET)(*clForTau) = eFEXOldCluster;
-	  (*acc_Ore_clusterET)(*clForTau) = fullOregonET;
+	  (*acc_Ore_clusterET)(*clForTau) = eFEX_OregonET;
+	  (*acc_BC_clusterET)(*clForTau) = eFEX_BC;
+	  (*acc_Ore_clusterIso)(*clForTau) = 0;
 	  if(oreIsoOuterET > 0)
-	    (*acc_Ore_clusterIso)(*clForTau) = oregonIso;
+	    (*acc_Ore_clusterIso)(*clForTau) = eFEX_OregonIso;
 	  (*acc_clusterIso)(*clForTau) = 0;
 	  if(denominator > 0)
 	    (*acc_clusterIso)(*clForTau) = numerator/denominator;

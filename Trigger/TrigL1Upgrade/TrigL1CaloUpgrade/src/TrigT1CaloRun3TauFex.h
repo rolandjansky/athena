@@ -47,6 +47,8 @@ private :
 	TH2F* m_SupercellMapEM0;
 	TH2F* m_SupercellMapEM1;
 	TH2F* m_SupercellMapEM2;
+	TH2F* m_SupercellMapEM1_coarse;
+	TH2F* m_SupercellMapEM2_coarse;
 	TH2F* m_SupercellMapEM3;
 	TH2F* m_SupercellMapHAD;
 	TH2F* m_SupercellMapTWR;
@@ -60,6 +62,7 @@ private :
 	SG::AuxElement::Accessor<float>* acc_clusterIso;
 	SG::AuxElement::Accessor<float>* acc_Ore_clusterET;
 	SG::AuxElement::Accessor<float>* acc_Ore_clusterIso;
+	SG::AuxElement::Accessor<float>* acc_BC_clusterET;
 
         /** output name */
         std::string m_outputClusterName;
