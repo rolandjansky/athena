@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigCost/EnhancedBiasWeighter
-                          Event/xAOD/xAODEventInfo )
+                          Event/xAOD/xAODEventInfo
+                          Trigger/TrigConfiguration/TrigConfData )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -21,7 +22,7 @@ find_package( Boost )
 # Athena algorithm to do cost analysis and produce histograms
 atlas_add_component( TrigCostAnalysis
                      src/*.cxx src/monitors/*.cxx src/counters/*.cxx  src/components/TrigCostAnalysis_entries.cxx
-                     PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib TrigDecisionToolLib EnhancedBiasWeighterLib xAODEventInfo )
+                     PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthAnalysisBaseCompsLib TrigDecisionToolLib EnhancedBiasWeighterLib xAODEventInfo TrigConfData )
 
 # Small helper library used by trigCostHistToCSV
 atlas_add_library( TrigCostAnalysisLib
