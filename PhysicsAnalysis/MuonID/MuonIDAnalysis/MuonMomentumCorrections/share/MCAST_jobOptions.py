@@ -13,12 +13,13 @@ theJob = AlgSequence()
 from MuonMomentumCorrections.MuonMomentumCorrectionsConf import CP__TestMCASTTool
 alg = CP__TestMCASTTool()
 alg.MuonCalibrationAndSmearingTool.FilesPath = '/home/artoni/MuonCombinedPerformance/atlas-mcp/MaintainMuonMomentumCorrections/run/temporary_config_files/'
-alg.MuonCalibrationAndSmearingTool.OutputLevel = VERBOSE 
+#alg.MuonCalibrationAndSmearingTool.Release = 'Recs2019_05_30'
+#alg.MuonCalibrationAndSmearingTool.OutputLevel = VERBOSE 
 alg.OutputLevel = INFO 
 theJob += alg
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = -1 
+theApp.EvtMax = -1
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000

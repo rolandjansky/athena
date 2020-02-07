@@ -163,7 +163,7 @@ namespace CP {
     declareProperty( "Year", m_year = "Data16" );
     declareProperty( "Algo", m_algo = "muons" );
     declareProperty( "SmearingType", m_type = "q_pT" );
-    declareProperty( "Release", m_release = "Recs2019_05_30" );
+    declareProperty( "Release", m_release = "Recs2019_10_12" );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty( "FilesPath", m_FilesPath = "" );
 
@@ -1628,6 +1628,9 @@ namespace CP {
     else if (rel == "Recs2017_08_02") {
       m_Trel = MCAST::Release::Recs2017_08_02;
     }
+    else if (rel == "Recs2019_05_30") {
+      m_Trel = MCAST::Release::Recs2019_05_30;
+    }
     else if (rel == "Recs2019_10_12") {
       m_Trel = MCAST::Release::Recs2019_10_12;
     }
@@ -2058,15 +2061,15 @@ namespace CP {
 
       ATH_MSG_VERBOSE("Checking Values - Extra p2 smearing: ");
       for(auto kv: m_p2_MS_Scaling) { 
-          std::cout << "Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second << std::endl;
+        ATH_MSG_VERBOSE("Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second);
       }
       ATH_MSG_VERBOSE("Checking Values - Extra p2 syst UP: ");
       for(auto kv: m_p2_MS_SystUp) { 
-          std::cout << "Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second << std::endl;
+        ATH_MSG_VERBOSE("Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second);
       }
       ATH_MSG_VERBOSE("Checking Values - Extra p2 syst DW: ");
       for(auto kv: m_p2_MS_SystDw) { 
-          std::cout << "Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second << std::endl;
+        ATH_MSG_VERBOSE("Detector Region: " << (kv.first).first << ", Category: " << (kv.first).second << ", Value: " << kv.second);
       }
     }
 

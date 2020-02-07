@@ -1,14 +1,17 @@
 #define __TrackInfo_cxx__
 #include "TrackInfo.h"
 
-TrackInfo::TrackInfo(std::string type) {
+TrackInfo::TrackInfo(std::string type, std::vector<std::string> systs) {
     m_Type = type;
+    m_Systs = systs;
     Reset();
 }
 
 void TrackInfo::Reset() {
     m_Pt = -999.;
-    m_CalibPt = -999.;
+    for(auto s: m_Systs) {
+      m_CalibPt[s] = -999.;
+    }
     m_Eta = -999.;
     m_Phi = -999.;
     m_QoverP = -999.;
@@ -24,7 +27,6 @@ void TrackInfo::Reset() {
 
 void TrackInfo::Register(TTree* t) {
     t->Branch(("Muon_" + m_Type + "_Pt").c_str(), &m_Pt);
-    t->Branch(("Muon_" + m_Type + "_CalibPt").c_str(), &m_CalibPt);
     t->Branch(("Muon_" + m_Type + "_Eta").c_str(), &m_Eta);
     t->Branch(("Muon_" + m_Type + "_Phi").c_str(), &m_Phi);
     t->Branch(("Muon_" + m_Type + "_Charge").c_str(), &m_Charge);
@@ -33,6 +35,9 @@ void TrackInfo::Register(TTree* t) {
     t->Branch(("Muon_" + m_Type + "_NDoF").c_str(), &m_NDoF);
     t->Branch(("Muon_" + m_Type + "_TrackPars").c_str(), &TrackPars);
     t->Branch(("Muon_" + m_Type + "_TrackCovMatrix").c_str(), &TrackPars);
+    for(auto s: m_Systs) {
+      t->Branch(("Muon_" + m_Type + "_" + s + "CalibPt").c_str(), &m_CalibPt[s]);
+    }
 }
 
 void TrackInfo::Fill(const xAOD::TrackParticle* tp) {
@@ -56,7 +61,7 @@ void TrackInfo::Fill(const xAOD::TrackParticle* tp) {
 
 TLorentzVector TrackInfo::GetFourMomentum(bool calib) {
     TLorentzVector result;
-    if(calib) result.SetPtEtaPhiM(m_CalibPt, m_Eta, m_Phi, 0.105658);
+    if(calib) result.SetPtEtaPhiM(m_CalibPt[""], m_Eta, m_Phi, 0.105658);
     else result.SetPtEtaPhiM(m_Pt, m_Eta, m_Phi, 0.105658);
     return result;
 }

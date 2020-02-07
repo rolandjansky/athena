@@ -10,6 +10,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
+#include "PATInterfaces/SystematicsUtil.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "TrackInfo.h"
@@ -38,6 +39,9 @@ namespace CP {
     //::: Connection to the smearing tool
     ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_MCaSTool;
   
+    std::vector<std::string> m_sysNames;
+    std::vector< CP::SystematicSet > m_sysList;
+
     TFile* m_DebugFile;
     TTree* m_DebugTree;
     std::unique_ptr<TrackInfo> m_Combined;

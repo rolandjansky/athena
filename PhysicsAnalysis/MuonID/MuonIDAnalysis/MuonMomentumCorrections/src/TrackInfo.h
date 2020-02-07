@@ -16,13 +16,15 @@
 class TrackInfo {
   private:
     std::string m_Type;
-    float m_Pt, m_CalibPt, m_Eta, m_Phi, m_QoverP, m_Chi2;
+    std::vector<std::string> m_Systs;
+    float m_Pt, m_Eta, m_Phi, m_QoverP, m_Chi2;
+    std::map<std::string, float> m_CalibPt;
     int m_Charge, m_NDoF;
     std::vector<float> TrackPars;
     std::vector<float> TrackCovMatrix;
 
   public:
-    TrackInfo(std::string type);
+    TrackInfo(std::string type, std::vector<std::string> systs);
     ~TrackInfo() {}
 
     void Reset();
@@ -30,7 +32,7 @@ class TrackInfo {
     void Fill(const xAOD::TrackParticle* tp);
     TLorentzVector GetFourMomentum(bool calib=false);
     int GetCharge() { return m_Charge; }
-    void SetCalibPt(float calib_pt) { m_CalibPt = calib_pt / CLHEP::GeV; }
+    void SetCalibPt(float calib_pt, std::string syst) { m_CalibPt[syst] = calib_pt / CLHEP::GeV; }
 };
 
 #endif
