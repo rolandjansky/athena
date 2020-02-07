@@ -155,7 +155,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  currentSampling = scell->caloDDE()->getSampling();
 	  currentEta = scell->eta();
 	  currentPhi = TVector2::Phi_0_2pi(scell->phi());
-	  currentCellEt = TrigT1CaloBaseFex::CaloCellET(scell, 0, 0);
+	  currentCellEt = TrigT1CaloBaseFex::CaloCellET(scell, m_nominalDigitization, m_nominalNoise_thresh);
 
 	  // TESTING
 	  // if (scell_counter < 5) {
