@@ -40,8 +40,4 @@ private:
   ClassDefOverride(TFCSParametrizationEkinSelectChain,1)  //TFCSParametrizationEkinSelectChain
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationEkinSelectChain+;
-#endif
-
 #endif
