@@ -97,6 +97,23 @@ JETM8EMCSSKUFOTPThinningTool = DerivationFramework__UFOTrackParticleThinning(nam
 ToolSvc += JETM8EMCSSKUFOTPThinningTool
 thinningTools.append(JETM8EMCSSKUFOTPThinningTool)
 
+#====================================================================
+# Thin tracks
+#====================================================================
+
+JETM8BaselineTrack = "(InDetTrackParticles.pt > 0.0)"
+
+# This is necessary to keep tracks that would otherwise be removed by TCC and UFO thinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+JETM8TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name            = "JETM8TrackParticleThinningTool",
+                                                                            ThinningService = "JETM8ThinningSvc",
+                                                                            SelectionString = JETM8BaselineTrack,
+                                                                            InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                            ApplyAnd        = False)
+
+ToolSvc += JETM8TrackParticleThinningTool
+thinningTools.append(JETM8TrackParticleThinningTool)
+
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
@@ -154,7 +171,7 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt10UFOCSSKJets"]
 replaceAODReducedJets(reducedJetList,jetm8Seq,"JETM8")
 
-jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM8MainKernel", 
+jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM8MainKernel",
                                                           SkimmingTools = [JETM8OfflineSkimmingTool],
                                                           ThinningTools = thinningTools)
 
