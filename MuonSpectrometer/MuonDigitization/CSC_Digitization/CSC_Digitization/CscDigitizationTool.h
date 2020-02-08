@@ -83,7 +83,7 @@ public: //possibly these should be private?
 
 private:
 
-  PublicToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", ""};
+  ToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", "CSC calibration tool"};
 
   BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
   SG::ReadHandleKey<CSCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "CSC_Hits", "name of the input objects"}; // name of the input objects

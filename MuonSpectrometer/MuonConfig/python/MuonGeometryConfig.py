@@ -24,7 +24,9 @@ def MuonGeoModelCfg(flags):
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
     detTool.BuildFromNova = 0
-    if ( ( not flags.Detector.SimulateMuon or flags.Detector.OverlayMuon ) and flags.Common.Project != "AthSimulation" ):
+
+    enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not flags.Detector.OverlayMuon
+    if enableAlignment:
         # This is all migrated from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -121,10 +123,11 @@ def MuonGeoModelCfg(flags):
     # turn on/off caching of MdtReadoutElement surfaces
     detTool.CachingFlag = 1
 
-    from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
-    MuonDetectorManagerCond = MuonDetectorCondAlg()
-    MuonDetectorManagerCond.MuonDetectorTool = detTool
-    acc.addCondAlgo(MuonDetectorManagerCond)
+    if enableAlignment:
+        from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
+        MuonDetectorManagerCond = MuonDetectorCondAlg()
+        MuonDetectorManagerCond.MuonDetectorTool = detTool
+        acc.addCondAlgo(MuonDetectorManagerCond)
 
     gms.DetectorTools += [ detTool ]
     
