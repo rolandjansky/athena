@@ -23,7 +23,6 @@ def remap_signature( signature ):
         return signature
 
 def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "HLT_ID", rois = 'EMViewRoIs' ):
-  dbgLevel = 0
   doTRTextension = False 
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
@@ -83,7 +82,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                           InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                           doSharedHits           = InDetTrigFlags.doSharedHits(),
                           doHolesInDet           = True,
-                          OutputLevel            = dbgLevel,
                           TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
 
 
@@ -107,7 +105,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                            Extrapolator                = InDetTrigExtrapolator,
                                                            InputEmClusterContainerName = '', #need to be reset to empty string
                                                            doEmCaloSeed                = False,
-                                                           OutputLevel                 = dbgLevel,
                                                            SummaryTool                 = SummaryTool_config)
 
   ToolSvc += InDetTrigAmbiScoringTool
@@ -121,7 +118,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
   InDetTrigAmbiguityScoreProcessor = ScoreProcessorTool(     name               = '%sAmbiguityScoreProcessor%s'%(algNamePrefix, signature),
                                                              ScoringTool        = InDetTrigAmbiScoringTool,
-                                                             OutputLevel        = dbgLevel,
                                                              AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                                              SelectionTool      = InDetTrigAmbiTrackSelectionTool)
 
@@ -130,7 +126,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   InDetTrigAmbiguityScore = Trk__TrkAmbiguityScore(name                    = '%sAmbiguityScore%s'%(algNamePrefix, signature),
                                                    TrackInput              = [ inputFTFtracks ],
                                                    TrackOutput             = 'ScoredMap'+signature,
-                                                   OutputLevel             = dbgLevel,
                                                    AmbiguityScoreProcessor = InDetTrigAmbiguityScoreProcessor 
   ) 
          
@@ -143,7 +138,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                 ScoringTool      = InDetTrigAmbiScoringTool,
                                                 AssociationTool  = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                                 TrackSummaryTool = SummaryTool_config,
-                                                OutputLevel      = dbgLevel,
                                                 SelectionTool    = InDetTrigAmbiTrackSelectionTool)
   
   ToolSvc += InDetTrigMTAmbiguityProcessor
@@ -153,7 +147,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = '%sAmbiguitySolver%s' %(algNamePrefix,signature),
                                                        TrackInput         = 'ScoredMap'+signature,
                                                        TrackOutput        = nameAmbiTrackCollection, 
-                                                       OutputLevel        = dbgLevel,
                                                        AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
   
 
@@ -190,6 +183,8 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                              ProviderTool = InDetTRTRawDataProviderTool)
                 InDetTRTRawDataProvider.isRoI_Seeded = True
                 InDetTRTRawDataProvider.RoIs = rois
+
+                ptAlgs.append( InDetTRTRawDataProvider )
              
              
 
@@ -204,7 +199,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
             from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
             from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
             InDetTrigTRTRIOMaker = InDet__TRT_RIO_Maker( name = "%sTRTDriftCircleMaker%s"%(algNamePrefix, signature),
-                                                     OutputLevel = dbgLevel,
                                                      #RawDataProvider = InDetTRTRawDataProvider,
                                                      TRTRIOLocation = 'TRT_TrigDriftCircles',
                                                      TRTRDOLocation = "TRT_RDOs",
@@ -270,7 +264,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
             from TRT_TrackExtensionAlg.TRT_TrackExtensionAlgConf import InDet__TRT_TrackExtensionAlg
             InDetTrigTRTextensionAlg = InDet__TRT_TrackExtensionAlg( name = "%sTrackExtensionAlg%s"%(algNamePrefix, signature),
                                                             InputTracksLocation    = nameAmbiTrackCollection,
-                                                            OutputLevel            = dbgLevel,
                                                             TrackExtensionTool     = InDetTrigTRTExtensionTool,
                                                             ExtendedTracksLocation = 'ExtendedTrackMap'
                                                              )
@@ -310,7 +303,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                           #Cosmics           = InDetFlags.doCosmics(),
                                                                           ExtensionMap       = 'ExtendedTrackMap',
                                                                           NewTrackName       = nameExtTrackCollection,
-                                                                          OutputLevel        = dbgLevel,
                                                                           TrackFitter        = InDetTrigTrackFitter,
                                                                           TrackSummaryTool   = SummaryTool_config,
                                                                           ScoringTool        = InDetTrigExtScoringTool, #TODO do I provide the same tool as for ambiguity solver?
@@ -322,7 +314,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                           #RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() is 'DAF')))
 
             #InDetTRTExtension.OutputLevel = VERBOSE
-            ptAlgs.extend( [InDetTRTRawDataProvider, InDetTrigTRTRIOMaker, InDetTrigTRTextensionAlg, InDetTrigExtensionProcessor] ) 
+            ptAlgs.extend( [ InDetTrigTRTRIOMaker, InDetTrigTRTextensionAlg, InDetTrigExtensionProcessor] ) 
   
 
   #-----------------------------------------------------------------------------
@@ -371,7 +363,6 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                         xAODContainerName = '',  
                                                                         RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
                                                                         #PrintIDSummaryInfo = True, #Just to test and have some output
-                                                                        OutputLevel = dbgLevel,
                                                                         TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
                                                                         )
   
