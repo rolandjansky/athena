@@ -90,7 +90,16 @@ LArShapeSubsetCnv_p2::persToTrans(const LArShapePersType2* persObj,
                 dataIndex += nPhases * nSamples;
             }
             else {
-              (*subsetIt).second[j].assign (LArShapeP2());
+              if (timeIndex > 0) {
+                (*subsetIt).second[j].assign
+                  (LArShapeP2(persObj->m_timeOffset[timeIndex-1],
+                              persObj->m_timeBinWidth[timeIndex-1],
+                              std::vector<std::vector<float> >(),
+                              std::vector<std::vector<float> >()));
+              }
+              else {
+                (*subsetIt).second[j].assign (LArShapeP2());
+              }
             }
         }
     }
