@@ -42,12 +42,12 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   AthAlgTool(t,n,p),
   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-  m_LocalOccTool()
+  m_localOccTool()
 {
   declareInterface<ITRT_ToT_dEdx>(this);
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
   declareProperty("AssociationTool", m_assoTool);
-  declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
+  declareProperty("TRT_LocalOccupancyTool", m_localOccTool);
   
   SetDefaultConfiguration();
 
@@ -129,7 +129,7 @@ StatusCode TRT_ToT_dEdx::initialize()
   //Get AssoTool
   ATH_CHECK(m_assoTool.retrieve());
   //Get LocalOccupancyTool
-  CHECK( m_LocalOccTool.retrieve() );
+  CHECK( m_localOccTool.retrieve() );
 
   sc = m_TRTStrawSummaryTool.retrieve();
   if (StatusCode::SUCCESS!= sc ){
@@ -351,7 +351,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
         if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
 	  double ToT_correct = correctToT_corrRZ(*itr,divideByL,corrected,l);
 	  if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kHitBased){
-	    correctionFactor = HitOccupancyCorrection(*itr);
+	    correctionFactor = hitOccupancyCorrection(*itr);
 	    ToT_correct*=correctionFactor;
 	  }
           vecToT.push_back(ToT_correct);
@@ -368,7 +368,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
       if(nhits<1)return 0.0;
 
       ToTsum = std::accumulate(vecToT.begin(), vecToT.end(), 0);
-      if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kTrackBased){correctionFactor=TrackOccupancyCorrection(track, useHThits);}
+      if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kTrackBased){correctionFactor=trackOccupancyCorrection(track, useHThits);}
       else {correctionFactor=correctNormalization(divideByL, m_isData, nVtx);}
       ToTsum*=correctionFactor;
 
@@ -391,7 +391,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
           if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
             gasType=gasTypeInStraw(*itr);
 	    double ToT_correct = correctToT_corrRZ(*itr, divideByL, corrected,l);
-	    if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kHitBased){correctionFactor = HitOccupancyCorrection(*itr);}
+	    if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kHitBased){correctionFactor = hitOccupancyCorrection(*itr);}
 	    ToT_correct*=correctionFactor;
             if(gasType==kXenon)
               vecToT_Xe.push_back(ToT_correct);
@@ -471,7 +471,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
 
         double ToTsum = ToTsumXe*nhitsXe + ToTsumAr*nhitsAr + ToTsumKr*nhitsKr;
 
-	if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kTrackBased){correctionFactor=TrackOccupancyCorrection(track, useHThits);}
+	if (correction_type == ITRT_ToT_dEdx::EOccupancyCorrection::kTrackBased){correctionFactor=trackOccupancyCorrection(track, useHThits);}
 	else {correctionFactor=correctNormalization(divideByL, m_isData, nVtx);}
         ToTsum*=correctionFactor;
 
@@ -1661,7 +1661,7 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
   return a;
 }
 
-double TRT_ToT_dEdx::HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const
+double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* Dedxcorrection{*readHandle};
@@ -1683,7 +1683,7 @@ double TRT_ToT_dEdx::HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   double Trt_HitTheta = trkP->parameters()[Trk::theta];
   double trackEta = -log(tan(Trt_HitTheta/2.0));
 		  
-  double localOccupancy = m_LocalOccTool->LocalOccupancy(trackEta, phimodule);
+  double localOccupancy = m_localOccTool->LocalOccupancy(trackEta, phimodule);
   double ToTmip = 1;
   double valToT = 1.;
 	
@@ -1699,10 +1699,10 @@ double TRT_ToT_dEdx::HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   //number for that given hit for non-shared conditions
   int num_flat=layer*3+isHT*(abs(HitPart)*33-24)+(abs(HitPart)-1)*36;
 
-  p0 = Dedxcorrection->HitOccPar[num];
-  p1 = Dedxcorrection->HitOccPar[num+1];
-  p2 = Dedxcorrection->HitOccPar[num+2];
-  p0_flat = Dedxcorrection->HitOccPar[num_flat];
+  p0 = Dedxcorrection->hitOccPar[num];
+  p1 = Dedxcorrection->hitOccPar[num+1];
+  p2 = Dedxcorrection->hitOccPar[num+2];
+  p0_flat = Dedxcorrection->hitOccPar[num_flat];
 
   //fitting function is a polynomial 2nd order f(x)=a+b*x+x^2
   //Hence the tot value is divided by the value of the function
@@ -1712,14 +1712,14 @@ double TRT_ToT_dEdx::HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   return ToTmip*valToT;
 }
 
-double TRT_ToT_dEdx::TrackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const
+double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* Dedxcorrection{*readHandle};
   
   double corr=-999.;
   int ijk;
-  double trackOcc = m_LocalOccTool->LocalOccupancy(*track);
+  double trackOcc = m_localOccTool->LocalOccupancy(*track);
   const Trk::TrackParameters* perigee = track->perigeeParameters();
   const Amg::VectorX& parameterVector = perigee->parameters();
   double theta  = parameterVector[Trk::theta];
@@ -1733,8 +1733,8 @@ double TRT_ToT_dEdx::TrackOccupancyCorrection(const Trk::Track* track,  bool use
   }
 	
   //Function of the from f(x)=a+b*x+c*x^2 was used as a fitting function, separately for tracks with and excluding HT hits
-  if (!useHThits){corr=Dedxcorrection->TrackOccPar0[ijk]+Dedxcorrection->TrackOccPar1[ijk]*trackOcc+Dedxcorrection->TrackOccPar2[ijk]*pow(trackOcc,2);}
-  else{corr=Dedxcorrection->TrackOccPar0NoHt[ijk]+Dedxcorrection->TrackOccPar1NoHt[ijk]*trackOcc+Dedxcorrection->TrackOccPar2NoHt[ijk]*pow(trackOcc,2);}
+  if (!useHThits){corr=Dedxcorrection->trackOccPar0[ijk]+Dedxcorrection->trackOccPar1[ijk]*trackOcc+Dedxcorrection->trackOccPar2[ijk]*pow(trackOcc,2);}
+  else{corr=Dedxcorrection->trackOccPar0NoHt[ijk]+Dedxcorrection->trackOccPar1NoHt[ijk]*trackOcc+Dedxcorrection->trackOccPar2NoHt[ijk]*pow(trackOcc,2);}
 
   return corr;
 }

@@ -165,8 +165,8 @@ public:
    * @param track on surface object
    * @return correction
    */
-  virtual double HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const = 0;
-  virtual double TrackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const = 0;
+  virtual double hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const = 0;
+  virtual double trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const = 0;
   
   /**
    * @brief setters and getters

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DEDXCORRECTIONTOOL_H
@@ -11,20 +11,20 @@ namespace Dedxcorrection {
   static constexpr int nParametersTrackBaseddEdx = 100;
   static constexpr int nParametersHitBaseddEdx = 204;
 
-  double HitOccPar[nParametersHitBaseddEdx];
+  double hitOccPar[nParametersHitBaseddEdx];
 
   // TrckOccupancy calibration constants are separated in three arrays as we use a polynomial
   // function 2nd order of the form f(x)=a+b*x+c*x^2
   
   // TrckOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double TrackOccPar0NoHt[nParametersTrackBaseddEdx];
-  double TrackOccPar1NoHt[nParametersTrackBaseddEdx];
-  double TrackOccPar2NoHt[nParametersTrackBaseddEdx];
+  double trackOccPar0NoHt[nParametersTrackBaseddEdx];
+  double trackOccPar1NoHt[nParametersTrackBaseddEdx];
+  double trackOccPar2NoHt[nParametersTrackBaseddEdx];
 
   // TrckOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double TrackOccPar0[nParametersTrackBaseddEdx];
-  double TrackOccPar1[nParametersTrackBaseddEdx];
-  double TrackOccPar2[nParametersTrackBaseddEdx];
+  double trackOccPar0[nParametersTrackBaseddEdx];
+  double trackOccPar1[nParametersTrackBaseddEdx];
+  double trackOccPar2[nParametersTrackBaseddEdx];
 
   static constexpr int nGasTypes = 3;
   

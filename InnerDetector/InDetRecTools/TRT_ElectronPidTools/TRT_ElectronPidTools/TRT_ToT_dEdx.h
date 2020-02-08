@@ -72,7 +72,7 @@ private:
   Trk::ParticleMasses        m_particlemasses;
 
   ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;
-  ToolHandle< InDet::ITRT_LocalOccupancy > m_LocalOccTool;     //!< the track selector tool
+  ToolHandle< InDet::ITRT_LocalOccupancy > m_localOccTool;     //!< the track selector tool
 
   // Algorithm switchers
   bool m_corrected;                 // If true - make correction using rs-distributions
@@ -390,8 +390,8 @@ private:
   double getToT(unsigned int BitPattern) const;
 
   /* Calibration functions for occupancy corrections */
-  double HitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;
-  double TrackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const;
+  double hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;
+  double trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const;
 
 
 public:
