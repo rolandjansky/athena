@@ -120,7 +120,7 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
     "para_long_corrRZLXe","para_long_corrRZ_Xe","para_long_mimicToXeXe","para_short_corrRZLXe",
     "para_short_corrRZ_Xe","para_short_mimicToXeXe","resolution_Xe","resolution_e_Xe","para_end_corrRZLAr",
     "para_end_corrRZ_Ar","para_end_mimicToXeAr","para_long_corrRZLAr","para_long_corrRZ_Ar",
-    "paraLlong_mimicToXeAr","para_short_corrRZLAr","para_short_corrRZ_Ar","para_short_mimicToXeAr",
+    "para_long_mimicToXeAr","para_short_corrRZLAr","para_short_corrRZ_Ar","para_short_mimicToXeAr",
     "resolution_Ar","resolution_e_Ar","para_end_corrRZLKr","para_end_corrRZ_Kr","para_end_mimicToXeKr",
     "para_long_corrRZLKr","para_long_corrRZ_Kr","para_long_mimicToXeKr","para_short_corrRZLKr",
     "para_short_corrRZ_Kr","para_short_mimicToXeKr","resolution_Kr","resolution_e_Kr"};
@@ -190,16 +190,16 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
 
   // fill occupancy calibration parameters
   for (unsigned int ind=0; ind < Dedxcorrection.nParametersHitBaseddEdx; ++ind) {
-    Dedxcorrection.HitOccPar[ind]=result_dict["HitOccPar"][ind];
+    Dedxcorrection.hitOccPar[ind]=result_dict["HitOccPar"][ind];
   }
   for (unsigned int ind=0; ind < Dedxcorrection.nParametersTrackBaseddEdx; ++ind) {
-    Dedxcorrection.TrackOccPar0NoHt[ind]=result_dict["TrackOccPar0_noHT"][ind];
-    Dedxcorrection.TrackOccPar1NoHt[ind]=result_dict["TrackOccPar1_noHT"][ind];
-    Dedxcorrection.TrackOccPar2NoHt[ind]=result_dict["TrackOccPar2_noHT"][ind];
+    Dedxcorrection.trackOccPar0NoHt[ind]=result_dict["TrackOccPar0_noHT"][ind];
+    Dedxcorrection.trackOccPar1NoHt[ind]=result_dict["TrackOccPar1_noHT"][ind];
+    Dedxcorrection.trackOccPar2NoHt[ind]=result_dict["TrackOccPar2_noHT"][ind];
     
-    Dedxcorrection.TrackOccPar0[ind]=result_dict["TrackOccPar0"][ind];
-    Dedxcorrection.TrackOccPar1[ind]=result_dict["TrackOccPar1"][ind];
-    Dedxcorrection.TrackOccPar2[ind]=result_dict["TrackOccPar2"][ind];
+    Dedxcorrection.trackOccPar0[ind]=result_dict["TrackOccPar0"][ind];
+    Dedxcorrection.trackOccPar1[ind]=result_dict["TrackOccPar1"][ind];
+    Dedxcorrection.trackOccPar2[ind]=result_dict["TrackOccPar2"][ind];
   }
   
   //      fill Xenon +++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
