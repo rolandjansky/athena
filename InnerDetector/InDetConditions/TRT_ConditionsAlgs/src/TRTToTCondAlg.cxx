@@ -532,11 +532,11 @@ StatusCode TRTToTCondAlg::update2(TRTDedxcorrection& Dedxcorrection, const CondA
         Dedxcorrection.paraDivideByLengthDedxP4[index] = attrList["paraL_dEdx_p4"].data<float>();
         Dedxcorrection.paraDivideByLengthDedxP5[index] = attrList["paraL_dEdx_p5"].data<float>();
 
-        Dedxcorrection.paraDedxP1[index] = attrList["paraDedxP1"].data<float>();
-        Dedxcorrection.paraDedxP2[index] = attrList["paraDedxP2"].data<float>();
-        Dedxcorrection.paraDedxP3[index] = attrList["paraDedxP3"].data<float>();
-        Dedxcorrection.paraDedxP4[index] = attrList["paraDedxP4"].data<float>();
-        Dedxcorrection.paraDedxP5[index] = attrList["paraDedxP5"].data<float>();
+        Dedxcorrection.paraDedxP1[index] = attrList["para_dEdx_p1"].data<float>();
+        Dedxcorrection.paraDedxP2[index] = attrList["para_dEdx_p2"].data<float>();
+        Dedxcorrection.paraDedxP3[index] = attrList["para_dEdx_p3"].data<float>();
+        Dedxcorrection.paraDedxP4[index] = attrList["para_dEdx_p4"].data<float>();
+        Dedxcorrection.paraDedxP5[index] = attrList["para_dEdx_p5"].data<float>();
                                   
         Dedxcorrection.normOffsetData[index] = attrList["norm_offset_data"].data<float>();
         Dedxcorrection.normSlopeTot[index] = attrList["norm_slope_tot"].data<float>();  
@@ -557,11 +557,11 @@ StatusCode TRTToTCondAlg::update2(TRTDedxcorrection& Dedxcorrection, const CondA
            Dedxcorrection.paraDivideByLengthDedxP4[gasType] = attrList["paraL_dEdx_p4"].data<float>();
            Dedxcorrection.paraDivideByLengthDedxP5[gasType] = attrList["paraL_dEdx_p5"].data<float>();
 
-           Dedxcorrection.paraDedxP1[gasType] = attrList["paraDedxP1"].data<float>();
-           Dedxcorrection.paraDedxP2[gasType] = attrList["paraDedxP2"].data<float>();
-           Dedxcorrection.paraDedxP3[gasType] = attrList["paraDedxP3"].data<float>();
-           Dedxcorrection.paraDedxP4[gasType] = attrList["paraDedxP4"].data<float>();
-           Dedxcorrection.paraDedxP5[gasType] = attrList["paraDedxP5"].data<float>();
+           Dedxcorrection.paraDedxP1[gasType] = attrList["para_dEdx_p1"].data<float>();
+           Dedxcorrection.paraDedxP2[gasType] = attrList["para_dEdx_p2"].data<float>();
+           Dedxcorrection.paraDedxP3[gasType] = attrList["para_dEdx_p3"].data<float>();
+           Dedxcorrection.paraDedxP4[gasType] = attrList["para_dEdx_p4"].data<float>();
+           Dedxcorrection.paraDedxP5[gasType] = attrList["para_dEdx_p5"].data<float>();
 
            Dedxcorrection.normOffsetData[gasType] = attrList["norm_offset_data"].data<float>();
            Dedxcorrection.normSlopeTot[gasType] = attrList["norm_slope_tot"].data<float>();  

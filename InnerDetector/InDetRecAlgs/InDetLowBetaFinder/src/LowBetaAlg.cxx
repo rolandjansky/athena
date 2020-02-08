@@ -45,7 +45,7 @@ namespace InDet
     m_trtconddbsvc("TRT_CalDbSvc",name),
     m_fieldServiceHandle("AtlasFieldSvc",name),
     m_TrtTool(0),
-    m_TRTdEdxTool("TRT_ToT_dEdx"),
+    m_TRTdEdxTool(),
     m_TrtToolsSuccess{},
     m_TrtToolInitSuccess{}
   {

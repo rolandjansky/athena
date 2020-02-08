@@ -62,7 +62,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   m_trtId(nullptr),
   m_TRTdetMgr(nullptr),
   m_minTRThits(5),
-  m_TRTdEdxTool("TRT_ToT_dEdx"),
+  m_TRTdEdxTool(),
   m_LocalOccTool(),
   m_TRTStrawSummaryTool("InDetTRTStrawStatusSummaryTool",this)
 {
