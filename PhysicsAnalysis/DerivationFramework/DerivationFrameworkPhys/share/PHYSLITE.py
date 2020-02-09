@@ -362,10 +362,12 @@ for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
 
 # Create trigger matching decorations
 trigmatching_helper_notau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolNoTau',
+        OutputContainerPrefix = "Analysis",
         trigger_list = trigger_names_notau, add_to_df_job=False,
         InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
         InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
 trigmatching_helper_tau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolTau',
+        OutputContainerPrefix = "Analysis",
         trigger_list = trigger_names_tau, add_to_df_job=False, DRThreshold=0.2,
         InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
         InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
