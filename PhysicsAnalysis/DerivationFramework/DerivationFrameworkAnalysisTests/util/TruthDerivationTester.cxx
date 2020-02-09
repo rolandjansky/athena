@@ -268,8 +268,8 @@ int main(int argc, char **argv) {
       h_weights.push_back( new TH1D("h_W_nominalTest","",100,-10.,10.) );
     }
     for (size_t n=0;n<weightNames.size();++n) h_weights[n]->Fill( weightTool->getWeight(weightNames[n]) );
-    // Eventually this should be the nominal weight without needing to give a stupid name
-    h_weights[weightNames.size()]->Fill( weightTool->getWeight("Default") );
+    // Eventually this should be the nominal weight without needing to give an explicit name
+    h_weights[weightNames.size()]->Fill( weightTool->getWeight(" nominal ") );
     // Event info
     float x1=0.,x2=0.;
     (*xTruthEventContainer)[0]->pdfInfoParameter( x1 , xAOD::TruthEvent::X1 );
