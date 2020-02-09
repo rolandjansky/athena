@@ -1,12 +1,20 @@
 Willing to acquire file bootstrap.pkl from
-/afs/cern.ch/work/s/smh/idconfig/bld/x86_64-centos7-gcc8-opt/share/bootstrap.pkl
-File bootstrap.pkl exists in the current directory
-Remove and copy bootstrap.pkl
+/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/share/bootstrap.pkl
+copy bootstrap.pkl
 ... Read 3 items from python pickle file:  bootstrap.pkl
 ... Read 3 items from python pickle file:  bootstrap_test.pkl
+Step 1: reference file #components: 26
+Step 2: file to check  #components: 26
+Step 1: reference file #components: 5
+Step 2: file to check  #components: 5
+Given list of size 0. Not looking for differences.
 Willing to acquire file bootstrap_threaded.pkl from
-/afs/cern.ch/work/s/smh/idconfig/bld/x86_64-centos7-gcc8-opt/share/bootstrap_threaded.pkl
-File bootstrap_threaded.pkl exists in the current directory
-Remove and copy bootstrap_threaded.pkl
+/afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/share/bootstrap_threaded.pkl
+copy bootstrap_threaded.pkl
 ... Read 3 items from python pickle file:  bootstrap_threaded.pkl
 ... Read 3 items from python pickle file:  bootstrap_threaded_test.pkl
+Step 1: reference file #components: 32
+Step 2: file to check  #components: 32
+Step 1: reference file #components: 5
+Step 2: file to check  #components: 5
+Given list of size 0. Not looking for differences.
