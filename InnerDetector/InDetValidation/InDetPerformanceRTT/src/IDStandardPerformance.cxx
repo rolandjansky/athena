@@ -63,7 +63,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::string;
 
 #define STR(s) STR_EXP(s)
@@ -2136,9 +2136,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       continue;
     }
     const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(particle);
-    //    auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
-    //    if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
-    //    else {
     if (generatedTrackPerigee){
       zVertex+=generatedTrackPerigee->parameters()[Trk::z0];
       nPrimaries++;
@@ -3015,7 +3012,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       // V47: Create generated track perigee to cut on truth tracks
       float track_truth_d0 = 999.;
       float track_truth_phi = 999.;
-      auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
+      unique_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
       if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
       else {
 	track_truth_d0 = generatedTrackPerigee->parameters()[Trk::d0];
@@ -3648,7 +3645,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     //Trk::Track& nonConstTrack = const_cast<Trk::Track&>(**trksItr);
     //m_trkSummaryTool->updateTrack(nonConstTrack);
     //Trk::TrackSummary* summary = new Trk::TrackSummary(*(nonConstTrack.trackSummary()));
-    auto_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary(**trksItr));
+    unique_ptr<const Trk::TrackSummary> summary(m_trkSummaryTool->createSummary(**trksItr));
 
     if (msgLvl(MSG::VERBOSE)) {
       msg() << "Analyze Hit Content using TrackSummary object" << endmsg;
@@ -3732,7 +3729,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     // to avoid crashes that sometimes occur for low pt tracks for the hole search tool
     if (msgLvl(MSG::VERBOSE)) msg() << "Calculate hit efficiencies and residuals for track : pT = " << trkpt << "  eta = " << trketa<<endmsg;
     if (trkpt>0.8) {
-      auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
+      unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
 
       // Loop over all hits on track
       DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
@@ -4064,7 +4061,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      Trk::ResidualPull::ResidualType resType = m_isUnbiased
                                                       ? Trk::ResidualPull::Unbiased
                                                       : Trk::ResidualPull::Biased;
-              const auto_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,
+              const std::unique_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,
                                                              trackParameters,
                                                              resType));
               if (m_idHelper->is_pixel(surfaceID)) {
@@ -4205,7 +4202,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	  //get pixel hits
 	  for (; PixtrksItr != PixtrksItrE; ++PixtrksItr) {
 
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**PixtrksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**PixtrksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 
@@ -4296,7 +4293,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	  //get SCT tracks
 	  for (; SCTtrksItr != SCTtrksItrE; ++SCTtrksItr) {
 
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**SCTtrksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**SCTtrksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 
@@ -4392,7 +4389,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	  //get TRT tracks
 	  for (; TRTtrksItr != TRTtrksItrE; ++TRTtrksItr) {
 
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**TRTtrksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**TRTtrksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 
@@ -4518,7 +4515,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	      
 	      
 	    
-	    auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
+	    unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
 	    Identifier SurfaceID;
 	    const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
@@ -4808,7 +4805,7 @@ void IDStandardPerformance::SetSafeMinimumMaximum(TH1* h, float min, float max) 
 void
 IDStandardPerformance::fillPixelTrackPullHistos(const Identifier& elementID
                                               , const Trk::TrackStateOnSurface* trackState
-                                              , const auto_ptr<const Trk::ResidualPull>& trackPull
+                                              , const std::unique_ptr<const Trk::ResidualPull>& trackPull
                                               , const InDetDD::SiDetectorElementCollection* elements)
 {
   if (not m_idHelper->is_pixel(elementID)) {

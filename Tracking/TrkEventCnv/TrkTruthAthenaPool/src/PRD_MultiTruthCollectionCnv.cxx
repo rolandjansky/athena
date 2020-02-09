@@ -33,7 +33,7 @@ PRD_MultiTruthCollectionPERS* PRD_MultiTruthCollectionCnv::createPersistent(PRD_
 //================================================================
 PRD_MultiTruthCollection* PRD_MultiTruthCollectionCnv::createTransient() {
   MsgStream log(msgSvc(), "PRD_MultiTruthCollectionCnv" );
-  std::auto_ptr<PRD_MultiTruthCollection> trans(new PRD_MultiTruthCollection());
+  std::unique_ptr<PRD_MultiTruthCollection> trans(new PRD_MultiTruthCollection());
 
   if (compareClassGuid(s_p3_guid)) {
     log<<MSG::DEBUG<<"Read PRD_MultiTruthCollection_p3. GUID="<<m_classID.toString()<<endmsg;

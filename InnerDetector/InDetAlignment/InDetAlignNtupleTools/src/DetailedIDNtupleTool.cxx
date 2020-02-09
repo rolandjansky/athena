@@ -308,7 +308,7 @@ namespace InDet {
       }
 
       if (originalPerigeeAtRef) {
-        std::auto_ptr<const Trk::Perigee > originalMeasPerAtRef(originalPerigeeAtRef);
+        std::unique_ptr<const Trk::Perigee > originalMeasPerAtRef(originalPerigeeAtRef);
         m_original_toRef_d0 = originalMeasPerAtRef->parameters()[Trk::d0];
         m_original_toRef_z0 = originalMeasPerAtRef->parameters()[Trk::z0];
         m_original_toRef_phi0 = originalMeasPerAtRef->parameters()[Trk::phi0];
@@ -328,7 +328,7 @@ namespace InDet {
 
       //post-eigen, can simply use the TrackParameters * returned by m_extrapolator->extrapolate?
       if (PerigeeAtRef) {
-        std::auto_ptr<const Trk::Perigee > MeasPerAtRef((PerigeeAtRef));
+        std::unique_ptr<const Trk::Perigee > MeasPerAtRef((PerigeeAtRef));
         m_toRef_d0 = MeasPerAtRef->parameters()[Trk::d0];
         m_toRef_z0 = MeasPerAtRef->parameters()[Trk::z0];
         m_toRef_phi0 = MeasPerAtRef->parameters()[Trk::phi0];

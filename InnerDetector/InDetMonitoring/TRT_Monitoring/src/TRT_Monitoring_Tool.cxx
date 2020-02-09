@@ -2462,7 +2462,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 	}
 
 	for (; p_trk != trackCollection.end(); ++p_trk) {
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
 		int nTRTHits = summary->get(Trk::numberOfTRTHits);
 
 		if (nTRTHits < m_minTRThits) continue;
@@ -3590,7 +3590,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 			continue;
 		}
 
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
 		int n_trt_hits = summary->get(Trk::numberOfTRTHits);
 		int n_sct_hits = summary->get(Trk::numberOfSCTHits);
 		int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
@@ -3868,7 +3868,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
 		DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItEnd       = trackStates->end();
-		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
 		int trt_hits = summary->get(Trk::numberOfTRTHits);
 		int sct_hits = summary->get(Trk::numberOfSCTHits);
 		int pixel_hits = summary->get(Trk::numberOfPixelHits);

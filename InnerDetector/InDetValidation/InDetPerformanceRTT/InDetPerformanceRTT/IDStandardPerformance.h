@@ -802,7 +802,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
     void fillPixelTrackPullHistos(const Identifier& elementID
 	, const Trk::TrackStateOnSurface* trackState
-	, const std::auto_ptr<const Trk::ResidualPull>& trackPull
+	, const std::unique_ptr<const Trk::ResidualPull>& trackPull
         , const InDetDD::SiDetectorElementCollection* elements);
 
 

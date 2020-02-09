@@ -229,7 +229,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
     
     MsgStream log(msgSvc(), name());
     
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
@@ -253,7 +253,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
     
     MsgStream log(msgSvc(), name());
     
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
