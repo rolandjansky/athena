@@ -55,6 +55,9 @@ class EvgenExecutor(athenaExecutor):
         os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
         CommonCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common'
         os.environ["JOBOPTSEARCHPATH"] = CommonCvmfsDir+":"+os.environ["JOBOPTSEARCHPATH"]
+        if os.path.exists('/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common/MadGraphControl/dat/'):
+            datCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common/MadGraphControl/dat/'
+            os.environ["DATAPATH"] = datCvmfsDir+":"+os.environ["DATAPATH"]
 #        msg.info("Using JOBOPTSEARCHPATH = '%s'" % os.environ["LOCAL_INSTALL_DIR"])
         dsidparam = (self._trf.argdict["jobConfig"].value).values()[0][0]
         # Adding cvmfs path to JOBOPTSEARCHPATH
