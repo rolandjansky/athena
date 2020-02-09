@@ -465,6 +465,7 @@ namespace ST {
     bool m_doTTVAsf;
     bool m_doModifiedEleId;
     bool m_upstreamTriggerMatching; /// Use composite trigger matching tool if matching was done upstream
+    std::string m_trigMatchingPrefix; /// Prefix for trigger matchiing container name
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;

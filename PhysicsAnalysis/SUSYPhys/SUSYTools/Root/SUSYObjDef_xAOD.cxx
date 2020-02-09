@@ -98,6 +98,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doTTVAsf(true),
     m_doModifiedEleId(false),
     m_upstreamTriggerMatching(false),
+    m_trigMatchingPrefix(""),
     m_useBtagging(false),
     m_debug(false),
     m_strictConfigCheck(false),
@@ -431,6 +432,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
   declareProperty( "ORJetFatJetDR", m_JetFatJetDR);
   declareProperty( "TriggerUpstreamMatching", m_upstreamTriggerMatching, "Use alternative trigger matching tool based on upstream (in-derivation) matching");
+  declareProperty( "TriggerMatchingPrefix", m_trigMatchingPrefix, "Prefix for trigger matching containers (Analysis for PHSYLITE derivations");
 
   //--- Object definitions
   //MET
@@ -1393,6 +1395,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_JetFatJetDR, "OR.JetFatJetDR", rEnv, -999.);
   ///
   configFromFile(m_upstreamTriggerMatching, "Trigger.UpstreamMatching", rEnv, false);
+  configFromFile(m_trigMatchingPrefix, "Trigger.MatchingPrefix", rEnv, "", true);
   //
   configFromFile(m_doIsoSignal, "SigLep.RequireIso", rEnv, true);
   configFromFile(m_doElIsoSignal, "SigEl.RequireIso", rEnv, m_doIsoSignal);
