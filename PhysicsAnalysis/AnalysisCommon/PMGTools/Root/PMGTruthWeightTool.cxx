@@ -19,6 +19,8 @@
 
 #include <PMGTools/PMGTruthWeightTool.h>
 
+// For replacing substrings
+#include <boost/algorithm/string/replace.hpp>
 
 namespace PMGTools
 {
@@ -121,6 +123,14 @@ namespace PMGTools
     try {
       return m_weights.at(m_weightIndices.at(weightName));
     } catch (const std::out_of_range& e) {
+      // Before throwing an exception, try to recover with bad naming conventions
+      std::string strippedName = boost::replace_all_copy(weightName, " ", "");
+      for (const auto & weight:m_weightNames){
+        if (strippedName==boost::replace_all_copy(weight," ", "")){
+          ATH_MSG_WARNING("Using weight name \"" << weight << "\" instead of requested \"" << weightName << "\"");
+          return getWeight(weight);
+        }
+      }
       ATH_MSG_FATAL("Weight \"" + weightName + "\" could not be found");
       throw std::runtime_error(name() + ": Weight \"" + weightName + "\" could not be found");
     }
