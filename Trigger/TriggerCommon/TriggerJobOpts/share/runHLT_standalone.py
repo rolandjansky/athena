@@ -363,6 +363,20 @@ if TriggerFlags.doMuon():
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
+# ---------------------------------------------------------------
+# ID conditions
+# ---------------------------------------------------------------
+
+if TriggerFlags.doID:
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPixelClusterSplitting = False
+
+    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
+    from AthenaCommon.Include import include
+    include("InDetRecExample/InDetRecConditionsAccess.py")
+
+
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -481,19 +495,6 @@ if not opt.createHLTMenuExternally:
     from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
     createHLTPrescalesFileFromMenu()
 
-
-
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-
-if TriggerFlags.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-  
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 
 # ---------------------------------------------------------------

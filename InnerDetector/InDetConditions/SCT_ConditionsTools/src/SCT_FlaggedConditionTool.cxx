@@ -23,14 +23,6 @@ StatusCode SCT_FlaggedConditionTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // A dirty fix of a configuration of InDetTrigInDetSCT_FlaggedConditionTool for InDetTrigInDetSCT_ConditionsSummaryTool
-  if (name().find("InDetTrigInDetSCT_FlaggedConditionTool")!=std::string::npos) {
-    if (m_badIds.key()=="SCT_FlaggedCondData") {
-      m_badIds = SG::ReadHandleKey<SCT_FlaggedCondData>("SCT_FlaggedCondData_TRIG");
-      ATH_MSG_INFO("Key of SCT_FlaggedCondData is changed to SCT_FlaggedCondData_TRIG in " << name());
-    }
-  }
-
   ATH_CHECK(m_badIds.initialize());
 
   return StatusCode::SUCCESS;
