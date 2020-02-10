@@ -387,10 +387,9 @@ class SCT_ConditionsToolsSetup:
     summaryToolWoFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     condTools = []
     for condToolHandle in self.summaryTool.ConditionsTools:
-      condTool = condToolHandle.typeAndName
-      if condTool not in condTools:
-        if condTool != self.flaggedTool.getFullName():
-          condTools.append(condTool)
+      if condToolHandle not in condTools:
+        if not "SCT_FlaggedConditionTool" in condToolHandle.getFullName():
+          condTools.append(condToolHandle)
     summaryToolWoFlagged.ConditionsTools = condTools
     if self._print:  print (summaryToolWoFlagged)
     return summaryToolWoFlagged
@@ -408,7 +407,7 @@ class SCT_ConditionsToolsSetup:
       # Otherwise, SCT_FlaggedCondData created by SCT_Clusterization
     if self._print:  print (flaggedTool)
     if not (flaggedTool.getFullName() in self.summaryTool.ConditionsTools):
-      self.summaryTool.ConditionsTools+=[flaggedTool.getFullName()]
+      self.summaryTool.ConditionsTools+=[flaggedTool]
       return flaggedTool
 
   def initConfigTool(self, instanceName):
