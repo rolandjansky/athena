@@ -27,6 +27,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( ROOT COMPONENTS Core Hist )
 find_package( Boost )
 
 # Component(s) in the package:
