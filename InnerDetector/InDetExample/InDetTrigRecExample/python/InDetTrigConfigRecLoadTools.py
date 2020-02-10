@@ -751,14 +751,14 @@ if InDetTrigFlags.loadSummaryTool():
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
   InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
-  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy",
+  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrig_TRT_LocalOccupancy",
                                                           isTrigger = True,
                                                           TRT_RDOContainerName="TRT_RDOs_EF",
                                                           TRTCalDbTool = InDetTRTCalDbTool,
                                                           TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
-  InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDet_TRT_ToT_dEdx",
+  InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
                                        TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
                                        TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy)
   ToolSvc += InDetTrigTRT_ToT_dEdx
