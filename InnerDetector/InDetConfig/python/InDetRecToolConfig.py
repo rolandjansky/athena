@@ -9,7 +9,6 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **
   acc.addPublicTool(CompFactory.InDet__InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
 
 def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
-  from I
   acc = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
     tmpAcc =  InDetExtrapolatorCfg(flags)
