@@ -31,9 +31,11 @@ public:
   virtual StatusCode start() override;
 
 private:
-  enum BitCategory{ HLTPassRawCategory, HLTPrescaledCategory, HLTRerunCategory };
 
-  StatusCode setBit(const TrigCompositeUtils::DecisionID chain, const BitCategory category, boost::dynamic_bitset<uint32_t>& resultToFill) const;
+  /**
+   * @brief Set to 1 the bit correspinding to 'chain' in 'resultToFill'
+   **/
+  StatusCode setBit(const TrigCompositeUtils::DecisionID chain, boost::dynamic_bitset<uint32_t>& resultToFill) const;
 
   /**
    * @brief Check that a chain's hash in the menu JSON (via python) agrees with the C++ implementation
@@ -41,7 +43,7 @@ private:
   StatusCode hashConsistencyCheck(const std::string& chain, const size_t hash) const;
 
   /**
-   * @brief Check that no existing key maps to a given value
+   * @brief Check that no existing key maps to a given value and that the string is not empty
    **/
   StatusCode preInsertCheck(const std::string& chain, const uint32_t bit) const;
 
