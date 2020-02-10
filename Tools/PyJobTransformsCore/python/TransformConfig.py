@@ -1,15 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import CVSutil
-CVSkeywords = CVSutil.CVSkeywords( ["$Id: TransformConfig.py,v 1.21 2009-02-13 21:15:41 ctan Exp $" ,
-                                    "$Name: not supported by cvs2svn $" ,
-                                    "$Revision: 285339 $"] )
-
-__version__ = CVSkeywords["Revision"]
 __author__ = "clat@hep.ph.bham.ac.uk"
 
 import os,sys
 from PyJobTransformsCore.trferr import TransformConfigError
+from future.utils import with_metaclass
 
 
 class Descriptor(object):
@@ -281,6 +276,11 @@ class AllowedExpression:
     def next(self):
         """No iteration"""
         raise StopIteration
+
+
+    def __next__(self):
+        """No iteration"""
+        raise StopIteration
             
 
 
@@ -320,10 +320,8 @@ class JobConfigMetaClass(type):
     
 
 
-class JobConfig(object):
+class JobConfig(with_metaclass(JobConfigMetaClass,object)):
     __slots__ = ( '__name', '__attributes' )
-
-    __metaclass__ = JobConfigMetaClass
 
     def __init__(self,name=None):
         """name is used in printout. The default name is derived from the filename of the python file
@@ -442,7 +440,7 @@ class TransformConfig(JobConfig):
             me += '(None)'
         return me
 
-       
+     
     def metaData(self):
         """A dictionary of metadata to be added to the metadata of the output files.
         Values set to None will not be added to the list. Values will be converted to strings.
