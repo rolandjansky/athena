@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJetAccessors_v2.h 631748 2014-11-28 09:58:13Z janus $
@@ -24,14 +24,14 @@ namespace xAOD {
 	  /// @returns A pointer to an Accessor if successful, <code>0</code> if not
 	  ///
 #ifndef TAUTRACK_V1_ACCESSORS
-	  SG::AuxElement::Accessor< float >*   discriminantAccessorV3( xAOD::TauJetParameters::TauID discriminant );
+	  const SG::AuxElement::Accessor< float >*   discriminantAccessorV3( xAOD::TauJetParameters::TauID discriminant );
 
-	  template <class T> SG::AuxElement::Accessor< T >* panTauDetailsAccessorV3( xAOD::TauJetParameters::PanTauDetails detail );
+	  template <class T> const SG::AuxElement::Accessor< T >* panTauDetailsAccessorV3( xAOD::TauJetParameters::PanTauDetails detail );
 
-	  template <class T> SG::AuxElement::Accessor< T >* detailsAccessorV3( xAOD::TauJetParameters::Detail detail );
+	  template <class T> const SG::AuxElement::Accessor< T >* detailsAccessorV3( xAOD::TauJetParameters::Detail detail );
 
 #else
-	  template <class T> SG::AuxElement::Accessor< T >* trackDetailsAccessorV3( xAOD::TauJetParameters::TrackDetail detail );
+	  template <class T> const SG::AuxElement::Accessor< T >* trackDetailsAccessorV3( xAOD::TauJetParameters::TrackDetail detail );
 #endif
 	  
 	#include "TauJetAccessors_v3.icc"

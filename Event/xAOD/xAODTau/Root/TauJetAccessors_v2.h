@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJetAccessors_v2.h 631748 2014-11-28 09:58:13Z janus $
@@ -22,11 +22,11 @@ namespace xAOD {
 	  /// @param idvar The id variable for which an Accessor should be returned
 	  /// @returns A pointer to an Accessor if successful, <code>0</code> if not
 	  ///
-	  SG::AuxElement::Accessor< float >*   discriminantAccessorV2( xAOD::TauJetParameters::TauID discriminant );
+	  const SG::AuxElement::Accessor< float >*   discriminantAccessorV2( xAOD::TauJetParameters::TauID discriminant );
 
-	  template <class T> SG::AuxElement::Accessor< T >* panTauDetailsAccessorV2( xAOD::TauJetParameters::PanTauDetails detail );
+	  template <class T> const SG::AuxElement::Accessor< T >* panTauDetailsAccessorV2( xAOD::TauJetParameters::PanTauDetails detail );
 
-	  template <class T> SG::AuxElement::Accessor< T >* detailsAccessorV2( xAOD::TauJetParameters::Detail detail );
+	  template <class T> const SG::AuxElement::Accessor< T >* detailsAccessorV2( xAOD::TauJetParameters::Detail detail );
 
 	#include "TauJetAccessors_v2.icc"
 	}
