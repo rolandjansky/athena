@@ -230,6 +230,8 @@ TrigSignatureMoniMT                                INFO HLT_xe30_cell_xe30_tcpuf
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_xe30_tcpufit_L1XE10 decisions                    14        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_mht_L1XE10           19        19        19        0         0         0         0         19
 TrigSignatureMoniMT                                INFO HLT_xe30_mht_L1XE10 decisions                     19        0         0         0         0
+TrigSignatureMoniMT                                INFO HLT_xe30_pfsum_L1XE10         19        19        15        0         0         0         0         15
+TrigSignatureMoniMT                                INFO HLT_xe30_pfsum_L1XE10 decisions                    15        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10       19        19        15        0         0         0         0         15
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10 decisions                    15        0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_xe30_trkmht_L1XE10        19        19        17        0         0         0         0         17
