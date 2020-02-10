@@ -327,7 +327,7 @@ namespace Muon {
 	  double phi = seeds[i].second.phi();
 	  double theta = (*sit)->globalDirection().theta();
 	  double qoverp=0;
-	  Trk::PerigeeSurface persurf((*sit)->containedROTs().front()->globalPosition());
+	  Trk::PerigeeSurface persurf((*sit)->rioOnTrack(0)->globalPosition());
 	  startpar = new Trk::Perigee(0,0,phi,theta,qoverp,persurf);
 	  seed3D = seeds[i];
 	}
@@ -358,13 +358,12 @@ namespace Muon {
 
 	//interleave the phi hits
 	std::vector<const Trk::MeasurementBase*> vec2;
-	const std::vector<const Trk::RIO_OnTrack*> etaHits = (*sit)->containedROTs();
+        unsigned int netas = (*sit)->numberOfContainedROTs();
         bool useEtaHitsRedone = false;
-        if(etaHitsRedone.size()>etaHits.size()) {
-          ATH_MSG_VERBOSE(" Found additional eta hits " << etaHitsRedone.size() - etaHits.size());  
+        if(etaHitsRedone.size()>netas) {
+          ATH_MSG_VERBOSE(" Found additional eta hits " << etaHitsRedone.size() - netas);
           useEtaHitsRedone = true;
         }
-        unsigned int netas = etaHits.size();
         if(useEtaHitsRedone) netas = etaHitsRedone.size();
 	if(m_ipConstraint) vec2.reserve(phiHits.size()+netas+1);
 	else vec2.reserve(phiHits.size()+netas);
@@ -382,18 +381,18 @@ namespace Muon {
 	}
 
 	unsigned int iEta(0),iPhi(0);
-	ATH_MSG_VERBOSE( "There are " << etaHits.size() << " & " << phiHits.size() << " eta and phi hits" );
+	ATH_MSG_VERBOSE( "There are " << (*sit)->numberOfContainedROTs() << " & " << phiHits.size() << " eta and phi hits" );
 	while(true) {
 	  float phiZ(999999.),etaZ(999999.);
 	  if(iPhi < phiHits.size()) phiZ = fabs(phiHits[iPhi]->globalPosition().z());
-	  if(iEta < etaHits.size()) etaZ = fabs(etaHits[iEta]->globalPosition().z());
+	  if(iEta < (*sit)->numberOfContainedROTs()) etaZ = fabs((*sit)->rioOnTrack(iEta)->globalPosition().z());
 	  if( phiZ < etaZ ) {
 	    vec2.push_back(phiHits[iPhi]);
 	    iPhi++;
 	  }
 	  else {
 	    if(!useEtaHitsRedone) {
-              vec2.push_back(etaHits[iEta]);
+              vec2.push_back((*sit)->rioOnTrack(iEta));
             } else {
               vec2.push_back(etaHitsRedone[iEta]);
             }
