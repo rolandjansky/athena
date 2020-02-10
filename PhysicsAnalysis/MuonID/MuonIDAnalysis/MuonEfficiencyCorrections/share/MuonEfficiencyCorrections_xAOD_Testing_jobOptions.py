@@ -51,15 +51,23 @@ WPs = [
         #"BadMuonVeto_HighPt",        
         #"GradientIso",
          # isolation WPs
-        "FCLooseIso",                    
+        "FCLooseIso",
+        "FCTightIso",              
+        "FCTightTrackOnlyIso",              
+        "FCLoose_FixedRadIso",        
         "FCTight_FixedRadIso",
-        "FCLoose_FixedRadIso",           
-        "FixedCutHighPtTrackOnlyIso",
-        "FCTightIso",                    
-        "FixedCutPflowLooseIso",
-        "FCTightTrackOnlyIso",           
-        "FixedCutPflowTightIso",
         "FCTightTrackOnly_FixedRadIso",
+         
+        "FCTight_FixedRadIso",           
+        
+        "FixedCutHighPtTrackOnlyIso",
+             
+        "FixedCutPflowLooseIso",            
+        "FixedCutPflowTightIso",
+        
+       
+        
+  
         ]
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP,
@@ -68,8 +76,8 @@ for WP in WPs:
                                                 UncorrelateSystematics=False
                                     
                                 )]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP,                                                                
-                                                CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/December_2019/")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
+                                                CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Feb_2020_iso/")]
 #ToolSvc.MuonEfficiencyTool_CaloTag.ApplyKinematicSystematic = False
 #ToolSvc.MuonEfficiencyTool_CaloTag_190530_r21.ApplyKinematicSystematic = False
 
@@ -86,5 +94,5 @@ theJob += alg
 from AthenaCommon.AppMgr import theApp
 #theApp.EvtMax = 200
 
-#ServiceMgr.MessageSvc.OutputLevel = INFO
+ServiceMgr.MessageSvc.OutputLevel = INFO
 #ServiceMgr.MessageSvc.defaultLimit = 100

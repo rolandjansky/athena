@@ -37,7 +37,7 @@ namespace CP {
                 return std::make_unique<dRJetAxisHandler>();
             }
 
-            Error("AxisHandlerProvider", "Can not interpret axis title %s", axis.c_str());
+            Error("AxisHandlerProvider", "Can not interpret axis title '%s'", axis.c_str());
         } else {
             Error("AxisHandlerProvider", "nullptr pointer passed");
         }
@@ -110,9 +110,8 @@ namespace CP {
             return CorrectionCode::Error;
         }
         float par = 0;
-        CorrectionCode found = m_x_handler->GetBinningParameter(muon, par);
-        if (found == CorrectionCode::Error) {
-            return found;
+        if (m_x_handler->GetBinningParameter(muon, par) == CorrectionCode::Error) {
+            return CorrectionCode::Error;
         } else {
             bin = GetHist()->FindBin(par);
             if (bin < 1 || bin > GetHist()->GetNbinsX()) {
@@ -144,9 +143,8 @@ namespace CP {
         if (!GetHist()) return CorrectionCode::Error;
         float parx = 0;
         float pary = 0;
-        CorrectionCode foundx = m_x_handler->GetBinningParameter(muon, parx);
-        CorrectionCode foundy = m_y_handler->GetBinningParameter(muon, pary);
-        if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error) {
+        if (m_x_handler->GetBinningParameter(muon, parx) == CorrectionCode::Error || 
+            m_y_handler->GetBinningParameter(muon, pary) == CorrectionCode::Error) {
             return CorrectionCode::Error;
         } else {
             int binx = GetHist()->GetXaxis()->FindBin(parx);
@@ -233,10 +231,9 @@ namespace CP {
         float parx = 0;
         float pary = 0;
         float parz = 0;
-        CorrectionCode foundx = m_x_handler->GetBinningParameter(muon, parx);
-        CorrectionCode foundy = m_y_handler->GetBinningParameter(muon, pary);
-        CorrectionCode foundz = m_z_handler->GetBinningParameter(muon, parz);
-        if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error || foundz == CorrectionCode::Error) return CorrectionCode::Error;
+        if (m_x_handler->GetBinningParameter(muon, parx) == CorrectionCode::Error || 
+            m_y_handler->GetBinningParameter(muon, pary) == CorrectionCode::Error || 
+            m_z_handler->GetBinningParameter(muon, parz) == CorrectionCode::Error) return CorrectionCode::Error;
         else {
             int binx = GetHist()->GetXaxis()->FindBin(parx);
             int biny = GetHist()->GetYaxis()->FindBin(pary);
@@ -308,9 +305,8 @@ namespace CP {
         if (!m_h) return CorrectionCode::Error;
         float parx = 0;
         float pary = 0;
-        CorrectionCode foundx = m_x_handler->GetBinningParameter(muon, parx);
-        CorrectionCode foundy = m_y_handler->GetBinningParameter(muon, pary);
-        if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error) return CorrectionCode::Error;
+        if (m_x_handler->GetBinningParameter(muon, parx) == CorrectionCode::Error || 
+            m_y_handler->GetBinningParameter(muon, pary) == CorrectionCode::Error) return CorrectionCode::Error;
         else {
             bin = GetHist()->FindBin(parx, pary);
             if (bin < 0) {

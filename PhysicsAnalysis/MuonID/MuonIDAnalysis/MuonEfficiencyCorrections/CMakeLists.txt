@@ -21,12 +21,14 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODMuon
+   Event/xAOD/xAODJet
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
    Control/AthContainers
    Event/xAOD/xAODTrigger
+   Event/FourMomUtils
    Tools/PathResolver
    ${extra_dep} )
 
@@ -46,7 +48,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonEfficiencyCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon PATInterfaces AthContainers MuonAnalysisInterfacesLib
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODJet PATInterfaces AthContainers MuonAnalysisInterfacesLib
       AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib )
 endif()
 

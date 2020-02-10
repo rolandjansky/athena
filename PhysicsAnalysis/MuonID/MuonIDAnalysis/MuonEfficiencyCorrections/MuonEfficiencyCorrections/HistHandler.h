@@ -243,7 +243,15 @@ namespace CP {
         public:
             CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
                 static const SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
-                value = dRJet.isAvailable(mu) ? dRJet(mu) : -1;
+                value = dRJet.isAvailable(mu) ? dRJet(mu) : -2;
+                static bool warned = false;
+                if (!warned && !dRJet.isAvailable(mu)){
+                    Warning("MuonEfficiencyCorrections()", "The dRJet decoration has not been found for the Muon. Isolation scale-factors are now binned in #Delta R(jet,#mu)");
+                    Warning("MuonEfficiencyCorrections()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
+                    Warning("MuonEfficiencyCorrections()", "Please decorate your muon appropiately before passing to the tool with dRJet = -1 in cases there is no jet in the event.");
+                    Warning("MuonEfficiencyCorrections()", "For the time being the inclusive scale-factor is going to be returned.");
+                    warned = true;
+                }
                 return CorrectionCode::Ok;
             }
             virtual ~dRJetAxisHandler() = default;
