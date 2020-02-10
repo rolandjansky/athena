@@ -75,7 +75,7 @@ private:
   ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{this, "roiUnpackers", {},
       "Tools unpacking RoIs"};
 
-  ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingEmulationTool/PrescalingEmulationTool", 
+  ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingTool/PrescalingTool", 
       "Prescaling tool"};
 
   ToolHandleArray<IRoIsUnpackingTool> m_rerunRoiUnpackers{this, "rerunRoiUnpackers", {}, 
