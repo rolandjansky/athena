@@ -72,9 +72,6 @@ CondInputLoader::CondInputLoader( const std::string& name,
         (&CondInputLoader::extraDeps_update_handler, this);
     }
   }
-
-  //declareProperty( "Load", m_load); 
-  //->declareUpdateHandler(&CondInputLoader::loader, this);
 }
 
 // Destructor
