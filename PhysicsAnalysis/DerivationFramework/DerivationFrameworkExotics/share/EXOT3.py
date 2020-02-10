@@ -247,7 +247,18 @@ topology_selection_2jet_lowpt =  "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR
 
 topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2)"
 
-topology_selection_2jet =  "(" + topology_selection_2jet_lowpt + " || " + topology_selection_2jet_highpt + ")"
+topology_selection_2jet_rcpflow_lowpt =  "(count (abs(AntiKt10RCEMPFlowJets.eta) < 2.8 && AntiKt10RCEMPFlowJets.pt > 100*GeV && AntiKt10RCEMPFlowJets.m > 30*GeV)  >= 2)"
+
+topology_selection_2jet_rcpflow_highpt = "(count (abs(AntiKt10RCEMPFlowJets.eta) < 2.8 && AntiKt10RCEMPFlowJets.pt > 1000*GeV)  >= 2)"
+
+topology_selection_2jet =  "(" + topology_selection_2jet_lowpt + " || " + topology_selection_2jet_highpt + " || " + topology_selection_2jet_rcpflow_lowpt + " || " + topology_selection_2jet_rcpflow_highpt + ")"
+
+if isMC:
+  topology_selection_2jet_rctruth_lowpt =  "(count (abs(AntiKt10RCTruthJets.eta) < 2.8 && AntiKt10RCTruthJets.pt > 100*GeV && AntiKt10RCTruthJets.m > 30*GeV)  >= 2)"
+
+  topology_selection_2jet_rctruth_highpt = "(count (abs(AntiKt10RCTruthJets.eta) < 2.8 && AntiKt10RCTruthJets.pt > 1000*GeV)  >= 2)"
+
+  topology_selection_2jet = "(" + topology_selection_2jet_lowpt + " || " + topology_selection_2jet_highpt + " || " + topology_selection_2jet_rcpflow_lowpt + " || " + topology_selection_2jet_rcpflow_highpt + " || " + topology_selection_2jet_rctruth_lowpt + " || " + topology_selection_2jet_rctruth_highpt + ")"
 
 EXOT3_trigger2 = "(HLT_g120_loose || HLT_g140_loose || HLT_xe100 || HLT_xe90_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50)"
 EXOT3_selection = "((count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0))"
@@ -322,6 +333,10 @@ exot3PreSeq += exot3Seq
 #=======================================
 # JETS
 #=======================================
+#b-tagging
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot3Seq)
+
 # Create TCC objects
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 # Set up geometry and BField
@@ -342,6 +357,10 @@ reducedJetList = [
 replaceAODReducedJets(reducedJetList,exot3Seq,"EXOT3")
 
 #AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
+if isMC:
+  from JetSimTools.JetSimToolsConf import JetChargedParticlesTool
+  jtm += JetChargedParticlesTool("ChargedParticles", )
+  jtm.modifiersMap['truth_groomed'] += [ jtm.ChargedParticles ]
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets, addTCCTrimmedJets
 addDefaultTrimmedJets(exot3Seq,"EXOT3")
 addTCCTrimmedJets(exot3Seq,"EXOT3")
@@ -356,17 +375,13 @@ ExCoMJetCollection__SubJet = addExKtCoM(exot3Seq, ToolSvc, ExKtJetCollection__Fa
 
 BTaggingFlags.CalibrationChannelAliases += [
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
-
-
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
 addVRJets(exot3Seq)
 
-#b-tagging
-
 # use alias for VR jets
 from BTagging.BTaggingFlags import BTaggingFlags
-BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMPFlow"]
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
@@ -381,6 +396,17 @@ addHbbTagger(
     nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
     nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
 
+#================================================================
+# ADD RECLUSTERED JETS TO DERIVATION
+#================================================================
+
+ToolSvc += CfgMgr.JetReclusteringTool("MyJetReclusteringToolPFlow", InputJetContainer = "AntiKt4EMPFlowJets", OutputJetContainer = "AntiKt10RCEMPFlowJets", InputJetPtMin = 20,  RCJetPtMin = 50, ReclusterRadius = 1.0, TrimPtFrac = 0.0)
+exot3Seq += CfgMgr.AthJetReclusteringAlgo("JetRecAlgoPFlow", JetReclusteringTool = ToolSvc.MyJetReclusteringToolPFlow)
+
+if isMC:
+  ToolSvc += CfgMgr.JetReclusteringTool("MyJetReclusteringToolTruth", InputJetContainer = "AntiKt4TruthJets", OutputJetContainer = "AntiKt10RCTruthJets", InputJetPtMin = 20, RCJetPtMin = 50, ReclusterRadius = 1.0, TrimPtFrac = 0.0)
+  exot3Seq += CfgMgr.AthJetReclusteringAlgo("JetRecAlgoTruth", JetReclusteringTool = ToolSvc.MyJetReclusteringToolTruth)
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
@@ -388,6 +414,14 @@ addHbbTagger(
 exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3CombinedSkimmingTool])
 exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",      ThinningTools = thinningTools)
 
+#=======================================
+# GHOST ASSOCIATION
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
+if DerivationFrameworkIsMonteCarlo :
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlow",  truthjetalg="AntiKt4TruthJets", sequence=exot3Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",  truthjetalg="AntiKt10TruthJets", sequence=exot3Seq, algname="JetPtAssociationAlg")
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -395,6 +429,12 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkExotics.EXOT3ContentList import *
 
 EXOT3SlimmingHelper = SlimmingHelper("EXOT3SlimmingHelper")
+
+TruthAssociationVars = '.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount'
+
+EXOT3SlimmingHelper.ExtraVariables = ["AntiKt4EMTopoJets"+TruthAssociationVars,"AntiKt4EMPFlowJets"+TruthAssociationVars,"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"+TruthAssociationVars
+                                      ]
+
 
 #=====================
 # Variable definitions
@@ -416,7 +456,7 @@ EXOT3SlimmingHelper.StaticContent = EXOT3StaticContent
 # addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"], ["AntiKt4TruthJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"])
 
 EXOT3SlimmingHelper.AppendToDictionary = {}
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets']
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets', 'AntiKt10RCEMPFlowJets']
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT3SlimmingHelper.AppendToDictionary = {
@@ -430,7 +470,6 @@ EXOT3SlimmingHelper.AppendToDictionary = {
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
-
 
 }
 
@@ -458,8 +497,9 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
 ]
 
-if globalflags.DataSource()=='geant4':
+if isMC:
   listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
+  listJets.extend(['AntiKt10RCTruthJets'])
 for i in listJets:
   EXOT3SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
   EXOT3SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
