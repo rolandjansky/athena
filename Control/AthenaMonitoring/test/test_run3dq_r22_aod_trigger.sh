@@ -14,5 +14,5 @@ rm -rf ref-*
 ArtPackage=$1
 ArtJobName=$2
 art.py download ${ArtPackage} ${ArtJobName}
-hist_diff.sh ExampleMonitorOutput.root ./ref-*/ExampleMonitorOutput.root
+hist_diff.sh ExampleMonitorOutput.root ./ref-*/ExampleMonitorOutput.root -i
 echo "art-result: $? HIST_Diff"
