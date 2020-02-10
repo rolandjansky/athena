@@ -128,30 +128,30 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
                "ModuleFolder"  = SCTConfigurationFolderPath+"Module",
                "MurFolder"     = SCTConfigurationFolderPath+"MUR"}
   cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags,name, cond_kwargs=cond_kwargs)
-  acc.merge(cfgCondToolAcc)
   SCT_ConfigurationConditionsTool = acc.popPrivateTools()
+  acc.merge(cfgCondToolAcc)
   if (flags.InDet.doPrintConfigurables):
       printfunc (SCT_ConfigurationConditionsTool)
 
   # Load calibration conditions tool
   calDataAcc = SCT_ReadCalibDataToolCfg(flags)
-  acc.merge(calDataAcc)
   SCT_ReadCalibDataTool = calDataAcc.popPrivateTools()
+  acc.merge(calDataAcc)
   if (flags.InDet.doPrintConfigurables):
       printfunc (SCT_ReadCalibDataTool)
   
   # Load flagged condition tool
   flCondToolAcc = SCT_FlaggedConditionToolCfg(flags)
-  acc.merge(flCondToolAcc)
   SCT_FlaggedConditionTool = flCondToolAcc.popPrivateTools()
+  acc.merge(flCondToolAcc)
   if (flags.InDet.doPrintConfigurables):
       printfunc (SCT_FlaggedConditionTool)
   
   # Load conditions Monitoring tool
   if not flags.Common.isOnline:
-      monCondAcc = SCT_MonitorConditionsToolCfg(flags,{OutputLevel=INFO})
-      acc.merge(monCondAcc)
+      monCondAcc = SCT_MonitorConditionsToolCfg(flags,{"OutputLevel" = INFO})
       SCT_MonitorConditionsTool = monCondAcc.popPrivateTools()
+      acc.merge(monCondAcc)
       if (flags.InDet.doPrintConfigurables):
           printfunc (SCT_MonitorConditionsTool)
 
@@ -166,8 +166,8 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
 
   # Load bytestream errors tool (use default instance without "InDet")
   SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, {ConfigTool=SCT_ConfigurationConditionsTool})
-  acc.merge(SCT_BSToolAcc)
   SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
+  acc.merge(SCT_BSToolAcc)
   if (flags.InDet.doPrintConfigurables):
       printfunc (SCT_ByteStreamErrorsTool)
   
@@ -177,6 +177,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
         DCSCondAlg_kwargs["UseDefaultHV"] = True #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
       DCSCondToolAcc = SCT_DCSConditionsToolCfg(flags, DCSCondAlg_kwargs=DCSCondAlg_kwargs)
       SCT_DCSConditionsTool = DCSCondToolAcc.popPrivateTools()
+      acc.merge(DCSCondToolAcc)
       if (flags.InDet.doPrintConfigurables):
           printfunc (SCT_DCSConditionsTool)
   
@@ -189,8 +190,8 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       # Load TdaqEnabled tool
       TdaqCondAlg_kwargs={tdaqFolder=tdaqFolder}
       TdaqToolAcc = SCT_TdaqEnabledToolCfg(flags, TdaqCondAlg_kwargs=TdaqCondAlg_kwargs)
-      acc.merge(TdaqToolAcc)
       SCT_TdaqEnabledTool = TdaqToolAcc.popPrivateTools()
+      acc.merge(TdaqToolAcc)
       if (flags.InDet.doPrintConfigurables):
           printfunc (SCT_TdaqEnabledTool)
       
@@ -315,9 +316,31 @@ def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs
   acc.setPrivateTools(tool)
   return acc
 
-def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", **kwargs)
+
+def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", **kwargs):
+  kwargs.setdefault("dbInstance", "SCT_OFL")
+  kwargs.setdefault("MonitorCondAlgReadKey", "/SCT/Derived/Monitoring")
+  kwargs.setdefault("MonitorCondAlgName", "SCT_MonitorCondAlg")
+
+  cond_kwargs = {}
+  if(kwargs["OutputLevel"]):
+    cond_kwargs.setdefault("OutputLevel", kwargs["OutputLevel"])
+  cond_kwargs["ReadKey"] = kwargs["MonitorCondAlgReadKey"]
+
+  acc = ComponentAccumulator()
+
+  #FIXME: this makes FolderDB always take precedence over Folder, do we want that?!
+  if not kwargs["FolderDb"]
+    kwargs["FolderDb"] = kwargs["Folder"]
+  acc.merge(iovDbSvc.addFolders(kwargs["dbInstance"], kwargs["FolderDb"], className="CondAttrListCollection"))
+
+  acc.merge(SCT_MonitorCondAlgCfg(flags, name=kwargs["MonitorCondAlgName"], cond_kwargs))
+
+  tool = CompFactory.SCT_MonitorConditionsTool(name, **kwargs)
   acc.setPrivateTools(tool)
+
   return acc
+
 
 def SCT_ByteStreamErrorsToolCfg
   acc.setPrivateTools(tool)
