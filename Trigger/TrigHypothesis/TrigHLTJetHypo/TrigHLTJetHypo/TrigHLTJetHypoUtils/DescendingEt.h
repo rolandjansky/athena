@@ -17,8 +17,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
-struct DescendingEt:
-  public std::binary_function<pHypoJet, pHypoJet, bool> 
+struct DescendingEt
 {
   bool operator()(pHypoJet l, pHypoJet r) const;
 };
