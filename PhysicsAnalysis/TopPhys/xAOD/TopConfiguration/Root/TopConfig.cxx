@@ -1324,14 +1324,14 @@ namespace top {
     m_bTagSystsExcludedFromEV = settings->value("BTaggingSystExcludedFromEV");
 
     // Set translatio ndictionary for MCMC maps
-    if (settings->value("RedifineMCMCMap") != " ") {
+    if (settings->value("RedefineMCMCMap") != " ") {
       std::vector<std::string> tmp;
-      tokenize(settings->value("RedifineMCMCMap"), tmp, ",");
+      tokenize(settings->value("RedefineMCMCMap"), tmp, ",");
       for (const std::string& dictionaries : tmp) {
         std::vector<std::string> dictionary;
         tokenize(dictionaries, dictionary, ":");
         if (dictionary.size() != 2) {
-          throw std::invalid_argument{"Wrong input argument for RedifineMCMCMap. Expected format is: \"shower1:shower2,shower3:shower4\""};
+          throw std::invalid_argument{"Wrong input argument for RedefineMCMCMap. Expected format is: \"shower1:shower2,shower3:shower4\""};
         }
 
         m_showerMCMCtranslator.insert({dictionary.at(0), dictionary.at(1)});

@@ -562,7 +562,7 @@ namespace top {
     registerParameter("DemandPrimaryVertex", "Wether at least one primary vertex in event is required. Default True. For debugging purposes only!", "True");
 
     registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
-    registerParameter("RedifineMCMCMap", "Dictionary for translating the shower names from TopDataPreparation. Format: \"shower1:shower2,shower3:shower4\".", " ");
+    registerParameter("RedefineMCMCMap", "Dictionary for translating the shower names from TopDataPreparation. Format: \"shower1:shower2,shower3:shower4\".", " ");
   }
 
   ConfigurationSettings* ConfigurationSettings::get() {
