@@ -207,11 +207,11 @@ namespace CP {
     }
     
     std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) {
-        if (T == CollectionType::Central) return "Central ";
-        if (T == CollectionType::Calo) return "Calo ";
-        if (T == CollectionType::Forward) return "Forward ";
-        if (T == CollectionType::CentralLowPt) return "CentralLowPt ";
-        if (T == CollectionType::CaloLowPt) return "CaloLowPt ";
+        if (T == CollectionType::Central) return "Central";
+        if (T == CollectionType::Calo) return "Calo";
+        if (T == CollectionType::Forward) return "Forward";
+        if (T == CollectionType::CentralLowPt) return "CentralLowPt";
+        if (T == CollectionType::CaloLowPt) return "CaloLowPt";
         return "EffiCollection::FileTypeName() - WARNING: Unknown EffiCollection::CollectionType!";
     }
 

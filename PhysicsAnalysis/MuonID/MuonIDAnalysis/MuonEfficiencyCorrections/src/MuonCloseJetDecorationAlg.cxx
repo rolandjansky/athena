@@ -55,7 +55,7 @@ namespace CP {
             for (const xAOD::Jet* jet: *jets){
                 if (jet->pt() < m_jet_pt_cut) continue;
                 if (closest_jet == nullptr ||  xAOD::P4Helpers::deltaR2(jet,mu) < xAOD::P4Helpers::deltaR2(closest_jet,mu)) closest_jet = jet;
-            }
+            }           
             (*m_decorator)(*mu) = closest_jet? xAOD::P4Helpers::deltaR(closest_jet,mu) : m_dummy_value;
         }
         return StatusCode::SUCCESS;

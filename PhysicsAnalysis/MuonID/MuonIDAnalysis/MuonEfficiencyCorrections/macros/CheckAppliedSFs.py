@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #!/usr/bin/env python
 from array import array
@@ -101,7 +101,7 @@ class SystematicComparer(ReleaseComparer):
         ReleaseComparer.__init__(self,
                                  var_name = var_name,
                                  axis_title = axis_title,
-                                 bins = bins, bmin = 5.e-4, bmax = 0.15,
+                                 bins = bins, bmin = 5.e-4, bmax = 4.,
                                  name_old_rel =name_old_rel, 
                                  name_new_rel =name_new_rel,
                                  test_tree = test_tree,

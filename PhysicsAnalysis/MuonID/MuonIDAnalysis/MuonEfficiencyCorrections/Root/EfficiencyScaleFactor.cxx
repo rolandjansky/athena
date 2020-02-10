@@ -149,7 +149,12 @@ namespace CP {
             return;
         } else if (m_measurement == CP::MuonEfficiencyType::TTVA){
             m_sf_KineDepsys = std::make_unique<TTVAClosureSysHandler>(ReadHistFromFile("SF_NonClosure_sys",f.get(),time_unit));
+            if (!m_sf_KineDepsys->initialize()){
+                Error("EfficiencyScaleFactor()", "TTVA non closure systematic could not be loaded.");
+                m_sf_KineDepsys.reset();
+            }
             m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
+            return;
         
         }
         /// That one needs to be named properly in the future

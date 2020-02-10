@@ -456,8 +456,11 @@ namespace CP {
             for (int i =0; syst_tree->GetEntry(i); ++i){
                 insert_bit( *syst_name, get_bit(look_up));
                 if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
-                if (m_applyKineDepSys && has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
-                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
+                
+                if (m_applyKineDepSys && has_pt_sys)   {
+                    std::cout<<"Where is my koehler"<<(*syst_name)<<std::endl;
+                    insert_bit(*syst_name, EffiCollection::PtDependent);
+                }if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
             }
         }
         return syst_map;
