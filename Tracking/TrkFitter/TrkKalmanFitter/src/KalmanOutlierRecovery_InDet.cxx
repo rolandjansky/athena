@@ -103,7 +103,7 @@ StatusCode Trk::KalmanOutlierRecovery_InDet::configureWithTools(Trk::IExtrapolat
 }
 
 // helper operator for STL min_element
-struct minChi2State : public std::binary_function<Trk::Trajectory::iterator, Trk::Trajectory::iterator, bool> {
+struct minChi2State {
 	bool operator() (Trk::Trajectory::iterator one, Trk::Trajectory::iterator two) const {
       // once more, correct ndof for rotated 1D measurements (SCT endcap, TGC strip)
       int trueNumberDoF1 = one->fitQuality()->numberDoF();
