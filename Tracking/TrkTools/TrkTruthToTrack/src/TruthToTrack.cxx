@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define TRUTHTOTRACK_IMP
@@ -135,7 +135,7 @@ const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const HepMC
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {
 
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
@@ -159,7 +159,7 @@ const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const xAOD:
 
   if(part && part->hasProdVtx() && m_particleDataTable && m_extrapolator) {
 
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,

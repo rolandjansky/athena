@@ -1000,7 +1000,7 @@ void PixCoralClient::getAnalysisResultsFromDB(std::vector<CAN::SerialNumber_t> a
       }
 
       // now define output columns
-      std::auto_ptr<coral::IQuery> query( m_session->nominalSchema().newQuery() );
+      std::unique_ptr<coral::IQuery> query( m_session->nominalSchema().newQuery() );
       if (!query.get()) {
 	std::cerr << "ERROR [CoralClient::getAnalysisResultsFromDB] Failed to create queries for table " << *tName << "."<< std::endl;
 	continue;
@@ -1227,7 +1227,7 @@ int PixCoralClient::fillTable(long long fk, CAN::AnalysisResultList_t *results){
     //    pixel_row_2.extend<T>("VALUE");
     extendAttributeList<T>(pixel_row_2);
     {
-    std::auto_ptr<coral::IBulkOperation>  pixel_bulk_2(pixel_editor_2.bulkInsert(pixel_row_2,iter->second.size()));
+    std::unique_ptr<coral::IBulkOperation>  pixel_bulk_2(pixel_editor_2.bulkInsert(pixel_row_2,iter->second.size()));
     for (typename std::map<std::string, T >::const_iterator val_iter=iter->second.begin();
 	 val_iter != iter->second.end();
 	 val_iter ++) {
