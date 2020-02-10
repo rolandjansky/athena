@@ -458,7 +458,6 @@ namespace CP {
                 if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
                 
                 if (m_applyKineDepSys && has_pt_sys)   {
-                    std::cout<<"Where is my koehler"<<(*syst_name)<<std::endl;
                     insert_bit(*syst_name, EffiCollection::PtDependent);
                 }if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
             }
