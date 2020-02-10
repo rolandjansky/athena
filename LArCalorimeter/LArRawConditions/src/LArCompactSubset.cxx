@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -151,7 +151,7 @@ void LArCompactSubsetVector::setTimings (unsigned int /*chan*/,
                                          float timeOffset,
                                          float timeBinWidth)
 {
-  if (m_timeOffset == 0 && m_timeBinWidth == 0) {
+  if (m_data.empty()) {
     m_timeOffset = timeOffset;
     m_timeBinWidth = timeBinWidth;
   }
