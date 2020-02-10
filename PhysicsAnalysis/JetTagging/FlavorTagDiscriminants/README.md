@@ -53,6 +53,16 @@ There are several user-level tools here:
        - `FLIP_SIGN`: Save all IP, flip sign of z0 and d0. Use
          Flip/Neg versions of other taggers (as above).
 
+
+### Hbb Tagging ###
+
+Some components of Hbb tagging also live here. These include:
+
+   - `HbbTag`: Similar to DL2, but for large-R jets. Uses high-level
+     flavor tagging inputs. It also uses `HbbGraphConfig` and
+     `HbbConstants`.
+
+
 ### Other Files ###
 
 There are also several tools that you _probably_ don't have to touch:
