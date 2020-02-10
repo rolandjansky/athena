@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/CaloClusterVariables.h"
-//#include "tauEvent/TauJet.h"
-//#include "boost/foreach.hpp"
 #include "math.h"
 
 const double CaloClusterVariables::DEFAULT = -1111.;
@@ -146,13 +144,9 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
       --icount;
 
         double energy = c.e();
-	//XXXchange to use tlorentzvector
         double px = c.p4().Px();
         double py = c.p4().Py();
         double pz = c.p4().Pz();
-        // FF: see comment above
-        //CLHEP::HepLorentzVector constituentHLV(px, py, pz, 1);
-        //sum_radii += centroid.deltaR(constituentHLV);
         double dr = std::sqrt( std::pow(c.eta() - centroid.Eta(),2) + std::pow(c.phi() - centroid.Phi(),2));
         sum_radii += dr;
 
@@ -179,10 +173,9 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
 }
 
 
-//*****************************************
-// Calculate the geometrical center of the
-// tau constituents
-//*****************************************
+//***********************************************************
+// Calculate the geometrical center of the tau constituents
+//***********************************************************
 TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents) {
 
     double px = 0;
