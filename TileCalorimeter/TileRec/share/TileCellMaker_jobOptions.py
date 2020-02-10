@@ -5,7 +5,7 @@ try:
     from CaloRec.CaloRecConf import CaloCellMaker                
 except:
     mlog.error("could not import CaloRec.CaloCellMaker")
-    print traceback.format_exc()
+    mlog.error (traceback.format_exc())
    
 theCaloCellMaker=CaloCellMaker()
 theCaloCellMaker.CaloCellsOutputName = "AllCalo"
@@ -62,5 +62,5 @@ from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
 theCaloCellMaker.CaloCellMakerToolNames += [CaloCellContainerCheckerTool()]
 
 
-print theCaloCellMaker
-print ToolSvc.TileCellBuilder
+printfunc (theCaloCellMaker)
+printfunc (ToolSvc.TileCellBuilder)
