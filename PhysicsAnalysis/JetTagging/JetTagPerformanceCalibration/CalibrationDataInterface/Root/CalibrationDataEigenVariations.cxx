@@ -15,6 +15,7 @@
 #include <limits>
 #include <set>
 #include <algorithm>
+#include <string>
 #include <cmath>
 
 #include "TH1.h"
@@ -38,7 +39,10 @@ namespace {
   // But in order to avoid unnecessary overhead, the actual dimensionality of the histograms is accounted for.
 
   // Construct the (diagonal) covariance matrix for the statistical uncertainties on the "ref" results
-  TMatrixDSym getStatCovarianceMatrix(const TH1* hist) {
+  // Note that when statistical uncertainties are stored as variations, they are already accounted for and hence should not be duplicated; hence they are dummy here
+  // (this is not very nice, in that the result of this function will technically be wrong,
+  // but the statistical uncertainty covariance matrix is anyway not separately visible to the outside world)
+  TMatrixDSym getStatCovarianceMatrix(const TH1* hist, bool zero) {
     Int_t nbinx = hist->GetNbinsX()+2, nbiny = hist->GetNbinsY()+2, nbinz = hist->GetNbinsZ()+2;
     Int_t rows = nbinx;
     if (hist->GetDimension() > 1) rows *= nbiny;
@@ -54,7 +58,7 @@ namespace {
       for (Int_t biny = 1; biny < nbiny-1; ++biny)
 	for (Int_t binz = 1; binz < nbinz-1; ++binz) {
 	  Int_t bin = hist->GetBin(binx, biny, binz);
-	  double err = hist->GetBinError(bin);
+	  double err = zero ? 0 : hist->GetBinError(bin);
 	  stat(bin, bin) = err*err;
 	}
     return stat;
@@ -198,7 +202,7 @@ ClassImp(CalibrationDataEigenVariations)
 //________________________________________________________________________________
 CalibrationDataEigenVariations::CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt,
 							       bool excludeRecommendedUncertaintySet) :
-  m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1)
+m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1), m_statVariations(false)
 {
   // if specified, add items recommended for exclusion from EV decomposition by the calibration group to the 'named uncertainties' list
   if (excludeRecommendedUncertaintySet) {
@@ -207,6 +211,11 @@ CalibrationDataEigenVariations::CalibrationDataEigenVariations(const Calibration
     if (to_exclude.size() == 0) {
       std::cerr << "CalibrationDataEigenVariations warning: exclusion of pre-set uncertainties list requested but no (or empty) list found" << std::endl;
     }
+  }
+  // also flag if statistical uncertainties stored as variations (this typically happens as a result of smoothing / pruning of SF results)
+  vector<string> uncs = m_cnt->listUncertainties();
+  for (auto name : uncs) {
+    if (name.find("Stat_Nuis") != string::npos) m_statVariations = true;
   }
 }
 
@@ -284,7 +293,9 @@ CalibrationDataEigenVariations::getEigenCovarianceMatrix() const
   // First, treat the statistics separately.
   // Account for the possibility that this is handled as a (non-trivial) covariance matrix
   TMatrixDSym* sCov = dynamic_cast<TMatrixDSym*>(m_cnt->GetValue("statistics"));
-  TMatrixDSym cov = (sCov) ? *sCov : getStatCovarianceMatrix(result);
+  // Alternatively, statistical uncertainties may be accounted for as variations (i.e., much like systematic uncertainties).
+  // In that case, we create a null matrix here and add the statistical contributions along with the systematic ones.
+  TMatrixDSym cov = (sCov) ? *sCov : getStatCovarianceMatrix(result, m_statVariations);
 
   // Then loop through the list of (other) uncertainties
   std::vector<string> uncs = m_cnt->listUncertainties();

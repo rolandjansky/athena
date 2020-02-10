@@ -150,6 +150,7 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   declareProperty("ExtendedFlavourLabel",                m_extFlavourLabel = false,     "specify whether or not to use an 'extended' flavour labelling (allowing for multiple HF hadrons or perhaps partons)");
   declareProperty("OldConeFlavourLabel",                 m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
   declareProperty("IgnoreOutOfValidityRange",            m_ignoreOutOfValidityRange = false, "ignore out-of-extrapolation-range errors as returned by the underlying tool");
+  declareProperty("VerboseCDITool",                      m_verboseCDITool = true,       "specify whether or not to retain 'normal' printout from the underlying tool");
   // initialise some variables needed for caching
   // TODO : add configuration of the mapIndices - rather than just using the default of 0
   //m_mapIndices["Light"] = m_mapIndices["T"] = m_mapIndices["C"] = m_mapIndices["B"] = 0;
@@ -318,7 +319,8 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 						     m_systStrategy != "Envelope",              // assume that eigenvector variations will be used unless the "Envelope" model is used
 						     true,                                      // use MC/MC scale factors
 						     false,                                     // do not use topology rescaling (only relevant for pseudo-continuous tagging)
-						     m_useRecommendedEVExclusions);             // if true, add pre-set lists of uncertainties to be excluded from EV decomposition
+						     m_useRecommendedEVExclusions,              // if true, add pre-set lists of uncertainties to be excluded from EV decomposition
+						     m_verboseCDITool);                         // if false, suppress any non-error/warning messages
 
   setMapIndex("Light",0);
   setMapIndex("C",0);
