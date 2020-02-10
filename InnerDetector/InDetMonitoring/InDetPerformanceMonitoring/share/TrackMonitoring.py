@@ -61,7 +61,7 @@ print m_TrackSelectorTool_NoCut
 m_TrackSelectorTool_TP = InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionToolTightPrimary",
                                                         UseTrkTrackTools = True,
                                                         CutLevel = "TightPrimary",
-                                                        minPt = 4000,
+                                                        minPt = 20000,#4000
                                                         minNPixelHitsPhysical = 2,
                                                         minNSctHitsPhysical = 2,
                                                         TrackSummaryTool    = InDetTrackSummaryTool,
@@ -95,12 +95,13 @@ print " == runzmumu_script == TPSelection "
 print TPSelection
 
 allSelection = InDetAlignMon__TrackSelectionTool(name = "InDetAlignMonAlignTrackSelectionTool",
-                                                     PassAllTracks = True, ## Uncomment this line to bypass track slection
-                                                     PrimVtxContainerName = InDetKeys.xAODVertexContainer(),
-                                                     UseIDTrackSelectionTool = True,
-                                                     IDTrackSelectionTool = m_TrackSelectorTool_NoCut,
-                                                     #TrackSelectorTool    = InDetDetailedTrackSelector_Default
-							)
+                                                 PassAllTracks = True, ## Uncomment this line to bypass track slection
+                                                 PrimVtxContainerName = InDetKeys.xAODVertexContainer(),
+                                                 UseIDTrackSelectionTool = True,
+                                                 IDTrackSelectionTool = m_TrackSelectorTool_TP
+                                                 #IDTrackSelectionTool = m_TrackSelectorTool_NoCut,
+                                                 #TrackSelectorTool    = InDetDetailedTrackSelector_Default
+                                                 )
 ToolSvc += allSelection
 
 
@@ -110,7 +111,8 @@ from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonEffi
 
 
 for trackCollection in trackCollections:
-        theTrackSelection = LPSelection
+        #theTrackSelection = LPSelection
+        theTrackSelection = TPSelection
         if ("CombinedInDetTracks" in trackCollection):
                 theTrackSelection = TPSelection
         print " == runzmumu_script == monitoring for ",trackCollection," --> ",theTrackSelection
