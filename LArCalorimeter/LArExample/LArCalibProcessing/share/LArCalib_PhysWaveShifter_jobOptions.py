@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -36,7 +38,7 @@ if not 'PhysWaveLArCalibFolderTag' in dir():
    PhysWaveLArCalibFolderTag = LArCalib_Flags.tagSuffix  
 
 if not 'InputPhysWavePoolDir' in dir():
-   InputPhysWavePoolDir = commands.getoutput("pwd")
+   InputPhysWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPhysWavePoolFileName' in dir():
    InputPhysWavePoolFileName = "LArPhysWave.pool.root"  
@@ -84,7 +86,7 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
    
 if not 'OutputPhysWaveRootFileDir' in dir():
-   OutputPhysWaveRootFileDir = commands.getoutput("pwd")
+   OutputPhysWaveRootFileDir = subprocess.getoutput("pwd")
 
 PhysWaveFileTag = "Shifted_"+str(RunNumber)+"_"+Partition.replace("*","")
 
@@ -189,7 +191,7 @@ else:
    if 'InputPhysWavePoolFileName' in dir():
       PoolFileList += [ InputPhysWavePoolDir+"/"+InputPhysWavePoolFileName ]
    else:
-      print "No PoolFileList found! Please list the POOL files containing CaliWave or read from COOL."
+      printfunc ("No PoolFileList found! Please list the POOL files containing CaliWave or read from COOL.")
       theApp.exit(-1)
 
 if ( len(PoolFileList)>0 ):
