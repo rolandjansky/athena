@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloFillRectangularCluster.cxx,v 1.20 2009-04-25 17:57:01 ssnyder Exp $
@@ -62,7 +62,8 @@ namespace CaloClusterCorr {
  * direction, and finding the centers of those cells.  Then we use
  * the larger of these for the symmetric range.
  */
-void etaphi_range (double eta,
+void etaphi_range (const CaloDetDescrManager& dd_man,
+                   double eta,
                    double phi,
                    CaloCell_ID::CaloSample sampling,
                    double& deta,
@@ -72,15 +73,14 @@ void etaphi_range (double eta,
   dphi = 0;
 
   // Get the DD element for the central cell.
-  const CaloDetDescrManager* dd_man = CaloDetDescrManager::instance();
-  const CaloDetDescrElement* elt = dd_man->get_element_raw (sampling, eta, phi);
+  const CaloDetDescrElement* elt = dd_man.get_element_raw (sampling, eta, phi);
   if (!elt) return;
 
   // Should be smaller than the eta half-width of any cell.
   const double eps = 0.001;
 
   // Now look in the negative eta direction.
-  const CaloDetDescrElement* elt_l = dd_man->get_element_raw
+  const CaloDetDescrElement* elt_l = dd_man.get_element_raw
     (sampling,
      eta - elt->deta() - eps,
      phi);
@@ -89,7 +89,7 @@ void etaphi_range (double eta,
     deta_l = std::abs (eta - elt_l->eta_raw()) + eps;
 
   // Now look in the positive eta direction.
-  const CaloDetDescrElement* elt_r = dd_man->get_element_raw
+  const CaloDetDescrElement* elt_r = dd_man.get_element_raw
     (sampling,
      eta + elt->deta() + eps,
      phi);
@@ -106,7 +106,7 @@ void etaphi_range (double eta,
   // take the largest variation.
 
   // Now look in the negative eta direction.
-  elt_l = dd_man->get_element_raw
+  elt_l = dd_man.get_element_raw
     (sampling,
      eta  - elt->deta() - eps,
      CaloPhiRange::fix (phi - elt->dphi() - eps));
@@ -115,7 +115,7 @@ void etaphi_range (double eta,
     dphi_l = std::abs (CaloPhiRange::fix (phi - elt_l->phi_raw())) + eps;
 
   // Now look in the positive eta direction.
-  elt_r = dd_man->get_element_raw
+  elt_r = dd_man.get_element_raw
     (sampling,
      eta + elt->deta() + eps,
      CaloPhiRange::fix (phi - elt->dphi() - eps));
@@ -137,18 +137,15 @@ void etaphi_range (double eta,
 class Segmentation
 {
 public:
-  Segmentation (StoreGateSvc* detStore);
-
+  Segmentation (const CaloDetDescrManager* dd_man);
   /// middle layer  cell segmentation size 
   double m_detas2;
   double m_dphis2;
 };
 
-
-Segmentation::Segmentation (StoreGateSvc* detStore)
+Segmentation::Segmentation (const CaloDetDescrManager* dd_man)
 {
-  const CaloDetDescrManager* dd_man = nullptr;
-  if (detStore->retrieve (dd_man, "CaloMgr").isFailure()) {
+  if(dd_man == nullptr){
     m_detas2 = 0;
     m_dphis2 = 0;
   }
@@ -822,6 +819,7 @@ StatusCode CaloFillRectangularCluster::initialize()
  */
 void
 CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
+                                            const CaloDetDescrManager& dd_man,
                                             CaloClusterCorr::SamplingHelper&
                                              helper,
                                             double eta,
@@ -862,7 +860,7 @@ CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
   // This only makes sense if the previous step was OK 
   if (refine) {
     double detastr, dphistr;
-    CaloClusterCorr::etaphi_range (helper.etamax(), helper.phimax(),
+    CaloClusterCorr::etaphi_range (dd_man,helper.etamax(), helper.phimax(),
 				   xsample,
 				   detastr, dphistr);
     
@@ -871,9 +869,9 @@ CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
 				detastr, dphistr, samplings[1]);
       
       if (helper.etam()!=-999.) {
-	eta1 = helper.etam();
-	double eta1r = helper.etareal();
-	helper.cluster()->setEta(samplings[1], eta1r);
+        eta1 = helper.etam();
+        double eta1r = helper.etareal();
+        helper.cluster()->setEta(samplings[1], eta1r);
       }
     }
   }
@@ -952,6 +950,7 @@ CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
  */
 void
 CaloFillRectangularCluster::makeCorrection2 (const EventContext& ctx,
+                                             const CaloDetDescrManager& dd_man,
                                              CaloClusterCorr::SamplingHelper&
                                              helper) const
 {
@@ -1041,12 +1040,12 @@ CaloFillRectangularCluster::makeCorrection2 (const EventContext& ctx,
 
   // Barrel
   if (aeta < 1.6) {
-    makeCorrection1 (ctx, helper, eta, phi, samplings_b);
+    makeCorrection1 (ctx, dd_man,helper, eta, phi, samplings_b);
   }
 
   // Endcap
   if (aeta > 1.3) {
-    makeCorrection1 (ctx, helper, eta, phi, samplings_e);
+    makeCorrection1 (ctx, dd_man,helper, eta, phi, samplings_e);
   }
 
   // Set the total cluster energy to the sum over all samplings.
@@ -1075,8 +1074,14 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
                                                 CaloCluster* cluster) const
 {
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
+  
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){
+    ATH_MSG_ERROR ("Failed to retrieve CaloDetDescrManager : CaloMgr");
+  }
 
-  CaloClusterCorr::Segmentation seg (&*detStore());
+
+  CaloClusterCorr::Segmentation seg (calodetdescrmgr);
   if (seg.m_detas2 == 0) {
     ATH_MSG_ERROR ("Retrieving cell segmentation");
     return;
@@ -1121,12 +1126,12 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
                                                          cluster,
                                                          cell_list,
                                                          cell_container);
-    makeCorrection2 (ctx, helper);
+    makeCorrection2 (ctx,*calodetdescrmgr, helper);
   }
   else {
     // We're recalculating a cluster using the existing cells.
     CaloClusterCorr::SamplingHelper_Cluster helper (*this, windows, cluster);
-    makeCorrection2 (ctx, helper);
+    makeCorrection2 (ctx, *calodetdescrmgr,helper);
   }
 }
 

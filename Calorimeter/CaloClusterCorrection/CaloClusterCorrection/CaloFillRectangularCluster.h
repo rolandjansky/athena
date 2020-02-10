@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloFillRectangularCluster.h,v 1.7 2009-04-25 17:57:00 ssnyder Exp $
@@ -43,6 +43,7 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+class CaloDetDescrManager;
 
 // Helper object used for the per-sampling calculations.
 namespace CaloClusterCorr {
@@ -148,6 +149,7 @@ private:
    * @param samplings List of samplings for this region.
    */
   void makeCorrection1 (const EventContext& ctx,
+                        const CaloDetDescrManager& dd_man,
                         CaloClusterCorr::SamplingHelper& helper,
                         double eta,
                         double phi,
@@ -160,6 +162,7 @@ private:
    * @param helper Sampling calculation helper object.
    */
   void makeCorrection2 (const EventContext& ctx,
+                        const CaloDetDescrManager& dd_man,
                         CaloClusterCorr::SamplingHelper& helper) const;
 
 
