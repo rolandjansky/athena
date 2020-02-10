@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Include.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -13,7 +13,6 @@ import builtins
 printfunc = getattr(builtins,'print')
 import os, sys, re, fnmatch
 from AthenaCommon.Utils.unixtools import FindFile
-
 
 ### data ---------------------------------------------------------------------
 __version__ = '1.3.0'
@@ -36,13 +35,14 @@ fidMarker    = '%2d'
 # do not trace any files that fnmatch these names:
 excludeTracePattern = [
    '*/GaudiPython/*', '*/GaudiKernel/*',          # Gaudi framework files
-   '*/InstallArea/*/AthenaCommon/*',              # Athena framework files
+   '*/AthenaCommon/*',                            # Athena framework files
    '*/python%d.%d/*' % sys.version_info[:2],      # python system
-   '*/InstallArea/python/*/*Conf.py',             # generated conf files
+   '*/python/*/*Conf.py',                         # generated conf files
    '*/PyUtils/decorator.py',                      # very verbose
    '*/PyUtils/Decorators.py',                     # ditto
    '*/PyUtils/Helper*.py',                        # ditto
    '*/lib/ROOT.py',                               # ROOT import hook gets executed very many times
+   '*importlib._bootstrap*',
    ]
 
 # unless they are explicitly included here:
@@ -226,6 +226,9 @@ class Include( object ):
  # code tracer ---------------------------------------------------------------
    def _trace_include( self, frame, event, arg ):
       fn  = frame.f_code.co_filename
+      if fn.find ('importlib._bootstrap') >= 0:
+         return self._trace_include
+
       if not os.path.exists( fn ):
          fn = FindFile( basename2( fn ), sys.path, os.R_OK )
 
@@ -246,7 +249,7 @@ class Include( object ):
 
        # import is done, and we're back, accept this file from this point on
          _filecache[ fn ] = open( fn, 'r' ).readlines() or '\n'
-         _linecache[ fn ] = sys.maxint, self.fid
+         _linecache[ fn ] = sys.maxsize, self.fid
          self.fid += 1
 
       lno = frame.f_lineno
