@@ -16,6 +16,8 @@
 #include "DerivationFrameworkCalo/CaloClusterThinning.h"
 #include "DerivationFrameworkCalo/ClustersInCone.h"
 
+#include "CaloRec/CaloClusterMaker.h"
+
 namespace DerivationFramework {
 
    CaloClusterThinning::CaloClusterThinning( const std::string& type,
@@ -36,6 +38,10 @@ namespace DerivationFramework {
                        "StoreGate key of the calo cluster container to thin" );
       declareProperty( "TopoClCollectionSGKey", m_TopoClSGKey,
                        "StoreGate key of the topo cluster container to thin" );
+      declareProperty( "AdditionalTopoClCollectionSGKey"  , m_addTopoClSGKey,
+                       "Additional cluster containers to set up the same "
+                       "filtering on. Assuming that they're shallow copies "
+                       "of the main container." );
       declareProperty( "SelectionString", m_selectionString,
                        "Selection string for the e/gamma objects" );
       declareProperty( "ConeSize", m_coneSize,
@@ -62,6 +68,13 @@ namespace DerivationFramework {
          ATH_MSG_FATAL( "No CalCaloTopoCluster or CaloCluster collection "
                         "provided for thinning." );
          return StatusCode::FAILURE;
+      }
+      if( m_addTopoClSGKey.size() ) {
+	if( m_TopoClSGKey.empty() ) {
+	  ATH_MSG_FATAL( "Need to provide TopoClCollectionSGKey when using AdditionalTopoClCollectionSGKey" );
+	  return StatusCode::FAILURE; 
+	}
+	ATH_MSG_INFO( "Thinning will also be set up for container(s): " << m_addTopoClSGKey );
       }
 
       if( m_sgKey == "" ) {
@@ -117,6 +130,21 @@ namespace DerivationFramework {
       if( m_TopoClSGKey.size() ) {
          ATH_CHECK( evtStore()->retrieve( importedTopoCaloCluster,
                                           m_TopoClSGKey ) );
+      }
+
+      // Retrieve additional topocluster container(s)
+      std::vector< const xAOD::CaloClusterContainer* > additionalTopoCaloCluster;
+      for( const std::string& name : m_addTopoClSGKey ) {
+	const xAOD::CaloClusterContainer* tempTopoCaloCluster = nullptr;
+	ATH_CHECK( evtStore()->retrieve( tempTopoCaloCluster, name ) );
+
+	// Size consistency check
+	if( tempTopoCaloCluster->size() != importedTopoCaloCluster->size() ) {
+	  ATH_MSG_FATAL( "One of the additional cluster containers is not the right size" );
+	  return StatusCode::FAILURE;
+	}
+	 
+	additionalTopoCaloCluster.push_back(tempTopoCaloCluster);
       }
 
       // Check the event contains clusters
@@ -221,7 +249,11 @@ namespace DerivationFramework {
       if( importedTopoCaloCluster ) {
          ATH_CHECK( m_thinningSvc->filter( *importedTopoCaloCluster, topomask,
                                            opType ) );
+	 for( const xAOD::CaloClusterContainer* ccc : additionalTopoCaloCluster ) {
+	   ATH_CHECK( m_thinningSvc->filter( *ccc, topomask, opType ) );
+	 }
       }
+
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -252,8 +284,9 @@ namespace DerivationFramework {
             break;
 
          case xAOD::Type::Tau:
-            break;
-
+	   break;
+	   
+	   
          default:
             ClustersInCone::select( particle, m_coneSize, cps, mask );
             break;
@@ -321,8 +354,9 @@ namespace DerivationFramework {
                      static_cast< const xAOD::TauJet* >( particle );
                // Skip taus with no jets:
                if( ! tau->jet() ) {
-                  break;
+		 break;
                }
+
                // Get the 4-momentum of the tau:
                const TLorentzVector& tauP4 =
                      tau->p4( xAOD::TauJetParameters::DetectorAxis );
@@ -333,16 +367,17 @@ namespace DerivationFramework {
                   // Get the 4-momentum of the constituent, and check whether
                   // it's "close enough" to the tau or not:
                   TLorentzVector cP4;
-                  cP4.SetPtEtaPhiM( 1.0, jc->Eta(), jc->Phi(), 1.0 );
-                  if( cP4.DeltaR( tauP4 ) > 0.2 ) {
+		  cP4.SetPtEtaPhiM( 1.0, jc->Eta(), jc->Phi(), 0. );
+                  if( cP4.DeltaR( tauP4 ) > (m_coneSize<0.? 0.2 : m_coneSize) ) {
                      continue;
                   }
                   // If it is, then make sure that it's a cluster coming from
                   // the expected container:
                   const xAOD::IParticle* rawC = jc->rawConstituent();
                   if( rawC->container() != cps ) {
-                     ATH_MSG_DEBUG( "Tau cluster is not from the specified "
-                                    "container" );
+                     ATH_MSG_INFO( "Tau cluster is not from the specified "
+				   "container: you're using ");
+		     //cps->ClustersName(); // << rawC->type().name() << " vs " << cps->at(0)->type().name());
                      continue;
                   }
                   // If all is well, update the mask:

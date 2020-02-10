@@ -72,10 +72,12 @@ thinningTools.append(TAUP1JetTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(
-  name                      = "TAUP1ClusterThinning",
-  ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
-  SGKey                     = "TauJets",
-  TopoClCollectionSGKey     = "CaloCalTopoClusters")
+  name                            = "TAUP1ClusterThinning",
+  ThinningService                 = TAUP1ThinningHelper.ThinningSvc(),
+  SGKey                           = "TauJets",
+  TopoClCollectionSGKey           = "LCOriginTopoClusters",
+  AdditionalTopoClCollectionSGKey = ["CaloCalTopoClusters"],
+  ConeSize                        = 0.6)
 
 ToolSvc += TAUP1CaloClusterThinning
 thinningTools.append(TAUP1CaloClusterThinning)
@@ -198,6 +200,8 @@ TAUP1SlimmingHelper.IncludeBJetTriggerContent    = False
 
 TAUP1SlimmingHelper.ExtraVariables               = ExtraContentTAUP1
 TAUP1SlimmingHelper.AllVariables                 = ExtraContainersTAUP1
+
+addOriginCorrectedClusters(TAUP1SlimmingHelper, writeLC=True, writeEM=False)
 
 if globalflags.DataSource() == "geant4":
   TAUP1SlimmingHelper.ExtraVariables            += ExtraContentTruthTAUP1

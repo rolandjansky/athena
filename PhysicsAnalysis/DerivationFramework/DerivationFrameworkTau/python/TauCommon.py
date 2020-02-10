@@ -27,7 +27,7 @@ DFCommonTauWrapperTools = []
 
 # Loose
 DFCommonTausSelectorLoose = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorLoose")
-DFCommonTausSelectorLoose.JetIDWP = 2
+DFCommonTausSelectorLoose.JetIDWP = 13
 DFCommonTausSelectorLoose.SelectionCuts = 1<<6
 DFCommonTausSelectorLoose.ConfigPath = ''
 #TauAnalysisTools::CutJetIDWP should be used but issue with the dictionnary
@@ -42,7 +42,7 @@ DFCommonTauWrapperTools.append(DFCommonTausLooseWrapper)
 
 # Medium
 DFCommonTausSelectorMedium = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorMedium")
-DFCommonTausSelectorMedium.JetIDWP = 3
+DFCommonTausSelectorMedium.JetIDWP = 14
 DFCommonTausSelectorMedium.SelectionCuts = 1<<6
 DFCommonTausSelectorMedium.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorMedium
@@ -56,7 +56,7 @@ DFCommonTauWrapperTools.append(DFCommonTausMediumWrapper)
 
 # Tight
 DFCommonTausSelectorTight = TauAnalysisTools__TauSelectionTool(name="DFCommonTausSelectorTight")
-DFCommonTausSelectorTight.JetIDWP = 4
+DFCommonTausSelectorTight.JetIDWP = 15
 DFCommonTausSelectorTight.SelectionCuts = 1<<6
 DFCommonTausSelectorTight.ConfigPath = ''
 ToolSvc += DFCommonTausSelectorTight
