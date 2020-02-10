@@ -1,5 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
+
+import six
 
 
 class LArExtendedSubDetGrouping:
@@ -75,7 +77,7 @@ class LArExtendedSubDetGrouping:
 
         #Lookup-dict indexed by channel (partition is the payload)
         self._revLookup=dict()
-        for (p, chs) in self._partitions.iteritems():
+        for (p, chs) in six.iteritems (self._partitions):
             for c in chs:
                 self._revLookup[c]=p
 
@@ -111,7 +113,7 @@ class LArExtendedSubDetGrouping:
                 extPart+=[p]
                 
         for p in extPart:
-            if self._partitions.has_key(p):
+            if p in self._partitions:
                 for g in gains:
                     print (self._partitions[p])
                     chans+=[self._partitions[p][g]]
@@ -210,7 +212,7 @@ class LArExtendedSubDetGrouping:
                     print( "   ")
             
         partCounter=dict()
-        for (p, chs) in self._partitions.iteritems():
+        for (p, chs) in six.iteritems (self._partitions):
             partCounter[p]=counterElem(len(chs),p)
         
         for c in chans:
