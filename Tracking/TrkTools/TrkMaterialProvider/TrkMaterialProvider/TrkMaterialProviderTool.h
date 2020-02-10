@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,14 +73,14 @@ namespace Trk{
     void updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const;
 
     /** Update Calorimeter TSOS from input MS/CB track*/
-    void updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParamaters=0) const;
+    void updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParamaters=nullptr) const;
 
     /** Get Calorimeter MEOT*/
     void getCaloMEOT(const Trk::Track& idTrack, const Trk::Track& msTrack, std::vector<MaterialEffectsOnTrack>& calomeots) const;
 
     /** Retrieve Calorimeter TSOS from TG and apply corrections*/
     std::vector<const Trk::TrackStateOnSurface*>*
-      getCaloTSOS (const Trk::TrackParameters&	parm, const Trk::Track &muonTrack, const Trk::TrackParameters* parms=0) const;
+      getCaloTSOS (const Trk::TrackParameters&	parm, const Trk::Track &muonTrack, const Trk::TrackParameters* parms=nullptr) const;
     
     /** Retrieve a clone of the parametrised energy loss*/
     CaloEnergy* getParamCaloELoss(Trk::Track* track) const;
@@ -97,7 +97,7 @@ namespace Trk{
                    double&                      Eloss,
                    double&                      X0ScaleMS,
                    double&                      ElossScaleMS,
-		   const Trk::TrackParameters*	parms=0,
+		   const Trk::TrackParameters*	parms=nullptr,
 		   bool                         boundaryCheck=false,
 		   bool                         removeOoC=false)     const;
 
@@ -132,7 +132,7 @@ namespace Trk{
     void deleteTSOS(DataVector<const Trk::TrackStateOnSurface>* vecTSOS) const;
 
     //** Helper to printout TSOS details*/
-    void printTSOS(const Trk::TrackStateOnSurface* m, std::string tag) const;
+    void printTSOS(const Trk::TrackStateOnSurface* m, const std::string& tag) const;
            
     /** Function to modify TSOS doing repositioning, aggregation and corrections*/
     DataVector<const Trk::TrackStateOnSurface>* 

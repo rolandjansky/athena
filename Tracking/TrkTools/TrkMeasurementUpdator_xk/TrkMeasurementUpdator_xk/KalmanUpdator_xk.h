@@ -188,7 +188,7 @@ namespace Trk {
       // precision for non-measured track parameters are configured 
       ///////////////////////////////////////////////////////////////////
       
-      virtual const std::vector<double> initialErrors() const override final;
+      virtual std::vector<double> initialErrors() const override final;
 
     protected:
  

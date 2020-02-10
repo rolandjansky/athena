@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::addToState (  const Trk::TrackPa
                                                               const Amg::Vector2D&    measmtPos,
                                                               const Amg::MatrixX&      measmtErr) const {
 
-    FitQualityOnSurface*        fitQoS = 0;
+    FitQualityOnSurface*        fitQoS = nullptr;
     Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPos, measmtErr,1,fitQoS, false);
     if (m_outputlevel <= 0 && outPar)
         logResult("addToState(TP,LPOS,ERR)",*outPar);
@@ -81,7 +81,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::addToState (  const Trk::TrackPa
                                                               const LocalParameters&  measmtPar,
                                                               const Amg::MatrixX&      measmtErr) const {
 
-    FitQualityOnSurface*        fitQoS = 0;
+    FitQualityOnSurface*        fitQoS = nullptr;
     Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPar, measmtErr,1,fitQoS, false);
     if (m_outputlevel <= 0 && outPar)
         logResult("addToState(TP,LPAR,ERR)",*outPar);
@@ -97,11 +97,11 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::addToState (  const Trk::TrackPa
     if (fitQoS) {
         ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
                          << " avoid mem leak!"  );
-        return 0;
+        return nullptr;
     } else {
         Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPos, measmtErr, 1, fitQoS, true);
         if (!outPar)
-            fitQoS = 0;
+            fitQoS = nullptr;
         if (m_outputlevel <= 0 && outPar)
             logResult("addToState(TP,LPOS,ERR,FQ)",*outPar);
         return outPar;
@@ -116,11 +116,11 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::addToState (  const Trk::TrackPa
     if (fitQoS) {
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
                        << " avoid mem leak!"  );
-        return 0;
+        return nullptr;
     } else {
         Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPar, measmtErr, 1, fitQoS, true);
         if (!outPar)
-            fitQoS = 0;
+            fitQoS = nullptr;
         if (m_outputlevel <= 0 && outPar)
             logResult("addToState(TP,LPAR,ERR,FQ)",*outPar);
         return outPar;
@@ -131,7 +131,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::addToState (  const Trk::TrackPa
 Trk::TrackParameters* Trk::KalmanWeightUpdator::removeFromState ( const Trk::TrackParameters& trkPar,
                                                                   const Amg::Vector2D&    measmtPos,
                                                                   const Amg::MatrixX&      measmtErr) const {
-    FitQualityOnSurface*        fitQoS = 0;
+    FitQualityOnSurface*        fitQoS = nullptr;
     Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPos, measmtErr,-1,fitQoS, false);
     if (m_outputlevel<=0 && outPar)
         logResult("removeFromState(TP,LPOS,ERR)",*outPar);
@@ -143,7 +143,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::removeFromState ( const Trk::Tra
                                                                   const LocalParameters&   measmtPar,
                                                                   const Amg::MatrixX&      measmtErr) const {
 
-    FitQualityOnSurface*        fitQoS = 0;
+    FitQualityOnSurface*        fitQoS = nullptr;
     Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPar, measmtErr,-1,fitQoS,false);
     if (m_outputlevel && outPar)
         logResult("removeFromState(TP,LPAR,ERR)",*outPar);
@@ -158,11 +158,11 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::removeFromState ( const Trk::Tra
     if (fitQoS) {
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
                        << " avoid mem leak!"  );
-        return 0;
+        return nullptr;
     } else {
       Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPos, measmtErr, -1, fitQoS, true);
         if (!outPar)
-            fitQoS = 0;
+            fitQoS = nullptr;
         if (m_outputlevel<=0 && outPar)
             logResult("removeFromState(TP,LPOS,ERR,FQ)",*outPar);
         return outPar;
@@ -177,11 +177,11 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::removeFromState ( const Trk::Tra
   if (fitQoS) {
     ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
                        << " avoid mem leak!"  );
-        return 0;
+        return nullptr;
     } else {
         Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPar, measmtErr, -1, fitQoS, true);
         if (!outPar)
-            fitQoS = 0;
+            fitQoS = nullptr;
         if (m_outputlevel<=0 && outPar)
             logResult("removeFrommState(TP,LPAR,ERR,FQ)",*outPar);
         return outPar;
@@ -195,7 +195,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::combineStates (   const Trk::Tra
     if (!one.covariance() && !two.covariance()) {
       ATH_MSG_WARNING( "both parameters have no errors, invalid "
                        << "use of Updator::combineStates(TP,TP)"  );
-        return 0;
+        return nullptr;
     }
     // if only one of two has an error, return that one
     if (!one.covariance()) {
@@ -235,7 +235,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::combineStates (   const Trk::Tra
     if ( (!thetaPhiWithinRange(p)) ? !correctThetaPhiRange(p) : false ) {
         ATH_MSG_WARNING( "combineStates(TP,TP): could not combine angular values."  );
 	delete covNew;
-        return 0;
+        return nullptr;
     }
     // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
     TrackParameters* comb = one.associatedSurface().createTrackParameters(p[Trk::loc1],p[Trk::loc2],
@@ -254,12 +254,12 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::combineStates (   const Trk::Tra
     if (!one.covariance() && !two.covariance()) {
         ATH_MSG_WARNING( "both parameters have no errors, invalid "
                          << "use of Updator::combineStates(TP,TP,FQ)"  );
-        return 0;
+        return nullptr;
     }
     if (fitQoS) {
         ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
                          << " avoid mem leak!"  );
-        return 0;
+        return nullptr;
     }
     // if only one of two has an error, return that one
     if (!one.covariance()) {
@@ -299,7 +299,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::combineStates (   const Trk::Tra
     if ( (!thetaPhiWithinRange(p)) ? !correctThetaPhiRange(p) : false ) {
         ATH_MSG_WARNING( "combineStates(TP,TP): could not combine angular values."  );
 	delete covNew;
-        return 0;
+        return nullptr;
     }
     // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
     TrackParameters* comb = one.associatedSurface().createTrackParameters(p[Trk::loc1],p[Trk::loc2],
@@ -328,7 +328,7 @@ Trk::KalmanWeightUpdator::fullStateFitQuality ( const Trk::TrackParameters& trkP
     // try if Track Parameters are measured ones ?
     if (!trkPar.covariance()) {
         ATH_MSG_ERROR( "updated smoother/trajectory has no error matrix"  );
-        return 0;
+        return nullptr;
     }
     // covariance matrix for prediction
     const AmgSymMatrix(5)& covTrk = *trkPar.covariance();
@@ -364,13 +364,13 @@ Trk::KalmanWeightUpdator::fullStateFitQuality ( const Trk::TrackParameters& trkP
     // try if Track Parameters are measured ones ?
     if (!trkPar.covariance()) {
       ATH_MSG_ERROR( "updated smoother/trajectory has no error matrix"  );
-      return 0;
+      return nullptr;
     }
     // covariance matrix for prediction
     const AmgSymMatrix(5)& covTrk = *trkPar.covariance();
 
     // State to measurement dimensional reduction Matrix ( n x m )
-    Amg::MatrixX H(rioPar.expansionMatrix());
+    const Amg::MatrixX& H(rioPar.expansionMatrix());
 
     // residuals
     Amg::VectorX r = rioPar - H * trkPar.parameters();
@@ -389,7 +389,7 @@ Trk::KalmanWeightUpdator::predictedStateFitQuality (    const Trk::TrackParamete
     // try if Track Parameters are measured ones ?
     if (!predPar.covariance()) {
       ATH_MSG_ERROR( "input trajectory state has no error matrix"  );
-      return 0;
+      return nullptr;
     }
     // covariance matrix for prediction
     const AmgSymMatrix(5)& covPred = *predPar.covariance();
@@ -424,13 +424,13 @@ Trk::KalmanWeightUpdator::predictedStateFitQuality (    const Trk::TrackParamete
     // try if Track Parameters are measured ones ?
     if (!predPar.covariance()) {
       ATH_MSG_ERROR( "input trajectory state has no error matrix"  );
-      return 0;
+      return nullptr;
     }
     // covariance matrix for prediction
     const AmgSymMatrix(5)& covPred = *predPar.covariance();
 
     // State to measurement dimensional reduction Matrix ( n x m )
-    Amg::MatrixX H(rioPar.expansionMatrix());
+    const Amg::MatrixX& H(rioPar.expansionMatrix());
 
     // residuals
     Amg::VectorX    r = rioPar - H * predPar.parameters();
@@ -449,7 +449,7 @@ Trk::KalmanWeightUpdator::predictedStateFitQuality (    const Trk::TrackParamete
     if (!one.covariance() && !two.covariance()) {
         ATH_MSG_WARNING( "both parameters have no errors, invalid "
                          << "use of Updator::fitQuality()"  );
-        return 0;
+        return nullptr;
     }
     // if only one of two has an error, place a message.
     if (!one.covariance() || !two.covariance()) {
@@ -472,7 +472,7 @@ Trk::KalmanWeightUpdator::predictedStateFitQuality (    const Trk::TrackParamete
     return new FitQualityOnSurface(chiSquared, 5);
 }
 
-const std::vector<double> Trk::KalmanWeightUpdator::initialErrors() const {
+std::vector<double> Trk::KalmanWeightUpdator::initialErrors() const {
   std::vector<double> E(5);
   for (int i=0; i<5; ++i) E[i] = (m_weight[i]!=0.) ? 
       sqrt(1./m_weight[i]) : 1E5 ;
@@ -509,7 +509,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
     if (sign<0) {
       ATH_MSG_ERROR( "MeasuredTrackParameters == Null, can not calculate "
                      << "updated track state"  );
-      return 0;
+      return nullptr;
     } else {
       // no error given - use zero weight for the time
       GOld.setZero();
@@ -530,7 +530,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
   if (!thetaPhiWithinRange(pOld)) {
     ATH_MSG_WARNING( (sign>0?"addToState(TP,LPOS,ERR..)":"removeFromState(TP,LPOS,ERR..)")
                      << ": undefined phi,theta range in input parameters."  );
-    return 0;
+    return nullptr;
   }
 
   // measurement vector of RIO_OnTrack - needs more care for # local par?
@@ -562,7 +562,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
   Amg::VectorX pNew = (*covNew) * weightedSum;
   if ( (!thetaPhiWithinRange(pNew)) ? !correctThetaPhiRange(pNew) : false ) {
     ATH_MSG_WARNING( "calculateFS(TP,LPAR,ERR): bad angles in filtered state!"  );
-    return 0;
+    return nullptr;
   }
   
   // compute chi2 if needed
@@ -610,7 +610,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
     if (sign<0) {
       ATH_MSG_ERROR( "MeasuredTrackParameters == Null, can not calculate "
                      << "updated track state"  );
-      return 0;
+      return nullptr;
     } else {
       // no error given - use zero weight for the time
       GOld.setZero();
@@ -630,12 +630,12 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
   if (!thetaPhiWithinRange(pOld)) {
     ATH_MSG_WARNING( (sign>0?"addToState(TP,LPAR,ERR..)":"removeFromState(TP,LPAR,ERR..)")
                      << ": undefined phi,theta range in input parameters."  );
-    return 0;
+    return nullptr;
   }
   if (!thetaPhiWithinRange(m, m.parameterKey())) {
     ATH_MSG_WARNING( (sign>0?"addToState(TP,LPAR,ERR..)":"removeFromState(TP,LPAR,ERR..)")
                      << ": undefined phi,theta range in input measurement !!"  );
-    return 0;
+    return nullptr;
   }
 
   // measurement vector of RIO_OnTrack - needs more care for # local par?
@@ -662,7 +662,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
   ATH_MSG_VERBOSE( "FS: pNew: (" << pNew[0] << "," << pNew[1] << "," << pNew[2] << "," << pNew[3] << "," << pNew[4] << ")"  );
   if ( (!thetaPhiWithinRange(pNew)) ? !correctThetaPhiRange(pNew) : false ) {
     ATH_MSG_WARNING( "calculateFS(TP,LPAR,ERR): bad angles in filtered state!"  );
-    return 0;
+    return nullptr;
   }
   if (m_outputlevel <= 0) {
     logOutputCov(pNew, *Cnew);
@@ -827,7 +827,8 @@ bool Trk::KalmanWeightUpdator::correctThetaPhiRange(Amg::VectorX& V, const bool 
     // get phi and theta coordinate.
     // The case of no angles among meas'coordinates should have been blocked
     // by inline function thetaPhiWithinRange() - but is caught also here ("-1")
-    int jphi = -1, jtheta = -1;
+    int jphi = -1;
+    int jtheta = -1;
     double thetaMin = (isDifference ? -M_PI : 0);
     if (key == 31) jphi = Trk::phi;
     else if (key & 4) // phi is within localParameter and a measured coordinate

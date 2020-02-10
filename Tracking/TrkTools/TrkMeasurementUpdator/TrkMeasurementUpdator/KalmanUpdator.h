@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -145,10 +145,10 @@ class KalmanUpdator : virtual public IUpdator, public AthAlgTool {
                                                                                  const Amg::MatrixX&, 
                                                                                  const int&, Trk::FitQualityOnSurface*&, 
                                                                                  bool ) const override final 
-    {return 0;}
+    {return nullptr;}
 
     //! gives back how updator is configured for inital covariances
-    virtual const std::vector<double>  initialErrors() const override final;
+    virtual std::vector<double>  initialErrors() const override final;
 		
 private:
     //! Common maths calculation code for addToState and removeFromState - Amg::Vector2D interface.

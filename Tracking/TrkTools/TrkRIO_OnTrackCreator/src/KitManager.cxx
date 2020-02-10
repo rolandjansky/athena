@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "KitManager.h"
 #include <sstream>
@@ -12,7 +12,7 @@ const void *KitManagerBase::kitPtr(const std::string &name) const {
   return m_registry.at(name);
 }
 
-bool KitManagerBase::registerKit(std::string name, const void *a_kit) {
+bool KitManagerBase::registerKit(const std::string& name, const void *a_kit) {
   std::pair<std::string, const void *> elm = std::make_pair(name, a_kit);
   if (!m_registry.insert(elm).second) {
     std::stringstream message;

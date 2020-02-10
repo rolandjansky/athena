@@ -168,8 +168,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
      m_stat.dump(out, m_tryBremFit);
      out << endmsg;
   }
-  return;
-}
+  }
 
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &out, bool try_brem_fit) const
 {
@@ -375,8 +374,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
     // @TODO can delete this track ?
     cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(track) );
   }
-  return;
-}
+  }
 //==================================================================================================
 
 
@@ -498,8 +496,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScore
   }
 
   ATH_MSG_DEBUG ("Finished, number of track on output: "<<finalTracks.size());
-
-  return;
 }
 
 
@@ -509,7 +505,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk:
                                                                       Trk::PRDtoTrackMap &prd_to_track_map,
                                                                       Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const
 {
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
   if (!m_suppressTrackFit){
     if (m_refitPrds) 
     {
@@ -552,7 +548,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk:
     newTrack = new Trk::Track(info, vecTsos, fq);  
   }
   
-  if (newTrack!=0) 
+  if (newTrack!=nullptr) 
   {
     ATH_MSG_DEBUG ("New track "<<newTrack<<" successfully fitted from "<<track);
   }
@@ -574,25 +570,25 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const Trk::
   // @TODO ensured that prds on track are registered for this track ?
    std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(prd_to_track_map,*track);
 
-  if ( 0==prds.size() ) {
+  if ( prds.empty() ) {
     ATH_MSG_WARNING( "No PRDs on track");
-    return 0;
+    return nullptr;
   }
      
   ATH_MSG_VERBOSE ("Track "<<track<<"\t has "<<prds.size()<<"\t PRDs");
 
   const TrackParameters* par = track->perigeeParameters();
-  if (par==0) {
+  if (par==nullptr) {
     ATH_MSG_DEBUG ("Track ("<<track<<") has no perigee! Try any other ?");
     par = track->trackParameters()->front();
-    if (par==0) {
+    if (par==nullptr) {
       ATH_MSG_DEBUG ("Track ("<<track<<") has no Track Parameters ! No refit !");
-      return 0;
+      return nullptr;
     }
   }
 
   // refit using first parameter, do outliers
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
 
   if (m_tryBremFit && track->info().trackProperties(Trk::TrackInfo::BremFit))
   {
@@ -629,7 +625,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitPrds( const Trk::
   if(newTrack) {
     stat.increment_by_eta(TrackStat::kNgoodFits,newTrack);
     //keeping the track of previously accumulated TrackInfo
-    const Trk::TrackInfo old_info = track->info();
+    const Trk::TrackInfo& old_info = track->info();
     newTrack->info().addPatternReco(old_info);
   }
   else {
@@ -647,7 +643,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots(const Trk::T
   ATH_MSG_VERBOSE ("Refit track "<<track);
 
   // refit using first parameter, do outliers
-  Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = nullptr;
 
   if (m_tryBremFit &&
       track->info().trackProperties(Trk::TrackInfo::BremFit))
@@ -677,7 +673,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitRots(const Trk::T
   {
     stat.increment_by_eta(TrackStat::kNgoodFits,newTrack);
     //keeping the track of previously accumulated TrackInfo
-    const Trk::TrackInfo old_info = track->info();
+    const Trk::TrackInfo& old_info = track->info();
     newTrack->info().addPatternReco(old_info);
   }
   else {
@@ -778,7 +774,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
          std::pair<float,float> min (mindX, mindZ);
          ret = dRMapHandle->insert ( std::pair<const InDet::PixelCluster*,std::pair<float,float> >(pixel,min));
          // if we already have a dR for this prd, we update it, if current value is smaller
-         if (ret.second==false) {
+         if (!ret.second) {
             InDet::DRMap::iterator it;
             it = dRMapHandle->find(pixel);
             if(sqrt(pow((*it).second.first,2)+pow((*it).second.second,2)) > (float)mindR) {
@@ -789,8 +785,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( TrackC
       }
       if(refit) refit_tracks_out.push_back(track);
   }
-  return;
-}
+  }
 
 //============================================================================================================
 bool Trk::DenseEnvironmentsAmbiguityProcessorTool::decideIfInHighPtBROI(const Trk::Track* ptrTrack) const
@@ -816,9 +811,11 @@ bool Trk::DenseEnvironmentsAmbiguityProcessorTool::decideIfInHighPtBROI(const Tr
 //============================================================================================================
 bool Trk::DenseEnvironmentsAmbiguityProcessorTool::isHadCaloCompatible(const Trk::TrackParameters& Tp) const
 {
-  const double pi = M_PI, pi2 = 2.*M_PI;
+  const double pi = M_PI;
+  const double pi2 = 2.*M_PI;
     if(m_hadF.empty()) return false;
-  auto f = m_hadF.begin(), fe = m_hadF.end();
+  auto f = m_hadF.begin();
+  auto fe = m_hadF.end();
   auto e = m_hadE.begin();
   auto r = m_hadR.begin();
   auto z = m_hadZ.begin();
@@ -870,7 +867,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::removeInnerHits(std::vector<c
   int count = 0; 
   for (size_t i=0; i < measurements.size(); ++i){
     const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(measurements.at(i));
-    if (rio != 0) {
+    if (rio != nullptr) {
       const Identifier& surfaceID = (rio->identify()) ;                            
       if(m_idHelper->is_pixel(surfaceID) && count ==0){  
         //Only do this if we want to remove the pixel hits 
@@ -894,11 +891,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::removeInnerHits(std::vector<c
 Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTracksFromB(const Trk::Track* track, double fitQualityOriginal) const
 {
   const Trk::TrackParameters* par = track->perigeeParameters();
-  if (par==0) {
+  if (par==nullptr) {
     par = track->trackParameters()->front();
-    if (par==0) {
+    if (par==nullptr) {
       ATH_MSG_DEBUG ("Track ("<<track<<") has no Track Parameters ! No refit !");
-      return 0;
+      return nullptr;
     }
   }
   
@@ -914,7 +911,7 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTracksFromB(const
     if ( (*trackStateOnSurface)->measurementOnTrack() ){
       if ( (*trackStateOnSurface)->type( Trk::TrackStateOnSurface::Measurement) ){
         const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>( (*trackStateOnSurface)->measurementOnTrack() );
-        if (rio != 0) {
+        if (rio != nullptr) {
           const Identifier& surfaceID = (rio->identify()) ;                            
           if(m_idHelper->is_pixel(surfaceID)|| m_idHelper->is_sct(surfaceID)) {
             measurementSet.push_back( (*trackStateOnSurface)->measurementOnTrack() );
@@ -938,12 +935,12 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTracksFromB(const
         }
       }
       if (previousMeasSize == measurementSet.size()){
-        return 0;
+        return nullptr;
       }
       previousMeasSize = measurementSet.size();
     } else {
       //cannot refit the track because we do not have enough measurements
-      return 0;
+      return nullptr;
     }
   }
 }

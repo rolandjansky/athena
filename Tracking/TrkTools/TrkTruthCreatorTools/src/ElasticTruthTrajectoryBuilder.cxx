@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko, 2008
@@ -40,7 +40,8 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) c
 {
 	result->clear();
 	if(input) {
-		const HepMC::GenParticle *next(0), *current = input;
+		const HepMC::GenParticle *next(nullptr);
+		const HepMC::GenParticle *current = input;
 
 		// Extend trajectory outwards.  The last particle should go at [0]
 		// in the TruthTrajectory, so we need to use a tmp storage while
@@ -70,7 +71,8 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) c
 ElasticTruthTrajectoryBuilder::MotherDaughter
 	ElasticTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
 {
-	const HepMC::GenParticle *mother(0), *daughter(0);
+	const HepMC::GenParticle *mother(nullptr);
+	const HepMC::GenParticle *daughter(nullptr);
 
 	// only truth vertices with 1 incoming particle
 	if(vtx && (vtx->particles_in_size() == 1)) {
@@ -90,7 +92,7 @@ ElasticTruthTrajectoryBuilder::MotherDaughter
 			if (vtx->particles_out_size() <= 2) {
 
 				int num_passed_cuts = 0;
-				const HepMC::GenParticle *passed_cuts(0);
+				const HepMC::GenParticle *passed_cuts(nullptr);
 				for(HepMC::GenVertex::particles_in_const_iterator it = vtx->particles_out_const_begin();
 				it != vtx->particles_out_const_end(); ++it) {
 
@@ -122,7 +124,7 @@ ElasticTruthTrajectoryBuilder::MotherDaughter
 //================================================================
 const HepMC::GenParticle* ElasticTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) const {
 
-	const HepMC::GenParticle *daughter = 0;
+	const HepMC::GenParticle *daughter = nullptr;
 
 	if(mother) {
 
@@ -139,7 +141,7 @@ const HepMC::GenParticle* ElasticTruthTrajectoryBuilder::getDaughter(const HepMC
 //================================================================
 const HepMC::GenParticle* ElasticTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) const {
 
-	const HepMC::GenParticle *mother = 0;
+	const HepMC::GenParticle *mother = nullptr;
 
 	if(daughter) {
 

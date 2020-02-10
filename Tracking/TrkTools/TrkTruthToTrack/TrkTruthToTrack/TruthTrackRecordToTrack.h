@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRUTHRECORDTOTRACK_H
@@ -69,8 +69,8 @@ namespace Trk {
     
     /** Forbid copying of Truth...ToTrack to not mess with the
         internal pointers. */ 
-    TruthTrackRecordToTrack(const TruthTrackRecordToTrack&);
-    TruthTrackRecordToTrack& operator=(const TruthTrackRecordToTrack&);
+    TruthTrackRecordToTrack(const TruthTrackRecordToTrack&) = delete;
+    TruthTrackRecordToTrack& operator=(const TruthTrackRecordToTrack&) = delete;
   };
 }
 
