@@ -80,7 +80,7 @@ Trk::CombinedVolumeBounds& Trk::CombinedVolumeBounds::operator=(const Trk::Combi
   return *this;
 }
 
-const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transf) const
+const std::vector<const Trk::Surface*>* Trk::CombinedVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transf) const
 {
 
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;
