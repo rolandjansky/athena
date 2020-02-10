@@ -64,7 +64,7 @@ if [ $rc2 -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --error-mode resilient --mode=semi-detailed --order-trees
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
     rc4=$?
 fi
 echo  "art-result: $rc4 regression"
