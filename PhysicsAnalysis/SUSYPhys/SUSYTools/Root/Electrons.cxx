@@ -229,7 +229,6 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
       double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
       dec_ecisBDT(input) = bdt;
     }
-
   }
   else{ 
     dec_passChID(input) = true;
@@ -318,7 +317,8 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
                                        const bool triggerSF,
                                        const bool isoSF,
                                        const std::string& trigExpr,
-				       const bool chfSF) {
+				                           const bool ecidsSF,
+                                       const bool cidSF ) {
 
   if ((m_eleId == "VeryLooseLLH" || m_eleId == "LooseLLH" || m_eleId == "Loose" || m_eleId == "Medium" || m_eleId == "Tight") && (idSF || triggerSF || isoSF)) {
     ATH_MSG_ERROR("No signal electron ID or trigger scale factors provided for the selected working point!");
@@ -425,48 +425,52 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }
   }
 
-  // Charge flip SF 
-  if (chfSF){
+  // Charge flip SF: combined ECIDs & charge ID
+  if ( ecidsSF || cidSF ) {
     double chf_sf(1.);
-
     CP::CorrectionCode result;
-
-    //ECIS SF 
-    if( m_runECIS ){
-      result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
+    // 1. ECIDs SF 
+    if ( ecidsSF ) {
+      if( m_runECIS ){
+        result = m_elecEfficiencySFTool_chf->getEfficiencyScaleFactor(el, chf_sf);
+        switch (result) {
+        case CP::CorrectionCode::Ok:
+          sf *= chf_sf;
+          break;
+        case CP::CorrectionCode::Error:
+          ATH_MSG_ERROR( "Failed to retrieve signal electron charge-flip SF");
+          break;
+        case CP::CorrectionCode::OutOfValidityRange:
+          ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge-flip SF");
+          break;
+        default:
+          ATH_MSG_WARNING( "Don't know what to do for signal electron charge-flip SF");
+        }
+      }
+      else {
+         ATH_MSG_WARNING( "You're asking to get ecidsSF, but the WP is not set. Did you set Ele.CFT (only Loose supported)?" );
+      }
+    }
+    // 2. CID SF
+    if ( cidSF ) {
+      result = m_elecChargeEffCorrTool->getEfficiencyScaleFactor(el, chf_sf);
       switch (result) {
       case CP::CorrectionCode::Ok:
         sf *= chf_sf;
+        dec_sfChIDEff(el) = chf_sf;
         break;
       case CP::CorrectionCode::Error:
-        ATH_MSG_ERROR( "Failed to retrieve signal electron charge-flip SF");
+        ATH_MSG_ERROR( "Failed to retrieve signal electron charge efficiency correction SF");
         break;
       case CP::CorrectionCode::OutOfValidityRange:
-        ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron charge-flip SF");
+        // Range determined by bin range in configured correction file (CorrectionFileName)
+        // Run m_elecChargeEffCorrTool with message level VERBOSE to print out range
+        ATH_MSG_DEBUG( "OutOfValidityRange found for signal electron charge efficiency correction SF. Setting SF = 1");
+        dec_sfChIDEff(el) = 1;
         break;
       default:
-        ATH_MSG_WARNING( "Don't know what to do for signal electron charge-flip SF");
+        ATH_MSG_WARNING( "Don't know what to do for signal electron charge efficiency correction SF");
       }
-    }
-
-    //CHIDEFF SF
-    result = m_elecChargeEffCorrTool->getEfficiencyScaleFactor(el, chf_sf);
-    switch (result) {
-    case CP::CorrectionCode::Ok:
-      sf *= chf_sf;
-      dec_sfChIDEff(el) = chf_sf;
-      break;
-    case CP::CorrectionCode::Error:
-      ATH_MSG_ERROR( "Failed to retrieve signal electron charge efficiency correction SF");
-      break;
-    case CP::CorrectionCode::OutOfValidityRange:
-      // Range determined by bin range in configured correction file (CorrectionFileName)
-      // Run m_elecChargeEffCorrTool with message level VERBOSE to print out range
-      ATH_MSG_DEBUG( "OutOfValidityRange found for signal electron charge efficiency correction SF. Setting SF = 1");
-      dec_sfChIDEff(el) = 1;
-      break;
-    default:
-      ATH_MSG_WARNING( "Don't know what to do for signal electron charge efficiency correction SF");
     }
   }
   
@@ -540,20 +544,20 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
 }
 
 
-  float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool chfSF) {
+  float SUSYObjDef_xAOD::GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool ecidsSF, const bool cidSF) {
   float sf(1.);
 
   for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
-    if (acc_signal(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
-    else { this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF); }
+    if (acc_signal(*electron)) { sf *= this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, ecidsSF, cidSF); }
+    else { this->GetSignalElecSF(*electron, recoSF, idSF, triggerSF, isoSF, trigExpr, ecidsSF, cidSF); }
   }
 
   return sf;
 }
 
 
-  float SUSYObjDef_xAOD::GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool chfSF) {
+  float SUSYObjDef_xAOD::GetTotalElectronSFsys(const xAOD::ElectronContainer& electrons, const CP::SystematicSet& systConfig, const bool recoSF, const bool idSF, const bool triggerSF, const bool isoSF, const std::string& trigExpr, const bool ecidsSF, const bool cidSF) {
   float sf(1.);
 
   //Set the new systematic variation
@@ -594,7 +598,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
 
 
   //Get the total SF for new config
-  sf = GetTotalElectronSF(electrons, recoSF, idSF, triggerSF, isoSF, trigExpr, chfSF);
+  sf = GetTotalElectronSF(electrons, recoSF, idSF, triggerSF, isoSF, trigExpr, ecidsSF, cidSF);
 
   //Roll back to default
   ret = m_elecEfficiencySFTool_reco->applySystematicVariation(m_currentSyst);

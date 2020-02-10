@@ -162,6 +162,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleIsoHighPt_WP(""),
     m_eleIsoHighPtThresh(-99.),
     m_eleChID_WP(""),
+    m_eleChIso(true),
     m_runECIS(false),
     m_photonBaselineIso_WP(""),
     m_photonIso_WP(""),
@@ -236,6 +237,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orDoTau(false),
     m_orDoPhoton(false),
     m_orDoEleJet(true),
+    m_orDoElEl(false),
+    m_orDoElMu(false),
     m_orDoMuonJet(true),
     m_orDoBjet(false),
     m_orDoElBjet(true),
@@ -398,6 +401,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoTauOR",       m_orDoTau );
   declareProperty( "DoPhotonOR",    m_orDoPhoton );
   declareProperty( "DoEleJetOR",    m_orDoEleJet );
+  declareProperty( "DoElElOR",    m_orDoElEl );
+  declareProperty( "DoElMuOR",    m_orDoElMu );
   declareProperty( "DoMuonJetOR",   m_orDoMuonJet );
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
@@ -489,6 +494,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
   declareProperty( "EleIsoHighPtThresh", m_eleIsoHighPtThresh);
   declareProperty( "EleCFT", m_eleChID_WP);
+  declareProperty( "EleCFTIso", m_eleChIso);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
   declareProperty( "EleBaselineD0sig", m_elebaselined0sig);
@@ -1136,7 +1142,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   ATH_MSG_INFO( "Config file opened" );
 
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
-    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
+    m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 9));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
   }
   // Remove the item from the table
@@ -1179,6 +1185,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoTau"] = "DoTauOR";
   m_conf_to_prop["OR.DoPhoton"] = "DoPhotonOR";
   m_conf_to_prop["OR.DoEleJet"] = "DoEleJetOR";
+  m_conf_to_prop["OR.DoElEl"] = "DoElElOR";
+  m_conf_to_prop["OR.DoElMu"] = "DoElMuOR";
   m_conf_to_prop["OR.DoMuonJet"] = "DoMuonJetOR";
   m_conf_to_prop["OR.Bjet"] = "DoBjetOR";
   m_conf_to_prop["OR.ElBjet"] = "DoElBjetOR";
@@ -1223,6 +1231,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_eleChIso, "Ele.CFTIso", rEnv, true); // use charge ID SFs without iso applied
   configFromFile(m_doModifiedEleId, "Ele.DoModifiedId", rEnv, false);
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eleConfig, "Ele.Config", rEnv, "None");
@@ -1338,7 +1347,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
-  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
+  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "DL1");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagTimeStamp, "Btag.TimeStamp", rEnv, "201810");
   
@@ -1362,6 +1371,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoTau, "OR.DoTau", rEnv, false);
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
   configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
+  configFromFile(m_orDoElEl, "OR.ElEl", rEnv, false);
+  configFromFile(m_orDoElMu, "OR.ElMu", rEnv, false);
   configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, false);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, false);

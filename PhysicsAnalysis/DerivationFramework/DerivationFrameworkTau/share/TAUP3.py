@@ -133,7 +133,10 @@ import DerivationFrameworkTau.TAUPThinningHelper
 TAUP3TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP3",
                                                                      "TAUP3ThinningSvc",
                                                                      ToolSvc)
+
 thinningTools += TAUP3TruthThinningTools
+
+
 # =============================================
 # Skimming tool
 # =============================================
@@ -148,16 +151,6 @@ TAUP3SkimmingTool    = DerivationFramework__xAODStringSkimmingTool(
   expression                = expression)
 
 ToolSvc   += TAUP3SkimmingTool
-
-# =============================================
-# Standard jets
-# =============================================
-if globalflags.DataSource() == "geant4":
-  print 'Adding AntiKt4TruthJets here'
-  #addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=DerivationFrameworkJob, outputGroup="TAUP3")
-  reducedJetList = ["AntiKt4TruthJets"]
-  replaceAODReducedJets(reducedJetList,TAUP3seq, "TAUP3")
-  from DerivationFrameworkTau.TauTruthCommon import *
 
 # =============================================
 # Create derivation Kernel

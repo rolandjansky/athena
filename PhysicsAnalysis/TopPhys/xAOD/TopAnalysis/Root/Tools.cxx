@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/Tools.h"
@@ -31,6 +31,8 @@
 #include "PATInterfaces/CorrectionCode.h"
 
 #include "AsgTools/AsgMetadataTool.h"
+#include "xAODTruth/TruthMetaData.h"
+#include "xAODTruth/TruthMetaDataContainer.h"
 
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -145,6 +147,55 @@ namespace top {
 
     // If we don't already return, something unexpected has happened and we need to fix it!
     throw std::runtime_error("Cannot determine the derivation stream. Please report.");
+  }
+
+  void parseCutBookkeepers(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+      std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC) {
+    std::vector<int> maxCycle;
+    for (const xAOD::CutBookkeeper *cbk : *cutBookKeepers) {
+      // skip RDO and ESD numbers, which are nonsense; and
+      // skip the derivation number, which is the one after skimming
+      // we want the primary xAOD numbers
+      if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
+        continue;
+      // only accept "AllExecutedEvents" bookkeeper (0th MC weight)
+      // or "AllExecutedEvents_NonNominalMCWeight_XYZ" where XYZ is the MC weight index
+      if (!((cbk->name() == "AllExecutedEvents")
+            || (cbk->name().find("AllExecutedEvents_NonNominalMCWeight_") != std::string::npos)))
+        continue;
+      const std::string name = cbk->name();
+      auto pos_name = std::find(names.begin(), names.end(), name);
+      // is it a previously unencountered bookkeeper? If yes append its name to the vector of names
+      // if not no need, but we must check the corresponding entry for the sum of weights exist
+      if (pos_name == names.end()) {
+        names.push_back(name);
+        maxCycle.push_back(cbk->cycle());
+        sumW.push_back(cbk->sumOfEventWeights());
+      } else if (cbk->cycle() > maxCycle.at(pos_name - names.begin())) {
+        maxCycle.at(pos_name - names.begin()) = cbk->cycle();
+        sumW.at(pos_name - names.begin()) = cbk->sumOfEventWeights();
+      } else {
+        continue;
+      }
+    }
+  }
+
+  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers, const bool isHLLHC) {
+    int maxCycle = -1;
+    ULong64_t rawEntries = 0;
+    // search for "AllExecutedEvents" bookkeeper -- this one should always exist
+    for (const xAOD::CutBookkeeper *cbk : *cutBookKeepers) {
+      if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
+        continue;
+      if (cbk->name() != "AllExecutedEvents")
+        continue;
+      if (cbk->cycle() > maxCycle) {
+        rawEntries = cbk->nAcceptedEvents();
+        maxCycle = cbk->cycle();
+      }
+    }
+
+    return rawEntries;
   }
 
   xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::string& electronCollectionName) {
@@ -394,7 +445,7 @@ namespace top {
     // https://gitlab.cern.ch/atlas/athena/blob/21.2/Event/xAOD/xAODMetaData/xAODMetaData/versions/FileMetaData_v1.h#L47
     std::string productionRelease, amiTag, AODFixVersion, AODCalibVersion, dataType, geometryVersion, conditionsTag,
                 beamType, simFlavour;
-    float beamEnergy, mcProcID;
+    float beamEnergy = 0, mcProcID = -1;
     /// Release that was used to make the file [string]
     FMD->value(xAOD::FileMetaData::productionRelease, productionRelease);
     /// AMI tag used to process the file the last time [string]
@@ -414,11 +465,34 @@ namespace top {
     /// Beam type [string]
     FMD->value(xAOD::FileMetaData::beamType, beamType);
     /// Same as mc_channel_number [float]
-    FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
+    const bool gotDSID = FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
+    unsigned int mcChannelNumber = mcProcID;
     /// Fast or Full sim [string]
     FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
     /// It is also possible to access any other info in metadata with
     /// FMD->value("SomeMetaInfo", someObject);
+
+    // in case FileMetaData is bugged and does not have DSID properly stored
+    // happens for example for files with 0 events in CollectionTree after skimming
+    if (!gotDSID || mcChannelNumber == ((unsigned int) -1)) {
+      bool gotTruthMetaData = true;
+      const xAOD::TruthMetaDataContainer *truthMetadata =  nullptr;
+      if (ATMetaData.inputMetaStore()->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")) {
+        if (ATMetaData.inputMetaStore()->retrieve(truthMetadata, "TruthMetaData")) {
+          if (truthMetadata->size() == 1) {
+            mcChannelNumber = truthMetadata->at(0)->mcChannelNumber();
+          } else {
+            std::cout << "WARNING (TopAnalysis::Tools::readMetaData): TruthMetaData does not have exactly one entry. Cannot reliably determine DSID" << std::endl;
+          }
+        } else {
+          gotTruthMetaData = false;
+        }
+      } else {
+        gotTruthMetaData = false;
+      }
+      if (!gotTruthMetaData)
+        std::cout << "WARNING (TopAnalysis::Tools::readMetaData): We cannot retrieve TruthMetaData to determine DSID" << std::endl;
+    }
 
     /// Print out this information as a cross-check
     std::cout << "Using AsgMetadataTool to access the following information" << std::endl;
@@ -431,11 +505,12 @@ namespace top {
     std::cout << "TopAnalysis::Tools::readMetaData : conditionsTag      -> " << conditionsTag << std::endl;
     std::cout << "TopAnalysis::Tools::readMetaData : beamEnergy         -> " << beamEnergy << std::endl;
     std::cout << "TopAnalysis::Tools::readMetaData : beamType           -> " << beamType << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : mcProcID           -> " << mcProcID << std::endl;
+    std::cout << "TopAnalysis::Tools::readMetaData : mcProcID           -> " << int(mcChannelNumber) << std::endl;
     std::cout << "TopAnalysis::Tools::readMetaData : simFlavour         -> " << simFlavour << std::endl;
-    std::cout << "This information is not yet propagated to TopConfig      " << std::endl;
+    std::cout << "Not all this information is not yet propagated to TopConfig      " << std::endl;
 
     config->setAmiTag(amiTag);
+    config->setDSID(mcChannelNumber);
 
     return true;
   }

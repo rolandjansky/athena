@@ -1,20 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <math.h>
-#include <float.h>
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
-#include "fastjet/PseudoJet.hh"
-#include "fastjet/ClusterSequence.hh"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "JetEDM/JetConstituentFiller.h"
 #include "JetEDM/FastJetUtils.h"
-
-using namespace std;
-using fastjet::PseudoJet;
 
 SubjetRecorderTool::SubjetRecorderTool(std::string name) : 
   AsgTool(name), m_subjetlabel(""), m_subjetcontainername("")
@@ -26,11 +18,11 @@ SubjetRecorderTool::SubjetRecorderTool(std::string name) :
 std::vector<xAOD::Jet *> SubjetRecorderTool::recordSubjets(std::vector<fastjet::PseudoJet> subjets, xAOD::Jet &jet) const
 {
   // Retrieve or set up subjet container
-  string subjet_name = m_subjetlabel;
-  string subjet_container_name = m_subjetcontainername;
+  std::string subjet_name = m_subjetlabel;
+  std::string subjet_container_name = m_subjetcontainername;
   if(subjet_name == "" || subjet_container_name == "") {
     ATH_MSG_ERROR("Invalid subjet label or container name");
-    return vector<xAOD::Jet *>();
+    return std::vector<xAOD::Jet *>();
   }
   xAOD::JetContainer *subjet_container = 0;
 #ifdef ROOTCORE
@@ -46,18 +38,18 @@ std::vector<xAOD::Jet *> SubjetRecorderTool::recordSubjets(std::vector<fastjet::
     sc = evtStore()->record(subjet_container, subjet_container_name);
     if(sc.isFailure()) {
       ATH_MSG_ERROR("Error recording subjet container (" << subjet_container_name << ")");
-      return vector<xAOD::Jet *>();
+      return std::vector<xAOD::Jet *>();
     }
     sc = evtStore()->record(dynamic_cast<xAOD::JetAuxContainer*>(subjet_container->getStore()), subjet_container_name + "Aux.");
     if(sc.isFailure()) {
       ATH_MSG_ERROR("Error recording subjet aux container (" << subjet_container_name << "Aux.)");
-      return vector<xAOD::Jet *>();
+      return std::vector<xAOD::Jet *>();
     }
   }
 
   // Create xAOD::Jet's
-  vector<const xAOD::Jet *> subj_ptrs_const;
-  vector<xAOD::Jet *> subj_ptrs;
+  std::vector<const xAOD::Jet *> subj_ptrs_const;
+  std::vector<xAOD::Jet *> subj_ptrs;
   for(auto it = subjets.begin(); it != subjets.end(); it++) {
     xAOD::Jet *subj = new xAOD::Jet();
     subjet_container->push_back(subj);

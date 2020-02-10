@@ -143,7 +143,9 @@ namespace H5Utils {
 
     std::vector<SharedConsumer<I> > getConsumers() const;
 
-    typedef I input_type;
+    using input_type = I;
+    template <typename T>
+    using function_type = std::function<T(I)>;
 
   private:
     std::vector<SharedConsumer<I> > m_consumers;
@@ -352,6 +354,10 @@ namespace H5Utils {
     void fill(T);
     void flush();
     size_t index() const;
+    using consumer_type = Consumers<I>;
+    using input_type = I;
+    template <typename T>
+    using function_type = typename consumer_type::template function_type<T>;
   private:
     const internal::DSParameters<I,N> m_par;
     hsize_t m_offset;
@@ -464,7 +470,9 @@ namespace H5Utils {
 
     // write out
     hsize_t n_buffer_pts = m_buffer.size() / m_consumers.size();
-    assert(m_file_space.getSelectNpoints() == n_buffer_pts);
+    assert(m_file_space.getSelectNpoints() >= 0);
+    assert(static_cast<hsize_t>(m_file_space.getSelectNpoints())
+           == n_buffer_pts);
     H5::DataSpace mem_space(1, &n_buffer_pts);
     m_ds.write(m_buffer.data(), m_par.type, mem_space, m_file_space);
     m_offset += buffer_size;
@@ -485,7 +493,7 @@ namespace H5Utils {
    *
    * To be used like
    *
-   * auto writer = H5Utils::makeWriter<2>(group, name, consumers);
+   * `auto writer = H5Utils::makeWriter<2>(group, name, consumers);`
    *
    **/
   template <size_t N, class I>
@@ -496,6 +504,35 @@ namespace H5Utils {
     hsize_t batch_size = 2048) {
     return Writer<N,I>(group, name, consumers, extent, batch_size);
   }
+
+  /** @brief CRefConsumer
+   *
+   * Convenience wrapper, `CRefConsumer<T>` is equivelent to
+   * `H5Utils::Consumers<const T&>`.
+   *
+   **/
+  template <typename T>
+  using CRefConsumer = Consumers<const T&>;
+
+
+  /** @brief CRefWriter
+   *
+   * Convenience wrapper, `CRefWriter<N,T>` is equivelent to
+   * `H5Utils::Writer<N, const T&>`.
+   *
+   **/
+  template <size_t N, typename T>
+  using CRefWriter = Writer<N, const T&>;
+
+
+  /** @brief SimpleWriter
+   *
+   * Convenience wrapper, `SimpleWriter<T>` is equivelent to
+   * `H5Utils::Writer<0, const T&>`.
+   *
+   **/
+  template <typename T>
+  using SimpleWriter = Writer<0, const T&>;
 
 }
 

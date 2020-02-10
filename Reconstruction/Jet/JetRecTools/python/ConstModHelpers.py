@@ -74,7 +74,7 @@ def getConstModSeq(sequence,inputtype,suffix=""):
         modlist.append('chsPFO')
     elif inputtype=="PFlowCustomVtx":
         inputcontainer="JetETMiss"
-        outputcontainer=sequencestr+suffix
+        outputcontainer=sequencestr+"CustomVtx"
         tool = None
         toolname = "ConstitMod{0}_{1}{2}".format(inputtype,"CHS",suffix)
         alias = "chsPFO"+inputtype+suffix
@@ -113,7 +113,7 @@ def getPseudoJetGetter(label,pjname):
     if "PFlow" in label:
         labelmodseq = ""
         if "PFlowCustomVtx" in label:
-            labelmodseq = 'Hgg'
+            labelmodseq = label[5:]
         else:
             labelmodseq = label[7:]
         pjg = CfgMgr.PFlowPseudoJetGetter(pjname+"get",

@@ -1,6 +1,6 @@
 #====================================================================
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #   
 # @file   BPHY8.py
 #
@@ -170,7 +170,9 @@ BPHY8cf.doTrigNavThinning = True
 #
 # Keep muon based HLT items for now
 BPHY8cf.TrigNavThinList = [ "HLT_[0-9]*mu[0-9]+.*" ]
-
+#
+# Add containers for soft B tagging vertices
+BPHY8cf.doAddSoftBVertices = True
 #
 # Muon collection
 BPHY8cf.MuonCollection = "Muons"
@@ -217,46 +219,51 @@ BPHY8cf.useCalibratedMuons = 3
 # Page revision r18 (as of 2018-11-27)
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisConsolidationMC16
 #
+# Note: (2020-01-15)
+# Now updated to new release 21 recommendatons for full run 2 (winter update)
+# Page revision r17 (as of 2019-11-13)
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisWinterMC16#Momentum_corrections
+#
 # MC
 if BPHY8cf.isSimulation:
 #
 # for MC16a
     if BPHY8cf.mcCampaign == "mc16a":
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstRelease               = "Recs2019_05_30"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
         BPHY8cf.McstDoSagittaMCDistortion = False
         BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # for MC16d
     elif BPHY8cf.mcCampaign == "mc16d":
         BPHY8cf.McstYear                  = "Data17"
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstRelease               = "Recs2019_05_30"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data17"
         BPHY8cf.McstDoSagittaMCDistortion = False
         BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # for MC16e
     elif BPHY8cf.mcCampaign == "mc16e":
-        BPHY8cf.McstYear                  = "Data17"
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstYear                  = "Data18"
+        BPHY8cf.McstRelease               = "Recs2019_05_30"
         BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = False
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
-        BPHY8cf.McstDoSagittaMCDistortion = True
-        BPHY8cf.McstSagittaCorrPhaseSpace = False
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data18"
+        BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # default (like for mc16a)
     else:
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstRelease               = "Recs2019_05_30"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
         BPHY8cf.McstDoSagittaMCDistortion = False
         BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
@@ -265,48 +272,42 @@ else:
     # Note: The recommendation page sets McstYear to 'Data16'
     if BPHY8cf.projectTag.startswith("data15"):
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstRelease               = "Recs2010_05_30"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
         BPHY8cf.McstDoSagittaMCDistortion = False
         BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 16
     if BPHY8cf.projectTag.startswith("data16"):
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstRelease               = "Recs2019_05_30"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
         BPHY8cf.McstDoSagittaMCDistortion = False
         BPHY8cf.McstSagittaCorrPhaseSpace = True
 #
 # data 17
     if BPHY8cf.projectTag.startswith("data17"):
         BPHY8cf.McstYear                  = "Data17"
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstRelease               = "Recs2019_05_30"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data17"
         BPHY8cf.McstDoSagittaMCDistortion = False
         BPHY8cf.McstSagittaCorrPhaseSpace = True
-
 #
 # data 18
-#
-# w.w., 2018-11-23
-# These are the data18 pre-recommendations from the TWiki.
-# Note that the McstYear is explicitely set to 'Data17'.
-#
     if BPHY8cf.projectTag.startswith("data18"):
-        BPHY8cf.McstYear                  = "Data17";
-        BPHY8cf.McstRelease               = "Recs2018_05_20"
+        BPHY8cf.McstYear                  = "Data18";
+        BPHY8cf.McstRelease               = "Recs2019_05_30"
         BPHY8cf.McstStatComb              = False
-        BPHY8cf.McstSagittaCorr           = False
-        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_30_07_18"
-        BPHY8cf.McstDoSagittaMCDistortion = True
-        BPHY8cf.McstSagittaCorrPhaseSpace = False
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data18"
+        BPHY8cf.McstDoSagittaMCDistortion = False
+        BPHY8cf.McstSagittaCorrPhaseSpace = True
 
 # wide mumu mass range?
 BPHY8cf.doUseWideMuMuMassRange = False
@@ -742,7 +743,11 @@ else:
         BPHY8cf.BlindingKey = BPHY8_data17BlindingKey
     elif BPHY8cf.projectTag.startswith("data18"):
         BPHY8cf.BlindingKey = BPHY8_data18BlindingKey
-        
+
+# disable soft B tagging vertices if BJpsiK channel is not run
+if not "BJpsiK" in BPHY8cf.doChannels:
+    BPHY8cf.doAddSoftBVertices = False
+
 print "BPHY8 job setup: run               : %d" % BPHY8cf.runNumber
 print "BPHY8 job setup: MC channel number : %d" % BPHY8cf.mcChNumber
 print "BPHY8 job setup: isSimulation      : %s" % BPHY8cf.isSimulation
@@ -751,6 +756,7 @@ for BPHY8_channel in BPHY8cf.doChannels:
     print "%s" % (BPHY8_channel),
 print
 print "BPHY8 job setup: thin level        : %d" % BPHY8cf.thinLevel
+print "BPHY8 job setup: soft B vertices   : %d" % BPHY8cf.doAddSoftBVertices
 
 # abort if no channels are to be run on
 assert len(BPHY8cf.doChannels) > 0
@@ -811,6 +817,10 @@ if BPHY8cf.verbose > 4:
         print fin.read()
     print "# <<<------------------ %s ------------------------" % thisfile
 
+# required for track jets for Soft B Tagging
+if BPHY8cf.doAddSoftBVertices:
+    from DerivationFrameworkJetEtMiss.JetCommon import *
+    
 #====================================================================
 # CALIBRATION SEQUENCES
 #====================================================================
@@ -1984,6 +1994,19 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 BPHY8_seq = CfgMgr.AthSequencer("BPHY8Sequence")
 DerivationFrameworkJob += BPHY8_seq
 BPHY8_seq += BPHY8_CalibrationAlgs.values()
+
+# required for Soft B tagging
+if BPHY8cf.doAddSoftBVertices:
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+    OutputJets["BPHY8"] = []
+    reducedJetList = ["AntiKt4PV0TrackJets"]
+    replaceAODReducedJets(reducedJetList, BPHY8_seq, "BPHY8")
+
+    from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
+    addSoftBVrt(BPHY8_seq,'Loose')
+    addSoftBVrt(BPHY8_seq,'Medium')
+    addSoftBVrt(BPHY8_seq,'Tight')
+
 BPHY8_seq += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY8Kernel",
     OutputLevel = INFO,
@@ -2075,6 +2098,25 @@ for BPHY8_name in BPHY8_RecoTools.keys():
 # Truth information for MC only
 if BPHY8cf.isSimulation:
     BPHY8_AllVariables += ["TruthEvents","TruthParticles","TruthVertices"]
+
+# required for Soft B Tagging
+if BPHY8cf.doAddSoftBVertices:
+    excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+    BPHY8_StaticContent += ["xAOD::VertexContainer#"
+                            +"SoftBVrtClusterTool_Tight_Vertices"]
+    BPHY8_StaticContent += ["xAOD::VertexAuxContainer#"
+                            +"SoftBVrtClusterTool_Tight_VerticesAux."
+                            + excludedVertexAuxData]
+    BPHY8_StaticContent += ["xAOD::VertexContainer#"
+                            +"SoftBVrtClusterTool_Medium_Vertices"]
+    BPHY8_StaticContent += ["xAOD::VertexAuxContainer#"
+                            +"SoftBVrtClusterTool_Medium_VerticesAux."
+                            + excludedVertexAuxData]
+    BPHY8_StaticContent += ["xAOD::VertexContainer#"
+                            +"SoftBVrtClusterTool_Loose_Vertices"]
+    BPHY8_StaticContent += ["xAOD::VertexAuxContainer#"
+                            +"SoftBVrtClusterTool_Loose_VerticesAux."
+                            + excludedVertexAuxData]
 
 BPHY8SlimmingHelper.AllVariables     = BPHY8_AllVariables
 BPHY8SlimmingHelper.SmartCollections = BPHY8_SmartCollections

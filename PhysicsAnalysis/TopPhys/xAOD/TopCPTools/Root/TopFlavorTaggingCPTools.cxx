@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopFlavorTaggingCPTools.h"
@@ -40,7 +40,7 @@ namespace top {
     }
 
     static const std::string cdi_file_default =
-      "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root";
+      "xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root";
 
     m_tagger = ""; // Extract in the loop
     if (m_config->bTaggingCDIPath() != "Default") {
@@ -53,9 +53,9 @@ namespace top {
     }
     // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as
     // its the same as the eff used in the calibration
-    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1)
+    // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1);aMC@NLO+Pythia8;Herwig7.1.3;Sherpa228
     // Default changed from 410501 to 410470 in the CDI release of October 2018
-    m_efficiency_maps = "default;410558;410470;410250;default;410464";
+    m_efficiency_maps = "default;410558;410470;410250;default;410464;411233;421152";
 
     // List of algorithms in R21
     m_tagger_algorithms = {
@@ -78,7 +78,7 @@ namespace top {
     // Calibrated and uncalibrated working points for EMPflow jets for all algorithms
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85" "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
 
     // Calibrated and uncalibrated working points for R=0.2 track jets for all algorithms

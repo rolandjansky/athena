@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header file
@@ -36,13 +36,13 @@ namespace DerivationFramework {
     , m_classif("MCTruthClassifier/DFCommonTruthClassifier")
     , m_hforTool("HFORSelectionTool/HFORSelectionTool")
   {
-    
+
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    
+
     declareProperty("EventInfoName",m_eventInfoName="EventInfo");
     declareProperty("MCCollectionName",m_mcName="TruthParticles");
     declareProperty("TruthJetCollectionName",m_truthJetsName="AntiKt4TruthWZJets");
-    declareProperty("MinJetPt",m_MinJetPt = 35e3);  
+    declareProperty("MinJetPt",m_MinJetPt = 35e3);
     declareProperty("MaxJetEta",m_MaxJetEta = 2.5);
     declareProperty("MinLeptonPt",m_MinLepPt = 25e3);
     declareProperty("MaxLeptonEta",m_MaxLepEta = 2.5);
@@ -71,10 +71,10 @@ namespace DerivationFramework {
     case BottomMeson:
     case CCbarMeson:
     case JPsi:
-    case BBbarMeson: 
+    case BBbarMeson:
     case LightBaryon:
     case StrangeBaryon:
-    case CharmedBaryon: 
+    case CharmedBaryon:
     case BottomBaryon:
     case PionDecay:
     case KaonDecay:
@@ -94,16 +94,16 @@ namespace DerivationFramework {
     return m_originMap[tp];
   }
 
-  
+
   StatusCode GenFilterTool::addBranches() const{
     ATH_MSG_VERBOSE("GenFilterTool::addBranches()");
-    
+
     const xAOD::EventInfo* eventInfo;
     if (evtStore()->retrieve(eventInfo,m_eventInfoName).isFailure()) {
       ATH_MSG_ERROR("could not retrieve event info " <<m_eventInfoName);
       return StatusCode::FAILURE;
     }
-    
+
     const xAOD::TruthParticleContainer* truthPC = 0;
     if (evtStore()->retrieve(truthPC,m_mcName).isFailure()) {
       ATH_MSG_ERROR("WARNING could not retrieve TruthParticleContainer " <<m_mcName);
@@ -121,8 +121,8 @@ namespace DerivationFramework {
     dec_genFiltMET(*eventInfo) = genFiltMET;
     dec_genFiltPTZ(*eventInfo) = genFiltPTZ;
 
-    if (m_hforTool->getSampleType()!=noType){
-      dec_HFOR(*eventInfo) = m_hforTool->getDecisionType();
+    if (m_hforTool->getSampleType()!=HFORType::noType){
+      dec_HFOR(*eventInfo) = static_cast< int >( m_hforTool->getDecisionType() );
     }
 
     return StatusCode::SUCCESS;
@@ -132,7 +132,7 @@ namespace DerivationFramework {
     // Get jet container out
     const xAOD::JetContainer* truthjets = 0;
     if ( evtStore()->retrieve( truthjets, m_truthJetsName).isFailure() || !truthjets ){
-      ATH_MSG_ERROR( "No xAOD::JetContainer found in StoreGate with key " << m_truthJetsName ); 
+      ATH_MSG_ERROR( "No xAOD::JetContainer found in StoreGate with key " << m_truthJetsName );
       return StatusCode::FAILURE;
     }
 

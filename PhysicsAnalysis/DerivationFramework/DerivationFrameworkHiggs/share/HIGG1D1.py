@@ -7,9 +7,28 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+
+#====================================================================
+# Diphoton vertex decoration tool
+#====================================================================
+
+# Creates a shallow copy of PrimaryVertices (HggPrimaryVertices) for diphoton events
+# Must be created before the jetalg in the sequence as it is input to the modified PFlow jets
+from RecExConfig.RecFlags  import rec
+from egammaRec.Factories import ToolFactory, AlgFactory
+import PhotonVertexSelection.PhotonVertexSelectionConf as PVS 
+
+PhotonPointingTool = ToolFactory(PVS.CP__PhotonPointingTool, isSimulation = rec.doTruth() )
+PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool)
+
+from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__DiphotonVertexDecorator
+DiphotonVertexDecorator = ToolFactory(DerivationFramework__DiphotonVertexDecorator, PhotonVertexSelectionTool = PhotonVertexSelectionTool,PhotonPointingTool = PhotonPointingTool)()
+DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DiphotonVertexKernel", AugmentationTools = [DiphotonVertexDecorator])
+
+
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
 import AthenaCommon.SystemOfUnits as Units
@@ -27,10 +46,10 @@ if DerivationFrameworkIsMonteCarlo:
     addPVCollection()
     print "HIGG1D1.py Applying MCTruthCommon"
 
+
 #====================================================================
 # SKIMMING TOOLS 
 #====================================================================
-
 
 print "HIGG1D1.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
 SkipTriggerRequirement=((globalflags.DataSource()=='geant4') and (jobproperties.Beam.energy()==4000000.0))
@@ -132,9 +151,9 @@ print HIGG1D1ElectronTPThinningTool
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG1D1PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "HIGG1D1PhotonTPThinningTool",
-                                                                                  ThinningService         = "HIGG1D1ThinningSvc",
-                                                                                  SGKey                   = "Photons",
-                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                                ThinningService         = "HIGG1D1ThinningSvc",
+                                                                                SGKey                   = "Photons",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1PhotonTPThinningTool
 print HIGG1D1PhotonTPThinningTool
 #thinningTools.append(HIGG1D1PhotonTPThinningTool)
@@ -142,7 +161,7 @@ print HIGG1D1PhotonTPThinningTool
 # Tracks themselves
 HIGG1D1TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "HIGG1D1TPThinningTool",
                                                                     ThinningService         = "HIGG1D1ThinningSvc",
-                                                                    SelectionString             = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+                                                                    SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1TPThinningTool
 print HIGG1D1TPThinningTool
@@ -175,20 +194,6 @@ if globalflags.DataSource()=='geant4':
 print "HIGG1D1.py thinningTools", thinningTools
 
 #====================================================================
-# Diphoton vertex decoration tool
-#====================================================================
-
-from RecExConfig.RecFlags  import rec
-from egammaRec.Factories import ToolFactory, AlgFactory
-import PhotonVertexSelection.PhotonVertexSelectionConf as PVS 
-
-PhotonPointingTool = ToolFactory(PVS.CP__PhotonPointingTool, isSimulation = rec.doTruth() )
-PhotonVertexSelectionTool = ToolFactory(PVS.CP__PhotonVertexSelectionTool)
-
-from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__DiphotonVertexDecorator
-DiphotonVertexDecorator = ToolFactory(DerivationFramework__DiphotonVertexDecorator, PhotonVertexSelectionTool = PhotonVertexSelectionTool,PhotonPointingTool = PhotonPointingTool)()
-
-#====================================================================
 # Max Cell sum decoration tool
 #====================================================================
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
@@ -219,39 +224,44 @@ HIGG1D1Seq = CfgMgr.AthSequencer("HIGG1D1Sequence")
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D1Kernel",
                                                                        SkimmingTools = [SkimmingToolHIGG1D1],
-                                                                       AugmentationTools = [HIGG1D1_MaxCellDecoratorTool,HIGG1D1_GainDecoratorTool, DiphotonVertexDecorator ] + HIGG1D1_ClusterEnergyPerLayerDecorators,
+                                                                       AugmentationTools = [HIGG1D1_MaxCellDecoratorTool,HIGG1D1_GainDecoratorTool] + HIGG1D1_ClusterEnergyPerLayerDecorators,
                                                                        ThinningTools = thinningTools
                                                                        )
 
-#MET associated to HggPrimaryVertices
-from DerivationFrameworkJetEtMiss import METCommon
-METCommon.scheduleMETCustomVertex ( "Hgg", "AntiKt4EMTopo",outputlist = "HggMET" )
-scheduleMETAssocAlg(HIGG1D1Seq)
-
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-addOriginCorrection("AntiKt4EMTopo", HIGG1D1Seq, "jetaug_HggVtx", "Hgg")
+addOriginCorrection("AntiKt4EMTopo", HIGG1D1Seq, "jetaug_EMTopoOriginCorrHggVtx","Hgg")
 
 # Before any custom jet reconstruction, it's good to set up the output list
 OutputJets["HIGG1D1Jets"] = []
 
 #=======================================
-# RESTORE AOD-REDUCED JET COLLECTIONS
+# AUGMENT JET COLLECTIONS
 #=======================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = [
-                  "AntiKt4TruthJets",
-                  "AntiKt4TruthWZJets"]
-replaceAODReducedJets(reducedJetList,HIGG1D1Seq,"HIGG1D1Jets")
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG1D1Seq)
 
 # Augment AntiKt4 jets with QG tagging variables
 truthjetalg='AntiKt4TruthJets'
 if not DerivationFrameworkIsMonteCarlo:
-    truthjetalg=None
+    truthjetalg=None    
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D1Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG1D1Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
+
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=HIGG1D1Seq, algname='JetForwardJvtToolBDTAlg')
+
+
+#=======================================
+# ADD CUSTOM PFLOW JET COLLECTION
+#=======================================
+
+# Get AntiKt4PFlowCustomVtxHggJets with fJVT and flavour tagging
+include('DerivationFrameworkHiggs/configurePFlowCustomVtxHggJets.py')
+
+#MET associated to HggPrimaryVertices
+from DerivationFrameworkJetEtMiss import METCommon
+METCommon.scheduleMETCustomVertex ( "Hgg", "AntiKt4EMTopo",outputlist = "TopoHggMET" )
+METCommon.scheduleMETCustomVertex ( "Hgg", "AntiKt4PFlowCustomVtx",outputlist = "PFlowHggMET" )
+scheduleMETAssocAlg(HIGG1D1Seq)
 
 DerivationFrameworkJob += HIGG1D1Seq
 
@@ -276,13 +286,17 @@ svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG1D1SlimmingHelper = SlimmingHelper("HIGG1D1SlimmingHelper")
 
-HIGG1D1Stream.AddItem("xAOD::EventShape#*")
-HIGG1D1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer','HggPrimaryVerticesAux': 'xAOD::ShallowAuxContainer',
                                            'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
-                                           'TruthPrimaryVertices': 'xAOD::VertexContainer','TruthPrimaryVerticesAux': 'xAOD::VertexAuxContainer'}
+                                           'TruthPrimaryVertices': 'xAOD::VertexContainer','TruthPrimaryVerticesAux': 'xAOD::VertexAuxContainer',
+                                           'AntiKt4PFlowCustomVtxHggJets': 'xAOD::JetContainer', 'AntiKt4PFlowCustomVtxHggJetsAux': 'xAOD::JetAuxContainer',
+                                           'BTagging_AntiKt4PFlowCustomVtxHgg': 'xAOD::BTaggingContainer', 'BTagging_AntiKt4PFlowCustomVtxHggAux': 'xAOD::BTaggingAuxContainer'}
 
+for shape in ['Kt4PFlowCustomVtxEventShape','TruthIsoCentralEventShape','TruthIsoForwardEventShape']:
+    HIGG1D1SlimmingHelper.AppendToDictionary[shape]       = 'xAOD::EventShape'
+    HIGG1D1SlimmingHelper.AppendToDictionary[shape+'Aux'] = 'xAOD::EventShapeAuxInfo'
+    
 HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
                                           "Muons",
@@ -304,40 +318,71 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
 HIGG1D1SlimmingHelper.AllVariables = ["HLT_xAOD__PhotonContainer_egamma_Iso_Photons","Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
 
 
+PFlowJetCommonSlimList = "JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.JVF.LArQuality.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex.PartonTruthLabelID.PileupCorrected.SumPtTrkPt500.Timing.Width.AverageLArQF.CentroidR.ConeExclTausFinal.ConeTruthLabelID.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.DetectorEta.DetectorY.ECPSFraction.EMFrac.FracSamplingMax.FracSamplingMaxIndex.GhostAntiKt2TrackJet.GhostAntiKt4TrackJet.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTausFinal.GhostTQuarksFinal.GhostTrack.GhostTruth.GhostWBosons.GhostZBosons.HECFrac.HECQuality.HighestJVFVtx.ConstituentScale.TrackWidthPt500.DFCommonJets_Jvt"
+
+QGTaggerList = "DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"
+
+
 HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
-                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale.Hgg_JetOriginConstitScaleMomentum_pt.Hgg_JetOriginConstitScaleMomentum_eta.Hgg_JetOriginConstitScaleMomentum_m.Hgg_JetOriginConstitScaleMomentum_phi.Hgg_JetOriginConstitScaleMomentum_OriginVertex.TrackWidthPt500",
-                                        "AntiKt4EMPFlowJets.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetLCScaleMomentum_eta.JetLCScaleMomentum_m.JetLCScaleMomentum_phi.JetLCScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.JVF.Jvt.JVFCorr.JvtRpt.LArQuality.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex_.OriginVertex_m_persIndex.OriginVertex_m_persKey.PartonTruthLabelID.PileupCorrected.SumPtTrkPt500.Timing.Width.AverageLArQF.btaggingLink_.btaggingLink_m_persIndex.btaggingLink_m_persKey.CentroidR.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.DetectorEta.ECPSFraction.EMFrac.FracSamplingMax.FracSamplingMaxIndex.GhostAntiKt2TrackJet.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTausFinal.GhostTQuarksFinal.GhostTrack.GhostTruth.GhostWBosons.GhostZBosons.HadronConeExclTruthLabelID.HECFrac.HECQuality.HighestJVFVtx_.HighestJVFVtx_m_persIndex.HighestJVFVtx_m_persKey.ConstituentScale.TrackWidthPt500",
-                                        "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.charge.pfo_TrackLinks.eflowRec_tracksExpectedEnergyDeposit.eflowRec_isInDenseEnvironment",
-                                        "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.charge.mEM",
+                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.ConstituentScale.Hgg_JetOriginConstitScaleMomentum_pt.Hgg_JetOriginConstitScaleMomentum_eta.Hgg_JetOriginConstitScaleMomentum_m.Hgg_JetOriginConstitScaleMomentum_phi.Hgg_JetOriginConstitScaleMomentum_OriginVertex.TrackWidthPt500.DFCommonJets_MVfJVT",
+                                        "AntiKt4EMPFlowJets."+PFlowJetCommonSlimList,
+                                        "AntiKt4EMPFlowJets."+QGTaggerList,
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix", 
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "MuonTruthParticles.truthOrigin.truthType",
-                                        "TauChargedParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
-                                        "TauHadronicParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
-                                        "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
-                                        "TauShotParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
+                                        "TauChargedParticleFlowObjects.pt.eta.phi.m.e.bdtPi0Score",
+                                        "TauHadronicParticleFlowObjects.pt.eta.phi.m.e.bdtPi0Score",
+                                        "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.bdtPi0Score",
+                                        "TauShotParticleFlowObjects.pt.eta.phi.m.e.bdtPi0Score",
                                         "Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z",
                                         "Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.neflowisol20.neflowisol20ptCorrection.neflowisol30.neflowisol30ptCorrection.neflowisol40.neflowisol40ptCorrection.neflowisolCorrBitset.neflowisolcoreConeEnergyCorrection",
+                                        "Kt4PFlowCustomVtxEventShape",
+                                        "Kt4PFlowCustomVtxEventShape.DensitySigma.Density.DensityArea",                                       
                                         "TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea",
                                         "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
                                         "TruthIsoCentralEventShape.DensitySigma.Density.DensityArea",
-                                        "TruthIsoForwardEventShape.DensitySigma.Density.DensityArea",
-                                        "DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta",
-                                        "DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
-                                        "NumTrkPt500PV.PartonTruthLabelID",        
-                                        "BTagging_AntiKt4EMTopo_201810.MV2cl100_discriminant"]
+                                        "TruthIsoForwardEventShape.DensitySigma.Density.DensityArea"
+                                        ]
+
+# Add variables from smart lists for the custom PFlow jets
+from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent as pfjc
+PFlowCustomVtxContent = []
+for i in pfjc:
+    if i.find('AntiKt4EMPFlow') >= 0:
+        PFlowCustomVtxContent.append(i.replace('EMPFlow','PFlowCustomVtxHgg').replace('Aux',''))
+HIGG1D1SlimmingHelper.ExtraVariables += PFlowCustomVtxContent
+HIGG1D1SlimmingHelper.ExtraVariables += [CustomPFJetContainerName+'Jets.'+PFlowJetCommonSlimList]
+
+from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+btv = BTaggingStandardContent(CustomPFJetContainerName+'Jets')
+BTaggingCustomVtxContent = []
+for i in btv:
+    BTaggingCustomVtxContent.append(i.replace('Aux',''))
+HIGG1D1SlimmingHelper.ExtraVariables += BTaggingCustomVtxContent
 
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 HIGG1D1SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 HIGG1D1SlimmingHelper.ExtraVariables.extend( getGainDecorations(HIGG1D1_GainDecoratorTool) )
 for tool in HIGG1D1_ClusterEnergyPerLayerDecorators:
-  HIGG1D1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+    HIGG1D1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
-addMETOutputs(HIGG1D1SlimmingHelper,["HggMET"])
+
+addMETOutputs(HIGG1D1SlimmingHelper,["TopoHggMET"])
+addMETOutputs(HIGG1D1SlimmingHelper,["PFlowHggMET"])
 addMETOutputs(HIGG1D1SlimmingHelper,["AntiKt4EMPFlow"])
 HIGG1D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 HIGG1D1SlimmingHelper.AppendContentToStream(HIGG1D1Stream)
+
+# Put the truth density computation (done in EGammaCommon) after jetalg (to have the truth jet input particles prepared)
+index = topSequence.getSequence().index('JetAlgorithm/jetalg') 
+for a in ['EDTruthCentralAlg','EDTruthForwardAlg']: 
+    if hasattr(topSequence,a):  
+        edta = getattr(topSequence,a)
+        delattr(topSequence,a)
+        topSequence.insert(index,edta)
+
+        

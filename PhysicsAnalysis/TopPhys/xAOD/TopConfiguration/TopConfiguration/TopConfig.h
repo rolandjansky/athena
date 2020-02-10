@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
@@ -29,6 +29,8 @@
 
 // Persistent settings
 #include "TopConfiguration/TopPersistentSettings.h"
+// Tree Filter
+#include "TopConfiguration/TreeFilter.h"
 
 namespace top {
   class AodMetaDataAccess;
@@ -312,6 +314,16 @@ namespace top {
         m_doMCGeneratorWeightsInNominalTrees = true;
       }
     }
+
+    inline const std::vector<std::string>& nominalWeightNames() const {return m_nominalWeightNames;}
+    inline void setDetectedNominalWeightName(const std::string& name) {
+      m_detectedNominalWeightName = name;
+    }
+    inline void setDetectedNominalWeightIndex(size_t index) {
+      m_detectedNominalWeightIndex = index;
+    }
+    inline std::string detectedNominalWeightName() const {return m_detectedNominalWeightName;}
+    inline size_t detectedNominalWeightIndex() const {return m_detectedNominalWeightIndex;}
 
     // Top Parton History
     inline bool doTopPartonHistory() const {return m_doTopPartonHistory;}
@@ -891,11 +903,32 @@ namespace top {
         m_softmuonDRJetcut = DRJet;
       }
     }
+    
+    inline virtual void softmuonAdditionalTruthInfo(bool in) {
+      if (!m_configFixed) {
+        m_softmuonAdditionalTruthInfo=in;
+      }
+    }
+    
+    inline virtual void softmuonAdditionalTruthInfoCheckPartonOrigin(bool in) {
+      if (!m_configFixed) {
+        m_softmuonAdditionalTruthInfoCheckPartonOrigin=in;
+      }
+    }
+    
+    inline virtual void softmuonAdditionalTruthInfoDoVerbose(bool in) {
+      if (!m_configFixed) {
+        m_softmuonAdditionalTruthInfoDoVerbose=in;
+      }
+    }
 
     inline virtual float softmuonPtcut() const {return m_softmuonPtcut;}
     inline virtual float softmuonEtacut() const {return m_softmuonEtacut;}
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
+    inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
+    inline virtual bool softmuonAdditionalTruthInfoCheckPartonOrigin() const { return m_softmuonAdditionalTruthInfoCheckPartonOrigin;}
+    inline virtual bool softmuonAdditionalTruthInfoDoVerbose() const { return m_softmuonAdditionalTruthInfoDoVerbose;}
 
     // Jet configuration
     inline virtual void jetPtcut(const float pt) {
@@ -1501,6 +1534,8 @@ namespace top {
 
     inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
+    inline bool demandPriVtx() const {return m_demandPriVtx;}
+
     // Where the sum of event weights
     // before derivation framework is kept
     inline const std::string& sumOfEventWeightsMetaData() const {return m_sumOfEventWeightsMetaData;}
@@ -1670,6 +1705,11 @@ namespace top {
     inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const {return m_trigGlobalConfiguration.muon_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerElectronTools()       const {return m_trigGlobalConfiguration.electron_trigger_tool_names;}
     inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names;}
+    
+    inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
+
+    inline const std::unordered_map<std::string, std::string>& GetMCMCTranslator() const {return m_showerMCMCtranslator;}
+    
   private:
     // Prevent any more configuration
     bool m_configFixed;
@@ -1719,6 +1759,8 @@ namespace top {
 
     // define if d0/z0 cut should be used at all
     bool m_applyTTVACut;
+
+    bool m_demandPriVtx; // whether at leas one primary vertex is required for each event
 
     std::string m_jetSubstructureName;
 
@@ -1803,6 +1845,12 @@ namespace top {
     // Write MC generator weights
     bool m_doMCGeneratorWeights;
     bool m_doMCGeneratorWeightsInNominalTrees;
+
+    // list of names of nominal weight
+    // attempts to find nominal weight in the order as specified here
+    std::vector<std::string> m_nominalWeightNames;
+    std::string m_detectedNominalWeightName;
+    size_t m_detectedNominalWeightIndex;
 
     // Top Parton History
     bool m_doTopPartonHistory;
@@ -1920,7 +1968,10 @@ namespace top {
     float m_softmuonEtacut; // soft muon object selection (abs) eta cut
     std::string m_softmuonQuality; // soft muon quality used in object selection
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
-
+    bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
+    bool m_softmuonAdditionalTruthInfoCheckPartonOrigin; //additional info on the parton-level origin of the muon, see TopParticleLevel/TruthTools.h
+    bool m_softmuonAdditionalTruthInfoDoVerbose; //to help debugging the above options
+    
     // Jet configuration
     float m_jetPtcut; // jet object selection pT cut
     float m_jetEtacut; // jet object selection (abs) eta cut
@@ -2353,6 +2404,10 @@ namespace top {
 
     // Switch to use event-level jet cleaning tool for testing
     bool m_useEventLevelJetCleaningTool;
+    
+    std::shared_ptr<TreeFilter> m_treeFilter;
+
+    std::unordered_map<std::string, std::string> m_showerMCMCtranslator;
 
     //ReadFloatOption
     float readFloatOption(top::ConfigurationSettings* const& settings, std::string in) const;

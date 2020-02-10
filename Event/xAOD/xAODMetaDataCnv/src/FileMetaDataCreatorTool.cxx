@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaDataCreatorTool.cxx 685408 2015-07-24 16:15:59Z cranshaw $
@@ -148,6 +148,9 @@ namespace xAODMaker {
 
       // Retrieve the needed metadata:
       if (std::find( keys.begin(), keys.end(), FOLDER_NAME ) != keys.end()) {
+         // For the string literals operator
+         using namespace std::string_literals;
+
          const CondAttrListCollection* tagInfo = 0;
          ATH_CHECK( detStore()->retrieve( tagInfo, FOLDER_NAME ) );
       
@@ -168,12 +171,13 @@ namespace xAODMaker {
             tagInfo->attributeList( 0 );
 
          if (al.exists("AtlasRelease")) {
-           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::productionRelease,                           al[ "AtlasRelease" ].data< std::string >() ) );
+           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::productionRelease,
+                       al[ "AtlasRelease" ].data< std::string >() ) );
          }
          else {
            ATH_MSG_WARNING("Did not find AtlasRelease in TagInfo setting to none");
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::productionRelease,
-                                       "none" ) );
+                                       "none"s ) );
          }
          if (al.exists("AMITag")) {
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::amiTag,
@@ -182,7 +186,7 @@ namespace xAODMaker {
          else {
            ATH_MSG_WARNING("Did not find AMITag in TagInfo setting to none");
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::amiTag,
-                                       "none" ) );
+                                       "none"s ) );
          }
          if (al.exists("GeoAtlas")) {
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::geometryVersion,
@@ -191,7 +195,7 @@ namespace xAODMaker {
          else {
            if (!m_isEVNT) ATH_MSG_WARNING("Did not find GeoAtlas in TagInfo setting to none");
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::geometryVersion,
-                                       "none" ) );
+                                       "none"s ) );
          }
          if (al.exists("IOVDbGlobalTag")) {
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::conditionsTag,
@@ -200,7 +204,7 @@ namespace xAODMaker {
          else {
            if (!m_isEVNT) ATH_MSG_WARNING("Did not find IOVDbGlobalTag in TagInfo setting to none");
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::conditionsTag,
-                                       "none" ) );
+                                       "none"s ) );
          }
 
          // Convert the beam energy to float. (If it exists.)
@@ -223,7 +227,7 @@ namespace xAODMaker {
          }
          else {
            ATH_MSG_WARNING("Did not find beam_energy in TagInfo setting to -1");
-           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::beamEnergy, -1.0 ) );
+           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::beamEnergy, float(-1.0) ) );
          }
 
          if (al.exists("beam_type")) {
@@ -233,7 +237,7 @@ namespace xAODMaker {
          else {
            ATH_MSG_WARNING("Did not find beam_type in TagInfo setting to none");
            CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::beamType,
-                                       "none" ) );
+                                       "none"s ) );
          }
       }
       if (std::find( keys.begin(), keys.end(), SIMFOLDER_NAME ) != keys.end()) {
@@ -249,6 +253,17 @@ namespace xAODMaker {
          else {
            ATH_MSG_ERROR("Unable to retrieve SimulationFlavour from " << SIMFOLDER_NAME);
          }
+
+         if (simInfo->exists("IsEventOverlayInputSim")) {
+           bool isDataOverlay = (*simInfo)[ "IsEventOverlayInputSim" ].data< std::string >()=="True";
+           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::isDataOverlay,
+                       isDataOverlay ) );
+         }
+         else {
+           ATH_MSG_INFO("Unable to retrieve IsEventOverlayInputSim from " << SIMFOLDER_NAME << " - assuming not data overlay");
+           CHECK_BOOL( m_md->setValue( xAOD::FileMetaData::isDataOverlay, false ) );
+         }
+
       }
 
       // Return gracefully:

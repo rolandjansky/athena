@@ -155,10 +155,10 @@ JetCommon.OutputJets.setdefault("EXOT27Jets", [])
 # do_ghost is ghost *tagging* - future improvement, not yet calibrated
 vrTrackJets, vrTrackJetGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = False, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrTrackJets+"Jets")
+JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrTrackJets))
 vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
-JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
+JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrGhostTagTrackJets))
 
 
 # schedule pflow tagging
@@ -233,16 +233,16 @@ toAssociate = {
   vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower()
 }
 for collection in toBeAssociatedTo:
-  ungroomed, labels = EXOT27Utils.linkPseudoJetGettersToExistingJetCollection(
+  ungroomed, labels = HbbCommon.linkVRJetsToLargeRJets(
       EXOT27Seq, collection, toAssociate)
   EXOT27ExtraVariables[ungroomed].update(labels)
 
 # Alias b-tagging container for VR track jets
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 # Schedule for output
-outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201810")
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201903")
-outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag")
 outputContainer("BTagging_AntiKt4EMPFlow_201810")
 outputContainer("BTagging_AntiKt4EMPFlow_201903")
 
@@ -433,9 +433,9 @@ EXOT27ThinningTools.append(
 ToolSvc += EleLinkThinningTool(
     "EXOT27SubjetThinningTool",
     LinkName = "Parent.{glink}({jets}).btaggingLink({btag})".format(
-        glink="GhostVR30Rmax4Rmin02TrackJetGhostTag",
-        jets="AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
-        btag="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"),
+        glink=vrGhostTagTrackJetsGhosts,
+        jets=ExtendedJetCommon.nameJetsFromAlg(vrGhostTagTrackJets),
+        btag="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag"),
     ThinningService = EXOT27ThinningHelper.ThinningSvc() )
 large_r = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 # for now we only apply this above 100 GeV (same as the large-R jet

@@ -44,10 +44,9 @@ class TriggerMatchingHelper(object):
             # The name mustn't collide because otherwise athena will just return
             # us the same object, the output prefix mustn't collide because
             # otherwise we'll get errors trying to write containers
-            if any(t.OutputContainerPrefix == properties["OutputContainerPrefix"] or
-                   t.name() == properties["name"]
+            if any(t.name() == properties["name"]
                    for _, t in cls._register.itervalues() ):
-                raise ValueError("Attempting to create a new trigger matching tool with the same name or OutputContainerPrefix as an existing one")
+                raise ValueError("Attempting to create a new trigger matching tool with the same name as an existing one")
             tool = DerivationFramework__TriggerMatchingTool(**properties)
             AppMgr.ToolSvc += tool
             alg = DerivationFramework__CommonAugmentation(

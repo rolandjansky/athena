@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 /* Simple class for working with truth DAODs */
 /* Goal is to validate truth DAOD contents:
     MET_Truth
@@ -11,8 +15,12 @@
 */
 
 // Setup for reading ATLAS data
+#ifdef XAOD_STANDALONE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
+#else
+#include "POOLRootAccess/TEvent.h"
+#endif
 
 // Boost for argument parsing
 #include <boost/program_options.hpp>
@@ -76,14 +84,20 @@ int main(int argc, char **argv) {
   // The application's name:
   const char* APP_NAME = argv[ 0 ];
 
-  // Setup for reading -- if this fails, we have major problems
-  if ( ! xAOD::Init().isSuccess() ) {
-    throw std::runtime_error("Cannot initialise xAOD access !");
-  }
-
   // Make sure things know we are not in StatusCode land
   using namespace asg::msgUserCode;
   ANA_CHECK_SET_TYPE (int);
+
+  // Setup for reading -- if this fails, we have major problems
+#ifdef XAOD_STANDALONE
+  if ( ! xAOD::Init().isSuccess() ) {
+    throw std::runtime_error("Cannot initialise xAOD access !");
+  }
+  ANA_MSG_INFO("Using xAOD access");
+#else
+  auto app = std::unique_ptr<IAppMgrUI>(POOL::Init());
+  ANA_MSG_INFO("Using POOL access");
+#endif
 
   // Get and parse the command-line arguments
   po::options_description desc("Running a simple truth analysis");
@@ -114,8 +128,15 @@ int main(int argc, char **argv) {
   // Input chain
   std::unique_ptr< TFile > ifile( TFile::Open( inputName.c_str() , "READ" ) );
   ANA_CHECK( ifile.get() );
+#ifdef XAOD_STANDALONE
   xAOD::TEvent event(xAOD::TEvent::kClassAccess);
+#else
+  POOL::TEvent event(POOL::TEvent::kClassAccess);
+#endif
   ANA_CHECK( event.readFrom( ifile.get() ) );
+
+  // Load metadata
+  event.getEntries();
 
   // Make some temporary variables that we'll get out during the event loop
   const size_t nParticleContainers = 9;
@@ -190,7 +211,7 @@ int main(int argc, char **argv) {
   std::vector<std::string> weightNames;
 
   // Into the event loop, with an optional cap
-  long long nEvents = nevents>0?std::min(event.getEntries(),nevents):event.getEntries();
+  long long nEvents = nevents > 0 ? std::min(static_cast<long long>(event.getEntries()), nevents) : event.getEntries();
   Info( APP_NAME , "Beginning event loop over %llu events." , nEvents );
   for (long evt=0;evt<nEvents;++evt){
     // Grab the data
@@ -363,6 +384,12 @@ int main(int argc, char **argv) {
 
   // Close up -- all done!
   oRoot->Close();
+
+  // trigger finalization of all services and tools created by the Gaudi Application
+#ifndef XAOD_STANDALONE
+  app->finalize();
+#endif
+
   Info( APP_NAME , "All done -- goodbye." );
 
   return 0;

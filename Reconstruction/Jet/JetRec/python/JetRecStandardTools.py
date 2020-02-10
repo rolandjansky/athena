@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -89,6 +89,7 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullToo
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import QwTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SoftDropObservablesTool
+#from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import MultiplicitiesTool # currently disabled
 try:
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
   jtm.haveShowerDeconstructionTool = True
@@ -161,18 +162,15 @@ else:
 #--------------------------------------------------------------
 # Track-vertex association.
 #--------------------------------------------------------------
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
-jtm += CP__TightTrackVertexAssociationTool("jetTightTVAtool", dzSinTheta_cut=3, doPV=True)
-
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__LooseTrackVertexAssociationTool
-jtm += CP__LooseTrackVertexAssociationTool("jetLooseTVAtool")
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
+jtm += CP__TrackVertexAssociationTool("jetLooseTVAtool", WorkingPoint='Loose')
 
 jtm += TrackVertexAssociationTool(
   "tvassoc",
   TrackParticleContainer  = jtm.trackContainer,
   TrackVertexAssociation  = "JetTrackVtxAssoc",
   VertexContainer         = jtm.vertexContainer,
-  TrackVertexAssoTool     = jtm.jetTightTVAtool,
+  TrackVertexAssoTool     = jtm.jetLooseTVAtool,
 )
 
 jtm += TrackVertexAssociationTool(
@@ -416,7 +414,7 @@ jtm += PFlowPseudoJetGetter(
 jtm += PFlowPseudoJetGetter(
   "pflowcustomvtxget",
   Label = "PFlowCustomVtx",
-  InputContainer = "CHSParticleFlowObjects",
+  InputContainer = "CustomVtxParticleFlowObjects",
   OutputContainer = "PseudoJetPFlowCustomVtx",
   SkipNegativeEnergy = True,
   GhostScale = 0.0,
@@ -878,7 +876,11 @@ if jtm.haveShowerDeconstructionTool:
 #Q jets
 jtm += QwTool("qw")
 
+# Soft Drop Observables: zg, rg 
 jtm += SoftDropObservablesTool("softdropobservables")
+
+# multiplicities (NSD, LHM, etc.)
+#jtm += MultiplicitiesTool("multiplicities") # currently disabled
 
 # Remove constituents (useful for truth jets in evgen pile-up file)
 jtm += JetConstitRemover("removeconstit")

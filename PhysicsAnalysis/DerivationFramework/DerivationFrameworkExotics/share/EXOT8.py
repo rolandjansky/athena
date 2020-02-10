@@ -274,9 +274,15 @@ thinningTools.append(EXOT8photonThinningTool)
 # truth containers a la TRUTH3
 #########################################
 from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+from DerivationFrameworkMCTruth.MCTruthCommon import addTopQuarkAndDownstreamParticles
+from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
+from DerivationFrameworkMCTruth.MCTruthCommon import addTruthCollectionNavigationDecorations
 
 if globalflags.DataSource()=="geant4":
     addStandardTruthContents()
+    addTopQuarkAndDownstreamParticles()
+    addHFAndDownstreamParticles(addB=True, addC=False, generations=1)
+    addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles"],prefix='Top')
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -486,7 +492,7 @@ addVRJets(exot8Seq, largeRColls = largeRJetCollections, do_ghost=True)
 addVRJets(exot8Seq, largeRColls = largeRJetCollections, training='201903') #new trackjet training!
 
 # Also add Hbb Tagger
-addHbbTagger(exot8Seq, ToolSvc)
+addHbbTagger(exot8Seq, ToolSvc,nn_config_file="BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json")
 addHbbTagger(exot8Seq, ToolSvc,nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
 
 #b-tagging
@@ -495,6 +501,7 @@ addHbbTagger(exot8Seq, ToolSvc,nn_file_name="BoostedJetTaggers/HbbTagger/Summer2
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903->AntiKt4EMTopo"]
+#BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810->AntiKt4EMTopo"]
 
 #tag pFlow jets
 FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = exot8Seq)
@@ -510,6 +517,13 @@ applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201903", exot8Seq)
 
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot8Seq)
 
+#====================================================================
+# Apply fJVT
+#====================================================================
+
+# PFlow fJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow', sequence=exot8Seq, algname='JetForwardPFlowJvtToolAlg')
 
 #######################
 # Get the jet pull
@@ -541,12 +555,12 @@ EXOT8SlimmingHelper.SmartCollections = ["PrimaryVertices",
                                         "InDetTrackParticles",
                                         "AntiKt2TruthJets",
                                         "AntiKt2LCTopoJets",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",
                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
-                                        "AntiKtVR30Rmax4Rmin02TrackJets",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
-                                        "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag",
                                         "AntiKt4EMPFlowJets",
                                         "AntiKt4EMPFlowJets_BTagging201810",
                                         "AntiKt4EMPFlowJets_BTagging201903",
@@ -589,21 +603,12 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt2LCTopoJets.GhostBQuarksFinal",
                                       "AntiKt2LCTopoJets.GhostTrack",
                                       "AntiKt2LCTopoJets.GhostTrackCount",
-                                      "BTagging_AntiKt4EMTopo_201810.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMPFlow_201810.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMPFlow_201903.JetVertexCharge_discriminant",
                                       "Photons."+NewTrigVars["Photons"]
                                       ]
 
-EXOT8SlimmingHelper.AllVariables   = ["TruthElectrons",
-                                      "TruthMuons",
-                                      "TruthPhotons",
-                                      "TruthTaus",
-                                      "TruthNeutrinos",
-                                      "TruthBSM",
-                                      "TruthTop",
-                                      "TruthBoson",
-                                      "CombinedMuonTrackParticles",
+EXOT8SlimmingHelper.AllVariables   = ["CombinedMuonTrackParticles",
                                       "ExtrapolatedMuonTrackParticles",
                                       "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
                                       ]
@@ -622,10 +627,10 @@ EXOT8SlimmingHelper.AppendToDictionary = {
                                
 # Save certain b-tagging variables for VR track-jet
 EXOT8SlimmingHelper.ExtraVariables += [
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c100_discriminant",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c100_discriminant",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
     "AntiKt10LCTopoJets.NumTrkPt500.NumTrkPt1000.SumPtTrkPt500.SumPtTrkPt1000.TrackWidthPt500.TrackWidthPt1000",
@@ -639,12 +644,27 @@ addJetOutputs(EXOT8SlimmingHelper,["AntiKt4EMPFlowJets",
 
 
 if globalflags.DataSource()=="geant4":
-    EXOT8SlimmingHelper.AppendToDictionary["TruthTop"]      = "xAOD::TruthParticleContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthTopAux"]   = "xAOD::TruthParticleAuxContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBSM"]      = "xAOD::TruthParticleContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBSMAux"]   = "xAOD::TruthParticleAuxContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBoson"]    = "xAOD::TruthParticleContainer"
-    EXOT8SlimmingHelper.AppendToDictionary["TruthBosonAux"] = "xAOD::TruthParticleAuxContainer"
+    for truthc in [
+      "TruthElectrons",
+      "TruthMuons",
+      "TruthPhotons",
+      "TruthTaus",
+      "TruthNeutrinos",
+      "TruthBottom",
+      "TruthBSM",
+      ]:
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
+    
+    for truthc in [
+      "TruthBosons",
+      "TruthTopQuark",
+      "TruthHF",
+      ]:
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"WithDecayParticlesAux.")
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthVertexContainer#"+truthc+"WithDecayVertices")
+      EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthVertexAuxContainer#"+truthc+"WithDecayVerticesAux.")
 
 EXOT8SlimmingHelper.IncludeJetTriggerContent = True
 EXOT8SlimmingHelper.IncludeBJetTriggerContent = True

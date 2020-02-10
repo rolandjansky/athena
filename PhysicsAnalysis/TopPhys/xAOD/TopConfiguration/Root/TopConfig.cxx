@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/TopConfig.h"
@@ -45,6 +45,8 @@ namespace top {
     m_useTruthMET(false),
 
     m_applyTTVACut(true),
+
+    m_demandPriVtx(true),
 
     m_jetSubstructureName("None"),
 
@@ -104,6 +106,9 @@ namespace top {
     // Write MC generator weights
     m_doMCGeneratorWeights(false),
     m_doMCGeneratorWeightsInNominalTrees(false),
+    m_nominalWeightNames(),
+    m_detectedNominalWeightName("SetMe"),
+    m_detectedNominalWeightIndex(0),
     // Top Parton History
     m_doTopPartonHistory(false),
     m_isTopPartonHistoryRegisteredInNtuple(false),
@@ -182,7 +187,7 @@ namespace top {
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
-    m_useEgammaLeakageCorrection(false),
+    m_useEgammaLeakageCorrection(true),
 
     // Fwd electron configuration
     m_fwdElectronPtcut(25000.),
@@ -208,6 +213,9 @@ namespace top {
     m_softmuonEtacut(2.5),
     m_softmuonQuality("SetMe"),
     m_softmuonDRJetcut(0.4),
+    m_softmuonAdditionalTruthInfo(false),
+    m_softmuonAdditionalTruthInfoCheckPartonOrigin(false),
+    m_softmuonAdditionalTruthInfoDoVerbose(false),
 
     // Jet configuration
     m_jetPtcut(25000.),
@@ -614,6 +622,8 @@ namespace top {
     // Nominal has value
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
+    
+    m_treeFilter = std::make_shared<TreeFilter>();
   }
 
   void TopConfig::setConfigSettings(top::ConfigurationSettings* const& settings) {
@@ -630,6 +640,9 @@ namespace top {
 
     // Set TDP file name
     this->setTDPPath(settings->value("TDPPath"));
+
+    m_treeFilter->init(settings->value("FilterTrees"));
+
 
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons(settings->value("PhotonCollectionName"));
@@ -715,6 +728,13 @@ namespace top {
         // Save the Truth PDF information in the reco-level tree instead of the truth-level one
         this->setMCGeneratorWeights();
         this->setMCGeneratorWeightsInNominalTrees();
+      }
+
+      // load the nominal weight names that we should try to get the real nominal weight name
+      boost::split(m_nominalWeightNames, settings->value("NominalWeightNames"), boost::is_any_of(","));
+      for (std::string &weight : m_nominalWeightNames) {
+        boost::trim(weight);
+        boost::trim_if(weight, boost::is_any_of("\"\'"));
       }
 
       // Save the Top Parton History
@@ -1039,6 +1059,12 @@ namespace top {
     this->softmuonEtacut(readFloatOption(settings, "SoftMuonEta"));
     this->softmuonQuality(settings->value("SoftMuonQuality"));
     this->softmuonDRJetcut(readFloatOption(settings, "SoftMuonDRJet"));
+    if (settings->value("SoftMuonAdditionalTruthInfo") == "True") this->softmuonAdditionalTruthInfo(true);
+    else this->softmuonAdditionalTruthInfo(false);
+    if (settings->value("SoftMuonAdditionalTruthInfoCheckPartonOrigin") == "True") this->softmuonAdditionalTruthInfoCheckPartonOrigin(true);
+    else this->softmuonAdditionalTruthInfoCheckPartonOrigin(false);
+    if (settings->value("SoftMuonAdditionalTruthInfoDoVerbose") == "True") this->softmuonAdditionalTruthInfoDoVerbose(true);
+    else this->softmuonAdditionalTruthInfoDoVerbose(false);
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));
@@ -1297,6 +1323,21 @@ namespace top {
     m_btagging_calibration_Light = settings->value("BTaggingCalibrationLight");
     m_bTagSystsExcludedFromEV = settings->value("BTaggingSystExcludedFromEV");
 
+    // Set translatio ndictionary for MCMC maps
+    if (settings->value("RedifineMCMCMap") != " ") {
+      std::vector<std::string> tmp;
+      tokenize(settings->value("RedifineMCMCMap"), tmp, ",");
+      for (const std::string& dictionaries : tmp) {
+        std::vector<std::string> dictionary;
+        tokenize(dictionaries, dictionary, ":");
+        if (dictionary.size() != 2) {
+          throw std::invalid_argument{"Wrong input argument for RedifineMCMCMap. Expected format is: \"shower1:shower2,shower3:shower4\""};
+        }
+
+        m_showerMCMCtranslator.insert({dictionary.at(0), dictionary.at(1)});
+      }
+    }
+
     /************************************************************
      *
      * Loop through all suplied config files and make into a
@@ -1436,6 +1477,9 @@ namespace top {
     ************************************************************/
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
+
+    if (settings->value("DemandPrimaryVertex") == "False")
+      m_demandPriVtx = false;
 
     ///-- KLFitter settings --///
     m_KLFitterTransferFunctionsPath = settings->value("KLFitterTransferFunctionsPath");
@@ -1892,7 +1936,7 @@ namespace top {
 
   void TopConfig::systematicsFwdElectrons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (const auto& s : syst) {
+      for (const auto& s : syst) {	
         m_systHashFwdElectrons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapFwdElectrons->insert(std::make_pair(s.hash(), s));
@@ -1905,7 +1949,7 @@ namespace top {
 
   void TopConfig::systematicsMuons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashMuons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapMuons->insert(std::make_pair(s.hash(), s));
@@ -1918,7 +1962,7 @@ namespace top {
 
   void TopConfig::systematicsSoftMuons(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (const CP::SystematicSet& s : syst) {
+      for (const CP::SystematicSet& s : syst) {	
         m_systHashSoftMuons->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapSoftMuons->insert(std::make_pair(s.hash(), s));
@@ -1931,7 +1975,7 @@ namespace top {
 
   void TopConfig::systematicsTaus(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashTaus->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapTaus->insert(std::make_pair(s.hash(), s));
@@ -1944,7 +1988,7 @@ namespace top {
 
   void TopConfig::systematicsJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_list_systHash_electronInJetSubtraction->push_back(s.hash());
@@ -1960,7 +2004,7 @@ namespace top {
 
   void TopConfig::systematicsLargeRJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashLargeRJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapLargeRJets->insert(std::make_pair(s.hash(), s));
@@ -1974,7 +2018,7 @@ namespace top {
   void TopConfig::systematicsTrackJets(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
       for (auto s : syst) {
-        m_systHashTrackJets->insert(s.hash());
+	m_systHashTrackJets->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapTrackJets->insert(std::make_pair(s.hash(), s));
         m_systSgKeyMapTrackJets->insert(std::make_pair(s.hash(), m_sgKeyTrackJets + "_" + s.name()));
@@ -1986,7 +2030,7 @@ namespace top {
 
   void TopConfig::systematicsMET(const std::list<CP::SystematicSet>& syst) {
     if (!m_configFixed) {
-      for (auto s : syst) {
+      for (auto s : syst) {	
         m_systHashMET->insert(s.hash());
         m_list_systHashAll->push_back(s.hash());
         m_systMapMET->insert(std::make_pair(s.hash(), s));
@@ -2004,7 +2048,7 @@ namespace top {
       (*m_systDecoKeyMapJetGhostTrack)[m_nominalHashValue] = m_decoKeyJetGhostTrack + "_";
       m_jetGhostTrackSystematics.push_back("");
 
-      for (auto s : syst) {
+      for (auto s : syst) {	
         (*m_systMapJetGhostTrack)[s.hash()] = s;
         (*m_systDecoKeyMapJetGhostTrack)[s.hash()] = m_decoKeyJetGhostTrack + "_" + s.name();
         m_list_systHashAll->push_back(s.hash());

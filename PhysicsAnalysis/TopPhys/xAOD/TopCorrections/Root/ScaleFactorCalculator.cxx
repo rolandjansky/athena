@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCorrections/ScaleFactorCalculator.h"
@@ -10,6 +10,8 @@
 #include "TopEvent/EventTools.h"
 
 #include "xAODEventInfo/EventInfo.h"
+
+#include <sstream>
 
 namespace top {
   ScaleFactorCalculator::ScaleFactorCalculator(const std::string& name) :
@@ -26,7 +28,9 @@ namespace top {
     m_pileupSF(nullptr),
     m_sherpa_22_reweight_tool("PMGSherpa22VJetsWeightTool"),
     m_globalLeptonTriggerSF(nullptr),
-    m_pmg_truth_weight_tool("PMGTruthWeightTool") {
+    m_pmg_truth_weight_tool("PMGTruthWeightTool"),
+    m_has_weight_metadata(false),
+    m_nominal_weight_name("") {
     declareProperty("config", m_config);
   }
 
@@ -87,6 +91,7 @@ namespace top {
       }
 
       top::check(m_pmg_truth_weight_tool.retrieve(), "Failed to retrieve PMGTruthWeightTool");
+      top::check(initialize_nominal_MC_weight(), "Failed to initialize nominal MC weight in SF calculator");
     }
 
     if (m_config->doPileupReweighting()) {
@@ -94,6 +99,61 @@ namespace top {
       top::check(m_pileupSF->initialize(), "Failed to initialize pileup SF calculator");
     }
 
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode ScaleFactorCalculator::initialize_nominal_MC_weight() {
+    ///-- Start using the PMG tool to get the nominal event weights --///
+    // we will later need to know if this sample has any MC weight variations
+    // some samples don't have any, and we have to fallback to taking 0th weight from EventInfo
+    const std::vector<std::string>& pmg_weight_names = m_pmg_truth_weight_tool->getWeightNames();
+    m_has_weight_metadata = (pmg_weight_names.size() > 0);
+    if (!m_has_weight_metadata) {
+      ATH_MSG_WARNING("PMGTruthWeightTool did not find any MC generator weights metadata for this sample.");
+      ATH_MSG_WARNING("Will use 0th weight from the eventInfo.");
+      m_config->setDetectedNominalWeightIndex(0);
+      return StatusCode::SUCCESS;
+    }
+    // here we try to find the first weight name from the NominalWeightNames config option, that matches any MC weight in the sample
+    const std::vector<std::string> &nominal_weight_names = m_config->nominalWeightNames();
+    bool found_match = false;
+    std::vector<std::string> multiple_matches;
+    for (const std::string& weight_name : nominal_weight_names) {
+      // Check whether this weight name does exist
+      if (m_pmg_truth_weight_tool->hasWeight(weight_name)) {
+        // pick only the first match, but check if there are multiple matches -- that is a problem
+        if (!found_match)
+          m_nominal_weight_name = weight_name;
+        found_match = true;
+        multiple_matches.push_back(weight_name);
+      }
+    }
+    // we have to find the index, because PMGTruthWeightTool has no method to give us the index
+    auto weight_index = std::find(pmg_weight_names.begin(), pmg_weight_names.end(), m_nominal_weight_name);
+    m_config->setDetectedNominalWeightName(m_nominal_weight_name);
+    m_config->setDetectedNominalWeightIndex(weight_index - pmg_weight_names.begin());
+    if (multiple_matches.size() > 1) {
+      std::stringstream s_multiple_matches;
+      for (const std::string &wname : multiple_matches)
+        s_multiple_matches << "\"" << wname << "\"\n";
+      ATH_MSG_WARNING("Multiple NominalWeightNames match for this MC sample!\n" + s_multiple_matches.str()
+          + "\nThe one we will use is \"" + m_nominal_weight_name + "\". Check whether this is really correct!");
+    }
+    if (!found_match) {
+      // if we get here, it means we are missing the correct name of the nominal weight
+      // user has to find it in the sample meta-data and add it to AT config file
+      ATH_MSG_ERROR("No MC weight matches any of the names specified by NominalWeightNames "
+          "option\nThis may indicate a sample with non-standard nominal MC weight name!");
+      std::stringstream weights_log;
+      for (size_t w_indx=0; w_indx < pmg_weight_names.size(); ++w_indx) {
+        weights_log << "Weight " << w_indx << ": \"" << pmg_weight_names.at(w_indx) << "\"\n";
+      }
+      ATH_MSG_ERROR("The following weight names are available based on sample metadata:\n" + weights_log.str()
+          + "\nAdd the correct nominal weight name from this list into the NominalWeightNames option in your config file.");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_INFO("Using the following MC weight as nominal: " + m_config->detectedNominalWeightName());
     return StatusCode::SUCCESS;
   }
 
@@ -160,27 +220,15 @@ namespace top {
     if (eventInfo->isAvailable<float>("AnalysisTop_eventWeight")) return eventInfo->auxdataConst<float>(
         "AnalysisTop_eventWeight");
 
-    ///-- Start using the PMG tool to get the nominal event weights --///
-    ///-- But nominal weight name seems to vary so we try to test   --///
-    const std::vector<std::string> nominal_weight_names = {
-      " nominal ", "nominal", "", "Weight"
-    };
-
-    for (auto weight_name : nominal_weight_names) {
-      ///-- Check whether this weight name does exist --///
-      if (m_pmg_truth_weight_tool->hasWeight(weight_name)) {
-        sf = m_pmg_truth_weight_tool->getWeight(weight_name);
-        ///-- Decorate the event info with this weight and return --///
-        eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
-        return sf;
-      }
+    if (m_has_weight_metadata) {
+      sf = m_pmg_truth_weight_tool->getWeight(m_nominal_weight_name);
+      ///-- Decorate the event info with this weight and return --///
+      eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
+      return sf;
+    } else {
+      sf = eventInfo->mcEventWeights()[0];
+      eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
+      return sf;
     }
-    ///-- If we reach here, no name was found, so use the old method --///
-    ///-- If not, we can default to retrieving the nominal weight assuming it is in the 0th position --///
-    sf = eventInfo->mcEventWeights()[0];
-    // Decorate the event info with this weight
-    eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
-
-    return sf;
   }
 }  // namespace top

@@ -5,6 +5,7 @@
 // $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "xAODJet/JetContainer.h"
@@ -665,10 +666,12 @@ namespace top {
                                                 const std::string& modName, bool isLargeR, bool onlyJER) {
     ///-- Get the recommended systematics from the tool, in std::vector format --///
     const std::vector<CP::SystematicSet> systList = CP::make_systematics_vector(recommendedSysts);
+    
 
     for (const CP::SystematicSet& s : systList) {
       if (s.size() == 1) {
         CP::SystematicSet::const_iterator ss = s.begin();
+	if(!m_config->getTreeFilter()->filterTree(modName + ss->name())) continue; // Applying tree filter
 
         if (onlyJER && ss->name().find("JER") == std::string::npos) continue;
 
@@ -682,7 +685,8 @@ namespace top {
             map.insert(std::make_pair(modSet, s));
           } else if (specifiedSystematics.size() > 0) {
             for (std::string i : specifiedSystematics) {
-              if (i == modSet.name()) {
+	      TreeFilter filter(i);
+              if (!filter.filterTree(modSet.name())) {
                 if (!isLargeR) m_specifiedSystematics.push_back(modSet);
                 else m_specifiedSystematicsLargeR.push_back(modSet);
                 map.insert(std::make_pair(modSet, s));

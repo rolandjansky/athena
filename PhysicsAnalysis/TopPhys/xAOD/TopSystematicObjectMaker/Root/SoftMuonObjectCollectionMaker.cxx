@@ -1,9 +1,10 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopSystematicObjectMaker/SoftMuonObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
 
 #include "AthContainers/AuxElement.h"
@@ -14,6 +15,15 @@
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "PATInterfaces/SystematicsUtil.h"
+
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/xAODTruthHelpers.h"
+#include "xAODTracking/TrackParticle.h"
+
+#include "TopParticleLevel/TruthTools.h"
+
+
 
 namespace top {
   SoftMuonObjectCollectionMaker::SoftMuonObjectCollectionMaker(const std::string& name) :
@@ -87,15 +97,7 @@ namespace top {
     ///-- Get base muons and tracks from xAOD --///
     const xAOD::MuonContainer* xaod(nullptr);
 
-    top::check(evtStore()->retrieve(xaod, m_config->sgKeyMuons()), "Failed to retrieve Soft Muons");  //we use
-                                                                                                      // sgKeyMuons and
-                                                                                                      // not
-                                                                                                      // sgKeySoftMuons
-                                                                                                      // on purpose to
-                                                                                                      // use the same
-                                                                                                      // collection for
-                                                                                                      // muons and soft
-                                                                                                      // muons
+    top::check(evtStore()->retrieve(xaod, m_config->sgKeyMuons()), "Failed to retrieve Soft Muons");  //we use sgKeyMuons and not sgKeySoftMuons on purpose to use the same collection for muons and soft muons
 
     ///-- Loop over all systematics --///
     for (auto systematic : m_specifiedSystematics) {
@@ -112,6 +114,7 @@ namespace top {
 
       ///-- Loop over the xAOD Container and apply corrections--///
       for (xAOD::Muon* muon : *(shallow_xaod_copy.first)) {
+        
         ///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
           top::check(m_calibrationPeriodTool->applyCorrection(*muon), "Failed to applyCorrection");
@@ -178,6 +181,8 @@ namespace top {
       m_calibrationPeriodTool->recommendedSystematics());
 
     for (const CP::SystematicSet& s : systList) {
+      
+      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematics.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematics.push_back(s);
@@ -192,7 +197,8 @@ namespace top {
           }
           if (specifiedSystematics.size() > 0) {
             for (auto i : specifiedSystematics) {
-              if (i == s.name()) {
+              TreeFilter filter(i);
+              if (!filter.filterTree(s.name())) {
                 m_specifiedSystematics.push_back(s);
               }
             }
@@ -205,4 +211,5 @@ namespace top {
     m_specifiedSystematics.sort();
     m_specifiedSystematics.unique();
   }
+
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #===================================================================================
 # Common file used for TOPQ jet setup
@@ -41,11 +41,9 @@ def buildTOPQCA15jets(algseq):
 #================
 def addSoftDropJetsForTop(algseq, outputGroup):
     from DerivationFrameworkJetEtMiss.JetCommon import addSoftDropJets
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCSSKSoftDropJets
     if (globalflags.DataSource()=='geant4'):
         addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=algseq, outputGroup=outputGroup, writeUngroomed=True)
 
-    addCSSKSoftDropJets(algseq, outputGroup)
 
 #================
 # TTC jets
@@ -128,14 +126,14 @@ def addExKtDoubleTagVariables(algseq, ToolSvc):
         getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
         getattr(ToolSvc,jetToolName).InputJetPtMin = 0
         getattr(ToolSvc,jetToolName).RCJetPtMin = 1
-        getattr(ToolSvc,jetToolName).RCJetPtFrac = 0
+        getattr(ToolSvc,jetToolName).TrimPtFrac = 0
         getattr(ToolSvc,jetToolName).DoArea = False
         getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
         getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
         DFisMC = (globalflags.DataSource()=='geant4')
         if(DFisMC):
-            getattr(ToolSvc,jetToolName).GhostTruthInputBContainer = "BHadronsFinal"
-            getattr(ToolSvc,jetToolName).GhostTruthInputCContainer = "CHadronsFinal"
+            getattr(ToolSvc,jetToolName).GhostTruthBHadronsInputContainer = "BHadronsFinal"
+            getattr(ToolSvc,jetToolName).GhostTruthCHadronsInputContainer = "CHadronsFinal"
 
         algseq += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
         DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)

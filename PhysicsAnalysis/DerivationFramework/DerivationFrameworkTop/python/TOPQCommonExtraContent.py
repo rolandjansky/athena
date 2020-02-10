@@ -282,7 +282,7 @@ TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          ]
 
 # Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMTopoJetsCPContent.py
-TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02TrackJets."
+TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810."
                                                       + "AlgorithmType."
                                                       + "ConeExclTausFinal."
                                                       + "ConstituentScale."
@@ -347,7 +347,7 @@ TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets =  ["AntiKtVR30Rmax4Rmin02Trac
                                                       ]
 
 # Full list: DerivationFrameworkFlavourTag/python/BTaggingContent.py
-TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30Rmax4Rmin02Track."
+TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30Rmax4Rmin02Track_201810."
                                                            + "IP3D_pb."
                                                            + "IP3D_pu."
                                                            + "SV1_pb."

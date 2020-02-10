@@ -53,6 +53,66 @@ if DerivationFrameworkIsMonteCarlo:
   ToolSvc += JETM8TruthJetInputThin
   thinningTools.append(JETM8TruthJetInputThin)
 
+#====================================================================
+# Thin jet inputs for jet constituents
+#====================================================================
+
+# Calo clusters
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+JETM8AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "JETM8AKt10CCThinningTool",
+                                                                       ThinningService       = "JETM8ThinningSvc",
+                                                                       SGKey                 = "AntiKt10LCTopoJets",
+                                                                       SelectionString       = "(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8)",
+                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                       AdditionalClustersKey = ["LCOriginTopoClusters"],
+                                                                       ApplyAnd              = False)
+ToolSvc += JETM8AKt10CCThinningTool
+thinningTools.append(JETM8AKt10CCThinningTool)
+
+# Tracks and CaloClusters associated with TCCs
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
+JETM8TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(name                         = "JETM8TCCTPThinningTool",
+                                                                       ThinningService              = "JETM8ThinningSvc",
+                                                                       JetKey                       = "AntiKt10TrackCaloClusterJets",
+                                                                       SelectionString              = "(AntiKt10TrackCaloClusterJets.pt > 150*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.8)",
+                                                                       TCCKey                       = "TrackCaloClustersCombinedAndNeutral",
+                                                                       InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                       CaloCalTopoClustersKey       = "CaloCalTopoClusters",
+                                                                       ThinOriginCorrectedClusters  = True,
+                                                                       OriginCaloCalTopoClustersKey = "LCOriginTopoClusters")
+
+ToolSvc += JETM8TCCTPThinningTool
+thinningTools.append(JETM8TCCTPThinningTool)
+
+# Tracks and CaloClusters associated with UFOs
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UFOTrackParticleThinning
+JETM8EMCSSKUFOTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name                   = "JETM8CSSKUFOTPThinningTool",
+                                                                             ThinningService        = "JETM8ThinningSvc",
+                                                                             JetKey                 = "AntiKt10UFOCSSKJets",
+                                                                             UFOKey                 = "CSSKUFO",
+                                                                             InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                             PFOCollectionSGKey     = "JetETMiss",
+                                                                             AdditionalPFOKey       = ["CSSK"])
+
+ToolSvc += JETM8EMCSSKUFOTPThinningTool
+thinningTools.append(JETM8EMCSSKUFOTPThinningTool)
+
+#====================================================================
+# Thin tracks
+#====================================================================
+
+JETM8BaselineTrack = "(InDetTrackParticles.pt > 0.0)"
+
+# This is necessary to keep tracks that would otherwise be removed by TCC and UFO thinning
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+JETM8TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name            = "JETM8TrackParticleThinningTool",
+                                                                            ThinningService = "JETM8ThinningSvc",
+                                                                            SelectionString = JETM8BaselineTrack,
+                                                                            InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                            ApplyAnd        = False)
+
+ToolSvc += JETM8TrackParticleThinningTool
+thinningTools.append(JETM8TrackParticleThinningTool)
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -111,7 +171,7 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt10UFOCSSKJets"]
 replaceAODReducedJets(reducedJetList,jetm8Seq,"JETM8")
 
-jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM8MainKernel", 
+jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM8MainKernel",
                                                           SkimmingTools = [JETM8OfflineSkimmingTool],
                                                           ThinningTools = thinningTools)
 
@@ -168,11 +228,13 @@ FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'],
 #====================================================================
 
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles,addBSMAndDownstreamParticles,addTruthCollectionNavigationDecorations
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  from DerivationFrameworkMCTruth.MCTruthCommon import addTopQuarkAndDownstreamParticles
+  from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
+  from DerivationFrameworkMCTruth.MCTruthCommon import addTruthCollectionNavigationDecorations
   addStandardTruthContents()
   addTopQuarkAndDownstreamParticles()
   addHFAndDownstreamParticles(addB=True, addC=False, generations=0)
-  addBSMAndDownstreamParticles()
   addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles"],prefix='Top')
 
 
@@ -218,22 +280,50 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                         "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
-                                        "AntiKtVR30Rmax4Rmin02TrackJets",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                         "BTagging_AntiKt4EMPFlow_201810",
                                         "BTagging_AntiKt4EMPFlow_201903",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
                                         ]
 JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
+                                    "TrackCaloClustersCombinedAndNeutral",
                                     "CSSKUFO",
                                     "TruthParticles",
                                     "Kt4EMPFlowEventShape"]
 
 JETM8SlimmingHelper.AppendToDictionary["CSSKUFO"] = "xAOD::TrackCaloClusterContainer"
 JETM8SlimmingHelper.AppendToDictionary["CSSKUFOAux"] = "xAOD::TrackCaloClusterAuxContainer"
-JETM8SlimmingHelper.ExtraVariables += [ "CSSKUFO.pt.eta.phi.taste" ]
-JETM8SlimmingHelper.ExtraVariables += ['AntiKt10LCTopoJets.SizeParameter','AntiKt10TruthJets.SizeParameter','AntiKt10TrackCaloClusterJets.SizeParameter','AntiKt10UFOCSSKJets.SizeParameter','AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.SizeParameter','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.SizeParameter','AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.SizeParameter','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.SizeParameter','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter','AntiKt10TruthTrimmedPtFrac5SmallR20Jets.SizeParameter','AntiKt10TruthSoftDropBeta100Zcut10Jets.SizeParameter','AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets.SizeParameter','AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter']
+
+JETM8SlimmingHelper.ExtraVariables += ["CSSKUFO.pt.eta.phi.taste"]
+JETM8SlimmingHelper.ExtraVariables += ['AntiKt10LCTopoJets.SizeParameter',
+                                       'AntiKt10TruthJets.SizeParameter',
+                                       'AntiKt10TrackCaloClusterJets.SizeParameter',
+                                       'AntiKt10UFOCSSKJets.SizeParameter',
+                                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.SizeParameter',
+                                       'AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter',
+                                       'AntiKt10TruthTrimmedPtFrac5SmallR20Jets.SizeParameter',
+                                       'AntiKt10TruthSoftDropBeta100Zcut10Jets.SizeParameter',
+                                       'AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets.SizeParameter',
+                                       'AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets.SizeParameter',
+                                       'AntiKt10LCTopoJets.GhostTrack',
+                                       'AntiKt10TrackCaloClusterJets.GhostTrack',
+                                       'AntiKt10UFOCSSKJets.GhostTrack',
+                                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.GhostTrack',
+                                       'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets.GhostTrack',
+                                       'AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets.GhostTrack',
+                                       ]
+
+# Add origin corrected clusters to keep LCTopo constituents
+addOriginCorrectedClusters(JETM8SlimmingHelper, writeLC=True, writeEM=False)
 
 # Add the jet containers to the stream
 addJetOutputs(
@@ -254,7 +344,6 @@ for truthc in [
   "TruthTopQuark",
   "TruthBosons",
   "TruthHF",
-  "TruthBSM",
   ]:
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"WithDecayParticlesAux.")
@@ -266,6 +355,7 @@ for truthc in [
   "TruthElectrons",
   "TruthPhotons",
   "TruthBottom",
+  "TruthBSM",
   ]:
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
   JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")

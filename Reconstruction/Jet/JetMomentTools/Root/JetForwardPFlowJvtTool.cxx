@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardPFlowJvtTool.cxx
@@ -214,9 +214,10 @@
     std::vector<fastjet::PseudoJet> input_pfo;
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
+      if (Dec_OR && !(*Dec_OR)(*pfo)) continue;
       if (pfo->isCharged()) { 
         if (vx.index()==pv_index && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
-        if (vx.index()!=pv_index && &vx!=pfo->track(0)->vertex()) continue;
+        if (vx.index()!=pv_index && (!pfo->track(0)->vertex() || vx.index()!=pfo->track(0)->vertex()->index())) continue;
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
