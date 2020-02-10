@@ -18,7 +18,7 @@ namespace BeamSpot {
   double pdfxy(double *x, double *p);
 }
 
-class SortDistToMedian: public std::binary_function <double, double, bool>
+class SortDistToMedian
 {
   double m_median;
 
