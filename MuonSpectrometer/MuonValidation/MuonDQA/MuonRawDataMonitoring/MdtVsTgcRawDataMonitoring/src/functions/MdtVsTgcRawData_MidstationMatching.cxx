@@ -108,6 +108,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Loop through contained ROTs and identify used stations
       for(unsigned int iROT=0; iROT<segm0->numberOfContainedROTs(); ++iROT) {
         const Trk::RIO_OnTrack* rio = segm0->rioOnTrack(iROT);
+	if(!rio) continue;
         Identifier id = rio->identify();
         stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
         
@@ -160,6 +161,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Loop through contained ROTs and identify used stations
       for(unsigned int iROT=0; iROT<segm1->numberOfContainedROTs(); ++iROT){
         const Trk::RIO_OnTrack* rio = segm1->rioOnTrack(iROT);
+	if(!rio) continue;
         Identifier id = rio->identify();
         stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
         bool isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
