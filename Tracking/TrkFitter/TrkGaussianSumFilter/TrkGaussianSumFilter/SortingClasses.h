@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -21,7 +21,7 @@ namespace Trk {
 class SortByLargerComponentWeight
 {
 public:
-  SortByLargerComponentWeight()= default;
+  SortByLargerComponentWeight() = default;
   bool operator()(const ComponentParameters firstComponent, const ComponentParameters secondComponent) const
   {
     return firstComponent.second > secondComponent.second;
@@ -31,7 +31,7 @@ public:
 class SortByLargerWeight
 {
 public:
-  SortByLargerWeight()= default;
+  SortByLargerWeight() = default;
   bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight > secondWeight; }
 };
 
@@ -39,7 +39,7 @@ class SortBySmallerWeight
 {
 
 public:
-  SortBySmallerWeight()= default;
+  SortBySmallerWeight() = default;
 
   bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight < secondWeight; }
 };

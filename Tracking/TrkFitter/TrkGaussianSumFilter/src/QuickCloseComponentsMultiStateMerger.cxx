@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -13,14 +13,14 @@ decription           : Implementation code for QuickCloseComponentsMultiStateMer
 *********************************************************************************/
 
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
-#include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
-#include "TrkGaussianSumFilter/AllignedDynArray.h"
-#include "TrkParameters/TrackParameters.h"
 #include "GaudiKernel/Chrono.h"
+#include "TrkGaussianSumFilter/AllignedDynArray.h"
+#include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
+#include "TrkParameters/TrackParameters.h"
 #include <limits>
 
-using namespace GSFUtils; 
+using namespace GSFUtils;
 
 Trk::QuickCloseComponentsMultiStateMerger::QuickCloseComponentsMultiStateMerger(const std::string& type,
                                                                                 const std::string& name,
@@ -45,7 +45,6 @@ Trk::QuickCloseComponentsMultiStateMerger::initialize()
   } else
     ATH_MSG_INFO("Retrieved service " << m_chronoSvc);
 
-
   if (m_maximumNumberOfComponents <= 0) {
     ATH_MSG_FATAL("Attempting to merge multi-state into zero components... stop being silly!");
     return StatusCode::FAILURE;
@@ -63,16 +62,16 @@ Trk::QuickCloseComponentsMultiStateMerger::finalize()
 }
 
 std::unique_ptr<Trk::MultiComponentState>
-Trk::QuickCloseComponentsMultiStateMerger::merge( Trk::MultiComponentState statesToMerge ) const
+Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState statesToMerge) const
 {
   // Assembler Cache
   MultiComponentStateAssembler::Cache cache;
 
   if (statesToMerge.size() <= m_maximumNumberOfComponents) {
-    MultiComponentStateAssembler::addMultiState( cache, std::move(statesToMerge) );
+    MultiComponentStateAssembler::addMultiState(cache, std::move(statesToMerge));
     return MultiComponentStateAssembler::assembledState(cache);
   }
- 
+
   // Scan all components for covariance matrices. If one or more component
   // is missing an error matrix, component reduction is impossible.
   bool componentWithoutMeasurement = false;
@@ -89,7 +88,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge( Trk::MultiComponentState state
     std::sort(statesToMerge.begin(),
               statesToMerge.end(),
               [](const ComponentParameters& x, const ComponentParameters& y) { return x.second > y.second; });
-  
+
     Trk::ComponentParameters dummyCompParams(statesToMerge.begin()->first->clone(), 1.);
     auto returnMultiState = std::make_unique<Trk::MultiComponentState>();
     returnMultiState->push_back(std::move(dummyCompParams));
@@ -101,19 +100,19 @@ Trk::QuickCloseComponentsMultiStateMerger::merge( Trk::MultiComponentState state
 
 std::unique_ptr<Trk::MultiComponentState>
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
-                                                              Trk::MultiComponentState& statesToMerge ) const 
+                                                              Trk::MultiComponentState& statesToMerge) const
 {
   /*
    * Allocate, and initialize the needed arrays
    */
   const int n = statesToMerge.size();
   const int nn2 = (n + 1) * n / 2;
-  AlignedDynArray<float,alignment> distances(nn2); // Array to store all of the distances between components
-  AlignedDynArray<float,alignment> qonp(n);    // Array of qonp for each component
-  AlignedDynArray<float,alignment> qonpCov(n); // Array of Cov(qonp,qonp) for each component
-  AlignedDynArray<float,alignment> qonpG(n);   // Array of 1/Cov(qonp,qonp) for each component
+  AlignedDynArray<float, alignment> distances(nn2); // Array to store all of the distances between components
+  AlignedDynArray<float, alignment> qonp(n);        // Array of qonp for each component
+  AlignedDynArray<float, alignment> qonpCov(n);     // Array of Cov(qonp,qonp) for each component
+  AlignedDynArray<float, alignment> qonpG(n);       // Array of 1/Cov(qonp,qonp) for each component
 
-  // Initialize all values 
+  // Initialize all values
   for (int i = 0; i < n; ++i) {
     qonp[i] = 0;
     qonpCov[i] = 0;
@@ -123,8 +122,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
     distances[i] = std::numeric_limits<float>::max();
   }
 
-  //Needed to convert the triangular index to (i,j)
-  std::vector<triangularToIJ> convert(nn2,{-1,-1});
+  // Needed to convert the triangular index to (i,j)
+  std::vector<triangularToIJ> convert(nn2, { -1, -1 });
   // Calculate indicies
   for (int i = 0; i < n; ++i) {
     const int indexConst = (i + 1) * i / 2;
@@ -141,9 +140,9 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
     const AmgVector(5) parameters = statesToMerge[i].first->parameters();
     // Fill in infomation
     qonp[i] = parameters[Trk::qOverP];
-    qonpCov[i] = measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP): -1.;
+    qonpCov[i] = measuredCov ? (*measuredCov)(Trk::qOverP, Trk::qOverP) : -1.;
     qonpG[i] = qonpCov[i] > 0 ? 1. / qonpCov[i] : 1e10;
-  } 
+  }
   // Calculate distances for all pairs
   // This loop can be vectorised
   calculateAllDistances(qonp, qonpCov, qonpG, distances, n);
@@ -243,5 +242,3 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
 
   return mergedState;
 }
-
-

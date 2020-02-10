@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -41,7 +41,7 @@ public:
   GsfSmoother(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfSmoother()= default;
+  virtual ~GsfSmoother() = default;
 
   /** AlgTool initialise method */
   StatusCode initialize();

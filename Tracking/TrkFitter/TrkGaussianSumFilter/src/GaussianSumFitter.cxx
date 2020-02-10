@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -12,11 +12,11 @@ decription           : Implementation code for Gaussian Sum Fitter class
 ********************************************************************************** */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
@@ -173,7 +173,8 @@ Trk::GaussianSumFitter::finalize()
 
 /* ======================================================================================================
    Refitting of a track
-========================================================================================================= */
+=========================================================================================================
+*/
 
 Trk::Track*
 Trk::GaussianSumFitter::fit(const Trk::Track& inputTrack,
@@ -235,7 +236,8 @@ Trk::GaussianSumFitter::fit(const Trk::Track& inputTrack,
 
   }
 
-  // If refitting of the track is at the PrepRawData level then extract the PrepRawData objects from the input track
+  // If refitting of the track is at the PrepRawData level then extract the PrepRawData objects from
+  // the input track
   else {
 
     PrepRawDataSet prepRawDataSet;
@@ -279,7 +281,8 @@ Trk::GaussianSumFitter::fit(const Trk::Track& inputTrack,
 
 /* ==================================================================================================================
    Fitting of a set of PrepRawData objects
-===================================================================================================================== */
+=====================================================================================================================
+*/
 
 Trk::Track*
 Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
@@ -404,7 +407,8 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
 
 /* ================================================================================================
    Fitting of a set of MeasurementBase objects
-============== ==================================================================================== */
+============== ====================================================================================
+*/
 
 Trk::Track*
 Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
@@ -457,12 +461,12 @@ Trk::GaussianSumFitter::fit(const Trk::MeasurementSet& measurementSet,
 
     Trk::MeasurementBaseComparisonFunction measurementBaseComparisonFunction(estimatedParametersNearOrigin.position(),
                                                                              estimatedParametersNearOrigin.momentum());
-    sort(sortedMeasurementSet.begin(), sortedMeasurementSet.end(),measurementBaseComparisonFunction);
+    sort(sortedMeasurementSet.begin(), sortedMeasurementSet.end(), measurementBaseComparisonFunction);
   }
   // Perform GSF forwards fit - new memory allocated in forwards fitter
   ForwardTrajectory* forwardTrajectory =
-    m_forwardGsfFitter->fitMeasurements(sortedMeasurementSet, 
-                                        estimatedParametersNearOrigin, particleHypothesis).release();
+    m_forwardGsfFitter->fitMeasurements(sortedMeasurementSet, estimatedParametersNearOrigin, particleHypothesis)
+      .release();
 
   if (!forwardTrajectory) {
     ATH_MSG_DEBUG("Forward GSF fit failed... Exiting!");
@@ -689,23 +693,21 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
   const Trk::TrackStateOnSurface* stateOnSurfaceNearestOrigin = smoothedTrajectory->back();
   const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurfaceNearestOrigin =
     dynamic_cast<const Trk::MultiComponentStateOnSurface*>(stateOnSurfaceNearestOrigin);
- 
+
   const Trk::MultiComponentState* multiComponentState = nullptr;
   if (!multiComponentStateOnSurfaceNearestOrigin) {
-    //we need to make a dummy multicomponent surface
+    // we need to make a dummy multicomponent surface
     Trk::ComponentParameters dummyComponent(stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
     auto tmp_multiComponentState = std::make_unique<Trk::MultiComponentState>();
     tmp_multiComponentState->push_back(std::move(dummyComponent));
-    multiComponentState=tmp_multiComponentState.release();
+    multiComponentState = tmp_multiComponentState.release();
   } else {
     multiComponentState = multiComponentStateOnSurfaceNearestOrigin->components();
   }
   // Extrapolate to perigee, taking material effects considerations into account
-  Trk::MultiComponentState* stateExtrapolatedToPerigee =m_extrapolator->extrapolate(*multiComponentState, 
-                                                                                    perigeeSurface, 
-                                                                                    m_directionToPerigee, 
-                                                                                    false, 
-                                                                                    particleHypothesis).release();
+  Trk::MultiComponentState* stateExtrapolatedToPerigee =
+    m_extrapolator->extrapolate(*multiComponentState, perigeeSurface, m_directionToPerigee, false, particleHypothesis)
+      .release();
 
   if (!stateExtrapolatedToPerigee) {
     ATH_MSG_DEBUG("Track could not be extrapolated to perigee... returning 0");
@@ -741,12 +743,8 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
     return nullptr;
   }
 
-  const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-    new MultiComponentStateOnSurface(nullptr, combinedPerigee.release(), 
-                                     stateExtrapolatedToPerigee, 
-                                     nullptr, 
-                                     nullptr, 
-                                     pattern, modeQoverP);
+  const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface = new MultiComponentStateOnSurface(
+    nullptr, combinedPerigee.release(), stateExtrapolatedToPerigee, nullptr, nullptr, pattern, modeQoverP);
   ATH_MSG_DEBUG("makePerigee() returning sucessfully!");
   return perigeeMultiStateOnSurface;
 }

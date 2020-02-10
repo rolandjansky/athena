@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -14,9 +14,9 @@ decription           : Class definition for the forward GSF fitter
 #ifndef TrkForwardGsfFitter_H
 #define TrkForwardGsfFitter_H
 
-#include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
+#include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -40,7 +40,7 @@ public:
   ForwardGsfFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~ForwardGsfFitter()= default;
+  virtual ~ForwardGsfFitter() = default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;

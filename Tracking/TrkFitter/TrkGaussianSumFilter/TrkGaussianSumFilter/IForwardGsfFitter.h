@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -14,12 +14,12 @@ decription           : Abstract interface for the forward GSF fitter
 #ifndef TrkIForwardGsfFitter_H
 #define TrkIForwardGsfFitter_H
 
+#include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
-#include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <memory>
 namespace Trk {
@@ -39,7 +39,7 @@ public:
   static const InterfaceID& interfaceID() { return InterfaceID_ForwardGsfFitter; };
 
   /** Virtual destructor */
-  virtual ~IForwardGsfFitter()= default;
+  virtual ~IForwardGsfFitter() = default;
 
   /** Configure the forward GSF fitter
       - Configure the extrapolator
@@ -56,12 +56,13 @@ public:
     const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Forward GSF fit using MeasurementSet */
-  virtual  std::unique_ptr<ForwardTrajectory> fitMeasurements(
+  virtual std::unique_ptr<ForwardTrajectory> fitMeasurements(
     const MeasurementSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  /** The interface will later be extended so that the initial state can be additionally a MultiComponentState object!
+  /** The interface will later be extended so that the initial state can be additionally a
+   * MultiComponentState object!
    */
 };
 

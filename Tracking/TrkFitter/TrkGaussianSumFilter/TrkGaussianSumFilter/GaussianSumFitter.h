@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -48,7 +48,7 @@ public:
   GaussianSumFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GaussianSumFitter()= default;
+  virtual ~GaussianSumFitter() = default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
