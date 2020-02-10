@@ -51,16 +51,17 @@ def __decisionsFromHypo( hypo ):
 
 def collectViewMakers( steps ):
     """ collect all view maker algorithms in the configuration """
-    makers = set() # map with name, instance and encompasing recoSequence
+    makers = [] # map with name, instance and encompasing recoSequence
     for stepSeq in steps.getChildren():
         for recoSeq in stepSeq.getChildren():
             algsInSeq = flatAlgorithmSequences( recoSeq )
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
                     if "EventViewCreator" in alg.getFullName(): # TODO base it on checking types of write handles once available
-                        makers.add(alg)
-    __log.info("Found View Makers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
-    return list(makers)
+                        makers.append(alg)
+    makers = sorted(set(makers)) #Remove duplicates and return in reproducible order
+    __log.debug("Found ViewMakers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
+    return makers
 
 
 
@@ -144,7 +145,7 @@ def collectDecisionObjects(  hypos, filters, l1decoder, hltSummary ):
     decisionObjects.update(decObjHypo)
     decisionObjects.update(decObjFilter)
     decisionObjects.update(decObjSummary)
-    return decisionObjects
+    return sorted(decisionObjects)
 
 def triggerSummaryCfg(flags, hypos):
     """
@@ -174,10 +175,10 @@ def triggerSummaryCfg(flags, hypos):
                 # TODO once sequences available in the menu we need to crosscheck it here
                 assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
-                __log.info("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
+                __log.debug("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
 
     for c, cont in six.iteritems (allChains):
-        __log.info("Final decision of chain  " + c + " will be read from " + cont )
+        __log.debug("Final decision of chain  " + c + " will be read from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
@@ -208,7 +209,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
             allChains.update( hypoChains )
 
         dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(set(stepDecisionKeys)) )
-        __log.info( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
+        __log.debug( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
 
 
