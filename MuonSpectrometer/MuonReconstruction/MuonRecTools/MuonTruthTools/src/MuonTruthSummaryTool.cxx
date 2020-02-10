@@ -151,13 +151,13 @@ namespace Muon {
     std::scoped_lock lock(m_mutex);
     if( m_truthHits.empty() )  return "Event without truth hits";
     if( m_truthDataPerLevel.empty() ) return "No hits added";
-    ATH_MSG_DEBUG( "Have " << m_truthHits.size() << " truth hits and "<< m_truthDataPerLevel.size()<<" levels filled."  );
+    std::ostringstream sout;
+    sout << "Have " << m_truthHits.size() << " truth hits and "<< m_truthDataPerLevel.size()<<" levels filled." <<std::endl;
 
     std::unordered_set<Identifier, IdentifierHash> truthHits;
     for( auto it = m_truthHits.begin();it!=m_truthHits.end();++it ) truthHits.insert(it->first);
 
     m_truthHitsTotal+=truthHits.size();
-    std::ostringstream sout;
     sout << " Summarizing: truth hits " << truthHits.size() << " levels filled " << m_truthDataPerLevel.size()<<std::endl;
     for (auto& pair : m_truthDataPerLevel) {
       m_level=pair.first-1;
@@ -180,8 +180,10 @@ namespace Muon {
     std::ostringstream sout;
     if( truth.size() != found.size() ){
       sout << " Some truth hits not found: truth " << truth.size() << " found " << found.size() << std::endl;
+      std::set<Identifier> truthset(truth.begin(), truth.end());
+      std::set<Identifier> foundset(found.begin(), found.end());
       std::vector<Identifier> result(truth.size()-found.size());
-      std::vector<Identifier>::iterator pos = std::set_difference(truth.begin(),truth.end(),found.begin(),found.end(),result.begin());
+      std::vector<Identifier>::iterator pos = std::set_difference(truthset.begin(),truthset.end(),foundset.begin(),foundset.end(),result.begin());
       result.resize(pos-result.begin());
       int nmm = 0;
       std::map<Identifier, unsigned int> chambers; // Store counts per chamber Id
