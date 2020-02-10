@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -41,9 +41,9 @@ namespace xAOD {
   void TauTrack_v1::setP4(double pt, double eta, double phi, double /*m*/)  {
 
      // Set the raw variables:
-     static Accessor< float > acc1( "pt" );
-     static Accessor< float > acc2( "eta" );
-     static Accessor< float > acc3( "phi" );
+     static const Accessor< float > acc1( "pt" );
+     static const Accessor< float > acc2( "eta" );
+     static const Accessor< float > acc3( "phi" );
      acc1( *this ) = pt;
      acc2( *this ) = eta;
      acc3( *this ) = phi;
@@ -72,14 +72,14 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, TauTrack_v1::TrackFlagType, flagSet, setFlagSet)
 
   bool TauTrack_v1::flag(TauJetParameters::TauTrackFlag flag) const{
-    static Accessor< TauTrack_v1::TrackFlagType > trackFlags("flagSet");
+    static const Accessor< TauTrack_v1::TrackFlagType > trackFlags("flagSet");
     TrackFlagType f(trackFlags(*this));
     std::bitset<8*sizeof(TrackFlagType)> thisTracksFlags(f);
     return thisTracksFlags[flag];
   }
 
   bool TauTrack_v1::flagWithMask(unsigned int flags) const{
-    static Accessor< TauTrack_v1::TrackFlagType > trackFlags("flagSet");
+    static const Accessor< TauTrack_v1::TrackFlagType > trackFlags("flagSet");
     TrackFlagType f(trackFlags(*this));
     // std::bitset<8*sizeof(TrackFlagType)> thisTracksFlags(f);
     // std::bitset<8*sizeof(TrackFlagType)> tracksFlags(flags);
@@ -91,7 +91,7 @@ namespace xAOD {
   }
 
   void TauTrack_v1::setFlag(TauJetParameters::TauTrackFlag flag, bool value){
-    static Accessor< TauTrack_v1::TrackFlagType > trackFlags("flagSet");
+    static const Accessor< TauTrack_v1::TrackFlagType > trackFlags("flagSet");
     TrackFlagType& f(trackFlags(*this));
     std::bitset<8*sizeof(TrackFlagType)> thisTracksFlags(f);
     thisTracksFlags[flag] = value;
@@ -146,7 +146,7 @@ namespace xAOD {
 
   bool TauTrack_v1::detail( TauJetParameters::TrackDetail detail, float& value ) const{
     // Get the detail accessor:
-    Accessor< float >* acc = xAODTau::trackDetailsAccessorV3<float>( detail );
+    const Accessor< float >* acc = xAODTau::trackDetailsAccessorV3<float>( detail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 
@@ -166,7 +166,7 @@ namespace xAOD {
                                      bdtScores,
                                      setBdtScores )
   
-  static SG::AuxElement::Accessor< std::vector<float> > bdtScoreAcc( "bdtScores" );
+  static const SG::AuxElement::Accessor< std::vector<float> > bdtScoreAcc( "bdtScores" );
   
   float TauTrack_v1::bdtScore( size_t i) const {
     return bdtScoreAcc(*this).at(i);
@@ -195,7 +195,7 @@ namespace xAOD {
   				     trackLinks,
   				     setTrackLinks )
   
-  static SG::AuxElement::Accessor< TauTrack_v1::TrackParticleLinks_t > trackAcc( "trackLinks" );
+  static const SG::AuxElement::Accessor< TauTrack_v1::TrackParticleLinks_t > trackAcc( "trackLinks" );
   
   const TrackParticle* TauTrack_v1::track() const {
     return ( *trackAcc( *this )[0] );
