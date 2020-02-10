@@ -44,7 +44,7 @@ def getTopoSeededCollectionName():
 #The tools used to add properties 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"
-  return [EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
+  return [EMFourMomBuilder(), egammaOQFlagsBuilder()]
 
 def electronDecorationTools():
   "Return a list with the tools that decorate only electrons"
@@ -69,7 +69,8 @@ class egammaGetter ( Configured ) :
                                    # Builder tools
                                    TrackMatchBuilderTool = EMTrackMatchBuilder,
                                    ConversionBuilderTool = EMConversionBuilder if doConversions() else None,
-			       	   EMClusterTool=EMClusterTool,                          
+                                   EMClusterTool=EMClusterTool,                          
+                                   EMShowerTool=EMShowerBuilder,
                                    AmbiguityTool = EGammaAmbiguityTool,                                     
                                    # Decoration tools
                                    egammaTools = FcnWrapper(egammaDecorationTools),
