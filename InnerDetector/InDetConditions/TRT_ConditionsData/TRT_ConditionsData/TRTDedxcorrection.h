@@ -11,20 +11,20 @@ struct TRTDedxcorrection {
   static constexpr int nParametersTrackBaseddEdx = 100;
   static constexpr int nParametersHitBaseddEdx = 204;
 
-  double hitOccPar[nParametersHitBaseddEdx];
+  double hitOccPar[nParametersHitBaseddEdx] = {1};
 
-  // TrckOccupancy calibration constants are separated in three arrays as we use a polynomial
+  // TrackOccupancy calibration constants are separated in three arrays as we use a polynomial
   // function 2nd order of the form f(x)=a+b*x+c*x^2
   
-  // TrckOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double trackOccPar0NoHt[nParametersTrackBaseddEdx];
-  double trackOccPar1NoHt[nParametersTrackBaseddEdx];
-  double trackOccPar2NoHt[nParametersTrackBaseddEdx];
+  // TrackOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
+  double trackOccPar0NoHt[nParametersTrackBaseddEdx] = {1};
+  double trackOccPar1NoHt[nParametersTrackBaseddEdx] = {1};
+  double trackOccPar2NoHt[nParametersTrackBaseddEdx] = {1};
 
-  // TrckOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double trackOccPar0[nParametersTrackBaseddEdx];
-  double trackOccPar1[nParametersTrackBaseddEdx];
-  double trackOccPar2[nParametersTrackBaseddEdx];
+  // TrackOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
+  double trackOccPar0[nParametersTrackBaseddEdx] = {1};
+  double trackOccPar1[nParametersTrackBaseddEdx] = {1};
+  double trackOccPar2[nParametersTrackBaseddEdx] = {1};
 
   static constexpr int nGasTypes = 3;
   

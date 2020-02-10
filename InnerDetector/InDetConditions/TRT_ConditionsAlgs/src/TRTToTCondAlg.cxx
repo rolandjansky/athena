@@ -7,6 +7,19 @@
 #include "CoralBase/AttributeListSpecification.h"
 
 
+const std::vector<std::string> TRTToTCondAlg::m_dictNamesOldDB = {"resolution","resolution_e","para_long_corrRZ_MC",
+    "para_short_corrRZ_MC","para_end_corrRZ_MC","para_long_corrRZL_MC",
+    "para_short_corrRZL_MC","para_end_corrRZL_MC"};
+const std::vector<std::string> TRTToTCondAlg::m_dictNamesNewDB = {"para_end_corrRZLXe","para_end_corrRZ_Xe","para_end_mimicToXeXe",
+    "para_long_corrRZLXe","para_long_corrRZ_Xe","para_long_mimicToXeXe","para_short_corrRZLXe",
+    "para_short_corrRZ_Xe","para_short_mimicToXeXe","resolution_Xe","resolution_e_Xe","para_end_corrRZLAr",
+    "para_end_corrRZ_Ar","para_end_mimicToXeAr","para_long_corrRZLAr","para_long_corrRZ_Ar",
+    "para_long_mimicToXeAr","para_short_corrRZLAr","para_short_corrRZ_Ar","para_short_mimicToXeAr",
+    "resolution_Ar","resolution_e_Ar","para_end_corrRZLKr","para_end_corrRZ_Kr","para_end_mimicToXeKr",
+    "para_long_corrRZLKr","para_long_corrRZ_Kr","para_long_mimicToXeKr","para_short_corrRZLKr",
+    "para_short_corrRZ_Kr","para_short_mimicToXeKr","resolution_Kr","resolution_e_Kr",
+    "HitOccPar", "TrackOccPar0", "TrackOccPar0_noHT", "TrackOccPar1", "TrackOccPar1_noHT", "TrackOccPar2", "TrackOccPar2_noHT"};
+
 TRTToTCondAlg::TRTToTCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator),
@@ -115,79 +128,50 @@ StatusCode TRTToTCondAlg::finalize()
 }
 
 StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const CondAttrListVec* channel_values){
-
-  std::vector<std::string>  dict_names = {"para_end_corrRZLXe","para_end_corrRZ_Xe","para_end_mimicToXeXe",
-    "para_long_corrRZLXe","para_long_corrRZ_Xe","para_long_mimicToXeXe","para_short_corrRZLXe",
-    "para_short_corrRZ_Xe","para_short_mimicToXeXe","resolution_Xe","resolution_e_Xe","para_end_corrRZLAr",
-    "para_end_corrRZ_Ar","para_end_mimicToXeAr","para_long_corrRZLAr","para_long_corrRZ_Ar",
-    "para_long_mimicToXeAr","para_short_corrRZLAr","para_short_corrRZ_Ar","para_short_mimicToXeAr",
-    "resolution_Ar","resolution_e_Ar","para_end_corrRZLKr","para_end_corrRZ_Kr","para_end_mimicToXeKr",
-    "para_long_corrRZLKr","para_long_corrRZ_Kr","para_long_mimicToXeKr","para_short_corrRZLKr",
-    "para_short_corrRZ_Kr","para_short_mimicToXeKr","resolution_Kr","resolution_e_Kr"};
-
-  std::map<std::string,std::vector<float> > result_dict;
+  // Determine which version of DB constants to use based on the length
+  ATH_MSG_DEBUG("Size of channel_values[]="<<channel_values->size()<<"");
   int dataBaseType = kNewDB;
-  ATH_MSG_DEBUG("update():: dict_names[]="<<dict_names.size()<<", channel_values[]="<<channel_values->size()<<"");
-  if(channel_values->size()<19695) dataBaseType = kOldDB; 
-
-  if(dataBaseType==kNewDB) {
-        
-      CondAttrListVec::const_iterator first_channel = channel_values->begin();
-      CondAttrListVec::const_iterator last_channel  = channel_values->end();
-
-      unsigned int current_channel = 0;
-      std::vector<float> current_array_values = {};
-
-      for (; first_channel != last_channel; ++first_channel) {
-        if (current_channel != first_channel->first){
-          if(current_array_values.size()!=0) result_dict[dict_names[current_channel]] = current_array_values;
-          current_channel = first_channel->first;      
-          current_array_values.clear();
-        }
-        current_array_values.push_back(first_channel->second["array_value"].data<float>());             
-      }
-                        
-      result_dict[dict_names[current_channel]] = current_array_values;
-                        
-      update_New(Dedxcorrection, result_dict);
-      ATH_MSG_DEBUG ("update():: Reading new database is done!");
-
-      return StatusCode::SUCCESS;
-                
-  } else if(dataBaseType==kOldDB) {
-        ATH_MSG_WARNING ("update():: Old COOL database tag!");
-
-        std::vector<std::string>  dict_names_old = {"resolution","resolution_e","para_long_corrRZ_MC",
-             "para_short_corrRZ_MC","para_end_corrRZ_MC","para_long_corrRZL_MC",
-             "para_short_corrRZL_MC","para_end_corrRZL_MC"};
-        
-        CondAttrListVec::const_iterator first_channel = channel_values->begin();
-        CondAttrListVec::const_iterator last_channel  = channel_values->end();
-
-        unsigned int current_channel = 0;
-        std::vector<float> current_array_values = {};
-
-        for (; first_channel != last_channel; ++first_channel) {
-            if (current_channel != first_channel->first) {
-	      if(current_array_values.size()!=0) result_dict[dict_names_old[current_channel]] = current_array_values; 
-                current_channel = first_channel->first;      
-                current_array_values.clear();
-             }
-             current_array_values.push_back(first_channel->second["array_value"].data<float>());             
-        }
-                        
-        result_dict[dict_names_old[current_channel]] = current_array_values;
-
-        update_Old(Dedxcorrection, result_dict);
-        ATH_MSG_DEBUG ("update():: Reading old database is done!");
-
-        return StatusCode::SUCCESS;
+  if(channel_values->size()<19695) {
+    dataBaseType = kOldDB;
+  } else if (channel_values->size()>19695) {
+    dataBaseType = kNewDBOccCorr;
   }
-        return StatusCode::FAILURE;
+  const std::vector<std::string>& dictNames = (dataBaseType==kOldDB) ? m_dictNamesOldDB : m_dictNamesNewDB;
+
+  std::map<std::string,std::vector<float> > resultDict;
+  // Read all vectors of values from DB entries and store by name in map
+  CondAttrListVec::const_iterator channel = channel_values->begin();
+  unsigned int channelIndex = 0;
+  std::vector<float> currentArrayValues = {};
+  for (; channel != channel_values->end(); ++channel) {
+    if (channelIndex != channel->first){
+      if(currentArrayValues.size()!=0) resultDict[dictNames[channelIndex]] = currentArrayValues;
+      channelIndex = channel->first;      
+      currentArrayValues.clear();
+    }
+    currentArrayValues.push_back(channel->second["array_value"].data<float>());             
+  }
+  resultDict[dictNames[channelIndex]] = currentArrayValues;
+
+  // update dEdx corrections from dictionary depending on the DB version
+  if(dataBaseType==kNewDB or dataBaseType==kNewDBOccCorr) {              
+    updateNewDBParameters(Dedxcorrection, resultDict);
+    ATH_MSG_DEBUG ("update():: Reading new database is done!");
+    if (dataBaseType==kNewDBOccCorr) {
+      updateOccupancyCorrectionParameters(Dedxcorrection, resultDict);
+      ATH_MSG_DEBUG ("update():: Reading new database with occupancy correction is done!");
+    }
+    return StatusCode::SUCCESS;
+  } else if(dataBaseType==kOldDB) {
+    ATH_MSG_WARNING ("update():: Old COOL database tag!");
+    updateOldDBParameters(Dedxcorrection, resultDict);
+    ATH_MSG_DEBUG ("update():: Reading old database is done!");
+    return StatusCode::SUCCESS;
+  }
+  return StatusCode::FAILURE;
 }
 
-void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) {
-
+void TRTToTCondAlg::updateOccupancyCorrectionParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) {
   // fill occupancy calibration parameters
   for (unsigned int ind=0; ind < Dedxcorrection.nParametersHitBaseddEdx; ++ind) {
     Dedxcorrection.hitOccPar[ind]=result_dict["HitOccPar"][ind];
@@ -201,7 +185,9 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
     Dedxcorrection.trackOccPar1[ind]=result_dict["TrackOccPar1"][ind];
     Dedxcorrection.trackOccPar2[ind]=result_dict["TrackOccPar2"][ind];
   }
-  
+}
+
+void TRTToTCondAlg::updateNewDBParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) {
   //      fill Xenon +++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
   for (unsigned int ind=0; ind < 4; ++ind) {
     Dedxcorrection.resolution[0][ind]=result_dict["resolution_Xe"][ind];
@@ -439,7 +425,7 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
 
 
 
-void TRTToTCondAlg::update_Old(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) {
+void TRTToTCondAlg::updateOldDBParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) {
   for(int gasType = 0; gasType<3; gasType++) { // loop over gas types
     for (unsigned int ind=0; ind < 4; ++ind) {
       Dedxcorrection.resolution[gasType][ind]=result_dict["resolution"][ind];

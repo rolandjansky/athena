@@ -26,11 +26,14 @@ class TRTToTCondAlg : public AthAlgorithm
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
-  enum EDataBaseType {kOldDB,kNewDB};
-  StatusCode update1( TRTDedxcorrection& Dedxcorrection, const CondAttrListVec* channel_values);
-  void update_New(TRTDedxcorrection& Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
-  void update_Old(TRTDedxcorrection& Dedxcollection, std::map<std::string,std::vector<float> > &result_dict) ;
+  enum EDataBaseType {kOldDB,kNewDB,kNewDBOccCorr};
+  StatusCode update1(TRTDedxcorrection& Dedxcorrection, const CondAttrListVec* channel_values);
   StatusCode update2(TRTDedxcorrection& Dedxcorrection, const CondAttrListCollection* attrListColl );
+ 
+ protected:
+  void updateOldDBParameters(TRTDedxcorrection& Dedxcollection, std::map<std::string,std::vector<float> > &result_dict) ;
+  void updateNewDBParameters(TRTDedxcorrection& Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
+  void updateOccupancyCorrectionParameters(TRTDedxcorrection & Dedxcorrection, std::map<std::string,std::vector<float> > &result_dict) ;
 
  private:
   ServiceHandle<ICondSvc> m_condSvc;
@@ -38,5 +41,7 @@ class TRTToTCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<CondAttrListCollection> m_ValReadKey{this,"ToTValReadKey","/TRT/Calib/ToT/ToTValue","ToTVal in-key"};
   SG::WriteCondHandleKey<TRTDedxcorrection> m_WriteKey{this,"ToTWriteKey","Dedxcorrection","Dedxcorrection out-key"};
 
+  static const std::vector<std::string> m_dictNamesOldDB;
+  static const std::vector<std::string> m_dictNamesNewDB;
 };
 #endif
