@@ -297,8 +297,7 @@ Base::set_origin( const VxContainer* theContainer,
                   const Trk::VxCandidate * vertex )
 {
   m_origin = ElementLink< VxContainer >
-    ( const_cast<Trk::VxCandidate*> (vertex),
-      *theContainer );
+    ((vertex),*theContainer );
 }
 
 inline

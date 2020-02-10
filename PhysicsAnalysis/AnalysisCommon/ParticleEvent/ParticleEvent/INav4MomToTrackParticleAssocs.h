@@ -15,7 +15,7 @@
  
 #include "AthLinks/AssociationMap.h"
 #include "AthLinks/DataLink.h"
-
+#include "AthContainers/ConstDataVector.h"  
 // EventKernel includes
 #include "EventKernel/INavigable4Momentum.h"
 
@@ -60,7 +60,7 @@ public:
     *  to the given \param object
     */
   bool assocs( const INavigable4Momentum* object,
-               Rec::TrackParticleContainer& assocs ) const;
+               ConstDataVector<Rec::TrackParticleContainer>& associatedElems ) const;
   
   /** Retrieve all the associated-to ElementLinks_to_objects which have
    *  been associated to the given \param objectLink
