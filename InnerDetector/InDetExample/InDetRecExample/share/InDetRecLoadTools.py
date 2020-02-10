@@ -930,6 +930,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                     TrackSelector     = InDetTrackSelectorTool,
                                                                     useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                     selectiontype     = 0,
+								    TracksMaxZinterval = 3,#mm 
                                                                     do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
