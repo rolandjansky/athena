@@ -15,7 +15,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/FourMom
                           Event/NavFourMom
                           Reconstruction/Particle
-                          Tracking/TrkEvent/VxVertex )
+                          Tracking/TrkEvent/VxVertex 
+			  Control/CxxUtils)
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -27,7 +28,7 @@ atlas_add_library( ParticleEvent
                    PUBLIC_HEADERS ParticleEvent
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthLinks Navigation AthenaKernel EventKernel FourMom NavFourMom Particle VxVertex
+		   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthLinks Navigation AthenaKernel EventKernel FourMom NavFourMom Particle VxVertex CxxUtils
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( ParticleEventDict

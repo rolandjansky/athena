@@ -33,12 +33,12 @@
 
 // ParticleEvent includes
 #include "ParticleEvent/Lib/Base.h"
-
+#include "CxxUtils/checker_macros.h"
 
 template< class INavigable_t,
           class I4Momentum_t,
 	  class IParticle_t = ParticleEvent::Base >
-class ParticleSigStateImpl : public IParticle, public ISignalState
+class ATLAS_NOT_THREAD_SAFE ParticleSigStateImpl : public IParticle, public ISignalState
 {
   
   ///////////////////////////////////////////////////////////////////
