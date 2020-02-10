@@ -359,7 +359,6 @@ for lb in sorted(lbdirs):
         reco_tag_and_probe(hmo, hms, hno, hns, effcyr)   
     elif runmode == "Zee": 
         template_method(hmo, hms, hno, hns, hto, hts, effcyr)
-        #container_efficiency(hphoton, hpass, hto, hts)
 
     o_ae[0]         = ACCEPTANCE*(1-(1-o_trigeff[0])**2)*(o_recoeff[0])**2
     o_aestat[0]     = ACCEPTANCE*((o_recoeff[0]**2*2*(1-o_trigeff[0])*o_trigeffstat[0])**2+(2*o_recoeff[0]*(1-(1-o_trigeff[0])**2)*o_recoeffstat[0])**2)**.5

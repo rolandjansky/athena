@@ -129,7 +129,6 @@ def main():
 
     c1 = R.TCanvas()
     h_BCID1.Draw("ep")
-    #h_BCID1.Fit("gaus")
     R.gPad.SetLogy()
     drawAtlasLabel(0.17, 0.85, "Work in progess")
     drawText(0.17, 0.78, "BCID 1")
@@ -137,7 +136,6 @@ def main():
     
     c1 = R.TCanvas()
     h_BCID2t48.Draw("ep")
-    #h_BCID2t48.Fit("gaus")
     R.gPad.SetLogy()
     drawAtlasLabel(0.17, 0.85, "Work in progess")
     drawText(0.17, 0.78, "BCID 2-48")

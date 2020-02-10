@@ -78,11 +78,6 @@ def plot_efficiency(histos, draw_options, legends, y_title, channel_label, filen
         else:
             leg.AddEntry(histos[legends.index(legend)], legend, draw_options[legends.index(legend)])
 
-    #calculate_chi2(h_reco_eff_full, h_reco_eff_0_mu_50)
-    #calculate_chi2(h_reco_eff_full, h_reco_eff_51_mu_100)
-    #calculate_chi2(h_reco_eff_full, h_reco_eff_101_mu_150)
-    #calculate_chi2(h_reco_eff_full, h_reco_eff_151_mu_200)
-
     c1 = TCanvas()
     histos[0].Draw("hist, " + draw_options[0])
     for x in range(1, len(histos)):
@@ -142,8 +137,6 @@ def plot_2D_eff(hnz, htr, hmo, hms, hno, hns, h_2D, channel):
 
             eff = (1 - (1 - trigeff)**2) * recoeff**2
             err = ((recoeff**2*2*(1-trigeff)*trigerr)**2 + (2*recoeff*(1-(1-trigeff)**2)*recoerr)**2)**0.5
-
-            #print bin_bcid, bin_pileup, eff, err
 
             h_2D.SetBinContent(bin_bcid, bin_pileup, eff)
             h_2D.SetBinError(bin_bcid, bin_pileup, err)
@@ -332,7 +325,6 @@ def BCID_trig_tag_and_probe(h, lower_z_bin, upper_z_bin, histo):
 
         histo.SetBinContent(bin_bcid, eff)
         histo.SetBinError(bin_bcid, err)
-        #print eff, err
 
     return 
 
@@ -346,8 +338,8 @@ def BCID_template_method(hmo, hms, hno, hns, hto, hts, lower_z_bin, upper_z_bin,
     tbin4 = hmo.GetXaxis().FindBin(250000)
 
     for bin_bcid in range(1, 49):
-        #scale_os = 1 if hto.Integral(tbin3, tbin4) == 0 else hno.Integral(tbin3, tbin4)/hto.Integral(tbin3, tbin4)
-        #scale_ss = 1 if hts.Integral(tbin3, tbin4) == 0 else hns.Integral(tbin3, tbin4)/hts.Integral(tbin3, tbin4)
+        scale_os = 1 if hto.Integral(tbin3, tbin4) == 0 else hno.Integral(tbin3, tbin4)/hto.Integral(tbin3, tbin4)
+        scale_ss = 1 if hts.Integral(tbin3, tbin4) == 0 else hns.Integral(tbin3, tbin4)/hts.Integral(tbin3, tbin4)
 
         if doScale == True:
             hto.Scale(scale_os)
