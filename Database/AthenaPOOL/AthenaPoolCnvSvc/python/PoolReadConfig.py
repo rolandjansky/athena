@@ -24,12 +24,12 @@ def PoolReadCfg(configFlags):
 
     result.addService(PoolSvc(MaxFilesOpen=0))
     apcs=AthenaPoolCnvSvc()
+    apcs.InputPoolAttributes += ["DatabaseName = '*'; ContainerName = 'CollectionTree'; TREE_CACHE = '-1'"]
     result.addService(apcs)
     result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),])) #No service handle yet???
 
 
     result.addService(StoreGateSvc("MetaDataStore"))
-
 
     if filenamesSecondary:
         # Create DoubleEventSelector (universal for any seconday input type)
