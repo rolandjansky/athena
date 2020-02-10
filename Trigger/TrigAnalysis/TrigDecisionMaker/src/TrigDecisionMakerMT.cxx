@@ -126,6 +126,15 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
       prescaledBitset = hltResult->getHltPrescaledBits();
       rerunBitset = hltResult->getHltRerunBits();
 
+      trigDec->setEFTruncated( hltResult->getTruncatedModuleIds().size() > 0 );
+
+      const std::vector<uint32_t> errorCodes = hltResult->getErrorCodes();
+      uint32_t code = 0;
+      for (uint32_t e : errorCodes) {
+        code |= e;
+      }
+      trigDec->setEFErrorBits(code);
+
     }
 
     ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << passRawBitset.count());
