@@ -149,7 +149,7 @@ thinningTools=[]
 # Tracks associated with jets (for e-in-jet OR)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 EXOT7JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "AntiKt4LCTopoJets",
                                                                        SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && AntiKt4LCTopoJets.eta > -2.8 && AntiKt4LCTopoJets.eta < 2.8",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -158,7 +158,7 @@ thinningTools.append(EXOT7JetTPThinningTool)
 
 # for HTT
 EXOT7CA8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7CA8JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "CamKt8LCTopoJets",
                                                                        SelectionString         = "CamKt8LCTopoJets.pt > 150*GeV && CamKt8LCTopoJets.eta > -2.7 && CamKt8LCTopoJets.eta < 2.7",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -166,7 +166,7 @@ ToolSvc += EXOT7CA8JetTPThinningTool
 thinningTools.append(EXOT7CA8JetTPThinningTool)
 
 EXOT7CA15JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7CA15JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "CamKt15LCTopoJets",
                                                                        SelectionString         = "CamKt15LCTopoJets.pt > 150*GeV && CamKt15LCTopoJets.eta > -2.7 && CamKt15LCTopoJets.eta < 2.7",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -174,7 +174,7 @@ ToolSvc += EXOT7CA15JetTPThinningTool
 thinningTools.append(EXOT7CA15JetTPThinningTool)
 
 EXOT7Ak10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT7Ak10JetTPThinningTool",
-                                                                       ThinningService         = "EXOT7ThinningSvc",
+                                                                       StreamName              = streamName,
                                                                        JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta > -2.7 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta < 2.7",
                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")

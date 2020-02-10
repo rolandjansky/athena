@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,13 +10,14 @@
 // which removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkInDet/JetTrackParticleThinning.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -24,22 +25,12 @@
 DerivationFramework::JetTrackParticleThinning::JetTrackParticleThinning(const std::string& t,
                                                                         const std::string& n,
                                                                         const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_thinningSvc("ThinningSvc",n),
+base_class(t,n,p),
 m_ntot(0),
 m_npass(0),
-m_jetSGKey(""),
-m_inDetSGKey("InDetTrackParticles"),
-m_selectionString(""),
-m_and(false),
-m_parser(0)
+m_jetSGKey("")
 {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
     declareProperty("JetKey", m_jetSGKey);
-    declareProperty("InDetTrackParticlesKey", m_inDetSGKey);
-    declareProperty("SelectionString", m_selectionString);
-    declareProperty("ApplyAnd", m_and);
 }
 
 // Destructor
@@ -51,10 +42,8 @@ StatusCode DerivationFramework::JetTrackParticleThinning::initialize()
 {
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_inDetSGKey=="") {
-        ATH_MSG_FATAL("No inner detector track collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");}
+    ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");
     if (m_jetSGKey=="") {
         ATH_MSG_FATAL("No jet collection provided for thinning.");
         return StatusCode::FAILURE;
@@ -65,8 +54,16 @@ StatusCode DerivationFramework::JetTrackParticleThinning::initialize()
 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
 	    m_parser->loadExpression(m_selectionString);
+    }
+
+    if (m_trackSelectionString!="") {
+	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
+	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
+	    m_trackParser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
+	    m_trackParser->loadExpression(m_trackSelectionString);
     }
     return StatusCode::SUCCESS;
 }
@@ -75,23 +72,17 @@ StatusCode DerivationFramework::JetTrackParticleThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
-    if (m_selectionString!="") {
-        delete m_parser;
-        m_parser = 0;
-    }
     return StatusCode::SUCCESS;
 }
 
 // The thinning itself
 StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     
     // Retrieve main TrackParticle collection
-    const xAOD::TrackParticleContainer* importedTrackParticles;
-    if (evtStore()->retrieve(importedTrackParticles,m_inDetSGKey).isFailure()) {
-        ATH_MSG_ERROR("No TrackParticle collection with name " << m_inDetSGKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TrackParticleContainer> importedTrackParticles
+      (m_inDetSGKey, ctx);
     
     // Check the event contains tracks
     unsigned int nTracks = importedTrackParticles->size();
@@ -153,6 +144,22 @@ StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
             }
         }
     }
+
+    // Apply a track selection string.
+    if (m_trackParser) {
+      std::vector<int> entries =  m_trackParser->evaluateAsVector();
+      unsigned int nEntries = entries.size();
+      // check the sizes are compatible
+      if (nTracks != nEntries ) {
+        ATH_MSG_ERROR("Sizes incompatible! Are you sure your track selection string used tracks??");
+        return StatusCode::FAILURE;
+      } else {
+        // identify which jets to keep for the thinning check
+        for (unsigned int i=0; i<nEntries; ++i) {
+          if (!entries[i]) mask[i] = false;
+        }
+      }
+    }
     
     // Count up the mask contents
     for (unsigned int i=0; i<nTracks; ++i) {
@@ -160,18 +167,7 @@ StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
     }
     
     // Execute the thinning service based on the mask. Finish.
-    if (m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::And).isFailure()) {
-                ATH_MSG_ERROR("Application of thinning service failed! ");
-                return StatusCode::FAILURE;
-        }
-    }
-    if (!m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::Or).isFailure()) {
-                ATH_MSG_ERROR("Application of thinning service failed! ");
-                return StatusCode::FAILURE;
-        }
-    }
+    importedTrackParticles.keep (mask);
 
     return StatusCode::SUCCESS;
 }

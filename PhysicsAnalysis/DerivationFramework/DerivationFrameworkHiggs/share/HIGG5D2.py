@@ -73,7 +73,7 @@ if globalflags.DataSource()=='geant4':
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG5D2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG5D2JetTPThinningTool",
-                                                                ThinningService         = HIGG5D2ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4EMTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG5D2JetTPThinningTool

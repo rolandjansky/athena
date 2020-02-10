@@ -62,10 +62,9 @@ if (is_MC) :
 # MET/Jet tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG5D3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG5D3JetTPThinningTool",
-                                                                ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4EMTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG5D3JetTPThinningTool
 thinningTools.append(HIGG5D3JetTPThinningTool)
 

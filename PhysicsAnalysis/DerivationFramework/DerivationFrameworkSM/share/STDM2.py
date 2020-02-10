@@ -73,11 +73,10 @@ ToolSvc += STDM2TPThinningTool
 # Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 STDM2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name            = "STDM2JetTPThinningTool",
-                                                                ThinningService         = "STDM2ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4LCTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                SelectionString = "AntiKt4LCTopoJets.pt > 15*GeV",
-                                                                ApplyAnd                = False)
+                                                                SelectionString = "AntiKt4LCTopoJets.pt > 15*GeV")
 ToolSvc += STDM2JetTPThinningTool
 
 # All Track within a cone DeltaR=0.6 around Electrons
