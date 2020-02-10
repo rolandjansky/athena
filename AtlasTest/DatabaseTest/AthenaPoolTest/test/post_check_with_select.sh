@@ -57,7 +57,7 @@ select=$2
 		diff  -a -b -B  $joblog $reflog |\
 		    # select only the differing lines
 	        egrep -a '^[<>] ' |\
-	        egrep -a ${select} |\
+	        egrep -a "${select}" |\
 		    # ignore file name after Id - needed for EventInfo tests:
 	        egrep -a -v '\$Id:' |\
 		    # Ignore line with 'Release' in it
@@ -75,7 +75,8 @@ select=$2
                     # Destructor can be called at different times.
 		egrep -a -v 'DEBUG Calling destructor'|\
 		egrep -a -v 'Service base class initialized successfully'|\
-		egrep -a -v 'DEBUG fillTagInfo:'
+		egrep -a -v 'DEBUG fillTagInfo:' |\
+		egrep -a -v 'DEBUG Try item:'
 
 	    else 
 #	    echo " post.sh> Now comparing output with reference"
