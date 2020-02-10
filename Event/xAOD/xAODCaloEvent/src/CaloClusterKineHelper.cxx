@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMULATIONBASE
@@ -300,8 +300,7 @@ void CaloClusterKineHelper::calculateKine(xAOD::CaloCluster* clu, const bool use
     clu->setPhimax(sam,accum.PhiMaxEnergyInSample[i]);
   }
 
-  return; 
-}
+  }
 
 #endif //not XAOD_ANALYSIS
 #endif //not SIMULATIONBASE
