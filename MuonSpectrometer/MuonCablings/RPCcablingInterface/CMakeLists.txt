@@ -12,8 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MuonSpectrometer/MuonCablings/MuonCablingTools
                           MuonSpectrometer/MuonIdHelpers
-                          PRIVATE
                           MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
+                          PRIVATE
                           Control/StoreGate )
 
 # Component(s) in the package:
