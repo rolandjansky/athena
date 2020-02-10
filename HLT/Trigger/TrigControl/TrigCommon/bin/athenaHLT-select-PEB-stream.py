@@ -168,7 +168,7 @@ def peb_writer(argv):
                                     beam_energy=dr.beamEnergy())
         
         # decide what to write out
-        if streamType == 'physics' or streamType == 'express' or (len(tag.robs)==0 and len(tag.dets)==0):
+        if (len(tag.robs)==0 and len(tag.dets)==0):
           # write out the full event fragment
           pbev = eformat.write.FullEventFragment(e)  
           logging.debug(' Write full event fragment ')
