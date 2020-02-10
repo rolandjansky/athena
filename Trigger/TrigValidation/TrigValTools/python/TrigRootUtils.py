@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 def lsroot(dir):
    """Return list of all keys in 'dir' (recursively)"""
 
