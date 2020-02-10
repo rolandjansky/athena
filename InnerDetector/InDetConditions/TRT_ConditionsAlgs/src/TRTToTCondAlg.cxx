@@ -129,7 +129,7 @@ StatusCode TRTToTCondAlg::finalize()
 
 StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const CondAttrListVec* channel_values){
   // Determine which version of DB constants to use based on the length
-  ATH_MSG_INFO("Size of channel_values[]="<<channel_values->size()<<"");
+  ATH_MSG_DEBUG("Size of channel_values[]="<<channel_values->size()<<"");
   int dataBaseType = kNewDB;
   if(channel_values->size()<19695) {
     dataBaseType = kOldDB;
@@ -156,10 +156,10 @@ StatusCode TRTToTCondAlg::update1( TRTDedxcorrection& Dedxcorrection, const Cond
   // update dEdx corrections from dictionary depending on the DB version
   if(dataBaseType==kNewDB or dataBaseType==kNewDBOccCorr) {              
     updateNewDBParameters(Dedxcorrection, resultDict);
-    ATH_MSG_INFO ("update():: Reading new database is done!");
+    ATH_MSG_DEBUG ("update():: Reading new database is done!");
     if (dataBaseType==kNewDBOccCorr) {
       updateOccupancyCorrectionParameters(Dedxcorrection, resultDict);
-      ATH_MSG_INFO ("update():: Reading new database with occupancy correction is done!");
+      ATH_MSG_DEBUG ("update():: Reading new database with occupancy correction is done!");
     }
     return StatusCode::SUCCESS;
   } else if(dataBaseType==kOldDB) {
