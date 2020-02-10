@@ -7,6 +7,7 @@
 #
 # this python alg creates a D3PD and fills it
 # 
+from __future__ import print_function
 import AthenaPython.PyAthena as PyAthena
 from ROOT import TFile, TTree 
 from array import array
@@ -43,11 +44,11 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                                                           'L1_TAU8_FIRSTEMPTY'])
 
     def initialize(self):
-        print "==> initializing ", self.name
-        print "MinDigitADC:     ", self.MinDigitADC
-        print "MaxDeltaT:       ", self.MaxDeltaT
-        print "NtupleFileName:  ", self.NtupleFileName
-        print "TriggerLines:    ", self.TriggerLines
+        print ("==> initializing ", self.name)
+        print ("MinDigitADC:     ", self.MinDigitADC)
+        print ("MaxDeltaT:       ", self.MaxDeltaT)
+        print ("NtupleFileName:  ", self.NtupleFileName)
+        print ("TriggerLines:    ", self.TriggerLines)
         #
         self.sg = PyAthena.py_svc("StoreGateSvc")
         self.det = PyAthena.StoreGate.pointer("DetectorStore")
@@ -202,7 +203,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                         self.t[0] = 0.0
                         self.iQuality[0] = 0
                         if rcell.ID() != oid:
-                            print "Cell iHash does not match ..."
+                            print ("Cell iHash does not match ...")
                             pass
                         else:
                             self.e[0] = rcell.e()
@@ -220,10 +221,10 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                     pass
                 pass
             if foundLowCell:
-                print 'Event passed HECNoise Filter'
+                print ('Event passed HECNoise Filter')
                 return True
             pass
-        print 'Event failed HECNoise Filter'
+        print ('Event failed HECNoise Filter')
         self.setFilterPassed(False)
         return True
 
