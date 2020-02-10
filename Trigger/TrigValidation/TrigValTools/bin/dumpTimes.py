@@ -10,6 +10,7 @@ import ROOT
 from optparse import OptionParser
 import os
 import re
+from TrigValTools.TrigRootUtils import lsroot
 
 def timing(hist):
   mean = hist.GetMean()
@@ -23,44 +24,40 @@ def timing(hist):
   else:
     return mean_plus_err + "\tOverflow: " + str(overflow)
 
-
-def match(pattern, name):
-  regex = re.compile(pattern)
-  return regex.match(name)
-
-def get_matches(pattern, myFile, matches):
-  for key in ROOT.gDirectory.GetListOfKeys():
-    if match(pattern,key.GetName())!=None:
-      hist = myFile.Get("TIMERS/" + key.GetName())
-      print myFile.GetName() + " " + key.GetName() + " " + timing(hist)
-      matches.append(key.GetName())
+def get_matches(pattern, exclude, myFile):
+  #Run-3 timers always contain TIME
+  names=lsroot(myFile)
+  regex         = re.compile(".*" + pattern + ".*")
+  if exclude:
+    regex_exclude = re.compile(".*" + exclude + ".*")
+  for name in names:
+    if not "TIME" in name:
+      continue
+    if not regex.match(name):
+      continue
+    if exclude:
+      if regex_exclude.match(name):
+        continue
+    hist = myFile.Get(name)
+    print(name + " " + timing(hist))
 
 def main():
   parser = OptionParser()
-  parser.add_option("-H", "--hist", dest="hist_name", type = "string", 
-                                                                      help="Histogram to time")
   parser.add_option("-p", "--pattern", dest="pattern", type = "string", default = None,
                                                                       help="Pattern to match histogram to")
+  parser.add_option("-x", "--exclude", dest="exclude", type = "string", default = None,
+                                                                      help="Pattern to exclude histogram from matching")
   (options, args) = parser.parse_args()        
-  print options, args
+  print(options, args)
   for arg in args:
-    print ""
+    print(arg)
     myFile = ROOT.TFile(arg)
-    if (options.hist_name!=None):
-      hist = myFile.Get("TIMERS/" + options.hist_name)
-      print myFile.GetName() + " " + options.hist_name + " " + timing(hist)
-    elif (options.pattern!=None):
-      ROOT.gDirectory.Cd("TIMERS")
-      matches = []
-      get_matches(options.pattern, myFile, matches)
-      if (len(matches)==0):
-        get_matches(".*" + options.pattern + ".*", myFile, matches)
-    else:
-      ROOT.gDirectory.Cd("TIMERS")
-      for key in ROOT.gDirectory.GetListOfKeys():
-          hist = myFile.Get("TIMERS/" + key.GetName())
-          print myFile.GetName() + " " + key.GetName() + " " + timing(hist)
-          
+    pattern = ".*"
+    if (options.pattern):
+      pattern = options.pattern
+    get_matches(options.pattern, options.exclude, myFile)
+
     
 if __name__ == "__main__":
   main()
+
