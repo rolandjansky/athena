@@ -149,6 +149,17 @@ Currently we support:
  - `STANDARD`: use standard native precision
  - `HALF_PRECISION`: 16 bit
 
+Merging files
+-------------
+
+This package includes `hdf5-merge` to merge HDF5 datasets. By default
+it will merge along the first axis.
+
+**Note, when merging on the grid**, you should use `hdf5-merge-nolock`
+to avoid HDF5's check on file locking. Some grid sites use file
+systems that don't support file locking. While we don't need file
+locking, HDF5 will fail if you don't use this wrapper on thse sites.
+
 
 Hacking This Code
 =================

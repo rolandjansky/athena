@@ -282,10 +282,10 @@ def main():
    ## Global options
    g = parser.add_argument_group('Options')
    g.add_argument('jobOptions', help='job options (or JSON) file')
-   g.add_argument('--file', '-f', action='append', required=True, help='input RAW file')
+   g.add_argument('--file', '--filesInput', '-f', action='append', required=True, help='input RAW file')
    g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
-   g.add_argument('--number-of-events', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
-   g.add_argument('--skip-events', '-k', metavar='N', default=0, help='skip N first events')
+   g.add_argument('--number-of-events', '--evtMax', '-n', metavar='N', default=-1, help='processes N events (<=0 means all)')
+   g.add_argument('--skip-events', '--skipEvents', '-k', metavar='N', default=0, help='skip N first events')
    g.add_argument('--threads', metavar='N', type=int, default=1, help='number of threads')
    g.add_argument('--nprocs', metavar='N', type=int, default=1, help='number of children to fork')
    g.add_argument('--concurrent-events', metavar='N', type=int, help='number of concurrent events if different from --threads')

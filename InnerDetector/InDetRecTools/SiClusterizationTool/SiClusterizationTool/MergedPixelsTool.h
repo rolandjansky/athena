@@ -67,7 +67,7 @@ namespace InDet {
     std::array<int,4> CON;
   };
   
-  auto pixel_less = [] (rowcolID const&  id1,rowcolID const& id2) -> bool {
+  const auto pixel_less = [] (rowcolID const&  id1,rowcolID const& id2) -> bool {
     if(id1.COL == id2.COL) 
       return id1.ROW < id2.ROW;
     return id1.COL < id2.COL;

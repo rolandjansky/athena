@@ -85,7 +85,7 @@ Trk::PrismVolumeBounds& Trk::PrismVolumeBounds::operator=(const Trk::PrismVolume
   return *this;
 }
 
-const std::vector<const Trk::Surface*>* Trk::PrismVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transform) const
+const std::vector<const Trk::Surface*>* Trk::PrismVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const
 {
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;  
       

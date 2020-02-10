@@ -22,6 +22,9 @@ TrigConf::L1Menu::~L1Menu()
 void
 TrigConf::L1Menu::update()
 {
+   if(! isInitialized() || empty() ) {
+      return;
+   }
    m_name = getAttribute("name");
 
    // thresholds
@@ -84,7 +87,16 @@ TrigConf::L1Menu::size() const
 TrigConf::L1Item
 TrigConf::L1Menu::item(const std::string & itemName) const
 {
-   return L1Item(data().get_child(ptree::path_type("items/"+itemName,'/'))); // '/' is not used in any item Name 
+   if(itemName=="") {
+      throw std::runtime_error("L1Menu::item() was called with empty itemName");
+   }
+   ptree pt;
+   try {
+      pt = data().get_child(ptree::path_type("items/"+itemName,'/')); // '/' is not used in any item Name, so we can use it as separator in the path 
+   } catch(boost::property_tree::ptree_bad_path & ex) {
+      throw std::runtime_error("L1Item " + itemName + " does not exist in the menu");
+   }
+   return L1Item(pt);
 }
 
 TrigConf::L1Menu::const_iterator

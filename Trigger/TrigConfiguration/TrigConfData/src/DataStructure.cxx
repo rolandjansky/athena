@@ -77,6 +77,11 @@ TrigConf::DataStructure::hasAttribute(const std::string & key) const {
    return child.get().empty(); // if empty then it is an attribute, otherwise a child note
 }
 
+std::string
+TrigConf::DataStructure::className() const {
+   return "DataStructure";
+}
+
 
 bool
 TrigConf::DataStructure::hasChild(const std::string & path) const {

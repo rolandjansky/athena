@@ -67,6 +67,9 @@ private:
       "EMEtRanges", {}, 
       "EM Et Ranges to consider, with different cuts; Minimal EM Et cut will be the value of the 0th bin"};
 
+  Gaudi::Property<double>  m_EMEtSplittingFraction {this,
+      "EMEtSplittingFraction", 1.0, "Apply only fraction of EMEt cut for crack region"};
+
   /** @brief Threshold on minimum energy reconstructed in 2nd sampling */
   Gaudi::Property<double> m_MinEM2Energy{this, "MinEM2Energy", 50.,
     "Threshold on minimum  energy reconstructed in 2nd sampling"};

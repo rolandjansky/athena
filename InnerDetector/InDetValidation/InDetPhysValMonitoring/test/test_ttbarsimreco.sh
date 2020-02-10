@@ -84,7 +84,7 @@ if [ $dosim -ne 0 ]; then
     --inputEVNTFile   "$evnt" \
     --outputHITSFile  "$hits" \
     --skipEvents      3000 \
-    --maxEvents       5 \
+    --maxEvents       10 \
     --runNumber       410470 \
     --firstEvent      24303001 \
     --randomSeed      24304 \
@@ -96,7 +96,7 @@ if [ $dosim -ne 0 ]; then
     --geometryVersion 'default:ATLAS-R2-2016-01-00-01_VALIDATION' \
     --preExec         EVNTtoHITS:'simFlags.SimBarcodeOffset.set_Value_and_Lock(200000)' \
                       EVNTtoHITS:'simFlags.TRTRangeCut=30.0; simFlags.TightMuonStepping=True' \
-    --preInclude      EVNTtoHITS:'SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+    --preInclude      EVNTtoHITS:'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
     --postInclude     'default:PyJobTransforms/UseFrontier.py,InDetPhysValMonitoring/postInclude.SiHitAnalysis.py'
   echo "art-result: $? sim"
 
@@ -123,10 +123,24 @@ if [ $dorec -ne 0 ]; then
     --steering        doRAWtoALL \
     --checkEventCount False \
     --ignoreErrors    True \
-    --maxEvents       5 \
+    --maxEvents       10 \
     --valid           True \
     --validationFlags doInDet \
-    --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(True); InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; rec.doLArg=False; rec.doLucid=False; rec.doMuon=False; rec.doMuonCombined=False; rec.doSemiDetailedPerfMon=True; rec.doTau=False; rec.doTile=False;'
+    --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; \
+    InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); \
+    from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; \
+    InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
+    InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
+    InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
+    rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; \
+    rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; \
+    rec.doLArg=False; rec.doLucid=False; rec.doMuon=False; rec.doMuonCombined=False; \
+    rec.doSemiDetailedPerfMon=True; rec.doTau=False; rec.doTile=False;\
+    from ParticleBuilderOptions.AODFlags import AODFlags;\
+    AODFlags.ThinGeantTruth.set_Value_and_Lock(False);  \
+    AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False); \
+    AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
+    AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
   echo "art-result: $? reco"
 
   # DCube InDetPhysValMonitoring performance plots

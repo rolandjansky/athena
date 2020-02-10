@@ -74,7 +74,13 @@ LVL1ConfigSvc::~LVL1ConfigSvc()
 StatusCode
 LVL1ConfigSvc::writeConfigToDetectorStore() {
 
-   TrigConf::L1Menu * l1menu = new TrigConf::L1Menu;
+   // do not write empty menu to storegate, so people can check on handlekey being valid
+   if( m_inputType == "none" ) {
+      ATH_MSG_INFO( "No L1 menu recorded in the detector store" );
+      return StatusCode::SUCCESS;
+   }
+
+   TrigConf::L1Menu * l1menu = new TrigConf::L1Menu();
 
    if( m_inputType == "db" ) {
 

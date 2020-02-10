@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
@@ -48,8 +48,8 @@ namespace MuonCombined {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonCombinedTagTools.retrieve());
 
-    // debug tree
-    if(m_runMuonCombinedDebugger) {
+    // debug tree, only in serial mode
+    if(m_runMuonCombinedDebugger && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
       ATH_CHECK(m_muonCombDebugger.retrieve());
       m_muonCombDebugger->bookBranches();
     }
@@ -73,7 +73,7 @@ namespace MuonCombined {
     }
 
     // debug tree
-    if(m_runMuonCombinedDebugger) {
+    if(m_runMuonCombinedDebugger && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
       m_muonCombDebugger->fillBranches(muonCandidates, inDetCandidates);
     }
 
