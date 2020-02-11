@@ -56,10 +56,9 @@ def setup(TOPQname, streamName, TOPQThinningSvc, ToolSvc):
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
   TOPQTPThinningTool = DerivationFramework__TrackParticleThinning(  
                          name                    = TOPQname + "TPThinningTool",
-                         ThinningService         = TOPQThinningSvc,
+                         StreamName              = streamName,
                          SelectionString         = thinning_expression,
-                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                         ApplyAnd                = False)
+                         InDetTrackParticlesKey  = "InDetTrackParticles")
 
   #ToolSvc += TOPQTPThinningTool
   #thinningTools.append(TOPQTPThinningTool)
