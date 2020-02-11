@@ -10,3 +10,4 @@ DECLARE_FACTORY_ENTRIES( ElectronPhotonSelectorTools )
   DECLARE_ALGTOOL( ElectronPhotonShowerShapeFudgeTool )
 }
 
+
