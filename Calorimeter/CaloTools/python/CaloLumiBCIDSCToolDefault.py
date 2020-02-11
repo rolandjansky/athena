@@ -13,6 +13,8 @@ def CaloLumiBCIDSCToolDefault(name='CaloLumiBCIDSCToolDefault'):
     from AthenaCommon.GlobalFlags import globalflags
     if globalflags.DataSource()=='data':
       print 'tool not available for data by now'
+      from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray
+      theTool = PublicToolHandle('')
     else:
       from LArRecUtils.LArOFCSCToolDefault import LArOFCSCToolDefault
       theOFCTool = LArOFCSCToolDefault()
