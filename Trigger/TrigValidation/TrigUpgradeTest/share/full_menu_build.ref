@@ -122,8 +122,8 @@ TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20 decisions                    5         5         5         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_pf_L1J2020        20        4         0         0         0         0         4         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_pf_L1J20 decisions                    4         0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_L1J1520        20        6         0         0         0         0         6         
-TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_L1J15 decisions                    6         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_L1J1520        20        7         0         0         0         0         7         
+TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_L1J15 decisions                    7         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_pf_L1J2020        20        4         0         0         0         0         4         
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subresjesgscIS_pf_L1J20 decisions                    4         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_j460_a10_lcw_subjes_L1J10020        20        0         0         0         0         0         0         
@@ -248,8 +248,8 @@ TrigSignatureMoniMT                                 INFO HLT_xe30_cell_xe30_tcpu
 TrigSignatureMoniMT                                 INFO HLT_xe30_cell_xe30_tcpufit_L1XE10 decisions                    2         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_xe30_mht_L1XE10           20        20        16        0         0         0         0         16        
 TrigSignatureMoniMT                                 INFO HLT_xe30_mht_L1XE10 decisions                     16        0         0         0         0         
-TrigSignatureMoniMT                                 INFO HLT_xe30_pfsum_L1XE10         20        20        4         0         0         0         0         4         
-TrigSignatureMoniMT                                 INFO HLT_xe30_pfsum_L1XE10 decisions                    4         0         0         0         0         
+TrigSignatureMoniMT                                 INFO HLT_xe30_pfsum_L1XE10         20        20        5         0         0         0         0         5         
+TrigSignatureMoniMT                                 INFO HLT_xe30_pfsum_L1XE10 decisions                    5         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_xe30_tcpufit_L1XE10       20        20        2         0         0         0         0         2         
 TrigSignatureMoniMT                                 INFO HLT_xe30_tcpufit_L1XE10 decisions                    2         0         0         0         0         
 TrigSignatureMoniMT                                 INFO HLT_xe30_trkmht_L1XE10        20        20        8         0         0         0         0         8         
