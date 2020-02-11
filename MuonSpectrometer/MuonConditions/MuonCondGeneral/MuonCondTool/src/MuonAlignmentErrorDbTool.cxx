@@ -139,7 +139,7 @@ StatusCode MuonAlignmentErrorDbTool::loadAlignmentError(IOVSVC_CALLBACK_ARGS_P(I
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE; 
   StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load ERRORS from DB" << endmsg;
+  m_log << MSG::INFO << "Load errors from DB" << endmsg;
   
   // Print out callback information
   if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";

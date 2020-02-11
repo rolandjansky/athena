@@ -45,6 +45,7 @@
 
 class TilePulseShapes;
 class TileOptFilterWeights;
+class TileWienerFilterWeights;
 class StoreGateSvc;
 class TileCablingSvc;
 template<class TYPE> class SvcFactory;
@@ -89,6 +90,9 @@ class TileInfoLoader: public AthService, virtual public IIncidentListener {
     /** Pointer to Optimal Filtering weights*/
     TileOptFilterWeights* m_OFWeights;
 
+    /** Pointer to Wiener Filtering weights*/
+    TileWienerFilterWeights* m_WFWeights;
+
     /** Filenames of input files */
     std::string m_digitsShapeFileHi;
     std::string m_digitsShapeFileLo;
@@ -99,6 +103,7 @@ class TileInfoLoader: public AthService, virtual public IIncidentListener {
 
     bool m_loadOptFilterWeights;
     bool m_loadOptFilterCorrelation;
+    bool m_loadWienerFilterWeights;
     bool m_eorCalled;
 
     // name of TileCalibContainer in detector store

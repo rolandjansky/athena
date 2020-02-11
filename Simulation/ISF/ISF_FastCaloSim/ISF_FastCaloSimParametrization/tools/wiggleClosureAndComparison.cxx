@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FCS_Cell.h"
@@ -231,7 +231,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
 
     //NOW make the average shower shapes by looping over all maps
-    for ( std::map<Long64_t, double>::iterator it = Eoriginal.begin(); it!=Eoriginal.end(); it++) {
+    for ( std::map<Long64_t, double>::iterator it = Eoriginal.begin(); it!=Eoriginal.end(); ++it) {
       
       Long64_t myID = it->first;
 
@@ -249,7 +249,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
 
 
-    for ( std::map<Long64_t, double>::iterator it = EoriginalReco.begin(); it!=EoriginalReco.end(); it++) {
+    for ( std::map<Long64_t, double>::iterator it = EoriginalReco.begin(); it!=EoriginalReco.end(); ++it) {
       
       Long64_t myID = it->first;
 
@@ -265,7 +265,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
         
     }
 
-    for ( std::map<Long64_t, double>::iterator it = EoriginalG4.begin(); it!=EoriginalG4.end(); it++) {
+    for ( std::map<Long64_t, double>::iterator it = EoriginalG4.begin(); it!=EoriginalG4.end(); ++it) {
       
       Long64_t myID = it->first;
 
@@ -439,7 +439,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
     ///////////////////////////////////
 
     //now I iterate over my closure file and fill the plots
-    for ( std::map<Long64_t, double>::iterator it2 = Eclosure.begin(); it2!=Eclosure.end(); it2++) {
+    for ( std::map<Long64_t, double>::iterator it2 = Eclosure.begin(); it2!=Eclosure.end(); ++it2) {
       
       Long64_t myID = it2->first;
       const CaloGeoDetDescrElement* cell;
@@ -469,7 +469,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
     }
 
-    for (std::map<Long64_t, double>::iterator it = Eoriginal.begin(); it!=Eoriginal.end(); it++){
+    for (std::map<Long64_t, double>::iterator it = Eoriginal.begin(); it!=Eoriginal.end(); ++it){
 
       Long64_t myID = it->first;
       

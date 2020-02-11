@@ -50,12 +50,9 @@ class AtlasSimSkeleton(SimSkeleton):
         DetFlags.DBM_setOff()
 
         from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-        if not MuonGeometryFlags.hasSTGC():
-            DetFlags.sTGC_setOff()
-        if not MuonGeometryFlags.hasMM():
-            DetFlags.Micromegas_setOff()
-        if not MuonGeometryFlags.hasCSC():
-            DetFlags.CSC_setOff()
+        if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
+        if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+        if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 
         ## Switch off tasks
         DetFlags.pileup.all_setOff()

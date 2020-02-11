@@ -26,6 +26,24 @@ int TFCSLateralShapeParametrizationHitBase::get_number_of_hits(TFCSSimulationSta
   return -1;
 }
 
+float TFCSLateralShapeParametrizationHitBase::get_E_hit(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
+{  
+  const int nhits = get_number_of_hits(simulstate,truth,extrapol);
+  const int sample = calosample();
+  if(nhits<=0 || sample<0) return -1.;
+  else return simulstate.E(sample)/nhits;
+}
+
+float TFCSLateralShapeParametrizationHitBase::getMinWeight() const
+{
+  return -1.;
+}
+  
+float TFCSLateralShapeParametrizationHitBase::getMaxWeight() const
+{
+  return -1.;
+}
+
 FCSReturnCode TFCSLateralShapeParametrizationHitBase::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();

@@ -80,7 +80,7 @@ find_package( lwtnn )
 # Component(s) in the package:
 if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_library( tauRecToolsLib
-      tauRecTools/*.h Root/*.cxx
+      tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx      
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
@@ -92,7 +92,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       FourMomUtils xAODJet PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
    atlas_add_library( tauRecToolsLib
-      tauRecTools/*.h Root/*.cxx
+      tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}

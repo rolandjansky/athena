@@ -391,7 +391,14 @@ class ThresholdDef:
         
         ThresholdValue.setDefaults('JET', {})
 
-        
+
+        # Thresholds from Large-R gJet from gFEX
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+            for thrV in [100, 120, 140, 160, 180]:
+                tc.registerThr('gLJ%i' % thrV, 'JET', run=3).addThrValue(thrV) 
+                tc.registerThr('jLJ%i' % thrV, 'JET', run=3).addThrValue(thrV)       
+
+
         # JB and JF
 
         ThresholdValue.setDefaults('JET', {'window' : 8})
@@ -407,9 +414,9 @@ class ThresholdDef:
         
 
         # Central jet
-        for (thrV, etamax) in [(12,23), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
+        for (thrV, etamax) in [(12,23), (12,25), (12,28), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
-        for (thrV, etamax) in [(12,23), (15,25), (25,23), (35,23), (40,25)]:
+        for (thrV, etamax) in [(12,23), (12,25), (12,28), (15,25), (25,23), (35,23), (40,25)]:
             tc.registerThr('jJ%i.0ETA%i'  % (thrV, etamax), 'JET', run=3).addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet

@@ -36,7 +36,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigNavStructure )
+                          Trigger/TrigEvent/TrigNavStructure 
+			  Reconstruction/tauRecTools
+			  Reconstruction/MVAUtils)
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -47,12 +49,12 @@ atlas_add_library( TrigTauHypoLib
                    PUBLIC_HEADERS TrigTauHypo
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent xAODTrigger  VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent StoreGateLib SGtests TrigInterfacesLib
-                   PRIVATE_LINK_LIBRARIES CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure )
+                   PRIVATE_LINK_LIBRARIES CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure tauRecToolsLib MVAUtils)
 
 atlas_add_component( TrigTauHypo
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib SGtests GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent TrigInterfacesLib CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure TrigTauHypoLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib SGtests GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent TrigInterfacesLib CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure tauRecToolsLib MVAUtils TrigTauHypoLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

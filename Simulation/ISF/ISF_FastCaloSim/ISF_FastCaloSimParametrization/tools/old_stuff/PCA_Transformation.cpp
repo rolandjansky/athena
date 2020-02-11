@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PCA_Transformation.h"
@@ -8,31 +8,20 @@
 
 
 /////////////////////////////////////////////
-PCA_Transformation::PCA_Transformation(){
-/////////////////////////////////////////////
-    
-    TMatrixD initMatrix;
-    TVectorD initVector;
-    
-    NVariables_ = 0;
-	EigenVectors_ = initMatrix;
-    EigenValues_ = initVector;
-    MeanValues_ = initVector;
-    SigmaValues_ = initVector;
-	
-	}
+PCA_Transformation::PCA_Transformation()
+  : NVariables_(0)
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////
-PCA_Transformation::PCA_Transformation(int init_NVariables, TMatrixD init_EigenVectors, TVectorD init_EigenValues, TVectorD init_MeanValues, TVectorD init_SigmaValues){
-////////////////////////////////////////////////////////////////////////////
-
-    NVariables_ = init_NVariables;
-    EigenVectors_ = init_EigenVectors;
-    EigenValues_ = init_EigenValues;
-    MeanValues_ = init_MeanValues;
-    SigmaValues_ = init_SigmaValues;
-    
-	}
+PCA_Transformation::PCA_Transformation(int init_NVariables, TMatrixD init_EigenVectors, TVectorD init_EigenValues, TVectorD init_MeanValues, TVectorD init_SigmaValues)
+  : NVariables_ (init_NVariables),
+    EigenVectors_ (init_EigenVectors),
+    EigenValues_ (init_EigenValues),
+    MeanValues_ (init_MeanValues),
+    SigmaValues_ (init_SigmaValues)
+{
+}
 
 
 ////////////////////////////////////////////////////////

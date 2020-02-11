@@ -91,7 +91,6 @@ if [ $dosim -ne 0 ]; then
     --physicsList     FTFP_BERT_ATL_VALIDATION \
     --truthStrategy   MC15aPlus \
     --simulator       FullG4 \
-    --DBRelease       all:'current' \
     --conditionsTag   default:'OFLCOND-MC16-SDR-14' \
     --geometryVersion default:'ATLAS-R2-2016-01-00-01_VALIDATION' \
     --preExec         EVNTtoHITS:'simFlags.SimBarcodeOffset.set_Value_and_Lock(200000)' \

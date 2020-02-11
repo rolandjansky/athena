@@ -5,7 +5,6 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #define PixelSimpleServiceXMLHelper_H
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
-#include "PixelServicesTool/SimpleServiceVolumeMaker.h"
 
 // XML library
 #include "PixelLayoutUtils/GeoXMLUtils.h"
@@ -13,8 +12,8 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
-  PixelSimpleServiceXMLHelper(const std::string& envName, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(const std::string& envName, const PixelGeoBuilderBasics* basics);
   ~PixelSimpleServiceXMLHelper();
   
     double rmin(int index) const;
@@ -26,11 +25,10 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
     double width(int index) const;
     double phiStart(int index) const;
     double phiDelta(int index) const;
-    double phiStep(int index) const;
+    //double phiStep(int index) const; // Not implemented, kept for future rer
     bool   zsymm(int index) const;
     int    repeat(int index) const;
-    int    radialDiv(int index) const;
-    int    volId(int index) const;
+    //int    radialDiv(int index) const; // Not implemented, kept for future ref
     std::string shapeType(int index) const;
     std::string volName(int index) const;
     std::string materialName(int index) const;
@@ -45,8 +43,7 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
     double SupportTubeZMax(const std::string& srvName) const;
 
  private:
-
-    InDetDD::SimpleServiceVolumeSchema m_schema;
+    void Setup(const std::string& envName);
     bool m_bXMLdefined;
 
 };

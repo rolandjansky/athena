@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/RandFlat.h"
@@ -153,13 +153,13 @@ void TFCSEnergyBinParametrization::Print(Option_t *option) const
   }  
 }
 
-FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* /*extrapol*/) const
 {
   if (!simulstate.randomEngine()) {
     return FCSFatal;
   }
 
-  int truth_pdgid = truth->pdgid();
+  const int truth_pdgid = truth->pdgid();
   int pdgid = -99;
 
   if (is_match_pdgid(truth_pdgid)) pdgid = truth_pdgid;
@@ -169,14 +169,15 @@ FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simuls
     return FCSFatal;
   }
   
-  float searchRand = CLHEP::RandFlat::shoot(simulstate.randomEngine());
-  int chosenBin=TMath::BinarySearch(n_bins()+1, m_pdgid_Ebin_probability[pdgid].data(), searchRand)+1;
+  const float searchRand = CLHEP::RandFlat::shoot(simulstate.randomEngine());
+  const auto& Ebin_probability = m_pdgid_Ebin_probability.at(pdgid);
+  const int chosenBin=TMath::BinarySearch(n_bins()+1, Ebin_probability.data(), searchRand)+1;
   if(chosenBin<0 || chosenBin>n_bins()) {
     ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate bin="<<chosenBin);
     ATH_MSG_ERROR("  This error could probably be retried.");
     if(msgLvl(MSG::ERROR)) {
       ATH_MSG(ERROR)<<"in "<<GetName()<<": E="<<simulstate.E()<<" Ebin="<<chosenBin<<" rnd="<<searchRand<<" array=";
-      for(int iEbin=0;iEbin<=n_bins();++iEbin) msg()<<m_pdgid_Ebin_probability[pdgid][iEbin]<<" ";
+      for(const auto& prob : Ebin_probability) { msg()<<prob<<" "; }
       msg()<<std::endl;
     }  
     return FCSFatal;

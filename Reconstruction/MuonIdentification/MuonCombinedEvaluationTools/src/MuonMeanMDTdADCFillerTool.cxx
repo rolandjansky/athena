@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonMeanMDTdADCFillerTool.cxx, Implementation file for class MuonMeanMDTdADCFillerTool
@@ -16,8 +14,9 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <vector>
 
 using CLHEP::GeV;
@@ -25,20 +24,11 @@ using CLHEP::GeV;
 namespace Rec
 {
     
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
-MuonMeanMDTdADCFillerTool::MuonMeanMDTdADCFillerTool
-(const std::string&      type,
- const std::string&      name, 
- const IInterface*       parent)
-  : AthAlgTool              (type, name, parent),
+MuonMeanMDTdADCFillerTool::MuonMeanMDTdADCFillerTool(const std::string& type, const std::string& name,  const IInterface* parent) : AthAlgTool(type, name, parent),
       m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
-
+      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareInterface<IMuonMeanMDTdADCFiller>(this);
- // declareProperty("doMdtGasGainCorrectionForMc", m_doMdtGasGainCorrectionForMc = false);
 }
 
 MuonMeanMDTdADCFillerTool::~MuonMeanMDTdADCFillerTool (void) 
@@ -153,8 +143,6 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
         if(!(*tsit)->type(Trk::TrackStateOnSurface::Measurement) ||(*tsit)->type(Trk::TrackStateOnSurface::Outlier)) {
             continue;
         }
-        //    if((*tsit)->type() == 3) continue; // scattering center..add count etc
-        //    if((*tsit)->type() == 4) continue; // outlier..add count etc
 
         const Trk::MeasurementBase* measurement = (*tsit)->measurementOnTrack();
         if(measurement == NULL) {
@@ -165,13 +153,10 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
             continue;    // MS summary variables - don't need other technologies
         }
         if(!id.is_valid()) {
-            //      std::cout<<"ID not valid\n";
             continue;
         }
-        MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId(id);
         // mdt station counts
-        // int statnam = fid.stationName();
-        if(fid.is_mdt()) {
+        if(m_idHelperTool->isMdt(id)) {
             const Muon::MdtDriftCircleOnTrack *mdtcirc = dynamic_cast<const Muon::MdtDriftCircleOnTrack *>(measurement);
             if(mdtcirc == NULL) {
               ATH_MSG_WARNING("cannot cast Trk::MeasurementBase to Muon::MdtDriftCircleOnTrack");

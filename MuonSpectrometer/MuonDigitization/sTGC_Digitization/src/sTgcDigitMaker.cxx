@@ -169,12 +169,11 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   if(!efficiencyCheck(stationName, stationEta, stationPhi, multiPlet, gasGap, 1, energyDeposit)) return 0; 
   
   IdentifierHash coll_hash;
-  // contain (name, eta, phi, multiPlet)
-  m_idHelper->get_detectorElement_hash(layid, coll_hash);
-  //ATH_MSG_DEBUG(" looking up collection using hash " << (int)coll_hash << " " << m_idHelper->print_to_string(layid) );
+  // Get module Id & hash from layerID to properly define digitCollection
+  Identifier coll_Id = m_idHelper->elementID(layid);
+  m_idHelper->get_module_hash(coll_Id,coll_hash);
 
-  m_digits = new sTgcDigitCollection(layid, coll_hash);
-
+  m_digits = new sTgcDigitCollection(coll_Id, coll_hash);
   bool isValid = 0;
 
 

@@ -7,8 +7,8 @@
 
 
 int bcids_from_start(const int& bcid) {
-    int normalized_bcid=0;
-    for ( int i=1; i< 5; i++)
+    int normalized_bcid=-1;
+    for ( int i=1; i< 53; i++)
        if ( (bcid > first_bcid[i-1]) && (bcid < first_bcid[i]) )
           normalized_bcid=bcid-first_bcid[i-1];
     return normalized_bcid;

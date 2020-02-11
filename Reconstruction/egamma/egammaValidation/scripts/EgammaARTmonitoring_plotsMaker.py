@@ -142,6 +142,7 @@ def make_comparison_plots(type, f_base, f_nightly, result_file):
         for histo in get_key_names(f_nightly, folder['name']):
             h_base = f_base.Get(folder['name'] + '/' + histo)
             h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+            if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
             make_ratio_plot(h_base, h_nightly, folder['title'], result_file)
 
 
@@ -172,7 +173,7 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
             if 'mu' in histo:
               h_base = f_base.Get(folder['name'] + '/' + histo)
               h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
-
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
               h_base = makeIQEPlots(h_base,'IQE')
               h_nightly = makeIQEPlots(h_nightly,'IQE')
               make_ratio_plot(h_base, h_nightly, folder['title'], result_file, 'IQE')
@@ -184,10 +185,9 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
               h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
               h_base_profile.SetDirectory(0)
               h_nightly_profile.SetDirectory(0)
-
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue 
               y_axis_label = "Mean %s" % (h_base_profile.GetTitle() )
               h_base_profile.SetTitle("")
-
               make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
 
 

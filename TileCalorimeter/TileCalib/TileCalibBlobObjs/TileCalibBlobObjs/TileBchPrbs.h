@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_TILEBCHPRBS_H
@@ -68,6 +68,8 @@ class TileBchPrbs
     IgnoreCs                   = 2109,
     UnstableCs                 = 2110,
     WrongBCID                  = 2111,
+    TimingDmuBcOffset          = 2112,
+    BurntIntegrator            = 2113,
     
     //============================================
     //=== Level-1 Trigger (all channel) - online
@@ -85,6 +87,7 @@ class TileBchPrbs
     DisableForL1               = 4002,
     OnlineBadTiming            = 4105,
     OnlineWrongBCID            = 4111,
+    OnlineTimingDmuBcOffset    = 4112,
 
     //================================
     //=== Other ONLINE ADC

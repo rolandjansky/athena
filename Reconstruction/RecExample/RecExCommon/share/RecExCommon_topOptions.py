@@ -639,6 +639,10 @@ if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
 AODFix_postAtlfast()
 
+# functionality : FTK  truth-based FastSim
+if rec.doTruth() and DetFlags.detdescr.FTK_on():
+    protectedInclude("TrigFTKFastSimTruth/TrigFTKFastSimTruth_jobOptions.py")
+
 
 pdr.flag_domain('trig')
 # no trigger, if readESD _and_ doESD ! (from Simon George, #87654)

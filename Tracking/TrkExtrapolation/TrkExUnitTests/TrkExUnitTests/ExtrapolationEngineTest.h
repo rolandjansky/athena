@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@
 #include "TRandom.h"
 
 class TTree;
+
+class PixelID;
+class SCT_ID;
+class AtlasDetectorID;
 
 namespace Trk {
     
@@ -62,6 +66,10 @@ namespace Trk {
        /** retrieve it */
        ToolHandle<IExtrapolationEngine>             m_extrapolationEngine;     
        
+       const AtlasDetectorID*                       m_idHelper;
+       const PixelID*                               m_pixel_ID;       //!< Handle to the ID helper
+       const SCT_ID*                                m_sct_ID;         //!< Handle to the ID helper
+              
        bool                                         m_parametersMode; // 0 - neutral, 1 - charged, 2 - multi
        int                                          m_particleHypothesis;
      
@@ -74,6 +82,7 @@ namespace Trk {
        double                                       m_d0Max;
        double                                       m_z0Min;
        double                                       m_z0Max;
+       std::vector<float>                           m_z0Values;
      
        double                                       m_etaMin;
        double                                       m_etaMax;
@@ -160,9 +169,25 @@ namespace Trk {
        std::vector< std::vector< float >* >         m_pP;                                              
        std::vector< std::vector< float >* >         m_pPt;
 
+       std::vector< int >*                          m_sensitiveSurfaceType;
        std::vector< int >*                          m_sensitiveLayerIndex;
        std::vector< float >*                        m_sensitiveLocalPosX;
        std::vector< float >*                        m_sensitiveLocalPosY;
+       std::vector< float >*                        m_sensitiveLocalPosR;
+       std::vector< float >*                        m_sensitiveLocalPosPhi;
+       std::vector< int >*                          m_sensitiveIsPixel;
+       std::vector< int >*                          m_sensitiveIsInnermost;
+       std::vector< int >*                          m_sensitiveIsNextToInnermost;
+       std::vector< int >*                          m_sensitiveBarrelEndcap;
+       std::vector< int >*                          m_sensitiveLayerDisc;
+       std::vector< int >*                          m_sensitiveEtaModule;
+       std::vector< int >*                          m_sensitivePhiModule;
+       std::vector< int >*                          m_sensitiveSide;
+       std::vector< int >*                          m_sensitiveNearBondGap;
+       std::vector< int >*                          m_sensitiveisInside;
+       std::vector< int >*                          m_sensitiveisInsideBound;
+       std::vector< float >*                        m_materialtInX0AccumulatedUpTo;
+       std::vector< float >*                        m_materialtInL0AccumulatedUpTo;
        
        float                                        m_materialThicknessInX0;
        float                                        m_materialThicknessInL0;
@@ -181,6 +206,7 @@ namespace Trk {
        float                                        m_materialThicknessInX0Plane;
        
        std::vector< float >*                        m_materialThicknessInX0Accumulated;
+       std::vector< float >*                        m_materialThicknessInL0Accumulated;
        std::vector< float >*                        m_materialThicknessInX0Steps;
        std::vector< float >*                        m_materialThicknessInL0Steps;
        std::vector< float >*                        m_materialPositionX;

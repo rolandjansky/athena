@@ -4,10 +4,9 @@ from AthenaCommon import CfgMgr
 
 def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-    if InDetGeometryFlags.isSLHC():
-        kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC");
-    else:
-        kwargs.setdefault("ServiceBuilderTool",    "");
+    if not InDetGeometryFlags.isSLHC():
+      #ITK uses a different method in InDetDetDesr/PixelLayouts for building services
+     kwargs.setdefault("ServiceBuilderTool",    "");
     from AthenaCommon.DetFlags      import DetFlags
     if DetFlags.digitize.pixel_on() or DetFlags.haveRDO.pixel_on() or DetFlags.haveRIO.pixel_on():
         # PixelLorentzAngleSvc needed for digi and reco

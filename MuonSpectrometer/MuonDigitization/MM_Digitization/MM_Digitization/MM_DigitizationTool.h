@@ -59,6 +59,8 @@
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
+#include "NSWCalibTools/INSWCalibSmearingTool.h"
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -75,8 +77,6 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
-class StoreGateSvc;
-class ActiveStoreSvc;
 class PileUpMergeSvc;
 
 class MmDigitContainer;
@@ -107,8 +107,8 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		/** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
 		StatusCode  processBunchXing(int bunchXing,
-									SubEventIterator bSubEvents,
-									SubEventIterator eSubEvents) override final;
+					     SubEventIterator bSubEvents,
+					     SubEventIterator eSubEvents) override final;
 
 		/** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
 		StatusCode mergeEvent() override final;
@@ -143,8 +143,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		MM_ElectronicsToolInput combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput);
 
 		// Services
-		ServiceHandle<StoreGateSvc> m_storeGateService;
-		ActiveStoreSvc*             m_activeStore;
 		ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
 		PileUpMergeSvc *m_mergeSvc; // Pile up service
 		ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
@@ -204,6 +202,8 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		float m_stripdeadtime; // dead-time for strip
 		float m_ARTdeadtime; // dead-time for ART
 
+		bool  m_vmmNeighborLogic; // switch for the usage of the vmm neighbor logic
+
 		std::string m_vmmReadoutMode;
 		std::string m_vmmARTMode;
 
@@ -235,6 +235,10 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		std::vector<int> m_n_StrRespID;
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;
+
+		/// tool handle for the smearing 
+		bool m_doSmearing;
+		ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool;
 
 };
 

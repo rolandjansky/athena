@@ -61,8 +61,11 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_LowMomentum as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
-         elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "ROIConv":
-            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
+         elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "ROIConv" :
+            if InDetFlags.doFastTracking():
+              from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITkTrigger as SiSpacePointsSeedMaker
+            else:
+              from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "DisplacedSoftPion" :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_TrkSeeded as SiSpacePointsSeedMaker
          else:
@@ -233,8 +236,7 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiTrackMaker.phiWidth                  = NewTrackingCuts.phiWidthBrem()[0]
             InDetSiTrackMaker.etaWidth                  = NewTrackingCuts.etaWidthBrem()[0]
             InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()[0]
-         
-
+            
          if NewTrackingCuts.mode() == "PixelThreeLayer" or (InDetFlags.doImprovedPixelPrdAssociation() and NewTrackingCuts.mode() == "PixelPrdAssociation"):
             InDetSiTrackMaker.CleanSpuriousSCTClus = True
 
@@ -280,12 +282,15 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "ROIConv":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ROIConvTracks'
 
-         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion":
+         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
-        
+
+         elif NewTrackingCuts.mode() == "DisplacedSoftPion":
+           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_TrkSeeded'       
+
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
-					  
+           
          if InDetFlags. doStoreTrackSeeds():
               InDetSiTrackMaker.SeedSegmentsWrite=True
               InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversion
@@ -347,7 +352,10 @@ class  ConfiguredNewTrackingSiPattern:
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
           
           if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
-              InDetSiSPSeededTrackFinder.ITKGeometry = True  
+              InDetSiSPSeededTrackFinder.ITKGeometry = True
+              if InDetFlags.doFastTracking():
+                InDetSiSPSeededTrackFinder.doFastTracking = True
+                InDetSiSPSeededTrackFinder.InDetEtaDependentCutsSvc = InDetEtaDependentCutsSvc
 
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
          topSequence += InDetSiSPSeededTrackFinder
@@ -607,6 +615,19 @@ class  ConfiguredNewTrackingSiPattern:
                TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
+       
+      elif InDetFlags.doFastTracking():         
+       #
+       # defining setup without ambiguity solving for fast tracking reconstuction
+       #
+       from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
+       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi",
+                                                         CollectionName   = self.__SiTrackCollection,
+                                                         AliasName        = ResolvedTrackCollectionKey) 
+       topSequence += InDetCopyAlgForAmbi
+       if (InDetFlags.doPrintConfigurables()):
+          print InDetCopyAlgForAmbi
+
       
    def SiTrackCollection ( self ):
       try:

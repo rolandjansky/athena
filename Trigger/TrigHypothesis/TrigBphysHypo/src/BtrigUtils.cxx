@@ -5,21 +5,13 @@
 #include "BtrigUtils.h"
 
 #include <math.h>
-#include <vector>
-
-#include "Particle/TrackParticle.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 
 #include "TrigSteeringEvent/Enums.h"
 #include "TrkTrack/Track.h"
-#include "TrkParameters/TrackParameters.h"
 
-#include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
-
-#include <exception>
-
 
 //----------------------------------------------
 // pT calculation using Trk::Track.
@@ -71,7 +63,7 @@ double PtVal(const std::vector<const xAOD::TrackParticle*> & tracks) {
 // L_xy calculation using Trk::Track and two vertex positions.
 //------------------------------------------------------------
 
-double LxyVal(const double px, const double py, const Amg::Vector3D Vertex0, const Amg::Vector3D Vertex1) {
+double LxyVal(const double px, const double py, const Amg::Vector3D &Vertex0, const Amg::Vector3D &Vertex1) {
 
   double rdx = Vertex1[0] - Vertex0[0];
   double rdy = Vertex1[1] - Vertex0[1];

@@ -31,10 +31,14 @@ namespace G4UA
         bool killAllNeutrinos;
         /// Photon energy cut
         double photonEnergyCut;
+        /// Apply the Neutron Russian Roulette
+        bool applyNRR;
         /// Energy threshold for the Neutron Russian Roulette
         double russianRouletteNeutronThreshold;
         /// Weight for the Neutron Russian Roulette
         double russianRouletteNeutronWeight;
+        /// Apply the Photon Russian Roulette
+        bool applyPRR;
         /// Energy threshold for the Photon Russian Roulette
         double russianRoulettePhotonThreshold;
         /// Weight for the Photon Russian Roulette
@@ -49,9 +53,12 @@ namespace G4UA
       /// @brief Classify a new track.
       /// Result can be fUrgent, fWaiting, fPostpone, or fKill.
       virtual G4ClassificationOfNewTrack
-      ClassifyNewTrack(const G4Track* track) override final;
+      ClassifyNewTrack(const G4Track* track) override;
 
-    private:
+    protected:
+
+      /// @brief Configuration options
+      Config m_config;
 
       /// @brief Identify track as a neutrino.
       /// It might be useful to move this kind of functionality
@@ -60,19 +67,12 @@ namespace G4UA
 
       /// @brief Identify track as a photon.
       bool isGamma(const G4Track*) const;
+
       /// @brief Identify track as a neutron.
       bool isNeutron(const G4Track*) const;
+
       /// @brief obtain the PrimaryParticleInformation from the current G4Track
       PrimaryParticleInformation* getPrimaryParticleInformation(const G4Track *track) const;
-
-      /// My configuration options
-      Config m_config;
-
-      // bool that checks if the Neutron Russian Roulette is active for neutrons
-      bool m_russianRouletteForNeutrons;
-      
-      // bool that checks if the Photon Russian Roulette is active for neutrons
-      bool m_russianRouletteForPhotons;
 
       // one over m_config.russianRouletteNeutronWeight
       double m_oneOverWeightNeutron;

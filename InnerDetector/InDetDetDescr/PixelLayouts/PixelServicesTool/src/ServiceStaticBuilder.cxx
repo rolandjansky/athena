@@ -166,35 +166,11 @@ void ServiceStaticBuilder::addTopZone( InDetDD::Zone * pixZone)
 void ServiceStaticBuilder::initialize(const std::string & a)
 {
   msg(MSG::INFO)<<"ServiceStaticBuilder::initialize "<<a<<endreq;
-
-  InDetDD::SimpleServiceVolumeSchema schema;
-  std::string label;
-  std::string table;
-  if (a=="simple") {
-    schema.setPixelSchema();
-    table = "PIXEL_PIXELSIMPLESERVICE_GEO_XML";
-    label = "Svc";
-  } 
-  // Redundant, this doesn't occur anywhere else?
-  /* else if (a=="barrel") { 
-    schema.setPixelSchema();
-    table = "PIXEL_PIXELBARRELSERVICE_GEO_XML";
-    label = "Brl";
-  } else if (a=="endcap") { 
-    schema.setPixelSchema();
-    table = "PIXEL_PIXELENDCAPSERVICE_GEO_XML";
-    label = "EC";
-  }
-  */ 
-  else {
-    msg(MSG::ERROR) << "Unrecognized service table type: " << a << endreq;
-    return;
-  } 
-  
   msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker "<<a<<endreq;
-  InDetDD::SimpleServiceVolumeMaker volMaker(table,label,schema, getBasics(),false);
+  InDetDD::SimpleServiceVolumeMaker volMaker("PIXEL_PIXELSIMPLESERVICE_GEO_XML", "Svc", getBasics(), false);
   msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker : # services "<<a<<"  "<<volMaker.numElements()<<endreq;
-  for (unsigned int i = 0; i < volMaker.numElements(); ++i) 
+
+  for (unsigned int i=0; i < volMaker.numElements(); ++i) 
       m_services.push_back(volMaker.make(i));
   
   return;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -88,8 +88,9 @@ def retrieveAODList():
 # Define the jet content list for ESDs
 # Here we need a few more items for monitoring purposes,
 # and because ESDs are not (usually) saved, we simply write out
-# everything that we built, which is automatically recorded
-# in jetFlags.jetAODList
+# all the jets that we built in oringinal r21 AODs, 
+# note we need to explicitly state the origin clusters and 
+# detailed jet collections
 #
 # Need to add two additional collections, i.e. truth pileup jets,
 # as these are created in digitisation.
@@ -102,8 +103,16 @@ def retrieveESDList():
         'xAOD::JetContainer#InTimeAntiKt4TruthJets',                'xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.',
         'xAOD::JetContainer#OutOfTimeAntiKt4TruthJets',             'xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux.',
         ]
-
-    return jetFlags.jetAODList() + extrajets
+    extrajets += [
+        'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
+        'xAOD::JetContainer#AntiKt2PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.', 
+        'xAOD::JetContainer#AntiKt4PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.', 
+        #
+        'xAOD::CaloClusterContainer#EMOriginTopoClusters',          'xAOD::ShallowAuxContainer#EMOriginTopoClustersAux.',
+        'xAOD::CaloClusterContainer#LCOriginTopoClusters' ,         'xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.',
+        ]
+    extrajets += retrieveAODList()
+    return extrajets
     
 # define the convention that we write R truncating the decimal point
 # if R>=1, then we write R*10

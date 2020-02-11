@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 #########################################################################
@@ -285,17 +285,24 @@ class ConfiguredNewTrackingCuts :
         # --- general pattern cuts for NewTracking
         self.__nHolesMax               = self.__maxHoles
         self.__nHolesGapMax            = self.__maxHoles
+        
         self.__Xi2max                  = [9.0]
         self.__Xi2maxNoAdd             = [25.0]
         self.__nWeightedClustersMin    = [6]
      
         # --- seeding 
-        self.__maxdImpactSSSSeeds       = [20.0 * Units.mm]
-     
-        # --- min pt cut for brem
-        self.__minPTBrem                = [1000.0 * Units.mm]
-        self.__phiWidthBrem             = [0.3]
-        self.__etaWidthBrem             = [0.2]  
+        self.__maxdImpactSSSSeeds      = [20.0 * Units.mm]
+                                       
+        # --- min pt cut for brem      
+        self.__minPTBrem               = [1000.0 * Units.mm]
+        self.__phiWidthBrem            = [0.3]
+        self.__etaWidthBrem            = [0.2]  
+        
+        if self.__indetflags.doFastTracking():
+          self.__minPT                 = [1.0 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
+          self.__maxZImpact            = [150.0 * Units.mm]
+          self.__nHolesMax             = [1]
+          self.__nHolesGapMax          = [1]
         
       else:
         

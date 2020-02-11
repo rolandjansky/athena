@@ -10,7 +10,7 @@
 # For cmake testing:
 # TMXML_BUILD_TEST=1 make    : Create dummy XML files without running athena
 #
-
+  
 # Declare the package name:
 atlas_subdir( TriggerMenuXML )
 
@@ -112,7 +112,7 @@ atlas_install_scripts( scripts/CreateTriggerMenuXML.sh )
 atlas_install_scripts( scripts/XMLDumperFromAthena.sh )
 atlas_install_xmls( data/*.xml )
 
-# List of menus to be created:
+# List of menus to be created: 
 
 set ( MC_pp_v8_sources      python/menu/Physics_pp_v8.py python/menu/MC_pp_v8.py python/l1menu/Menu_MC_pp_v8.py )
 set ( Physics_pp_v8_sources python/menu/Physics_pp_v8.py python/l1menu/Menu_Physics_pp_v8.py python/l1menu/Menu_MC_pp_v8.py )
@@ -145,5 +145,9 @@ set ( Physics_HI_v4_sources python/menu/Physics_HI_v4.py python/l1menu/Menu_Phys
 atlas_build_trigger_menu( Physics_HI_v4 PYTHON_SOURCES ${Physics_HI_v4_sources} )
 atlas_build_trigger_menu( MC_HI_v4 PYTHON_SOURCES ${MC_HI_v4_sources} )
 atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale PYTHON_SOURCES ${MC_HI_v4_sources} )
+
+atlas_build_trigger_menu( Physics_HI_v3 )
+atlas_build_trigger_menu( MC_HI_v3 )
+atlas_build_trigger_menu( MC_HI_v3_tight_mc_prescale )
 
 #atlas_build_trigger_menu( MC_PhaseII )

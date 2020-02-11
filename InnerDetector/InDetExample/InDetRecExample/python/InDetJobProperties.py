@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -120,7 +120,7 @@ class doNewTracking(InDetFlagsJobProperty):
     StoredValue  = True
     
 class doFastTracking(InDetFlagsJobProperty):
-    """Turn running of newTracking on and off"""
+    """Turn running of FastTracking on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1170,7 +1170,7 @@ class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
     StoredValue  = False
 
 class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
-    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
+    """Turn running of pixel stablet creation in pixel after NewTracking, using unassociated hits, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -2021,7 +2021,7 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
+    return (not self.doFastTracking()) and (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
             or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
@@ -2347,6 +2347,8 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doNewTracking() :
        print '*'
        print '* NewTracking is ON:'
+    if self.doFastTracking() :
+       print '* --> running in FastTracking mode (i.e. without AmbiguitySolver)'
     if self.doSiSPSeededTrackFinder() :
        print '* - run SiSPSeededTrackFinder'
        if self.useZvertexTool() :

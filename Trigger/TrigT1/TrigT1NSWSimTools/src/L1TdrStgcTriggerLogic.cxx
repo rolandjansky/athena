@@ -344,7 +344,7 @@ namespace NSWL1{
       }
     }
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< std::shared_ptr<PadOfflineData> > &pads) {
+    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< std::shared_ptr<PadOfflineData> > &pads) {//sector pads
        
         m_secTrigCand.clear();
         std::vector< size_t > indicesSecN(pads.size());
