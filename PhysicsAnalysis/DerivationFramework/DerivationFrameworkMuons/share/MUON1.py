@@ -214,10 +214,9 @@ MUON1ThinningTools = []
 thinning_expression1 = '||'.join(thinningORs)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON1ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON1ThinningTool1",
-                                                                ThinningService         = MUON1ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression1,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON1ThinningTool1
 MUON1ThinningTools.append(MUON1ThinningTool1)
 
