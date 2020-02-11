@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ## 
 # @file DCubeClient/python/DCubeUtils.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
@@ -223,7 +223,7 @@ class DCubeObject( DCubeLogger ):
         if ( self.__log ):
             self.__log.getLogger(self).debug( str(msg) )
         else:
-            print msg
+            print(msg)
 
     ## info level logger
     # @param self "Me, myself and Irene"
@@ -232,7 +232,7 @@ class DCubeObject( DCubeLogger ):
         if ( self.__log ):
             self.__log.getLogger(self).info( str(msg) )
         else:
-            print msg
+            print(msg)
         
     ## warning level logger
     # @param self "Me, myself and Irene"
@@ -241,7 +241,7 @@ class DCubeObject( DCubeLogger ):
         if ( self.__log ):
             self.__log.getLogger(self).warn( str(msg) )
         else:
-            print msg
+            print(msg)
     
     ## error level logger
     # @param self "Me, myself and Irene"
@@ -250,7 +250,7 @@ class DCubeObject( DCubeLogger ):
         if ( self.__log ):
             self.__log.getLogger(self).error( str(msg) )
         else:
-            print msg
+            print(msg)
 
     ## critical level logger
     # @param self "Me, myself and Irene"
@@ -259,7 +259,7 @@ class DCubeObject( DCubeLogger ):
         if ( self.__log ):
             self.__log.getLogger(self).critical( str(msg) )
         else:
-            print msg
+            print(msg)
 
     ## exception level logger
     # @param self "Me, myself and Irene"
@@ -268,7 +268,7 @@ class DCubeObject( DCubeLogger ):
         if ( self.__log ):
             self.__log.getLogger(self).epanic( str(msg) )
         else:
-            print msg
+            print(msg)
 
 
 ##
@@ -369,8 +369,8 @@ class test_DCubeUtils( unittest.TestCase ):
         self.log.error("error level text")
         self.log.panic("fatal level text")
         try:
-            raise NameError, "intentional NameError, don't panic!"
-        except NameError, value:
+            raise NameError("intentional NameError, don't panic!")
+        except NameError as value:
             self.log.epanic("exception level text")
 
         self.log.toConsole(False)
@@ -389,7 +389,7 @@ class test_DCubeUtils( unittest.TestCase ):
     def test_03_exception( self ):
         try:
             raise self.exception
-        except DCubeException, value:
+        except DCubeException as value:
             self.log.epanic(value)
         
     ## DCubeObject interface
@@ -401,8 +401,8 @@ class test_DCubeUtils( unittest.TestCase ):
         self.base.error("error level text")
         self.base.panic("panic level text")
         try:
-            raise NameError, "intentional NameError, don't panic!"
-        except NameError, value:
+            raise NameError("intentional NameError, don't panic!")
+        except NameError:
             self.base.epanic("exception level text")
             
     ## DCubeVersion interface
