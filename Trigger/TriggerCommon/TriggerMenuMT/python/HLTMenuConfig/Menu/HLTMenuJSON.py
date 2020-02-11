@@ -53,16 +53,16 @@ def __getSequencerAlgs(stepsData):
     """ For each Sequencer in each Step, return a flat list of the full name of all Algorithms under the Sequencer
     """
     from AthenaCommon.CFElements import findAllAlgorithms
-    sequencerAlgs = {}
+    sequencerAlgs = odict()
     for step in stepsData:
         for sequencer in step:
             sequencerAlgs[ sequencer.name() ] = list(map(lambda x: x.getFullName(), findAllAlgorithms(sequencer)))
-    return sequencerAlgs
+    return sorted(sequencerAlgs.items(), key=lambda t: t[0])
 
 def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     """ Generates JSON given the ChainProps and sequences
     """
-    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", {}) ])
+    menuDict = odict([ ("filetype", "hltmenu"), ("name", menuName), ("chains", []), ("sequencers", odict()) ])
 
     # List of steps data
     stepsData = __getStepsDataFromAlgSequence(HLTAllSteps)
@@ -99,7 +99,6 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     __log.info( "Writing trigger menu to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=False )
-
 
 def generateJSON():
     __log.info("Generating HLT JSON config in the rec-ex-common job")
