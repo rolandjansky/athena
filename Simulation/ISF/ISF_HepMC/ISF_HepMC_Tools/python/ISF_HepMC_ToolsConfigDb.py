@@ -24,3 +24,6 @@ addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getTruthStrategyGroupCaloDecay", 
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getTruthStrategyGroupCaloDecay_MC15",    "ISF_MCTruthStrategyGroupCaloDecay_MC15")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getValidationTruthStrategy",             "ISF_ValidationTruthStrategy")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getLLPTruthStrategy",                    "ISF_LLPTruthStrategy")
+# Truth Strategy Modifiers
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getKeepLLPDecayChildrenStrategy",        "ISF_KeepLLPDecayChildrenStrategy")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getKeepHadronicInteractionChildrenStrategy", "ISF_KeepHadronicInteractionChildrenStrategy")
