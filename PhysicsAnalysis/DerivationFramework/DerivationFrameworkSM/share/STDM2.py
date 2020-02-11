@@ -20,10 +20,8 @@ STDM2Stream.AcceptAlgs(["STDM2Kernel"])
 
 # Special lines for thinning
 # Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="STDM2ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # SKIMMING TOOL 
@@ -64,10 +62,9 @@ ToolSvc += STDM2SkimmingTool
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 STDM2TPThinningTool = DerivationFramework__TrackParticleThinning( name                  = "STDM2TPThinningTool",
-                                                                ThinningService         = "STDM2ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM2TPThinningTool
 
 # Tracks associated with Jets
