@@ -32,7 +32,7 @@ StatusCode TrigSignatureMoniMT::start() {
   ATH_CHECK( hltMenuHandle.isValid() );
 
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
-  ATH_CHECK( l1MenuHandle.isValid() );
+  bool gotL1Menu =  l1MenuHandle.isValid();
 
   //retrieve chain information from menus
   std::vector<std::string> bcidChainNames;
@@ -50,13 +50,11 @@ StatusCode TrigSignatureMoniMT::start() {
       m_streamToChainMap[stream.getAttribute("name")].insert( HLT::Identifier(chain.name()) );
     }
 
-    auto item = std::find_if(l1MenuHandle->begin(), l1MenuHandle->end(),
-      [&](const TrigConf::L1Item& item){ return item.name()==chain.l1item();});
-
-    if ( item != l1MenuHandle->end() ){
-      for ( auto group : (*item).getList("bunchgroups", true) ){
-        if ( group.getValue() != "BGRP0" ){
-          m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group.getValue());
+    if( gotL1Menu && !chain.l1item().empty() ) {
+      TrigConf::L1Item item = l1MenuHandle->item(chain.l1item());
+      for ( const std::string & group : item.bunchgroups() ) {
+        if ( group != "BGRP0" ) {
+          m_chainIDToBunchMap[HLT::Identifier(chain.name())].insert(group);
         }
       }
     }
@@ -74,7 +72,7 @@ StatusCode TrigSignatureMoniMT::start() {
   const int xc = sequencesSet.size();
   const int y = nBinsY();
   const int yr = nRateBinsY();
-  const int yb = nBunchBinsY(l1MenuHandle);
+  const int yb = gotL1Menu ? nBunchBinsY(l1MenuHandle) : 16;
   const int ybc = bcidChainNames.size();
   const int yc = 1; //Rate
 
@@ -473,6 +471,9 @@ StatusCode TrigSignatureMoniMT::initBCIDhist(LockedHandle<TH2>& hist, const std:
 }
 
 StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) {
+
+  bool gotL1Menu = l1MenuHandle.isValid() && l1MenuHandle->isInitialized();
+
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
   int bin = 2;
@@ -488,14 +489,22 @@ StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadH
     ++bin;
   }
 
-  TAxis* y = hist->GetYaxis();
-  std::vector<std::string> sortedBunchGroups = l1MenuHandle->getObject("bunchGroups").getKeys();
-  std::sort( sortedBunchGroups.begin(), sortedBunchGroups.end() );
-  sortedBunchGroups.erase(std::remove(sortedBunchGroups.begin(), sortedBunchGroups.end(), "BGRP0"), sortedBunchGroups.end());
+  std::vector<std::string> sortedBunchGroups;
+  if( gotL1Menu ) {
+    sortedBunchGroups = l1MenuHandle->getObject("bunchGroups").getKeys();
+    std::sort( sortedBunchGroups.begin(), sortedBunchGroups.end() );
+    sortedBunchGroups.erase(std::remove(sortedBunchGroups.begin(), sortedBunchGroups.end(), "BGRP0"), sortedBunchGroups.end());
+  } else {
+    for(size_t i = 1; i<=16; ++i) {
+      sortedBunchGroups.emplace_back("BGRP" + std::to_string(i));
+    }
+  }
 
   bin = 1;
+  TAxis* y = hist->GetYaxis();
   for ( const std::string& group : sortedBunchGroups ){
-    y->SetBinLabel( bin, l1MenuHandle->getAttribute( "bunchGroups." + group + ".name", true).c_str() );
+    std::string bgname = gotL1Menu ? l1MenuHandle->getAttribute( "bunchGroups." + group + ".name", true) : group;
+    y->SetBinLabel( bin, bgname.c_str() );
     m_nameToBinMap[group] = bin;
     ++bin;
   }

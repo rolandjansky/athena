@@ -410,8 +410,14 @@ double EnhancedBiasWeighter::getEBWeight(const xAOD::EventInfo* eventInfo) const
 
     if (m_isMC) {
 
+      if (m_mcIgnoreGeneratorWeights) {
+        return 1.;
+      }
+
       const std::vector<float> weights = eventInfo->mcEventWeights();
-      if (weights.size() > 0) return weights[0];
+      if (weights.size() > 0) {
+        return weights[0];
+      }
       return 1.;
 
     } else { // isData

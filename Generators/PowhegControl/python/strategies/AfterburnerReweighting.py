@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl AfterburnerReweighting
 #  Reweight pre-generated Powheg events
@@ -7,7 +7,7 @@
 
 #! /usr/bin/env python
 import collections, os, shutil, subprocess, time
-from GenerateSingleCore import *
+from .GenerateSingleCore import *
 from ..utility import FileParser, RepeatingTimer
 
 ## Initialise and validate reweighting lists

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesHistoBase.h"
@@ -16,14 +16,17 @@ RatesHistoBase::RatesHistoBase(const std::string& name, const MsgStream& log, co
   if (doHistograms) {
     m_rateVsMu = std::make_unique<TH1D>("",TString(name + ";#mu;Rate / Unit #mu [Hz]"),226,-.5,225.5);
     m_rateVsMu->Sumw2(true);
+    m_rateVsMu->SetName("rateVsMu");
     m_rateVsMuCachedPtr = m_rateVsMu.get();
 
     m_rateVsTrain = std::make_unique<TH1D>("",TString(name + ";Distance Into Train;Rate / BCID [Hz]"),100,-0.5,99.5);
     m_rateVsTrain->Sumw2(true);
+    m_rateVsTrain->SetName("rateVsTrain");
     m_rateVsTrainCachedPtr = m_rateVsTrain.get();
 
     m_data =  std::make_unique<TH1D>("",TString(";Variable;Raw Data"), RatesBinIdentifier_t::kNRATES_BINS, -.5, RatesBinIdentifier_t::kNRATES_BINS - .5);
     m_data->Sumw2(true);
+    m_data->SetName("data");
     m_dataCachedPtr = m_data.get();
 
   }

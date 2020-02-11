@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -42,7 +42,7 @@ namespace Trk {
 
     ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrajBuilder;
 
-    SubDetHitStatistics::SubDetType findSubDetType(Identifier id) const;
+    SubDetHitStatistics::SubDetType findSubDetType(const Identifier& id) const;
     
     void addTrack(DetailedTrackTruthCollection *output,
 		  const ElementLink<DataVector<Trk::Track> > &track,

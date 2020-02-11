@@ -282,7 +282,7 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHoles(const Trk::Track
   DataVector<const Trk::TrackStateOnSurface>::iterator hit  = holes->begin();
   DataVector<const Trk::TrackStateOnSurface>::iterator hend = holes->end();
   // order function for this track already defined ?
-  sort( hit, hend, fOrd );
+  std::sort( hit, hend, fOrd );
   // create track
   return new Trk::Track(input_track.info(),holes, new Trk::FitQuality(*(input_track.fitQuality())));
 }
@@ -431,7 +431,7 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
  
   DataVector<const Trk::TrackStateOnSurface>::iterator hit  = holes->begin();
   DataVector<const Trk::TrackStateOnSurface>::iterator hend = holes->end();
-  sort( hit, hend, fOrd );
+  std::sort( hit, hend, fOrd );
 
   // create track
   return new Trk::Track(input_track.info(),holes, new Trk::FitQuality(*(input_track.fitQuality())));
@@ -505,7 +505,7 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::getMSEntry(const Track* 
 
    std::vector<const Trk::TrackStateOnSurface*>::iterator it  = ntSoS.begin();
    std::vector<const Trk::TrackStateOnSurface*>::iterator it_end  = ntSoS.end();
-   sort(it,it_end,fOrd);
+   std::sort(it,it_end,fOrd);
 
    orderedTSoS = new DataVector<const Trk::TrackStateOnSurface>;  
 

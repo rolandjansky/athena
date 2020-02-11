@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -45,47 +45,44 @@ public:
   virtual StatusCode finalize() override;
 
   //!< Convolution with full material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    update(const MultiComponentState&,
-           const Layer&,
-           PropDirection direction = anyDirection,
-           ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual std::unique_ptr<MultiComponentState> update(
+    const MultiComponentState&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    preUpdate(const MultiComponentState&,
-              const Layer&,
-              PropDirection direction = anyDirection,
-              ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual std::unique_ptr<MultiComponentState> preUpdate(
+    const MultiComponentState&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with post-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    postUpdate(const MultiComponentState&,
-               const Layer&,
-               PropDirection direction = anyDirection,
-               ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual std::unique_ptr<MultiComponentState> postUpdate(
+    const MultiComponentState&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Retain for now redundant simplified material effects
-  virtual std::unique_ptr<MultiComponentState> 
-    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
-                             PropDirection direction = anyDirection,
-                             ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual std::unique_ptr<MultiComponentState> simplifiedMaterialUpdate(
+    const MultiComponentState& multiComponentState,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
-  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ 
-    this,
-    "MaterialEffectsUpdator",
-    "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
-    ""
-  };
- 
+  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ this,
+                                                           "MaterialEffectsUpdator",
+                                                           "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
+                                                           "" };
+
   ToolHandle<IMultiComponentStateMerger> m_stateMerger{
     this,
     "MultiComponentStateMerger",
     "Trk::QuickCloseComponentsMultiStateMerger/MaterialConvolutionMerger",
     ""
   };
-
 };
 
 } // end Trk namespace

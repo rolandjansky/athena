@@ -538,8 +538,16 @@ def muEFCBRecoSequence( RoIs, name ):
   trackParticles = PTTrackParticles[-1]
 
   #Make InDetCandidates
+  from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+
+  InDetTrigTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool("InDetTrigTrackSelectorTool",
+                                                                     TrackSummaryTool = InDetTrigTrackSummaryTool,
+                                                                     Extrapolator = InDetTrigExtrapolator,
+                                                                    )
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
-                                                       InDetCandidateLocation="InDetCandidates_"+name)
+                                                       InDetCandidateLocation="InDetCandidates_"+name, TrackSelector = InDetTrigTrackSelectorTool)
 
   #MS ID combination
   candidatesName = "MuonCandidates"
@@ -621,8 +629,18 @@ def muEFInsideOutRecoSequence(RoIs, name):
     trackParticles = PTTrackParticles[-1]
 
     #Make InDetCandidates
+
+    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+
+    InDetTrigTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool("InDetTrigTrackSelectorTool",
+                                                                       TrackSummaryTool = InDetTrigTrackSummaryTool,
+                                                                       Extrapolator = InDetTrigExtrapolator,
+                                                                      )
+
     theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
-                                                         InDetCandidateLocation="InDetCandidates_"+name)
+                                                         InDetCandidateLocation="InDetCandidates_"+name, TrackSelector = InDetTrigTrackSelectorTool)
 
     efAlgs.append(theIndetCandidateAlg)
 

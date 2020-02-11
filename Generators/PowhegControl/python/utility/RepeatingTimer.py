@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl RepeatingTimer
 #  Helper class to run repeating timer in additional thread
@@ -8,9 +8,12 @@
 #! /usr/bin/env python
 import threading
 
+import six
+BaseTimer = threading._Timer if six.PY2 else threading.Timer
+
 ## Allow timing output in an additional thread.
 #  From http://stackoverflow.com/questions/5429577/
-class RepeatingTimer(threading._Timer) :
+class RepeatingTimer(BaseTimer) :
 
   ## Override Thread.run with desired behaviour
   def run(self):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,14 +52,14 @@ namespace Trk
         so they should be passed by reference. 
     */ 
     virtual Rec::TrackParticle* createParticle( const Trk::Track* track,
-                                                const Trk::VxCandidate* vxCandidate = 0,
+                                                const Trk::VxCandidate* vxCandidate = nullptr,
                                                 Trk::TrackParticleOrigin prtOrigin = Trk::NoVtx) const =0;  // @TODO can this be removed ?
 
     /** Method to construct a xAOD::TrackParticle from a Rec::TrackParticle.
         @param track particle 
         @param TrackParticleContainer needed to have an AuxStore, if provided particle will be added to store which takes ownership
     */
-    virtual xAOD::TrackParticle* createParticle( const Rec::TrackParticle& trackParticle,  xAOD::TrackParticleContainer* container=0 ) const = 0;
+    virtual xAOD::TrackParticle* createParticle( const Rec::TrackParticle& trackParticle,  xAOD::TrackParticleContainer* container=nullptr ) const = 0;
 
     /** Method to construct a TrackParticle from a passed Track. Currently, it will ONLY fill the MeasuredPerigee
         i.e. the TrackParticle will not be complete
@@ -70,8 +70,8 @@ namespace Trk
         @param prd_to_track_map an optional PRD-to-track map to compute shared hits.
     */
     virtual xAOD::TrackParticle* createParticle( const Trk::Track& track,
-                                                 xAOD::TrackParticleContainer* container=0,
-                                                 const xAOD::Vertex* vxCandidate = 0,
+                                                 xAOD::TrackParticleContainer* container=nullptr,
+                                                 const xAOD::Vertex* vxCandidate = nullptr,
                                                  xAOD::ParticleHypothesis prtOrigin = xAOD::noHypothesis,
                                                  const Trk::PRDtoTrackMap *prd_to_track_map = nullptr) const =0;
 
@@ -84,8 +84,8 @@ namespace Trk
         @param prd_to_track_map an optional PRD-to-track map to compute shared hits.
     */
     virtual xAOD::TrackParticle* createParticle( const ElementLink<TrackCollection>& trackLink,
-                                                 xAOD::TrackParticleContainer* container=0,
-                                                 const xAOD::Vertex* vxCandidate = 0,
+                                                 xAOD::TrackParticleContainer* container=nullptr,
+                                                 const xAOD::Vertex* vxCandidate = nullptr,
                                                  xAOD::ParticleHypothesis prtOrigin = xAOD::noHypothesis,
                                                  const Trk::PRDtoTrackMap *prd_to_track_map = nullptr) const =0;
 
@@ -95,7 +95,7 @@ namespace Trk
                                                  const std::vector<const Trk::TrackParameters*>& parameters,
                                                  const std::vector< xAOD::ParameterPosition>& positions,  
                                                  xAOD::ParticleHypothesis prtOrigin = xAOD::noHypothesis,
-                                                 xAOD::TrackParticleContainer* container = 0 ) const = 0;
+                                                 xAOD::TrackParticleContainer* container = nullptr ) const = 0;
 
     /** Convenience method to retrieve Beamspot Data object -- cache this once per event for optimal performance */
     virtual const InDet::BeamSpotData* CacheBeamSpotData(const EventContext &ctx) const =0;

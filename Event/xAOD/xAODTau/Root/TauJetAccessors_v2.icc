@@ -15,13 +15,13 @@
 #define DEFINE_TAUJETPARAMETER_ACCESSOR(TYPE, NAME )                               \
   case xAOD::TauJetParameters::NAME:					\
 {                                                               \
-  static SG::AuxElement::Accessor< TYPE > a( #NAME );		\
+  static const SG::AuxElement::Accessor< TYPE > a( #NAME );		\
   return &a;							\
 }                                                               \
 break;
 
 
-  SG::AuxElement::Accessor< float >* discriminantAccessorV2( xAOD::TauJetParameters::TauID discriminant ) {
+  const SG::AuxElement::Accessor< float >* discriminantAccessorV2( xAOD::TauJetParameters::TauID discriminant ) {
 
     switch( discriminant ) {
 	
@@ -40,11 +40,11 @@ break;
     }
   }
 
-  template <class T>  SG::AuxElement::Accessor< T >*
+  template <class T>  const SG::AuxElement::Accessor< T >*
   panTauDetailsAccessorV2( xAOD::TauJetParameters::PanTauDetails /*detail*/ ) {
   }
 
-  template <> SG::AuxElement::Accessor< float >* panTauDetailsAccessorV2<float>( xAOD::TauJetParameters::PanTauDetails detail ) {
+  template <> const SG::AuxElement::Accessor< float >* panTauDetailsAccessorV2<float>( xAOD::TauJetParameters::PanTauDetails detail ) {
     
     switch( detail ) {
 	
@@ -91,7 +91,7 @@ break;
     }
   }
 
-  template <> SG::AuxElement::Accessor< int >* panTauDetailsAccessorV2<int>( xAOD::TauJetParameters::PanTauDetails detail ) {
+  template <> const SG::AuxElement::Accessor< int >* panTauDetailsAccessorV2<int>( xAOD::TauJetParameters::PanTauDetails detail ) {
 
     switch( detail ) {
 	
@@ -128,10 +128,10 @@ break;
 
 
 
-  template <class T>  SG::AuxElement::Accessor< T >* detailsAccessorV2( xAOD::TauJetParameters::Detail /*detail*/ ) {
+  template <class T>  const SG::AuxElement::Accessor< T >* detailsAccessorV2( xAOD::TauJetParameters::Detail /*detail*/ ) {
   }
 
-  template <> SG::AuxElement::Accessor< float >* detailsAccessorV2<float>( xAOD::TauJetParameters::Detail detail ) {
+  template <> const SG::AuxElement::Accessor< float >* detailsAccessorV2<float>( xAOD::TauJetParameters::Detail detail ) {
     
     switch( detail ) {
 
@@ -225,7 +225,7 @@ break;
     }
   }
 
-  template <> SG::AuxElement::Accessor< int >* detailsAccessorV2<int>( xAOD::TauJetParameters::Detail detail ) {
+  template <> const SG::AuxElement::Accessor< int >* detailsAccessorV2<int>( xAOD::TauJetParameters::Detail detail ) {
 
     switch( detail ) {
 

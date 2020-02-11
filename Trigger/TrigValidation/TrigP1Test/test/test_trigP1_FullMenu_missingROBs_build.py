@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 
-# art-description: Jet slice test, with athenaHLT, MP
-# art-type: build
-# art-include: master/Athena
+# art-description: Same as full_menu test from TrigUpgradeTest, but with athenaHLT. Test with detector ROBs removed. 
+# art-type: build                                                                  
+# art-include: master/Athena                                                       
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
+ex.args = '--ros2rob="{\'ROS-TDQ-CTP-00\': [0x770000]}"'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.forks = 2
-ex.threads = 1
-ex.concurrent_events = 1
-ex.args = '--stdcmalloc -c "doEmptyMenu=True;doJetSlice=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

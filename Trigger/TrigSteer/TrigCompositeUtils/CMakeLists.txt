@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODMuon
-                          Event/xAOD/xEGamma
+                          Event/xAOD/xAODEgamma
                           AtlasTest/TestTools
                           Control/StoreGate
                           )
@@ -25,8 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigCompositeUtilsLib
                    Root/*.cxx
                    PUBLIC_HEADERS TrigCompositeUtils
-                   LINK_LIBRARIES xAODTrigger GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils GaudiKernel xAODTrigger )
 
 atlas_install_python_modules( python/*.py )
 

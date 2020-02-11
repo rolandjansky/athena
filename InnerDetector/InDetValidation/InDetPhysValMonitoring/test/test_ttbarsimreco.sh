@@ -130,7 +130,7 @@ if [ $dorec -ne 0 ]; then
     InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); \
     from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; \
     InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
-    InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(True); \
+    InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
     InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
     rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; \
     rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; \

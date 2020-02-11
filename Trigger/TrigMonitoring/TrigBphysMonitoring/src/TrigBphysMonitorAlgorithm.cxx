@@ -29,8 +29,9 @@ StatusCode TrigBphysMonitorAlgorithm::initialize() {
     ATH_CHECK( BphysContainerKey.initialize() );
     m_TrigBphysContainerKeys.push_back(BphysContainerKey);
   }
+  ATH_CHECK( AthMonitorAlgorithm::initialize() );
   m_mainGMT = getGroup("TrigBphysMonitor");
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 

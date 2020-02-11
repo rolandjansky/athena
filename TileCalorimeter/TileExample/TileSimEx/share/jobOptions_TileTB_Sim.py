@@ -197,7 +197,7 @@ try:
     from AthenaCommon.CfgGetter import getAlgorithm
     topSeq += getAlgorithm("BeamEffectsAlg")
 except:
-    print "can not import BeamEffectsAlg algorithm"
+    printfunc ("can not import BeamEffectsAlg algorithm")
 
 include('G4AtlasApps/Tile2000_2003.flat.configuration.py')#HACK - has to be here for TBDetDescrLoader
 
@@ -237,7 +237,7 @@ if 'DoBirk' in dir():
     SD.DoBirk = DoBirk
 if 'TileUshape' in dir():
     SD.Ushape=TileUshape
-print SD
+printfunc (SD)
 
 ## VP1 algorithm for visualization
 if 'VP1' in dir():

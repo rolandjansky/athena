@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ### JobOptions to run MuGirlTag in xAOD
 
@@ -24,6 +24,9 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
    if TriggerFlags.MuonSlice.doTrigMuonConfig:
       kwargs.setdefault("VertexContainer", "")
+   import MuonCombinedRecExample.CombinedMuonTrackSummary
+   from AthenaCommon.AppMgr import ToolSvc
+   kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
@@ -87,6 +90,9 @@ def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("MuonCandidateTrackBuilderTool", getPublicTool("MuonStauCandidateTrackBuilderTool") )
    if TriggerFlags.MuonSlice.doTrigMuonConfig:
       kwargs.setdefault("VertexContainer", "")
+   import MuonCombinedRecExample.CombinedMuonTrackSummary
+   from AthenaCommon.AppMgr import ToolSvc
+   kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):
@@ -97,16 +103,6 @@ def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):
    kwargs.setdefault("MuonInsideOutRecoTool", getPublicTool("MuonStauInsideOutRecoTool") )
    kwargs.setdefault("TrackAmbiguityProcessor", getPublicTool("MuonAmbiProcessor") )
    return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )
-
-
-        #ToolSvc +=  CfgMgr.Muon__MuonSystemExtensionTool("MuonSystemExtensionTool",OutputLevel=VERBOSE)
-        #ToolSvc +=  CfgMgr.Muon__MuonPrepRawDataCollectionProviderTool("MuonPrepRawDataCollectionProviderTool",OutputLevel=VERBOSE)
-        #ToolSvc +=  CfgMgr.Muon__MuonLayerHashProviderTool("MuonLayerHashProviderTool",OutputLevel=VERBOSE)
-        #ToolSvc +=  CfgMgr.Muon__MuonPRDSelectionTool("MuonPRDSelectionTool",OutputLevel=VERBOSE)
-        #ToolSvc +=  CfgMgr.Muon__MuonLayerSegmentFinderTool("MuonLayerSegmentFinderTool",OutputLevel=VERBOSE)
-        #ToolSvc +=  CfgMgr.Muon__MuonClusterSegmentFinderTool("MuonClusterSegmentFinderTool",OutputLevel=VERBOSE)
-        #ToolSvc +=  CfgMgr.Muon__VERBOSE)
-
 
 
 

@@ -64,7 +64,7 @@ thinningTools.append(EXOT11MuonTPThinningTool)
 #Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 EXOT11AKt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EXOT11AKt4JetTPThinningTool",
-                                                                             ThinningService         = "EXOT11ThinningSvc",
+                                                                             StreamName              = streamName,
                                                                              JetKey                  = "AntiKt4LCTopoJets",
                                                                              SelectionString         = "AntiKt4LCTopoJets.pt > 15*GeV && abs(AntiKt4LCTopoJets.eta) < 2.8",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
@@ -72,7 +72,7 @@ ToolSvc += EXOT11AKt4JetTPThinningTool
 thinningTools.append(EXOT11AKt4JetTPThinningTool)
 
 EXOT11AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EXOT11AKt10JetTPThinningTool",
-                                                                              ThinningService         = "EXOT11ThinningSvc",
+                                                                              StreamName              = streamName,
                                                                               JetKey                  = "AntiKt10LCTopoJets",
                                                                               SelectionString         = "AntiKt10LCTopoJets.pt > 200*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
                                                                               InDetTrackParticlesKey  = "InDetTrackParticles")

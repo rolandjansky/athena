@@ -1213,7 +1213,7 @@ class InDetJobProperties(JobPropertyContainer):
     from RecExConfig.RecFlags import rec
     if rec.doMonitoring():
       self.checkThenSet(self.doMonitoringGlobal   , True)
-      self.checkThenSet(self.doMonitoringPrimaryVertexingEnhanced   , True)
+      #self.checkThenSet(self.doMonitoringPrimaryVertexingEnhanced   , True)
       self.checkThenSet(self.doMonitoringPixel    , True)
       self.checkThenSet(self.doMonitoringSCT      , True)
       self.checkThenSet(self.doMonitoringTRT      , True)

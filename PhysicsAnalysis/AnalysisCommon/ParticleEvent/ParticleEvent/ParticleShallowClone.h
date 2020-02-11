@@ -411,8 +411,7 @@ void Analysis::ParticleShallowClone::set_origin( const VxContainer* theContainer
                                                  const Trk::VxCandidate * vertex )
 {
  m_originLink = ElementLink< VxContainer >
-   ( const_cast<Trk::VxCandidate*> (vertex),
-     *theContainer );
+   ( vertex,*theContainer );
  return;
 }
 
