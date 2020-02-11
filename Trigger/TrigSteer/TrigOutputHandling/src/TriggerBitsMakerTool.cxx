@@ -67,7 +67,7 @@ StatusCode TriggerBitsMakerTool::preInsertCheck(const std::string& chain, const 
       << " and " << chain << " are both configured with ChainCounter:" << bit);
     return StatusCode::FAILURE;
   }
-  if (chain == "") {
+  if (chain.empty()) {
     ATH_MSG_ERROR( "Trying to register an empty string as a Chain." );
     return StatusCode::FAILURE;
   }
