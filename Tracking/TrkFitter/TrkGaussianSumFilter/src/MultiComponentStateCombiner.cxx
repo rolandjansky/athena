@@ -92,13 +92,8 @@ Trk::MultiComponentStateCombiner::combineWithWeight(Trk::ComponentParameters& me
     } else if (parameterDifference[2] < -M_PI) {
       parameterDifference[2] += 2 * M_PI;
     }
-    AmgSymMatrix(5) unity;
-    for (int i(0); i < 5; ++i) {
-      for (int j(0); j < 5; ++j) {
-        unity(i, j) = parameterDifference(i) * parameterDifference(j);
-      }
-    }
-    covariancePart2 = firstWeight * secondWeight * unity;
+
+    covariancePart2 = firstWeight * secondWeight * parameterDifference * parameterDifference.transpose();
     (*covariance) = covariancePart1 / totalWeight + covariancePart2 / (totalWeight * totalWeight);
 
     mergeTo.first->updateParameters(mean, covariance);
@@ -174,6 +169,8 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
     // associated error matrix.
     const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
+    // Calculate the combined covariance matrix 
+    // \sigma = \Sum_{m=1}^{M} w_{m}(\sigma_m + (\mu_m-\mu)(\mu_m-\mu)^{T})
     if (measuredCov) {
       // Changed from errorMatrixInMeasurementFrame
 
@@ -194,13 +191,7 @@ Trk::MultiComponentStateCombiner::compute(const Trk::MultiComponentState* uncomb
 
         double remainingComponentIteratorWeight = (*remainingComponentIterator).second;
 
-        AmgSymMatrix(5) unity;
-        for (int i(0); i < 5; ++i) {
-          for (int j(0); j < 5; ++j) {
-            unity(i, j) = parameterDifference(i) * parameterDifference(j);
-          }
-        }
-        covariancePart2 += weight * remainingComponentIteratorWeight * unity;
+        covariancePart2 += weight * remainingComponentIteratorWeight * parameterDifference * parameterDifference.transpose();
 
       } // end loop over remaining components
 
