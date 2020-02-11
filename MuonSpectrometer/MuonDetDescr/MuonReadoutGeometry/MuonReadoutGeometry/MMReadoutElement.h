@@ -17,6 +17,8 @@
 
 class StoreGateSvc;
 
+class BLinePar;
+
 namespace Trk{
   class RectangleBounds;
   class PlaneSurface;
@@ -123,7 +125,13 @@ namespace MuonGM {
     inline double getALine_rotz() const;
     inline double getALine_rott() const;
     inline bool has_ALines() const;
+    inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double); //input: translations, rotations
+    void setBLinePar(BLinePar* bLine) const;
+    inline void clearBLinePar() const;
+    inline const BLinePar* getBLinePar() const { return m_BLinePar;}
+    void clearBLineCache() const;
+    void fillBLineCache() const;
   private:
 
 
@@ -146,12 +154,18 @@ namespace MuonGM {
     double m_rott;
 
     bool m_hasALines;
+    bool m_hasBLines;
 
     HepGeom::Transform3D* m_delta;
+
+    mutable BLinePar* m_BLinePar;
     
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
+
+  void MMReadoutElement::clearBLinePar() const
+  { m_BLinePar = 0;}
 
   double MMReadoutElement::getALine_rots() const
   { return m_rots;}
@@ -164,6 +178,9 @@ namespace MuonGM {
 
   bool MMReadoutElement::has_ALines() const
   { return m_hasALines;}
+
+  bool MMReadoutElement::has_BLines() const
+  { return m_hasBLines;}
 
   inline int MMReadoutElement::surfaceHash( const Identifier& id ) const {
     return surfaceHash(manager()->mmIdHelper()->gasGap(id),0);
