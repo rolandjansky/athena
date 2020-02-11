@@ -1,10 +1,10 @@
 # $Id: CMakeLists.txt 776838 2016-10-06 12:21:19Z krasznaa $
 ################################################################################
-# Package: ElectronPhotonShowerShapeFudgeToolExtension
+# Package: ElectronPhotonShowerShapeFudgeTool
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( ElectronPhotonShowerShapeFudgeToolExtension )
+atlas_subdir( ElectronPhotonShowerShapeFudgeTool )
 
 # Extra dependencies based on the environment:
 set( extra_dep )
@@ -27,43 +27,43 @@ atlas_depends_on_subdirs(
 find_package( ROOT COMPONENTS Core MathCore Hist RIO Gui Gpad )
 
 # Component(s) in the package:
-atlas_add_library( ElectronPhotonShowerShapeFudgeToolExtensionLib
+atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib
    ElectronPhotonShowerShapeFudgeTool/*.h
    ElectronPhotonShowerShapeFudgeTool/*.icc Root/*.cxx
    PUBLIC_HEADERS ElectronPhotonShowerShapeFudgeTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces EgammaAnalysisInterfacesLib
-   xAODEventShape
+   xAODEventShape ElectronPhotonSelectorToolsLib
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
-   atlas_add_component( ElectronPhotonShowerShapeFudgeToolExtension
+   atlas_add_component( ElectronPhotonShowerShapeFudgeTool
       src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel ElectronPhotonShowerShapeFudgeToolExtensionLib )
+      LINK_LIBRARIES GaudiKernel ElectronPhotonShowerShapeFudgeToolLib )
 endif()
 
-#atlas_add_dictionary( ElectronPhotonShowerShapeFudgeToolExtensionDict
-#   ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeToolDict.h
-#   ElectronPhotonShowerShapeFudgeTool/selection.xml
-#   LINK_LIBRARIES ElectronPhotonShowerShapeFudgeToolExtensionLib )
+atlas_add_dictionary( ElectronPhotonShowerShapeFudgeToolDict
+   ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeToolDict.h
+   ElectronPhotonShowerShapeFudgeTool/selection.xml
+   LINK_LIBRARIES ElectronPhotonShowerShapeFudgeToolLib )
 
-#atlas_add_executable( EPSSFT_convertFF util/convertFF.cxx
-#   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-#   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolExtensionLib )
-#
-#atlas_add_executable( EPSSFT_drawFFs util/drawFFs.cxx
-#   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-#   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolExtensionLib )
+atlas_add_executable( EPSSFT_convertFF util/convertFF.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
+
+atlas_add_executable( EPSSFT_drawFFs util/drawFFs.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
 
 atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool
    util/testElectronPhotonVariableCorrectionTool.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools ElectronPhotonShowerShapeFudgeToolExtensionLib)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools ElectronPhotonShowerShapeFudgeToolLib)
 
 atlas_add_executable( Test_IsoCorrection
    util/testIsoCorrection.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools IsolationCorrectionsLib ElectronPhotonShowerShapeFudgeToolExtensionLib)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODRootAccess AsgTools IsolationCorrectionsLib ElectronPhotonShowerShapeFudgeToolLib)
 
 # Install files from the package:
 atlas_install_data( data/*.conf data/*.root )
