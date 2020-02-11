@@ -436,6 +436,7 @@ class TriggerConfigGetter(Configured):
 
         # Get the algorithm sequence:
         from AthenaCommon.AlgSequence import AlgSequence
+        from .TriggerFlags import TriggerFlags
         topAlgs = AlgSequence()
 
         # Add the algorithm creating the trigger configuration metadata for
@@ -449,7 +450,7 @@ class TriggerConfigGetter(Configured):
                 menuwriter = TrigConf__xAODMenuWriterMT()
                 menuwriter.IsHLTJSONConfig = True
                 menuwriter.IsL1JSONConfig = True
-                from .TriggerFlags import TriggerFlags
+
                 if TriggerFlags.triggerMenuSetup != 'LS2_v1':
                   menuwriter.IsL1JSONConfig = False
                   log.warn("Menu other than LS2_v1 (%s), will continue to take the L1 menu from XML rather than JSON. See ATR-20873", TriggerFlags.triggerMenuSetup)
