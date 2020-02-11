@@ -61,7 +61,7 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 JETM11TPThinningTool = DerivationFramework__TrackParticleThinning(name = "JETM11TPThinningTool",
-                                                                  ThinningService         = JETM11ThinningHelper.ThinningSvc(),
+                                                                  StreamName              = streamName,
                                                                   SelectionString         = "InDetTrackParticles.pt > 10*GeV",
                                                                   InDetTrackParticlesKey  = "InDetTrackParticles") 
 ToolSvc += JETM11TPThinningTool

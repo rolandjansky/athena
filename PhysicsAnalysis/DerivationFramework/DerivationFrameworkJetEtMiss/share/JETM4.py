@@ -81,7 +81,7 @@ thinningTools.append(JETM4PhotonTPThinningTool)
 thinning_expression = "( abs(InDetTrackParticles.d0) < 2 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 JETM4TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "JETM4TPThinningTool",
-                                                                  ThinningService         = "JETM4ThinningSvc",
+                                                                  StreamName              = streamName,
                                                                   SelectionString         = thinning_expression,
                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM4TPThinningTool
