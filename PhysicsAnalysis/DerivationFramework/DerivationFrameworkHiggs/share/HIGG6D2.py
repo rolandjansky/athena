@@ -212,7 +212,7 @@ ToolSvc += HIGG6D2ElectronTPThinningTool
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 HIGG6D2TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG6D2TPThinningTool",
-                                                                   ThinningService         = "HIGG6D2ThinningSvc",
+                                                                   StreamName              = streamName,
                                                                    SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
 

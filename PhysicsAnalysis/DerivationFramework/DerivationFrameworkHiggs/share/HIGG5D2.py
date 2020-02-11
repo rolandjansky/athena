@@ -64,10 +64,9 @@ if globalflags.DataSource()=='geant4':
 # thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 # HIGG5D2TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "HIGG5D2TPThinningTool",
-#                                                                 ThinningService         = HIGG5D2ThinningHelper.ThinningSvc(),
+#                                                                 StreamName              = streamName,
 #                                                                 SelectionString         = thinning_expression,
-#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                 ApplyAnd                = True)
+#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
 # ToolSvc += HIGG5D2TPThinningTool
 # thinningTools.append(HIGG5D2TPThinningTool)
 
