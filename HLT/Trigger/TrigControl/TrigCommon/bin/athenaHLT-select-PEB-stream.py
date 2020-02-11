@@ -100,7 +100,7 @@ def peb_writer(argv):
   runNumber       = dr.runNumber() 
   outputDirectory = kwargs['output-dir']
   streamName      = kwargs['stream-name']
-  if kwargs['project-tag'] != None:
+  if kwargs['project-tag'] is not None:
     projectTag      = kwargs['project-tag']
   if kwargs['lumi-block'] != -1:
     lumiBlockNumber = kwargs['lumi-block']  # if output file can have multiple lumi blocks, use 0 
