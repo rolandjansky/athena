@@ -58,8 +58,8 @@ def collectViewMakers( steps ):
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
                     if "EventViewCreator" in alg.getFullName(): # TODO base it on checking types of write handles once available
-                        makers.append(alg)
-    makers = sorted(set(makers)) #Remove duplicates and return in reproducible order
+                        if alg not in makers:
+                            makers.append(alg)
     __log.debug("Found ViewMakers: {}".format( ' '.join([ maker.name() for maker in makers ]) ))
     return makers
 
