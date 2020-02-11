@@ -17,7 +17,7 @@
 
 namespace MuonGM {
 
-  class DetectorElement {
+  class ATLAS_NOT_THREAD_SAFE DetectorElement {
   public:
     std::string name;
     std::string logVolName;
@@ -40,19 +40,25 @@ namespace MuonGM {
     virtual ~DetectorElement() {}
 
     // Static
+
+    //!
+    //! Set Material Manager for all childs of this class
+    //! MUST BE CALLED BEFORE ANY THREADS TRY TO CALL @ref getMaterialManager
+    //!
     static void setMaterialManager(const AbsMaterialManager & matMan) {
-      std::lock_guard<std::mutex> lock(s_mutex);
       s_matManager = &matMan;
     }
 
     static const AbsMaterialManager * getMaterialManager() {
-      std::lock_guard<std::mutex> lock(s_mutex);
       return s_matManager;
     }
 
   private:
+    //!
+    //! Actually, it haves thread-safe access only when @ref getMaterialManager
+    //! is called before any @ref getMaterialManager.
+    //!
     static const AbsMaterialManager *s_matManager ATLAS_THREAD_SAFE;
-    static std::mutex s_mutex;
 
   }; // class DetectorElement
 

@@ -7,6 +7,5 @@
 namespace MuonGM {
 
   const AbsMaterialManager * DetectorElement::s_matManager = nullptr;
-  std::mutex DetectorElement::s_mutex;
 
 } // namespace MuonGM
