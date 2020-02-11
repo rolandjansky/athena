@@ -60,34 +60,34 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   // prepare HLT clusters
   std::vector<clus_kin> vec_hlt_clusters;
   for (const auto& hlt_cluster : *hltCluster_readHandle) {
-    auto hlt_clus_et = hlt_cluster->et();
-  	if (hlt_clus_et < m_HLT_min_et) continue;
+	auto hlt_clus_et = hlt_cluster->et();
+	if (hlt_clus_et < m_HLT_min_et) continue;
 
-	  bool HLT_type_match = false;
+	bool HLT_type_match = false;
 
-  	for (unsigned int n = 0; n < m_HLT_types.size(); ++n) {
-	  	if(hlt_cluster->clusterSize() == m_HLT_types[n]) { HLT_type_match = true; break; }
-	  }
+	for (unsigned int n = 0; n < m_HLT_types.size(); ++n) {
+		if (hlt_cluster->clusterSize() == m_HLT_types[n]) { HLT_type_match = true; break; }
+	}
 
-  	if (!m_HLT_types.empty() && !HLT_type_match) continue;
-    vec_hlt_clusters.push_back({hlt_clus_et, hlt_cluster->eta(), hlt_cluster->phi(), hlt_cluster});
+	if (!m_HLT_types.empty() && !HLT_type_match) continue;
+	vec_hlt_clusters.push_back({hlt_clus_et, hlt_cluster->eta(), hlt_cluster->phi(), hlt_cluster});
   }
 
   // prepare OFF clusters
   std::vector<clus_kin> vec_off_clusters;
   for (const auto& off_cluster : *offCluster_readHandle) {
-    auto off_clus_et = off_cluster->et();
-		if (off_clus_et < m_OFF_min_et) continue;
+	auto off_clus_et = off_cluster->et();
+	if (off_clus_et < m_OFF_min_et) continue;
 
-		bool OFF_type_match = false;
+	bool OFF_type_match = false;
 
-		for (unsigned int n = 0; n < m_OFF_types.size(); ++n) {
-			if(off_cluster->clusterSize() == m_OFF_types[n]) { OFF_type_match = true; break; }
-		}
-
-		if (!m_OFF_types.empty() && !OFF_type_match) continue;
-    vec_off_clusters.push_back({off_clus_et, off_cluster->eta(), off_cluster->phi(), off_cluster});
+	for (unsigned int n = 0; n < m_OFF_types.size(); ++n) {
+		if (off_cluster->clusterSize() == m_OFF_types[n]) { OFF_type_match = true; break; }
 	}
+
+	if (!m_OFF_types.empty() && !OFF_type_match) continue;
+	vec_off_clusters.push_back({off_clus_et, off_cluster->eta(), off_cluster->phi(), off_cluster});
+  }
 
   
   //////////////////
@@ -147,17 +147,15 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 	vec_hlt_time.push_back(hlt_cluster.parent->time());
 	if (hlt_cluster.parent->isAvailable<int>("nCells")) {
 		vec_hlt_size.push_back(hlt_cluster.parent->auxdata<int>("nCells"));
-	} else {
-    vec_hlt_size.push_back(0);
-  }
+	}
+	else vec_hlt_size.push_back(0);
 
 	// high-ET clusters
 	if (hlt_cluster.et > m_HLT_high_et && fabs(hlt_cluster.eta) < 1.4) {
 		++n_hlt_barrel_high_et_clusters;
-    vec_hlt_barrel_high_et.push_back(1);
-	} else {
-    vec_hlt_barrel_high_et.push_back(0);
-  }
+		vec_hlt_barrel_high_et.push_back(1);
+	}
+	else vec_hlt_barrel_high_et.push_back(0);
 
 	// matching HLT clusters to OFF clusters
 
@@ -183,13 +181,13 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 
 		vec_off_match_et.push_back(0.);
 
-    vec_hlt_vs_off_resolution.push_back(0.);
-    vec_hlt_vs_off_delta_eta.push_back(0.);
-    vec_hlt_vs_off_delta_phi.push_back(0.);
-    vec_hlt_vs_off_delta_time.push_back(0.);
+		vec_hlt_vs_off_resolution.push_back(0.);
+		vec_hlt_vs_off_delta_eta.push_back(0.);
+		vec_hlt_vs_off_delta_phi.push_back(0.);
+		vec_hlt_vs_off_delta_time.push_back(0.);
 
-    vec_hlt_no_off_match.push_back(1);
-    vec_hlt_with_off_match.push_back(0);
+		vec_hlt_no_off_match.push_back(1);
+		vec_hlt_with_off_match.push_back(0);
 	}
 
 	// With OFF match
@@ -204,9 +202,9 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 		vec_hlt_vs_off_delta_phi.push_back(calculateDeltaPhi(off_match->phi, hlt_cluster.phi));
 		vec_hlt_vs_off_delta_time.push_back(off_match->parent->time() - hlt_cluster.parent->time());
 
-    vec_hlt_no_off_match.push_back(0);
-    vec_hlt_with_off_match.push_back(1);
-  }
+		vec_hlt_no_off_match.push_back(0);
+		vec_hlt_with_off_match.push_back(1);
+	}
 
   } // End loop over HLT clusters
 
@@ -290,15 +288,15 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 
 		++n_off_clusters_no_match;
 
-    vec_hlt_match_et.push_back(0.);
+		vec_hlt_match_et.push_back(0.);
 
-    vec_off_vs_hlt_resolution.push_back(0.);
-    vec_off_vs_hlt_delta_eta.push_back(0.);
-    vec_off_vs_hlt_delta_phi.push_back(0.);
-    vec_off_vs_hlt_delta_time.push_back(0.);
+		vec_off_vs_hlt_resolution.push_back(0.);
+		vec_off_vs_hlt_delta_eta.push_back(0.);
+		vec_off_vs_hlt_delta_phi.push_back(0.);
+		vec_off_vs_hlt_delta_time.push_back(0.);
 
-    vec_off_no_hlt_match.push_back(1);
-    vec_off_with_hlt_match.push_back(0);
+		vec_off_no_hlt_match.push_back(1);
+		vec_off_with_hlt_match.push_back(0);
 	}
 	// With HLT match
 	else {
@@ -312,8 +310,8 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 		vec_off_vs_hlt_delta_phi.push_back(calculateDeltaPhi(off_cluster.phi, hlt_match->phi));
 		vec_off_vs_hlt_delta_time.push_back(off_cluster.parent->time() - hlt_match->parent->time());
 
-    vec_off_no_hlt_match.push_back(0);
-    vec_off_with_hlt_match.push_back(1);
+		vec_off_no_hlt_match.push_back(0);
+		vec_off_with_hlt_match.push_back(1);
 	}
 
   } // End loop over OFF clusters
@@ -328,29 +326,24 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   // Fill everything
   fill(m_mongroup_name, 
 	// HLT clusters
-	HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_time, HLT_type, HLT_size, 
-  HLT_barrel_high_et_num, 
+	HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_time, HLT_type, HLT_size, HLT_barrel_high_et_num, 
 
-  // HLT cutmasks
-  HLT_barrel_high_et, HLT_no_OFF_match, HLT_with_OFF_match,
+	// HLT cutmasks
+	HLT_barrel_high_et, HLT_no_OFF_match, HLT_with_OFF_match,
 
 	// OFF clusters
 	OFF_num, OFF_et, OFF_eta, OFF_phi, OFF_time, OFF_type,
 
-  // OFF cutmasks
-  OFF_no_HLT_match, OFF_with_HLT_match,
+	// OFF cutmasks
+	OFF_no_HLT_match, OFF_with_HLT_match,
 
 	// HLT matched to OFF
-	HLT_matched_fraction, HLT_no_OFF_match_num, HLT_vs_OFF_minimum_delta_r, 
-  HLT_with_OFF_match_num, 
-  OFF_match_et, 
-  HLT_vs_OFF_resolution, HLT_vs_OFF_delta_eta, HLT_vs_OFF_delta_phi, HLT_vs_OFF_delta_time,
+	HLT_matched_fraction, HLT_no_OFF_match_num, HLT_vs_OFF_minimum_delta_r, HLT_with_OFF_match_num, 
+	OFF_match_et, HLT_vs_OFF_resolution, HLT_vs_OFF_delta_eta, HLT_vs_OFF_delta_phi, HLT_vs_OFF_delta_time,
 
 	// OFF matched to HLT
-	OFF_matched_fraction, OFF_no_HLT_match_num, OFF_vs_HLT_minimum_delta_r, 
-  OFF_with_HLT_match_num, 
-  HLT_match_et, 
-  OFF_vs_HLT_resolution, OFF_vs_HLT_delta_eta, OFF_vs_HLT_delta_phi, OFF_vs_HLT_delta_time
+	OFF_matched_fraction, OFF_no_HLT_match_num, OFF_vs_HLT_minimum_delta_r, OFF_with_HLT_match_num, 
+	HLT_match_et, OFF_vs_HLT_resolution, OFF_vs_HLT_delta_eta, OFF_vs_HLT_delta_phi, OFF_vs_HLT_delta_time
   );
 
   return StatusCode::SUCCESS;
