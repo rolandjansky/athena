@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -28,6 +28,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -47,6 +49,7 @@ class PerigeeSurface;
 class TrackingVolume;
 class TrackStateOnSurface;
 class Volume;    
+class IExtendedTrackSummaryTool;
     
 /** Main Fitter tool providing the implementation for the different
  *  fitting, extension and refitting use cases.
@@ -210,6 +213,7 @@ private:
     ToolHandle<IPropagator>				m_stepPropagator;
     ToolHandle<IIntersector>				m_straightLineIntersector;
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
+    ToolHandle<Trk::IExtendedTrackSummaryTool>          m_trackSummaryTool;
 
     // configurable tolerances, warnings
     Gaudi::Property<double> m_orderingTolerance {this, "OrderingTolerance", 1. * Gaudi::Units::mm};
