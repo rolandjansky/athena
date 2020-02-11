@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Csc2dSegmentMaker.h"
-#include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include <sstream>
 #include <cmath>
 
@@ -15,7 +14,6 @@
 
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrkEventPrimitives/FitQuality.h"
@@ -24,8 +22,6 @@
 
 #include "TrkSegment/Segment.h"
 #include "TrkRoad/TrackRoad.h"
-
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h" 
 
 #include "MuonCondInterface/ICSCConditionsSvc.h"
 
@@ -43,12 +39,6 @@ using Muon::MuonClusterOnTrack;
 using Muon::MdtDriftCircleOnTrack;
 
 namespace {
-
-/*std::string station_name(int station) {
-  if ( station == 1 ) return "CSS";
-  if ( station == 2 ) return "CSL";
-  return "UNKNOWN_STATION";
-}*/
 
 std::string measphi_name(bool measphi) {
   if ( measphi ) return "phi";
@@ -77,23 +67,12 @@ Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInte
   : AthAlgTool(type, aname, parent),
     m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool", this),
     m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-    //m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", aname)
-    //m_cscCondSvc("CSCCondSummarySvc",name())
 {
   declareInterface<ICscSegmentFinder>(this);
   declareProperty("segmentTool", m_segmentTool);
   declareProperty("cscRotCreator", m_cscClusterOnTrackCreator);
-  declareProperty("IdHelper", m_idHelper);
   declareProperty("cscdig_sg_inkey", m_cscdig_sg_inkey = "CSC_Measurements");
-}
-
-//******************************************************************************
-
-// Destructor.
-
-Csc2dSegmentMaker::~Csc2dSegmentMaker() {
 }
 
 //******************************************************************************
@@ -115,22 +94,7 @@ StatusCode Csc2dSegmentMaker::initialize(){
     ATH_MSG_ERROR ( "Unable to retrieve  " << m_cscClusterOnTrackCreator );
     return StatusCode::FAILURE;
   }
-  if ( m_idHelper.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Unable to retrieve CscSegmentUtilTool " << m_idHelper );
-    return StatusCode::FAILURE;
-  }  
-  /*
-  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
-    return StatusCode::FAILURE;
-  }
-  */
-  /*
-  if (m_cscCondSvc.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not get ICSConditionsSvc");
-    return StatusCode::FAILURE;
-  }
-  */
+
   return StatusCode::SUCCESS;
 }
 
@@ -255,16 +219,6 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       return 0;
     }
 
-//     // create CscClusterOnTrack and pass to segment finder.
-//     Trk::LocalPosition lpos = pclu->localPosition();
-
-//     Trk::DefinedParameter  locPar(lpos.x(),Trk::locX);
-//     Trk::LocalParameters*  ppars = new Trk::LocalParameters(locPar); 
-//     Trk::ErrorMatrix* pcerr = new Trk::ErrorMatrix(pclu->localErrorMatrix());
-
-    //    Trk::ParamDefs icor = Trk::loc1;
-    //    double positionAlongStrip = lpos.get(icor); // should be carefully estimated
-
     const Muon::MuonClusterOnTrack* clu = m_cscClusterOnTrackCreator->createRIO_OnTrack(*pclu,pclu->globalPosition());
     const Muon::CscClusterOnTrack* ptclu = dynamic_cast<const Muon::CscClusterOnTrack*>(clu);
     if( !ptclu ){
@@ -273,7 +227,6 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       continue;
     }
     Amg::Vector3D lpos = gToLocal*ptclu->globalPosition();
-//     std::cout << " " << m_idHelper->toString(ptclu->identify()) << " lpos " << lpos << "  locPos " << pclu->localPosition() << std::endl;
     if ( measphi ) {
       phi_id = id;
       phi_clus[iwlay-1].push_back(Cluster(lpos,ptclu,measphi));

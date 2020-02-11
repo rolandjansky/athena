@@ -26,6 +26,7 @@ StatusCode TriggerBitsMakerTool::start() {
   ATH_CHECK( hltMenuHandle.isValid() );
   ATH_MSG_INFO("Configuring from " << m_HLTMenuKey << " with " << hltMenuHandle->size() << " chains");
 
+  m_mapping.clear();
   m_largestBit = 0;
   for (const TrigConf::Chain& ch : *hltMenuHandle) {
     ATH_MSG_DEBUG( "Chain " << ch.name() << " will flip " << ch.counter() <<  " bit" );

@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -36,7 +38,7 @@ if not 'CaliWaveLArCalibFolderTag' in dir():
    CaliWaveLArCalibFolderTag = LArCalib_Flags.tagSuffix   
 
 if not 'InputCaliWavePoolDir' in dir():
-   InputCaliWavePoolDir = commands.getoutput("pwd")
+   InputCaliWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliWavePoolFileName' in dir():
    InputCaliWavePoolFileName = "LArCaliWave.pool.root"
@@ -136,13 +138,13 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
 
 if not 'OutputPhysWaveRootFileDir' in dir():
-    OutputPhysWaveRootFileDir= commands.getoutput("pwd")
+    OutputPhysWaveRootFileDir= subprocess.getoutput("pwd")
     
 if not 'OutputPhysWavePoolFileDir' in dir():
-    OutputPhysWavePoolFileDir= commands.getoutput("pwd")
+    OutputPhysWavePoolFileDir= subprocess.getoutput("pwd")
 
 if not 'OutputMphysOverMcalPoolFileDir' in dir():
-    OutputMphysOverMcalPoolFileDir= commands.getoutput("pwd")    
+    OutputMphysOverMcalPoolFileDir= subprocess.getoutput("pwd")    
 
 PhysWaveFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 
@@ -256,7 +258,7 @@ else:
    if 'InputCaliWavePoolFileName' in dir():
       PoolFileList += [ InputCaliWavePoolDir+"/"+InputCaliWavePoolFileName ]
    else:
-      print "No PoolFileList found! Please list the POOL files containing CaliWave or read from COOL."
+      printfunc ("No PoolFileList found! Please list the POOL files containing CaliWave or read from COOL.")
       theApp.exit(-1)
 
 if ( len(PoolFileList)>0 ):

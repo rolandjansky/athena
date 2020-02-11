@@ -17,7 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetCondTools
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry )
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry )
 
 # External dependencies:
 find_package( CLHEP )
@@ -28,7 +29,7 @@ atlas_add_component( InDetDetDescrExample
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondTools InDetIdentifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondTools InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry)
 
 # Install files from the package:
 atlas_install_headers( InDetDetDescrExample )

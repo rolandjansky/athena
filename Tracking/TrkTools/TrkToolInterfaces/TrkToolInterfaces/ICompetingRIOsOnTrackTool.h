@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ inline const Trk::CompetingRIOsOnTrack* Trk::ICompetingRIOsOnTrackTool::createSi
   const Trk::TrackState::MeasurementType) const
 {
   std::cout << "CONFIGURATION WARNING: dummy version of single-hit CompetingRIOsOnTrack maker called." << std::endl;
-  return 0;
+  return nullptr;
 }
 
 inline void Trk::ICompetingRIOsOnTrackTool::reequipCompetingROT
@@ -123,7 +123,6 @@ inline void Trk::ICompetingRIOsOnTrackTool::reequipCompetingROT
   const Trk::TrackState::MeasurementType) const
 {
   std::cout << "CONFIGURATION WARNING: dummy version of single-hit CompROT re-equipping called." << std::endl;
-  return;
 }
 
 

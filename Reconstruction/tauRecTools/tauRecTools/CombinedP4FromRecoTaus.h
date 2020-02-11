@@ -5,10 +5,6 @@
 #ifndef TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
 #define TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
 
-//STL include(s)
-//#include <memory>
-//#include <map>
-
 //Root include(s)
 #include "TH1F.h"
 #include "TFile.h"
@@ -74,10 +70,6 @@ class CombinedP4FromRecoTaus
   StatusCode execute(xAOD::TauJet& xTau) override; 
 
  private:
-  /*std::vector< std::vector<TH1F*> >  m_resHists_tauRec;
-  std::vector< std::vector<TH1F*> >  m_resHists_CellBased2PanTau;
-  std::vector< std::vector<TH1F*> >  m_meanHists_CellBased2PanTau;
-  std::vector< std::vector<TH1F*> >  m_meanHists_tauRec;*/
   std::vector< std::vector<TGraph*> >  m_resTGraph_tauRec;
   std::vector< std::vector<TGraph*> >  m_resTGraph_CellBased2PanTau;
   std::vector< std::vector<TGraph*> >  m_meanTGraph_CellBased2PanTau;

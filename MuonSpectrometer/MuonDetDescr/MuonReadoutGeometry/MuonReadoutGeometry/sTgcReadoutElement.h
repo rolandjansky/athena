@@ -20,6 +20,7 @@
 
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
+class BLinePar;
 
 namespace Trk{
   class PlaneSurface;
@@ -147,7 +148,12 @@ namespace MuonGM {
     inline double getALine_rotz() const;
     inline double getALine_rott() const;
     inline bool has_ALines() const;
+    inline bool has_BLines() const;
     void setDelta(double, double, double, double, double, double);
+    void setBLinePar(BLinePar* bLine) const;
+    inline void clearBLinePar() const;
+    void clearBLineCache() const;
+    void fillBLineCache() const;
 
   private:
 
@@ -169,6 +175,7 @@ namespace MuonGM {
     double m_rott;
 
     bool m_hasALines;
+    bool m_hasBLines;
 
     HepGeom::Transform3D* m_delta;
 
@@ -184,9 +191,14 @@ namespace MuonGM {
     std::vector<double> m_PadminHalfY;
     std::vector<double> m_PadmaxHalfY;
 
+    mutable BLinePar* m_BLinePar;
+
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
+
+  void sTgcReadoutElement::clearBLinePar() const
+  { m_BLinePar = 0;}
 
   double sTgcReadoutElement::getALine_rots() const
   { return m_rots;}
@@ -199,6 +211,9 @@ namespace MuonGM {
 
   bool sTgcReadoutElement::has_ALines() const 
   { return m_hasALines;}
+
+  bool sTgcReadoutElement::has_BLines() const
+  { return m_hasBLines;}
 
   inline int sTgcReadoutElement::surfaceHash( const Identifier& id ) const {
     return surfaceHash(manager()->stgcIdHelper()->gasGap(id),manager()->stgcIdHelper()->channelType(id));

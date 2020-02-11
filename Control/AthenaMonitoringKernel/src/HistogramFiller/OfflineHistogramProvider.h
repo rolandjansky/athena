@@ -124,7 +124,9 @@ namespace Monitored {
         std::string interval;
         std::string conv = m_histDef->convention;
         char triggerData[] = "<none>";
-        char mergeData[] = "<default>";
+        const std::string mergeDataStr = m_histDef->merge == "" ? "<default>" : m_histDef->merge;
+        std::vector<char> mergeData{mergeDataStr.begin(), mergeDataStr.end()};
+        mergeData.push_back('\0');
         if (conv.find("run") != std::string::npos) {
           interval = "run";
         } else if (conv.find("lowStat") != std::string::npos) {
@@ -138,7 +140,7 @@ namespace Monitored {
           tree->Branch("Name", &(splitPath.second[0]), "Name/C");
           tree->Branch("Interval", &(interval[0]), "Interval/C");
           tree->Branch("TriggerChain", triggerData, "TriggerChain/C");
-          tree->Branch("MergeMethod", mergeData, "MergeMethod/C");
+          tree->Branch("MergeMethod", mergeData.data(), "MergeMethod/C");
           tree->Fill();
 
           if (!histSvc->regTree(treePath, std::move(tree))) {
@@ -152,7 +154,7 @@ namespace Monitored {
             tree->SetBranchAddress("Name", &(splitPath.second[0]));
             tree->SetBranchAddress("Interval", &(interval[0]));
             tree->SetBranchAddress("TriggerChain", triggerData);
-            tree->SetBranchAddress("MergeMethod", mergeData);
+            tree->SetBranchAddress("MergeMethod", mergeData.data());
             tree->Fill();
           } else {
             MsgStream log(Athena::getMessageSvc(), "OfflineHistogramProvider");

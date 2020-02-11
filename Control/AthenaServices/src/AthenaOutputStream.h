@@ -76,7 +76,7 @@ protected:
    ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
   
    /// Vector of item names
-   StringArrayProperty      m_itemList;
+  StringArrayProperty      m_itemList{this,"ItemList",{},"List of items to write","Set<std::string>"};
    /// Vector of item names
    StringArrayProperty      m_metadataItemList;
    /// Vector of item names

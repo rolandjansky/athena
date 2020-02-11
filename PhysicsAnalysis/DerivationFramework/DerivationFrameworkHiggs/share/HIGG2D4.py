@@ -38,7 +38,7 @@ HIGG2D4ThinningHelper.AppendToStream(HIGG2D4Stream)
 # thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 # HIGG2D4TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D4TPThinningTool",
-#                                                                    ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
+#                                                                    StreamName             = streamName,
 #                                                                    SelectionString        = thinning_expression,
 #                                                                    InDetTrackParticlesKey = "InDetTrackParticles",
 #                                                                    ApplyAnd               = True)
@@ -48,14 +48,14 @@ HIGG2D4ThinningHelper.AppendToStream(HIGG2D4Stream)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG2D4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D4JetTPThinningTool",
-                                                                         ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          JetKey                 = "AntiKt4LCTopoJets",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D4JetTPThinningTool
 thinningTools.append(HIGG2D4JetTPThinningTool)
 
 HIGG2D4JetTPThinningTool2 = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D4JetTPThinningTool2",
-                                                                          ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           JetKey                 = "AntiKt4EMTopoJets",
                                                                           InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D4JetTPThinningTool2

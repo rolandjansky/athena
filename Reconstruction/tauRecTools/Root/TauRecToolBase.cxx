@@ -150,38 +150,46 @@ StatusCode TauRecToolBase::eventInitialize(){
 
 //________________________________________
 StatusCode TauRecToolBase::execute(xAOD::TauJet&){
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloClusterContainer& /*shotClusterContainer*/, xAOD::PFOContainer& /*PFOContainer*/ ) {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 StatusCode TauRecToolBase::executePi0ClusterCreator(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, 
 					      xAOD::PFOContainer& /*hadronicPFOContainer*/, 
 					      xAOD::CaloClusterContainer& /*caloClusterContainer*/, 
 					      const xAOD::CaloClusterContainer& /*pCaloClusterContainer*/ ) {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 StatusCode TauRecToolBase::executeVertexVariables(xAOD::TauJet& /*pTau*/, xAOD::VertexContainer& /*vertexContainer*/ ) {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 StatusCode TauRecToolBase::executePi0ClusterScaler(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, xAOD::PFOContainer& /*chargedPFOContainer*/ ) {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 } 
 
 StatusCode TauRecToolBase::executePi0nPFO(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/) {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 StatusCode TauRecToolBase::executePanTau(xAOD::TauJet& /*pTau*/, xAOD::ParticleContainer& /*particleContainer*/) {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 //________________________________________

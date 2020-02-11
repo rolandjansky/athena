@@ -6,7 +6,7 @@
 #include "AthenaBaseComps/AthService.h" 
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetTestPixelLayer/InDetTestPixelLayerTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"

@@ -180,6 +180,9 @@
 + InnerDetector/InDetDetDescr/InDetIdDictFiles
 + InnerDetector/InDetDetDescr/InDetIdentifier
 + InnerDetector/InDetDetDescr/InDetReadoutGeometry
++ InnerDetector/InDetDetDescr/PixelReadoutGeometry
++ InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
++ InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
 + InnerDetector/InDetDetDescr/InDetServMatGeoModel
 + InnerDetector/InDetDetDescr/PixelGeoModel
 + InnerDetector/InDetDetDescr/SCT_GeoModel

@@ -116,7 +116,7 @@ StatusCode Trk::DistributedKalmanFilter::finalize()
 
 
 // helper operator for STL min_element
-struct minTrkPar : public std::binary_function<const Trk::TrackParameters*, const Trk::TrackParameters*, bool> {
+struct minTrkPar {
     bool operator() (const Trk::TrackParameters* one, const Trk::TrackParameters* two) const {
         return (one->position().mag() < two->position().mag());
     };

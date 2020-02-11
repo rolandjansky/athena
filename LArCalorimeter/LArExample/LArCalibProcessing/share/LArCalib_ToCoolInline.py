@@ -41,7 +41,7 @@ outputDB="sqlite://;schema="+sqliteOut+";dbname="+dbname
 #folderInfo=extractFolderInfo(inputDB)
 
 if os.access(sqliteOut,os.F_OK):
-  print "File",sqliteOut,"exists already, removing ...."
+  printfunc ("File",sqliteOut,"exists already, removing ....")
   os.remove(sqliteOut)
 
 

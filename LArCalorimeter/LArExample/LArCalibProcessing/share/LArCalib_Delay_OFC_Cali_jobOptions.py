@@ -6,7 +6,9 @@
 # - usePatt - if <0 all patterns, if <0,15> or <0,13> if EMEC, fill only those pattern
 # - numPatt - either 16 for EMB or 14 for EMEC (with standard configuration)
 
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -218,14 +220,14 @@ if not 'ReadPedFromCOOL' in dir():
    ReadPedFromCOOL = True
    
 if not 'InputPedPoolFileDir' in dir():
-   InputPedPoolFileDir  = commands.getoutput("pwd")
+   InputPedPoolFileDir  = subprocess.getoutput("pwd")
    
 ## AutoCorr
 if not 'ReadAutoCorrFromCOOL' in dir():
    ReadAutoCorrFromCOOL = True 
 
 if not 'InputAutoCorrPoolDir' in dir():
-   InputAutoCorrPoolDir = commands.getoutput("pwd")
+   InputAutoCorrPoolDir = subprocess.getoutput("pwd")
 
 ## Output
 if 'dbname' in dir():
@@ -249,10 +251,10 @@ if doOFC and not 'LArCalibOFCFolderOutputTag' in dir():
 del rs #Close database
    
 if not 'OutputRootFileDir' in dir():
-   OutputRootFileDir  = commands.getoutput("pwd")
+   OutputRootFileDir  = subprocess.getoutput("pwd")
    
 if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir  = commands.getoutput("pwd")
+   OutputPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
@@ -600,7 +602,7 @@ except:
 #except:
 #   iovtemp=1283145454
 
-#print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
+#printfunc ("Setting timestamp for run ",RunNumberList[0]," to ",iovtemp)
 #svcMgr.IOVDbSvc.forceTimestamp = 1283145454
 #svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 

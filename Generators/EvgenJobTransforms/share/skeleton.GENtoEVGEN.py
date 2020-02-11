@@ -574,7 +574,7 @@ from PyJobTransformsCore.runargs import RunArguments
 runPars = RunArguments()
 runPars.minevents = evgenConfig.minevents
 runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
-with open("config.pickle", 'w') as f:
+with open("config.pickle", 'wb') as f:
     import pickle
     pickle.dump(runPars, f)
 

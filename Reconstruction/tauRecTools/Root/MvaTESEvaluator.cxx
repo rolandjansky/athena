@@ -181,6 +181,8 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     // apply MVA calibration
     xTau.setP4(ptMVA, m_etaDetectorAxis, xTau.phiDetectorAxis(), 0);
   }
+  
+  ATH_MSG_DEBUG("final calib:" << xTau.pt() << " " << xTau.eta() << " " << xTau.phi() << " " << xTau.e());
 
   return StatusCode::SUCCESS;
 }

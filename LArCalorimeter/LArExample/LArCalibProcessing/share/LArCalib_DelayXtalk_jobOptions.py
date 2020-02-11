@@ -1,4 +1,7 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
+
 
 ###########################################################################
 #
@@ -180,7 +183,7 @@ if not 'PedRunNumber' in dir():
    PedRunNumber = "1005020_1005021_1005022"
    
 if not 'InputPedPoolFileDir' in dir():
-   InputPedPoolFileDir  = commands.getoutput("pwd")
+   InputPedPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputPedPoolFileName' in dir():
    InputPedPoolFileName = "LArPedestal_" + str(PedRunNumber)+"_"+Partition.replace("*","") + ".pool.root"
@@ -191,10 +194,10 @@ if not 'LArCalibFolderOutputTag' in dir():
    LArCalibFolderOutputTag = LArCalib_Flags.tagSuffix    
    
 if not 'OutputCaliWaveRootFileDir' in dir():
-   OutputCaliWaveRootFileDir  = commands.getoutput("pwd")
+   OutputCaliWaveRootFileDir  = subprocess.getoutput("pwd")
    
 if not 'OutputCaliWavePoolFileDir' in dir():
-   OutputCaliWavePoolFileDir  = commands.getoutput("pwd")
+   OutputCaliWavePoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
@@ -354,7 +357,7 @@ if ( len(PoolFileList)>0 ):
 
 PartitionPulsed = SubDet + Side    # Partition should be BarrelA or BarrelC or EndcapA or EndcapC
 if not (PartitionPulsed=="BarrelA" or PartitionPulsed=="BarrelC" or PartitionPulsed=="EndcapA" or PartitionPulsed=="EndcapC"):
-   print "[Xtalk JobOptions] Error: PartitionPulsed="+PartitionPulsed+". It should be BarrelA or BarrelC or EndcapA or EndcapC"
+   printfunc ("[Xtalk JobOptions] Error: PartitionPulsed="+PartitionPulsed+". It should be BarrelA or BarrelC or EndcapA or EndcapC")
    theApp.exit(-1)
 
 from LArCalibUtils.LArCalibUtilsConf import LArCaliWaveBuilderXtalk
@@ -374,7 +377,7 @@ LArCaliWaveBuilderXtalk.FeedthroughPul  = FeedthroughPul	# Used to check calibra
 LArCaliWaveBuilderXtalk.CutOnSample     = CutOnSample   	# Cut on the number of read samples (usualy 32) to save memory
 
 if 'Ramp' in FullFileName:                                      # for ramp runs : only one step (ie. no delay)
-   print "[Xtalk JobOptions] Ramp run detected: set LArCaliWaveBuilderXtalk.NSteps to 1"
+   printfunc ("[Xtalk JobOptions] Ramp run detected: set LArCaliWaveBuilderXtalk.NSteps to 1")
    LArCaliWaveBuilderXtalk.NSteps       = 1
 
 topSequence+=LArCaliWaveBuilderXtalk

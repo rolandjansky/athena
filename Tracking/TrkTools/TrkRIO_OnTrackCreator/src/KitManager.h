@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef _KitManager_H_
 #define _KitManager_H_
@@ -17,7 +17,7 @@ protected:
 
   const void *kitPtr(const std::string &name) const;
 
-  bool registerKit(std::string name, const void *a_kit);
+  bool registerKit(const std::string& name, const void *a_kit);
 
   std::map<std::string, const void * > m_registry;
 public:
@@ -36,7 +36,7 @@ public:
     }
   }
 
-  bool registerKit(std::string name, const T_KitInterface *a_kit) {
+  bool registerKit(const std::string& name, const T_KitInterface *a_kit) {
     return KitManagerBase::registerKit(name, static_cast< const void *>(a_kit));
   }
 
