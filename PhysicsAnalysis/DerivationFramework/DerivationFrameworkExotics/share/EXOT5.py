@@ -83,7 +83,7 @@ thinningTools.append(EXOT5TauTPThinningTool)
 # Keep tracks associated with jets
 #EXOT5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
     #name                    = 'EXOT5JetTPThinningTool',
-    #StreamName              = streamName,
+    #StreamName              = stream_name,
     #JetKey                  = 'AntiKt4EMTopoJets',
     #InDetTrackParticlesKey  = 'InDetTrackParticles',
     #SelectionString         = 'AntiKt4EMTopoJets.pt > 20*GeV')
@@ -93,7 +93,7 @@ thinningTools.append(EXOT5TauTPThinningTool)
 # Keep tracks with pT > 10 GeV for isolated track veto
 EXOT5TPThinningTool = DerivationFramework__TrackParticleThinning(
     name                    = 'EXOT5TPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SelectionString         = 'InDetTrackParticles.pt > 10*GeV',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
 ToolSvc += EXOT5TPThinningTool

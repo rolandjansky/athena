@@ -41,7 +41,7 @@ EXOT10ThinningHelper.AppendToStream( EXOT10Stream )
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 EXOT10TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT10TPThinningTool",
-								 ThinningService	 = EXOT10ThinningHelper.ThinningSvc(),
+                                                                 StreamName              = streamName,
 								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
 								 InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT10TPThinningTool
