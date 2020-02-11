@@ -181,7 +181,7 @@ class LumiCalibrator:
         self.oldCurrentA = self.currentA
         self.oldCurrentC = self.currentC
         
-        if currPayload == None:
+        if currPayload is None:
             self.currentA = -1.
             self.currentC = -1.
         else:
@@ -431,7 +431,7 @@ class LumiCalibrator:
         try:
             cal = -invEff*math.log(1.-rawLumi)
             
-        except:
+        except Exception:
             cal = 0.
             self.rflag = 1
             # Don't print for simple saturation
@@ -460,7 +460,7 @@ class LumiCalibrator:
         try:
             cal = -invEff*math.log(1.-rawLumi/channels)/(1-offset)
             
-        except:
+        except Exception:
             cal = 0.
             self.rflag = 1
             print('LumiCalibrator.calibHitLogarithm(%f) - Unphysical input!' % rawLumi)
@@ -685,15 +685,15 @@ class LumiCalibrator:
         return muvm
     
     def rpbxFull(self, ra, rc, sr, muvis):
-        return 1 - math.exp(-ra*muvis) - mathexp(-rc*muvis) + math.exp(-sr*muvis)
+        return 1 - math.exp(-ra*muvis) - math.exp(-rc*muvis) + math.exp(-sr*muvis)
 
     # LookupTablePoisson_Lin':
     def calibLookupTablePoisson(self, rawLumi):
 
         offset = self.parVec[0]
         maxRawLumiperBX = self.parVec[1]
-        mu_max = self.parVec[2]
-        points = self.parVec[3]
+        #mu_max = self.parVec[2]
+        #points = self.parVec[3]
         nRefs = int(self.parVec[4])
         ref = self.parVec[5:]
 
@@ -749,8 +749,8 @@ class LumiCalibrator:
 
         offset = self.parVec[0]
         maxRawLumiperBX = self.parVec[1]
-        mu_max = self.parVec[2]
-        points = self.parVec[3]
+        #mu_max = self.parVec[2]
+        #points = self.parVec[3]
         nRefs = int(self.parVec[4])
         ref = self.parVec[5:]
 

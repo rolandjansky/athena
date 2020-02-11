@@ -29,7 +29,7 @@ class LumiGRLParser:
         # Dictionary keyed by runnum containing a list of IOV ranges
         self.iovDict = dict()
         
-        if grlfile != None:
+        if grlfile is not None:
             self.parseFile(grlfile)
 
 
@@ -103,7 +103,7 @@ class LumiGRLParser:
             return False
 
         # More than one range found
-        if self.lumiRangeName == None:
+        if self.lumiRangeName is None:
             print('LumiGRLParser.selectRange() - %d NamedLumiRange objects found, but no lumiRangeName specified!' % len(lumiRangeList))
             return False
         

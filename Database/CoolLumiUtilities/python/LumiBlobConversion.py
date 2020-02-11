@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
+from builtins import range
 import sys
 import array
 import struct
@@ -57,12 +58,12 @@ def unpackBunchGroup(blob, bgrp=1):
     mask = (1 << int(bgrp))
     
     ivallist = bConvertList(blobCopy, 1, 3564)
-    for i in xrange(3564):
+    for i in range(3564):
         if ivallist[i] & mask:
             physBG.append(i)
 
 #     blobCounter = 0
-#     for i in xrange(3564):
+#     for i in range(3564):
 #         try:
 #             b = blobCopy[blobCounter:blobCounter+1]
 #             blobCounter += 1
@@ -91,7 +92,7 @@ def unpackBunchGroupList(blob, bgrp=[1]):
         physBG[id] = []
         
     ivallist = bConvertList(blobCopy, 1, 3564)
-    for i in xrange(3564):
+    for i in range(3564):
         for id in bgrp:
             if ivallist[i] & mask[id]:
                 physBG[id].append(i)
@@ -151,19 +152,19 @@ def unpackRun1BCIDMask(blob,nb1,nb2,nlumi):
     #coll = list(struct.unpack(unpackfmt, blobCopy[2*(nb1+nb2):2*(nb1+nb2+nlumi)]))
                  
 #    blobCounter = 0
-#     for i in xrange(nb1):
+#     for i in range(nb1):
 #         b = blobCopy[blobCounter:blobCounter+2]
 #         blobCounter += 2
 #         val=struct.unpack('H', b)
 #         beam1.append(val)
         
-#     for i in xrange(nb2):
+#     for i in range(nb2):
 #         b = blobCopy[blobCounter:blobCounter+2]
 #         blobCounter += 2
 #         val=struct.unpack('H', b)
 #         beam2.append(val)
 
-#     for i in xrange(nlumi):
+#     for i in range(nlumi):
 #         b = blobCopy[blobCounter:blobCounter+2]
 #         blobCounter += 2
 #         val=struct.unpack('H', b)
@@ -228,7 +229,6 @@ def unpackBunches(blob,mask=[]):
             vlen=bConvert(b, 2)
             #print 'Bunch vector has length ',vlen
             bcidVec=[]
-            fmt = '%dH' % vlen
             bcidVec = bConvertList(blobCopy[blobCounter:], 2, vlen)
             blobCounter += 2*vlen
             # for i in range(vlen):
@@ -301,7 +301,7 @@ def unpackLiveFraction(trigPayload, priority = 'high'):
     
     byte = bConvertList(blobCopy, 1, 3*3564)
     
-    for i in xrange(3564):
+    for i in range(3564):
 
         busyCounter = byte[3*i] | (byte[3*i+1] << 8) | (byte[3*i+2] << 16)
         

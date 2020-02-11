@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TriggerHandler
 #
@@ -97,7 +97,7 @@ class TriggerHandler:
 
             runnum = int(obj.payload()['Run'])
 
-            if not runnum in self.runlist:
+            if runnum not in self.runlist:
                 self.runlist.append(runnum)
                 
         # Loop over each run, getting the trigger counts/Lumi
@@ -192,7 +192,6 @@ class TriggerHandler:
         nMaxChan   = 50
         nChanBlock = 0
         chanBlock  = []
-        nChannels  = 0
 
         # Skip any trigger we didn't find
         tmpList = []
@@ -264,7 +263,7 @@ def timeVal(val):
                 ts=time.strptime(val+'/UTC', '%Y-%m-%d:%H:%M:%S/%Z')
                 return int(calendar.timegm(ts))*1000000000
             
-            except ValueError as e:
+            except ValueError:
                 print("ERROR in time specification:",val,"- use e.g. 2007-05-25:14:01:00/UTC")
                 sys.exit(-1)
                 

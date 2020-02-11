@@ -90,11 +90,11 @@ class CoolDataReader:
         self.data = []
 
         # Open the DB connection here if needed
-        if self.folder == None:
+        if self.folder is None:
             dbHandler = LumiDBHandler()
             self.folder = dbHandler.getFolder(self.dbstr, self.folderstr)
             
-            if self.folder == None:
+            if self.folder is None:
                 print("Can't access DB", self.dbstr, 'folder', self.folderstr, '!')
                 return self.data
 
@@ -154,7 +154,7 @@ class CoolDataReader:
             dbHandler.verbose = True
             self.folder = dbHandler.getFolder(self.dbstr, self.folderstr, force=True)
             
-            if self.folder == None:
+            if self.folder is None:
                 print('CoolDataReader.readData() - forced re-opening failed!')
                 return self.data
 

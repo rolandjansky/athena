@@ -679,7 +679,7 @@ class ScanNtupleHandler:
 
             # Figure out which channel
             chId = obj.channelId()
-            if not chId in self.bbbAlgDict:
+            if chId not in self.bbbAlgDict:
                 print('scanNtupleHandler.fillBunchLumi - Unknown lumi channel', chId, '!')
                 continue
 
@@ -782,7 +782,7 @@ class ScanNtupleHandler:
                 liveDict[chId] = obj.payload()['LBAvOLCInstLum']
                 continue
 
-            elif not chId in self.algDict:
+            elif chId not in self.algDict:
                 print('scanNtupleHandler.fillLumiData - Unknown lumi channel', chId, '!')
                 continue
 
@@ -856,7 +856,7 @@ class ScanNtupleHandler:
         if den > 0.:
             dest = num/den
         else:
-            dest = 0.
+            dest = 0.  # noqa: F841
 
         self.liveDataStruct.fRD0_Filled = 0.
 

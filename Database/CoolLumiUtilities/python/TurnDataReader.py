@@ -11,6 +11,7 @@
 
 from __future__ import print_function
 import re
+import sys
 
 class TurnDataReader:
 
@@ -28,7 +29,7 @@ class TurnDataReader:
     def readData(self):
 
         self.data = None
-        if self.infile == None:
+        if self.infile is None:
             print('TurnDataReader.readData() called with infile == None!')
             return self.data
 
@@ -46,10 +47,10 @@ class TurnDataReader:
         # Must parse lines looking for either LB records or algorithm type
         
         # pseudoLB record (number followed by two text records
-        matchlb = re.compile('^([0-9]+) (\S+) (\S+)$')
+        matchlb = re.compile(r'^([0-9]+) (\S+) (\S+)$')
         
         # algorithm name (only thing on the line)
-        matchalg = re.compile('^(\S+)$')
+        matchalg = re.compile(r'^(\S+)$')
 
         # Current algorithm read in file
         algId = None
@@ -76,13 +77,13 @@ class TurnDataReader:
                     turns = float(m.group(3))
 
                 # Do we have a valid algorithm?
-                if algId == None:
+                if algId is None:
                     print('TurnDataReader.readData() found data record with no algorithm defined in', self.infile)
                     print(line)
                     sys.exit()
                 
                 # save data
-                if not lb in self.data:
+                if lb not in self.data:
                     self.data[lb] = dict()
 
                 self.data[lb][algId] = (turns, counts)
@@ -97,7 +98,7 @@ class TurnDataReader:
 
                 # Decode Nitesh's into my values, just hardcode here
                 algId = m.group(1)
-                if algId == None:
+                if algId is None:
                     print('TurnDataReader.readData() found unrecognized algorithm name in', self.infile)
                     print(line)
                     sys.exit()

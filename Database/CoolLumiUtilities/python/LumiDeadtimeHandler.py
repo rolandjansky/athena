@@ -13,10 +13,9 @@
 
 # Get our global DB handler object
 from __future__ import print_function
-from CoolLumiUtilities.LumiDBHandler import LumiDBHandler
 from CoolLumiUtilities.CoolDataReader import CoolDataReader
 
-from CoolLumiUtilities.LumiBlobConversion import unpackLiveFraction, unpackBunchGroup
+from CoolLumiUtilities.LumiBlobConversion import unpackLiveFraction
 
 class LumiDeadtimeHandler:
 
@@ -55,7 +54,7 @@ class LumiDeadtimeHandler:
         if self.verbose: print('Loading trigger veto data')
 
         # Instantiate new COOL data reader if not already done
-        if self.vetoReader == None:
+        if self.vetoReader is None:
             self.vetoReader = CoolDataReader('COOLONL_TRIGGER/COMP200', '/TRIGGER/LUMI/PerBcidDeadtime')
 
         self.vetoReader.setIOVRangeFromRun(run)
@@ -73,7 +72,7 @@ class LumiDeadtimeHandler:
         for trig in self.trigList:
             self.trigChan[trig] = -1
 
-        if self.menuReader == None:
+        if self.menuReader is None:
             self.menuReader = CoolDataReader('COOLONL_TRIGGER/COMP200', '/TRIGGER/LVL1/Menu')
             
         self.menuReader.setIOVRangeFromRun(run)
@@ -101,7 +100,7 @@ class LumiDeadtimeHandler:
 
         self.liveFracTrig = dict()
         
-        if self.countsReader == None:    
+        if self.countsReader is None:
             self.countsReader = CoolDataReader('COOLONL_TRIGGER/COMP200', '/TRIGGER/LUMI/LVL1COUNTERS')
 
         self.countsReader.setIOVRangeFromRun(run)
@@ -128,7 +127,7 @@ class LumiDeadtimeHandler:
             # use the string as the dictionary key
             ss = obj.since()
 
-            if not ss in self.liveFracTrig:
+            if ss not in self.liveFracTrig:
                 self.liveFracTrig[ss] = dict()
                 
             for (trig, chan) in self.trigChan.iteritems():
@@ -154,12 +153,11 @@ class LumiDeadtimeHandler:
 
             key = obj.since()
 
-            run = key >> 32
-            lb = key & 0xFFFFFFFF
-            bloblength = obj.payload()['HighPriority'].size()
-
-            #if self.verbose:
-            #    print '%d %d Found trigger counter blob of length %d' % (run, lb, bloblength)
+            if self.verbose:
+                run = key >> 32
+                lb = key & 0xFFFFFFFF
+                bloblength = obj.payload()['HighPriority'].size()
+                print('%d %d Found trigger counter blob of length %d' % (run, lb, bloblength))
 
             # Unpack High Priority blob here
             liveVec = unpackLiveFraction(obj.payload())
@@ -169,7 +167,7 @@ class LumiDeadtimeHandler:
             #if self.verbose:
             #
             #    for i in range(10):
-            #        print 'BICD: %d Live: %f' % (i+1, liveVec[i])
+            #        print('BICD: %d Live: %f' % (i+1, liveVec[i]))
                         
     
 if __name__ == '__main__':

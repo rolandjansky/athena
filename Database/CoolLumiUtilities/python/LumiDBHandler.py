@@ -24,7 +24,6 @@
 #
 
 from __future__ import print_function
-from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 class LumiDBHandler:
@@ -98,7 +97,7 @@ class LumiDBHandler:
         if self.verbose:
             print('LumiDBHandler.closeDB - Closing connection to', dbstring)
 
-        if not dbstring in self.__class__.dbDict:
+        if dbstring not in self.__class__.dbDict:
             print("LumiDBHandler.closeDB - DB doesn't exist:", dbstring)
         else:
             try:
