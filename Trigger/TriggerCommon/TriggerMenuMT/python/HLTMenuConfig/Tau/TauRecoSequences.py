@@ -54,14 +54,14 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     algo.fastTracksKey                 = tracks
     return algo
 
-def _algoTauPreselection(inputRoIs, tracks):
+def _algoTauPreselection(inputRoIs, tracks, step):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPreselection
-    algo                                 = TrigTauRecMerged_TauPreselection()
+    algo                                 = TrigTauRecMerged_TauPreselection(name= "TrigTauRecMerged_TauPreselection_"+step)
     algo.RoIInputKey                     = inputRoIs
     algo.L1RoIKey                        = "TAUCaloRoIs"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnlyMVA"
+    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     algo.Key_trackPartInputContainer     = tracks
     algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Presel")
@@ -75,7 +75,7 @@ def _algoTauPrecision(inputRoIs, tracks, step):
     algo.L1RoIKey                        = "TAUCaloRoIs"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnlyMVA"
+    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     algo.Key_trackPartInputContainer     = tracks
     if "Id" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
@@ -158,7 +158,7 @@ def tauIdTrackSequence( RoIs , name):
 
     signName = "Tau"
 
-    if "FTFIso" in name:
+    if ("Iso" in name) or ("TrackTwo" in name):
       signName = 'TauIso'
 
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
@@ -167,13 +167,19 @@ def tauIdTrackSequence( RoIs , name):
     tauViewDataVerifierName = ""
     if "FTFId" in name:
       tauViewDataVerifierName = "tauViewDataVerifierIdFTF"
-    elif "FTFTrack" in name:
+    elif "FTFTrackInView" in name:
       tauViewDataVerifierName = "tauViewDataVerifierTrackFTF"
+    elif "FTFTrackTwo" in name:
+      tauViewDataVerifierName = "tauViewDataVerifierTrackTwoFTF"
     elif "FTFIso" in name:
       tauViewDataVerifierName = "tauViewDataVerifierIsoFTF"
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier(tauViewDataVerifierName)
-    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA'),('xAOD::TauTrackContainer','StoreGateSvc+HLT_tautrack_dummy')]
+    if "FTFIso" in name:
+       ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnlyMVA'),('xAOD::TauTrackContainer','StoreGateSvc+HLT_tautrack_dummy')]
+    else:
+       ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly'),('xAOD::TauTrackContainer','StoreGateSvc+HLT_tautrack_dummy')]       
+       
     viewAlgs.append(ViewVerify)
 
     for viewAlg in viewAlgs:
@@ -189,9 +195,12 @@ def tauIdTrackSequence( RoIs , name):
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():          
          TrackParticlesName = viewAlg.TrackParticlesName
 
-    if "FTFTrack" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = TrackParticlesName)
+    if "FTFTrackInView" in name:
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = TrackParticlesName, step = "Track")
       tauIdTrackSequence += tauPreselectionAlg
+    elif "TrackTwo" in name:
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = TrackParticlesName, step = "TrackTwo")
+      tauIdTrackSequence += tauPreselectionAlg      
 
     #Precision Tracking
     PTAlgs = [] #List of precision tracking algs 
@@ -205,8 +214,10 @@ def tauIdTrackSequence( RoIs , name):
     precName = ""
     if "FTFId" in name:
       precName = 'tauId'
-    elif "FTFTrack" in name:
+    elif "FTFTrackInView" in name:
       precName = 'tauTrk'
+    elif "FTFTrackTwo" in name:
+      precName = 'tauTrkTwo'
     elif "FTFIso" in name:
       precName = 'tau'
 
@@ -219,8 +230,10 @@ def tauIdTrackSequence( RoIs , name):
 
     if "FTFId" in name:
       tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = trackParticles, step = "Id")
-    elif "FTFTrack" in name:
+    elif "FTFTrackInView" in name:
       tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = trackParticles, step = "Track")
+    elif "FTFTrackTwo" in name:
+      tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = trackParticles, step = "TrackTwo")
     elif "FTFIso" in name:
       tauPrecisionAlg = _algoTauPrecisionMVA(inputRoIs = RoIs, tracks = trackParticles)
 
@@ -262,13 +275,30 @@ def tauCoreTrackSequence( RoIs, name ):
 
     return tauCoreTrackSequence, sequenceOut
 
+def tauFTFTrackTwoSequence(ConfigFlags):
+
+    RecoSequenceName = "tauFTFTrackTwoInViewSequence"
+
+    ftfTrackTwoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrackTwo")
+    ftfTrackTwoViewsMaker.RoIsLink          = "roi" # -||-
+    ftfTrackTwoViewsMaker.InViewRoIs        = "TIdViewRoIs" # contract with the fast track core
+    ftfTrackTwoViewsMaker.Views             = "TAUFTFTrackTwoViews"
+    ftfTrackTwoViewsMaker.ViewFallThrough   = True
+    ftfTrackTwoViewsMaker.RequireParentView = True
+    ftfTrackTwoViewsMaker.ViewNodeName      = RecoSequenceName
+
+    (tauFTFTrackTwoInViewSequence, sequenceOut) = tauIdTrackSequence( ftfTrackTwoViewsMaker.InViewRoIs, RecoSequenceName)
+
+    tauFastTrackTwoSequence = seqAND("tauFastTrackTwoSequence", [ftfTrackTwoViewsMaker, tauFTFTrackTwoInViewSequence ])
+    return (tauFastTrackTwoSequence, ftfTrackTwoViewsMaker, sequenceOut)
+
 def tauFTFTrackSequence(ConfigFlags):
 
     RecoSequenceName = "tauFTFTrackInViewSequence"
 
     ftfTrackViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrack")
-    ftfTrackViewsMaker.RoIsLink          = "roi" # -||-
-    ftfTrackViewsMaker.InViewRoIs        = "TIdViewRoIs" # contract with the fast track core
+    ftfTrackViewsMaker.RoIsLink          = "roi" # -||-                                                                          
+    ftfTrackViewsMaker.InViewRoIs        = "TIdViewRoIs" # contract with the fast track core                                     
     ftfTrackViewsMaker.Views             = "TAUFTFTrackViews"
     ftfTrackViewsMaker.ViewFallThrough   = True
     ftfTrackViewsMaker.RequireParentView = True
