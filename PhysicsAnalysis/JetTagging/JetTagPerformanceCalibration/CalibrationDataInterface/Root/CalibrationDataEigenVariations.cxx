@@ -215,7 +215,7 @@ m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1), m_statVariations(fal
   // also flag if statistical uncertainties stored as variations (this typically happens as a result of smoothing / pruning of SF results)
   vector<string> uncs = m_cnt->listUncertainties();
   for (auto name : uncs) {
-    if (name.find("Stat_Nuis") != string::npos) m_statVariations = true;
+    if (name.find("stat_np") != string::npos) m_statVariations = true;
   }
 }
 
