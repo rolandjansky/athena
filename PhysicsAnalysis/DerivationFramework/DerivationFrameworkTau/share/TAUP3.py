@@ -85,6 +85,7 @@ ToolSvc  += TAUP3JetTPThinningTool
 thinningTools.append(TAUP3JetTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+TAUP3CaloClusterThinning  = DerivationFramework__CaloClusterThinning(
   name                            = "TAUP3ClusterThinning",
   ThinningService                 = "TAUP3ThinningSvc",
   SGKey                           = "TauJets",

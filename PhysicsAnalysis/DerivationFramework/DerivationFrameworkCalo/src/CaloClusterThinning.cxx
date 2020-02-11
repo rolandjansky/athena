@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ROOT include(s):
@@ -72,7 +72,7 @@ namespace DerivationFramework {
       if( m_addTopoClSGKey.size() ) {
 	if( m_TopoClSGKey.empty() ) {
 	  ATH_MSG_FATAL( "Need to provide TopoClCollectionSGKey when using AdditionalTopoClCollectionSGKey" );
-	  return StatusCode::FAILURE; 
+	  return StatusCode::FAILURE;	 
 	}
 	ATH_MSG_INFO( "Thinning will also be set up for container(s): " << m_addTopoClSGKey );
       }
@@ -135,16 +135,16 @@ namespace DerivationFramework {
       // Retrieve additional topocluster container(s)
       std::vector< const xAOD::CaloClusterContainer* > additionalTopoCaloCluster;
       for( const std::string& name : m_addTopoClSGKey ) {
-	const xAOD::CaloClusterContainer* tempTopoCaloCluster = nullptr;
-	ATH_CHECK( evtStore()->retrieve( tempTopoCaloCluster, name ) );
+         const xAOD::CaloClusterContainer* tempTopoCaloCluster = nullptr;
+         ATH_CHECK( evtStore()->retrieve( tempTopoCaloCluster, name ) );
 
-	// Size consistency check
-	if( tempTopoCaloCluster->size() != importedTopoCaloCluster->size() ) {
-	  ATH_MSG_FATAL( "One of the additional cluster containers is not the right size" );
-	  return StatusCode::FAILURE;
-	}
+	 // Size consistency check
+         if( tempTopoCaloCluster->size() != importedTopoCaloCluster->size() ) {
+	   ATH_MSG_FATAL( "One of the additional cluster containers is not the right size" );
+	   return StatusCode::FAILURE;
+	 }
 	 
-	additionalTopoCaloCluster.push_back(tempTopoCaloCluster);
+         additionalTopoCaloCluster.push_back(tempTopoCaloCluster);
       }
 
       // Check the event contains clusters
@@ -367,7 +367,7 @@ namespace DerivationFramework {
                   // Get the 4-momentum of the constituent, and check whether
                   // it's "close enough" to the tau or not:
                   TLorentzVector cP4;
-		  cP4.SetPtEtaPhiM( 1.0, jc->Eta(), jc->Phi(), 0. );
+                  cP4.SetPtEtaPhiM( 1.0, jc->Eta(), jc->Phi(), 0. );
                   if( cP4.DeltaR( tauP4 ) > (m_coneSize<0.? 0.2 : m_coneSize) ) {
                      continue;
                   }
@@ -380,6 +380,7 @@ namespace DerivationFramework {
 		     //cps->ClustersName(); // << rawC->type().name() << " vs " << cps->at(0)->type().name());
                      continue;
                   }
+
                   // If all is well, update the mask:
                   mask.at( rawC->index() ) = true;
                }

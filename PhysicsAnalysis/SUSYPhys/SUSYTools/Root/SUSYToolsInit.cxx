@@ -1532,6 +1532,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     } else {
       m_trigMatchingTool.setTypeAndName("Trig::MatchFromCompositeTool/TrigMatchFromCompositeTool");
       ATH_CHECK( m_trigMatchingTool.setProperty("OutputLevel", this->msg().level()) );
+      ATH_CHECK( m_trigMatchingTool.setProperty("InputPrefix", m_trigMatchingPrefix) );
       ATH_CHECK( m_trigMatchingTool.retrieve() );
     }
   } else  ATH_CHECK( m_trigMatchingTool.retrieve() );
