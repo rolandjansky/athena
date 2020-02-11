@@ -35,7 +35,6 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArElecCalib
    LArCalorimeter/LArRawConditions
    LumiBlock/LumiBlockComps
-   Trigger/TrigAnalysis/TrigAnalysisInterfaces	
    Control/AthenaMonitoringKernel )
 
 # External dependencies:
@@ -56,10 +55,10 @@ atlas_add_library( CaloRecLib
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloEvent CaloGeoHelpers
    CaloIdentifier AthenaBaseComps AthenaKernel CxxUtils AthenaPoolUtilities
    Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloUtilsLib
-   StoreGateLib LArToolsLib LumiBlockCompsLib
+   StoreGateLib LArToolsLib LumiBlockCompsLib AthenaMonitoringKernelLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
    ${EIGEN_LIBRARIES} AthAllocators IdDictParser EventKernel
-   FourMom NavFourMom AthenaMonitoringKernelLib )
+   FourMom NavFourMom )
 
 atlas_add_component( CaloRec
    src/components/*.cxx

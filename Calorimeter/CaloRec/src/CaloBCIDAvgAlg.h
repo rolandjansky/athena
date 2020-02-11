@@ -7,6 +7,7 @@
 #define CALOREC_CALOBCIDAVGALG_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -17,14 +18,14 @@
 #include "LArElecCalib/ILArMinBiasAverage.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LumiBlockData/LuminosityCondData.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class CaloBCIDAvgAlg : public AthReentrantAlgorithm {
 public:
 
   // constructor 
-  CaloBCIDAvgAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   // Algorithm virtual methods 
   StatusCode initialize();
@@ -45,10 +46,9 @@ private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArMCSym> m_mcSym{this,"MCSym","LArMCSym","SG Key of LArMCSym object"};
   SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey{this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};
-
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bcDataKey{this,"BUnchCrossingCondDataKey","BunchCrossingData","SG Key of BunchCrossing CDO"};
 
   //Tool Handles:
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
   // For online monitoring purposes
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
@@ -68,7 +68,8 @@ private:
   //private methods: 
   std::vector<float> accumulateLumi(const std::vector<float>& luminosity,
                                     const unsigned int bcid,
-                                    const float xlumiMC) const;
+                                    const float xlumiMC,
+                                    const BunchCrossingCondData* bcdata) const;
 
 };
 
