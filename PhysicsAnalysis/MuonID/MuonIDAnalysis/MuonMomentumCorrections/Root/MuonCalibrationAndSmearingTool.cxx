@@ -2805,7 +2805,7 @@ namespace CP {
         p2_MS_var = m_p2_MS[ muonInfo.detRegion ] + var * p2_MS_var;
 
         if( m_Trel >= MCAST::Release::Recs2019_10_12 ) {
-          if( muonInfo.sel_category >= 0 && muonInfo.sel_category < m_p2_MS_Categories ) {
+          if( muonInfo.sel_category >= 0 && muonInfo.sel_category < m_p2_MS_Categories-1 ) {
             p2_MS_var = var > 0. ? m_p2_MS_SystUp.at(std::make_pair(muonInfo.detRegion, muonInfo.sel_category)) : m_p2_MS_SystDw.at(std::make_pair(muonInfo.detRegion, muonInfo.sel_category)); 
           }
         }
