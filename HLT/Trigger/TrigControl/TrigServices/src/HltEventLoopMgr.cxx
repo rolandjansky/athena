@@ -995,7 +995,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   //----------------------------------------------------------------------------
   // Set error code and make sure the debug stream tag is added
   //----------------------------------------------------------------------------
-  hltResultWH->addErrorCode( static_cast<uint32_t>(errorCode) );
+  hltResultWH->addErrorCode(errorCode);
   switch (errorCode) {
     case HLT::OnlineErrorCode::PROCESSING_FAILURE:
       hltResultWH->addStreamTag({m_algErrorDebugStreamName.value(), eformat::DEBUG_TAG, true});
