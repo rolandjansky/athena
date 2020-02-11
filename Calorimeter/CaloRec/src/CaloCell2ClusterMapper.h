@@ -39,11 +39,6 @@ class CaloCell2ClusterMapper : public AthReentrantAlgorithm
   virtual StatusCode finalize() override;
 
  protected:
-
-  const CaloDetDescrManager* m_calo_dd_man; 
-  
-  const CaloCell_ID* m_calo_id;
-  
   /**
    * @brief Name of the CaloCell2ClusterMap in StoreGate.
    *

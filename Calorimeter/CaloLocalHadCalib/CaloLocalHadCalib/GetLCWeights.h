@@ -174,12 +174,7 @@ class GetLCWeights : public AthAlgorithm
    */
 
   std::string m_ClassificationType;
-
   int m_ClassificationTypeNumber;
-
-  const CaloDetDescrManager* m_calo_dd_man; 
-  
-  const CaloCell_ID* m_calo_id;
 
 };
 
