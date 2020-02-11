@@ -15,6 +15,7 @@
 #include "RootDomain.h"
 #include "RootKeyContainer.h"
 #include "RootTreeContainer.h"
+#include "RootTreeIndexContainer.h"
 #include "StorageSvc/DbInstanceCount.h"
 
 using namespace pool;
@@ -51,6 +52,9 @@ IDbContainer* RootOODb::createContainer(const DbType& typ) {
   }
   else if ( typ.match(ROOTTREE_StorageType) )    {
     return new RootTreeContainer(this);
+  }
+  else if ( typ.match(ROOTTREEINDEX_StorageType) )    {
+    return new RootTreeIndexContainer(this);
   }
   else if ( typ.match(ROOT_StorageType) )    {
     return new RootTreeContainer(this);

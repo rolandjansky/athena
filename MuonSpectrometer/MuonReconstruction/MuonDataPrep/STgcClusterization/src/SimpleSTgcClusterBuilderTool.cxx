@@ -14,10 +14,12 @@ Muon::SimpleSTgcClusterBuilderTool::SimpleSTgcClusterBuilderTool(const std::stri
 								 const std::string& n,
 								 const IInterface*  p )
   :  
-  AthAlgTool(t,n,p)
+  AthAlgTool(t,n,p),
+  m_muonMgr(nullptr),
+  m_stgcIdHelper(nullptr)
 {
-
-
+  declareProperty("ChargeCut", m_chargeCut=0.0);
+  declareProperty("AllowHoles",m_allowHoles=true);
 }
 
 Muon::SimpleSTgcClusterBuilderTool::~SimpleSTgcClusterBuilderTool()
@@ -97,6 +99,10 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // loop on the strips and set the cluster weighted position and charge
         //
         std::vector<Identifier> rdoList;
+        //vectors to hold the properties of the elements of a cluster
+        std::vector<int> elementsCharge;
+        std::vector<short int> elementsTime;
+        std::vector<uint16_t> elementsChannel;
         Identifier clusterId;
         double weightedPosX = 0.0;
         double posY = (cluster.at(0)).localPosition().y();
@@ -105,12 +111,16 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         double totalCharge  = 0.0;
         for ( auto it : cluster ) {
           rdoList.push_back(it.identify());
+          elementsCharge.push_back(it.charge());
+          elementsTime.push_back(it.time());
+          elementsChannel.push_back(m_stgcIdHelper->channel(it.identify()));
           double weight = 0.0;
           isWire ? weight = 1.0 : weight = it.charge(); 
           ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
           weightedPosX += it.localPosition().x()*weight;
           totalCharge += weight;
-          ATH_MSG_DEBUG("Channel local position and charge: " << it.localPosition().x() << " " << it.charge() );
+          ATH_MSG_DEBUG("Channel local position and charge: " << it.localPosition().x() << " " 
+			<< it.charge() );
           //
           // Set the cluster identifier to the max charge strip
           //
@@ -151,13 +161,15 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
-            rdoList, covN, cluster.at(0).detectorElement());
+            rdoList, covN, cluster.at(0).detectorElement(),
+            std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsTime,elementsCharge);
         clustersVect.push_back(prdN);   
       }
     }
   }
 
   ATH_MSG_DEBUG("Size of the output cluster vector: " << clustersVect.size());
+
   return StatusCode::SUCCESS;
 }
 
@@ -196,6 +208,7 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
     return true;
   }
   else {
+
     //
     // check if the strip can be added to a cluster
     //
@@ -207,7 +220,8 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
       unsigned int lastStrip  = *(--clusterStripNum.end());
 
       ATH_MSG_DEBUG("First strip and last strip are: " << firstStrip << " " << lastStrip);
-      if ( stripNum==lastStrip+1 || stripNum==firstStrip-1 ) {
+      if ( (stripNum==lastStrip+1 || stripNum==firstStrip-1) 
+	   || (m_allowHoles && ( abs(stripNum-lastStrip)<=2 || abs(stripNum-firstStrip)<=2 ))) {
 
         ATH_MSG_DEBUG(">> inserting a new strip");
 	m_clustersStripNum[multilayer][gasGap].at(i).insert(stripNum);
@@ -235,4 +249,28 @@ bool Muon::SimpleSTgcClusterBuilderTool::addStrip(Muon::sTgcPrepData& strip)
   }
 
   return false;
+}
+
+///
+/// sort the strips if needed
+void SimpleSTgcClusterBuilderTool::dumpStrips( std::vector<Muon::sTgcPrepData>& stripsVect,
+					       std::vector<Muon::sTgcPrepData*>& clustersVect ) 
+{
+
+  ATH_MSG_INFO("====> Dumping all strips:  ");
+  for ( auto it : stripsVect ) {
+    Identifier stripId = it.identify(); 
+    ATH_MSG_INFO("Strip identifier: " << m_stgcIdHelper->show_to_string(stripId) ); 
+  }
+
+  ATH_MSG_INFO("Dumping all clusters:  ");
+  for ( auto it : clustersVect ) {
+    Identifier clusterId = it->identify(); 
+    ATH_MSG_INFO("***> New cluster identifier: " << m_stgcIdHelper->show_to_string(clusterId) ); 
+    ATH_MSG_INFO("Cluster size: " << it->rdoList().size() );
+    ATH_MSG_INFO("List of associated RDO's: ");
+
+  }
+
+  return;
 }

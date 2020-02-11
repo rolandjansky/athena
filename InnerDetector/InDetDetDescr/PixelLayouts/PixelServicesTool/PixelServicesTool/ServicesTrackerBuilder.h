@@ -21,7 +21,7 @@ class ServicesTrackerBuilder {
 public:
 
   ServicesTrackerBuilder();
-  ServicesDynTracker* buildGeometry(const PixelGeoBuilderBasics* basics, bool bSvcDynAuto=true, bool bBarrelModuleMaterial=false) const;
+  ServicesDynTracker* buildGeometry(const PixelGeoBuilderBasics* basics, bool bBarrelModuleMaterial=false) const;
 
  private: 
   double ComputeRMax(double rMin, double safety, double moduleLength, double moduleWidth) const;

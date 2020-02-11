@@ -452,7 +452,7 @@ else:
    local_logger.info("Stream-Aware monitoring is turned OFF")
 
 # If data type is '*comm' disable ATLAS Ready filter by default
-if (rec.projectName.get_Value().endswith('_comm') and 
+if (rec.projectName.get_Value().endswith('comm') and 
     not DQMonFlags.disableAtlasReadyFilter()
     ):
    local_logger.info("This is a commissioning project tag, will attempt to disable ATLAS Ready filter for monitoring tools. To really enable it, use DQMonFlags.disableAtlasReadyFilter.set_Value_and_Lock(False).")

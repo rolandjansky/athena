@@ -41,14 +41,12 @@ def getHITSStreamItemList():
     if DetFlags.Muon_on():
         hitsItemList += ["RPCSimHitCollection#*",
                          "TGCSimHitCollection#*",
-                         "CSCSimHitCollection#*",
                          "MDTSimHitCollection#*",
                          "TrackRecordCollection#MuonExitLayer"]
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-            hitsItemList += ["sTGCSimHitCollection#*"]
-            hitsItemList += ["MMSimHitCollection#*"]
-            hitsItemList += ["GenericMuonSimHitCollection#*"]
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if MuonGeometryFlags.hasCSC(): hitsItemList += ["CSCSimHitCollection#*"]
+        if MuonGeometryFlags.hasSTGC(): hitsItemList += ["sTGCSimHitCollection#*"]
+        if MuonGeometryFlags.hasMM(): hitsItemList += ["MMSimHitCollection#*"]
 
     ## FwdRegion
     if DetFlags.FwdRegion_on():

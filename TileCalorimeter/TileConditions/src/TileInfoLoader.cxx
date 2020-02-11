@@ -44,6 +44,7 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileOptFilterWeights.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 #include "TileConditions/TileBadChanTool.h"
 
 #include "TMatrixD.h"
@@ -62,6 +63,7 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   , m_info(new TileInfo(pSvcLocator))
   , m_pulsevar(new TilePulseShapes())
   , m_OFWeights(new TileOptFilterWeights())
+  , m_WFWeights(new TileWienerFilterWeights())
   , m_eorCalled(true)
 {
 
@@ -215,6 +217,13 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   declareProperty("filenameNoiseCorrSuffix"    ,m_OFWeights->m_noiseCorrSuffix    = "520020_Phys");
   declareProperty("filenameDeltaCorrSuffix"    ,m_OFWeights->m_deltaCorrSuffix    = "Delta_Phys_9Samples");
   declareProperty("DeltaConf"                  ,m_OFWeights->m_DeltaConf        = true);
+
+  //==========================================================
+  //=== TileWienerFilterWeights configuration
+  //==========================================================
+  declareProperty("LoadWienerFilterWeights"    ,m_loadWienerFilterWeights    = false);
+  declareProperty("WienerFilterPhysicsNSamples",m_WFWeights->m_NSamples_Phys = 7);
+  declareProperty("WienerFilterLuminosity"     ,m_WFWeights->m_Luminosity    = 40);
 }
 
 //*****************************************************************************
@@ -222,6 +231,7 @@ TileInfoLoader::~TileInfoLoader() {
 //*****************************************************************************
   delete m_pulsevar;
   delete m_OFWeights;
+  delete m_WFWeights;
   if (m_eorCalled) delete m_info;
 }
 
@@ -232,6 +242,7 @@ StatusCode TileInfoLoader::initialize() {
   ATH_MSG_INFO( "Initializing...." << name() );
 
   m_OFWeights->m_NSamples_Phys = m_info->m_nSamples; // to make sure that everything is consistent
+  m_WFWeights->m_NSamples_Phys = m_info->m_nSamples; // to make sure that everything is consistent
 
   //=== Find the detector store service.
   CHECK( m_detStore.retrieve() );
@@ -393,6 +404,9 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
   // point to OptFilterWeights or Correlation
   if (m_loadOptFilterWeights) m_info->m_OptFilterWeights=m_OFWeights;
   if (m_loadOptFilterCorrelation) m_info->m_OptFilterCorrelation= m_OFWeights;
+
+  // point to WienerFilterWeights
+  if (m_loadWienerFilterWeights) m_info->m_WienerFilterWeights=m_WFWeights;
 
   //=== Initialize and register TileInfo object
   CHECK( m_info->initialize() );

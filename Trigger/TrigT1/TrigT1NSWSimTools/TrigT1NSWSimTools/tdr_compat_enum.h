@@ -17,10 +17,10 @@ namespace NSWL1 {
     const int MAXLAYERSHIT=4;
     enum SECTYPE{SMALL,LARGE};
     
-    const std::vector<size_t>  SECTORS={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    const std::vector<size_t>  SECTORS={0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     const std::vector<size_t> SIDES={0,1};
+    const int nullPadNumber=-9999;
     
 }
 
 #endif
-

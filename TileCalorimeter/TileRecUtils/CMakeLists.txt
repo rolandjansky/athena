@@ -28,7 +28,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
                           TileCalorimeter/TileDetDescr
-                          Tools/PathResolver )
+                          Tools/PathResolver
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

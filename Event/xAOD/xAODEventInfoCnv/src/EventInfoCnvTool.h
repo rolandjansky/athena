@@ -52,7 +52,8 @@ namespace xAODMaker {
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true );
+                                  bool copyPileUpLinks = true,
+				  bool forceMCInfoCopy = false);
 
    private:
 #ifndef XAOD_ANALYSIS

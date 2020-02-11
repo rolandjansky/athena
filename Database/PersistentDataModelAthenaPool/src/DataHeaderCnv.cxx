@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv.cxx
  *  @brief This file contains the implementation for the DataHeaderCnv class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: DataHeaderCnv.cxx,v 1.15 2009-04-21 22:04:51 gemmeren Exp $
  **/
 
 #include "DataHeaderCnv.h"
@@ -14,9 +13,14 @@
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p3.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p4.h"
+#include "PersistentDataModelTPCnv/DataHeader_p6.h"
 
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
+
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/FileIncident.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include <memory>
 #include <stdexcept>
@@ -27,8 +31,47 @@ DataHeaderCnv::DataHeaderCnv(ISvcLocator* svcloc) :
 	m_dhFormMdx(),
 	m_dhForm(0) {
 }
-DataHeaderCnv::~DataHeaderCnv() {
-   delete m_dhForm ; m_dhForm = 0;
+//______________________________________________________________________________
+DataHeaderCnv::~DataHeaderCnv()
+{
+   // Remove itself from the IncidentSvc - if it is still around
+   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", "DataHeaderCnv");
+   if( incSvc.retrieve().isSuccess() ) {
+      incSvc->removeListener(this, IncidentType::EndInputFile);
+   }
+   delete m_dhForm ; m_dhForm = nullptr;
+   for( auto& item : m_persFormMap ) {
+      delete item.second;
+   } 
+}
+//______________________________________________________________________________
+StatusCode DataHeaderCnv::initialize()
+{
+   // listen to EndFile incidents to clear old DataHeaderForms from the cache
+   //Get IncidentSvc
+   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", "DataHeaderCnv");
+   ATH_CHECK( incSvc.retrieve() );
+   incSvc->addListener(this, IncidentType::EndInputFile, 0);
+   return DataHeaderCnvBase::initialize();
+}
+
+//______________________________________________________________________________
+void DataHeaderCnv::handle(const Incident& incident)
+{
+   if( incident.type() == IncidentType::EndInputFile ) {
+      // remove cached DHForms that came from the file that is now being closed
+      const std::string& guid = static_cast<const FileIncident&>(incident).fileGuid(); 
+      auto iter = m_persFormMap.begin();
+      while( iter != m_persFormMap.end() ) {
+         size_t dbpos = iter->first.find("[DB=");
+         if( dbpos != std::string::npos && iter->first.substr(dbpos+4, dbpos+36) == guid ) {
+            delete iter->second;
+            iter = m_persFormMap.erase( iter );
+         } else {
+            iter++;
+         }
+      }
+   }
 }
 
 //______________________________________________________________________________
@@ -143,6 +186,8 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
    this->m_o_poolToken = dh_token; // return to converter
    return(StatusCode::SUCCESS);
 }
+#include <sstream>
+using namespace std;
 //______________________________________________________________________________
 DataHeader_p5* DataHeaderCnv::poolReadObject_p5() {
    DataHeader_p5* pObj = 0;
@@ -189,6 +234,37 @@ DataHeader_p5* DataHeaderCnv::poolReadObject_p5() {
    }
    return(pObj);
 }
+
+//______________________________________________________________________________
+// Read the persistent rep of DataHeader_p6 and also DataHeaderForm_p6 if necessary
+// Set dh_form pointer to the correct DataHeaderForm, either from file or cache
+DataHeader_p6* DataHeaderCnv::poolReadObject_p6( DataHeaderForm_p6* &dh_form )
+{
+   void* voidPtr1 = nullptr;
+   m_athenaPoolCnvSvc->setObjPtr(voidPtr1, m_i_poolToken);
+   if (voidPtr1 == nullptr) {
+      throw std::runtime_error("Could not get object for token = " + m_i_poolToken->toString());
+   }
+   DataHeader_p6* pObj = reinterpret_cast<DataHeader_p6*>(voidPtr1);
+      
+   // see if the DataHeaderForm is already cached
+   dh_form = m_persFormMap[ pObj->dhFormToken() ];
+   if( !dh_form ) {
+      // we need to read a new DHF
+      void* voidPtr2 = nullptr;
+      Token mapToken;
+      mapToken.fromString(pObj->dhFormToken());
+      if (mapToken.classID() != Guid::null()) {
+         m_athenaPoolCnvSvc->setObjPtr(voidPtr2, &mapToken);
+         if (voidPtr2 == nullptr) {
+            throw std::runtime_error("Could not get object for token = " + mapToken.toString());
+         }
+      }
+      m_persFormMap[ pObj->dhFormToken() ] = dh_form = reinterpret_cast<DataHeaderForm_p6*>(voidPtr2);
+   }
+   return pObj;
+}
+
 //______________________________________________________________________________
 DataHeader_p5* DataHeaderCnv::createPersistent(DataHeader* transObj) {
    DataHeader_p5* persObj = m_TPconverter.createPersistent(transObj);
@@ -208,10 +284,17 @@ DataHeader* DataHeaderCnv::createTransient() {
       dh->insert(dhe);
       return(dh);
    }
+   static const pool::Guid p6_guid("4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D");
    static const pool::Guid p5_guid("D82968A1-CF91-4320-B2DD-E0F739CBC7E6");
    static const pool::Guid p4_guid("9630EB7B-CCD7-47D9-A39B-CBBF4133CDF2");
    static const pool::Guid p3_guid("EC1318F0-8E28-45F8-9A2D-2597C1CC87A6");
-   if (this->compareClassGuid(p5_guid)) {
+   if( compareClassGuid(p6_guid) ) {
+      DataHeaderForm_p6* dh_form = nullptr;
+      std::auto_ptr<DataHeader_p6> obj( poolReadObject_p6( dh_form ) );
+      auto dh = m_tpInConverter_p6.createTransient( obj.get(), *dh_form );
+      // To dump DH:   ostringstream ss; dh->dump(ss); cout << ss.str() << endl;
+      return dh;
+   } else if (this->compareClassGuid(p5_guid)) {
       std::auto_ptr<DataHeader_p5> obj_p5(this->poolReadObject_p5());
       return(m_TPconverter.createTransient(obj_p5.get()));
    } else if (this->compareClassGuid(p4_guid)) {

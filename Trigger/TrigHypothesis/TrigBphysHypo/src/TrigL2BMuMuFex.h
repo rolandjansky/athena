@@ -15,8 +15,6 @@
 
 #include <string>
 
-#include "GaudiKernel/ToolHandle.h"
-
 #include "TrigInterfaces/ComboAlgo.h"
 
 #include "TrigInDetEvent/TrigVertexCollection.h"

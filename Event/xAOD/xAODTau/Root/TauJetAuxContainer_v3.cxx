@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJetAuxContainer_v3.cxx 725228 2016-02-19 22:59:42Z griffith $
@@ -266,7 +266,8 @@ namespace xAOD {
     // RNN tau ID
     AUX_VARIABLE( RNNJetScore );
     AUX_VARIABLE( RNNJetScoreSigTrans ); 
-    
+    // needed for Run3 trigger
+    AUX_VARIABLE( nChargedTracksNoMVA );
   }
   
 } // namespace xAOD

@@ -65,6 +65,12 @@ if have_atlas_geo:
     import AtlasGeoModel.SetGeometryVersion
     svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
+# todo: ToolStore
+from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from AthenaCommon.AppMgr import ToolSvc
+ToolSvc += Muon__MuonIdHelperTool("MuonIdHelperTool",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
+
 if not globals().has_key ('get_dumper_fct'):
     from PyDumper.Dumpers import get_dumper_fct
 from AthenaPython import PyAthena

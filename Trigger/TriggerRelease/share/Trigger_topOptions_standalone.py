@@ -207,6 +207,8 @@ log.info("configuring hlt")
 from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
 hlt = HLTSimulationGetter(g)
 
+from TriggerJobOpts.JobSetupPrinter import JobSetupPrinter
+JobSetupPrinter()
 
 if 'stopAfterMenuGeneration' in dir() and stopAfterMenuGeneration is True:
     theApp.exit()

@@ -2,7 +2,6 @@
 
 # art-description: athenaHLT on latest available run
 # art-type: build
-# art-include: master/AthenaP1
 # art-include: master/Athena
 
 if [ -z ${TEST} ]; then

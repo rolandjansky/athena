@@ -24,6 +24,13 @@ compactSpecification = {
 #
 #  Jet moments added from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2JetMoments/
 #
+
+    #newly added Substructure variables:	
+    "DetectorEta"      : (("DetectorEta;DetectorEta;",100,-5,5),("DetectorEta","float")),
+    "NTrimSubjets"     : (("NTrimSubjets;NTrimSubjets;",20,0,20),("NTrimSubjets","int")),
+    "TrackSumPt"      : (("TrackSumPt;TrackSumPt;",80,0,8000),("TrackSumPt","float")),
+    "TrackSumMass"     : (("TrackSumMass;TrackSumMass;",100,0,10000),("TrackSumMass","float")), 
+    "Qw"      : (("Qw;Qw;",100,0,100000),("Qw","float")),	
     "KtDR"             : (("KtDR;KtDR;",100,0,10),("KtDR","float")),
 #
     "Tau1"             : (("Tau1;Tau1;",100,0,1.0),("Tau1","float")),
@@ -42,23 +49,23 @@ compactSpecification = {
     "Dip23"            : (("Dip23;Dip23;",100,-1,2),("Dip23","float")),
     "DipExcl12"        : (("DipExcl12;DipExcl12;",100,-1,2),("DipExcl12","float")),
 #
-    "Split12"          : (("Split12;Split12;",100,0,5000),("Split12","float")),
-    "Split23"          : (("Split23;Split23;",100,0,5000),("Split23","float")),
-    "Split34"          : (("Split34;Split34;",100,0,5000),("Split34","float")),
+    "Split12"          : (("Split12;Split12;",100,0,70000),("Split12","float")),
+    "Split23"          : (("Split23;Split23;",60,0,24000),("Split23","float")),
+    "Split34"          : (("Split34;Split34;",100,0,10000),("Split34","float")),
 #
     "ZCut12"           : (("ZCut12;ZCut12;",100,0,1.0),("ZCut12","float")),
     "ZCut23"           : (("ZCut23;ZCut23;",100,0,1.0),("ZCut23","float")),
     "ZCut34"           : (("ZCut34;ZCut34;",100,0,1.0),("ZCut34","float")),
 #
-    "Angularity"       : (("Angularity;Angularity;",100,-.1,.1), ("Angularity","float")),
+    "Angularity"       : (("Angularity;Angularity;",50,-.1,.1), ("Angularity","float")),
 #
     "PlanarFlow"       : (("PlanarFlow;PlanarFlow;",100,-1,1.1),("PlanarFlow","float")),
 #
     "Mu12"             : (("Mu12;Mu12;",100,0,1.0),("Mu12","float")),
 #
-    "ECF1"             : (("ECF1;ECF1;",100,0,10000),("ECF1","float")),
-    "ECF2"             : (("ECF2;ECF2;",100,0,10000),("ECF2","float")),
-    "ECF3"             : (("ECF3;ECF3;",100,0,10000),("ECF3","float")),
+    "ECF1"             : (("ECF1;ECF1;",50,0,200000),("ECF1","float")),
+    "ECF2"             : (("ECF2;ECF2;",100,0,2e10),("ECF2","float")),
+    "ECF3"             : (("ECF3;ECF3;",100,0,1e14),("ECF3","float")),
     "ECF1_Beta2"       : (("ECF1_Beta2;ECF1_Beta2;",100,-1,1),("ECF1_Beta2","float")),
     "ECF2_Beta2"       : (("ECF2_Beta2;ECF2_Beta2;",100,-1,1),("ECF2_Beta2","float")),
     "ECF3_Beta2"       : (("ECF3_Beta2;ECF3_Beta2;",100,-1,1),("ECF3_Beta2","float")),
@@ -112,16 +119,13 @@ compactSpecification = {
     'JVFCorr'          : (("Jet JVT JVFCorr;;", 120, -1.2, 1.2) , ("JVFCorr","float" ) ),
     'Jvt'              : (("Jet JVT;;", 70, -0.2, 1.2) , ("Jvt","float" ) ),
     'JvtRpt'           : (("Jet JVT Rpt;;", 75, 0, 1.5) , ("JvtRpt","float" ) ),
-
     "SumPtTrkPt500"    : (("Sum Pt of all tracks above 0.5 GeV:SumPt(p_{T}>0.5 GeV);", 100,0,200), ("SumPtTrkPt500", "vector<float>", "gev") ),
     "SumPtTrkPt500[0]" : (("Sum Pt of tracks from PV0 above 0.5 GeV:SumPt(p_{T}>0.5 GeV);", 100,0,200), ("SumPtTrkPt500[0]", "vector<float>", "gev") ),
     "NumTrkPt500[0]"   : (("Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);", 100,0,100), ("NumTrkPt500[0]", "vector<int>") ),
     "NumTrkPt1000[0]"    : (("Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);", 100,0,100), ("NumTrkPt1000[0]", "vector<int>") ),
     "TrackWidthPt1000[0]": (("Width from tracks from PV0 above 1 GeV:Track Width(p_{T}>1 GeV);", 75,0.,1.5), ("TrackWidthPt1000[0]", "vector<float>") ),
-
     "ActiveArea"       : (("Active Area;Area;", 80, 0, 0.8), ("ActiveArea", "float") ),
     "ActiveArea15"     : (("Active Area;Area;", 80, 0, 1.5), ("ActiveArea", "float") ),
-
     "BchCorrDotx"      : (("BchCorrDotx:BchCorrDotx;",50,0,1), ("BchCorrDotx", "float") ),
     "BchCorrCell"      : (("BchCorrCell:BchCorrCell;",50,0,1), ("BchCorrCell", "float") ),
     ## Jet Cleaning variables ##
@@ -255,5 +259,7 @@ def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix=""
     for k,v in otherArgs.iteritems():
         setattr(selTool, k, v)
     return selTool
+
+
 
 

@@ -8,6 +8,7 @@
 class IRoiDescriptor;
 #include <vector>
 #include "TrigInDetPattRecoEvent/TrigInDetSiLayer.h"
+#include "TrigInDetPattRecoTools/TrigSeedML_LUT.h"
 
 typedef struct TrigCombinatorialSettings {
 public:
@@ -36,6 +37,10 @@ public:
 
     m_layerGeometry.clear();
     m_vZv.clear();
+
+    m_useTrigSeedML = 0;
+    m_vLUT.clear();
+
   }
 
   int m_maxBarrelPix, m_minEndcapPix, m_maxEndcapPix, m_maxSiliconLayer;
@@ -58,6 +63,10 @@ public:
   const IRoiDescriptor* roiDescriptor;
   std::vector<TRIG_INDET_SI_LAYER> m_layerGeometry;
   std::vector<float> m_vZv;
+
+  int m_useTrigSeedML;
+  std::vector<const TrigSeedML_LUT*> m_vLUT;
+
 } TRIG_COMBINATORIAL_SETTINGS;
 
 

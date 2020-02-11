@@ -785,7 +785,7 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 
 unsigned int FTKConstantBank::floatToReg27(float f) {
 
-  int f_f = (*(int*)&f);
+  int f_f = float_bits(f);
   int f_sign = (f_f >> 31) & 0x1;
   int f_exp = (f_f >> 23) & 0xFF;
   int f_frac = f_f & 0x007FFFFF;
@@ -1796,10 +1796,10 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   }
 
   // keep track of which hits are missing.
-  int nmissing = 0; int m_lmissid[2] = {-1, -1};
+  int nmissing = 0; int lmissid[2] = {-1, -1};
   for( int j = 0 ; j < m_ncoords ; ++j ) {
     if (!m_coordsmask[j]) {
-      m_lmissid[nmissing] = j;
+      lmissid[nmissing] = j;
       nmissing++;
     } 
   }
@@ -1811,13 +1811,13 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
     return 0;
   }
   if (nmissing == 2) { // 2 missing, must be consecutive pixel hits.
-    if (m_lmissid[0] >= npixcy || m_lmissid[0]+1 != m_lmissid[1]) {
+    if (lmissid[0] >= npixcy || lmissid[0]+1 != lmissid[1]) {
       // FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", m_missid[0], m_missid[1]);
       return 0;
     }
   }
   if (nmissing == 1) { // can't imagine how this would happen...
-    if (m_lmissid[0] < npixcy) {
+    if (lmissid[0] < npixcy) {
       // FTKSetup::PrintMessage(ftk::warn, "Single miss/drop must be in SCT - returning.\n");
       return 0;
     }
@@ -1825,13 +1825,13 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
   // calculate the chi partials
   // long double* m_partials = new long double [m_ncoords];
-  long long*   m_partialsLL = new long long [m_ncoords];
-  long long*   m_partialsHW = new long long [m_ncoords];
+  long long*   partialsLL = new long long [m_ncoords];
+  long long*   partialsHW = new long long [m_ncoords];
   for (int i = 0; i < m_nconstr; ++i) {
 
     // m_partials[i]   = m_kaverage[secid][i]; 
-    m_partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
-    m_partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 11, 30, ofl); //9
+    partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
+    partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 11, 30, ofl); //9
 
     for (int j = 0 ; j < m_ncoords ; ++j ) {
       if (m_coordsmask[j]) {
@@ -1839,17 +1839,17 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
         int p = const_plane_map[j]; int c = const_coord_map[j]; 
 
         // m_partials[i]   += m_kernel[secid][i][j] * track.getCoord(j);
-        m_partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
-        m_partialsHW[i] += aux_asr(m_kernel_hw[secid][i][j]  * const_scale_map1[j] * track.getHwCoord(p, c), -1, 33, ofl); //Rui's change to match fw
+        partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
+        partialsHW[i] += aux_asr(m_kernel_hw[secid][i][j]  * const_scale_map1[j] * track.getHwCoord(p, c), -1, 33, ofl); //Rui's change to match fw
       }
     }
-    m_partialsHW[i] = aux_asr(m_partialsHW[i], -2, 27, ofl); //Rui's change to match fw
+    partialsHW[i] = aux_asr(partialsHW[i], -2, 27, ofl); //Rui's change to match fw
   }  
 
   if (ofl) {
     FTKSetup::PrintMessage(ftk::warn, "AUX-style partials calculation had an overflow!!!\n");
-    delete [] m_partialsLL;
-    delete [] m_partialsHW;
+    delete [] partialsLL;
+    delete [] partialsHW;
     return 0; 
   }
 
@@ -1859,8 +1859,8 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   long long tHW[2] = {0, 0};
   for (int j = 0; j < nmissing; ++j) {
     for (int i = 0; i < m_nconstr; ++i ) {
-      tLL[j] -= m_kernel_aux[secid][i][m_lmissid[j]] * m_partialsLL[i];
-      tHW[j] += m_kernel_hw[secid][i][m_lmissid[j]]  * m_partialsHW[i]; 
+      tLL[j] -= m_kernel_aux[secid][i][lmissid[j]] * partialsLL[i];
+      tHW[j] += m_kernel_hw[secid][i][lmissid[j]]  * partialsHW[i]; 
     }
 
     tLL[j] = aux_asr(tLL[j], 0, 50, ofl); // 50
@@ -1868,8 +1868,8 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   }
 
   // delete [] m_partials;
-  delete [] m_partialsLL;
-  delete [] m_partialsHW;
+  delete [] partialsLL;
+  delete [] partialsHW;
 
   if (ofl) FTKSetup::PrintMessage(ftk::warn, "AUX-style t-vector calculation had an overflow!!!\n");
 
@@ -1892,29 +1892,29 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
   float *coords = track.getCoords();
   if (nmissing == 1) {
-    coords[m_lmissid[0]] = tLL[0] * m_maj_invkk_aux[secid][m_lmissid[0]][m_lmissid[0]]
-      / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_lmissid[0]][m_lmissid[0]] - 1);
-    cHW_signed[0] = aux_asr(tHW[0] * m_maj_invkk_hw[secid][m_lmissid[0]][m_lmissid[0]],-( 5 + m_maj_invkk_pow_hw[secid][m_lmissid[0]][m_lmissid[0]]), 40, ofl); //Rui's change to match fw
+    coords[lmissid[0]] = tLL[0] * m_maj_invkk_aux[secid][lmissid[0]][lmissid[0]]
+      / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[0]][lmissid[0]] - 1);
+    cHW_signed[0] = aux_asr(tHW[0] * m_maj_invkk_hw[secid][lmissid[0]][lmissid[0]],-( 5 + m_maj_invkk_pow_hw[secid][lmissid[0]][lmissid[0]]), 40, ofl); //Rui's change to match fw
     cHW[0] = max(cHW_signed[0],0); //RZ: if guessed hit < 0, set it to 0
 
     FTKHit newhit(1);
     cHW[0] = aux_asr(cHW[0], -3, 27, ofl); //Rui's change to match fw
 
     newhit.setHwCoord(0, cHW[0]);
-    track.setFTKHit(const_plane_map[m_lmissid[0]], newhit);
+    track.setFTKHit(const_plane_map[lmissid[0]], newhit);
 
   } else if (nmissing == 2) {
-    coords[m_lmissid[0]] =   tLL[0] * m_maj_invkk_aux[secid][m_lmissid[0]][m_lmissid[0]]
-                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_lmissid[0]][m_lmissid[0]] - 1)
-                         + tLL[1] * m_maj_invkk_aux[secid][m_lmissid[0]][m_lmissid[1]]
-                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_lmissid[0]][m_lmissid[1]] - 1);
-    coords[m_lmissid[1]] =   tLL[0] * m_maj_invkk_aux[secid][m_lmissid[1]][m_lmissid[0]]
-                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_lmissid[1]][m_lmissid[0]] - 1)
-                         + tLL[1] * m_maj_invkk_aux[secid][m_lmissid[1]][m_lmissid[1]]
-                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_lmissid[1]][m_lmissid[1]] - 1);
+    coords[lmissid[0]] =   tLL[0] * m_maj_invkk_aux[secid][lmissid[0]][lmissid[0]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[0]][lmissid[0]] - 1)
+                         + tLL[1] * m_maj_invkk_aux[secid][lmissid[0]][lmissid[1]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[0]][lmissid[1]] - 1);
+    coords[lmissid[1]] =   tLL[0] * m_maj_invkk_aux[secid][lmissid[1]][lmissid[0]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[1]][lmissid[0]] - 1)
+                         + tLL[1] * m_maj_invkk_aux[secid][lmissid[1]][lmissid[1]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[1]][lmissid[1]] - 1);
 
-    cHW_signed[0] =  aux_asr(tHW[0] * m_maj_invkk_hw[secid][m_lmissid[0]][m_lmissid[0]], -(5+m_maj_invkk_pow_hw[secid][m_lmissid[0]][m_lmissid[0]]), 40,ofl)+ aux_asr(tHW[1] * m_maj_invkk_hw[secid][m_lmissid[0]][m_lmissid[1]], -(5+m_maj_invkk_pow_hw[secid][m_lmissid[0]][m_lmissid[1]]), 40, ofl); //Rui's change to match fw
-    cHW_signed[1] =  aux_asr(tHW[0] * m_maj_invkk_hw[secid][m_lmissid[1]][m_lmissid[0]], -(5+m_maj_invkk_pow_hw[secid][m_lmissid[1]][m_lmissid[0]]), 40, ofl)+aux_asr(tHW[1] * m_maj_invkk_hw[secid][m_lmissid[1]][m_lmissid[1]], -(5+m_maj_invkk_pow_hw[secid][m_lmissid[1]][m_lmissid[1]]), 40, ofl); //Rui's change to match fw
+    cHW_signed[0] =  aux_asr(tHW[0] * m_maj_invkk_hw[secid][lmissid[0]][lmissid[0]], -(5+m_maj_invkk_pow_hw[secid][lmissid[0]][lmissid[0]]), 40,ofl)+ aux_asr(tHW[1] * m_maj_invkk_hw[secid][lmissid[0]][lmissid[1]], -(5+m_maj_invkk_pow_hw[secid][lmissid[0]][lmissid[1]]), 40, ofl); //Rui's change to match fw
+    cHW_signed[1] =  aux_asr(tHW[0] * m_maj_invkk_hw[secid][lmissid[1]][lmissid[0]], -(5+m_maj_invkk_pow_hw[secid][lmissid[1]][lmissid[0]]), 40, ofl)+aux_asr(tHW[1] * m_maj_invkk_hw[secid][lmissid[1]][lmissid[1]], -(5+m_maj_invkk_pow_hw[secid][lmissid[1]][lmissid[1]]), 40, ofl); //Rui's change to match fw
 
     cHW[0] = max(cHW_signed[0],0);
     cHW[1] = max(cHW_signed[1],0);
@@ -1925,7 +1925,7 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
     newhit.setHwCoord(0, cHW[0]);
     newhit.setHwCoord(1, cHW[1]);
-    track.setFTKHit(const_plane_map[m_lmissid[0]], newhit);
+    track.setFTKHit(const_plane_map[lmissid[0]], newhit);
 
     ////  cout << __LINE__ << "  JS:  " << m_missid[0] << "   C=" << track.getCoord(m_missid[0]) 
     ////                                               << "   A=" << track.getAUXCoord(m_missid[0]) 

@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <cassert>
+#include <TString.h> // for Form
 
 #include "GaudiKernel/StatusCode.h"
 
@@ -92,14 +93,13 @@ public:
                            std::map<IdentifierHash,std::vector<float> >& data_SampleMap,
                            CLHEP::HepRandomEngine* m_rndmEngine);
 
-  // input parameters should be as form of cscHelper returned value....
-  IdentifierHash getHashId(int eta, int phiSector, int chamberLayer, int chamberType, int wireLayer, int stripId, int maxStrip, int measuresPhi) {
-
-    int etaIndex = (eta==-1) ? 1 : 2;
-    
-    IdentifierHash hashId = (stripId-1)+maxStrip*(wireLayer-1)+4*maxStrip*(chamberLayer-1)
-      +8*maxStrip*(phiSector-1)+64*maxStrip*(etaIndex-1)+m_hashOffset[chamberType][measuresPhi];
-
+  // input parameters should be as form of cscHelper returned value...
+  IdentifierHash getHashId(const std::string &stationName, const int eta, const int phiSector, const int chamberLayer, const int wireLayer, const int stripId, const int measuresPhi) {
+    Identifier realHitId = m_cscIdHelper->channelID(stationName, eta, phiSector, chamberLayer, wireLayer, measuresPhi, stripId);
+    IdentifierHash hashId;
+    if (m_cscIdHelper->get_channel_hash(realHitId, hashId)) {
+      throw std::runtime_error(Form("File: %s, Line: %d\nCSC_Digitizer::getHashId() - Failed to retrieve channel hash from identifier %llu", __FILE__, __LINE__, realHitId.get_compact()));
+    }
     return hashId;
   }
 
@@ -142,7 +142,6 @@ private:
   
   double m_Polia;
   double * m_sprob;
-  size_t m_hashOffset[2][2];
   double m_timeWindowLowerOffset;
   double m_timeWindowUpperOffset;
   double m_bunchTime;
@@ -201,12 +200,7 @@ inline void CSC_Digitizer::fillSampleMaps(const IdentifierHash hashId,
     
   }
   else {
-    std::vector<float> samples = m_pcalib->getSamplesFromBipolarFunc(driftTime, stripCharge);
-    if (data_map[hashId].empty()) {
-      for (unsigned int i=0; i< samples.size(); ++i ) {
-        data_map[hashId].push_back(samples[i]);
-      }
-    }
+    data_map.insert ( std::pair<IdentifierHash,std::vector<float>>(hashId,m_pcalib->getSamplesFromBipolarFunc(driftTime, stripCharge)) );
     hashVec.push_back(hashId);
   }
 }

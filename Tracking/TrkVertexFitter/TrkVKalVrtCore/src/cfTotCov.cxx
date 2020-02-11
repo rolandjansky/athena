@@ -39,7 +39,7 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
     for (i=1; i<=6; ++i) {
 	for (j=1; j<=NVar  ; ++j) dcv[i + j*6 - 7] = 0.;
     }
-    cfsetdiag( 6, VrtMomCov, 10.);
+    cfsetdiag( 6, VrtMomCov, 100.);
     ptot[0] = 0.;
     ptot[1] = 0.;
     ptot[2] = 0.;
@@ -66,6 +66,7 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
     dcv[0]  = 1.;
     dcv[7]  = 1.;
     dcv[14] = 1.;
+    if(!ader)return 0;
     int IERR=getFullVrtCov(vk, ader, dcv, verr);     if (IERR) return IERR;
     int ijk = 0;
     for ( i=1; i<=6; ++i) {

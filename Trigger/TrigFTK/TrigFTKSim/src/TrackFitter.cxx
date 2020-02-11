@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKSetup.h"
@@ -101,7 +101,7 @@ void TrackFitter::setNCoordsPlanes(int nc, int np)
   m_ncoords = nc;
   m_nplanes = np;
   m_HW_dev = new float[m_ncoords];
-  for (int i=0;i<m_ncoords;++i) {
+  for (unsigned int i=0;i<m_ncoords;++i) {
     m_HW_dev[i] = 0.;
   }
 }
@@ -129,7 +129,7 @@ void TrackFitter::loadHWConf(const char *fname)
 
   // start the real read of the file
   char flag;
-  int nvals;
+  unsigned int nvals;
   int pos;
   float fval;
 
@@ -140,7 +140,7 @@ void TrackFitter::loadHWConf(const char *fname)
     FTKSetup::PrintMessageFmt(ftk::sevr,"Error parsing HW configuration, wrong number of values %d -> %d",nvals,m_ncoords);
   }
 
-  for (int i=0;i<nvals;++i) {
+  for (unsigned int i=0;i<nvals;++i) {
     fin >> pos >> fval;
     m_HW_dev[pos] = fval;
   }
@@ -231,10 +231,10 @@ void TrackFitter::init()
   // counter that enumerates current hit in FTKHit array
   m_hitcnt = new int[m_nplanes];
 
-  m_complete_mask = ~(~0<<m_ncoords);
+  m_complete_mask = (1 << m_ncoords) - 1;
   // allocate once the array of recovered tracks
   combtrack = new FTKTrack[m_ncoords];
-  for (int ic=0;ic!=m_ncoords;++ic) {
+  for (unsigned int ic=0;ic!=m_ncoords;++ic) {
     combtrack[ic].setNCoords(m_ncoords);
     combtrack[ic].setNPlanes(m_nplanes);
   }
@@ -1074,7 +1074,7 @@ list<FTKTrack>::iterator TrackFitter::removeTrack(list<FTKTrack> &tracks_list, l
 
 //Track remover for first stage does not delete tracks, as they are still needed for HW duplciate comparison
 
-list<FTKTrack>::iterator TrackFitter::removeTrackStage1(list<FTKTrack> &tracks_list, list<FTKTrack>::iterator itrack,
+list<FTKTrack>::iterator TrackFitter::removeTrackStage1(list<FTKTrack> &, list<FTKTrack>::iterator itrack,
                           FTKTrack &rejtrk, const FTKTrack &killer, bool rejnew)
 {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include "TH1.h"
+#include "TH2.h"
 #include "TProfile.h"
 
 class TTree;
@@ -62,6 +63,14 @@ private:
   std::vector<int>* m_BCID;
   std::vector<int>* m_LVL1A;
   std::vector<int>* m_LVL1ID;
+  // Global and Local positions
+  std::vector<double>* m_globalX;
+  std::vector<double>* m_globalY;
+  std::vector<double>* m_globalZ;
+  std::vector<double>* m_localX;
+  std::vector<double>* m_localY;
+  std::vector<double>* m_localZ;
+
 
   // SDO
   std::vector<unsigned long long>* m_sdoID;
@@ -138,17 +147,22 @@ private:
   TH1* m_h_disabled_brl;  
   TH1* m_h_disabled_ec;
   
-  TH1* m_h_brlinclPhiIndex_perLayer[5];
-  TH1* m_h_brlinclEtaIndex_perLayer[5];
+  TH1* m_h_brlinclPhiIndex_perLayer[33];
+  TH1* m_h_brlinclEtaIndex_perLayer[33];
    
-  TH1* m_h_brlflatPhiIndex_perLayer[5];
-  TH1* m_h_brlflatEtaIndex_perLayer[5];
+  TH1* m_h_brlflatPhiIndex_perLayer[33];
+  TH1* m_h_brlflatEtaIndex_perLayer[33];
    
-  TH1* m_h_brlPhiIndex_perLayer[5];
-  TH1* m_h_brlEtaIndex_perLayer[5];
+  TH1* m_h_brlPhiIndex_perLayer[33];
+  TH1* m_h_brlEtaIndex_perLayer[33];
    
-  TH1* m_h_ecPhiIndex_perLayer[5];
-  TH1* m_h_ecEtaIndex_perLayer[5];
+  TH1* m_h_ecPhiIndex_perLayer[33];
+  TH1* m_h_ecEtaIndex_perLayer[33];
+
+  TH2* m_h_globalZR;
+  TH1* m_h_globalX;
+  TH1* m_h_globalY;
+  TH1* m_h_globalZ;
 
   TTree* m_tree;
   std::string m_ntupleFileName;
@@ -158,6 +172,7 @@ private:
   ServiceHandle<ITHistSvc> m_thistSvc;
   
   bool m_doITk;
+  bool m_doPos;
 };
 
 #endif // PIXEL_RDO_ANALYSIS_H

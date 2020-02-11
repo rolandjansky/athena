@@ -76,6 +76,10 @@ elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
 
 elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
    SLHC_Flags.LayoutOption="InclinedAlternative"
+   
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22'):
+   SLHC_Flags.LayoutOption="InclinedAlternative"
+   
 print "SLHC_Flags.LayoutOption = ",SLHC_Flags.LayoutOption
 
 include("InDetSLHC_Example/preInclude.SLHC.py")

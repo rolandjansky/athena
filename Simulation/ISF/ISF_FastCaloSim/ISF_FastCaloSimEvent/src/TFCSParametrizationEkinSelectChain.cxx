@@ -43,7 +43,7 @@ int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState &simulstate,
   int bin=val_to_bin(Ekin);
   
   if(!DoRandomInterpolation()) return bin;
-
+  float rnd = CLHEP::RandFlat::shoot(simulstate.randomEngine());
   if(bin<0) return bin;
   if(bin>=(int)get_number_of_bins()) return bin;
 
@@ -69,7 +69,6 @@ int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState &simulstate,
     float denominator=logEkin_nominal-logEkin_previous;
     if(denominator<=0) return bin;
 
-    float rnd = CLHEP::RandFlat::shoot(simulstate.randomEngine());
     if(numerator/denominator<rnd) bin=prevbin;
     ATH_MSG_DEBUG("logEkin="<<logEkin<<" logEkin_previous="<<logEkin_previous<<" logEkin_nominal="<<logEkin_nominal<<" (rnd="<<1-rnd<<" < p(previous)="<<(1-numerator/denominator)<<")? => orgbin="<<prevbin+1<<" selbin="<<bin);
   } else {
@@ -88,7 +87,6 @@ int TFCSParametrizationEkinSelectChain::get_bin(TFCSSimulationState &simulstate,
     float denominator=logEkin_next-logEkin_nominal;
     if(denominator<=0) return bin;
 
-    float rnd = CLHEP::RandFlat::shoot(simulstate.randomEngine());
     if(rnd<numerator/denominator) bin=nextbin;
     ATH_MSG_DEBUG("logEkin="<<logEkin<<" logEkin_nominal="<<logEkin_nominal<<" logEkin_next="<<logEkin_next<<" (rnd="<<rnd<<" < p(next)="<<numerator/denominator<<")? => orgbin="<<nextbin-1<<" selbin="<<bin);
   }

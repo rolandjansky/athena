@@ -99,7 +99,7 @@ class TrigMissingETMuon : public HLT::AllTEAlgo
   float m_muonptcut;
 /*   unsigned m_maskGlobErrors;            //!< Error detected */
 
-
+  bool m_doCaching;
 
 };
 

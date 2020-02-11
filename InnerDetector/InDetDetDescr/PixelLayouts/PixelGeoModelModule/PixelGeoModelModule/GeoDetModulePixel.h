@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELGEODETMODULE_H
@@ -93,14 +93,6 @@ class GeoDetModulePixel : public GeoXMLUtils {
   std::string m_chipMatName;
   std::string m_hybridMatName;
   std::string m_sensorMatName;
-
-  //  GeoPixelReadoutGeometry* m_readoutGeoBuilder;
-
-/*   bool m_bIdFlags; */
-/*   int m_brl_ec; */
-/*   int m_layer_disk; */
-/*   int m_phi; */
-/*   int m_eta; */
 
 
 };

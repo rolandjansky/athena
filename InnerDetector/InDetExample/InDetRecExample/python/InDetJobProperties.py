@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -118,6 +118,12 @@ class doNewTracking(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
+    
+class doFastTracking(InDetFlagsJobProperty):
+    """Turn running of FastTracking on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 class doPseudoTracking(InDetFlagsJobProperty):
     """Turn running of the truth seeded pseudo tracking on and off"""
@@ -267,6 +273,12 @@ class doVeryLowPt(InDetFlagsJobProperty):
 
 class doSLHCConversionFinding(InDetFlagsJobProperty):
     """Turn running of doSLHCConversionFinding second pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doROIConv(InDetFlagsJobProperty):
+    """Turn running of doROIConvFinding second pass on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1145,6 +1157,12 @@ class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doImprovedPixelPrdAssociation(InDetFlagsJobProperty):
+    """Turn running of an improved PixelPrdAssoication configuration"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel after NewTracking, using all available hits, on and off"""
     statusOn     = True
@@ -1152,7 +1170,7 @@ class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
     StoredValue  = False
 
 class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
-    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
+    """Turn running of pixel stablet creation in pixel after NewTracking, using unassociated hits, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1379,7 +1397,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking                     , True )
        self.checkThenSet(self.doLowPt                           , False)
        self.checkThenSet(self.doVeryLowPt                       , False)
-       self.checkThenSet(self.doSLHCConversionFinding           , False )
+       self.checkThenSet(self.doSLHCConversionFinding           , False)
+       self.checkThenSet(self.doROIConv                         , False)
        self.checkThenSet(self.doBeamGas                         , False)
        self.checkThenSet(self.doBeamHalo                        , False)
        self.checkThenSet(self.doxKalman                         , False)
@@ -1796,6 +1815,7 @@ class InDetJobProperties(JobPropertyContainer):
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!      
       self.doVeryLowPt   = self.doVeryLowPt() and self.doLowPt()
       #
+      self.doROIConv = self.doROIConv() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       self.doSLHCConversionFinding = self.doSLHCConversionFinding() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # new forward tracklets
       self.doForwardTracks = self.doForwardTracks() and self.doNewTracking()
@@ -2001,7 +2021,7 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
+    return (not self.doFastTracking()) and (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
             or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
@@ -2327,6 +2347,8 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doNewTracking() :
        print '*'
        print '* NewTracking is ON:'
+    if self.doFastTracking() :
+       print '* --> running in FastTracking mode (i.e. without AmbiguitySolver)'
     if self.doSiSPSeededTrackFinder() :
        print '* - run SiSPSeededTrackFinder'
        if self.useZvertexTool() :
@@ -2397,6 +2419,10 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doSLHCConversionFinding() :
        print '*'
        print '* SLHCConversionFinding is ON'
+    # -----------------------------------------
+    if self.doROIConv() :
+       print '*'
+       print '* ROIConversionFinding is ON'
     # -----------------------------------------
     if self.doForwardTracks():
        print '*'
@@ -2686,6 +2712,7 @@ jobproperties.add_Container(InDetJobProperties)
 _list_InDetJobProperties = [Enabled,
                             doPrintConfigurables,
                             doNewTracking,
+                            doFastTracking,
                             doPseudoTracking,
                             doSplitReco,
                             doxKalman,
@@ -2709,6 +2736,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowPt,
                             doVeryLowPt,
                             doSLHCConversionFinding,
+                            doROIConv,
                             doForwardTracks,
                             doLowPtLargeD0,
                             doLargeD0,
@@ -2851,6 +2879,7 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             ForceCoolVectorPayload,
                             doTrackSegmentsPixelPrdAssociation,
+                            doImprovedPixelPrdAssociation,
                             doTrackSegmentsPixelFourLayer,
                             doTrackSegmentsPixelThreeLayer,
                             doSLHCVeryForward,

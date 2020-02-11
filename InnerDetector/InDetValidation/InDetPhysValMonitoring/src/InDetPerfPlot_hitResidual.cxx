@@ -127,28 +127,40 @@ InDetPerfPlot_hitResidual::initializePlots() {
   book(m_phiWidth_eta[SCT][ENDCAP], "clusterPhiWidth_eta_sct_endcap");
 }
 
+void InDetPerfPlot_hitResidual::bookProfileForLayer(TProfile*& pHisto, const std::string& histoIdentifier, int index,const std::string& folder){
+  // first, load the identifier for all layers of this kind
+  SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
+  if (hd.empty()) {
+    ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
+  }
+  // then give it a unique name 
+  hd.name = histoIdentifier+"_layer"+std::to_string(index); 
+  hd.title += std::string(" - Layer ")+std::to_string(index);
+  book(pHisto, hd);
+}
+
 void InDetPerfPlot_hitResidual::FillAdditionalITkPlots(bool fill) {
 
   m_fillAdditionalITkPlots = fill;
   
   if (not m_fillAdditionalITkPlots) return;
 
-  book(m_phiWidth_eta_perLayer[0][L0PIXBARR][BARREL], "clusterPhiWidth_eta_pixel_barrel_layer0");
-  book(m_phiWidth_eta_perLayer[0][PIXEL][ENDCAP]    , "clusterPhiWidth_eta_pixel_endcap_layer0");
-  book(m_etaWidth_eta_perLayer[0][L0PIXBARR][BARREL], "clusterEtaWidth_eta_pixel_barrel_layer0");
-  book(m_etaWidth_eta_perLayer[0][PIXEL][ENDCAP]    , "clusterEtaWidth_eta_pixel_endcap_layer0");
+  bookProfileForLayer(m_phiWidth_eta_perLayer[0][L0PIXBARR][BARREL], "clusterPhiWidth_eta_pixel_barrel",0);
+  bookProfileForLayer(m_phiWidth_eta_perLayer[0][PIXEL][ENDCAP]    , "clusterPhiWidth_eta_pixel_endcap",0);
+  bookProfileForLayer(m_etaWidth_eta_perLayer[0][L0PIXBARR][BARREL], "clusterEtaWidth_eta_pixel_barrel",0);
+  bookProfileForLayer(m_etaWidth_eta_perLayer[0][PIXEL][ENDCAP]    , "clusterEtaWidth_eta_pixel_endcap",0);
   
   for (int layer = 1; layer < N_LAYERS; layer++) {
-    book(m_phiWidth_eta_perLayer[layer][PIXEL][BARREL], "clusterPhiWidth_eta_pixel_barrel_layer"+std::to_string(layer));
-    book(m_phiWidth_eta_perLayer[layer][PIXEL][ENDCAP], "clusterPhiWidth_eta_pixel_endcap_layer"+std::to_string(layer));
-    book(m_etaWidth_eta_perLayer[layer][PIXEL][BARREL], "clusterEtaWidth_eta_pixel_barrel_layer"+std::to_string(layer));
-    book(m_etaWidth_eta_perLayer[layer][PIXEL][ENDCAP], "clusterEtaWidth_eta_pixel_endcap_layer"+std::to_string(layer));
+    bookProfileForLayer(m_phiWidth_eta_perLayer[layer][PIXEL][BARREL], "clusterPhiWidth_eta_pixel_barrel", layer);
+    bookProfileForLayer(m_phiWidth_eta_perLayer[layer][PIXEL][ENDCAP], "clusterPhiWidth_eta_pixel_endcap", layer);
+    bookProfileForLayer(m_etaWidth_eta_perLayer[layer][PIXEL][BARREL], "clusterEtaWidth_eta_pixel_barrel", layer);
+    bookProfileForLayer(m_etaWidth_eta_perLayer[layer][PIXEL][ENDCAP], "clusterEtaWidth_eta_pixel_endcap", layer);
   }
   for (int layer = 0; layer < N_SCTLAYERS; layer++) {
-    book(m_phiWidth_eta_perLayer[layer][SCT][BARREL]  , "clusterPhiWidth_eta_sct_barrel_layer"+std::to_string(layer));
-    book(m_phiWidth_eta_perLayer[layer][SCT][ENDCAP]  , "clusterPhiWidth_eta_sct_endcap_layer"+std::to_string(layer));
-    book(m_etaWidth_eta_perLayer[layer][SCT][BARREL]  , "clusterEtaWidth_eta_sct_barrel_layer"+std::to_string(layer));
-    book(m_etaWidth_eta_perLayer[layer][SCT][ENDCAP]  , "clusterEtaWidth_eta_sct_endcap_layer"+std::to_string(layer));
+    bookProfileForLayer(m_phiWidth_eta_perLayer[layer][SCT][BARREL]  , "clusterPhiWidth_eta_sct_barrel",layer);
+    bookProfileForLayer(m_phiWidth_eta_perLayer[layer][SCT][ENDCAP]  , "clusterPhiWidth_eta_sct_endcap",layer);
+    bookProfileForLayer(m_etaWidth_eta_perLayer[layer][SCT][BARREL]  , "clusterEtaWidth_eta_sct_barrel",layer);
+    bookProfileForLayer(m_etaWidth_eta_perLayer[layer][SCT][ENDCAP]  , "clusterEtaWidth_eta_sct_endcap",layer);
   }
 }
 

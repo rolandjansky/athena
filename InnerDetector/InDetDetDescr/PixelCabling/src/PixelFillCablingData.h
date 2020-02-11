@@ -78,6 +78,7 @@ class PixelFillCablingData : public AthAlgTool
    IdContext m_cntxpixel;
    std::string m_mapping_file;
    const PixelID* m_idHelper;
+   bool m_disableChecks;
 
 
 };

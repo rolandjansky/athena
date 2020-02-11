@@ -38,15 +38,16 @@ namespace G4UA
   //---------------------------------------------------------------------------
   AthenaStackingAction::AthenaStackingAction(const Config& config):
     m_config(config),
-    m_russianRouletteForNeutrons(false),
-    m_oneOverWeight(0)
+    m_oneOverWeightNeutron(0),
+    m_oneOverWeightPhoton(0)
   {
-    // bool that checks if the Russian Roulette is active for neutrons
-    m_russianRouletteForNeutrons = m_config.russianRouletteThreshold > 0;
+    // calculate this division only once
+    if (m_config.applyNRR)
+      m_oneOverWeightNeutron = 1./m_config.russianRouletteNeutronWeight;
 
     // calculate this division only once
-    if (m_russianRouletteForNeutrons)
-      m_oneOverWeight = 1./m_config.russianRouletteWeight;
+    if (m_config.applyPRR)
+      m_oneOverWeightPhoton = 1./m_config.russianRoulettePhotonWeight;
   }
 
   //---------------------------------------------------------------------------
@@ -76,16 +77,30 @@ namespace G4UA
       static_cast<EventInformation*> (ev->GetUserInformation());
 
     // Neutron Russian Roulette
-    if (m_russianRouletteForNeutrons and isNeutron(track) &&
-        track->GetWeight() < m_config.russianRouletteWeight && // do not re-Roulette particles
-        track->GetKineticEnergy() < m_config.russianRouletteThreshold) {
+    if (m_config.applyNRR && isNeutron(track) &&
+        track->GetWeight() < m_config.russianRouletteNeutronWeight && // do not re-Roulette particles
+        track->GetKineticEnergy() < m_config.russianRouletteNeutronThreshold) {
       // shoot random number
-      if ( CLHEP::RandFlat::shoot() > m_oneOverWeight ) {
+      if ( CLHEP::RandFlat::shoot() > m_oneOverWeightNeutron ) {
         // Kill (w-1)/w neutrons
         return fKill;
       }
       // Weight the rest 1/w neutrons with a weight of w
-      mutableTrack->SetWeight(m_config.russianRouletteWeight);
+      mutableTrack->SetWeight(m_config.russianRouletteNeutronWeight);
+    }
+
+    // Photon Russian Roulette
+    if (m_config.applyPRR && isGamma(track) && track->GetOriginTouchable() &&
+        track->GetOriginTouchable()->GetVolume()->GetName().substr(0, 3) == "LAr" && // only for photons created in LAr
+        track->GetWeight() < m_config.russianRoulettePhotonWeight && // do not re-Roulette particles
+        track->GetKineticEnergy() < m_config.russianRoulettePhotonThreshold) {
+      // shoot random number
+      if ( CLHEP::RandFlat::shoot() > m_oneOverWeightPhoton ) {
+        // Kill (w-1)/w photons
+        return fKill;
+      }
+      // Weight the rest 1/w neutrons with a weight of w
+      mutableTrack->SetWeight(m_config.russianRoulettePhotonWeight);
     }
 
     // Handle primary particles

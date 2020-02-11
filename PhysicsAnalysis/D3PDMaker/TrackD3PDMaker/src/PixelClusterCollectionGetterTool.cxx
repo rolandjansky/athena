@@ -127,7 +127,7 @@ bool PixelClusterCollectionGetterTool::isBLayer(const InDet::PixelCluster *clus)
   Identifier id = clus->identify();
 
   if ( id.is_valid() ) {
-    if( m_pixelId->is_blayer(id) ) {
+    if( m_pixelId->is_innermost(id) ) {
       return true;
     }
   }

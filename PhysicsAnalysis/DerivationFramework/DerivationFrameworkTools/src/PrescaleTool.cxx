@@ -11,6 +11,7 @@
 // Use of ExpressionParsing to analyse a more complex string
 
 #include "DerivationFrameworkTools/PrescaleTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace DerivationFramework {
 
@@ -30,7 +31,6 @@ namespace DerivationFramework {
       ATH_MSG_FATAL("Prescale of less than 1 makes no sense");
       return StatusCode::FAILURE;
     }
-    m_eventCounter = 0;
     return StatusCode::SUCCESS;
   }
 
@@ -41,9 +41,10 @@ namespace DerivationFramework {
 
   bool PrescaleTool::eventPassesFilter() const
   {
+    const xAOD::EventInfo* ei = 0;
+    CHECK( evtStore()->retrieve( ei , "EventInfo" ) );
     bool accept(false);
-    if (m_eventCounter % m_prescale == 0) accept = true;
-    ++m_eventCounter; 
+    if (ei->eventNumber() % m_prescale == 0) accept = true;
     return accept;
   }  
 

@@ -86,6 +86,8 @@ FTKCachedBankGenAlgo::FTKCachedBankGenAlgo(const std::string& name, ISvcLocator*
 
    declareProperty("badmap_path",m_badmap_path);
    declareProperty("badmap_path_for_hit",m_badmap_path2);
+
+   declareProperty("maxPerSectorPath",m_maxPerSectorPath);
 }
 
 FTKCachedBankGenAlgo::~FTKCachedBankGenAlgo() {
@@ -322,6 +324,16 @@ StatusCode FTKCachedBankGenAlgo::RunCachedBankGenerator(){
    // set list of bad modules
    bank.setBadSSMapPath(m_badmap_path);
    bank.setBadSSMapPath2(m_badmap_path2);
+
+   if(!m_maxPerSectorPath.empty()) {
+      std::map<int,int> maxPerSector =
+         bank.countSectorOrderedPatterns(m_in_bank_path.c_str());
+      ofstream maxPerSectorFile(m_maxPerSectorPath.c_str());
+      for(std::map<int,int>::const_iterator i=maxPerSector.begin();
+          i!=maxPerSector.end();i++) {
+         maxPerSectorFile<<(*i).first<<" "<<(*i).second<<"\n";
+      }
+   }
 
    if(!m_in_cache_path.empty()) {
       // read only one subregion (or whatever is in that file)

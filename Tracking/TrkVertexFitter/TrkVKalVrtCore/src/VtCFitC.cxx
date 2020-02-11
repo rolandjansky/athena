@@ -62,6 +62,7 @@ int vtcfitc( VKVertex * vk )
 	 tf0t.push_back( tmpVec );
        }
     }
+    if(totNC==0)return 0;
     tmpVec.clear();
 //
     std::vector< std::vector<double> > denom;

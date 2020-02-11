@@ -3,29 +3,28 @@ decoration = InDetPhysValMonitoring.InDetPhysValDecoration.addDecoratorIfNeeded(
 
 # add ID physics validation monitoring tool
 
-from InDetPhysValMonitoring.InDetPhysValMonitoringTool import InDetPhysValMonitoringTool
 from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+import InDetPhysValMonitoring.InDetPhysValMonitoringTool as InDetPhysValMonitoringTool
 
-indet_mon_tool = InDetPhysValMonitoringTool.InDetPhysValMonitoringTool()
-ToolSvc += [indet_mon_tool] 
-monMan.AthenaMonTools += [indet_mon_tool] 
+mons=[ (True                                             , InDetPhysValMonitoringTool.getInDetPhysValMonitoringTool),
+       (InDetPhysValFlags.doValidateLooseTracks()        , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolLoose),
+       (InDetPhysValFlags.doValidateTightPrimaryTracks() , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolTightPrimary),
+       (InDetPhysValFlags.doValidateDBMTracks()          , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolDBM),
+       (InDetPhysValFlags.doValidateGSFTracks()          , InDetPhysValMonitoringTool.getInDetPhysValMonitoringToolGSF)
+     ]
 
-if InDetPhysValFlags.doValidateDBMTracks():
-    indet_mon_tool_DBM = InDetPhysValMonitoringTool.InDetPhysValMonitoringToolDBM()
-    ToolSvc += [ indet_mon_tool_DBM ]
-    monMan.AthenaMonTools += [ indet_mon_tool_DBM ] 
+for enabled, creator in mons :
+    if enabled :
+        tool = creator()
+        ToolSvc += [ tool ]
+        monMan.AthenaMonTools += [ tool ]
 
-if InDetPhysValFlags.doValidateGSFTracks():
-    indet_mon_tool_GSF = InDetPhysValMonitoringTool.InDetPhysValMonitoringToolGSF()
-    ToolSvc += [ indet_mon_tool_GSF ]
-    monMan.AthenaMonTools += [ indet_mon_tool_GSF ]
-
-if InDetPhysValFlags.doValidateLooseTracks():
-    indet_mon_tool_Loose = InDetPhysValMonitoringTool.InDetPhysValMonitoringToolLoose()
-    ToolSvc += [ indet_mon_tool_Loose ]
-    monMan.AthenaMonTools += [ indet_mon_tool_Loose ] 
-
-if InDetPhysValFlags.doValidateTightPrimaryTracks():
-    indet_mon_tool_TightPrimary = InDetPhysValMonitoringTool.InDetPhysValMonitoringToolTightPrimary()
-    ToolSvc += [ indet_mon_tool_TightPrimary ]
-    monMan.AthenaMonTools += [ indet_mon_tool_TightPrimary ] 
+from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+for col in InDetPhysValFlags.validateExtraTrackCollections() :
+    prefix=extractCollectionPrefix(col)
+    tool = InDetPhysValMonitoringTool.getInDetPhysValMonitoringTool(name                       = 'InDetPhysValMonitoringTool'+prefix,
+                                                                    SubFolder                  = prefix+'Tracks/',
+                                                                    TrackParticleContainerName = prefix+'TrackParticles')
+    ToolSvc += [ tool ]
+    monMan.AthenaMonTools += [ tool ]

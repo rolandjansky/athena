@@ -247,12 +247,15 @@ int FTK_SGHitInput::readData()
 
   HitIndexMap hitIndexMap; // keep running index event-unique to each hit
   HitIndexMap pixelClusterIndexMap;
-  // get pixel and sct cluster containers
-  if( m_storeGate->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the PixelCluster container " << m_pixelClustersName << endmsg;
-  }
-  if( m_storeGate->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the SCT_Cluster container " << m_sctClustersName << endmsg;
+
+  if (m_dooutFileRawHits) {
+    // get pixel and sct cluster containers
+    if( m_storeGate->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
+      ATH_MSG_WARNING("unable to retrieve the PixelCluster container " << m_pixelClustersName);
+    }
+    if( m_storeGate->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
+      ATH_MSG_WARNING("unable to retrieve the SCT_Cluster container " << m_sctClustersName);
+    }
   }
 
 
@@ -716,6 +719,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
     } // end dump all RDO's and SDO's for a given event
   } // end dump raw SCT data
 
+if (m_dooutFileRawHits) {
   // FlagJT dump pixel clusters. They're in m_pixelContainer
   m_pixelContainer->clID(); // anything to dereference the DataHandle
   for( InDet::SiClusterContainer::const_iterator iColl=m_pixelContainer->begin(), fColl=m_pixelContainer->end(); iColl!=fColl; ++iColl ) {
@@ -808,7 +812,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       pixelClusterIndex++;
     } // End loop over pixel clusters
   } // End loop over pixel cluster collection
-
+}
   // dump the statistics
   // cout << boost::format("truth parent stats: nch = %|6d| %|6d| %|6d| %|6d| %|6d| fmt = %|5g| fmtp = %|5g| fmtp1 = %|5g| fmb = %|5g|")
   //   % nchannels

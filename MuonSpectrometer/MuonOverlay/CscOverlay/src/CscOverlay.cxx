@@ -22,6 +22,7 @@ const uint16_t MAX_AMPL = 4095; // 12-bit ADC
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   MuonOverlayBase(name, pSvcLocator),
   m_storeGateTemp("StoreGateSvc/BkgEvent_1_SG", name),
+  m_isDataOverlay(false),
   m_cscHelper(0),
   m_cscCalibTool( "CscCalibTool", this),
   m_digTool("CscDigitizationTool", this ),
@@ -45,6 +46,7 @@ CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("IsByteStream", m_isByteStream = false ); 
   declareProperty("RndmSvc", 	     m_rndmSvc, "Random Number Service used for CscDigitToCscRDOTool" );
   declareProperty("RndmEngine",      m_rndmEngineName, "Random engine name for CscDigitToCscRDOTool");
+  declareProperty("isDataOverlay", m_isDataOverlay);
 
 }
 
@@ -452,7 +454,7 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
        std::map< int,std::vector<uint16_t> > ovlSamples;
        uint32_t sigHash;
        uint32_t ovlHash;
-       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , true); // real data
+       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , m_isDataOverlay); // need to patch in the case of real data
        uint32_t ovlAddress = this->stripData( ovlData, nOvlSamples, ovlSamples, ovlHash, spuID, j , false); // simulation
        if (sigSamples.size()==0 && ovlSamples.size()==0) continue;
  
@@ -525,8 +527,8 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
 	    if (measuresPhi) {
 	      int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
 	      if (stationEta>0) {
+                msg<<MSG::VERBOSE<<"FLIP strip. Formerly strip="<<strip<<", now strip="<<49-strip<<endmsg;
 		strip = 49-strip;
-		msg<<MSG::VERBOSE<<"FLIP strip, now strip="<<strip<<endmsg;
 	      }
 	    }
 	    insertedstrips.insert(strip);//for checks
@@ -551,8 +553,12 @@ void CscOverlay::mergeCollections(CscRawDataCollection *out_coll,
        //check
        if (readstrips!=insertedstrips){
 	 msg << MSG::WARNING << "Readstrips != Insertedstrips: "<<endmsg;
-	 for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
-	 for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
+         std::ostringstream readstream;
+         for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){readstream<<*i<<" ";}
+         msg << MSG::WARNING << readstream.str()<<endmsg;
+         std::ostringstream insertstream;
+         for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){insertstream<<*i<<" ";}
+         msg << MSG::WARNING << insertstream.str()<<endmsg;
        }
 
     } 

@@ -7,6 +7,7 @@
 #define LARTPCNV_LARTPCNVDICT_H
 
 #include "LArTPCnv/LArDigitContainer_p1.h"
+#include "LArTPCnv/LArDigitContainer_p2.h"
 #include "LArTPCnv/LArRawChannel_p1.h" 
 #include "LArTPCnv/LArRawChannel_p2.h" 
 #include "LArTPCnv/LArRawChannelCollection_p1.h"

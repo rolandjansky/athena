@@ -63,21 +63,26 @@ class GeoXMLUtils {
 
   std::vector<std::string> getNodeList(const char* parentTag) const;
 
+
   std::string getString(const char* parentTag,int parentIndex,
-			const char* childTag, int childIndex=0,
-			std::string defaultValue="") const;
+			const char* childTag, int childIndex=0) const;
+
+
   std::string getString(const char* parentTag,std::vector<int> parentIndex,
-			const char* childTag, int childIndex=0,
-			std::string defaultValue="") const;
+			const char* childTag, int childIndex=0) const;
+
+
   double getDouble(const char* parentTag,int parentIndex,
-		   const char* childTag, int childIndex=0,
-		   double defaultValue=999999.) const;
+		   const char* childTag, int childIndex=0) const;
+
+
   double getDouble(const char* parentTag,std::vector<int> parentIndex,
-		   const char* childTag, int childIndex=0,
-		   double defaultValue=999999.) const;
+		   const char* childTag, int childIndex=0) const;
+
+
   int getInt(const char* parentTag,int parentIndex,
-	     const char* childTag, int childIndex=0,
-	     int defaultValue=99999) const;
+	     const char* childTag, int childIndex=0) const;
+
   bool getBoolean(const char* parentTag,int parentIndex,
 		  const char* childTag, int childIndex=0) const;
 
@@ -94,12 +99,16 @@ class GeoXMLUtils {
   std::vector<std::string> getVectorString(const char* parentTag, std::vector<int> parentIndexList,
 					   const char* childTag, int childIndex=0) const;
 
+  void setSchemaVersion(int);
+  int getSchemaVersion() const; 
+
  protected:
   void releaseStrings();
   XercesDOMParser *m_ConfigFileParser;
   std::map<std::string, XMLCh *> m_Strings;
 
   DOMDocument* m_doc;
+  int m_schemaVersion;
 
 };
 

@@ -728,6 +728,22 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_frac_hole_vs_eta_trt_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_eta_trt_barrel","Hole Fraction: TRT Barrel;#eta;Hole Frac.",5,0,1.25);
     m_frac_hole_vs_eta_trt_endcap = create_registeredTProfile(al_expert, "frac_hole_vs_eta_trt_endcap","Hole Fraction: TRT Endcap;#eta;Hole Frac.",6,0.75,2.25);
 
+//New added plot, function of pt FEDERICA
+
+    m_frac_hole_vs_pt_ibl_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_pt_ibl_barrel","Hole Fraction: Pixel Barrel IBL;#p_T;Hole Frac.",10,0.0,100.0);
+    m_frac_hole_vs_pt_blay_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_pt_blay_barrel","Hole Fraction: Pixel Barrel B-Layer;#p_T;Hole Frac.",10,0.0,100.0);
+    m_frac_hole_vs_pt_pix_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_pt_pix_barrel","Hole Fraction: Pixel Barrel;#p_T;Hole Frac.",10,0.0,100.0);
+    m_frac_hole_vs_pt_pix_endcap = create_registeredTProfile(al_expert, "frac_hole_vs_pt_pix_endcap","Hole Fraction: Pixel Endcaps;#p_T;Hole Frac.",10,0.0,100.0);
+    m_frac_hole_vs_pt_sct_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_pt_sct_barrel","Hole Fraction: SCT Barrel;#p_T;Hole Frac.",10,0.0,100.0);
+    m_frac_hole_vs_pt_sct_endcap = create_registeredTProfile(al_expert, "frac_hole_vs_pt_sct_endcap","Hole Fraction: SCT Endcaps;#p_T;Hole Frac.",10,0.0,100.0);
+    
+    m_frac_hole_vs_lowpt_ibl_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_lowpt_ibl_barrel","Hole Fraction: Pixel Barrel IBL;#p_T;Hole Frac.",10,0.0,10.0);
+    m_frac_hole_vs_lowpt_blay_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_lowpt_blay_barrel","Hole Fraction: Pixel Barrel B-Layer;#p_T;Hole Frac.",10,0.0,10.0);
+    m_frac_hole_vs_lowpt_pix_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_lowpt_pix_barrel","Hole Fraction: Pixel Barrel;#p_T;Hole Frac.",10,0.0,10.0);
+    m_frac_hole_vs_lowpt_pix_endcap = create_registeredTProfile(al_expert, "frac_hole_vs_lowpt_pix_endcap","Hole Fraction: Pixel Endcaps;#p_T;Hole Frac.",10,0.0,10.0);
+    m_frac_hole_vs_lowpt_sct_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_lowpt_sct_barrel","Hole Fraction: SCT Barrel;#p_T;Hole Frac.",10,0.0,10.0);
+    m_frac_hole_vs_lowpt_sct_endcap = create_registeredTProfile(al_expert, "frac_hole_vs_lowpt_sct_endcap","Hole Fraction: SCT Endcaps;#p_T;Hole Frac.",10,0.0,10.0);
+
     m_frac_outlier_vs_eta_ibl_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_ibl_barrel","Outlier Fraction: Pixel Barrel IBL;#eta;Outlier Frac.",10,0,2.5);
     m_frac_outlier_vs_eta_blay_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_blay_barrel","Outlier Fraction: Pixel Barrel B-Layer;#eta;Outlier Frac.",10,0,2.5);
     m_frac_outlier_vs_eta_pix_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_pix_barrel","Outlier Fraction: Pixel Barrel;#eta;Outlier Frac.",10,0,2.5);
@@ -838,6 +854,12 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_cluster_width_phi_pixel_eta = create_registeredTH2F(al_expert, "cluster_width_phi_pixel_eta", "Cluster width distrubution vs. #eta, pixels", nbins_eta, min_eta, max_eta, 5, 0.5, 5.5);
     m_cluster_width_eta_pixel_eta = create_registeredTH2F(al_expert, "cluster_width_eta_pixel_eta", "Cluster #eta width distrubution vs. #eta, pixels", nbins_eta, min_eta, max_eta, 5, 0.5, 5.5);
     m_cluster_width_phi_sct_eta = create_registeredTH2F(al_expert, "cluster_width_phi_sct_eta", "Cluster width distrubution vs. #eta, SCT", nbins_eta, min_eta, max_eta, 5, 0.5, 5.5);
+    
+    // New plots FEDERICA
+    
+    m_cluster_width_phi_pixel_pt = create_registeredTH2F(al_expert, "cluster_width_phi_pixel_pt", "Cluster width distrubution vs. #p_T, pixels",10,0.0,100.0, 5, 0.5, 5.5);
+    m_cluster_width_eta_pixel_pt = create_registeredTH2F(al_expert, "cluster_width_eta_pixel_pt", "Cluster #p_T width distrubution vs. #eta, pixels", 10,0.0,100.0,5, 0.5, 5.5);
+    m_cluster_width_phi_sct_pt = create_registeredTH2F(al_expert, "cluster_width_phi_sct_pt", "Cluster width distrubution vs. #p_T, SCT",     10, 0.0, 100.0, 5, 0.5, 5.5);
 
     // Track incidence angle cluster information
     string detAreaTypesStrings[n_detAreaTypes] = {"pix_b", "pix_e", "sct_b", "sct_e"};
@@ -3629,12 +3651,15 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
     //float trkz0    = perigeeParams[Trk::z0];
     //trkphi         = perigeeParams[Trk::phi0];
-    //trktheta       = perigeeParams[Trk::theta];
+    float trktheta       = perigeeParams[Trk::theta];
     //trkcot         = 1./tan(trktheta);
     float trketa   = - log(tan(perigeeParams[Trk::theta] / 2.0));
     //float trkpt    = fabs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
     float trkpt    = fabs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
     float trkphi   = perigeeParams[Trk::phi0];
+    
+    float trkqOverPt  = perigeeParams[Trk::qOverP]*1000./sin(trktheta);
+    float trkpt_gev    = fabs(1.0 / trkqOverPt);
 
     //for each track see if we can get updator tool
     //if (m_updator) {
@@ -3890,34 +3915,74 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
           if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
             if (ilayB==0) {
               m_frac_hole_vs_eta_ibl_barrel->Fill(fabs(trketa),1);
+              m_frac_hole_vs_pt_ibl_barrel->Fill(trkpt_gev,1);
+	      m_frac_hole_vs_lowpt_ibl_barrel->Fill(trkpt_gev,1);
             }
             if (ilayB==1) {
               m_frac_hole_vs_eta_blay_barrel->Fill(fabs(trketa),1);
+              m_frac_hole_vs_pt_blay_barrel->Fill(trkpt_gev,1);
+	      m_frac_hole_vs_lowpt_blay_barrel->Fill(trkpt_gev,1);
             }
             if (ilayB>=0) {
-              if (ilayB<nPixelLayers) m_frac_hole_vs_eta_pix_barrel->Fill(fabs(trketa),1);
-              else m_frac_hole_vs_eta_sct_barrel->Fill(fabs(trketa),1);
+              if (ilayB<nPixelLayers) {
+              m_frac_hole_vs_eta_pix_barrel->Fill(fabs(trketa),1);
+              m_frac_hole_vs_pt_pix_barrel->Fill(trkpt_gev,1);
+	      m_frac_hole_vs_lowpt_pix_barrel->Fill(trkpt_gev,1);
+              }
+              else {
+              m_frac_hole_vs_eta_sct_barrel->Fill(fabs(trketa),1);
+              m_frac_hole_vs_pt_sct_barrel->Fill(trkpt_gev,1);
+	      m_frac_hole_vs_lowpt_sct_barrel->Fill(trkpt_gev,1);
+              }
             }
             if (ilayE>=0) {
-              if (ilayE<nPixelDisks) m_frac_hole_vs_eta_pix_endcap->Fill(fabs(trketa),1);
-              else m_frac_hole_vs_eta_sct_endcap->Fill(fabs(trketa),1);
+              if (ilayE<nPixelDisks){ 
+              m_frac_hole_vs_eta_pix_endcap->Fill(fabs(trketa),1);
+              m_frac_hole_vs_pt_pix_endcap->Fill(trkpt_gev,1);
+	      m_frac_hole_vs_lowpt_pix_endcap->Fill(trkpt_gev,1);
+              }
+              else {
+              m_frac_hole_vs_eta_sct_endcap->Fill(fabs(trketa),1);
+              m_frac_hole_vs_pt_sct_endcap->Fill(trkpt_gev,1);
+	      m_frac_hole_vs_lowpt_sct_endcap->Fill(trkpt_gev,1);
+              }
             }
             if (itrt==1) m_frac_hole_vs_eta_trt_barrel->Fill(fabs(trketa),1);
             else if (itrt==2) m_frac_hole_vs_eta_trt_endcap->Fill(fabs(trketa),1);
           } else {
             if (ilayB==0) {
               m_frac_hole_vs_eta_ibl_barrel->Fill(fabs(trketa),0);
+              m_frac_hole_vs_pt_ibl_barrel->Fill(trkpt_gev,0);
+	      m_frac_hole_vs_lowpt_ibl_barrel->Fill(trkpt_gev,0);
             }
             if (ilayB==1) {
               m_frac_hole_vs_eta_blay_barrel->Fill(fabs(trketa),0);
+              m_frac_hole_vs_pt_blay_barrel->Fill(trkpt_gev,0);
+	      m_frac_hole_vs_lowpt_blay_barrel->Fill(trkpt_gev,0);
             }
             if (ilayB>=0) {
-              if (ilayB<nPixelLayers) m_frac_hole_vs_eta_pix_barrel->Fill(fabs(trketa),0);
-              else m_frac_hole_vs_eta_sct_barrel->Fill(fabs(trketa),0);
+              if (ilayB<nPixelLayers) {
+              m_frac_hole_vs_eta_pix_barrel->Fill(fabs(trketa),0);
+              m_frac_hole_vs_pt_pix_barrel->Fill(trkpt_gev,0);
+	      m_frac_hole_vs_lowpt_pix_barrel->Fill(trkpt_gev,0);
+              }
+              else {
+              m_frac_hole_vs_eta_sct_barrel->Fill(fabs(trketa),0);
+              m_frac_hole_vs_pt_sct_barrel->Fill(trkpt_gev,0);
+	      m_frac_hole_vs_lowpt_sct_barrel->Fill(trkpt_gev,0);
+              }
             }
             if (ilayE>=0) {
-              if (ilayE<nPixelDisks) m_frac_hole_vs_eta_pix_endcap->Fill(fabs(trketa),0);
-              else m_frac_hole_vs_eta_sct_endcap->Fill(fabs(trketa),0);
+              if (ilayE<nPixelDisks) {
+              m_frac_hole_vs_eta_pix_endcap->Fill(fabs(trketa),0);
+              m_frac_hole_vs_pt_pix_endcap->Fill(trkpt_gev,0);
+	      m_frac_hole_vs_lowpt_pix_endcap->Fill(trkpt_gev,0);
+              }
+              else {
+              m_frac_hole_vs_eta_sct_endcap->Fill(fabs(trketa),0);
+              m_frac_hole_vs_pt_sct_endcap->Fill(trkpt_gev,0);
+	      m_frac_hole_vs_lowpt_sct_endcap->Fill(trkpt_gev,0);
+              }
             }
             if (itrt==1) m_frac_hole_vs_eta_trt_barrel->Fill(fabs(trketa),0);
             else if (itrt==2) m_frac_hole_vs_eta_trt_endcap->Fill(fabs(trketa),0);
@@ -4012,12 +4077,15 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		    m_cluster_z_phi_pixel->Fill(zWidth, phiWidth);
 		    m_cluster_width_phi_pixel_eta->Fill(trketa, phiWidth);
 		    m_cluster_width_eta_pixel_eta->Fill(trketa, zWidth);
+        m_cluster_width_phi_pixel_pt->Fill(trkpt_gev, phiWidth);
+		    m_cluster_width_eta_pixel_pt->Fill(trkpt_gev, zWidth);
 		  }
 		if (m_idHelper->is_sct(surfaceID))
 		  {
 		    m_cluster_width_phi_sct->Fill(phiWidth);
 		    m_cluster_z_phi_sct->Fill(zWidth, phiWidth);
 		    m_cluster_width_phi_sct_eta->Fill(trketa, phiWidth);
+        m_cluster_width_phi_sct_pt->Fill(trkpt_gev, phiWidth);    
 		  }
 	      } //simple cluster info done.
 	      // Track incidence angle code.

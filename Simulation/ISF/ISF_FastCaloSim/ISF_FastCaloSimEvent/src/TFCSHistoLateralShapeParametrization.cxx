@@ -22,13 +22,20 @@
 //=============================================
 
 TFCSHistoLateralShapeParametrization::TFCSHistoLateralShapeParametrization(const char* name, const char* title) :
-  TFCSLateralShapeParametrizationHitBase(name,title),m_nhits(0)
+  TFCSLateralShapeParametrizationHitBase(name,title),m_nhits(0),m_r_offset(0),m_r_scale(1.0)
 {
   reset_phi_symmetric();
 }
 
 TFCSHistoLateralShapeParametrization::~TFCSHistoLateralShapeParametrization()
 {
+}
+
+double TFCSHistoLateralShapeParametrization::get_sigma2_fluctuation(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
+{
+  //Limit to factor 1000 fluctuations
+  if(m_nhits<0.001) return 1000;
+  return 1.0/m_nhits;
 }
 
 int TFCSHistoLateralShapeParametrization::get_number_of_hits(TFCSSimulationState &simulstate, const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
@@ -91,6 +98,9 @@ FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit &hit, TFCSS
     return FCSFatal;
   }
   
+  r*=m_r_scale;
+  r+=m_r_offset;
+  if(r<0) r=0;
   
   float delta_eta_mm = r * cos(alpha);
   float delta_phi_mm = r * sin(alpha);
@@ -152,9 +162,9 @@ void TFCSHistoLateralShapeParametrization::Print(Option_t *option) const
 
   if(longprint) {
     if(is_phi_symmetric()) {
-      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" (phi symmetric)");
+      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<", r scale="<<m_r_scale<<", r offset="<<m_r_offset<<"mm (phi symmetric)");
     } else {
-      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" (not phi symmetric)");
+      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<", r scale="<<m_r_scale<<", r offset="<<m_r_offset<<"mm (not phi symmetric)");
     }
   }  
 }

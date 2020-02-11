@@ -52,8 +52,8 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
   declareProperty("BuildDiscChannel",             m_buildDiscChannel=false);
   declareProperty("DefaultShiftTimeSample",       m_defaultShiftTimeSamples=0);
   declareProperty("BCID_Iter",                    m_bcs=2);
-  declareProperty("bCIDLowLim",                   m_bcidLowLim={8,-2,-8});
-  declareProperty("bCIDUpLim",                    m_bcidUpLim={-8,2,8});
+  declareProperty("bCIDLowLim",                   m_bcidLowLim={8,-8,-8});
+  declareProperty("bCIDUpLim",                    m_bcidUpLim={-8,8,16});
   declareProperty("bCIDbands",                    m_bcidBands={-1e4,0,10,1e4});
 }
 

@@ -31,6 +31,7 @@ sequence of sequences.
 
 from TriggerMenu.commonUtils  import makeCaloSequences
 from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 
 class AlgList(object):
     def __init__(self, alg_list, alias, attach_to=''):
@@ -93,6 +94,7 @@ class JetSequencesBuilder(object):
                        'ed': self.make_ed,  # energy density
                        'sk': self.make_sk,  # SoftKiller
                        'ftk': self.make_ftk,  # run algos for ftk track finding and xaod conversion
+                       'ftf': self.make_ftf,  # run algos for ftf track finding
                        'tm': self.make_tm, # track moments helper
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
@@ -162,6 +164,7 @@ class JetSequencesBuilder(object):
             # ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
             #('tc', 'FS', False): ['fs2', 'ed', 'jr'],
             ('tc','FS',False,'notrk'): ['fs2','cmfs1','cmfs2','ed','jr'],
+            ('tc','FS',False,'ftf'): ['fs2','cmfs1','cmfs2','ed','ftf','jr'],
             ('tc','FS',False,'ftk'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             ('tc','FS',False,'ftkrefit'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
@@ -339,6 +342,20 @@ class JetSequencesBuilder(object):
                         ftkalgo_list.append(AlgStringProxy(a))
 
         return AlgList(ftkalgo_list, alias=alias)
+
+    def make_ftf(self, arg):
+        """Return FTF sequence"""
+        alias = 'ftftracking'
+
+        trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()        
+        trk_algproxies = []
+
+        for seq in trk_algs:
+                for a in seq:
+                        print "adding ftk algo ", a
+                        trk_algproxies.append(AlgStringProxy(a))
+
+        return AlgList(trk_algproxies, alias=alias)
 
     def make_tm(self, arg):
         """make track moment helpers Alglist"""

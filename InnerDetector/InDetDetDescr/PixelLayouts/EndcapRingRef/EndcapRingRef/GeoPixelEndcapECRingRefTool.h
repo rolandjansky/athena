@@ -52,7 +52,6 @@ class GeoPixelEndcapECRingRefTool : virtual public IGeoPixelEndcapTool, public A
   const GeoShape* addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans);
 
   mutable InDetMaterialManager* m_matMgr;
-  mutable Athena::MsgStreamMember m_msg;
 
   int m_endcapSide;
   double m_endcapZMin;
@@ -61,7 +60,8 @@ class GeoPixelEndcapECRingRefTool : virtual public IGeoPixelEndcapTool, public A
 
   double m_endcapRMin;
   double m_endcapRMax;
-  double m_nlayers;
+  int m_nlayers;
+  int m_numberOfReadoutLayers;
 
   bool m_bPrebuild;
  

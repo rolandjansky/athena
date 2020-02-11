@@ -18,7 +18,6 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "FourMomUtils/P4Helpers.h"
 
 
 // Define the bins for acceptance-monitoring histogram

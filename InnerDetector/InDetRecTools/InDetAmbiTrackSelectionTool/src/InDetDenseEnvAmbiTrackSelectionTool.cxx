@@ -598,7 +598,7 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
           }
           
           ++iPixel;
-          if (m_detID->is_blayer(prdToCheck->identify()) ) iHasBlayer=true;
+          if (m_detID->is_innermost(prdToCheck->identify()) ) iHasBlayer=true;
         }
         
         if( m_detID->is_sct(prdToCheck->identify()) )
@@ -721,7 +721,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     bool isTRT           = m_detID->is_trt(id);
     bool isPixel         = m_detID->is_pixel(id);
     bool isSCT           = m_detID->is_sct(id);
-    bool isBlayer        = isPixel ? m_detID->is_blayer(id) : false;
+    bool isBlayer        = isPixel ? m_detID->is_innermost(id) : false;
     bool isoutlier       = (*iTsos)->type(Trk::TrackStateOnSurface::Outlier);              
 
     tsosDetails.detType[index] = isTRT * 3 + isSCT * 2 + isPixel * 1 + isBlayer * 10;

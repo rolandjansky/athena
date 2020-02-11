@@ -5,21 +5,19 @@
 # art-include: 21.1/AthenaP1
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
-# art-output: HLTChain.txt
-# art-output: HLTTE.txt
-# art-output: L1AV.txt
+# art-output: *.txt
+# art-output: *.log
+# art-output: log.*
+# art-output: *.new
+# art-output: *.json
+# art-output: *.root
+# art-output: *.pmon.gz
+# art-output: *perfmon*
+# art-output: costMonitoring_*
 # art-output: HLTconfig*.xml
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
-# art-output: *.log
-# art-output: costMonitoring_*
-# art-output: *.root
-# art-output: ntuple.pmon.gz
-# art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
-# art-output: *.regtest.new
 
 export NAME="slice_muon_grid"
 export SLICE="muon"

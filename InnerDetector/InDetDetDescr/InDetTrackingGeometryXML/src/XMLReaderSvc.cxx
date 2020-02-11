@@ -18,10 +18,6 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_xml_pixStaves("PixelStaves.xml"),
   m_xml_pixBarrelLayers("PixelBarrelLayers.xml"),
   m_xml_pixEndcapLayers("PixelEndcapLayers.xml"),
-  m_xml_sctmodules("SCTModules.xml"),
-  m_xml_sctStaves("SCTStaves.xml"),
-  m_xml_sctBarrelLayers("SCTBarrelLayers.xml"),
-  m_xml_sctEndcapLayers("SCTEndcapLayers.xml"),
   m_xml_SLHCVersion("SLHC"),
   m_doPix(true),
   m_doSCT(true),
@@ -34,10 +30,6 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("XML_PixelStaves",       m_xml_pixStaves);
   declareProperty("XML_PixelBarrelLayers", m_xml_pixBarrelLayers);
   declareProperty("XML_PixelEndcapLayers", m_xml_pixEndcapLayers);
-  declareProperty("XML_SCTModules",        m_xml_sctmodules);
-  declareProperty("XML_SCTStaves",         m_xml_sctStaves);
-  declareProperty("XML_SCTBarrelLayers",   m_xml_sctBarrelLayers);
-  declareProperty("XML_SCTEndcapLayers",   m_xml_sctEndcapLayers);
   declareProperty("XML_SLHCVersion",       m_xml_SLHCVersion);
   declareProperty("doPix",                 m_doPix);
   declareProperty("doSCT",                 m_doSCT);
@@ -76,7 +68,7 @@ StatusCode InDet::XMLReaderSvc::initialize()
     // WARNING: read front-end chips BEFORE modules
     ATH_MSG_INFO("Reading pixel FrontEndChip templates");
     parseFile(m_xml_pixmodules.c_str(),"PixelModules","FrontEndChip");
-    ATH_MSG_INFO("Reading pixel Module templates");
+    ATH_MSG_INFO("Reading pixel Module templates from "<<m_xml_pixmodules.c_str());
     parseFile(m_xml_pixmodules.c_str(),"PixelModules","Module");
     ATH_MSG_INFO("Reading Pixel Stave templates");
     parseFile(m_xml_pixStaves.c_str(),"PixelStaves","PixelStave");
@@ -85,20 +77,6 @@ StatusCode InDet::XMLReaderSvc::initialize()
     ATH_MSG_INFO("Reading Pixel Endcap Layer templates");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapRing");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapDisc");
-  }
-  if(m_doSCT and not m_isGMX) {
-    // WARNING: read front-end chips BEFORE modules
-    ATH_MSG_INFO("Reading SCT FrontEndChip templates");
-    parseFile(m_xml_sctmodules.c_str(),"SCTModules","FrontEndChip");
-    ATH_MSG_INFO("Reading SCT Module templates");
-    parseFile(m_xml_sctmodules.c_str(),"SCTModules","Module");
-    ATH_MSG_INFO("Reading SCT Stave templates");
-    parseFile(m_xml_sctStaves.c_str(),"SCTStaves","SCTStave");
-    ATH_MSG_INFO("Reading SCT Barrel Layer templates");
-    parseFile(m_xml_sctBarrelLayers.c_str(),"SCTBarrelLayers","SCTBarrelLayer");
-    ATH_MSG_INFO("Reading SCT Endcap Layer templates");
-    parseFile(m_xml_sctEndcapLayers.c_str(),"SCTEndcapLayers","SCTEndcapRing");
-    parseFile(m_xml_sctEndcapLayers.c_str(),"SCTEndcapLayers","SCTEndcapDisc");
   }
 
   if(!TerminateXML()) {
@@ -545,7 +523,9 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   XMLCh* TAG_useDiscSurface  = transcode("UseDiscSurface");
   XMLCh* TAG_splitMode       = transcode("SplitMode");
   XMLCh* TAG_splitOffset     = transcode("SplitOffset");
-
+  XMLCh* TAG_readoutLayer    = transcode("ReadoutLayer");
+  XMLCh* TAG_readoutRegion   = transcode("ReadoutRegion");
+  XMLCh* TAG_inclination     = transcode("Inclination");
 
   // temporary variables
   std::string name;
@@ -568,6 +548,9 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   std::vector<double>       tmpsplitoffset;
   std::vector<double>       tmpzoffset;
   std::vector<double>       tmpphioffset;
+  std::vector<int>          tmprolayer;
+  std::vector<std::string>  tmproregion;
+  std::vector<double>       tmpinclination;
 
   for( XMLSize_t xx = 0; xx < nodeCount; ++xx ) {
 
@@ -597,6 +580,9 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     else if (XMLString::equals(currentElement->getTagName(),TAG_zoffset))         tmpzoffset    = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_phioffset))       tmpphioffset  = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_ringpos))         tmpringpos    = getVectorDouble(currentNode);
+    else if (XMLString::equals(currentElement->getTagName(),TAG_readoutRegion))   tmproregion   = getVectorString(currentNode);
+    else if (XMLString::equals(currentElement->getTagName(),TAG_readoutLayer))    tmprolayer    = getVectorInt(currentNode);  
+    else if (XMLString::equals(currentElement->getTagName(),TAG_inclination))     tmpinclination = getVectorDouble(currentNode);  
   }
 
   // If different number of entries for rings fields, use the values of ring 0 everywhere
@@ -629,7 +615,15 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   }else{
     for (unsigned int ir = 0 ; ir < nrings; ir++) tmpphioffset.push_back(0.);    
   }
-  
+		
+  if(tmproregion.size() != nrings && tmproregion.size()>0){
+    std::string ror = tmproregion.at(0);
+    tmproregion.clear();
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmproregion.push_back(ror);
+  }else if (tmproregion.size() == 0 ){
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmproregion.push_back("EC");
+  }
+      
   if(tmpnsectors.size() != nrings && tmpnsectors.size()>0){
     double nsec = tmpnsectors.at(0);
     tmpnsectors.clear();
@@ -698,6 +692,22 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     else layer->layer_pos = layer_pos;
   }
 
+  if(tmprolayer.size() != nrings && tmprolayer.size()>0){
+    int il = tmprolayer.at(0);
+    tmprolayer.clear();
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmprolayer.push_back(il);
+  } else if (tmprolayer.size() == 0 ){
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmprolayer.push_back(layer->ilayer);
+  } 		
+
+  if(tmpinclination.size() != nrings && tmpinclination.size()>0){
+    double inclinedAngle = tmpinclination.at(0);
+    tmpinclination.clear();
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmpinclination.push_back(inclinedAngle);
+  } else if (tmpinclination.size()==0) {
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmpinclination.push_back(0.);
+  } 		
+
   // loop over rings to store the info in template
   for(unsigned int ir=0;ir<tmpringpos.size();ir++){
 
@@ -718,19 +728,41 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     layer->nsectors.push_back(tmpnsectors.at(ir));
     layer->splitMode.push_back(tmpsplitmode.at(ir));
     layer->splitOffset.push_back(tmpsplitoffset.at(ir));
+    layer->readoutRegion.push_back(tmproregion.at(ir));
+    layer->readoutLayer.push_back(tmprolayer.at(ir));
+    layer->inclination.push_back(tmpinclination.at(ir));
 
     // compute ring radii
+    double inclination = tmpinclination.at(ir);
     double innerRadius = tmpradius.at(ir);
     double outerRadius = tmpradius.at(ir);
-    if (rtype.compare("Inner")==0) outerRadius += modlength;
-    else innerRadius -= modlength;
+    if (rtype.compare("Inner")==0) outerRadius += modlength*cos(inclination);
+    else innerRadius -= modlength*cos(inclination);
     layer->innerRadius.push_back(innerRadius);
     layer->outerRadius.push_back(outerRadius);
     // compute ring thickness (module thickness + zoffset (can be negative))
-    double tmpthick  = modthick + std::fabs(tmpzoffset.at(ir)); 
+    double tmpthick  = inclination!=0 ? modthick + std::fabs(tmpzoffset.at(ir) + tmpsplitoffset.at(ir) ) + modlength*sin(inclination) :
+                                        modthick + std::fabs(tmpzoffset.at(ir)) ; 
     if(double_sided) tmpthick += modthick+2*stereoSep;
     layer->thickness.push_back(tmpthick);
+
+    // compute readout eta index
+    bool addSublayer = true;
+    for (unsigned int isl=0; isl<layer->readoutSublayers.size(); isl++) {
+      if (tmproregion.at(ir)==layer->readoutSublayers[isl].region && tmprolayer.at(ir)==layer->readoutSublayers[isl].layer) {
+	addSublayer = false; int etaIndex = layer->readoutSublayers[isl].etaOffset; layer->readoutSublayers[isl].rings.push_back(ir);
+	layer->readoutEta.push_back(etaIndex); layer->readoutSublayers[isl].etaOffset = etaIndex+1;
+	break;
+      }
+    }
+    if (addSublayer) {
+      InDet::Sublayer sl(tmproregion.at(ir),tmprolayer.at(ir));
+      layer->readoutEta.push_back(sl.etaOffset); sl.etaOffset++; sl.rings.push_back(ir);
+      layer->readoutSublayers.push_back(sl);
+    }
+
   }
+
 
   // Register endcap layer template
   vtmp.push_back(layer);
@@ -937,7 +969,6 @@ void InDet::XMLReaderSvc::writeDictionary(std::string filename)
   }	
   openDictFile(file,filename);
   writePixBarrelDict(file);
-  if(m_xml_SLHCVersion == "SLHC_InclinedAlternative") writePixInnerEndcapDict(file); 
   writePixEndcapDict(file);
 
   if (m_doSCT and !m_isGMX) {
@@ -1037,115 +1068,32 @@ void InDet::XMLReaderSvc::writePixEndcapDict(std::ofstream& file)
   for(unsigned int i=0; i<m_tmp_pixEndcapLayer.size();i++) {
     EndcapLayerTmp *layer = m_tmp_pixEndcapLayer.at(i);
     if(layer==0) continue;
-    ModuleTmp* module = getModuleTemplate(layer->modtype[0]);
-    if(module==0) {
-      ATH_MSG_WARNING("Indet PIX : no module template found for layer " << i << "");
-      continue;
-    }
-   
-    // Make one region per ring of the disc
-    for(unsigned int iring=0;iring<layer->nsectors.size();iring++) {
-      file << "  <region group=\"pixel\" >" << std::endl;
-      file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
-      file << "    <range field=\"barrel_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
-      file << "    <range field=\"disk\" value=\"" << layer->ilayer << "\" />" << std::endl;
-      file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"" << layer->nsectors[iring]-1 << "\" wraparound=\"TRUE\" />" << std::endl;
-      file << "    <range field=\"eta_module\" value=\"" << iring << "\" />" << std::endl;
-      int iphi = module->widthmin/module->pitchPhi;
-      file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphi << "\" />" << std::endl;
-      int ieta = module->length/module->pitchEta;
-      file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ieta << "\" />" << std::endl;
-      file << "  </region>" << std::endl;
-    }
-
-  }
-  file << std::endl;
-}
-
-void InDet::XMLReaderSvc::writePixInnerEndcapDict(std::ofstream& file)
-{
-  // CREMI Should be one entry per ring instead of per disc
-  // ilayer, iphi=isector [0-nsectors[iring]-1], ieta=iring [0-ringpos.size()-1]b
-
-   ATH_MSG_FATAL("LAYOUT NOT YET SUPPORTED!!!");
-
-  /*
-
-    This was relying on layout translation - what should it be doing without it?
-
-  EndcapLayerTmp *layer = m_tmp_pixEndcapLayer.at(0); //template for SQ Disks
-  ModuleTmp* moduleS = getModuleTemplate(layer->modtype[0]); //S module
-  ModuleTmp* moduleQ = getModuleTemplate(layer->modtype[1]); //Q module
-  
-  int iphiS = moduleS->widthmin/moduleS->pitchPhi;
-  int ietaS = moduleS->length/moduleS->pitchEta;
-  int iphiQ = moduleQ->widthmin/moduleQ->pitchPhi;
-  int ietaQ = moduleQ->length/moduleQ->pitchEta;
-
-  //L0 ALL Disks
-  file << " <region group=\"pixel\" >" << std::endl;
-  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
-  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
-  file << "    <range field=\"layer\" value=\"0\" />" << std::endl;
-  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing0PhiSectors()-1 << "\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"eta_module\" minvalue=\"13\" maxvalue=\"29\" prev_value=\"12\" />" << std::endl;
-  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiS << "\" />" << std::endl;
-  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaS << "\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  //L0 ALL Disks
-  file << " <region group=\"pixel\" >" << std::endl;
-  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
-  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
-  file << "    <range field=\"layer\" value=\"0\" />" << std::endl;
-  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing0PhiSectors()-1 <<"\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"eta_module\" minvalue=\"-29\" maxvalue=\"-13\" next_value=\"-12\" />" << std::endl;
-  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiS << "\" />" << std::endl;
-  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaS << "\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-
-  //13 first Disks
-  file << " <region group=\"pixel\" >" << std::endl;
-  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
-  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
-  file << "    <range field=\"layer\" value=\"1\" />" << std::endl;
-  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing1PhiSectors()-1 <<"\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"eta_module\" minvalue=\"7\" maxvalue=\"23\" prev_value=\"6\" />" << std::endl;
-  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiQ << "\" />" << std::endl;
-  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaQ << "\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  //13 first Disks
-  file << " <region group=\"pixel\" >" << std::endl;
-  file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
-  file << "    <range field=\"barrel_endcap\" value=\"barrel\" />" << std::endl;
-  file << "    <range field=\"layer\" value=\"1\" />" << std::endl;
-  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\""<< m_translationHelper->getRing1PhiSectors()-1 <<"\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"eta_module\" minvalue=\"-23\" maxvalue=\"-7\" next_value=\"-6\" />" << std::endl;
-  file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphiQ << "\" />" << std::endl;
-  file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ietaQ << "\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  int nPhiSectors[2] = { 28, 20 };
-  for(int ilayer = 0; ilayer < 2; ilayer++){
-    for(int iring = 0; iring < 7; iring++){
-      if(ilayer == 0 && iring > 5) continue;
-      file << "  <region group=\"pixel\" >" << std::endl;
-      file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
-      file << "    <range field=\"barrel_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
-      file << "    <range field=\"layer\" value=\"" << ilayer << "\" />" << std::endl;
-      file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"" << nPhiSectors[ilayer] - 1 << "\" wraparound=\"TRUE\" />" << std::endl;
-      file << "    <range field=\"eta_module\" value=\"" << iring << "\" />" << std::endl;
-      int iphi = ilayer == 0 ? moduleS->widthmin/moduleS->pitchPhi : moduleQ->widthmin/moduleQ->pitchPhi;
-      file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphi << "\" />" << std::endl;
-      int ieta = ilayer == 0 ? moduleS->length/moduleS->pitchEta : moduleQ->length/moduleQ->pitchEta;;
-      file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ieta << "\" />" << std::endl;
-      file << "  </region>" << std::endl;
+    for (unsigned int isl=0; isl<layer->readoutSublayers.size(); isl++) {
+      InDet::Sublayer sublay = layer->readoutSublayers[isl];
+      ModuleTmp* module = getModuleTemplate(layer->modtype[sublay.rings[0]]);
+      if(module==0) {
+	ATH_MSG_WARNING("Indet PIX : no module template found for layer " << i << "");
+	continue;
+      }
+      for(unsigned int iring=0;iring<sublay.rings.size();iring++) {
+	file << "  <region group=\"pixel\" >" << std::endl;
+	file << "    <range field=\"part\" value=\"Pixel\" />" << std::endl;
+	if (sublay.region=="B")
+	  file << "    <range field=\"barrel_endcap\" values=\"negative_barrel positive_barrel\" />" << std::endl;
+	else
+	  file << "    <range field=\"barrel_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
+	
+	file << "    <range field=\"disk\" value=\"" << sublay.layer << "\" />" << std::endl;
+	file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"" << layer->nsectors[sublay.rings[iring]]-1 << "\" wraparound=\"TRUE\" />" << std::endl;
+	file << "    <range field=\"eta_module\" value=\"" << iring << "\" />" << std::endl;
+	int iphi = module->widthmin/module->pitchPhi;
+	file << "    <range field=\"phi_index\" minvalue=\"0\" maxvalue=\"" << iphi << "\" />" << std::endl;
+	int ieta = module->length/module->pitchEta;
+	file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"" << ieta << "\" />" << std::endl;
+	file << "  </region>" << std::endl;
+      }
     }
   }
-
-  */
   file << std::endl;
 }
 

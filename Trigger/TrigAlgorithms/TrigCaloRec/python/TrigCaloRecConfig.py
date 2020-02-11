@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigCaloRec.TrigCaloRecConf import TrigCaloCellMaker
+from TrigCaloRec.TrigCaloRecConf import CaloCellMakerHLTROB
 from TrigCaloRec.TrigCaloRecConf import TrigFullCaloCellMaker
 from TrigCaloRec.TrigCaloRecConf import TrigCaloTowerMaker
 from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMaker
@@ -360,6 +361,33 @@ class TrigCaloCellMaker_fullcalo (TrigFullCaloCellMakerBase):
     __slots__ = []
     def __init__ (self, name='TrigCaloCellMaker_fullcalo'):
         super(TrigCaloCellMaker_fullcalo, self).__init__(name)
+
+        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        theCaloNoiseTool=CaloNoiseToolDefault()
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc+=theCaloNoiseTool
+
+        fullcalocellcontmaker = FullCaloCellContMaker()
+        fullcalocellcontmaker.CaloNoiseTool = theCaloNoiseTool
+
+        self.TCRTools = [fullcalocellcontmaker]
+                         
+        self.ContainerTools = [CaloCellContainerCorrectorTool("LArCellCorrectorTool").getFullName()]
+        #                       CaloCellContainerFinalizerTool().getFullName(),
+        #                       CaloCellContainerCheckerTool().getFullName()]
+
+        self.ContainerTools = [CaloCellContainerCorrectorTool("LArCellCorrectorTool").getFullName()]
+        #self.OutputLevel=INFO
+
+        #### configure TrigDataAccess for loadFullCollections
+        from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
+        ToolSvc+=TrigDataAccess()
+        ToolSvc.TrigDataAccess.loadFullCollections = True
+
+class CaloCellMakerHLT_fullcalo (CaloCellMakerHLTROB):
+    __slots__ = []
+    def __init__ (self, name='CaloCellMakerHLT_fullcalo'):
+        super(CaloCellMakerHLT_fullcalo, self).__init__(name)
 
         from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
         theCaloNoiseTool=CaloNoiseToolDefault()

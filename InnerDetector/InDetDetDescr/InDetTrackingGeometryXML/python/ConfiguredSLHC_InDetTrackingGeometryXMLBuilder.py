@@ -103,16 +103,6 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         InDetEndcapBuilder.EndcapLayerBinPhi    = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
         InDetEndcapBuilder.OutputLevel          = TrkDetFlags.InDetBuildingOutputLevel()
         
-	
-##         if doSCT :
-##             InDetBarrelSCTLayerBuilder = InDet__BarrelBuilderXML(name='SCTBarrelBuilder')
-##             InDetBarrelSCTLayerBuilder.StaveBuilder = InDetStaveBuilder
-##             InDetBarrelSCTLayerBuilder.ModuleProvider = InDetModuleProvider
-##             ToolSvc += InDetBarrelSCTLayerBuilder
-            
-##             InDetEndcapSCTLayerBuilder = InDet__EndcapBuilderXML(name='SCTEndcapBuilder')
-##             InDetEndcapSCTLayerBuilder.ModuleProvider = InDetModuleProvider
-##             ToolSvc += InDetEndcapSCTLayerBuilder 
 
 
         startLayer = 0
@@ -176,24 +166,6 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
             binningsEndcap  += [ PixelLayerBinning ]
             colors          += [ 3 ]
             #print PixelLayerProvider
-
-
-##         if doSCT:
-##             # SCT layer provider
-##             SCTLayerProvider = InDet__LayerProviderXML(name=namePrefix+'SCTLayerProvider')
-##             SCTLayerProvider.Identification          = 'SCT'
-##             SCTLayerProvider.OutputLevel             = 1
-##             SCTLayerProvider.doPix = False
-##             SCTLayerProvider.doSCT = doSCT
-##             SCTLayerProvider.ModuleProvider = InDetModuleProvider
-##             SCTLayerProvider.SCTBarrelBuilder = InDetBarrelSCTLayerBuilder
-##             SCTLayerProvider.SCTEndcapBuilder = InDetEndcapSCTLayerBuilder                                    
-##             ToolSvc += SCTLayerProvider
-##             SCTLayerBinning = 2
-##             layerProviders  += [ SCTLayerProvider ]
-##             binningsCenter  += [ SCTLayerBinning ]
-##             binningsEndcap  += [ SCTLayerBinning ]
-##             colors          += [ 4 ]
 
             
         if DetFlags.SCT_on() :
@@ -338,21 +310,3 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
                                                       ExitVolumeName            = TrkDetFlags.InDetContainerName(),
                                                       MagneticFieldMode         = TrkDetFlags.MagneticFieldMode(),
                                                       isSLHC = True)
-
-
-##         InDet__StagedTrackingGeometryBuilder.__init__(self,namePrefix+name,\
-##                                                       LayerBuilders                 = layerProviders,
-##                                                       LayerBinningTypeCenter        = binningsCenter,
-##                                                       LayerBinningTypeEndcap        = binningsEndcap,
-##                                                       ColorCodes                    = colors,
-##                                                       EnvelopeDefinitionSvc         = AtlasEnvelopeSvc,
-##                                                       EnvelopeCover                 = 0.5,
-##                                                       VolumeEnclosureDiscPositions  = [ 3250., 3450. ],
-##                                                       TrackingVolumeCreator         = InDetCylinderVolumeCreator,
-##                                                       LayerArrayCreator             = InDetLayerArrayCreator,
-##                                                       CheckForRingLayout            = isRingLayout,
-##                                                       BuildBoundaryLayers           = TrkDetFlags.InDetBuildMaterialBoundaries(),
-##                                                       ReplaceAllJointBoundaries     = TrkDetFlags.InDetBuildJointBoundaries(),
-##                                                       OutputLevel                   = TrkDetFlags.InDetBuildingOutputLevel(),
-##                                                       ExitVolumeName                = TrkDetFlags.InDetContainerName(),
-##                                                       MagneticFieldMode             = TrkDetFlags.MagneticFieldMode())

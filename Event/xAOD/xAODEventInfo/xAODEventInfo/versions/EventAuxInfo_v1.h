@@ -36,7 +36,6 @@ namespace xAOD {
       /// Default constructor
       EventAuxInfo_v1();
 
-   private:
       /// @name Basic event information
       /// @{
       uint32_t runNumber;

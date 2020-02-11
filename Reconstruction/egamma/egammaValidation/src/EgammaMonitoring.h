@@ -41,6 +41,7 @@
 #include "RecoPhotonHistograms.h"
 #include "IHistograms.h"
 #include "ShowerShapesHistograms.h"
+#include "ClusterHistograms.h"
 #include "EfficiencyPlot.h"
 
 #include "IsolationHistograms.h"
@@ -60,28 +61,38 @@ class EgammaMonitoring : public AthAlgorithm
   /// Tools and services ///
   ITHistSvc*   rootHistSvc ;
 
-//  egammaMonitoring::EffIDPlots  Eff_ID  ;
-//  egammaMonitoring::EffRecPlots Eff_Reco;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterAll;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> cluster10GeV;
+ 
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterPromptAll;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterPrompt10GeV;
 
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhoton;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonSi;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonSiSi;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonTRT;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonTRTTRT;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterConvPhotonSiTRT;
+  std::unique_ptr<egammaMonitoring::ClusterHistograms> clusterUnconvPhoton;
 
 
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapesAll;
   std::unique_ptr<egammaMonitoring::ShowerShapesHistograms> showerShapes10GeV;
   std::unique_ptr<egammaMonitoring::IsolationHistograms> isolationAll;
 
-  std::unique_ptr<egammaMonitoring::IHistograms> truthElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthElectronRecoElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronWithTrack;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronWithGSFTrack;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthPromptElectronWithReco;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthElectronAll;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronAll;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthElectronRecoElectronAll;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronWithTrack;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronWithGSFTrack;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthPromptElectronWithReco;
   std::unique_ptr<egammaMonitoring::IHistograms> recoElectronAll;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronLooseLH;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronMediumLH;
-  std::unique_ptr<egammaMonitoring::IHistograms> truthRecoElectronTightLH;
-  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutTight;
-  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutTightTrackOnly;
-  std::unique_ptr<egammaMonitoring::IHistograms> recoElectronIsoFixedCutLoose;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthRecoElectronLooseLH;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthRecoElectronMediumLH;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> truthRecoElectronTightLH;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> recoElectronIsoFixedCutTight;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> recoElectronIsoFixedCutTightTrackOnly;
+  std::unique_ptr<egammaMonitoring::TruthElectronHistograms> recoElectronIsoFixedCutLoose;
 
   std::unique_ptr<egammaMonitoring::IHistograms> recoPhotonAll;
   std::unique_ptr<egammaMonitoring::IHistograms> truthPhotonRecoPhoton        ;

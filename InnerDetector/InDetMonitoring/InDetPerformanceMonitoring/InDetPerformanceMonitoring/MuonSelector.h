@@ -17,27 +17,30 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
-//class TrackIsolationTool;
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "AsgTools/ToolHandle.h" 
+#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 //==============================================================================
 // Forward class declarations...
 //==============================================================================
-//class Muon;
-
 class MuonSelector : public EventAnalysis
 {
  public:
   MuonSelector();
   ~MuonSelector();
 
+
   bool passSelection( const xAOD::Muon* pxMuon );
   void setDebug(bool debug){m_doDebug = debug;}
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
  
   // Override functions from EventAnalysis
   virtual void Init();
   virtual bool Reco();
-  inline void doIsoSelection (bool doIso) {m_doIsoSelection=doIso;}
-  inline void doIPSelection (bool doIPsel) {m_doIPSelection=doIPsel;}
+  inline void doIsoSelection (bool doIso) {m_doIsoSelection = doIso;}
+  inline void doIPSelection (bool doIPsel) {m_doIPSelection = doIPsel;}
+  inline void doMCPSelection (bool domcp) {m_doMCPSelection = domcp;}
   inline void SetPtCut (double newvalue) {m_combPtCut = newvalue;}
   inline double GetPtCut () {return m_combPtCut;}
 
@@ -90,7 +93,7 @@ class MuonSelector : public EventAnalysis
   bool m_doIsoSelection;
   bool m_doPtSelection;
   bool m_doIPSelection;
-
+  bool m_doMCPSelection;
 
   // Lock cut selection after first muon.
   bool m_bLock;

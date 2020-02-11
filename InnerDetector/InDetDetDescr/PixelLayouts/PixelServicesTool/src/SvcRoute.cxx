@@ -11,7 +11,7 @@ using namespace std;
 ServiceDynVolume* SvcRoute::entryVolume( double pos, bool ascending, const Athena::MsgStreamMember& msg) const 
 {
   msg << MSG::DEBUG  << "entering entryVolume with ascending = " << ascending 
-       << " and pos = " << pos << endmsg;
+		     << " and pos = " << pos << endmsg;
 
   if (volumes().empty()) return 0;
 
@@ -22,16 +22,16 @@ ServiceDynVolume* SvcRoute::entryVolume( double pos, bool ascending, const Athen
   if ( ascending) {
     for (VolumeContainer::const_iterator i=volumes().begin(); i!=volumes().end(); i++) {
 
-      msg << MSG::DEBUG  << "Comparing " << pos << " and " << (**i).position() << endmsg;
+      msg << MSG::DEBUG << "Comparing " << pos << " and " << (**i).position() << endmsg;
 
       if (pos < (**i).position()) {
-	msg << MSG::DEBUG  << "volume at pos " << (**i).radius() 
-	     << ", " << (**i).zPos() << " contains exit point" << endmsg;
+	msg << MSG::DEBUG  << "volume at pos " << (**i).radius() << ", " << (**i).zPos() 
+	    << " contains exit point" << endmsg;
 	return *i;
       }
       else {
-	msg << MSG::DEBUG  << "volume at pos " << (**i).radius() 
-	     << ", " << (**i).zPos() << " does not contain exit point" << endmsg;
+	msg << MSG::DEBUG << "volume at pos " << (**i).radius() << ", " << (**i).zPos()
+			  << " does not contain exit point" << endmsg;
       }
     }
     return volumes().front();  // catch-all
@@ -47,9 +47,8 @@ ServiceDynVolume* SvcRoute::entryVolume( double pos, bool ascending, const Athen
 
 ServiceDynVolume* SvcRoute::exitVolume( bool ascending, const Athena::MsgStreamMember& msg) const 
 {
-
-  msg << MSG::DEBUG  << "entering exitVolume with ascending = " << ascending 
-       << " and route.exit() = " << exit() << endmsg;
+  msg << MSG::DEBUG << "entering exitVolume with ascending = " << ascending 
+		    << " and route.exit() = " << exit() << endmsg;
 
   if (m_exitVolume != 0) return m_exitVolume;
 
@@ -59,8 +58,8 @@ ServiceDynVolume* SvcRoute::exitVolume( bool ascending, const Athena::MsgStreamM
     for (VolumeContainer::const_iterator i=volumes().begin(); i!=volumes().end(); i++) {
       if ((**i).contains(exit())) return *i;
       else {
-	msg << MSG::DEBUG  << "volume at pos " << (**i).radius() 
-	     << ", " << (**i).zPos() << " does not contain exit point" << endmsg;
+	msg << MSG::DEBUG << "volume at pos " << (**i).radius() << ", " << (**i).zPos() 
+			  << " does not contain exit point" << endmsg;
       }
     }
     return volumes().back();  // catch-all

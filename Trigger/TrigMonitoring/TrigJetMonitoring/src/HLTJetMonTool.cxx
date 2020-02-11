@@ -55,6 +55,7 @@ HLTJetMonTool::HLTJetMonTool(
   //  declareProperty("DoLumiWeight",        m_doLumiWeight = true);
 
   declareProperty("L1xAODJetKey",        m_L1xAODJetKey = "LVL1JetRoIs");
+  declareProperty("L1xAODjJetKey",       m_L1xAODjJetKey = "jRoundJets");
   declareProperty("HLTJetKeys",          m_HLTJetKeys, "SG Keys to access HLT Jet Collections");
   declareProperty("OFJetKeys",           m_OFJetKeys, "SG Keys to access offline Jet Collections" );
 
@@ -1323,6 +1324,16 @@ StatusCode HLTJetMonTool::retrieveContainers() {
   else {
     ATH_MSG_DEBUG(" Retrieved LVL1JetROIs with key \"" << m_L1xAODJetKey << "\" from TDS" );
   }
+
+  // retrieve xAOD L1 jFex jets
+  m_L1jJetRoIC = 0;
+  sc = m_storeGate->retrieve(m_L1jJetRoIC, m_L1xAODjJetKey);
+  if(sc.isFailure() || !m_L1jJetRoIC) {
+    ATH_MSG_INFO ("Could not retrieve jRoundJets with key \"" << m_L1xAODjJetKey << "\" from TDS"  );
+  }
+  else {
+    ATH_MSG_DEBUG(" Retrieved jRoundJets with key \"" << m_L1xAODjJetKey << "\" from TDS" );
+  }
   
   // retrieve HLT jets
   // clear before retrieving containers
@@ -1461,7 +1472,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
   // L1 begin filling basic histograms
   ATH_MSG_DEBUG ("Filling L1 Jets");
 
-  if(m_L1JetRoIC) {
+  if(m_L1JetRoIC || m_L1jJetRoIC) {
     setCurrentMonGroup(m_monGroups["L1"]);
     if(m_debuglevel)
       ATH_MSG_DEBUG( "Mon group set to " << m_monGroups["L1"] );
@@ -1471,7 +1482,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
     xAOD::JetRoIContainer::const_iterator it_e_L1 = m_L1JetRoIC->end();
     for ( ; it_L1 != it_e_L1; it_L1++) {
       L1Roi_num++;
-      double et = ( (*it_L1)->et4x4())/CLHEP::GeV;
+      double et = ( (*it_L1)->et8x8())/CLHEP::GeV;
       if(et < 1.e-3) et = 0.;
       double eta = (*it_L1)->eta();
       double ene = et * cosh(eta);
@@ -1760,7 +1771,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
   double count=0;
   
   ATH_MSG_DEBUG("fillBasicHLTforChain CHAIN: " << Form("HLT_%s",theChain.c_str()) << " passed TDT: " << getTDT()->isPassed(Form("HLT_%s",theChain.c_str())));
-  
+
   if (getTDT()->isPassed(Form("HLT_%s",theChain.c_str()))) {
 
     if((h  = hist("HLTSigma_vs_LB"))){
@@ -1785,7 +1796,6 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 
 	 ATH_MSG_DEBUG("jet et = "<<et);
 
-
 	 if(et < epsilon) et = 0;
 	 bool hlt_thr_pass = ( et > thrHLT );
 	 if(hlt_thr_pass) {
@@ -1794,8 +1804,8 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   double  emfrac  =1;
 	   double  hecfrac =1;
 	   if (m_isPP || m_isCosmic || m_isMC){
-	      emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
-	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
+	      if(j->isAvailable<float>("EMFrac"))  emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac);
+	      if(j->isAvailable<float>("HECFrac")) hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac);
 	    }
 
 	   double jvt  = -0.1;
@@ -1808,7 +1818,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   v_thisjet.SetPtEtaPhiE(j->pt()/CLHEP::GeV,j->eta(), j->phi(),j->e()/CLHEP::GeV);
 	   m_v_HLTjet.push_back(v_thisjet);
            m_n_index++;
-		   
+
 	   if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
 	   if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
 	   if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
@@ -1846,7 +1856,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 
 void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrEt ) {
 
-  if( !m_L1JetRoIC ) return; // TEMPORARY - Should issue a warning  
+  if( !m_L1JetRoIC && !m_L1jJetRoIC ) return; // TEMPORARY - Should issue a warning
 
   TH1 *h(0); 
   TH2 *h2(0);
@@ -1858,7 +1868,6 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
   
 
   if (getTDT()->isPassed(theChain.c_str())){
-
     
 
     if((h  = hist("L1Sigma_vs_LB"))){
@@ -1885,17 +1894,29 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
 	
         unsigned int id =   combIt->cptr()->roiWord();
 	//  bool id_match_found = false;
-        xAOD::JetRoIContainer::const_iterator it_L1 = m_L1JetRoIC->begin();
-        xAOD::JetRoIContainer::const_iterator it_e_L1 = m_L1JetRoIC->end();
+        xAOD::JetRoIContainer::const_iterator it_L1;
+        xAOD::JetRoIContainer::const_iterator it_e_L1;
+
+	bool usingjFex = false;
+	if(theChain.rfind("jJ") != std::string::npos){
+	  if(theChain.substr(theChain.rfind("jJ"),2)=="jJ") usingjFex = true;
+	}
 	
+	if(usingjFex){ // jRoundJets
+          it_L1   = m_L1jJetRoIC->begin();
+          it_e_L1 = m_L1jJetRoIC->end();
+	} else { // LVL1JetRoIs
+          it_L1   = m_L1JetRoIC->begin();
+          it_e_L1 = m_L1JetRoIC->end();
+	}
+
         for (; it_L1 != it_e_L1; ++it_L1) {
 
-          double et = ((*it_L1)->et4x4())/CLHEP::GeV;
+          double et = ((*it_L1)->et8x8())/CLHEP::GeV;
 	  if(et < 1.e-3) et = 0;
           double eta = (*it_L1)->eta();
           double phi = (*it_L1)->phi();
 	  double ene = et * cosh(eta);
-
 
           if(m_debuglevel) {
             const Jet_ROI::thresholds_type thrVec = (*it_L1)->thrNames();
@@ -1910,7 +1931,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
             ATH_MSG_DEBUG( "CHAIN: " << theChain << " " << et << " GeV " << eta << " " 
 			   << phi << " rad " << et6 << " " << et8 << " " << thrv.str());
           }
-          if(id == (*it_L1)->roiWord() ) {
+          if(id == (*it_L1)->roiWord() || usingjFex ) {
 	    // id_match_found = true;
             bool l1_thr_pass = (et > thrEt);
             ATH_MSG_DEBUG("CHAIN: " << theChain << " " << et << "\tthreshold = " << thrEt << "\tpass = " << l1_thr_pass);
@@ -2856,7 +2877,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
 	
 	for (; it_L1 != it_e_L1; ++it_L1) {
 
-	  double et = ( (*it_L1)->et4x4());
+	  double et = ( (*it_L1)->et8x8());
 	  if(et < 1.e-3) et = 0.;
 	  double eta = (*it_L1)->eta();
 	  double ene = et * cosh(eta);

@@ -128,7 +128,8 @@ if InDetFlags.doPRDFormation():
                                                       MaximalSplitSize        = 49,
                                                       MinimalSplitProbability = 0,
                                                       DoIBLSplitting = True,
-                                                      SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
+                                                      SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap(),
+                                                      doITkClustering         = False ) #InDetFlags.doSLHC())
       # assign the tools if there are any                                                
       if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
       if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
@@ -185,7 +186,8 @@ if InDetFlags.doPRDFormation():
       InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                           globalPosAlg      = InDetClusterMakerTool,
                                                           useRowInformation = InDetFlags.doSLHC(),
-                                                          conditionsService = InDetSCT_ConditionsSummarySvc)
+                                                          conditionsService = InDetSCT_ConditionsSummarySvc,
+                                                          doITkClustering   = False ) #InDetFlags.doSLHC())
       if InDetFlags.selectSCTIntimeHits():
          if InDetFlags.InDet25nsec(): 
             InDetSCT_ClusteringTool.timeBins = "01X" 
@@ -266,8 +268,8 @@ if InDetFlags.doSpacePointFormation():
                                                                      SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
                                                                      SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                      ProcessPixels          = DetFlags.haveRIO.pixel_on(),
-                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
-                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
+                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on() and not InDetFlags.doFastTracking(),
+                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on() and not InDetFlags.doFastTracking())
 
 #   if InDetFlags.doDBM():
 #     InDetSiTrackerSpacePointFinderDBM = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinderDBM",

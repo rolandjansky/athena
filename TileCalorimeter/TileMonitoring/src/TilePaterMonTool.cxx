@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -41,6 +41,9 @@
 #include "LWHists/TH2I_LW.h"
 #include "LWHists/TProfile_LW.h"
 
+
+#include <sstream>
+#include <algorithm>
 
 /*---------------------------------------------------------*/
 // Methods registering historgrams
@@ -86,6 +89,8 @@ TilePaterMonTool::TilePaterMonTool(const std::string & type, const std::string &
   declareProperty("savePs",m_savePs=false);
   declareProperty("saveSvg",m_saveSvg=false);
 
+  declareProperty("FragIDsToIgnoreDMUErrors", m_fragIDsToIgnoreDMUerrors, "List of Tile frag IDs for which ignore DMU errors");
+
   m_path = "/Tile";
 
 }
@@ -105,7 +110,16 @@ StatusCode TilePaterMonTool:: initialize()
   CHECK( detStore()->retrieve(m_tileHWID) );
   CHECK( detStore()->retrieve(m_tileTBID) );
 
+  std::sort(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end());
+
   m_cabling = TileCablingService::getInstance();
+
+  std::ostringstream os;
+  for (int fragID : m_fragIDsToIgnoreDMUerrors) {
+    os << " 0x" << std::hex << fragID << std::dec;
+  }
+
+  ATH_MSG_INFO("Tile DMU errors will be ignored in drawers (frag IDs):" << os.str());
 
   //ToolRootHistSvc();
   //SetBookStatus(false);

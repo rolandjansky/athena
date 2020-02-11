@@ -13,7 +13,7 @@ art.py createpoolfile
 set -x
 
 
-get_files stations.v2.03.xml
-athena.py AmdcAth/AmdcAth_GeometryTasks.py -c "input_nsw_xml='stations.v2.03.xml';database_layout='MuonSpectrometer-R.08.01-NSW';CheckNSWDBlob=True;"
+get_files stations.v2.06.xml
+athena.py AmdcAth/AmdcAth_GeometryTasks.py -c "input_nsw_xml='stations.v2.06.xml';database_layout='MuonSpectrometer-R.09.00.NSW';CheckNSWDBlob=True;"
 
 echo "art-result: $?"

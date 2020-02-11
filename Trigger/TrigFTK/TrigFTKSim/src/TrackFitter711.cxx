@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKSetup.h"
@@ -239,11 +239,11 @@ void TrackFitter711::init()
 
   // allocate once the array of recovered tracks
   combtrackI = new FTKTrack[m_ncoords_incomplete];
-  for (int ic=0;ic!=m_ncoords_incomplete;++ic) {
+  for (unsigned int ic=0;ic!=m_ncoords_incomplete;++ic) {
     combtrackI[ic].setNCoords(m_ncoords_incomplete);
     combtrackI[ic].setNPlanes(m_nplanes_incomplete);
   }
-  m_complete_maskI = ~(~0<<m_ncoords_incomplete);
+  m_complete_maskI = (1 << m_ncoords_incomplete) - 1;
 
   m_nplanes_ignored = m_nplanes-m_nplanes_incomplete;
   m_ncoords_ignored = m_ncoords-m_ncoords_incomplete;
@@ -273,12 +273,12 @@ void TrackFitter711::init()
 
   // These 6 counters will evolve in each step of map building
   // to generalize to 1st/2nd stage extrapolation.
-  int plane_index_1st_stage(0);
-  int plane_index_2nd_stage(0);
-  int coord_index_1st_stage(0);
-  int coord_index_2nd_stage(0);
-  int index_missing_plane(0);
-  int index_missing_coord(0);
+           int plane_index_1st_stage(0);
+           int plane_index_2nd_stage(0);
+  unsigned int coord_index_1st_stage(0);
+  unsigned int coord_index_2nd_stage(0);
+  unsigned int index_missing_plane(0);
+  unsigned int index_missing_coord(0);
 
   //int debugcounter(0);
   do { // maps building
@@ -444,7 +444,8 @@ void TrackFitter711::init()
 
 
   // check the reach of the end of both maps
-  assert(coord_index_1st_stage==m_ncoords_incomplete && coord_index_2nd_stage==m_ncoords);
+  assert(coord_index_1st_stage == static_cast<unsigned int>(m_ncoords_incomplete) &&
+         coord_index_2nd_stage == static_cast<unsigned int>(m_ncoords));
 
   if (m_super_extrapolate) {
     m_section_of_exp_layers = new int[m_nplanes_ignored];
@@ -1330,7 +1331,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     newtrk.setCombinationID(curtrackI.getCombinationID());
 
     // zero out coords
-    for (int ix=0; ix!=m_ncoords; ++ix) {
+    for (unsigned int ix=0; ix!=m_ncoords; ++ix) {
       newtrk.setCoord(ix,0);
     }
     //std::cout << "before exp" << std::endl;
@@ -1338,7 +1339,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
 
     // set the incomplete track coordinates
-    for (int ix=0; ix!=m_ncoords_incomplete; ++ix) {
+    for (unsigned int ix=0; ix!=m_ncoords_incomplete; ++ix) {
       int cix = m_CImap_eff[ix];
       newtrk.setCoord(cix,curtrackI.getCoord(ix));
 
@@ -3162,7 +3163,7 @@ void TrackFitter711::extrapolateIncompleteTrack(const FTKRoad &road) {
   bool * iblhits = new bool[conn_subregs.size()];
 
   newtrk.setNPlanesIgnored(m_nplanes-m_nplanes_incomplete);
-  for (int ic=0;ic!=m_ncoords;++ic) {
+  for (unsigned int ic=0;ic!=m_ncoords;++ic) {
     combtrack[ic].setNPlanesIgnored(m_nplanes-m_nplanes_incomplete);
   }
 
@@ -3251,12 +3252,12 @@ void TrackFitter711::prepareTrack() {
   newtrk.setCombinationID(newtrkI.getCombinationID());
 
   // zero out coords
-  for (int ix=0; ix!=m_ncoords; ++ix) {
+  for (unsigned int ix=0; ix!=m_ncoords; ++ix) {
     newtrk.setCoord(ix,0);
   }
 
   // set the incomplete track coordinates
-  for (int ix=0; ix!=m_ncoords_incomplete; ++ix) {
+  for (unsigned int ix=0; ix!=m_ncoords_incomplete; ++ix) {
     int cix = m_CImap_eff[ix];
     newtrk.setCoord(cix,newtrkI.getCoord(ix));
 
@@ -3990,13 +3991,13 @@ void TrackFitter711::printLayerInversionResult() {
   std::cout << "}" << std::endl;
 
   std::cout << "m_CImap: {";
-  for (int ii = 0; ii < m_ncoords_incomplete; ++ii) {
+  for (unsigned int ii = 0; ii < m_ncoords_incomplete; ++ii) {
     std::cout << m_CImap[ii] << " , ";
   }
   std::cout << "}" << std::endl;
 
   std::cout << "m_CImap_eff: {";
-  for (int ii = 0; ii < m_ncoords_incomplete; ++ii) {
+  for (unsigned int ii = 0; ii < m_ncoords_incomplete; ++ii) {
     std::cout << m_CImap_eff[ii] << " , ";
   }
   std::cout << "}" << std::endl;
@@ -4199,7 +4200,7 @@ void TrackFitter711::fillDiagnosticPlotsPerEvent() {
   }
   list<FTKTrack>::iterator itrack2 = m_tracks.begin();
   for (;itrack2!=m_tracks.end();itrack2++) {
-    for (int ic = 0; ic < m_ncoords; ++ic) {
+    for (unsigned int ic = 0; ic < m_ncoords; ++ic) {
       m_histo_bitmask->Fill(ic, ((((*itrack2).getBitmask())&(1<<ic))>>ic));
     }
   }

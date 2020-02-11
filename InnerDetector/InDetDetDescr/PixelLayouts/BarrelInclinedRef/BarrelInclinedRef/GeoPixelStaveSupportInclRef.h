@@ -48,6 +48,7 @@ private:
   double m_endcapMaxRadialPos;
   double m_barrelZMax;
   std::string m_svcRouting; 
+  std::string m_staveType;
 
   HepGeom::Transform3D m_transform;
   double m_thicknessP;

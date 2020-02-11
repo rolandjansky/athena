@@ -116,7 +116,7 @@ class HLTJetMonTool : public IHLTMonTool {
     JetContainertype m_hltContainers;
 
     std::string m_monBase, m_L1dir, m_HLTdir, m_HLTpfx, m_OFpfx, m_Effdir;
-    std::string m_L1xAODJetKey; 
+    std::string m_L1xAODJetKey, m_L1xAODjJetKey;
     
     // Default names for trigger items used by menu aware monitoring
     std::vector<std::string> m_monitoring_l1jet, m_monitoring_jet;
@@ -172,7 +172,8 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // Container Names
     //const LVL1_ROI *m_L1RoiC;
-    const xAOD::JetRoIContainer* m_L1JetRoIC = nullptr;
+    const xAOD::JetRoIContainer* m_L1JetRoIC  = nullptr;
+    const xAOD::JetRoIContainer* m_L1jJetRoIC = nullptr;
 
     //const xAOD::JetContainer* m_EFJetC;
     std::vector<const xAOD::JetContainer*> m_HLTJetC;

@@ -124,7 +124,7 @@ TriggerItem::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) 
       << "\" complex_deadtime=\"" << complex_deadtime()
       << "\" definition=\"" << final_def
       << "\" trigger_type=\"" << TrigConf::uint2bin(m_TriggerType, partition()==1 ? 8 : 4) << "\"";
-   if(monitor()!=0) {
+   if(monitor()<0x40) {
       string s("LF:");
       s += (monitor() & 0x04 ? '1' : '0');
       s += (monitor() & 0x02 ? '1' : '0');

@@ -15,6 +15,7 @@ from AthenaCommon import CfgMgr, CfgGetter
 
 from MuonRecExample import MuonRecTools
 from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 #from MuonRecExample.MuonRecUtils import AlgToolFactory,ServiceFactory,ConfiguredBase,getProperty
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
@@ -356,7 +357,7 @@ class TrigMuonEFSegmentFinderCosmicConfig (TrigMuonEFSegmentFinder):
     def __init__( self, name="TrigMuonEFSegmentFinderCosmic" ):
         super( TrigMuonEFSegmentFinderCosmicConfig, self ).__init__( name )
 
-        if muonRecFlags.doCSCs(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
+        if MuonGeometryFlags.hasCSC(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         from MuonRecExample.MooreTools import MooSegmentCombinationFinder        
         self.SegmentsFinderTool = MooSegmentCombinationFinder("SegmentsFinderToolCosmic",

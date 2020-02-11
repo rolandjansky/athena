@@ -195,27 +195,27 @@ SiliconID::test_wafer_hashes	(void) const
 	    }
 	}
       
-	// Check is_blayer
-	if (is_blayer(id)) {
+	// Check is_innermost
+	if (is_innermost(id)) {
 	    nblay++;
 	    if(is_sct(id)) {
-		if(m_msgSvc) log << MSG::ERROR << "test_wafer_packing: is_blayer is sct. "
+		if(m_msgSvc) log << MSG::ERROR << "test_wafer_packing: is_innermost is sct. "
                                  << "hash: " << hash << " i: " << i << " "
                                  << show_to_string(id)
                                  << endmsg;
-		else std::cout << " ERROR SiliconID::test_wafer_packing: is_blayer is sct. "
+		else std::cout << " ERROR SiliconID::test_wafer_packing: is_innermost is sct. "
                                << "hash: " << hash << " i: " << i << " "
                                << show_to_string(id)
                                << std::endl;
                 error = true;
 	    }
 	    else {
-		if(!m_pixel_helper->is_blayer(id)) {
-		    if(m_msgSvc) log << MSG::ERROR << "test_wafer_packing: is_blayer fails for pixel. "
+		if(!m_pixel_helper->is_innermost(id)) {
+		    if(m_msgSvc) log << MSG::ERROR << "test_wafer_packing: is_innermost fails for pixel. "
                                      << "hash: " << hash << " i: " << i << " "
                                      << show_to_string(id)
                                      << endmsg;
-		    else std::cout << " ERROR SiliconID::test_wafer_packing: is_blayer fails for pixel. "
+		    else std::cout << " ERROR SiliconID::test_wafer_packing: is_innermost fails for pixel. "
                                    << "hash: " << hash << " i: " << i << " "
                                    << show_to_string(id)
                                    << std::endl;
@@ -249,7 +249,7 @@ SiliconID::test_wafer_hashes	(void) const
         log << MSG::INFO << "Number of is_barrel (pix/sct): " << nbar 
             << " " << nbarp << " " << nbars
             << endmsg;
-        log << MSG::INFO << "Number of is_blayer: " << nblay 
+        log << MSG::INFO << "Number of is_innermost: " << nblay 
             << endmsg;
         log << MSG::INFO << "Number of matching is_hash_pixel/is_pixel: " << nHashPix
             << endmsg;
@@ -260,7 +260,7 @@ SiliconID::test_wafer_hashes	(void) const
         std::cout << " INFO Number of is_barrel (pix/sct): " << nbar 
                   << " " << nbarp << " " << nbars
                   << std::endl;
-        std::cout << " INFO Number of is_blayer: " << nblay 
+        std::cout << " INFO Number of is_innermost: " << nblay 
                   << std::endl;
         std::cout << " INFO Number of matching is_hash_pixel/is_pixel: " << nHashPix
                   << std::endl;

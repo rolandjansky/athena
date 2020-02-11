@@ -22,6 +22,7 @@
 
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileOptFilterWeights.h"
+#include "TileConditions/TileWienerFilterWeights.h"
 #include "TileConditions/TileCondIdTransforms.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
@@ -376,6 +377,9 @@ class TileInfo : public DataObject {
   /** Return pointer to TileOptFilterCorrelation */
   TileOptFilterCorrelationStruct * getOptFilterCorrelation() const {return m_OptFilterCorrelation->TileOFCorrstruct();}
 
+  /** Return pointer to TileWienerFilterWeights */
+  TileWienerFilterWeightsStruct * getWienerFilterWeights() const {return m_WienerFilterWeights->TileWFstruct();}
+
 
   //==================================================================
   //==
@@ -504,6 +508,8 @@ class TileInfo : public DataObject {
 
   TileOptFilterWeights *m_OptFilterWeights;
   TileOptFilterWeights *m_OptFilterCorrelation;
+
+  TileWienerFilterWeights *m_WienerFilterWeights;
 
   double m_emscaleTB[32];
   double m_mev2adcTB[32];

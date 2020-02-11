@@ -208,11 +208,8 @@ namespace InDet {
 	    if (m_idHelper->is_pixel(id)) 
 	      {
 		ATH_MSG_DEBUG("Found pixel module : Associated track parameter");
-		if(m_pixelId->is_barrel(id)) 
+		if(m_pixelId->is_innermost(id)) 
 		{ 
-		    ATH_MSG_DEBUG("Found pixel barrel");
-		    if(m_pixelId->layer_disk(id) == 0) 
-		      {
 			if (msgLvl(MSG::DEBUG)) 
 			  {
 			    msg(MSG::DEBUG) << "Found Innermost Pixel Layer  " << id.get_compact() << endreq;	    
@@ -225,7 +222,6 @@ namespace InDet {
 	      }
 	  }
       }
-    }
   
     return 0;
     
@@ -262,11 +258,8 @@ namespace InDet {
 	    if (m_idHelper->is_pixel(id)) 
 	      {
 		ATH_MSG_DEBUG("Found pixel module : Associated track parameter");
-		if(m_pixelId->is_barrel(id)) 
+		if(m_pixelId->is_nexttoinnermost(id)) 
 		{ 
-		    ATH_MSG_DEBUG("Found pixel barrel");
-		    if(m_pixelId->layer_disk(id) == 1) 
-		      {
 			if (msgLvl(MSG::DEBUG)) 
 			  {
 			    msg(MSG::DEBUG) << "Found Next To Innermost Pixel Layer  " << id.get_compact() << endreq;	    
@@ -279,7 +272,6 @@ namespace InDet {
 	      }
 	  }
       }
-    }
   
     return 0;
     

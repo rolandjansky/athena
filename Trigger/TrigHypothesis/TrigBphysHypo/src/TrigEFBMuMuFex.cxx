@@ -16,9 +16,6 @@
 #include "BtrigUtils.h"
 #include "TrigBphysHelperUtilsTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include <iostream>
@@ -30,7 +27,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-#include "TrkTrack/TrackCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 

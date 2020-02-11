@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -89,6 +89,8 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_dRMapName("dRMap"),
   m_doNotRecalibrateNN(false),
   m_noNNandBroadErrors(false),
+  m_correctDigitalCentroid(false),
+  m_minClusterSize(0),
   m_usingTIDE_Ambi(false)
 {
   declareInterface<IRIO_OnTrackCreator>(this);
@@ -110,8 +112,9 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("dRMapName",                m_dRMapName);
   declareProperty("doNotRecalibrateNN",       m_doNotRecalibrateNN);
   declareProperty("m_noNNandBroadErrors",     m_noNNandBroadErrors);
+  declareProperty("CorrectDigitalCentroid",    m_correctDigitalCentroid);
+  declareProperty("MinClusterSize",           m_minClusterSize);
   declareProperty("RunningTIDE_Ambi",         m_usingTIDE_Ambi);
-
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -404,35 +407,17 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     double localphi = -9999.;
     double localeta = -9999.;    
 
-    std::vector<Identifier> rdos = pix->rdoList();
-    std::vector<Identifier>::const_iterator oneRDO = rdos.begin();
-    InDetDD::SiLocalPosition meanpos(0,0,0);
-    int rowmin=9999; int rowmax=-9999;
-    int colmin=9999; int colmax=-9999;
-    for(; oneRDO != rdos.end(); oneRDO++){
-      Identifier rId = *oneRDO;
-      int row = m_pixelid->phi_index(rId);
-      int col = m_pixelid->eta_index(rId);
-      if(rowmin > row) rowmin = row;
-      if(rowmax < row) rowmax = row;
-      if(colmin > col) colmin = col;
-      if(colmax < col) colmax = col;
-      meanpos += design->positionFromColumnRow(col,row);
-    }
-    meanpos = meanpos/rdos.size();
-    InDetDD::SiLocalPosition pos1 = 
-         design->positionFromColumnRow(colmin,rowmin);
-    InDetDD::SiLocalPosition pos2 = 
-         design->positionFromColumnRow(colmax,rowmin);
-    InDetDD::SiLocalPosition pos3 = 
-         design->positionFromColumnRow(colmin,rowmax);
-    InDetDD::SiLocalPosition pos4 = 
-         design->positionFromColumnRow(colmax,rowmax);
+    bool totInterpolation = (m_positionStrategy > 0 && omegaphi > -0.5 && omegaeta > -0.5);
 
-    InDetDD::SiLocalPosition centroid = 0.25*(pos1+pos2+pos3+pos4); 
+    InDetDD::SiLocalPosition centroid;
+    //if not doing totInterpolation, centroid is just mean position
+    if(element->isBarrel() && m_correctDigitalCentroid && pix->width().colRow()[1]>m_minClusterSize) centroid = correctedDigitalCentroid(pix,design,totInterpolation);
+    else centroid = digitalCentroid(pix,design,totInterpolation);     
+
     double shift = element->getLorentzCorrection();
-    int nrows = rowmax-rowmin+1;
-    int ncol = colmax-colmin+1;
+    //Strangely, for consistency it seems I need to flip row and column from the canonical order?
+    int nrows = pix->width().colRow()[0];//rowmax-rowmin+1;
+    int ncol = pix->width().colRow()[1];//colmax-colmin+1;
     double ang = 999.;
     double eta = 999.;
 
@@ -441,7 +426,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
 
     // TOT interpolation for collision data    
     // Force IBL to use digital clustering and broad errors.
-    if(m_positionStrategy > 0 && omegaphi > -0.5 && omegaeta > -0.5 ){
+    if(totInterpolation){
       localphi = centroid.xPhi()+shift;
       localeta = centroid.xEta();
       // barrel 
@@ -512,11 +497,11 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
 		localeta += deltay*(omegaeta-0.5);
    }
   }  
-}
-// digital
+    }
+// digital - totInterpolation false, so centroid is just the mean cluster positio
     else{
-      localphi = meanpos.xPhi()+shift;
-      localeta = meanpos.xEta();
+      localphi = centroid.xPhi()+shift;
+      localeta = centroid.xEta();
     } 
 
     InDet::SiWidth width = pix->width();
@@ -1158,4 +1143,146 @@ double InDet::PixelClusterOnTrackTool::splineIBLPullX(float x, int layer) const 
    // Evaluate now
    double dx=x-m_fX[layer][klow];
    return (m_fY[layer][klow]+dx*(m_fB[layer][klow]+dx*(m_fC[layer][klow]+dx*m_fD[layer][klow])));
+}
+
+InDetDD::SiLocalPosition InDet::PixelClusterOnTrackTool::digitalCentroid(const InDet::PixelCluster* pix,const InDetDD::PixelModuleDesign* design,bool doCentroid) const {
+
+  std::vector<Identifier> rdos = pix->rdoList();
+  std::vector<Identifier>::const_iterator oneRDO = rdos.begin();
+  InDetDD::SiLocalPosition meanpos(0,0,0);
+  int rowmin=9999; int rowmax=-9999;
+  int colmin=9999; int colmax=-9999;
+  for(; oneRDO != rdos.end(); oneRDO++){
+    Identifier rId = *oneRDO;
+    int row = m_pixelid->phi_index(rId);
+    int col = m_pixelid->eta_index(rId);
+    if(rowmin > row) rowmin = row;
+    if(rowmax < row) rowmax = row;
+    if(colmin > col) colmin = col;
+    if(colmax < col) colmax = col;
+    meanpos += design->positionFromColumnRow(col,row);
+  }
+
+  meanpos = meanpos/rdos.size();
+  
+  if(!doCentroid) return meanpos;
+
+    InDetDD::SiLocalPosition pos1 = 
+         design->positionFromColumnRow(colmin,rowmin);
+    InDetDD::SiLocalPosition pos2 = 
+         design->positionFromColumnRow(colmax,rowmin);
+    InDetDD::SiLocalPosition pos3 = 
+         design->positionFromColumnRow(colmin,rowmax);
+    InDetDD::SiLocalPosition pos4 = 
+         design->positionFromColumnRow(colmax,rowmax);
+
+    InDetDD::SiLocalPosition centroid = 0.25*(pos1+pos2+pos3+pos4); 
+
+    return centroid;
+
+}
+
+InDetDD::SiLocalPosition InDet::PixelClusterOnTrackTool::correctedDigitalCentroid(const InDet::PixelCluster* pix,const InDetDD::PixelModuleDesign* design,bool doCentroid) const{
+
+
+  const InDetDD::SiDetectorElement* element = pix->detectorElement();
+
+  std::vector<Identifier> rdos = pix->rdoList();
+    std::vector<Identifier>::const_iterator oneRDO = rdos.begin();
+    InDetDD::SiLocalPosition meanpos(0,0,0);
+    int rowmin=9999; int rowmax=-9999;
+    int colmin=9999; int colmax=-9999;
+    for(; oneRDO != rdos.end(); oneRDO++){
+      Identifier rId = *oneRDO;
+      int row = m_pixelid->phi_index(rId);
+      int col = m_pixelid->eta_index(rId);
+      if(rowmin > row) rowmin = row;
+      if(rowmax < row) rowmax = row;
+      if(colmin > col) colmin = col;
+      if(colmax < col) colmax = col;
+      meanpos += design->positionFromColumnRow(col,row);
+    }
+
+    int colWidth = colmax-colmin+1;
+    int rowWidth = rowmax-rowmin+1;
+    const int numberOfRows = design->rows();
+    const int numberOfColumns = design->columns();
+    //*** correction on local X : digital average of the most populated row and its most populated neighbor ***
+    if(rowWidth>1){  //only modify the localX of clusters with phiWidth>1
+      int *NumberHitsEachRow = new int[numberOfRows](); // all elements initialized to zero
+      std::vector<Identifier>::const_iterator tpRDO = rdos.begin();
+      for(; tpRDO != rdos.end(); tpRDO++){
+	Identifier tpId = *tpRDO;
+	int row = m_pixelid->phi_index(tpId);
+	for(int ii=rowmin; ii<=rowmax;ii++){
+	  if(row==ii ) {
+	    NumberHitsEachRow[ii]++;
+	    break;
+	  }
+	}
+      }
+      //find out the row with highest number of fired pixels
+      int refmax(-9999); int row1(-9999); int row2(-9999);
+      for(int ii=rowmin; ii<=rowmax;ii++){
+	if((NumberHitsEachRow[ii])>refmax) {
+	  refmax = NumberHitsEachRow[ii];
+	  row1 = ii;
+	}
+      }
+      //find out the neighboring row with the second highest number of hits
+      if((row1-1)>=rowmin && (row1+1)<=rowmax ) {//make sure they are valid rows
+	if(NumberHitsEachRow[row1-1] > NumberHitsEachRow[row1+1] ) row2 = row1-1;
+	else row2 = row1+1;
+      }
+      else if((row1-1)>=rowmin && (row1+1)>rowmax ) row2 = row1-1;
+      else if((row1-1)<rowmin && (row1+1)<=rowmax ) row2 = row1+1;
+      
+      InDetDD::SiLocalPosition avgPos(0,0,0);
+      std::vector<Identifier>::const_iterator TpRDO = rdos.begin();
+      for(; TpRDO != rdos.end(); TpRDO++){
+	Identifier tpId = *TpRDO;
+	int row = m_pixelid->phi_index(tpId);
+	int col = m_pixelid->eta_index(tpId);
+	if(row==row1 || row==row2 ) avgPos += design->positionFromColumnRow(col,row);
+      }
+      avgPos = avgPos / (NumberHitsEachRow[row1]+NumberHitsEachRow[row2]);
+      InDetDD::SiLocalPosition tp_meanpos(meanpos.xEta(), avgPos.xPhi(), meanpos.xDepth());
+      meanpos = tp_meanpos;
+      delete[] NumberHitsEachRow;
+    }
+    //*** correction on local Y : (col_Min + col_Max)/2 ***
+    InDetDD::SiLocalPosition left_pos = design->positionFromColumnRow(colmin,rowmin);
+    InDetDD::SiLocalPosition right_pos = design->positionFromColumnRow(colmax,rowmin);
+    InDetDD::SiLocalPosition middle_pos = (left_pos+right_pos)/2.0;
+    InDetDD::SiLocalPosition tp_meanpos(middle_pos.xEta(), meanpos.xPhi(), meanpos.xDepth());
+    meanpos = tp_meanpos;
+    //*** correct local Y for clusters on module edge ***
+    if (colmin <= 0 || colmax >= (numberOfColumns-1) ) {
+      Amg::Vector3D globalPos = element->globalPosition(meanpos);
+      int expectedClusterLength = element->thickness() / design->etaPitch() * fabs(globalPos.z()) / globalPos.perp() + 1;
+      if( (colWidth >= expectedClusterLength/2.) && (colWidth <= expectedClusterLength) ){
+	if (colmin <= 0) 
+	  meanpos += InDetDD::SiLocalPosition( design->etaPitch()*(colWidth - expectedClusterLength) / 2., 0.);
+	else if (colmax >= (numberOfColumns-1))
+	  meanpos += InDetDD::SiLocalPosition( design->etaPitch()*(expectedClusterLength - colWidth) / 2., 0.);
+      }
+    }
+
+    meanpos = meanpos/rdos.size();
+
+    if(!doCentroid) return meanpos;
+
+      InDetDD::SiLocalPosition pos1 = 
+         design->positionFromColumnRow(colmin,rowmin);
+    InDetDD::SiLocalPosition pos2 = 
+         design->positionFromColumnRow(colmax,rowmin);
+    InDetDD::SiLocalPosition pos3 = 
+         design->positionFromColumnRow(colmin,rowmax);
+    InDetDD::SiLocalPosition pos4 = 
+         design->positionFromColumnRow(colmax,rowmax);
+
+    InDetDD::SiLocalPosition centroid = 0.25*(pos1+pos2+pos3+pos4); 
+
+    return centroid;
+
 }

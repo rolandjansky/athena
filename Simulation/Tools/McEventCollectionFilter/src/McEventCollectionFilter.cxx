@@ -232,7 +232,7 @@ StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
     SiHitCollection *pSiHitCollNew = new SiHitCollection();
 
     for (SiHitCollection::const_iterator i = pSiHitC->begin(); i != pSiHitC->end(); ++i) {
-      const HepMcParticleLink McLink = (*i).particleLink();
+      const HepMcParticleLink oldLink = (*i).particleLink();
 
 
       HepGeom::Point3D<double>   lP1  = (*i).localStartPosition();
@@ -240,13 +240,10 @@ StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
       double       edep = (*i).energyLoss();
       double       mt   = (*i).meanTime();
       unsigned int id   = (*i).identify();
-
-      int CurBarcode=0;
-      if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
-
-
-      SiHit newSiHit(lP1,lP2, edep, mt,CurBarcode , id);
-      pSiHitCollNew->Insert(newSiHit);
+      int curBarcode=0;
+      if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+      HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
+      pSiHitCollNew->Emplace(lP1,lP2, edep, mt, partLink, id);
     }
 
     //......remove old SiHitCollection
@@ -286,14 +283,14 @@ StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
   TRTUncompressedHitCollection *pTRTHitCollNew =  new TRTUncompressedHitCollection();
   for (TRTUncompressedHitCollection::const_iterator i = pTRTHitColl->begin(); i != pTRTHitColl->end(); ++i) {
 
-    const HepMcParticleLink McLink = (*i).particleLink();
+    const HepMcParticleLink oldLink = (*i).particleLink();
 
     int   pdgID = (*i).GetParticleEncoding();
-    int CurBarcode=0;
-    if(McLink.barcode()!=0&&!m_IsKeepTRTElect)                      CurBarcode=m_RefBarcode;
-    else if(McLink.barcode()!=0&&m_IsKeepTRTElect&&fabs(pdgID)!=11) CurBarcode=m_RefBarcode;
-    else if(McLink.barcode()!=0&&m_IsKeepTRTElect&&fabs(pdgID)==11) CurBarcode=McLink.barcode();
-
+    int curBarcode=0;
+    if(oldLink.barcode()!=0&&!m_IsKeepTRTElect)                      curBarcode=m_RefBarcode;
+    else if(oldLink.barcode()!=0&&m_IsKeepTRTElect&&fabs(pdgID)!=11) curBarcode=m_RefBarcode;
+    else if(oldLink.barcode()!=0&&m_IsKeepTRTElect&&fabs(pdgID)==11) curBarcode=oldLink.barcode();
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
     int   id         = (*i).GetHitID();
     float kinEnergy  = (*i).GetKineticEnergy();
     float eneDeposit = (*i).GetEnergyDeposit();
@@ -305,8 +302,7 @@ StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
     float postZ      = (*i).GetPostStepZ();
     float time       = (*i).GetGlobalTime();
 
-    TRTUncompressedHit newTRTHit(id,CurBarcode,pdgID,kinEnergy,eneDeposit,preX,preY,preZ,postX,postY,postZ,time);
-    pTRTHitCollNew->Insert(newTRTHit);
+    pTRTHitCollNew->Emplace(id,partLink,pdgID,kinEnergy,eneDeposit,preX,preY,preZ,postX,postY,postZ,time);
 
   }
 
@@ -343,9 +339,10 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
 
   for(MDTSimHitConstIterator i=pMDTHitColl->begin();i!=pMDTHitColl->end();++i){
 
-    const HepMcParticleLink McLink = (*i).particleLink();
-    int CurBarcode=0;
-    if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
 
     int            id = (*i).MDTid();
     double       time = (*i).globalTime();
@@ -358,8 +355,7 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
     double  kinEnergy = (*i).kineticEnergy();
 
 
-    MDTSimHit newMDTHit(id,time,radius,lP,CurBarcode,stepLength,eneDeposit,pdgID,kinEnergy);
-    pMDTHitCollNew->Insert(newMDTHit);
+    pMDTHitCollNew->Emplace(id,time,radius,lP,partLink,stepLength,eneDeposit,pdgID,kinEnergy);
   }
 
   //.......remove old MDTSimHitCollection
@@ -395,9 +391,10 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
 
   for(CSCSimHitConstIterator i=pCSCHitColl->begin();i!=pCSCHitColl->end();++i){
 
-    const HepMcParticleLink McLink = (*i).particleLink();
-    int CurBarcode=0;
-    if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
 
     int              id = (*i).CSCid();
     double         time = (*i).globalTime();
@@ -407,8 +404,7 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
     int          pdgID  = (*i).particleID();
     double    kinEnergy = (*i).kineticEnergy();
 
-    CSCSimHit newCSCHit(id,time,eneDeposit,HitStart,HitEnd,pdgID,CurBarcode,kinEnergy);
-    pCSCHitCollNew->Insert(newCSCHit);
+    pCSCHitCollNew->Emplace(id,time,eneDeposit,HitStart,HitEnd,pdgID,partLink,kinEnergy);
   }
 
   //.......remove old CSCSimHitCollection
@@ -443,9 +439,10 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
 
   for(RPCSimHitConstIterator i=pRPCHitColl->begin();i!=pRPCHitColl->end();++i){
 
-    const HepMcParticleLink McLink = (*i).particleLink();
-    int CurBarcode=0;
-    if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
 
     int            id = (*i).RPCid();
     double       time = (*i).globalTime();
@@ -456,8 +453,7 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
     double kinEnergy  = (*i).kineticEnergy();
     double stepLength = (*i).stepLength();
 
-    RPCSimHit newRPCHit(id,time,prepos,CurBarcode,ppos,eneDeposit,stepLength,pdgID,kinEnergy);
-    pRPCHitCollNew->Insert(newRPCHit);
+    pRPCHitCollNew->Emplace(id,time,prepos,partLink,ppos,eneDeposit,stepLength,pdgID,kinEnergy);
 
   }
 
@@ -491,9 +487,10 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
   TGCSimHitCollection* pTGCHitCollNew = new TGCSimHitCollection();
 
   for(TGCSimHitConstIterator i=pTGCHitColl->begin();i!=pTGCHitColl->end();++i){
-    const HepMcParticleLink McLink = (*i).particleLink();
-    int CurBarcode=0;
-    if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
 
     int             id = (*i).TGCid();
     double        time = (*i).globalTime();
@@ -504,8 +501,7 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
     int          pdgID = (*i).particleEncoding();
     double  kinEnergy  = (*i).kineticEnergy();
 
-    TGCSimHit newTGCHit(id,time,pos,dir,CurBarcode,enDeposit,stpLen,pdgID,kinEnergy);
-    pTGCHitCollNew->Insert(newTGCHit);
+    pTGCHitCollNew->Emplace(id,time,pos,dir,partLink,enDeposit,stpLen,pdgID,kinEnergy);
 
   }
 

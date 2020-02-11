@@ -17,7 +17,6 @@ if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
     import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
     import TrigT1RPCsteering.TrigT1RPCsteeringConfig
     import TrigT1TGC.TrigT1TGCConfig
-    from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
     from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
 
 
@@ -67,14 +66,19 @@ class Lvl1SimulationGetter (Configured):
             log.info( "LVL1ConfigSvc already created. Will ignore configuration from xml file="+TriggerFlags.inputLVL1configFile()\
                       +" and use file="+ServiceMgr.LVL1ConfigSvc.XMLFile )
 
-
-        if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
-            if TriggerFlags.useCaloTTL():
-                include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1.py")
+        ## Run 2 L1Calo
+        if (not TriggerFlags.fakeLVL1()) and (TriggerFlags.doLVL1() or TriggerFlags.doLVL1PhaseI()):
+            if TriggerFlags.doLVL1PhaseI():
+                include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
+                include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
             else:
-                include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_Cell.py")
-            topSequence += LVL1__TrigT1MBTS()
+                if TriggerFlags.useCaloTTL():
+                    include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1.py")
+                else:
+                    include( "TrigT1CaloSim/TrigT1CaloSimJobOptions_Cell.py")
+                topSequence += LVL1__TrigT1MBTS()
 
+        ## Run 3 L1Calo
         if TriggerFlags.doLVL1PhaseI():
             log.info("setting up the Run 3 L1 calo simulation")
             from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
@@ -82,10 +86,20 @@ class Lvl1SimulationGetter (Configured):
             from TrigT1CaloFexSim.L1SimulationSequence import setupRun3L1CaloSimulationSequence
             setupRun3L1CaloSimulationSequence(skipCTPEmulation=True)
 
-        if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
+        ## MUCTPI
+        if (not TriggerFlags.fakeLVL1()) and ( TriggerFlags.doLVL1() or TriggerFlags.doLVL1PhaseI() ):
+            if TriggerFlags.doLVL1PhaseI():
+                log.info("adding MUCTPI (on RDO) simulation to the topSequence")
+                from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
+                topSequence += L1Muctpi_on_RDO()
+                topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
+                topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "/Run/L1MuCTPItoRoIBLocation"
+            else:
+                from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
+                topSequence += L1Muctpi()
 
-            topSequence += L1Muctpi()
-
+        ## L1 Topo
+        if (not TriggerFlags.fakeLVL1()) and ( TriggerFlags.doLVL1() or TriggerFlags.doLVL1PhaseI() ):
             if TriggerFlags.doL1Topo():
                 log.info("adding l1topo simulation to the topSequence")
                 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
@@ -110,16 +124,17 @@ class Lvl1SimulationGetter (Configured):
                     log.info("Muon eta/phi encoding with full granularity for data (L1 Simulation) - should be faced out")
                     topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
 
-            if not TriggerFlags.doLVL1PhaseI():
+
+        if (not TriggerFlags.fakeLVL1()) and ( TriggerFlags.doLVL1() or TriggerFlags.doLVL1PhaseI() ):
+            if TriggerFlags.doLVL1PhaseI(): # doLVL1PhaseI
+                log.info("adding Run 3 CTP emulation to the topSequence from with Lvl1TriggerOnlineGetter")
+                from TrigT1CTP.TrigT1CTP_EnableCTPEmulation import enableCTPEmulation
+                enableCTPEmulation(topSequence)
+            else: # doLVL1
                 log.info("adding CTP simulation to the topSequence")
                 from TrigT1CTP.TrigT1CTPConfig import CTPSimulation
                 topSequence += CTPSimulation("CTPSimulation")
 
-        if TriggerFlags.doLVL1PhaseI():
-            log.info("adding Run 3 CTP emulation to the topSequence from with Lvl1TriggerOnlineGetter")
-            from TrigT1CTP.TrigT1CTP_EnableCTPEmulation import enableCTPEmulation
-            enableCTPEmulation(topSequence)
-            
         if ((not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1()) or TriggerFlags.doLVL1PhaseI():
             log.info("adding ROIB simulation to the topSequence")
             from TrigT1RoIB.TrigT1RoIBConf import ROIB__RoIBuilder

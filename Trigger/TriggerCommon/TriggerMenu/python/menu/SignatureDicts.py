@@ -100,6 +100,8 @@ AllowedTopos_jet = ['muvtx',
                     'invm900',
                     'invm1000',
                     'invm1000j50',
+                    'invm1000j70',
+                    'invm1100j50',
                     'invm1100j70',
                     'invm1200j50'
                     ]
@@ -151,7 +153,7 @@ JetChainParts = {
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     'jetattrs'     : ['subj360Iktdr2I3width6IIsubj300Iwidth','subj360Iktdr3IIsubj300Iwidth2','subj360Iktdr3Iwidth2','subj360Iktdr','subj360I0ktdr5','subj360Iwidth','subj360I0width5','subj360IktdrI9width'],
     'jvt'          : ['jvt011et15','jvt011et25','jvt011et35','jvt011et45','jvt015et15','jvt015et25','jvt015et35','jvt015et45','jvt059et15','jvt059et25','jvt059et35','jvt059et45','jvt091et15','jvt091et25','jvt091et35','jvt091et45','2jvt011et25','2jvt015et25','2jvt059et25','2jvt015et15','2jvt011et45','2jvt015et45','2jvt059et45','4jvt011et15','4jvt011et25','4jvt011et35','4jvt011et45','4jvt015et15','4jvt015et25','4jvt015et35','4jvt015et45','4jvt059et15','4jvt059et25','4jvt059et35','4jvt059et45','5jvt011et15','5jvt011et25','5jvt011et35','5jvt011et45','5jvt015et15','5jvt015et25','5jvt015et35','5jvt015et45','5jvt059et15','5jvt059et25','5jvt059et35','5jvt059et45','6jvt011et15','6jvt011et25','6jvt011et35','6jvt011et45','6jvt015et15','6jvt015et25','6jvt015et35','6jvt015et45','6jvt059et15','6jvt059et25','6jvt059et35','6jvt059et45','7jvt011et15','7jvt011et25','7jvt011et35','7jvt011et45','7jvt015et15','7jvt015et25','7jvt015et35','7jvt015et45','7jvt059et15','7jvt059et25','7jvt059et35','7jvt059et45'],
-    'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
+    'trkopt'       : ['notrk', 'ftk', 'ftkrefit', 'ftf'],
     # Et cut by the jet build tool (ptmin)
     'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu4' ,'rcu5'],
     
@@ -236,7 +238,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','20invm60', '10invm60', '0invm60', '20invm80', '10invm80', 'pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','20invm60', '10invm60', '10invm70', '0invm60', '20invm80', '10invm80', 'pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose','muonqualL','muonqualM'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],
@@ -295,7 +297,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA','t2MVA'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 
+                      'tracktwocalo','tracktwo2015', 'tracktwoMVA','t2MVA', 'tracktwoMVABDT', 'tracktwoRNN'],
     'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'mRNN', 'tightRNN'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
@@ -339,10 +342,11 @@ METChainParts = {
     'calib'        : ['lcw','had','em'],
     'jetCalib'     : JetChainParts['jetCalib'],
     'L2recoAlg'    : ['','l2fsperf','L2FS'],
-    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit', 'pufittrack', 'trktc'],
+    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit', 'pufittrack', 'trktc','cellpufit','sktc'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks','FTK','LArH11offMETphi','LArH12offMETphi','LArH11offLArH12offMETphi','LArH11offMETphiJpt1','LArH11offMETphiJpt2','LArH11offMETphiJpt5','LArH11offMETphiJpt10','LArH11offMETphiJpt20','LArH11offMETphiJpt30','LArH12offMETphiJpt1','LArH12offMETphiJpt2','LArH12offMETphiJpt5','LArH12offMETphiJpt10','LArH12offMETphiJpt20','LArH12offMETphiJpt30','LArH11offLArH12offMETphiJpt1','LArH11offLArH12offMETphiJpt2','LArH11offLArH12offMETphiJpt5','LArH11offLArH12offMETphiJpt10','LArH11offLArH12offMETphiJpt20','LArH11offLArH12offMETphiJpt30','LArH11offJpt1','LArH11offJpt2','LArH11offJpt5','LArH11offJpt10','LArH11offJpt20','LArH11offJpt30','LArH12offJpt1','LArH12offJpt2','LArH12offJpt5','LArH12offJpt10','LArH12offJpt20','LArH12offJpt30','LArH11offLArH12offJpt1','LArH11offLArH12offJpt2','LArH11offLArH12offJpt5','LArH11offLArH12offJpt10','LArH11offLArH12offJpt20','LArH11offLArH12offJpt30'],
+    'addInfo'      : ['FStracks','FTK','LArH11offMETphi','LArH12offMETphi','LArH11offLArH12offMETphi','LArH11offMETphiJpt1','LArH11offMETphiJpt2','LArH11offMETphiJpt5','LArH11offMETphiJpt10','LArH11offMETphiJpt20','LArH11offMETphiJpt30','LArH12offMETphiJpt1','LArH12offMETphiJpt2','LArH12offMETphiJpt5','LArH12offMETphiJpt10','LArH12offMETphiJpt20','LArH12offMETphiJpt30','LArH11offLArH12offMETphiJpt1','LArH11offLArH12offMETphiJpt2','LArH11offLArH12offMETphiJpt5','LArH11offLArH12offMETphiJpt10','LArH11offLArH12offMETphiJpt20','LArH11offLArH12offMETphiJpt30','LArH11offJpt1','LArH11offJpt2','LArH11offJpt5','LArH11offJpt10','LArH11offJpt20','LArH11offJpt30','LArH12offJpt1','LArH12offJpt2','LArH12offJpt5','LArH12offJpt10','LArH12offJpt20','LArH12offJpt30','LArH11offLArH12offJpt1','LArH11offLArH12offJpt2','LArH11offLArH12offJpt5','LArH11offLArH12offJpt10','LArH11offLArH12offJpt20','LArH11offLArH12offJpt30', 'tst', 'FTKtst', 'tstmuonor', 'FTKtstmuonor', 'muonor', 'FTKmuonor'],
+    'clusmod'      : ['cvf'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
@@ -358,6 +362,7 @@ METChainParts_Default = {
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
+    'clusmod'        : '',
     }
 
 #==========================================================

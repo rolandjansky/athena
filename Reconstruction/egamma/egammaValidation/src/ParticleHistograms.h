@@ -32,14 +32,6 @@ namespace egammaMonitoring{
 
     void fill(const xAOD::IParticle& egamma);
 
-    void fill(const xAOD::Electron& electron) {
-      fill( static_cast<const xAOD::IParticle& >(electron) );
-    };
-  
-    void fill(const xAOD::Photon& photon) {
-      fill( static_cast<const xAOD::IParticle&>(photon) );   
-    };
-
 
   private:
 

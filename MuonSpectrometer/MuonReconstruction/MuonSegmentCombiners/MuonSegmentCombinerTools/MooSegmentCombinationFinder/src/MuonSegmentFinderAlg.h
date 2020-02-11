@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOSEGMENTFINDERS_MUOSEGMENTFINDERALGS_H
@@ -14,10 +14,6 @@
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
@@ -70,7 +66,6 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   void createSegmentsFromClusters(Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
 
   bool m_printSummary;
-  bool m_useNSWMode;
   
   /** selection flags for cluster based segment finding */
   bool                m_doTGCClust;

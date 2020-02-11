@@ -145,8 +145,8 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   int nSectorsNextLayer = (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) ? 0 : m_xmlReader->getPixelBarrelLayerTemplate(m_layer+1)->stave_n; 
   
 
-  msg(MSG::DEBUG)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
-  msg(MSG::DEBUG)<<"*****************************************************************************"<<endreq;
+  ATH_MSG_DEBUG(layerName<<" "<<staveType<<" "<<nSectors);
+  ATH_MSG_DEBUG("*****************************************************************************");
 
   double deltaPhi = 360.*CLHEP::deg/(double)nSectors;
 
@@ -176,7 +176,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   int ladderCmpt=0;
   for(int ii = 0; ii < nSectors; ii++) {
 
-    msg(MSG::DEBUG)<<"LADDER build : "<<ladderCmpt<<"  / "<<nbLadderType<<endreq;
+    ATH_MSG_DEBUG("LADDER build : "<<ladderCmpt<<"  / "<<nbLadderType);
 
     // Build ladder
     vPixelLadder[ladderCmpt]->setSector(ii);
@@ -191,7 +191,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       double rmax =  vPixelLadder[ladderCmpt]->rmax()+safety;
       double ladderLength = vPixelLadder[ladderCmpt]->envLength() + 4*basics->epsilon(); // Ladder has length gmt_mgr->PixelLadderLength() +  2*m_epsilon
 
-      msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius init "<<rmin<<"  "<<rmax<<endreq;
+      ATH_MSG_DEBUG("Layer "<<m_layer<<" in/out radius init "<<rmin<<"  "<<rmax);
 
       // Enlarge layer envelope if longerons are being built.
       PixelInclRefStaveXMLHelper staveHelperCurrLayer(m_layer, basics);
@@ -212,7 +212,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       if ( rmax > brl_rmax ) rmax = brl_rmax - 0.001;
       
       // Now make the layer envelope
-      msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
+      ATH_MSG_DEBUG("Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax);
       const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
       std::ostringstream lname;
       lname << "Layer" << m_layer;
@@ -334,9 +334,9 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   double ladderHalfThickN = pixelLadder.thicknessN();
   double ladderHalfThickP = pixelLadder.thicknessP();
   double ladderHalfWidth = pixelLadder.width()/2;
-  msg(MSG::DEBUG) << "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
+  ATH_MSG_DEBUG( "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
 	    << ladderHalfThickN << " "<< ladderHalfThickP << " " << ladderHalfWidth 
-	    << " " << ladderTilt << " " << layerRadius << endreq;
+		 << " " << ladderTilt << " " << layerRadius);
   
  double distToClosestPoint = 0.;
   double radClosest = -ladderHalfThickN*cos(std::abs(ladderTilt))+layerRadius;

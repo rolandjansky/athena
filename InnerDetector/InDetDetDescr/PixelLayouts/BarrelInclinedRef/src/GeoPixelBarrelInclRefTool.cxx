@@ -37,17 +37,15 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 GeoPixelBarrelInclRefTool::GeoPixelBarrelInclRefTool(const std::string& type, const std::string& name, const IInterface*  parent )
   : AthAlgTool(type, name, parent),
     m_IDserviceTool(),
-    m_layerInnerTool("InnerPixelLayerTool"),
-    m_layerOuterTool("OuterPixelLayerTool"),
-    m_layerInnerMax(9999),
+    m_layerPlanarTool("PlanarPixelLayerTool"),
+    m_layerAlpineTool("AlpinePixelLayerTool"),  
     m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","XMLReaderSvc")
 {
   declareInterface<IGeoPixelBarrelTool>(this);
 
   declareProperty("PixelServicesTool", m_IDserviceTool);
-  declareProperty("InnerPixelLayerTool", m_layerInnerTool);
-  declareProperty("OuterPixelLayerTool", m_layerOuterTool);
-  declareProperty("MaxInnerLayerMax", m_layerInnerMax=9999);
+  declareProperty("PlanarPixelLayerTool", m_layerPlanarTool);
+  declareProperty("AlpinePixelLayerTool", m_layerAlpineTool);
 }
 
 
@@ -193,10 +191,11 @@ GeoVPhysVol* GeoPixelBarrelInclRefTool::buildBarrel(const PixelGeoBuilderBasics*
       //      GeoPixelLayerInclRef layer(basics, ii);
       GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
       GeoVPhysVol* layerphys =  0;
-      if(ii<m_layerInnerMax)
-	layerphys = m_layerInnerTool->buildLayer(basics, ii);
-      else
-	layerphys = m_layerOuterTool->buildLayer(basics, ii);
+      // pick layer tool according to stave type 
+      InDet::BarrelLayerTmp *layerTmp = m_xmlReader->getPixelBarrelLayerTemplate(ii);
+      std::string staveType    = layerTmp->stave_type;
+      if (staveType == "IBL")  layerphys = m_layerPlanarTool->buildLayer(basics, ii);
+      else layerphys = m_layerAlpineTool->buildLayer(basics, ii);
 
       GeoNameTag *tag = new GeoNameTag(lname.str());         
       barrelPhys->add(tag);

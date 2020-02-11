@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationChain_h
@@ -32,7 +32,7 @@ public:
   virtual bool is_match_Ekin_bin(int Ekin_bin) const override;
   virtual bool is_match_calosample(int calosample) const override;
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   void Print(Option_t *option = "") const override;
 
@@ -53,7 +53,7 @@ protected:
   ///Default is to call recalc_pdgid_intersect() and recalc_Ekin_eta_intersect()
   virtual void recalc();
 
-  FCSReturnCode simulate_and_retry(TFCSParametrizationBase* parametrization, TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  FCSReturnCode simulate_and_retry(TFCSParametrizationBase* parametrization, TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
 private:  
   Chain_t m_chain;

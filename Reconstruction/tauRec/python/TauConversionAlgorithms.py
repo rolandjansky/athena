@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -90,24 +90,31 @@ def getPhotonConversionTool():
                                        name                           = "tauInDetPrdAssociationTool",
                                        PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
         ToolSvc += tauInDetPrdAssociationTool
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+        isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
+
+        
         from InDetRecExample.InDetJobProperties import InDetFlags
         from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
         tauInDetHoleSearchTool = InDet__InDetTrackHoleSearchTool( 
-                                       name                           = "tauInDetHoleSearchTool",
-                                       Extrapolator                   = theAtlasExtrapolator,
-                                       checkBadSCTChip                = InDetFlags.checkDeadElementsOnTrack())
+            name                           = "tauInDetHoleSearchTool",
+            Extrapolator                   = theAtlasExtrapolator,
+            checkBadSCTChip                = InDetFlags.checkDeadElementsOnTrack(),
+            ITkGeometry  = isUpgrade)
         ToolSvc += tauInDetHoleSearchTool
 
         from AthenaCommon.DetFlags import DetFlags
         from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
         tauInDetTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool( 
-                                       name         = "tauInDetTrackSummaryHelper",
-                                       AssoTool     = tauInDetPrdAssociationTool,
-                                       DoSharedHits = False,
-                                       HoleSearch   = tauInDetHoleSearchTool,
-                                       usePixel     = DetFlags.haveRIO.pixel_on(),
-                                       useSCT       = DetFlags.haveRIO.SCT_on(),
-                                       useTRT       = DetFlags.haveRIO.TRT_on()      ) 
+            name         = "tauInDetTrackSummaryHelper",
+            AssoTool     = tauInDetPrdAssociationTool,
+            DoSharedHits = False,
+            HoleSearch   = tauInDetHoleSearchTool,
+            usePixel     = DetFlags.haveRIO.pixel_on(),
+            useSCT       = DetFlags.haveRIO.SCT_on(),
+            useTRT       = DetFlags.haveRIO.TRT_on(),
+            ITkGeometry  = isUpgrade) 
         ToolSvc += tauInDetTrackSummaryHelperTool
 
 #        from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool

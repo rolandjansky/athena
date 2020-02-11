@@ -99,8 +99,9 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   }
 
   // Temporary until method/bins/Etc is established
+  // Using globally defined bin limits
   for (int ieta = 0; ieta <= m_nEtaBins; ieta++) {
-    m_EtaBins[ieta] = -4.0 + (8.0 / m_nEtaBins) * ieta;
+    m_EtaBins[ieta] = m_etaMin + ((m_etaMax - m_etaMin) / m_nEtaBins) * ieta;
   }
   // Parameter definitions
   m_paramProp[D0].paraName = std::string("d0");
@@ -254,9 +255,10 @@ void
 InDetPerfPlot_resITk::initializePlots() {
   
   // Bins for resolutions
-  int nBinsEta = 50.0;
-  float nMinEta = -5.0;
-  float nMaxEta = fabs(nMinEta);
+  // If different from "m_EtaBins" leads to incorrect mapping in eta bins giving asymmetric resolutions
+  int nBinsEta = m_nEtaBins;
+  float nMinEta = m_etaMin;
+  float nMaxEta = m_etaMax;
   int nBinsPt = 50.0;
   float nMinPt = 0.0;
   float nMaxPt = 500.0;
@@ -769,9 +771,9 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TrackParticle& trkprt) {
   m_trkErrP[THETA] = std::sqrt(trkprt.definingParametersCovMatrix()(3, 3));
   m_trkErrP[QOVERP] = std::sqrt(trkprt.definingParametersCovMatrix()(4, 4));
   m_trkErrP[QOVERPT] = m_trkErrP[QOVERP] * (1 / std::sin(trkprt.theta()));
-  m_trkErrP[Z0SIN] =
-    std::sqrt(std::pow(m_trkErrP[THETA] * std::sin(m_trkP[THETA]),
-                    2) + std::pow(m_trkP[Z0] * m_trkErrP[THETA] * std::cos(m_trkP[THETA]), 2));
+  m_trkErrP[Z0SIN] = std::sqrt(std::pow(m_trkErrP[Z0] * std::sin(m_trkP[THETA]), 2) + 
+                               std::pow(m_trkP[Z0] * m_trkErrP[THETA] * std::cos(m_trkP[THETA]), 2) + 
+                               2 * m_trkP[Z0] * std::sin(m_trkP[THETA]) * std::cos(m_trkP[THETA]) * trkprt.definingParametersCovMatrix()(1, 3));  // Fixing incorrect formula for z0sin error
 
   // Get error on pT, taken from xAOD::TrackingHelpers.pTErr() but this function only works on a pointer input...
   if (trkprt.definingParametersCovMatrixVec().size() < 15) {
@@ -1010,6 +1012,7 @@ InDetPerfPlot_resITk::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_nEtaBin
 
   if (hname.Contains("Helpereta")) {
     for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
+      // Mapping of eta bins between TH2 and TH1 must be consistent, otherwise resolutions are asymmetric
       std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
       TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_EtaBins[ieta]),
                                          h->GetXaxis()->FindBin(m_EtaBins[ieta + 1]-0.05));

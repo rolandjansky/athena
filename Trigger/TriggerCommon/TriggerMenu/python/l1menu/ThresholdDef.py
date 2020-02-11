@@ -30,7 +30,7 @@ class ThresholdDef:
         for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 22, 30, 50]:
             tc.registerThr('EM%i' % thrV, 'EM').addThrValue(thrV)
 
-        for thrV in [7, 22]:
+        for thrV in [3, 7, 8, 10, 15, 20, 22]:
             tc.registerThr('eEM%i' % thrV, 'EM', run=3).addThrValue(thrV)
 
 
@@ -299,6 +299,16 @@ class ThresholdDef:
             .addThrValue(23, -15, -14, priority=2).addThrValue(23, 14, 15, priority=2)\
             .addThrValue(25, -17, -15, priority=2).addThrValue(25, 15, 17, priority=2)\
             .addThrValue(27, -25, -17, priority=2).addThrValue(27, 17, 25, priority=2)
+       
+        tc.registerThr( 'EM30VHI', type='EM').addThrValue(30, priority=1)\
+            .addThrValue(32, -7, 0, priority=2).addThrValue(32, 0, 7, priority=2)\
+            .addThrValue(31, -8, -7, priority=2).addThrValue(31, 7, 8, priority=2)\
+            .addThrValue(30, -11, -8, priority=2).addThrValue(30, 8, 11, priority=2)\
+            .addThrValue(29, -13, -11, priority=2).addThrValue(29, 11, 13, priority=2)\
+            .addThrValue(28, -14, -13, priority=2).addThrValue(28, 13, 14, priority=2)\
+            .addThrValue(27, -15, -14, priority=2).addThrValue(27, 14, 15, priority=2)\
+            .addThrValue(29, -17, -15, priority=2).addThrValue(29, 15, 17, priority=2)\
+            .addThrValue(31, -29, -17, priority=2).addThrValue(31, 17, 29, priority=2)
 
 
         tc.registerThr( 'EM3HI', type='EM').addThrValue(3, priority=1)\
@@ -319,7 +329,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('TAU',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [1, 2, 3, 5, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60,100]:
+        for thrV in [1, 2, 3, 5, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60, 90, 100]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
         for thrV in [12, 20, 40, 60, 100]:
@@ -381,7 +391,14 @@ class ThresholdDef:
         
         ThresholdValue.setDefaults('JET', {})
 
-        
+
+        # Thresholds from Large-R gJet from gFEX
+        if '_v8' in TriggerFlags.triggerMenuSetup():
+            for thrV in [100, 120, 140, 160, 180]:
+                tc.registerThr('gLJ%i' % thrV, 'JET', run=3).addThrValue(thrV) 
+                tc.registerThr('jLJ%i' % thrV, 'JET', run=3).addThrValue(thrV)       
+
+
         # JB and JF
 
         ThresholdValue.setDefaults('JET', {'window' : 8})
@@ -397,9 +414,9 @@ class ThresholdDef:
         
 
         # Central jet
-        for (thrV, etamax) in [(12,23), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
+        for (thrV, etamax) in [(12,23), (12,25), (12,28), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
-        for (thrV, etamax) in [(12,23), (15,25), (25,23), (35,23), (40,25)]:
+        for (thrV, etamax) in [(12,23), (12,25), (12,28), (15,25), (25,23), (35,23), (40,25)]:
             tc.registerThr('jJ%i.0ETA%i'  % (thrV, etamax), 'JET', run=3).addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet
@@ -452,6 +469,12 @@ class ThresholdDef:
 
         for thrV in [20, 30, 35, 40, 45, 50]:
             tc.registerThr('gXERHO%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [50]:
+            tc.registerThr('gXE%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [50]:
+            tc.registerThr('jXE%i' % thrV, 'XE', run=3).addThrValue(thrV)
 
         # XS
         for thrV in [20, 25, 30, 35, 40, 45, 50, 55, 60, 65]:

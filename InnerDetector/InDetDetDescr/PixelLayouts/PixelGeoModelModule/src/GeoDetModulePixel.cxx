@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelModule/GeoDetModulePixel.h"
-/*#include "PixelGeoModelAlpineTool/GeoPixelReadoutGeometry.h"*/
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -71,6 +70,7 @@ void GeoDetModulePixel::preBuild()
       m_basics->msgStream()<< MSG::DEBUG <<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(m_basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      setSchemaVersion(dbUtils.getSchemaVersion(fileName));
       InitializeXML();
       bParsed = ParseBuffer(XMLtext,std::string(""));
     }
@@ -79,6 +79,7 @@ void GeoDetModulePixel::preBuild()
       m_basics->msgStream()<<MSG::DEBUG << "XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       InitializeXML();
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      //should have here also a method to set the schema Version from an Xml file...
       bParsed = ParseFile(file);
     }
 
@@ -98,11 +99,9 @@ void GeoDetModulePixel::preBuild()
 
   // chip configuration
   int lengthChip = getInt("Module", m_moduleIndex, "lengthInChips");
-  //  int widthChip = getInt("Module", m_moduleIndex, "widthInChips", 0, -1);
-  int widthChipMax = getInt("Module", m_moduleIndex, "widthMaxInChips", 0, -1);
-  //  int widthChipMin = getInt("Module", m_moduleIndex, "widthMinInChips", 0, -1);
-  //  widthChip = std::max(widthChip, widthChipMax);
-  //  widthChip = std::max(widthChip, widthChipMin);
+  int widthChipMax = getInt("Module", m_moduleIndex, "widthMaxInChips", 0);
+ 
+
   int widthChip = widthChipMax;
   m_chipNumber = widthChip * lengthChip;
 
@@ -110,8 +109,8 @@ void GeoDetModulePixel::preBuild()
 
   //  sensor / chip and hybrid thicknesses 
   m_boardThick =  getDouble("Module", m_moduleIndex, "sensorThickness");
-  m_chipThick =  getDouble("Module", m_moduleIndex, "chipThickness", 0, m_boardThick);
-  m_hybridThick =  getDouble("Module", m_moduleIndex, "hybridThickness", 0, 0.);
+  m_chipThick =  getDouble("Module", m_moduleIndex, "chipThickness", 0);
+  m_hybridThick =  getDouble("Module", m_moduleIndex, "hybridThickness", 0);
 
   //  chip sizes
 
@@ -124,7 +123,10 @@ void GeoDetModulePixel::preBuild()
 
   m_chipWidth = widthChip * getDouble("FrontEndChip", chipIndex, "chipWidth")+(widthChip-1)*2.*edgew;
   m_chipLength = lengthChip * getDouble("FrontEndChip", chipIndex, "chipLength")+(lengthChip-1)*2.*edgel;
-  m_chipGap =  getDouble("FrontEndChip", chipIndex, "chipGap", 0, 0.);
+  //This is not always present, and so is usually zero
+  m_chipGap = 0.0; 
+  if(getSchemaVersion() > 3) getDouble("FrontEndChip", chipIndex, "chipGap", 0);
+  else  m_basics->msgStream()<<MSG::DEBUG<<"MODULE XML : "<<m_moduleIndex<<"  - "<<moduleName<<" "<<chipName<<" "<<chipIndex<<"   geoIndex "<<geoModuleIndex<<" old schema ("<<getSchemaVersion()<<") setting chipGap to zero..."<<endreq;
 
   // sensor geometry
   m_boardWidth = m_chipWidth + 2.*edgew;
@@ -133,8 +135,8 @@ void GeoDetModulePixel::preBuild()
   // Hybrid size
   m_hybridWidth = m_hybridLength = 0.;
   if(m_hybridThick>0){
-    m_hybridWidth = getDouble("ModuleGeo", geoModuleIndex, "hybridWidth", 0, 0.);
-    m_hybridLength = getDouble("ModuleGeo", geoModuleIndex, "hybridLength", 0, 0.);
+    m_hybridWidth = getDouble("ModuleGeo", geoModuleIndex, "hybridWidth", 0);
+    m_hybridLength = getDouble("ModuleGeo", geoModuleIndex, "hybridLength", 0);
   }
 
   m_chipWidthOffset=0.;
@@ -144,9 +146,9 @@ void GeoDetModulePixel::preBuild()
 
   //  m_chipMatName="pix::Chip";
   //  m_hybridMatName="pix::Hybrid";
-  m_hybridMatName = getString("ModuleGeo", geoModuleIndex, "hybridMat", 0, "pix::Hybrid");
-  m_chipMatName = getString("ModuleGeo", geoModuleIndex, "chipMat", 0, "pix::Chip");
-  m_sensorMatName = getString("ModuleGeo", geoModuleIndex, "sensorMat", 0, "std::Silicon");
+  m_hybridMatName = getString("ModuleGeo", geoModuleIndex, "hybridMat", 0);
+  m_chipMatName = getString("ModuleGeo", geoModuleIndex, "chipMat", 0);
+  m_sensorMatName = getString("ModuleGeo", geoModuleIndex, "sensorMat", 0);
 
   TerminateXML();
 

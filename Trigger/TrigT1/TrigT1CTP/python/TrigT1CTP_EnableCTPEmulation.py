@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-def enableCTPEmulation(athSequence):
+def enableCTPEmulation(athSequence, setupOutput=False):
 
-    from RecExConfig.RecFlags import rec
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     import AthenaCommon.CfgMgr as CfgMgr
     from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
@@ -27,20 +26,19 @@ def enableCTPEmulation(athSequence):
         ctpEmulation.OutputLevel = DEBUG
     athSequence += ctpEmulation
 
-    # adding output
-    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    from AthenaCommon.AlgSequence import AlgSequence
-    if rec.doRDOTrigger():
-        MSMgr.GetStream( "StreamRDO" ).AddItem( getOutputData() )
+    if setupOutput:
+        _setupOutput()
 
-    if rec.doWriteESD():
-        MSMgr.GetStream( "StreamESD" ).AddItem( getOutputData() )
-
-    if rec.doWriteAOD():
-        MSMgr.GetStream( "StreamAOD" ).AddItem( getOutputData() )
-
-
-def getOutputData():
+def _setupOutput():
+    from RecExConfig.RecFlags import rec
     output = [ "CTP_RDO#CTP_RDO",
                "CTP_RDO#CTP_RDO_L1Run3" ]
-    return output
+    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+    if rec.doRDOTrigger():
+        MSMgr.GetStream( "StreamRDO" ).AddItem( output )
+    
+    if rec.doWriteESD():
+        MSMgr.GetStream( "StreamESD" ).AddItem( output )
+    
+    if rec.doWriteAOD():
+        MSMgr.GetStream( "StreamAOD" ).AddItem( output )

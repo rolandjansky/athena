@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  SiSpacePointsComparison_h
@@ -44,6 +44,18 @@ namespace InDet{
   public:
     bool operator () (const Trk::SpacePoint* p1,const Trk::SpacePoint* p2) {
       return((*p1).globalPosition().z()<(*p2).globalPosition().z());
+    }
+  };
+  
+  ///////////////////////////////////////////////////////////////////
+  // Object function for ordering space point in R coordinate order
+  ///////////////////////////////////////////////////////////////////
+  
+  class SiSpacePointsITKComparison_R {
+ 
+  public: 
+    bool operator () (InDet::SiSpacePointForSeedITK* s1,InDet::SiSpacePointForSeedITK* s2) {
+      return((*s1).radius() < (*s2).radius());
     }
   };
   

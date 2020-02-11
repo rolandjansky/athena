@@ -21,18 +21,12 @@
 //#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigL2BMuMuHypo.h"
-//#include "TrigParticle/TrigL2BphysContainer.h"
-//
-//#include "StoreGate/StoreGateSvc.h"
-//#include "StoreGate/DataHandle.h"
 
 #include <math.h>
 //#include "EventInfo/EventInfo.h"
 //#include "EventInfo/EventID.h"
 //#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODTrigger/TrigPassBits.h"
-#include "TrigNavigation/Navigation.h"
-
 #include "TrigBphysHelperUtilsTool.h"
 // additions of xAOD objects
 //#include "xAODEventInfo/EventInfo.h"

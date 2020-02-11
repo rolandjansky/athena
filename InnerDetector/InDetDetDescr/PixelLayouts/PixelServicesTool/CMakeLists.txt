@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeometryDBSvc
-                          InnerDetector/InDetDetDescr/PixelLayouts/PixelSCTDBHelper
                           Tools/PathResolver )
 
 # External dependencies:
@@ -36,7 +35,7 @@ atlas_add_component( PixelServicesTool
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES}
 		     AthenaBaseComps AthenaKernel GaudiKernel InDetGeoModelUtils
 		     PixelGeoModelModule PixelLayoutUtils 
-		     PRIVATE_LINK_LIBRARIES GeoModelKernel PixelSCTDBHelper PathResolver InDetTrackingGeometryXMLLib)
+		     PRIVATE_LINK_LIBRARIES GeoModelKernel PathResolver InDetTrackingGeometryXMLLib)
 
 # Install files from the package:
 atlas_install_headers( PixelServicesTool )

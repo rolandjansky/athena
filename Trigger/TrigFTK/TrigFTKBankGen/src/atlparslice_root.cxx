@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigFTKBankGen/atlparslice_root.h"
+#include <TMatrixD.h>
 #include <cstdlib>
 
 TSlices **s;
@@ -138,6 +139,20 @@ void saveSlices(int index, char *slice_file) {
   s[index]->c_bits_phi->Write("c_bits_phi",TObject::kSingleKey);
   s[index]->c_bits_z0->Write("c_bits_z0",TObject::kSingleKey);
   s[index]->c_bits_ctheta->Write("c_bits_ctheta",TObject::kSingleKey);
+  // add slice boundary information
+  TMatrixD boundary(5,2);
+  boundary(0,0)=s[index]->par_c_min;
+  boundary(0,1)=s[index]->par_c_max;
+  boundary(1,0)=s[index]->par_d_min;
+  boundary(1,1)=s[index]->par_d_max;
+  boundary(2,0)=s[index]->par_phi_min;
+  boundary(2,1)=s[index]->par_phi_max;
+  boundary(3,0)=s[index]->par_z0_min;
+  boundary(3,1)=s[index]->par_z0_max;
+  boundary(4,0)=s[index]->par_ctheta_min;
+  boundary(4,1)=s[index]->par_ctheta_max;
+  boundary.Write("slice_boundaries");
+
   s[index]->ofile->Close();
 }
 

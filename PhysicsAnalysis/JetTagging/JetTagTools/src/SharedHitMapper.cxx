@@ -227,7 +227,7 @@ StatusCode SharedHitMapper::execute() {
 	    for(int i=0;i<m_nbpl;i++) pl[i] = false;
 	    for(int i=0;i<m_nbpd;i++) pd[i] = false;
 	    if(pixl) {
-	      pl[0] = m_pixelId->is_blayer(nextRio->identify());
+	      pl[0] = m_pixelId->is_innermost(nextRio->identify());
 	      if(m_pixelId->is_barrel(nextRio->identify())) {
 		int player = m_pixelId->layer_disk(nextRio->identify());
 		for(int i=1;i<m_nbpl;i++) pl[i] = ( player == i );

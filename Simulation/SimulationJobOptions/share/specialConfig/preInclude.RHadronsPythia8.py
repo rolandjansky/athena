@@ -181,7 +181,7 @@ if lifetime>0.:
     else:
         addLineToPhysicsConfiguration("DoDecays","1")
         addLineToPhysicsConfiguration("HadronLifeTime", str(lifetime))
-    # If we reading particle records, and the lifetime is short, stop them as well
+    # If we are reading particle records, and the lifetime is short, stop them as well
     if lifetime<1. and hasattr(runArgs,'inputEVNT_TRFile'):
         addLineToPhysicsConfiguration("DoDecays","1")
         addLineToPhysicsConfiguration("HadronLifeTime", 0.000001)

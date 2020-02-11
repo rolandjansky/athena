@@ -243,7 +243,7 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
     const Identifier& id = rot->identify();
     bool isTRT           = m_detID->is_trt(id);
     bool isPixel         = m_detID->is_pixel(id);
-    bool isBlayer        = isPixel ? m_detID->is_blayer(id) : false;
+    bool isBlayer        = isPixel ? m_detID->is_innermost(id) : false;
     bool isoutlier       = (*iTsos)->type(Trk::TrackStateOnSurface::Outlier);              
 
     // do we have some b-layer hit here (sorting of TSOS is inside out)
@@ -529,7 +529,7 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
 	      ++iShared;
 	    if (m_detID->is_pixel((**it).identify())) {
 	      othernpixel++;
-	      if (m_detID->is_blayer((**it).identify()) ) otherhasblayer=true;
+	      if (m_detID->is_innermost((**it).identify()) ) otherhasblayer=true;
 	    }
 	  }
 	}

@@ -159,7 +159,10 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_fillTIDEPlots(false),
   m_fillExtraTIDEPlots(false),
   m_fillITkResolutionPlots(false),
-  m_fillAdditionalITkPlots(false)
+  m_fillAdditionalITkPlots(false),
+  m_acc_selectedByPileupSwitch("selectedByIDPVMPileupSwitch"),
+  m_dec_selectedByPileupSwitch("selectedByIDPVMPileupSwitch"),
+  m_usingSpecialPileupSwitch(false)
   {
   declareProperty("TrackParticleContainerName", m_trkParticleName = "InDetTrackParticles"); // Aug 8th: switch
                                                                                             // "InDetTrackParticles"
@@ -196,6 +199,9 @@ InDetPhysValMonitoringTool::initialize() {
   // Get the track selector tool only if m_useTrackSelection is true;
   // first check for consistency i.e. that there is a trackSelectionTool if you ask
   // for trackSelection
+  if (m_pileupSwitch != "All"){
+    m_usingSpecialPileupSwitch = true;
+  }
   if (m_useTrackSelection) {
     ATH_CHECK(m_trackSelectionTool.retrieve());
     if (not m_trackSelectionTool) {
@@ -227,6 +233,10 @@ InDetPhysValMonitoringTool::fillHistograms() {
   //
   // retrieve truthParticle container
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
+  // if we are filtering by HS association, mark the particles in our vector as "selected". 
+  // This is needed because we later access the truth matching via xAOD decorations, 
+  // where we do not 'know' about membership to this vector
+  if (m_usingSpecialPileupSwitch) markSelectedByPileupSwitch(truthParticlesVec);
   // IDPVM::TrackTruthLookup getAsTruth(ptracks, &truthParticlesVec); //caches everything upon construction
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks
   //
@@ -362,9 +372,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
     
     if (associatedTruth) {
       hasTruth += 1;
-      if (prob < minProbEffLow) { // nan will also fail this test
+
+      if (not std::isnan(prob)) {
+        // Fixing double counting of fake rates --> fill fake rates only once within track loop
         const bool isFake = (prob < minProbEffLow);
         m_monPlots->fillFakeRate(*thisTrack, isFake);
+      }
+
+      if (prob < minProbEffLow) { // nan will also fail this test
         if ((associatedTruth->barcode() < 200e3)and(associatedTruth->barcode() != 0)) {
           Prim_w = 1; // Fake Primary, set weight to 1
         }
@@ -378,7 +393,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       if (m_truthSelectionTool->accept(associatedTruth)) {
         passtruthsel += 1;
       }
-      if ((prob > minProbEffLow) and m_truthSelectionTool->accept(associatedTruth)) {
+      if ((prob > minProbEffLow) and m_truthSelectionTool->accept(associatedTruth)  && (!m_usingSpecialPileupSwitch || isSelectedByPileupSwitch(*associatedTruth))) {
         m_monPlots->fill(*thisTrack, *associatedTruth); // Make all plots requiring both truth & track (meas, res, &
                                                         // pull)
       }
@@ -451,7 +466,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       bool addsToEfficiency(true); // weight for the trackeff histos
       
       if(truth_count <= 1){
-        std::bitset<52> base_bits;
+        std::bitset< xAOD::NumberOfTrackRecoInfo > base_bits;
         std::vector< const xAOD::TrackParticle* > bestTrack;
         int SiSPweight(0), TRTSeededweight(0), TRTStandaloneweight(0), other_weight(0);
         double truth_charge = thisTruth->charge();
@@ -500,8 +515,6 @@ InDetPhysValMonitoringTool::fillHistograms() {
             if (prob > minProbEffLow) {
               matches.push_back(std::make_pair(prob, thisTrack));
             }
-            const bool isFake = (prob < minProbEffLow);
-            m_monPlots->fillFakeRate(*thisTrack, isFake);
           }
         }
       }
@@ -821,4 +834,24 @@ InDetPhysValMonitoringTool::doJetPlots(const xAOD::TrackParticleContainer* ptrac
     } // loop over jets
   }
   return StatusCode::SUCCESS;
+}
+
+bool InDetPhysValMonitoringTool::isSelectedByPileupSwitch(const xAOD::TruthParticle & TP) const{
+  try{
+    if (!m_acc_selectedByPileupSwitch.isAvailable(TP)){
+      ATH_MSG_WARNING("Hard Scatter associaton decoration requested from a truth particle but not available");
+      return false;
+    }
+    return m_acc_selectedByPileupSwitch(TP);
+  }
+  catch (SG::ExcBadAuxVar &  ){
+    ATH_MSG_ERROR("Failed to acces hard scatter association decoration on a truth particle");
+  }
+  return false;
+  }
+// set the "hard scatter" decoration for all particles in the passed vector
+void InDetPhysValMonitoringTool::markSelectedByPileupSwitch (const std::vector<const xAOD::TruthParticle*> & truthParticlesFromHS) const{
+  for (auto TP : truthParticlesFromHS){
+    m_dec_selectedByPileupSwitch(*TP) = true;
+  }
 }
