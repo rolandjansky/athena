@@ -126,14 +126,17 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
       prescaledBitset = hltResult->getHltPrescaledBits();
       rerunBitset = hltResult->getHltRerunBits();
 
-      trigDec->setEFTruncated( hltResult->getTruncatedModuleIds().size() > 0 );
-
       const std::vector<uint32_t> errorCodes = hltResult->getErrorCodes();
-      uint32_t code = 0;
-      for (uint32_t e : errorCodes) {
-        code |= e;
+      bool truncated = false;
+      size_t code = 0;
+      for (size_t i = 0; i < errorCodes.size(); ++i) {
+        truncated |= errorCodes.at(i) == 13; // == hltonl::PSCErrorCode::RESULT_TRUNCATION
+        if (i == 0) {
+          code = errorCodes.at(i);
+        }
       }
       trigDec->setEFErrorBits(code);
+      trigDec->setEFTruncated(truncated);
 
     }
 
