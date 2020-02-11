@@ -47,7 +47,7 @@ INav4MomToTrackParticleAssocs& INav4MomToTrackParticleAssocs::operator=(const IN
 ///////////////////////////////////////////////////////////////////
  
 bool INav4MomToTrackParticleAssocs::assocs( const INavigable4Momentum* object,
-                                            Rec::TrackParticleContainer& associatedElems ) const
+               ConstDataVector<Rec::TrackParticleContainer>& associatedElems ) const
 {
   // Make a sanity check against a null pointer
   if ( 0 == object ) { return false; }
@@ -75,7 +75,7 @@ bool INav4MomToTrackParticleAssocs::assocs( const INavigable4Momentum* object,
         itr != endAssocs;
         ++itr )
     {
-      associatedElems.push_back( const_cast<Rec::TrackParticle*>(*itr) );
+      associatedElems.push_back(*itr);
     }
   
   return true;

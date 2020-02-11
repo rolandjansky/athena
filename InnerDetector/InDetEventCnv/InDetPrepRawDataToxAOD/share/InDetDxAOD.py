@@ -48,6 +48,12 @@ printIdTrkDxAODConf = InDetDxAODFlags.PrintIdTrkDxAODConf()  # True
 # Create split-tracks if running on cosmics
 makeSplitTracks = InDetDxAODFlags.MakeSplitCosmicTracks() and athCommonFlags.Beam.beamType() == 'cosmics'
 
+# general skimming based on this string input
+skimmingExpression = InDetDxAODFlags.SkimmingExpression() # *empty string*
+
+# thinning of pixel clusters
+pixelClusterThinningExpression = InDetDxAODFlags.PixelClusterThinningExpression() # *empty string*
+
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
 if (globalflags.DataSource == 'geant4'):
@@ -313,6 +319,13 @@ if TrtZSel or TrtJSel:
         print JPSI_SkimmingTool
 
 
+if skimmingExpression: 
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    stringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "stringSkimmingTool",
+                                                                     expression = skimmingExpression)
+    
+    ToolSvc += stringSkimmingTool 
+
 
 DRAW_ZMUMU_SkimmingTool=None
 if DRAWZSel:
@@ -360,8 +373,8 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
-    TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    import InDetRecExample.TrackingCommon
+    TRT_dEdx_Tool = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool()
     ToolSvc += TRT_dEdx_Tool
 
     # to get shared hit info
@@ -587,6 +600,8 @@ if TrtJSel:
 if DRAWZSel:
   skimmingTools.append(DRAW_ZMUMU_SkimmingTool)
 
+if skimmingExpression:
+    skimmingTools.append(stringSkimmingTool)
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
@@ -611,6 +626,18 @@ IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThin
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
+
+if pixelClusterThinningExpression: 
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
+    trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning( 
+        name                          = "TrackMeasurementThinningTool",
+        ThinningService               = "IDTRKThinningSvc",
+        SelectionString               = pixelClusterThinningExpression,
+        TrackMeasurementValidationKey = "PixelClusters",
+        ApplyAnd                      = False)
+
+    ToolSvc += trackMeasurementThinningTool 
+    thinningTools.append(trackMeasurementThinningTool)
 
 #====================================================================
 # Create the derivation Kernel and setup output stream

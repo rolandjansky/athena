@@ -70,7 +70,7 @@ def createStepFilterNode(name, seq_list, dump=False):
         filter_list.append(filterAlg)
 
 
-    stepCF = parOR(name + CFNaming.FILTER_POSTFIX, subs=set(filter_list))
+    stepCF = parOR(name + CFNaming.FILTER_POSTFIX, subs=sorted(set(filter_list)))
 
     if dump:
         dumpSequence (stepCF, indent=0)
@@ -421,7 +421,7 @@ def createControlFlow(HLTNode, CFseqList):
         for CFseq in CFseqList[nstep]:
             stepDecisions.extend(CFseq.decisions)
 
-        summary=makeSummary( stepSequenceName, stepSequenceName )
+        summary=makeSummary( stepSequenceName, stepDecisions )
 
         HLTNode += summary
 

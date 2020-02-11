@@ -60,8 +60,6 @@ AthSequencer::AthSequencer( const std::string& name,
 {
   
   // Declare AthSequencer properties with their defaults
-  declareProperty( "Members", m_names,
-                   "Algorithm names (of the form '<cppType>/<instanceName>')" );
   m_names.declareUpdateHandler( &AthSequencer::membershipHandler, this );
 
   declareProperty( "Atomic", m_atomic=false, "Atomic sequence: don't unroll in MT");

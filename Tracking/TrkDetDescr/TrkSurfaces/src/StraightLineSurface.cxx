@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -212,7 +212,8 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
 
   // Min distance to surface
   //
-  double Rm = 20., Lzm = 1.e+10;
+  double Rm = 20.;
+  double Lzm = 1.e+10;
 
   if (m_bounds.get()) {
     Rm = m_bounds.get()->r();

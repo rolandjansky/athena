@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -16,8 +16,8 @@ try:
 except AttributeError:  # __stop does not exist in Python 3.0
     TRF_Thread_stop = Thread._stop
 
-from xmlutil import XMLNode
-from envutil import *
+from .xmlutil import XMLNode
+from .envutil import *
 from PyJobTransformsCore import trfconsts, trfenv, fileutil
 from PyJobTransformsCore.trferr import *
 from PyJobTransformsCore import AtlasErrorCodes

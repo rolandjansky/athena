@@ -1219,7 +1219,7 @@ void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg
       << getStationType() << ", eta " << getStationEta() << ", phi " << getStationPhi() << endmsg;
     return;
   }
-  (*m_Log)  << MSG::DEBUG
+  if (m_Log->level() <= MSG::VERBOSE) (*m_Log) << MSG::VERBOSE
     << "Applying as-built parameters for chamber " << getStationType() << ", eta " << getStationEta() << ", phi " << getStationPhi()
     << " -- multilayer=" << multilayer << " tubelayer=" << tubelayer << " tube=" << tube
     << endmsg;

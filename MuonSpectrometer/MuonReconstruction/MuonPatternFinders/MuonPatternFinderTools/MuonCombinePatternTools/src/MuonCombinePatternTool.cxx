@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
@@ -39,8 +39,7 @@ m_use_cosmics(false),
 m_splitpatterns(true),
 m_nodiscarding(true),
 m_bestphimatch(false),
-m_flipdirectionforcosmics(false),
-m_phiEtaHitAssMap(0)
+m_flipdirectionforcosmics(false)
 {
   declareInterface< IMuonCombinePatternTool >(this);
   
@@ -81,7 +80,9 @@ StatusCode MuonCombinePatternTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(const MuonPrdPatternCollection* phiPatternCollection, const MuonPrdPatternCollection* etaPatternCollection)const
+const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(const MuonPrdPatternCollection* phiPatternCollection, const MuonPrdPatternCollection* etaPatternCollection,
+									      /** phi eta association map, eta prds are key*/
+									      const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const
 {
   bool myDebug = false;
   std::vector<const Muon::MuonPrdPattern*> patternsToDelete;
@@ -602,7 +603,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	}
 	  
 	if (m_bestphimatch == false) {
-	  addCandidate(etapattern,phipattern,candidates,false,patternsToDelete);
+	  addCandidate(etapattern,phipattern,candidates,false,patternsToDelete,phiEtaHitAssMap);
 	  ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " phi " << philevel << " dotprod: " << dotprod );	  
 	}else {
 	  if(average_distance < min_average_distance) {
@@ -632,7 +633,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
     if (m_bestphimatch == true) {
       if( ismatched == true ){
 	//      const Muon::MuonPrdPattern* phipattern = phiPatternCollection->at(max_philevel);
-	addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete);
+	addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete,phiEtaHitAssMap);
 	ATH_MSG_DEBUG("Candidate FOUND eta " << etalevel << " phi " << max_philevel );
       }
     }
@@ -640,7 +641,7 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
     // not needed for cosmics when matched, since already done for first match:
 
     if ( !(m_use_cosmics == true && m_splitpatterns == true && ismatched == true) ) {
-      const Muon::MuonPrdPattern* assphipattern = makeAssPhiPattern(etapattern,true);
+      const Muon::MuonPrdPattern* assphipattern = makeAssPhiPattern(etapattern,phiEtaHitAssMap,true);
       ATH_MSG_DEBUG("No match found, trying to create associated phi pattern ");
       if (assphipattern) {
 	// make sure ass phi pattern is not a complete subset of one of the other phi patterns:
@@ -680,12 +681,12 @@ const MuonPrdPatternCollection* MuonCombinePatternTool::combineEtaPhiPatterns(co
 	  }
 	  ATH_MSG_DEBUG(" adding eta pattern with recalculated associated phi pattern ");
 	  
-	  addCandidate(etapattern,assphipattern,candidates,false,patternsToDelete);
+	  addCandidate(etapattern,assphipattern,candidates,false,patternsToDelete,phiEtaHitAssMap);
 	}
       }
     }
     if( !ismatched && max_philevel > -1 ){
-      addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete);
+      addCandidate(etapattern,max_phipattern,candidates,true,patternsToDelete,phiEtaHitAssMap);
       ismatched = true;
       ATH_MSG_DEBUG("No good candidate found, adding best phi pattern " << etalevel << " phi " << max_philevel );
     }
@@ -1171,7 +1172,10 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::cleanupCombinedPattern(Muon::MuonP
   return combinedpattern_cleaned;
 }
 
-Muon::MuonPrdPattern* MuonCombinePatternTool::makeAssPhiPattern(const Muon::MuonPrdPattern* muonpattern, bool check_already_on_pattern)const
+Muon::MuonPrdPattern* MuonCombinePatternTool::makeAssPhiPattern(const Muon::MuonPrdPattern* muonpattern,
+								/** phi eta association map, eta prds are key*/
+								const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap,
+								bool check_already_on_pattern)const
 {
   //bool hits_added = false;
   const unsigned int size = muonpattern->numberOfContainedPrds();
@@ -1185,15 +1189,15 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::makeAssPhiPattern(const Muon::Muon
   std::vector <const Trk::PrepRawData*> phihits;
   phihits.reserve(20); // just a sophisticated guess
 
-  std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >::iterator it;
+  std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >::const_iterator it;
   for (unsigned int i=0; i<size; i++) {
     const Trk::PrepRawData* prd = muonpattern->prd(i);
     // check on type of prd?
     const Muon::MuonCluster* muoncluster = dynamic_cast <const Muon::MuonCluster*>(prd);
     if (muoncluster) {
       // test on measuresphi?
-      it = m_phiEtaHitAssMap->find(prd);
-      if (it != m_phiEtaHitAssMap->end()) { // check if hit has associated hit
+      it = phiEtaHitAssMap->find(prd);
+      if (it != phiEtaHitAssMap->end()) { // check if hit has associated hit
 	std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>::iterator set_it = (*it).second.begin();
 	for (;set_it!=(*it).second.end();++set_it) {
 	  if (check_already_on_pattern == false || hits.find(*set_it) == hits.end()) { // check if associated hit already in pattern
@@ -1726,11 +1730,13 @@ MuonPatternCombinationCollection* MuonCombinePatternTool::makePatternCombination
   return patterncombinations;
 }
 
-int MuonCombinePatternTool::overlap(const Muon::MuonPrdPattern* phipattern,const Muon::MuonPrdPattern* etapattern, std::vector <const Trk::PrepRawData*> &hits_to_be_added)const
+int MuonCombinePatternTool::overlap(const Muon::MuonPrdPattern* phipattern,const Muon::MuonPrdPattern* etapattern, std::vector <const Trk::PrepRawData*> &hits_to_be_added,
+				    /** phi eta association map, eta prds are key*/
+				    const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const
 {
   /** method no longer used */
 
-  if (!m_phiEtaHitAssMap) return 0;
+  if (!phiEtaHitAssMap) return 0;
 
   int overlap = 0;
   std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> phihits;
@@ -1738,15 +1744,15 @@ int MuonCombinePatternTool::overlap(const Muon::MuonPrdPattern* phipattern,const
     phihits.insert(phipattern->prd(i));
   }
 
-  std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >::iterator it;
+  std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >::const_iterator it;
   ATH_MSG_DEBUG("number of prds in eta pattern: " << etapattern->numberOfContainedPrds() );
   for (unsigned int i=0; i<etapattern->numberOfContainedPrds(); i++) {
     const Trk::PrepRawData* prd = etapattern->prd(i);
     // check on type of prd?
     const Muon::MuonCluster* muoncluster = dynamic_cast <const Muon::MuonCluster*>(prd);
     if (muoncluster) {
-      it = m_phiEtaHitAssMap->find(prd);
-      if (it != m_phiEtaHitAssMap->end()) { // check if hit has associated hit
+      it = phiEtaHitAssMap->find(prd);
+      if (it != phiEtaHitAssMap->end()) { // check if hit has associated hit
 	std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess>::iterator set_it = (*it).second.begin();
 	for (;set_it!=(*it).second.end();++set_it) {
 	  if (phihits.find(*set_it) != phihits.end()) { // check if associated hit is on phi pattern
@@ -1967,7 +1973,8 @@ Muon::MuonPrdPattern* MuonCombinePatternTool::cleanPhiPattern(const Muon::MuonPr
   return cleanpattern;
 }
 
-void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete)const
+void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern, std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> > &candidates, bool add_asspattern, std::vector<const Muon::MuonPrdPattern*>& patternsToDelete,
+					  const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phiEtaHitAssMap)const
 {
   if (m_use_cosmics == false || m_splitpatterns == false) {
     candidates.push_back(std::make_pair(etapattern,phipattern));
@@ -2000,7 +2007,7 @@ void MuonCombinePatternTool::addCandidate(const Muon::MuonPrdPattern* etapattern
   // make associated pattern don't split eta pattern yet, but split based on phi of ass. pattern
   // bool asspattern_added = false;
   if (add_asspattern==true) {
-    const Muon::MuonPrdPattern* assphipattern = makeAssPhiPattern(etapattern,true);
+    const Muon::MuonPrdPattern* assphipattern = makeAssPhiPattern(etapattern,phiEtaHitAssMap,true);
     if (assphipattern) {
 
       // print associated pattern:

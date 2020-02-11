@@ -19,9 +19,9 @@ namespace xAODMaker {
       declareProperty( "InputKey", m_inputKey = "TriggerMenu" );
       declareProperty( "OutputKey", m_outputKey = "TriggerMenu" );
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
    }
 
    StatusCode TriggerMenuMetaDataTool::initialize() {

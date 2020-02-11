@@ -1,16 +1,17 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: SgTEventMeta.h 611829 2014-08-14 13:53:41Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_SGTEVENTMETA_H
 #define ASGTOOLS_SGTEVENTMETA_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   error "This header should not be used in Athena"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 
 // Forward declaration(s):
 namespace xAOD {
@@ -65,6 +66,10 @@ namespace asg {
       /// Retrieve a constant pointer to an object in the store
       template< typename T >
       StatusCode retrieve( const T*& obj, const std::string& name );
+
+      /// Record an object/container using a smart pointer for ownership
+      template< typename T >
+      StatusCode record( std::unique_ptr<T> obj, const std::string& cname );
 
       /// Record an object into the store
       template< typename T >

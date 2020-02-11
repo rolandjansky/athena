@@ -26,7 +26,7 @@ from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 # filters: one SeqFilter per step, per chain
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer, dumpSequence
+from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 l1Decoder, HLTChains = generateL1DecoderAndChains()
 topSequence += l1Decoder
@@ -39,6 +39,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 generateJSON()
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr += getHLTConfigSvc()
 TriggerFlags.triggerMenuSetup = "LS2_v1"
 svcMgr += getL1ConfigSvc()
@@ -51,7 +52,7 @@ if hasattr(svcMgr.THistSvc, "Output"):
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 print ("EmuStepProcessing: dump top Sequence after CF/DF Tree build")
-from AthenaCommon.AlgSequence import dumpMasterSequence, dumpSequence
+from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence( topSequence )
 #dumpMasterSequence()
 

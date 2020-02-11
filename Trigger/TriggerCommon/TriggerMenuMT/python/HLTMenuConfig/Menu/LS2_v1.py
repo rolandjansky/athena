@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 # LS2_v1.py menu for the long shutdown development
@@ -52,6 +52,12 @@ def setupMenu():
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
 
+        # Additional intermediate thresholds for validation comparisons
+        ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
+        ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
+
      ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -96,6 +102,7 @@ def setupMenu():
         ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_trkmht_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_pfsum_L1XE10', groups=SingleMETGroup),
         # MultiMET Chain
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
@@ -105,11 +112,14 @@ def setupMenu():
         ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_subjesgscIS_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subresjesgscIS_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
 
         ChainProp(name='HLT_j45_ftf_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subjesgscIS_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_subresjesgscIS_pf_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_pf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j420_ftf_subjesgscIS_L1J20', groups=SingleJetGroup),

@@ -22,7 +22,7 @@
 #include "InDetSimEvent/SiTotalCharge.h"
 
 #include "SiDigitization/SiHelper.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 
 #include "PixelConditionsData/PixelModuleData.h"

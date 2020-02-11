@@ -44,16 +44,16 @@
 Trk::TrackingVolume::TrackingVolume() :
   Volume(),
   Material(),
-  m_motherVolume(0),
-  m_boundarySurfaces(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
-  m_confinedDenseVolumes(0),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_motherVolume(nullptr),
+  m_boundarySurfaces(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
+  m_confinedDenseVolumes(nullptr),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name("undefined"),
@@ -70,16 +70,16 @@ ATLAS_NOT_THREAD_SAFE Trk::TrackingVolume::TrackingVolume (Amg::Transform3D* htr
                                                            const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(),
-  m_motherVolume(0),
-  m_boundarySurfaces(0),
+  m_motherVolume(nullptr),
+  m_boundarySurfaces(nullptr),
   m_confinedLayers(subLayers),
   m_confinedVolumes(subVolumes),
-  m_confinedDetachedVolumes(0),
-  m_confinedDenseVolumes(0),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_confinedDetachedVolumes(nullptr),
+  m_confinedDenseVolumes(nullptr),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -99,16 +99,16 @@ ATLAS_NOT_THREAD_SAFE Trk::TrackingVolume::TrackingVolume (const Volume& volume,
                                                            const std::string& volumeName) :
   Volume(volume),
   Material(matprop),
-  m_motherVolume(0),
-  m_boundarySurfaces(0),
+  m_motherVolume(nullptr),
+  m_boundarySurfaces(nullptr),
   m_confinedLayers(subLayers),
   m_confinedVolumes(subVolumes),
-  m_confinedDetachedVolumes(0),
-  m_confinedDenseVolumes(0),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_confinedDetachedVolumes(nullptr),
+  m_confinedDenseVolumes(nullptr),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -130,15 +130,15 @@ ATLAS_NOT_THREAD_SAFE Trk::TrackingVolume::TrackingVolume (Amg::Transform3D* htr
                                                            const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(matprop),
-  m_motherVolume(0),
+  m_motherVolume(nullptr),
   m_confinedLayers(subLayers),
   m_confinedVolumes(subVolumes),
-  m_confinedDetachedVolumes(0),
-  m_confinedDenseVolumes(0),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_confinedDetachedVolumes(nullptr),
+  m_confinedDenseVolumes(nullptr),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -159,15 +159,15 @@ Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
                                     const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
   m_confinedDetachedVolumes(detachedSubVolumes),
-  m_confinedDenseVolumes(0),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_confinedDenseVolumes(nullptr),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -184,15 +184,15 @@ Trk::TrackingVolume::TrackingVolume(const Volume& volume,
                                     const std::string& volumeName) :
   Volume(volume),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
   m_confinedDetachedVolumes(detachedSubVolumes),
-  m_confinedDenseVolumes(0),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_confinedDenseVolumes(nullptr),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -210,15 +210,15 @@ Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
                                     const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
   m_confinedDenseVolumes(unorderedSubVolumes),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -235,15 +235,15 @@ Trk::TrackingVolume::TrackingVolume(const Volume& volume,
                                     const std::string& volumeName) :
   Volume(volume),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
   m_confinedDenseVolumes(unorderedSubVolumes),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -261,15 +261,15 @@ Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
                                     const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
-  m_confinedDenseVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
+  m_confinedDenseVolumes(nullptr),
   m_confinedArbitraryLayers(layers),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -286,15 +286,15 @@ Trk::TrackingVolume::TrackingVolume(const Volume& volume,
                                     const std::string& volumeName) :
   Volume(volume),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
-  m_confinedDenseVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
+  m_confinedDenseVolumes(nullptr),
   m_confinedArbitraryLayers(layers),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -313,15 +313,15 @@ Trk::TrackingVolume::TrackingVolume(Amg::Transform3D* htrans,
                                     const std::string& volumeName) :
   Volume(htrans, volbounds),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
   m_confinedDenseVolumes(unorderedSubVolumes),
   m_confinedArbitraryLayers(layers),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -339,15 +339,15 @@ Trk::TrackingVolume::TrackingVolume(const Volume& volume,
                                     const std::string& volumeName) :
   Volume(volume),
   Material(matprop),
-  m_motherVolume(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
+  m_motherVolume(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
   m_confinedDenseVolumes(unorderedSubVolumes),
   m_confinedArbitraryLayers(layers),
-  m_outsideGlueVolumes(0),
-  m_sensitiveVolume(0),
-  m_layerAttemptsCalculator(0),
+  m_outsideGlueVolumes(nullptr),
+  m_sensitiveVolume(nullptr),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(volumeName),
@@ -363,15 +363,15 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
   Volume(trVol,transform),
   Material(trVol),
   m_motherVolume(trVol.m_motherVolume),
-  m_boundarySurfaces(0),
-  m_confinedLayers(0),
-  m_confinedVolumes(0),
-  m_confinedDetachedVolumes(0),
-  m_confinedDenseVolumes(0),
-  m_confinedArbitraryLayers(0),
-  m_outsideGlueVolumes(0),
+  m_boundarySurfaces(nullptr),
+  m_confinedLayers(nullptr),
+  m_confinedVolumes(nullptr),
+  m_confinedDetachedVolumes(nullptr),
+  m_confinedDenseVolumes(nullptr),
+  m_confinedArbitraryLayers(nullptr),
+  m_outsideGlueVolumes(nullptr),
   m_sensitiveVolume(trVol.m_sensitiveVolume),
-  m_layerAttemptsCalculator(0),
+  m_layerAttemptsCalculator(nullptr),
   m_geometrySignature(Trk::Unsigned),
   m_geometryType(Trk::NumberOfGeometryTypes),
   m_name(trVol.m_name),
@@ -381,11 +381,11 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
   //createBoundarySurfaces
   m_boundarySurfaces = new std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >;
   m_boundarySurfaces->reserve(trVol.boundarySurfaces().size());
-  const Trk::TrackingVolume* in  = 0;
-  const Trk::TrackingVolume* out = 0;
+  const Trk::TrackingVolume* in  = nullptr;
+  const Trk::TrackingVolume* out = nullptr;
   for (unsigned int ib = 0; ib < trVol.boundarySurfaces().size() ; ib++) {
-    in = trVol.boundarySurfaces()[ib].get()->insideVolume() == &trVol ? this : 0;
-    out = in == 0 ? this : 0;
+    in = trVol.boundarySurfaces()[ib].get()->insideVolume() == &trVol ? this : nullptr;
+    out = in == nullptr ? this : nullptr;
     const Trk::CylinderSurface* cyl = dynamic_cast<const Trk::CylinderSurface*> (trVol.boundarySurfaces()[ib].get());
     const Trk::DiscSurface*     dis = dynamic_cast<const Trk::DiscSurface*> (trVol.boundarySurfaces()[ib].get());
     const Trk::PlaneSurface*    pla = dynamic_cast<const Trk::PlaneSurface*> (trVol.boundarySurfaces()[ib].get());
@@ -507,8 +507,8 @@ Trk::TrackingVolume::~TrackingVolume()
 
 void Trk::TrackingVolume::clear() 
 {
-  if (m_confinedVolumes) { delete m_confinedVolumes; m_confinedVolumes=0; }
-  if (m_confinedLayers)  { delete m_confinedLayers; m_confinedLayers=0; }
+  if (m_confinedVolumes) { delete m_confinedVolumes; m_confinedVolumes=nullptr; }
+  if (m_confinedLayers)  { delete m_confinedLayers; m_confinedLayers=nullptr; }
   if (m_confinedDenseVolumes) {
     for (size_t i =0; i < m_confinedDenseVolumes->size(); i++)
       delete (*m_confinedDenseVolumes)[i];
@@ -534,7 +534,7 @@ const Trk::Layer*   Trk::TrackingVolume::associatedLayer(const Amg::Vector3D& gp
     for (unsigned int i=0; i < m_confinedArbitraryLayers->size(); i++) 
       if ( (*m_confinedArbitraryLayers)[i]->isOnLayer(gp) ) return (*m_confinedArbitraryLayers)[i]; 
    }
-  return 0;
+  return nullptr;
 }
       
 const Trk::Layer*   Trk::TrackingVolume::nextLayer(const Amg::Vector3D& gp,
@@ -542,7 +542,7 @@ const Trk::Layer*   Trk::TrackingVolume::nextLayer(const Amg::Vector3D& gp,
                                                    bool associatedResult,
                                                    bool skipNavLayer) const
 {
-  const Trk::Layer* nextLayer = 0;
+  const Trk::Layer* nextLayer = nullptr;
   if (m_confinedLayers)
       nextLayer = (m_confinedLayers->nextObject(gp, mom, associatedResult));
   // forward it in this case
@@ -555,7 +555,7 @@ const Trk::Layer*   Trk::TrackingVolume::nextLayer(const Amg::Vector3D& gp,
   return nextLayer;
 }
 
-const Trk::LayerIntersection<Amg::Vector3D> 
+Trk::LayerIntersection<Amg::Vector3D> 
                    Trk::TrackingVolume::closestMaterialLayer(const Amg::Vector3D& gp,
                                                         const Amg::Vector3D& dir, 
                                                         PropDirection pDir,
@@ -576,8 +576,8 @@ const Trk::LayerIntersection<Amg::Vector3D>
   if (m_confinedLayers){
        // the associated layer
        const Trk::Layer* assocLayer       = associatedLayer(gp);
-       const Trk::Layer* previousMatLayer = 0;
-       const Trk::Layer* nextMatLayer     = 0;
+       const Trk::Layer* previousMatLayer = nullptr;
+       const Trk::Layer* nextMatLayer     = nullptr;
        // if the associated layer is a navigation layer - get the previous and next from this one
        const Trk::NavigationLayer* navLayer = dynamic_cast<const Trk::NavigationLayer*>(assocLayer);     
        if (navLayer) {
@@ -595,8 +595,8 @@ const Trk::LayerIntersection<Amg::Vector3D>
     //
     Trk::Intersection laySurfIntersection(Amg::Vector3D(0.,0.,0.), 10e10, false);    
     // layer candidates found - continue
-    if (layerCandidates.size()){
-        const Layer*        cLayer     = 0;
+    if (!layerCandidates.empty()){
+        const Layer*        cLayer     = nullptr;
         // iterate through and chose
         for ( auto& lcIter : layerCandidates ){
             // only the forceFwd solution is possible here
@@ -611,14 +611,14 @@ const Trk::LayerIntersection<Amg::Vector3D>
         }
         // now return the pair: in case of a valid intersection, or if no mapping mode is chosen
         if (cLayer) 
-          return Trk::LayerIntersection< Amg::Vector3D > (laySurfIntersection, cLayer, &(cLayer->surfaceRepresentation()), 0 ,pDir);
+          return Trk::LayerIntersection< Amg::Vector3D > (laySurfIntersection, cLayer, &(cLayer->surfaceRepresentation()), nullptr ,pDir);
      }
      // mapping mode chosen, but no valid intersection yet
      const Trk::TrackingVolume* nVolume = nextVolume(gp, dir, pDir);
      
      // forward the next Volume solution or a 0 solution
      return ( nVolume && nVolume != this ) ? nVolume->closestMaterialLayer(gp,dir,pDir,bchk) : 
-        Trk::LayerIntersection< Amg::Vector3D >(laySurfIntersection, 0, 0, 0, pDir);
+        Trk::LayerIntersection< Amg::Vector3D >(laySurfIntersection, nullptr, nullptr, nullptr, pDir);
 }
      
                                                                 
@@ -643,7 +643,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::associatedSubVolume(const Amg::V
       
 const Trk::TrackingVolume* Trk::TrackingVolume::nextVolume(const Amg::Vector3D& gp, const Amg::Vector3D& dir, Trk::PropDirection pDir) const {
     // get the boundary surfaces & intersect them
-    const Trk::TrackingVolume* nVolume = 0;
+    const Trk::TrackingVolume* nVolume = nullptr;
     // fix the direction once
     bool forceDir = ( pDir == Trk::alongMomentum || pDir == Trk::oppositeMomentum);
     double dirScalor = ( pDir == Trk::oppositeMomentum)  ? -1. : 1.;
@@ -739,7 +739,7 @@ void Trk::TrackingVolume::indexContainedMaterialLayers ATLAS_NOT_THREAD_SAFE (Ge
 	      const std::vector<const Trk::Surface*>& layerSurfaces = surfArray->arrayObjects();
 	      // loop over the surfaces - there can be 0 entries
 	      for (auto& laySurfIter : layerSurfaces) {
-	            const Trk::Layer* materialLayer = laySurfIter ? laySurfIter->materialLayer() : 0;
+	            const Trk::Layer* materialLayer = laySurfIter ? laySurfIter->materialLayer() : nullptr;
 	            if ( materialLayer && materialLayer->layerIndex().value() < 0 ){
 	              // sign only those with material properties - rest goes to 0
 	              Trk::LayerIndex layIndex = materialLayer->layerMaterialProperties() ?
@@ -885,13 +885,13 @@ void Trk::TrackingVolume::createBoundarySurfaces()
       sfCounter++;
 
       Trk::TrackingVolume* in  = this;
-      Trk::TrackingVolume* out = 0;
+      Trk::TrackingVolume* out = nullptr;
    
       // ST update: subtracted surfaces may appear in 'simple' volumes (SimplePolygonBrep...)
       const Trk::SubtractedPlaneSurface*      spsf = dynamic_cast<const Trk::SubtractedPlaneSurface*>(*surfIter);
       const Trk::PlaneSurface*      psf = dynamic_cast<const Trk::PlaneSurface*>(*surfIter);
       if (spsf) { 
-        if (spbVol && sfCounter==1 ) {in = 0; out = this;}
+        if (spbVol && sfCounter==1 ) {in = nullptr; out = this;}
 	            m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> >
 				      (new Trk::BoundarySubtractedPlaneSurface<Trk::TrackingVolume>(in, out, *spsf)));    
 	    delete spsf; continue;
@@ -910,14 +910,14 @@ void Trk::TrackingVolume::createBoundarySurfaces()
       const Trk::SubtractedCylinderSurface*  scsf = dynamic_cast<const Trk::SubtractedCylinderSurface*>(*surfIter);
       const Trk::CylinderSurface*   csf = dynamic_cast<const Trk::CylinderSurface*>(*surfIter);
       if (scsf) {
-          Trk::TrackingVolume* inner = (sfCounter == 4 && sfNumber > 3) ? 0 : this;
-          Trk::TrackingVolume* outer = (inner) ? 0 : this;
+          Trk::TrackingVolume* inner = (sfCounter == 4 && sfNumber > 3) ? nullptr : this;
+          Trk::TrackingVolume* outer = (inner) ? nullptr : this;
           m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
             (new Trk::BoundarySubtractedCylinderSurface<Trk::TrackingVolume>(inner, outer, *scsf)));
           delete scsf; continue;
       } else if (csf) {
-          Trk::TrackingVolume* inner = (sfCounter == 4 && sfNumber > 3) ? 0 : this;
-          Trk::TrackingVolume* outer = (inner) ? 0 : this;
+          Trk::TrackingVolume* inner = (sfCounter == 4 && sfNumber > 3) ? nullptr : this;
+          Trk::TrackingVolume* outer = (inner) ? nullptr : this;
           m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
             (new Trk::BoundaryCylinderSurface<Trk::TrackingVolume>(inner, outer, *csf)));
           delete csf; continue;
@@ -930,8 +930,8 @@ void Trk::TrackingVolume::createBoundarySurfaces()
      
     for ( ; surfIter != surfaces->end(); ++surfIter){
       
-      Trk::TrackingVolume* in  = bOrient[sfCounter] ? this : 0;
-      Trk::TrackingVolume* out = bOrient[sfCounter] ? 0 : this;
+      Trk::TrackingVolume* in  = bOrient[sfCounter] ? this : nullptr;
+      Trk::TrackingVolume* out = bOrient[sfCounter] ? nullptr : this;
       sfCounter++;
    
       const Trk::SubtractedPlaneSurface*      psf = dynamic_cast<const Trk::SubtractedPlaneSurface*>(*surfIter);
@@ -973,7 +973,7 @@ void Trk::TrackingVolume::interlinkLayers ATLAS_NOT_THREAD_SAFE() {
   if (m_confinedLayers){
     const std::vector<const Trk::Layer*>& layers = m_confinedLayers->arrayObjects();
     // forward loop
-    const Trk::Layer* lastLayer = 0;
+    const Trk::Layer* lastLayer = nullptr;
     std::vector<const Trk::Layer*>::const_iterator layerIter = layers.begin();
     for ( ; layerIter != layers.end(); ++layerIter)
       { 
@@ -987,7 +987,7 @@ void Trk::TrackingVolume::interlinkLayers ATLAS_NOT_THREAD_SAFE() {
 	lastLayer = (*layerIter);
       }
     // backward loop
-    lastLayer = 0;
+    lastLayer = nullptr;
     layerIter = layers.end();
     --layerIter;
     for ( ; ; --layerIter)
@@ -1045,7 +1045,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
   const Trk::Volume* vol = Trk::Volume::clone();
   
   // clone 'ordered layers
-  Trk::LayerArray*  layerArray = 0;
+  Trk::LayerArray*  layerArray = nullptr;
   // confined layers
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
   if (confLayers){
@@ -1069,7 +1069,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
   }
 
   // clone 'unordered' layers
-  std::vector<const Trk::Layer*>*  unorderedLayers = 0;
+  std::vector<const Trk::Layer*>*  unorderedLayers = nullptr;
   const std::vector<const Trk::Layer* >* confArbLayers = confinedArbitraryLayers();
   if (confArbLayers){
     // clone & apply the transform 
@@ -1102,7 +1102,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
   }
   
   // cloning confined volumes
-  Trk::TrackingVolumeArray*  volumeArray = 0;
+  Trk::TrackingVolumeArray*  volumeArray = nullptr;
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
   if (confVolumes) {
     // retrieve array objects and apply the transform 
@@ -1123,7 +1123,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
   
   // cloning confined unordered volumes
   const std::vector<const Trk::TrackingVolume* >* confDenseVolumes = confinedDenseVolumes();
-  std::vector<const Trk::TrackingVolume*>* newDenseVol=0; 
+  std::vector<const Trk::TrackingVolume*>* newDenseVol=nullptr; 
   if (confDenseVolumes) {
     std::vector<const Trk::TrackingVolume*> newVol; 
     // retrieve array objects and apply the transform 
@@ -1135,7 +1135,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
   }
   
   // create the Tracking Volume
-  Trk::TrackingVolume* newTrkVol = 0;
+  Trk::TrackingVolume* newTrkVol = nullptr;
   if (confArbLayers || confDenseVolumes) {
     if (confArbLayers && confDenseVolumes ) { 
       newTrkVol = new Trk::TrackingVolume(*vol, 

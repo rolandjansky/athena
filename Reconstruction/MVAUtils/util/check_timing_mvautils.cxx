@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MVAUtils/BDT.h"
@@ -49,10 +49,12 @@ int main(int argc, char** argv)
     std::cout << "sizeof class NodeTMVA is " << sizeof(MVAUtils::NodeTMVA) << std::endl;
     std::cout << "sizeof class NodeLGBMSimple is " << sizeof(MVAUtils::NodeLGBMSimple) << std::endl;
     std::cout << "sizeof class NodeLGBM is " << sizeof(MVAUtils::NodeLGBM) << std::endl;
+    std::cout << "sizeof class NodeXGBoost is " << sizeof(MVAUtils::NodeXGBoost) << std::endl;
 
     if (sizeof(MVAUtils::NodeTMVA) != 8) { std::cout << "WARNING: NodeTMVA should be 8 bytes" << std::endl; }
     if (sizeof(MVAUtils::NodeLGBMSimple) != 8) { std::cout << "WARNING: NodeLGBMSimple should be 8 bytes" << std::endl; }
     if (sizeof(MVAUtils::NodeLGBM) != 8) { std::cout << "WARNING: NodeLGBM should be 8 bytes" << std::endl; }
+    if (sizeof(MVAUtils::NodeXGBoost) != 8) { std::cout << "WARNING: NodeXGBoost should be 8 bytes" << std::endl; }
 
     std::default_random_engine gen;
     std::uniform_real_distribution<float> rnd_uniform(-100., 100.);

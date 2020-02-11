@@ -20,13 +20,13 @@
 #include "TrkGeometry/TrackingVolume.h"
 
 Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(const Trk::ExCellCharged& eCell, const Trk::Surface* sf, 
-							Trk::BoundaryCheck bcheck) 
+							const Trk::BoundaryCheck& bcheck) 
 {
   Amg::Vector3D gp  = eCell.leadParameters->position();	
   Amg::Vector3D mom = eCell.leadParameters->momentum().normalized();	
   Trk::PropDirection dir = eCell.propDirection;
   
-  return setOnInput( gp, mom*dir, eCell.leadVolume, sf, std::move(bcheck));
+  return setOnInput( gp, mom*dir, eCell.leadVolume, sf, bcheck);
 }
 
   Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(const Amg::Vector3D& position, const Amg::Vector3D& direction,
@@ -44,7 +44,7 @@ Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(const Trk::ExCellCharged
     Trk::TargetSurface tt(sf,bcheck,Trk::SurfNavigType::Target,0,nullptr,Trk::TVNavigType::Unknown);
     evaluateInputDistance(tt,position,direction,true);  
     // abort if no valid intersection
-    if (!m_baseSurfaces.size() || (m_baseSurfaces.back().distanceAlongPath<0 && !sf->isOnSurface(position,bcheck,m_tolerance)))
+    if (m_baseSurfaces.empty() || (m_baseSurfaces.back().distanceAlongPath<0 && !sf->isOnSurface(position,bcheck,m_tolerance)))
       return Trk::ExtrapolationCode::FailureDestination;
   }
 
@@ -54,13 +54,13 @@ Trk::ExtrapolationCode  Trk::TargetSurfaces::setOnInput(const Trk::ExCellCharged
 }
 
 Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(const Trk::ExCellNeutral& eCell, const Trk::Surface* sf,
-							       Trk::BoundaryCheck bcheck) 
+							       const Trk::BoundaryCheck& bcheck) 
 {
   Amg::Vector3D gp  = eCell.leadParameters->position();	
   Amg::Vector3D mom = eCell.leadParameters->momentum().normalized();	
   Trk::PropDirection dir = eCell.propDirection;
   
-  return orderedIntersections( gp, mom*dir, eCell.leadVolume, sf, std::move(bcheck));
+  return orderedIntersections( gp, mom*dir, eCell.leadVolume, sf, bcheck);
 }
 
 Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(const Amg::Vector3D& position, const Amg::Vector3D& direction,
@@ -79,7 +79,7 @@ Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderedIntersections(const Amg::V
     Trk::TargetSurface tt(sf,bcheck,Trk::SurfNavigType::Target,0,nullptr,Trk::TVNavigType::Unknown);
     evaluateInputDistance(tt,position,direction,true);  
     // abort if no valid intersection
-    if (!m_baseSurfaces.size() || (m_baseSurfaces.back().distanceAlongPath<0 && !sf->isOnSurface(position,bcheck,m_tolerance)))
+    if (m_baseSurfaces.empty() || (m_baseSurfaces.back().distanceAlongPath<0 && !sf->isOnSurface(position,bcheck,m_tolerance)))
       return empty;
   }
 
@@ -210,8 +210,7 @@ void Trk::TargetSurfaces::evaluateInputDistance(Trk::TargetSurface& tt, const Am
       }
     }
 
-    return;
-}  
+    }  
 
 bool Trk::TargetSurfaces::updateDistance(int index, Trk::TargetSurface& tt, const Amg::Vector3D& pos, const Amg::Vector3D& dir) 
 {
@@ -278,7 +277,7 @@ void Trk::TargetSurfaces::save(Trk::TargetSurface& tt, bool base) {
 
   if (base) m_baseSurfaces.push_back(tt);
   else {
-    if (!m_tempSurfaces.size() || tt.assocVol!=m_tempSurfaces.back()[0].assocVol) {
+    if (m_tempSurfaces.empty() || tt.assocVol!=m_tempSurfaces.back()[0].assocVol) {
       Trk::TargetSurfaceVector local; local.push_back(tt); m_tempSurfaces.push_back(local); 
     } else   m_tempSurfaces.back().push_back(tt);
   }        
@@ -289,7 +288,7 @@ Trk::TargetSurfaceVector  Trk::TargetSurfaces::orderIntersections() const{
   Trk::TargetSurfaceVector tsOrd ;		
 
   // base surfaces
-  if (!m_baseSurfaces.size()) return tsOrd;
+  if (m_baseSurfaces.empty()) return tsOrd;
       
   std::vector<unsigned int> sols(m_baseSurfaces.size());
   for (unsigned int i=0;i<m_baseSurfaces.size(); i++) { sols[i]=i; }
@@ -527,5 +526,4 @@ void Trk::TargetSurfaces::fillSolutions(int hitSf, Amg::Vector3D gp, TargetSurfa
     }
   } 
 
-  return;
-}
+  }

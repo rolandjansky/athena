@@ -26,6 +26,7 @@
 #include "JetSubStructureMomentTools/ISubjetRecorderTool.h"
 #include "JetSubStructureMomentTools/KtMassDropTool.h"
 #include "JetSubStructureMomentTools/QwTool.h"
+#include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
 
 #ifdef __CINT__
@@ -56,6 +57,7 @@
 #pragma link C++ class PlanarFlowTool+;
 #pragma link C++ class QwTool+;
 #pragma link C++ class ShowerDeconstructionTool+;
+#pragma link C++ class SoftDropObservablesTool+;
 #pragma link C++ class SubjetFinderTool+;
 #pragma link C++ class SubjetMakerTool+;
 #pragma link C++ class SubjetRecorderTool+;

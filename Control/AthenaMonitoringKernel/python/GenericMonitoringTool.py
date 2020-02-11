@@ -119,6 +119,8 @@ class GenericMonitoringArray:
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
 #  @param zlabels  List of x bin labels.
+#  @param merge    Merge method to use for object, if not default. Possible algorithms for offline DQM
+#                  are given in https://twiki.cern.ch/twiki/bin/view/Atlas/DQMergeAlgs
 
 def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
@@ -126,11 +128,11 @@ def defineHistogram(varname, type='TH1F', path=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None, 
                     opt='', treedef=None, labels=None, convention=None,
-                    cutmask=None):
+                    cutmask=None, merge=None):
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'cutMask', 'opt', 'convention', 'alias', 'treeDef'] 
+    'cutMask', 'opt', 'convention', 'alias', 'treeDef', 'merge'] 
     # All of these fileds default to 0
     numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
     'zmin', 'zmax']
@@ -143,7 +145,7 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Alias
     variableAliasSplit = varname.split(';')
-    varList = variableAliasSplit[0].split(',')
+    varList = [v.strip() for v in variableAliasSplit[0].split(',')]
     if len(variableAliasSplit)==1:
         alias = '_vs_'.join(reversed(varList))
     elif len(variableAliasSplit)==2:
@@ -235,7 +237,7 @@ def defineHistogram(varname, type='TH1F', path=None,
         settings['zmax'] = zmax
 
     # Bin labels
-    # First, handle the depricated labels argument
+    # First, handle the deprecated labels argument
     if labels is not None:
         assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
         depricated "labels" argument with [xyz]labels arguments.'
@@ -245,11 +247,12 @@ def defineHistogram(varname, type='TH1F', path=None,
         if nLabels==xbins:
             xlabels = labels
         elif nLabels>xbins:
-            if nLabels > xbins+ybins:
+            nybins = 0 if ybins is None else ybins
+            if nLabels > xbins+nybins:
                 log.warning('More labels specified for %s (%d) than there are x+y bins (%d+%d)',
-                            settings['title'], nLabels, xbins, ybins)
+                            settings['title'], nLabels, xbins, nybins)
             xlabels = labels[:xbins]
-            ylabels = labels[xbins:xbins+ybins]
+            ylabels = labels[xbins:xbins+nybins]
     # Then, parse the [xyz]label arguments
     if xlabels is not None and len(xlabels)>0:
         assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'
@@ -262,6 +265,11 @@ def defineHistogram(varname, type='TH1F', path=None,
     if zlabels is not None and len(zlabels)>0:
         assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
         settings['zlabels'] = zlabels
+
+    # merge method
+    if merge is not None:
+        assert type not in ['TEfficiency', 'TTree', 'TGraph'],'only default merge defined for non-histogram objects'
+        settings['merge'] = merge
 
     # Tree branches
     if treedef is not None:

@@ -85,6 +85,7 @@ class IHLTMonTool : public ManagedMonitorToolBase {
 
   bool m_cafonly;
   bool m_ignoreTruncationCheck;
+  bool m_ignoringTruncationCheck; // actual flag to be used as we must not change job options
 
   ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<StoreGateSvc> m_inputMetaStore;

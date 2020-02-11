@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -29,7 +29,7 @@
 //=============================================================================
 // Standard constructor
 //=============================================================================
-AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(std::string myname) :
+AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(const std::string& myname) :
   AsgTool(myname),
   m_configFile{""},
   m_rootForwardTool{nullptr},
@@ -94,7 +94,7 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
   if(!m_configFile.empty()) {
     //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
-    if(filename=="")
+    if(filename.empty())
     { 
         ATH_MSG_ERROR("Could not locate " << m_configFile );
         sc = StatusCode::FAILURE;
@@ -238,7 +238,7 @@ StatusCode AsgForwardElectronIsEMSelector::execute(const EventContext& ctx, cons
   // initialisation
   isEM = 0; 
   // protection against null pointer
-  if (eg==0) {
+  if (eg==nullptr) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_DEBUG("exiting because el is NULL");
     isEM = (0x1 << egammaPID::BinEta_ForwardElectron); 
@@ -247,7 +247,7 @@ StatusCode AsgForwardElectronIsEMSelector::execute(const EventContext& ctx, cons
 
   // retrieve associated cluster
   const xAOD::CaloCluster* cluster  = eg->caloCluster(); 
-  if ( cluster == 0 ) {
+  if ( cluster == nullptr ) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_DEBUG("exiting because cluster is NULL");
     isEM = (0x1 << egammaPID::BinEta_ForwardElectron); 
@@ -259,7 +259,7 @@ StatusCode AsgForwardElectronIsEMSelector::execute(const EventContext& ctx, cons
   float eta = fabs(cluster->etaBE(2)) ;
 
   //see if we have an electron, with track, for eta 
-  const xAOD::Electron* el = 0;
+  const xAOD::Electron* el = nullptr;
   if(eg->type()==xAOD::Type::Electron) {
     el =static_cast<const xAOD::Electron*> (eg);
   }
@@ -290,7 +290,12 @@ unsigned int AsgForwardElectronIsEMSelector::calocuts_electrons(const xAOD::Egam
 
   //std::cout<<" NVTX "<<nvtx<<" eta2 "<<eta2<<" eta "<<eta2<<std::endl;
   const xAOD::CaloCluster* cluster2 = eg->caloCluster();
-  double secondLambda(0),lateral(0),longitudinal(0),fracMax(0),centerLambda(0), secondR(0);
+  double secondLambda(0);
+  double lateral(0);
+  double longitudinal(0);
+  double fracMax(0);
+  double centerLambda(0);
+  double secondR(0);
 
   bool allFound = true;
 

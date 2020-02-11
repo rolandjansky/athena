@@ -3,12 +3,33 @@
 */
 
 #include "MuonCondData/CscCondDbData.h"
+#include "MuonIdHelpers/CscIdHelper.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 // constructor
 CscCondDbData::CscCondDbData() :
-    m_maxChanHash(61440),
-    m_maxChamberCoolChannel(32),
-    m_maxLayerHash(255){
+    m_onlineOfflinePhiFlip(true),
+    m_channelContext(),
+    m_moduleContext(),
+    m_onlineChannelIdsFromLayerHash(),
+    m_onlineChannelIdsFromChamberCoolChannel(),
+    m_cachedDeadLayers(),
+    m_cachedDeadStations(),
+    m_cachedDeadLayersId(),
+    m_cachedDeadStationsId(),
+    m_cachedDeadChannelsHash(),
+    m_cachedChannelsF001(),
+    m_cachedChannelsNoise(),
+    m_cachedChannelsPed(),
+    m_cachedChannelsPSlope(),
+    m_cachedChannelsRMS(),
+    m_cachedChannelsStatus(),
+    m_cachedChannelsT0Base(),
+    m_cachedChannelsT0Phase(),
+    m_emptyNames(),
+    m_emptyIds(),
+    m_emptyHashs() {
 }
 
 
@@ -22,6 +43,8 @@ CscCondDbData::loadParameters(const CscIdHelper* idHelper){
 
     //prepare layer hash array
     int hash = 0;
+
+    MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
 
     for(int stationName  = 0; stationName < 2; stationName++){
       for(int stationEta =0; stationEta <2; stationEta++){
@@ -39,55 +62,18 @@ CscCondDbData::loadParameters(const CscIdHelper* idHelper){
                   );
               unsigned int onlineId;
               if(!offlineToOnlineId(idHelper, id, onlineId).isSuccess()) {
-                std::cout << "Failed at geting online id!" << std::endl;
+                log << MSG::WARNING << "Failed at geting online id!" << endmsg;
               }
               else {
                 m_onlineChannelIdsFromLayerHash.push_back(onlineId);
-                m_layerHashes[stationName][stationEta][stationPhi][wireLayer][measuresPhi] = hash++;
+                ++hash;
               }
             }
           }
         }
       }
     }
-
-    *(const_cast<unsigned int*>(&m_maxLayerHash)) = hash -1; //-1 because hash overshoots in loop
-
-
-    //prepare chamberCoolChannel. This is similar to the hash array in CscIdHelper.
-    //Putting it here because cool channels are dependent on this hash, and it can't
-    //ever change, even if idHelper's definition changes
-    hash = 1;
-    for(int stationName  = 0; stationName < 2; stationName++){
-      for(int stationEta =0; stationEta <2; stationEta++){
-        for(int stationPhi = 0; stationPhi <8; stationPhi++){
-          Identifier id = idHelper->channelID(
-              stationName+1,
-              (stationEta? 1:-1),
-              stationPhi+1,
-              2,//only installed chamber layer 2
-              1,//wirelayer doesn't matter, we'll just use first
-              0,//measures phi doesn't matter, we'll just use precision
-              1 //channel doesn't matter. We'll just use first
-              );
-          unsigned int onlineId;
-          if(!offlineToOnlineId(idHelper, id, onlineId).isSuccess()) {
-            std::cout << "Failed at geting online id!" << std::endl;
-          }
-          else {
-            m_onlineChannelIdsFromChamberCoolChannel.push_back(onlineId);
-            m_chamberCoolChannels[stationName][stationEta][stationPhi] = hash++;
-          }
-        }
-      }
-    }
-    *(const_cast<unsigned int*>(&m_maxChamberCoolChannel)) = hash - 1; //-1 because hash overshoots in loop
-    *(const_cast<unsigned int*>(&m_maxChanHash)) = idHelper->channel_hash_max() - 1;
-
-
-    std::cout << "Maximum Chamber COOL Channel is " << m_maxChamberCoolChannel << std::endl;
-    std::cout << "Maximum Layer hash is " << m_maxLayerHash << std::endl;
-    std::cout << "Maximum Channel hash is " << m_maxChanHash << std::endl;
+    log << MSG::INFO << "Maximum Layer hash is " << hash-1 << endmsg; // -1 because hash overshoots in loop
 }
 
 
@@ -96,9 +82,6 @@ void
 CscCondDbData::setParameters(bool onlineOfflinePhiFlip){
     m_onlineOfflinePhiFlip = onlineOfflinePhiFlip;
 }
-
-
-
 
 // --- writing identifiers -------
 
@@ -392,6 +375,7 @@ CscCondDbData::isGoodStation(const Identifier & Id) const{
 StatusCode 
 CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int & index, const std::string & cat, std::string & idString) const {
     // copy-paste from CscCoolStrSvc
+    MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
 
     //There is no string id for the CSC category.
     if(cat == "CSC") {
@@ -404,7 +388,7 @@ CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int &
         if(index == 1)
             idString = "1";
         else {
-            std::cout << "Requested index " << index << " can't be converted to a string Id for the category " << cat << std::endl;
+            log << MSG::INFO << "Requested index " << index << " can't be converted to a string Id for the category " << cat << endmsg;
             return StatusCode::RECOVERABLE;
         }
     }
@@ -416,21 +400,21 @@ CscCondDbData::indexToStringId(const CscIdHelper* idHelper, const unsigned int &
         Identifier chamberId;
         idHelper->get_id(IdentifierHash(index), chamberId, &m_moduleContext);
         if(!offlineElementToOnlineId(idHelper, chamberId, onlineId).isSuccess()) {
-            std::cout << "Failed converting chamber identifier to online id during stringId gen." << std::endl;
+            log << MSG::INFO << "Failed converting chamber identifier to online id during stringId gen." << endmsg;
             return StatusCode::RECOVERABLE;
         }
     } 
     else if(cat == "LAYER"){
         unsigned int onlineId;
         if(!layerHashToOnlineId(index, onlineId)){
-            std::cout << "Failed at getting online id from layer hash during stringId gen." << std::endl; 
+            log << MSG::INFO << "Failed at getting online id from layer hash during stringId gen." << endmsg;
         }
     }
     else if(cat == "CHANNEL"){
         Identifier channelId;
         idHelper->get_id(IdentifierHash(index), channelId, &m_channelContext);
         if(!offlineToOnlineId(idHelper, channelId, onlineId).isSuccess()) {
-            std::cout << "Failed converting chamber identifier to online id during stringId gen." << std::endl;
+            log << MSG::INFO << "Failed converting chamber identifier to online id during stringId gen." << endmsg;
             return StatusCode::RECOVERABLE;
         }
     }
@@ -447,7 +431,8 @@ CscCondDbData::layerHashToOnlineId(const unsigned int & layerHash, unsigned int 
     // copy-paste from CscCoolStrSvc
 
     if(layerHash > m_onlineChannelIdsFromLayerHash.size()) {
-		std::cout << "Tried to lookup online id from layer hash " << layerHash <<". Max is " << m_onlineChannelIdsFromLayerHash.size() << std::endl;
+        MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
+        log << MSG::INFO << "Tried to lookup online id from layer hash " << layerHash <<". Max is " << m_onlineChannelIdsFromLayerHash.size() << endmsg;
         return StatusCode::SUCCESS;
     }
     onlineId = m_onlineChannelIdsFromLayerHash[layerHash];
@@ -519,47 +504,6 @@ CscCondDbData::offlineToOnlineId(const CscIdHelper* idHelper, const Identifier &
     return StatusCode::SUCCESS;
 }
 
-
-// onlineToOfflineElementId
-StatusCode 
-CscCondDbData::onlineToOfflineElementId(const CscIdHelper* idHelper, const unsigned int & onlineId, Identifier &elementId) const {
-    // copy-paste from CscCoolStrSvc
-
-    int stationName =       ((onlineId >> 16)&0x1) + 50;
-    int phi =               ((onlineId >> 13)&0x7)+1;
-    int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
-
-    elementId = idHelper->elementID(stationName,eta,phi);
-    return StatusCode::SUCCESS;
-}
-
-
-// onlineToOfflineChannelId
-StatusCode 
-CscCondDbData::onlineToOfflineChannelId(const CscIdHelper* idHelper, const unsigned int & onlineId, Identifier &chanId) const {
-    // copy-paste from CscCoolStrSvc
-
-    int stationName =       ((onlineId >> 16)&0x1) + 50;
-    int phi =               ((onlineId >> 13)&0x7)+1;
-    int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
-    int chamLay =           ((onlineId>>11)&0x1) +1;
-    int wireLay =           ((onlineId>>9)&0x3) +1;
-    int measuresPhi =       ((onlineId >> 8)&0x1);
-    int strip;
-
-    //Online and offline phi ids are flipped on A wheel
-    if(m_onlineOfflinePhiFlip && measuresPhi && eta == 1){
-        strip = 48 - ((onlineId)&0xff) ; //equivalent: 49 -( onlineId&0xff +1)
-    }
-    else {
-        strip = ((onlineId)&0xff) +1;
-    }
-
-    chanId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
-    return StatusCode::SUCCESS;
-}
-
-
 // onlineToOfflineIds
 StatusCode 
 CscCondDbData::onlineToOfflineIds(const CscIdHelper* idHelper, const unsigned int & onlineId, Identifier &elementId, Identifier &channelId) const {
@@ -582,7 +526,24 @@ CscCondDbData::onlineToOfflineIds(const CscIdHelper* idHelper, const unsigned in
     }
   
     elementId = idHelper->elementID(stationName,eta,phi);
-    channelId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+
+    // The following call of channelID with check=true ensures that the identifier is checked to be physically valid.
+    // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
+    // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
+    bool isValid = true;
+    channelId = idHelper->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
+    static bool conversionFailPrinted = false;
+    MsgStream log(Athena::getMessageSvc(),"CscCondDbData");
+    if (!isValid) {
+      if (!conversionFailPrinted) {
+        log << MSG::WARNING << "Failed to retrieve offline Identifier from online Identifier " << onlineId
+                              << " (station " << stationName << ", eta=" << eta << ", phi=" << phi << "). "
+                              << "This is likely due to the fact that the CSCCool database contains "
+                              << "more entries than the detector layout." << endmsg;
+        conversionFailPrinted = true;
+      }
+      return StatusCode::FAILURE;
+    }
   
     return StatusCode::SUCCESS;
 }

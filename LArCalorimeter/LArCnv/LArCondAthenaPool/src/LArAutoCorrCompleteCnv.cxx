@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -74,56 +74,11 @@ void
 LArAutoCorrCopy::copyOldtoNew(const LArConditionsSubset<LArAutoCorrP>* oldAutoCorr,
 			   LArConditionsSubset<LArAutoCorrP1>* newAutoCorr)
 {
-    // Get the number of febs and corrections
-    unsigned int nFebs       = oldAutoCorr->m_subset.size();
-    unsigned int nCorrs      = oldAutoCorr->m_correctionVec.size();
-
-    //log << MSG::DEBUG << "LArAutoCorrCompleteCnv::createTransient oldAutoCorr 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endmsg; 
-
-    // Copy conditions
-
-    // Resize subset
-    newAutoCorr->m_subset.resize(nFebs);
-    
-    // Loop over febs
-    for (unsigned int i = 0; i < nFebs; ++i){
-        newAutoCorr->m_subset[i].first = oldAutoCorr->m_subset[i].first;
-	unsigned nChannels=oldAutoCorr->m_subset[i].second.size();
-        newAutoCorr->m_subset[i].second.resize(nChannels);
-        // Loop over channels in feb
-        for (unsigned int j = 0; j < nChannels; ++j){
-            // reserve space for autocorr vec
-            unsigned int nAutoCorrs = oldAutoCorr->m_subset[i].second[j].m_vAutoCorr.size();
-            newAutoCorr->m_subset[i].second[j].m_vAutoCorr.resize(nAutoCorrs);
-            // Loop over autocorrs per channel
-            for (unsigned int k = 0; k < nAutoCorrs; ++k){
-                newAutoCorr->m_subset[i].second[j].m_vAutoCorr[k] = 
-                    oldAutoCorr->m_subset[i].second[j].m_vAutoCorr[k];
-            }
-        }
-    }
-
-    // log << MSG::DEBUG << "LArAutoCorrCompleteCnv::createTransient oldAutoCorr 2 " << oldAutoCorr << endmsg; 
-
-    // Copy corrections
-    newAutoCorr->m_correctionVec.resize(nCorrs);
-
-    // Loop over corrections
-    for (unsigned int i = 0; i < nCorrs; ++i){
-        newAutoCorr->m_correctionVec[i].first = oldAutoCorr->m_correctionVec[i].first;
-        // reserve space for autocorr vec
-        unsigned int nAutoCorrs = oldAutoCorr->m_correctionVec[i].second.m_vAutoCorr.size();
-        newAutoCorr->m_correctionVec[i].second.m_vAutoCorr.resize(nAutoCorrs);
-        // Loop over autocorrs per channel
-        for (unsigned int k = 0; k < nAutoCorrs; ++k){
-            newAutoCorr->m_correctionVec[i].second.m_vAutoCorr[k] = 
-                oldAutoCorr->m_correctionVec[i].second.m_vAutoCorr[k];
-        }
-    }
-
-    // Copy the rest
-    newAutoCorr->m_gain          = oldAutoCorr->m_gain; 
-    newAutoCorr->m_channel       = oldAutoCorr->m_channel;
-    newAutoCorr->m_groupingType  = oldAutoCorr->m_groupingType;
+  newAutoCorr->assign (*oldAutoCorr,
+                       [] (const LArAutoCorrP& from,
+                           LArAutoCorrP1& to)
+                       {
+                         to.m_vAutoCorr.assign (from.m_vAutoCorr.begin(),
+                                                from.m_vAutoCorr.end());
+                       });
 }

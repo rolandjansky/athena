@@ -19,8 +19,8 @@ include("TriggerJobOpts/runHLT_standalone_run2.py")
 
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 
-print AlgSequence
-print ServiceMgr
+printfunc (AlgSequence)
+printfunc (ServiceMgr)
 
 del EvtMax
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ public:
     (const NeutralParameters        &,
      const Surface                  &,
      PropDirection                   ,
-     BoundaryCheck                   ,
+     const BoundaryCheck            &,
      bool                            ) const override final;
 
   /** Main propagation mehtod without transport jacobian production*/
@@ -138,7 +138,7 @@ public:
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
-     BoundaryCheck                   ,
+     const BoundaryCheck            &,
      const MagneticFieldProperties  &, 
      ParticleHypothesis              ,
      bool                            ,
@@ -150,7 +150,7 @@ public:
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
-     BoundaryCheck                   ,
+     const BoundaryCheck            &,
      const MagneticFieldProperties  &, 
      TransportJacobian             *&,
      double                         &,
@@ -178,7 +178,7 @@ public:
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
-     BoundaryCheck                   ,
+     const BoundaryCheck            &,
      const MagneticFieldProperties  &, 
      ParticleHypothesis              ,
      bool                            ,
@@ -191,7 +191,7 @@ public:
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
-     BoundaryCheck                   ,
+     const BoundaryCheck            &,
      const MagneticFieldProperties  &, 
      TransportJacobian             *&,
      ParticleHypothesis              ,
@@ -200,7 +200,7 @@ public:
 
   /** Global position together with direction of the trajectory on the surface */
 
-  virtual const IntersectionSolution*      intersect
+  virtual IntersectionSolution*      intersect
     (const TrackParameters          &,
      const Surface                  &,
      const MagneticFieldProperties  &, 
@@ -443,11 +443,11 @@ private:
 
   //placeholder for compatibility with new interface
   virtual
-  const TrackSurfaceIntersection* intersectSurface(const Surface&,
-                                                   const TrackSurfaceIntersection*,
-                                                   const double,
-                                                   const MagneticFieldProperties&,
-                                                   ParticleHypothesis) const override
+  TrackSurfaceIntersection* intersectSurface(const Surface&,
+                                             const TrackSurfaceIntersection*,
+                                             const double,
+                                             const MagneticFieldProperties&,
+                                             ParticleHypothesis) const override
   {return nullptr;}
 
   /////////////////////////////////////////////////////////////////////////////////

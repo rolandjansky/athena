@@ -4,22 +4,22 @@
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
-include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetSetup")
 
-# this is copy paste from Trigger/TrigValidation/TrigUpgradeTest/python/InDetConfig.py
-# once the cunction below is moved to the destination pkg, will eliminate this duplication
-class InDetCacheNames(object):
-  Pixel_ClusterKey   = "PixelTrigClustersCache"
-  SCT_ClusterKey     = "SCT_ClustersCache"
-  SpacePointCachePix = "PixelSpacePointCache"
-  SpacePointCacheSCT = "SctSpacePointCache"
-  SCTRDOCacheKey     = "SctRDOCache"
-  SCTBSErrCacheKey   = "SctBSErrCache"
-  PixRDOCacheKey     = "PixRDOCache"
+if not 'InDetTrigFlags' in dir():
+   # --- setup flags with default values
+   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+   InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
+   InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
+   InDetTrigFlags.doiPatRec = False
+   InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
+   InDetTrigFlags.doPixelClusterSplitting = False
+   InDetTrigFlags.doPrintConfigurables = False
 
+
+from TrigInDetConfig.InDetConfig import InDetCacheNames
 
 def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
   #If signature specified add suffix to the algorithms
@@ -271,7 +271,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
-  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + separateTrackParticleCreator,
+  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
                                                             doIBLresidual = False,
                                                             TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
                                                             TrackParticlesName = recordable("HLT_xAODTracks" + separateTrackParticleCreator),

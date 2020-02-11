@@ -210,8 +210,8 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doPixelClusterSplitting.set_Value(False) # does not work online
 
 ## new ID alignment 26 May 2017
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
 # ----------------------------------------------- Online flag
 athenaCommonFlags.EvtMax.set_Value_and_Lock(evtMax)
@@ -340,7 +340,6 @@ rec.doPerfMon.set_Value_and_Lock(False)                                     # op
 rec.doDetailedPerfMon.set_Value_and_Lock(False)
 rec.doSemiDetailedPerfMon.set_Value_and_Lock(False)
 rec.doNameAuditor.set_Value_and_Lock(False)                                 # optional for debugging
-rec.doDetStatus.set_Value_and_Lock(False)                                   # fails when true (fixed in next release)
 
 if not 'IOVDbSvcMessage' in dir():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef _RIO_OnTrackErrorScalingCondAlg_H_
@@ -30,7 +30,7 @@ class RIO_OnTrackErrorScalingCondAlg : public AthAlgorithm
  private:
 
   StatusCode addErrorScaling ATLAS_NOT_THREAD_SAFE (const std::string &type_name);
-  void registerAttribute(std::string name, unsigned int type_idx, unsigned int param_idx);
+  void registerAttribute(const std::string& name, unsigned int type_idx, unsigned int param_idx);
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey
      {this, "ReadKey", "/Indet/TrkErrorScaling", "Conditions folder namer for innder detector error scaling parameters."};

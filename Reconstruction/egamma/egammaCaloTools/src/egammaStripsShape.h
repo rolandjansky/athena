@@ -46,17 +46,20 @@ public:
     StatusCode finalize() override;
 
     /** @brief AlgTool main method */
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, Info& info) const override final;
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               Info& info) const override final;
 
-private:
+  private:
 
     /** @brief From the original (eta,phi) position, find the location
       (sampling, barrel/end-cap, granularity) */
     /** @brief set an array of energies,eta,phi in ~40 strips around max*/
-    void setArray(const xAOD::CaloCluster& cluster ,CaloSampling::CaloSample sam,
-            double eta, double phi,  double deta, double dphi,
-            double* enecell, double* etacell, double* gracell,
-            int* ncell) const ;
+    void setArray(const xAOD::CaloCluster& cluster,
+                  const CaloDetDescrManager& cmgr,
+                  CaloSampling::CaloSample sam, double eta, double phi,
+                  double deta, double dphi, double* enecell, double* etacell,
+                  double* gracell, int* ncell) const;
     /** @brief check index of seed in the array*/
     void setIndexSeed(Info& info, double* etacell, double* gracell) const;  
     /** @brief set total width in strips*/
@@ -87,12 +90,6 @@ private:
     void setFside(Info& info, double* enecell, double* gracell, int* ncell) const;
     /** @brief set F1core*/
     void setF1core(Info& info, const xAOD::CaloCluster& cluster) const;
-
-
-    /** @brief tool to calculate sum of energy in all samples */
-   
-    // Calo variables
-    const CaloDetDescrManager* m_calo_dd;
 
     // calculate quantities based on information in the strips in a region
     // around the cluster. 

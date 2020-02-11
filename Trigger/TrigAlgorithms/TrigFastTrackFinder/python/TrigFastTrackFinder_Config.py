@@ -557,6 +557,7 @@ remap  = {
     "TauCore"  : "tauCore",
     "TauIso"   : "tauIso",
     "Jet"      : "bjet",
+    "JetFS"    : "bjet",
     "FS"       : "bjet",
     "bjetVtx"  : "bjetVtx",
     "FullScan" : "fullScan",

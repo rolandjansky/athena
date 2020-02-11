@@ -51,18 +51,17 @@ STDM3ThinningHelper.AppendToStream( STDM3Stream )
 # Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 STDM3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM3JetTPThinningTool",
-                                                                        ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt4EMTopoJets",
 #                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM3JetTPThinningTool
 thinningTools.append(STDM3JetTPThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 STDM3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "STDM3MuonTPThinningTool",
-                                                                         ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM3MuonTPThinningTool
@@ -71,7 +70,7 @@ thinningTools.append(STDM3MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(      name                    = "STDM3ElectronTPThinningTool",
-                                                                                     ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                                     StreamName              = streamName,
                                                                                      SGKey                   = "Electrons",
                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM3ElectronTPThinningTool
@@ -80,7 +79,7 @@ thinningTools.append(STDM3ElectronTPThinningTool)
 # Tracks associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 STDM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                 = "STDM3TauTPThinningTool",
-                                                                        ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey                  = "TauJets",
                                                                         SelectionString         = "TauJets.pt > 15*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")

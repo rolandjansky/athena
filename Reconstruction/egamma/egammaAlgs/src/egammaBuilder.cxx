@@ -41,6 +41,7 @@ and eventually conversions.
 
 #include "egammaUtils/egammaDuplicateRemoval.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
@@ -101,6 +102,9 @@ StatusCode egammaBuilder::initialize()
     // retrieve ambiguity tool
     ATH_CHECK( m_ambiguityTool.retrieve() );
 
+    //retrieve shower builder
+    ATH_CHECK( m_ShowerTool.retrieve() );
+    
     ATH_MSG_INFO("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
     ATH_CHECK( m_egammaTools.retrieve() );
 
@@ -311,11 +315,28 @@ StatusCode egammaBuilder::execute(){
     if (m_doTopoSeededPhotons) {
         CHECK( addTopoSeededPhotons(photonContainer.ptr(), clusters.ptr()) );
     }
-
+ 
+    const CaloDetDescrManager* calodetdescrmgr = nullptr;                                                                 
+    ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );   
     // Call tools
+
+    /*
+     * Shower Shapes
+     */
+    if (electronContainer.ptr()) {
+      for (xAOD::Electron* electron : *electronContainer) {
+        ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, electron));
+      }
+    }
+    if (photonContainer.ptr()) {
+      for (xAOD::Photon* photon : *photonContainer) {
+        ATH_CHECK(m_ShowerTool->execute(ctx, *calodetdescrmgr, photon));
+      }
+    }
+
     // First the final cluster/calibration
     ATH_MSG_DEBUG("Executing : " << m_clusterTool);  
-    if ( m_clusterTool->contExecute(ctx, electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
+    if ( m_clusterTool->contExecute(ctx, *calodetdescrmgr ,electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }

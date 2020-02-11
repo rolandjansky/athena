@@ -10,6 +10,15 @@ from DerivationFrameworkEGamma.EGammaCommon import*
 from DerivationFrameworkMuons.MuonsCommon import*
 
 #======================================================================================================================
+# SET UP STREAM
+#======================================================================================================================
+streamName = derivationFlags.WriteDAOD_JETM11Stream.StreamName
+fileName = buildFileName( derivationFlags.WriteDAOD_JETM11Stream )
+JETM11Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+JETM11Stream.AcceptAlgs(['JETM11Kernel'])
+
+
+#======================================================================================================================
 # SKIMMING TOOL
 #======================================================================================================================
 cutExpression = ("(count(Electrons.DFCommonElectronsLHLoose && Electrons.pt > (10*GeV) && abs(Electrons.eta) < 2.47) + " +
@@ -32,15 +41,6 @@ JETM11KFmc12AugmentationTool = DerivationFramework__METTriggerAugmentationTool(n
                                                                                  OutputName = "LVL1EnergySumRoI_KFMETmc12",
                                                                                  LUTFile = "LUT_mc12.root")
 ToolSvc += JETM11KFmc12AugmentationTool
-
-#======================================================================================================================
-# SET UP STREAM
-#======================================================================================================================
-streamName = derivationFlags.WriteDAOD_JETM11Stream.StreamName
-fileName = buildFileName( derivationFlags.WriteDAOD_JETM11Stream )
-JETM11Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-JETM11Stream.AcceptAlgs(['JETM11Kernel'])
-
 
 #=======================================
 # ESTABLISH THE THINNING HELPER
@@ -70,7 +70,7 @@ thinningTools.append(JETM11TPThinningTool)
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 JETM11MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "JETM11MuonTPThinningTool",
-                                                                          ThinningService         = JETM11ThinningHelper.ThinningSvc(),
+                                                                          StreamName              = streamName,
                                                                           MuonKey                 = "Muons",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM11MuonTPThinningTool
@@ -79,7 +79,7 @@ thinningTools.append(JETM11MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM11ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                     = "JETM11ElectronTPThinningTool",
-                                                                                ThinningService          = JETM11ThinningHelper.ThinningSvc(),
+                                                                                StreamName              = streamName,
                                                                                 SGKey                    = "Electrons",
                                                                                 InDetTrackParticlesKey   = "InDetTrackParticles")
 ToolSvc += JETM11ElectronTPThinningTool
@@ -88,7 +88,7 @@ thinningTools.append(JETM11ElectronTPThinningTool)
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM11PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                        = "JETM11PhotonTPThinningTool",
-                                                                              ThinningService             = JETM11ThinningHelper.ThinningSvc(),
+                                                                              StreamName              = streamName,
                                                                               SGKey                       = "Photons",
                                                                               InDetTrackParticlesKey      = "InDetTrackParticles")
 ToolSvc += JETM11PhotonTPThinningTool
@@ -97,7 +97,7 @@ thinningTools.append(JETM11PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 JETM11TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "JETM11TauTPThinningTool",
-                                                                         ThinningService         = JETM11ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          TauKey                  = "TauJets",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM11TauTPThinningTool

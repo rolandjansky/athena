@@ -39,7 +39,7 @@
 
 #include "TrigDecisionTool/TypelessFeature.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigStorageDefinitions/EDM_TypeInfo.h"
 #endif
 
@@ -49,7 +49,7 @@
 //e.g. not in the boost::is_same call directly a la 
 // boost::is_same<T,struct Muon_ROI>::value
 //so that it does not end up to be a check on is_same<T,Trig::Muon_ROI> 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 class Muon_ROI;
 class EmTau_ROI;
 class Jet_ROI;
@@ -77,7 +77,7 @@ namespace Trig {
   
   
   template<typename T> struct is_storable_type{
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
     static const bool value = 
       !(
 	boost::is_same<T,Muon_ROI>::value  ||
@@ -96,7 +96,7 @@ namespace Trig {
   template<typename T,bool> struct link_or_not;
   
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
   template<typename T> struct link_or_not<T,true>{
     static const bool known =  IsKnownFeature<T>::value; //will cause compile error if not
     typedef typename Features2Container<T>::type container_type;

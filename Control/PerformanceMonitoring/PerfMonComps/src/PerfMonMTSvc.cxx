@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -24,7 +24,7 @@ PerfMonMTSvc::PerfMonMTSvc( const std::string& name,
   : AthService( name, pSvcLocator ),
     m_eventCounter{0} {
 
-  m_measurement.capture_compLevel_serial();
+  m_measurement.capture_snapshot();
   m_snapshotData[0].addPointStart(m_measurement);
 
   declareProperty( "doEventLoopMonitoring",
@@ -84,7 +84,7 @@ StatusCode PerfMonMTSvc::initialize() {
  */
 StatusCode PerfMonMTSvc::finalize(){ 
  
-  m_measurement.capture_compLevel_serial();
+  m_measurement.capture_snapshot();
   m_snapshotData[2].addPointStop(m_measurement);
 
   report();
@@ -105,10 +105,10 @@ void PerfMonMTSvc::startAud( const std::string& stepName,
   if( compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc" ){
     startSnapshotAud(stepName, compName);
 
-    if( isLoop() &&  m_doEventLoopMonitoring == true)
-      startCompAud_MT(stepName, compName);
-    else
+    if( !isLoop() )
       startCompAud_serial(stepName, compName);
+    else if( m_doEventLoopMonitoring == true )
+      startCompAud_MT(stepName, compName);
      
   }
 }
@@ -122,10 +122,10 @@ void PerfMonMTSvc::stopAud( const std::string& stepName,
   if( compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc" ){
     stopSnapshotAud(stepName, compName);
 
-    if( isLoop() &&  m_doEventLoopMonitoring == true)
-      stopCompAud_MT(stepName, compName);
-    else
-      stopCompAud_serial(stepName, compName);
+    if( !isLoop() )
+      startCompAud_serial(stepName, compName);
+    else if( m_doEventLoopMonitoring == true )
+      startCompAud_MT(stepName, compName);
   }
 }
 
@@ -134,13 +134,13 @@ void PerfMonMTSvc::startSnapshotAud( const std::string& stepName,
 
   // Last thing to be called before the event loop begins
   if( compName == "AthRegSeq" && stepName == "Start") {
-    m_measurement.capture_compLevel_serial();
+    m_measurement.capture_snapshot();
     m_snapshotData[1].addPointStart(m_measurement);
   }
 
   // Last thing to be called before finalize step begins
   if ( compName == "AthMasterSeq" && stepName == "Finalize"){
-    m_measurement.capture_compLevel_serial();
+    m_measurement.capture_snapshot();
     m_snapshotData[2].addPointStart(m_measurement);
   }
 
@@ -151,14 +151,14 @@ void PerfMonMTSvc::stopSnapshotAud( const std::string& stepName,
 
   // First thing to be called after the initialize step ends
   if ( compName == "AthMasterSeq" && stepName == "Initialize"){
-    m_measurement.capture_compLevel_serial();
+    m_measurement.capture_snapshot();
     m_snapshotData[0].addPointStop(m_measurement);
   }
 
 
   // First thing to be called after the event loop ends
   if( compName == "AthMasterSeq" && stepName == "Stop") {
-    m_measurement.capture_compLevel_serial();
+    m_measurement.capture_snapshot();
     m_snapshotData[1].addPointStop(m_measurement);
   }
 
@@ -377,8 +377,8 @@ void PerfMonMTSvc::report2Log_EventLevel(){
   ATH_MSG_INFO("=======================================================================================");
 
   ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%")    % "Event" \
-                                                                                              % "CPU [ms]" \
-                                                                                              % "Wall [ms]" \
+                                                                                              % "CPU [s]" \
+                                                                                              % "Wall [s]" \
                                                                                               % "Vmem [kB]"   \
                                                                                               % "Rss [kB]"    \
                                                                                               % "Pss [kB]"    \
@@ -386,8 +386,8 @@ void PerfMonMTSvc::report2Log_EventLevel(){
 
   for(const auto& it : m_eventLevelData.getEventLevelData()){
     ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%")    % it.first \
-                                                                                              % it.second.cpu_time \
-                                                                                              % it.second.wall_time \
+                                                                                              % (it.second.cpu_time * 0.001) \
+                                                                                              % (it.second.wall_time * 0.001) \
                                                                                               % it.second.mem_stats.at("vmem")   \
                                                                                               % it.second.mem_stats.at("rss")    \
                                                                                               % it.second.mem_stats.at("pss")    \

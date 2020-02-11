@@ -111,13 +111,6 @@ try:
     include ("RecExCommon/RecExCommon_topOptions.py")
     
     ###### put any user finetuning after this line #####
-    ## suppress annoying WARNING (clogging up log file)
-    topSequence.BeamBackgroundFiller.Enable        = False
-    topSequence.BackgroundWordFiller.Enable        = False
-    # ToolSvc.LArCellDeadOTXCorr.OutputLevel         = ERROR
-
-    ## stuff for Thijs
-    #MuonReFitTrack.DummyMode = False
 
     #setup TTree registration Service
     from GaudiSvc.GaudiSvcConf import THistSvc

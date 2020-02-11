@@ -61,7 +61,7 @@ thinningTools.append(SUSY6TPThinningTool)
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY6MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY6MuonTPThinningTool",
-                                                                         ThinningService         = SUSY6ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY6MuonTPThinningTool
@@ -70,7 +70,7 @@ thinningTools.append(SUSY6MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    	= "SUSY6ElectronTPThinningTool",
-                                                                                 ThinningService        = SUSY6ThinningHelper.ThinningSvc(),
+                                                                                 StreamName              = streamName,
                                                                                  SGKey             	= "Electrons",
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += SUSY6ElectronTPThinningTool

@@ -19,6 +19,9 @@ TrigConf::L1Item::~L1Item()
 void
 TrigConf::L1Item::update()
 {
+   if(! isInitialized() || empty() ) {
+      return;
+   }
    for(auto & bg : getList("bunchgroups") ) {
       m_bunchgroups.push_back(bg.getValue<std::string>());
    }

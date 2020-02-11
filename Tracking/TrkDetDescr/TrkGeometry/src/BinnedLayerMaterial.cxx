@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 
 Trk::BinnedLayerMaterial::BinnedLayerMaterial() :
   Trk::LayerMaterialProperties(),
-  m_binUtility(0)
+  m_binUtility(nullptr)
 {}
 
 Trk::BinnedLayerMaterial::BinnedLayerMaterial(Trk::BinUtility& binutility) :
@@ -25,7 +25,7 @@ Trk::BinnedLayerMaterial::BinnedLayerMaterial(Trk::BinUtility& binutility) :
      Trk::MaterialPropertiesVector matVec;
      matVec.reserve(binutility.max(0)+1);
      for (unsigned int ibin = 0; ibin < (unsigned int)binutility.max(0)+1; ++ibin)
-         matVec.push_back(0);
+         matVec.push_back(nullptr);
     m_fullMaterial.push_back(matVec);
  }
 }
@@ -108,7 +108,7 @@ void Trk::BinnedLayerMaterial::fillMaterial(const Trk::MaterialPropertiesMatrix&
       matVector.reserve(m_binUtility->max(0)+1);
       // reassign
       for (auto& matIter : matMatrixIter)
-            matVector.push_back( matIter ? matIter->clone() : 0);
+            matVector.push_back( matIter ? matIter->clone() : nullptr);
       m_fullMaterial.push_back(matVector);
     }
 }
@@ -137,7 +137,7 @@ Trk::BinnedLayerMaterial& Trk::BinnedLayerMaterial::operator*=(double scale)
 
 const Trk::MaterialProperties* Trk::BinnedLayerMaterial::fullMaterial(const Amg::Vector3D& gp) const
 { 
-  if (!m_fullMaterial.size() || !m_binUtility ) return 0;
+  if (m_fullMaterial.empty() || !m_binUtility ) return nullptr;
   // the first bin
   size_t ibin1 = m_binUtility->bin(gp,0);
   size_t ibin2 = m_binUtility->max(1) ? m_binUtility->bin(gp,1) : 0;

@@ -75,13 +75,13 @@ if IsMonteCarlo:
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-import InDetRecExample.TRTCommon
+import InDetRecExample.TrackingCommon
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
                                                           IsSimulation = False,
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
-                                                          TRT_ToT_dEdx = InDetRecExample.TRTCommon.getTRT_ToT_dEdxTool() if idDxAOD_doTrt else "",
+                                                          TRT_ToT_dEdx = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
                                                           StoreSCT   = idDxAOD_doSct,
                                                           StorePixel = idDxAOD_doPix,
                                                           OutputLevel =INFO)

@@ -11,6 +11,21 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from AthenaCommon.GlobalFlags import globalflags
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_STDM2Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_STDM2Stream )
+STDM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+STDM2Stream.AcceptAlgs(["STDM2Kernel"])
+
+# Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="STDM2ThinningSvc", outStreams=[evtStream] )
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 photonRequirements = '(DFCommonPhotons_et >= 15*GeV) && (abs(DFCommonPhotons_eta) < 2.5)'# && (Photons.Loose)'
@@ -58,48 +73,44 @@ ToolSvc += STDM2TPThinningTool
 # Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 STDM2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name            = "STDM2JetTPThinningTool",
-                                                                ThinningService         = "STDM2ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4LCTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                SelectionString = "AntiKt4LCTopoJets.pt > 15*GeV",
-                                                                ApplyAnd                = False)
+                                                                SelectionString = "AntiKt4LCTopoJets.pt > 15*GeV")
 ToolSvc += STDM2JetTPThinningTool
 
 # All Track within a cone DeltaR=0.6 around Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "STDM2ElectronTPThinningTool",
-                                                             ThinningService        = "STDM2ThinningSvc",
+                                                             StreamName              = streamName,
                                                              SGKey                  = "Electrons",
                                                              GSFTrackParticlesKey   = "GSFTrackParticles",
                                                              InDetTrackParticlesKey = "InDetTrackParticles",
                                                              SelectionString        = electronRequirements,
                                                              BestMatchOnly          = True,
-                                                             ConeSize               = 0.6,
-                                                             ApplyAnd               = False)
+                                                             ConeSize               = 0.6)
 ToolSvc += STDM2ElectronTPThinningTool
 
 # Track associated to all Electrons for ambiguity resolver tool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM2ElectronTPThinningToolAR = DerivationFramework__EgammaTrackParticleThinning(name = "STDM2ElectronTPThinningToolAR",
-                                                             ThinningService        = "STDM2ThinningSvc",
+                                                             StreamName              = streamName,
                                                              SGKey                  = "Electrons",
                                                              GSFTrackParticlesKey   = "GSFTrackParticles",
                                                              InDetTrackParticlesKey = "InDetTrackParticles",
-                                                             BestMatchOnly          = True,
-                                                             ApplyAnd               = False)
+                                                             BestMatchOnly          = True)
 ToolSvc += STDM2ElectronTPThinningToolAR
 
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM2PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "STDM2PhotonTPThinningTool",
-                                                           ThinningService        = "STDM2ThinningSvc",
+                                                           StreamName              = streamName,
                                                            SGKey                  = "Photons",
                                                            GSFTrackParticlesKey   = "GSFTrackParticles",
                                                            InDetTrackParticlesKey = "InDetTrackParticles",
                                                            SelectionString        = photonRequirements,
                                                            BestMatchOnly          = True,
-                                                           ConeSize               = 0.6,
-                                                           ApplyAnd               = False)
+                                                           ConeSize               = 0.6)
 ToolSvc += STDM2PhotonTPThinningTool
 
 #====================================================================
@@ -133,21 +144,6 @@ if globalflags.DataSource()=='geant4':
 # ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM2Sequence
 
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_STDM2Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_STDM2Stream )
-STDM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-STDM2Stream.AcceptAlgs(["STDM2Kernel"])
-
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="STDM2ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

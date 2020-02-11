@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TEvent.cxx 796983 2017-02-14 05:09:12Z ssnyder $
 
 // System include(s):
 #include <cassert>
@@ -24,9 +22,7 @@
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthContainers/AuxTypeRegistry.h"
-#define private public
-#   include "AthContainers/AuxVectorBase.h"
-#undef private
+#include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 #ifndef XAOD_STANDALONE
@@ -60,6 +56,8 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/tools/TChainStateTracker.h"
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
+
+#include "CxxUtils/no_sanitize_undefined.h"
 
 namespace {
 
@@ -98,6 +96,20 @@ namespace {
 
       return;
    }
+
+   class ForceTrackIndices
+     : public SG::AuxVectorBase
+   {
+   public:
+     using SG::AuxVectorBase::initAuxVectorBase;
+   };
+
+   void forceTrackIndices NO_SANITIZE_UNDEFINED (SG::AuxVectorBase& vec)
+   {
+     ForceTrackIndices& xvec = static_cast<ForceTrackIndices&> (vec);
+     xvec.initAuxVectorBase<DataVector<SG::IAuxElement> > (SG::OWN_ELEMENTS, SG::ALWAYS_TRACK_INDICES);
+   }
+
 
 } // private namespace
 
@@ -2981,7 +2993,7 @@ namespace xAOD {
                     key.c_str() );
          return TReturnCode::kSuccess;
          */
-         vec->m_trackIndices = true;
+         forceTrackIndices (*vec);
       }
 
       // Check if we were successful:

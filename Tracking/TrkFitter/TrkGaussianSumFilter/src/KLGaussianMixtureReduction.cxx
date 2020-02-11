@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
@@ -16,9 +16,7 @@
 #endif
 
 void
-KLGaussianMixtureReduction::resetDistances(floatPtrRestrict distancesIn,
-                                           const int mini,
-                                           const int n) 
+GSFUtils::resetDistances(floatPtrRestrict distancesIn, const int mini, const int n)
 {
 
   float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -35,11 +33,11 @@ KLGaussianMixtureReduction::resetDistances(floatPtrRestrict distancesIn,
 }
 
 void
-KLGaussianMixtureReduction::calculateAllDistances(floatPtrRestrict qonpIn,
-                                                  floatPtrRestrict qonpCovIn,
-                                                  floatPtrRestrict qonpGIn,
-                                                  floatPtrRestrict distancesIn,
-                                                  int n) 
+GSFUtils::calculateAllDistances(floatPtrRestrict qonpIn,
+                                floatPtrRestrict qonpCovIn,
+                                floatPtrRestrict qonpGIn,
+                                floatPtrRestrict distancesIn,
+                                int n)
 {
 
   float* qonp = (float*)__builtin_assume_aligned(qonpIn, alignment);
@@ -60,18 +58,19 @@ KLGaussianMixtureReduction::calculateAllDistances(floatPtrRestrict qonpIn,
       distances[indexConst + j] =
         covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
 
-     //\log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2 \sigma_2^2} - \frac{1}{2}
+      //\log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2 \sigma_2^2} -
+      //\frac{1}{2}
     }
   }
 }
 
 int
-KLGaussianMixtureReduction::recalculateDistances(floatPtrRestrict qonpIn,
-                                                 floatPtrRestrict qonpCovIn,
-                                                 floatPtrRestrict qonpGIn,
-                                                 floatPtrRestrict distancesIn,
-                                                 int mini,
-                                                 int n) 
+GSFUtils::recalculateDistances(floatPtrRestrict qonpIn,
+                               floatPtrRestrict qonpCovIn,
+                               floatPtrRestrict qonpGIn,
+                               floatPtrRestrict distancesIn,
+                               int mini,
+                               int n)
 {
 
   float* qonp = (float*)__builtin_assume_aligned(qonpIn, alignment);
@@ -122,7 +121,7 @@ KLGaussianMixtureReduction::recalculateDistances(floatPtrRestrict qonpIn,
 }
 
 std::pair<int, int>
-KLGaussianMixtureReduction::findMinimumIndex(const floatPtrRestrict distancesIn, const int n) 
+GSFUtils::findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
 
   float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -137,7 +136,7 @@ KLGaussianMixtureReduction::findMinimumIndex(const floatPtrRestrict distancesIn,
       minDistance2 = minDistance;
       mini = i;
       minDistance = distances[i];
-    } else if (distances[i] < minDistance2){
+    } else if (distances[i] < minDistance2) {
       mini2 = i;
       minDistance2 = distances[i];
     }
@@ -145,5 +144,3 @@ KLGaussianMixtureReduction::findMinimumIndex(const floatPtrRestrict distancesIn,
 
   return std::make_pair(mini, mini2);
 }
-
-

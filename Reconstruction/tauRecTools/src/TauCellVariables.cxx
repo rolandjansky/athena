@@ -57,7 +57,7 @@ TauCellVariables::TauCellVariables(const std::string& name) :
 m_cellEthr(0.2 * GeV),
 m_stripEthr(0.2 * GeV),
 m_cellCone(0.2),
-m_doVertexCorrection(false) //FF: don't do cell correction by default
+m_doVertexCorrection(false) 
 {
     declareProperty("CellEthreshold", m_cellEthr);
     declareProperty("StripEthreshold", m_stripEthr);
@@ -83,46 +83,23 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     int numStripCell = 0;
     int numEMCell = 0;
 
-    double sumCellE = 0.;
-    double sumEMCellE = 0.;
+    double sumCellET = 0.;
+    double sumCellET01 = 0;
+    double sumCellET12 = 0.;
+    double sumStripET = 0.;
+    double sumEMCellET = 0.;
+    double sumHadCellET = 0.;
 
-    double eta = 0.;
-    double phi = 0.;
     double stripEta = 0.;
     double stripEta2 = 0.;
 
     double EMRadius = 0.;
-
-    double sumStripET = 0.;
-    double sumCellET = 0.;
-    double sumEMCellET = 0.;
-    double sumCellET12 = 0.;
-
-    double ET1Sum = 0;
-
-    double EMET1Sum = 0;
-    double EMET4Sum = 0;
-
     double HadRadius = 0.;
-    double sumHadCellET = 0.;
 
-    double cellEta, cellPhi, cellET, cellEnergy;
-    
     std::vector<double> vCellRingEnergy(8,0.); //size=8, init with 0.
 
-    ATH_MSG_VERBOSE("get cluster position, use for cell loop");
+    ATH_MSG_VERBOSE("cluster position is eta=" << pTau.eta() << " phi=" << pTau.phi() );
 
-    ATH_MSG_VERBOSE("position is eta=" << pTau.eta() << " phi=" << pTau.phi() );
-
-    //use tau vertex to correct cell position
-    bool applyVertexCorrection = false;
-    if (m_doVertexCorrection && pTau.vertexLink()) {
-       applyVertexCorrection = true;
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // loop over all cells of the tau (placed there by the TauSeedBuilder)
-  
     const xAOD::Jet* pJetSeed = (*pTau.jetLink());
     if (!pJetSeed) {
       ATH_MSG_WARNING("tau does not have jet seed for cell variable calculation");
@@ -133,9 +110,10 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     xAOD::JetConstituentVector::const_iterator cItrE = pJetSeed->getConstituents().end();
 
     unsigned int num_cells = 0;
-
     std::bitset<200000> cellSeen;
 
+    // loop over all cells of the tau 
+    double cellEta, cellPhi, cellET, cellEnergy;
     for (; cItr != cItrE; ++cItr) {
       
       const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
@@ -143,32 +121,18 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
       CaloClusterCellLink::const_iterator firstcell = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator lastcell = cluster->getCellLinks()->end();
       
-
-      // ATH_MSG_VERBOSE( "in loop over clusters and cells : cluster  phi= " << cluster->phi() << ", eta= " << cluster->eta()<< ", energy= " << cluster->e() << ", et= " <<cluster->pt() );
+      const CaloCell *cell;
+      double dR;
     
-    const CaloCell *cell;
-    double dR;
-    
-    //loop over cells and calculate the variables
-    for (; firstcell != lastcell; ++firstcell) {
+      //loop over cells and calculate the variables
+      for (; firstcell != lastcell; ++firstcell) {
         cell = *firstcell;
+        if (cellSeen.test(cell->caloDDE()->calo_hash())) continue;
+        else cellSeen.set(cell->caloDDE()->calo_hash());
 
-
-	if (cellSeen.test(cell->caloDDE()->calo_hash())) {
-	  //already encountered this cell
-	  continue;
-	}
-	else {
-	  //New cell
-	  cellSeen.set(cell->caloDDE()->calo_hash());
-	}
         ++num_cells;
-
-	// ATH_MSG_VERBOSE( "in loop over clusters and cells : phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
-
-        // correct cell for tau vertex
-        if (applyVertexCorrection) {
-          //ATH_MSG_INFO( "before cell correction: phi= " << cell->phi() << ", eta= " << cell->eta()<< ", energy= " << cell->energy() << ", et= " <<cell->et() );
+        //use tau vertex to correct cell position
+        if (m_doVertexCorrection && pTau.vertexLink()) {
           CaloVertexedCell vxCell (*cell, (*pTau.vertexLink())->position());
           cellPhi = vxCell.phi();
           cellEta = vxCell.eta();
@@ -185,41 +149,17 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
         CaloSampling::CaloSample calo = cell->caloDDE()->getSampling();
 
         // Use cells those are in DR < m_cellCone of eta,phi of tau intermediate axis:
-	dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),cellEta,cellPhi);
+	    dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),cellEta,cellPhi);
         
         if (dR < m_cellCone) {
-            // Global sums
-            sumCellE += cellEnergy;
-
-            eta += cellEnergy * cellEta;
-
-            // Must handle phi wrapping! Compute relative to cluster phi:
-            double dphicc = cellPhi - pTau.phi();
-            if (dphicc > M_PI) dphicc = dphicc - 2 * M_PI;
-            if (dphicc < -M_PI) dphicc = dphicc + 2 * M_PI;
-            
-            phi += cellEnergy*dphicc;
-
             // If cell is an EM cell, include in sum for EM radius and for
             // total EM (e,px,py,pz)
             // Nov 2000: Only include first 2 layers in EM
-
-            if (dR < 0.1) ET1Sum += cellET;
-
-            if ((calo == CaloSampling::PreSamplerB) ||
-                (calo == CaloSampling::PreSamplerE) ||
-
-                (calo == CaloSampling::EMB1) ||
-                (calo == CaloSampling::EME1) ||
-
-                (calo == CaloSampling::EMB2) ||
-                (calo == CaloSampling::EME2) ||
-
-                (calo == CaloSampling::EMB3) ||
-                (calo == CaloSampling::EME3)) {
-                if (dR < 0.1) EMET1Sum += cellET;
-                if (dR < m_cellCone) EMET4Sum += cellET;
-            }
+    
+            sumCellET += cellET;
+        
+            if (dR < 0.1) sumCellET01 += cellET;
+            if (dR > 0.1 && dR < 0.2) sumCellET12 += cellET;
 
             if ((calo == CaloSampling::PreSamplerB) ||
                 (calo == CaloSampling::PreSamplerE) ||
@@ -229,8 +169,6 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
                 (calo == CaloSampling::EMB2) ||
                 (calo == CaloSampling::EME2)) {
-
-                sumEMCellE += cellEnergy;
 
                 // If cell is a strip cell, sum for stripET calculation:
                 if (((calo == CaloSampling::EMB1) ||
@@ -251,15 +189,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
                 HadRadius += dR*cellET;
                 sumHadCellET += cellET;
             }
-
-            //  Sum cells in 0.1 < DR < 0.2 for Econe calculation
-            sumCellET += cellET;
-            if (dR > 0.1 && dR < 0.2) sumCellET12 += cellET;
-
         }// end of dR <  m_cellCone
-        else {
-            // nothing
-        }
 
         // vCellRingEnergy[0] is a dummy value
         if (dR < 0.05) vCellRingEnergy[1] += cellET;
@@ -269,28 +199,14 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
         if (dR >= 0.125 && dR < 0.15) vCellRingEnergy[5] += cellET;
         if (dR >= 0.15 && dR < 0.2) vCellRingEnergy[6] += cellET;
         if (dR >= 0.2 && dR < 0.4) vCellRingEnergy[7] += cellET;
-
-    } // end of loop over CaloCells
-
+      
+      } // end of loop over CaloCells
+    
     }// end of loop over seed jet constituents
 
     ATH_MSG_DEBUG(num_cells << " cells in seed");
 
-    //////////////////////////////////////////////////////////////////////////
-    // save variables
-    // keep this here until we know nobody complains that these were removed together with all extra details variables
-    // pExtraDetails->setSeedCalo_sumCellEnergy(sumCellE);
-    // pExtraDetails->setSeedCalo_sumEMCellEnergy(sumEMCellE);
-    // pExtraDetails->setSeedCalo_nEMCell(numEMCell);
-    // pExtraDetails->setSeedCalo_stripEt(sumStripET);
-    //
-
     pTau.setDetail(xAOD::TauJetParameters::nStrip , numStripCell );
-
-    // if (fabs(EMET4Sum) > 0.000001)
-    //     pExtraDetails->setSeedCalo_EMCentFrac(EMET1Sum / EMET4Sum);
-    // else
-    //     pExtraDetails->setSeedCalo_EMCentFrac(0);
 
     if (fabs(sumStripET) > 0.000001) {
         stripEta = stripEta / sumStripET;
@@ -319,7 +235,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     pTau.setDetail(xAOD::TauJetParameters::etHadAtEMScale , static_cast<float>( sumHadCellET ) );
     
     if (fabs(sumCellET) > 0.000001) {
-      pTau.setDetail(xAOD::TauJetParameters::centFrac , static_cast<float>( ET1Sum / sumCellET ) );
+      pTau.setDetail(xAOD::TauJetParameters::centFrac , static_cast<float>( sumCellET01 / sumCellET ) );
       pTau.setDetail(xAOD::TauJetParameters::isolFrac , static_cast<float>( sumCellET12 / sumCellET ) );
     } else {
       pTau.setDetail(xAOD::TauJetParameters::centFrac , static_cast<float>( 0.0 ) );
@@ -327,25 +243,15 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     }
 
     //save cell ring energies
-
     pTau.setDetail(xAOD::TauJetParameters::cellBasedEnergyRing1 , static_cast<float>( vCellRingEnergy[1] ) );
-
     pTau.setDetail(xAOD::TauJetParameters::cellBasedEnergyRing2 , static_cast<float>( vCellRingEnergy[2] ) );
-
     pTau.setDetail(xAOD::TauJetParameters::cellBasedEnergyRing3 , static_cast<float>( vCellRingEnergy[3] ) );
-
     pTau.setDetail(xAOD::TauJetParameters::cellBasedEnergyRing4 , static_cast<float>( vCellRingEnergy[4] ) );
-
     pTau.setDetail(xAOD::TauJetParameters::cellBasedEnergyRing5 , static_cast<float>( vCellRingEnergy[5] ) );
-
     pTau.setDetail(xAOD::TauJetParameters::cellBasedEnergyRing6 , static_cast<float>( vCellRingEnergy[6] ) );
-
     pTau.setDetail(xAOD::TauJetParameters::cellBasedEnergyRing7 , static_cast<float>( vCellRingEnergy[7] ) );
 
     return StatusCode::SUCCESS;
 }
-
-
-
 
 #endif

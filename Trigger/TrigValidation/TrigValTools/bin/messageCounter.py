@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -16,6 +16,7 @@ import logging
 import argparse
 import json
 from collections import OrderedDict
+import six
 
 
 default_ignore_patterns = [
@@ -42,7 +43,7 @@ def get_parser():
                         action='append',
                         default=[],
                         help='Add an ignore pattern to the default ones.' +
-                             'The option can be specified multiple times. Defaults are: {:s}'.format(default_ignore_patterns))
+                             'The option can be specified multiple times. Defaults are: {:s}'.format(str(default_ignore_patterns)))
     parser.add_argument('-p', '--printMessages',
                         action='store_true',
                         help='Print the messages found in analysed files')
@@ -100,11 +101,11 @@ def make_summary(result):
 
 def print_result(summary, full_result, print_messages=False):
     summary_str = 'Found the following number of messages:\n'
-    for p, n in summary.iteritems():
+    for p, n in six.iteritems(summary):
         summary_str += '{:8d} {:s} messages\n'.format(n, p)
     logging.info(summary_str)
     if print_messages:
-        for p, lines in full_result.iteritems():
+        for p, lines in six.iteritems(full_result):
             logging.info('##### The following %s messages were found #####', p)
             for line in lines:
                 print(line, end='')  # noqa: ATL901
@@ -132,7 +133,8 @@ def main():
             logging.error('Cannot open file %s, skipping', fname)
             continue
         logging.info('Analysing file %s', fname)
-        with open(fname) as f:
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        with open(fname, **encargs) as f:
             messages = extract_messages(f, start, end, ignore)
         summary = make_summary(messages)
         print_result(summary, messages, args.printMessages)

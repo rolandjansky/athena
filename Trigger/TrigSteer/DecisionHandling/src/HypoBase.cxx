@@ -252,7 +252,7 @@ StatusCode HypoBase::printDebugInformation(SG::WriteHandle<DecisionContainer>& o
       decisionIDs( d, objDecisions );
       msg() << "Number of positive decisions for Decision object #" << count++ << ": " << objDecisions.size() << endmsg;
       for (const TrigCompositeUtils::DecisionID id : objDecisions ) {
-        msg() << " --- Passes chain: " << HLT::Identifier( id ) << endmsg;
+        msg() << " --- Passes: " << HLT::Identifier( id ) << endmsg;
       }  
     }
   }

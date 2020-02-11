@@ -17,6 +17,19 @@ if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkTau.TauTruthCommon import *
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_JETM6Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_JETM6Stream )
+JETM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+JETM6Stream.AcceptAlgs(["JETM6MainKernel"])
+# for thinning
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="JETM6ThinningSvc", outStreams=[evtStream] )
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
@@ -65,43 +78,36 @@ ToolSvc += JETM6OfflineSkimmingTool
 thinningTools = []
 
 # thinning_expression = "InDetTrackParticles.pt > 0.5*GeV"
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# JETM6TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "JETM6ThinningTool",
-#                                                                   ThinningService         = "JETM6ThinningSvc",
-#                                                                   SelectionString         = thinning_expression,
-#                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 # JETM6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
-#                                                                         ThinningService         = "JETM6ThinningSvc",
+#                                                                         StreamName              = streamName,
 #                                                                         JetKey                  = "AntiKt4EMTopoJets",
 #                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                         ApplyAnd                = True)
+#                                                                         TrackSelectionString    = thinning_expression)
 # ToolSvc += JETM6JetTPThinningTool
 # thinningTools.append(JETM6JetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 JETM6Akt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
-                                                                        ThinningService         = "JETM6ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt4EMTopoJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6Akt4JetTPThinningTool
 thinningTools.append(JETM6Akt4JetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 JETM6Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetTPThinningTool",
-                                                                        ThinningService         = "JETM6ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt10LCTopoJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6Akt10JetTPThinningTool
 thinningTools.append(JETM6Akt10JetTPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 JETM6MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name     = "JETM6MuonTPThinningTool",
-                                                                         ThinningService         = "JETM6ThinningSvc",
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6MuonTPThinningTool
@@ -110,7 +116,7 @@ thinningTools.append(JETM6MuonTPThinningTool)
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM6ElectronTPThinningTool",
-                                                                               ThinningService         = "JETM6ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6ElectronTPThinningTool
@@ -118,7 +124,7 @@ thinningTools.append(JETM6ElectronTPThinningTool)
 
 # TrackParticles associated with photons
 JETM6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM6PhotonTPThinningTool",
-                                                                             ThinningService         = "JETM6ThinningSvc",
+                                                                             StreamName              = streamName,
                                                                              SGKey                   = "Photons",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6PhotonTPThinningTool
@@ -127,7 +133,7 @@ thinningTools.append(JETM6PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 JETM6TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM6TauTPThinningTool",
-                                                                        ThinningService = "JETM6ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6TauTPThinningTool
@@ -204,19 +210,6 @@ OutputJets["JETM6"] = []
 addDefaultTrimmedJets(jetm6Seq,"JETM6")
 
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6")
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_JETM6Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_JETM6Stream )
-JETM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-JETM6Stream.AcceptAlgs(["JETM6MainKernel"])
-# for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="JETM6ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

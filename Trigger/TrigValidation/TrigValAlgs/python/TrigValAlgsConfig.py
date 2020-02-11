@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigValAlgs.TrigValAlgsConf import TrigCountDumper
 from TrigValAlgs.TrigValAlgsConf import TrigDecisionChecker
 from TrigValAlgs.TrigValAlgsConf import TrigEDMChecker
 from TrigValAlgs.TrigValAlgsConf import TrigSlimValAlg
 from TrigValAlgs.TrigValAlgsConf import TrigEDMAuxChecker
+import six
 # TrigCountDumper configurable
 # Run with TrigCountDumper configured from AOD header
 class TrigCountDumper ( TrigCountDumper ):
@@ -129,7 +130,7 @@ def getEDMAuxList():
     from TrigEDMConfig.TriggerEDM import getTriggerObjList,TriggerHLTList
     tlist=getTriggerObjList('AODFULL',[TriggerHLTList])
     objlist=[]
-    for t,kset in tlist.iteritems():
+    for t,kset in six.iteritems(tlist):
         for k in kset:
              if 'Aux' in k: 
                  s = k.split('-',1)[0]

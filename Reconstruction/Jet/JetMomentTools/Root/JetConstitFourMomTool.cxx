@@ -21,7 +21,7 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
     m_altColls_keys {}  // calls default constructor 
 {
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   declareInterface<IJetModifier>(this);
 #endif
   // What cluster signal state to use for the jet constituents

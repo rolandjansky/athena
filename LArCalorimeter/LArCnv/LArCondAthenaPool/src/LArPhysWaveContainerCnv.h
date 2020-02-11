@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -12,11 +12,7 @@
 #define LArPhysWaveContainerCnv_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCoolMultChanCnv.h"
-#define private public
-#define protected public
 #include "LArRawConditions/LArPhysWaveContainer.h"
-#undef private
-#undef protected
 #include "LArRawConditions/LArPhysWave.h"
 #include "LArCondTPCnv/LArPhysWaveSubsetCnv_p1.h"
 

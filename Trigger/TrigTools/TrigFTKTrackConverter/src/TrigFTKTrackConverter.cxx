@@ -31,7 +31,7 @@
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
 
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h" 
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h" 
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h" 

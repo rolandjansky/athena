@@ -23,7 +23,7 @@ import imp
 try:
     imp.find_module('TrigCostD3PDMaker')
 except:
-    print 'CostMonitoring packages not available, setting  enableCostMonitoring=False'
+    printfunc ('CostMonitoring packages not available, setting  enableCostMonitoring=False')
     enableCostMonitoring=False
 
 # flags for RecExCommon
@@ -56,7 +56,7 @@ TriggerFlags.readLVL1configFromXML=False
 if  ('menu' in dir()):
     TriggerFlags.triggerMenuSetup=menu 
 else: 
-    print 'No MENU was set - this is required when using this JO! -  WARNING  falling back to TriggerFlags standard menu'
+    printfunc ('No MENU was set - this is required when using this JO! -  WARNING  falling back to TriggerFlags standard menu')
 
 TriggerFlags.doHLT=True
 #TriggerFlags.doL1Topo=True 
@@ -200,7 +200,7 @@ if 'sliceName' in dir() and 'minbias' in sliceName and hasattr(topSequence, "LVL
 #
 #import AthenaCommon.Configurable as Configurable
 #Configurable.log.setLevel( INFO )
-#print topSequence.getChildren()
+#printfunc (topSequence.getChildren())
 
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out

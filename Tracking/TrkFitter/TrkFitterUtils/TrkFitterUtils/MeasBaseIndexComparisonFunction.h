@@ -26,21 +26,19 @@ namespace Trk {
 
   typedef std::pair<const Trk::MeasurementBase*, int> MeasBaseIndex;
 
-  /** @brief class inheriting from std::binary_function to provide
-   a comparison function, or relational definition, for sorting
-   MeasurementBase objects in pair with an index.
-
-   This index can be used to keep a link to the original position index
-   e.g. on a track. As with the objects in TrkEventUtils, the ordering
-   can be made with respect to a point, direction or straight
-   line vector.
-
-   @author Wolfgang.Liebig <http://consult.cern.ch/xwho/people/54608>
-
+  /**
+   * @brief class provides a comparison function, or relational definition,
+   * for sorting MeasurementBase objects in pair with an index.
+   *
+   * This index can be used to keep a link to the original position index
+   * e.g. on a track. As with the objects in TrkEventUtils, the ordering
+   * can be made with respect to a point, direction or straight
+   * line vector.
+   *
+   * @author Wolfgang.Liebig <http://consult.cern.ch/xwho/people/54608>
+   *
    */
-  class MeasBaseIndexComparisonFunction 
-    : public std::binary_function<MeasBaseIndex,
-                                  MeasBaseIndex, bool> {
+  class MeasBaseIndexComparisonFunction {
   public:
 
     //! Default Constructor, default will be sorting towards radius of 0

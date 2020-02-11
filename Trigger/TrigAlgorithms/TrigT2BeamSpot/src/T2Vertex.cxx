@@ -20,7 +20,6 @@
 #include <cmath>
 using Gaudi::Units::GeV;
 using std::unary_function;
-using std::binary_function;
 using std::accumulate;
 
 
@@ -48,7 +47,7 @@ namespace PESA
   }
 
   template <class T>
-  struct TrkSumOf : public binary_function< double, Trk::Track, double >
+  struct TrkSumOf 
   {
     double operator()( double x, const Trk::Track* track ) { return x + T()( track ); }
   };

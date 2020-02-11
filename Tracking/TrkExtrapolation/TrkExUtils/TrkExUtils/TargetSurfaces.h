@@ -123,14 +123,14 @@ namespace Trk {
       ~TargetSurfaces()= default;
 
       /** Extract surfaces for charged propagation, step into new frame volume */
-      Trk::ExtrapolationCode  setOnInput(const Trk::ExCellCharged&, const Trk::Surface* sf, BoundaryCheck bc) ;
+      Trk::ExtrapolationCode  setOnInput(const Trk::ExCellCharged&, const Trk::Surface* sf, const BoundaryCheck& bc) ;
       
       /** Extract surfaces for charged propagation, step into new frame volume */
       Trk::ExtrapolationCode  setOnInput(const Amg::Vector3D& position, const Amg::Vector3D& direction,
 					 const Trk::TrackingVolume*, const Trk::Surface* sf, const BoundaryCheck& bc) ;
 
       /** Ordered intersections for neutral transport, step into new frame volume */
-      TargetSurfaceVector  orderedIntersections(const Trk::ExCellNeutral&, const Trk::Surface* sf, BoundaryCheck bc);
+      TargetSurfaceVector  orderedIntersections(const Trk::ExCellNeutral&, const Trk::Surface* sf, const BoundaryCheck& bc);
       
       /** Ordered intersections for neutral transport, step into new frame volume */
       TargetSurfaceVector  orderedIntersections(const Amg::Vector3D& position, const Amg::Vector3D& direction,

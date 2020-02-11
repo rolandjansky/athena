@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -36,7 +36,6 @@
 //::::::::::::::::::
 
 // this
-// #include "MuonCalibStandAloneBase/NtupleCalibrationTool.h"
 #include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 class RegionSelectionSvc;
 class HistogramManager;
@@ -48,7 +47,7 @@ class TH1F;
 class TH1I;
 
 namespace Muon {
-  class MuonIdHelperTool;
+  class IMuonIdHelperSvc;
 }
 
 namespace MuonGM{
@@ -78,11 +77,8 @@ class MdtDqaTubeEfficiency {
   // Methods //
 	
   /** tool initialize */
-  StatusCode initialize(const Muon::MuonIdHelperTool*, const MuonGM::MuonDetectorManager*, const MuonCalib::IIdToFixedIdTool *,
+  StatusCode initialize(const Muon::IMuonIdHelperSvc*, const MuonGM::MuonDetectorManager*, const MuonCalib::IIdToFixedIdTool *,
 			RegionSelectionSvc *, MdtCalibInputSvc *,  HistogramManager *);
-  
-  /** tool finalize */
-  StatusCode finalize();
 	
   StatusCode handleEvent(const MuonCalibEvent &event, int evnt_nr, const std::vector<MuonCalibSegment *> &segments, unsigned int position);
   ///< analysis of the given segment of
@@ -107,7 +103,7 @@ class MdtDqaTubeEfficiency {
   } ;
 
  private:
-  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
+  const Muon::IMuonIdHelperSvc* m_idHelper;
   const MuonGM::MuonDetectorManager *m_detMgr;
   const MuonCalib::IIdToFixedIdTool *m_id_tool;
   // pointer to region selection service
@@ -117,11 +113,6 @@ class MdtDqaTubeEfficiency {
   HistogramManager *m_histoManager ;
   std::string m_chamberAthenaName;
   std::string m_chamberHardwareName;
-
-  // ROOT file and analysis ntuples/trees //
-  //TFile   *m_tfile;       // ROOT file
-  //TFile   *m_tfile_debug; // ROOT file for debug purposes    
-  //TNtuple *m_hit_ntuple;  // hit ntuple
       
   std::string m_file_name; // root file name  
   float m_nsigma;          // efficiency at nsigma*resol(r)
@@ -131,41 +122,13 @@ class MdtDqaTubeEfficiency {
   bool  m_GTFitON;     	   // refit with GlobalTimeFitter the initial segment
   bool m_useNewCalibConstants; 
   bool m_useTimeCorrections;
-
-  // calibration region//
-  //const NtupleStationId	*m_cal_region;	
 	
   // line reconstruction //
   QuasianalyticLineReconstruction *m_qfitter;    
 
   // counter/numbers //
-  //int m_nb_trigger;  
-  // int m_nb_multilayers;
-  // int m_nb_layers;
-  // int m_nb_tubes;
   int m_nb_stations ;
   int m_nb_layers_tubes[1500][4] ;
-
-  // histograms //
-  //TH1F *m_h_distance;
-  //TH1I *m_h_nb_hit_tubes;
-	/*
-        std::vector< std::vector< std::vector<TH1F*> > > h_efficiency;
-	std::vector< std::vector< std::vector<TH1F*> > > h_fakerate;
-
-        std::vector< std::vector<TH1F*> > h_tube_efficiency;  
-        std::vector< std::vector<TH1F*> > h_tube_fakerate; 
-
-        std::vector< std::vector<TH1F*> > h_tube_entries_efficiency;  
-        std::vector< std::vector<TH1F*> > h_tube_entries_fakerate;
-        */ 
-  //TH1F *m_h_layer_efficiency;
-  //TH1F *m_h_layer_fakerate;
-  
-  //TH1F *m_h_chamber_efficiency;
-  //TH1F *m_h_chamber_fakerate;
-
-  //TH1F *m_h_chi2;
   
 };
 

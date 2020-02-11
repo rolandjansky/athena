@@ -72,9 +72,10 @@ generateL1TopoMenuMT.py $menu 2>&1 >> $logfiletopo
 generateL1MenuRun3.py $menu 2>&1 >> $logfilel1r3 
 
 cp -v L*.xml ${dest}
-cp -v L*.json ${dest}
+find . -maxdepth 1 -name 'L*.json' -exec cp -v {} ${dest} \;
 cp $logfilelvl1 ${dest}
 cp $logfiletopo ${dest}
+cp $logfilel1r3 ${dest}
 
 if [[ -e outputLVL1config.xml ]]; then
     cp outputLVL1config.xml ${dest}/LVL1config_${menu}_${release}.xml

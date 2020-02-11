@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -218,7 +218,7 @@ TriangleBounds::vertices() const
   std::vector<std::pair<TDD_real_t, TDD_real_t>> vertices;
   vertices.resize(3);
   for (size_t iv = 0; iv < 3; iv++)
-    vertices.push_back(std::pair<TDD_real_t, TDD_real_t>(m_boundValues[2 * iv], m_boundValues[2 * iv + 1]));
+    vertices.emplace_back(m_boundValues[2 * iv], m_boundValues[2 * iv + 1]);
   return vertices;
 }
 

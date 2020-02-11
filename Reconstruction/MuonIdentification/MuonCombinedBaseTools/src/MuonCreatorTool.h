@@ -90,7 +90,7 @@ namespace MuonCombined {
 
     void addMuGirl( xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData ) const;
 
-    void addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const;
+    void addMuGirlLowBeta( xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const;
 
     void addSegmentTag( xAOD::Muon& muon, const SegmentTag* tag ) const;
     void addCaloTag( xAOD::Muon& muon, const CaloTag* tag ) const;
@@ -164,9 +164,6 @@ namespace MuonCombined {
     /// Can enabled this for debugging - will add extra information not for production
     bool m_fillExtraELossInfo;
     
-    /// Since the Calo information can come from various sources, make sure that we don't overwrite once 'best' source added.
-    mutable bool m_haveAddedCaloInformation;
-    
     /// configure whether to use the updated extrapolated track for a combined fit or not
     bool m_useUpdatedExtrapolatedTrack;
 
@@ -201,8 +198,7 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
     ToolHandle<Trk::IParticleCaloExtensionTool>   m_caloExtTool;
     ToolHandle<Trk::ITrackParticleCreatorTool>    m_particleCreator;
-    // FIXME mutable
-    mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
     ToolHandle<Trk::IPropagator>                  m_propagator;
     ToolHandle<xAOD::IMuonDressingTool>           m_muonDressingTool;
     ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool;

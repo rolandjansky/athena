@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // for a given calorimeter layer, this class will convert detector eta,phi to Atlas eta,phi
@@ -18,15 +18,12 @@ CaloCellDetPos::CaloCellDetPos()
 
 CaloCellDetPos::~CaloCellDetPos()
 {}
+bool CaloCellDetPos::getDetPosition(const CaloDetDescrManager& mgr,
+                                    CaloCell_ID::CaloSample sam,
+                                    double etaAtlas, double phiAtlas,
+                                    double& etaDet, double& phiDet) const {
 
-bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam, double etaAtlas, 
-                                    double phiAtlas, double& etaDet, double& phiDet) const
-{
-
-  const CaloDetDescrManager* calo_mgr;
-  calo_mgr = CaloDetDescrManager::instance();
-
-  const CaloDetDescrElement* elt = calo_mgr->get_element(sam,etaAtlas,phiAtlas);
+  const CaloDetDescrElement* elt = mgr.get_element(sam,etaAtlas,phiAtlas);
   if (!elt) {
     etaDet = etaAtlas;
     phiDet = phiAtlas;
@@ -35,17 +32,15 @@ bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam, double etaAtlas
   etaDet = etaAtlas + elt->eta_raw()-elt->eta();
   phiDet = s_range.fix(phiAtlas + elt->phi_raw()-elt->phi());
   return true;
-
 }
 
-bool CaloCellDetPos::getAtlasPosition(CaloCell_ID::CaloSample sam, double etaDet, 
-                                      double phiDet, double& etaAtlas, double& phiAtlas) const
-{
+bool CaloCellDetPos::getAtlasPosition(const CaloDetDescrManager& mgr,
+                                      CaloCell_ID::CaloSample sam,
+                                      double etaDet, double phiDet,
+                                      double& etaAtlas,
+                                      double& phiAtlas) const {
 
-  const CaloDetDescrManager* calo_mgr;
-  calo_mgr = CaloDetDescrManager::instance();
-
-  const CaloDetDescrElement* elt = calo_mgr->get_element_raw(sam,etaDet,phiDet);
+  const CaloDetDescrElement* elt = mgr.get_element_raw(sam,etaDet,phiDet);
   if (!elt) {
     etaAtlas = etaDet;
     phiAtlas = phiDet;
@@ -54,5 +49,22 @@ bool CaloCellDetPos::getAtlasPosition(CaloCell_ID::CaloSample sam, double etaDet
   etaAtlas = etaDet + elt->eta()-elt->eta_raw();
   phiAtlas = s_range.fix(phiDet + elt->phi()-elt->phi_raw());
   return true;
+}
 
+bool CaloCellDetPos::getDetPosition(CaloCell_ID::CaloSample sam,
+                                    double etaAtlas, double phiAtlas,
+                                    double& etaDet, double& phiDet) const {
+  const CaloDetDescrManager* calo_mgr;
+  calo_mgr = CaloDetDescrManager::instance();
+  return getDetPosition(*calo_mgr,sam,etaAtlas,phiAtlas,etaDet,phiDet);
+}
+
+bool CaloCellDetPos::getAtlasPosition(CaloCell_ID::CaloSample sam,
+                                      double etaDet, double phiDet,
+                                      double& etaAtlas,
+                                      double& phiAtlas) const {
+
+  const CaloDetDescrManager* calo_mgr;
+  calo_mgr = CaloDetDescrManager::instance();
+  return getAtlasPosition(*calo_mgr,sam,etaDet,phiDet,etaAtlas,phiAtlas);
 }

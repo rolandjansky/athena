@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,10 +61,10 @@ namespace Trk {
       HomogeneousLayerMaterial(const HomogeneousLayerMaterial& mprop);
       
       /**Destructor*/
-      virtual ~HomogeneousLayerMaterial();
+      virtual ~HomogeneousLayerMaterial() override;
       
       /**Pseudo-Constructor clone()*/ 
-      HomogeneousLayerMaterial* clone() const override;
+      virtual HomogeneousLayerMaterial* clone() const override;
       
       /** Assignment operator */
       HomogeneousLayerMaterial& operator=(const HomogeneousLayerMaterial& lmp);
@@ -85,15 +85,15 @@ namespace Trk {
       virtual const MaterialProperties* material(size_t ib0, size_t ib1) const override;
       
       /** Return the BinUtility */
-      const BinUtility* binUtility() const  override { return 0; }
+      virtual const BinUtility* binUtility() const  override { return nullptr; }
       
       /** Update the BinUtility if necessary - passing ownership of the utility class*/
       virtual void updateBinning(BinUtility*) override { }
           
       /** Output Method for MsgStream, to be overloaded by child classes */
-      MsgStream& dump(MsgStream& sl) const override;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       /** Output Method for std::ostream, to be overloaded by child classes */
-      std::ostream& dump(std::ostream& sl) const override;      
+      virtual std::ostream& dump(std::ostream& sl) const override;      
 
     private:
       friend class ::HomogeneousLayerMaterialCnv_p1;

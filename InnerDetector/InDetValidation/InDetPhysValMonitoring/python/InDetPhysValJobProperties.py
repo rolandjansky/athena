@@ -47,7 +47,7 @@ class InDetPhysValFlagsJobProperty(JobProperty):
 class doValidateDBMTracks(InDetPhysValFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class doValidateGSFTracks(InDetPhysValFlagsJobProperty):
     statusOn     = True

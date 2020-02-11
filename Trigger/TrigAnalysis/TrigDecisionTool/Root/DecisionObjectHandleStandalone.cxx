@@ -8,9 +8,9 @@
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
 // Include for the event store type:
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 #   include "AsgTools/SgTEvent.h"
-#elif defined(ASGTOOL_ATHENA)
+#elif !defined(XAOD_STANDALONE)
 #   include "StoreGate/StoreGateSvc.h"
 #else
 #   error "Wrong environment configuration detected!"

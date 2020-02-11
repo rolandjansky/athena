@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MdtCalibValidation/MdtValidationAlg.h"
 #include "MdtCalibValidation/FixRtEnds.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 //MuonCalibStandAloneBase
-#include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
 //MuonCalibStl
@@ -28,8 +24,6 @@
 //MuonCalibMath
 #include "MuonCalibMath/SamplePoint.h"
 
-//root  (no longer needed?)
-//#include "TRandom.h"
 
 namespace MuonCalib {
 
@@ -87,20 +81,14 @@ m_lowrun(-1), m_uprun(-1), m_ComputeLimits(false), m_debug(-1), m_tube(-1), m_et
   m_result.tv_usec = 0;
 }
 
-MdtValidationAlg::~MdtValidationAlg() {
-}
-
 StatusCode MdtValidationAlg::initialize() {
-  //greet user
-  MsgStream log(msgSvc(), name());
-  log<< MSG::INFO << "Thank you for using MdtValidationAlg!" <<endmsg;
+  ATH_MSG_INFO("Thank you for using MdtValidationAlg!");
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_DetectorManagerKey.initialize());
-  ATH_CHECK( serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc) );
+  ATH_CHECK(serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc));
   m_region_ids=p_reg_sel_svc->GetStationsInRegions();
-  log<< MSG::INFO << " MdtValidationAlg::initialize() - number of selected regions: "<<m_region_ids.size()<<endmsg;
-		
+  ATH_MSG_INFO(" MdtValidationAlg::initialize() - number of selected regions: "<<m_region_ids.size());
   gettimeofday(&m_t0,NULL);
   
   m_debug=0;
@@ -112,13 +100,13 @@ StatusCode MdtValidationAlg::initialize() {
   if(m_headid<0) {
     m_headid=m_head_ops->GetLatestHeadId();
     if(m_headid<0) {
-	log<<MSG::FATAL<<"Cannot get head_id for '"<<m_sitename<<"'!"<<endmsg;
+	ATH_MSG_FATAL("Cannot get head_id for '"<<m_sitename<<"'!");
 	return StatusCode::FAILURE;
     }
   }
   m_data_connection=m_head_ops->GetDataConnection(m_headid, true, m_writer_ConnectionString, m_writer_account, m_writer_password);
   if(m_data_connection==NULL) {
-    log<<MSG::FATAL<<"Cannot get data connection!"<<endmsg;
+    ATH_MSG_FATAL("Cannot get data connection!");
     return StatusCode::FAILURE;
   }
   m_data_connection->OpenConnection();
@@ -126,16 +114,13 @@ StatusCode MdtValidationAlg::initialize() {
   m_t0_op=new CalibT0DbOperations(*m_data_connection);
   m_rt_op=new CalibRtDbOperations(*m_data_connection);
 
-  log<< MSG::INFO <<"Validating for header="<<m_headid<<"/"<<m_sitename<<endmsg;
+  ATH_MSG_INFO("Validating for header="<<m_headid<<"/"<<m_sitename);
   return StatusCode::SUCCESS;
 }
 
 StatusCode MdtValidationAlg::execute() {
   /** execute function */
-  MsgStream log(msgSvc(), name());
-  log<< MSG::INFO << " MdtValidationAlg::execute "<<endmsg;
-
-  StatusCode sc;
+  ATH_MSG_INFO(" MdtValidationAlg::execute ");
 
   m_ComputeLimits = 0;
   if (m_limitslevel) m_ComputeLimits = 1;
@@ -143,7 +128,7 @@ StatusCode MdtValidationAlg::execute() {
   //loop on all the ids in the selected calibration region
   for (std::vector<MuonCalib::NtupleStationId>::const_iterator it=m_region_ids.begin(); it!=m_region_ids.end(); it++) {
     if(m_db==NULL) {
-      log<<MSG::ERROR<< " MdtValidationAlg::execute - no DB connection defined "<<endmsg;
+      ATH_MSG_ERROR(" MdtValidationAlg::execute - no DB connection defined ");
       return StatusCode::FAILURE;
     }
     m_Histos = TFile::Open(((*it).regionId() + ".root").c_str(), "recreate");
@@ -156,15 +141,15 @@ StatusCode MdtValidationAlg::execute() {
 	
       RootFile();
 	
-      log << MSG::INFO << "Reading t0s for region " << it->regionId() <<""<< endmsg;
+      ATH_MSG_INFO("Reading t0s for region " << it->regionId() <<"");
 	  
       m_tube_chamber = m_t0_op->LoadT0Validation(*it, m_headid, m_sitename);
       if(m_tube_chamber==NULL) {
-	log<<MSG::FATAL<<"Cannot load t0s for "<<(*it).regionId()<<endmsg;
+	ATH_MSG_FATAL("Cannot load t0s for "<<(*it).regionId());
 	m_Histos->Close();
 	return StatusCode::FAILURE;
       }
-      log<<MSG::INFO<<"Validating "<<m_tube_chamber->numMultilayers() * m_tube_chamber-> numLayers() * m_tube_chamber->numTubes() <<" tubes."<<endmsg;
+      ATH_MSG_INFO("Validating "<<m_tube_chamber->numMultilayers() * m_tube_chamber-> numLayers() * m_tube_chamber->numTubes() <<" tubes.");
       // end reading t0s //
 
       NtupleStationId id(*it);
@@ -174,11 +159,9 @@ StatusCode MdtValidationAlg::execute() {
 // computed from measurements, or read from a limits file
       if(m_ComputeLimits) {
 	ComputeLimits();
-	  //	} else {
-	  //	  ReadLimitsFile();
 	  // keep default limits 
       }
-      sc=ValidateChamberT0(id);
+      ATH_CHECK(ValidateChamberT0(id));
       int success = -1;
       if (m_debug >0) SummaryReport(success);
       
@@ -188,32 +171,30 @@ StatusCode MdtValidationAlg::execute() {
     } else if (m_validationTask=="RtVal"){
 	m_minSegs = 1000;
 	m_minDAngle = 0.0;
-	sc = ValidateRegionRt(*it); 
+	ATH_CHECK(ValidateRegionRt(*it)); 
 	
     } else {
-	log<<MSG::ERROR<<" No ValidationTask selected" <<endmsg;
+	ATH_MSG_ERROR(" No ValidationTask selected");
 	return StatusCode::FAILURE;
     }
     m_Histos->Close();
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MdtValidationAlg::finalize() {
   /** finalize function */
-  MsgStream log(msgSvc(), name());
-  log<< MSG::INFO << " MdtValidationAlg::finalize "<<endmsg;
+  ATH_MSG_INFO(" MdtValidationAlg::finalize ");
 
   gettimeofday(&m_t1,NULL);
   timersub(&m_t1,&m_t0,&m_result); 
-  std::cout<<"ValidationAlg execution time= "<<m_result.tv_sec+m_result.tv_usec*0.000001<<" seconds"<<std::endl;
+  ATH_MSG_INFO("ValidationAlg execution time= "<<m_result.tv_sec+m_result.tv_usec*0.000001<<" seconds");
 
   return StatusCode::SUCCESS;
 }
  
 StatusCode MdtValidationAlg::ConnectDb() {
-  MsgStream log(msgSvc(), name()); 
-  log<<MSG::INFO<<"Connecting to "<<m_db_ConnectionString<<" "<<m_db_WorkingSchema<<endmsg;
+  ATH_MSG_INFO("Connecting to "<<m_db_ConnectionString<<" "<<m_db_WorkingSchema);
   m_db=new CalibDbConnection(m_db_ConnectionString, m_db_WorkingSchema);
   m_db->SetLogin(m_reader_account, m_reader_password);
   if(!m_db->OpenConnection()) {
@@ -242,12 +223,10 @@ bool MdtValidationAlg::RootFile(bool good_tubes) {
     httot  = new TH1F("httot", "Total Drift Length", 300, m_minTtot, m_maxTtot);
     hsummary = new TH1F("hsummary", "Summary", 50, -0.5, 49.5);
   }
-  //TH2F *hchamber = new TH2F("hchamber","Tube ValidFlagStatus",100,0.5,100.5,10,0.5,10.5);
   m_HistosList->Add(hslope) ;
   m_HistosList->Add(ht0) ;
   m_HistosList->Add(htmax) ;
   m_HistosList->Add(httot) ;
-  //m_HistosList->Add(hchamber);
   m_HistosList->Add(hsummary);
   return true;
 }
@@ -263,8 +242,6 @@ bool MdtValidationAlg::ReadLimitsFile() {
   std::string limitsfile(prefix+chambName+middle+suffix) ;
   m_limitsFile = limitsfile ;
 
-  //  for (int j=0; j<50; j++) m_summary[j]=0. ;
-
   std::ifstream LimitsFile(m_limitsFile.c_str());
 
   if (LimitsFile) {
@@ -273,40 +250,40 @@ bool MdtValidationAlg::ReadLimitsFile() {
     std::string c;
 
     while( LimitsFile >> option) {
-      std::cout << " while while .... " << std::endl ;
+      ATH_MSG_INFO(" while while .... ");
       while (strncmp(option,chComm,1)==0) {
-        std::cout << " ignore  .... " << std::endl ;
+        ATH_MSG_INFO(" ignore  .... ");
 	LimitsFile.ignore(500,'\n');
 	LimitsFile>>option;
       }
       if (strncmp(option,"SLOPE",5)==0 ) {
 	LimitsFile >> m_minSlope;
 	LimitsFile >> m_maxSlope;
-	std::cout << "Slope Limits : " <<m_minSlope << " -- " << m_maxSlope << std::endl;
+	ATH_MSG_INFO("Slope Limits : " <<m_minSlope << " -- " << m_maxSlope);
       }
       if (strncmp(option,"T0",2)==0 ) {
 	LimitsFile >> m_minT0;
 	LimitsFile >> m_maxT0;
-	std::cout << "T0 Limits : " << m_minT0 << " -- "<< m_maxT0<< std::endl;
+	ATH_MSG_INFO("T0 Limits : " << m_minT0 << " -- "<< m_maxT0);
       }
       if (strncmp(option,"TMAX",4)==0 ) {
 	LimitsFile >> m_minTmax;
 	LimitsFile >> m_maxTmax;
-	std::cout << "TMax Limits : "<< m_minTmax << " -- " << m_maxTmax << std::endl;
+	ATH_MSG_INFO("TMax Limits : "<< m_minTmax << " -- " << m_maxTmax);
       }
       if (strncmp(option,"TTOT",4)==0 ) {
 	LimitsFile >> m_minTtot;
 	LimitsFile >> m_maxTtot;
-	std::cout << "TTot Limits : "<<m_minTtot<<" -- "<< m_maxTtot<< std::endl;
+	ATH_MSG_INFO("TTot Limits : "<<m_minTtot<<" -- "<< m_maxTtot);
       }
       if (strncmp(option,"PP",2)==0 ) {
 	LimitsFile >> m_minPP;
 	LimitsFile >> m_maxPP;
-	std::cout << "Peak / Plateau Limits : "<<m_minPP<<" -- "<< m_maxPP<< std::endl;
+	ATH_MSG_INFO("Peak / Plateau Limits : "<<m_minPP<<" -- "<< m_maxPP);
       }
      } 
     LimitsFile.close();
-    std::cout << "LimitsFile closed : " << std::endl;
+    ATH_MSG_INFO("LimitsFile closed : ");
     return true;
   }
   return false;
@@ -384,21 +361,15 @@ bool MdtValidationAlg::Histos(NtupleStationId & id, const std::vector<int> & val
   }   	
      
   unsigned int count(0);
- //    	std::cout << "m_tube_chamber->numMultilayers()=" << m_tube_chamber->numMultilayers() << std::endl;
-//	std::cout << "m_tube_chamber->numLayers()" << m_tube_chamber->numLayers() << std::endl;
-//	std::cout << "m_tube_chamber->numTubes()" << m_tube_chamber->numTubes() << std::endl;
   for(unsigned int ml=0; ml<m_tube_chamber->numMultilayers(); ml++) {
     for(int ly=0; ly<static_cast<int>(m_tube_chamber->numLayers()); ly++) {
       for(int tb=0; tb<static_cast<int>(m_tube_chamber->numTubes()); tb++) {
-//		std::cout<<"ml="<<ml<<" ly="<<ly<<" tb="<<tb<<std::endl;
 //check if tube really exists	 
 	if (!exists(id, ml, ly, tb)) continue;
 	count++;
 	if(count-1 < validflags.size()) {
 	  if(validflags[count-1] != 3) continue;
 	}
-       //    MuonFixedId fixId((*tube)->tubeId());
-//       		std::cout<<"<><><><><><><>"<<std::endl;
 	ht0->Fill(m_tube_chamber->getFit(ml, ly, tb)->par[4]);
 	hslope->Fill(m_tube_chamber->getFit(ml, ly, tb)->par[6]);
 	htmax->Fill(m_tube_chamber->getFit(ml, ly, tb)->par[5]);
@@ -448,11 +419,8 @@ StatusCode MdtValidationAlg::ValidateChamberT0(NtupleStationId & id) {
 	    TH1F * hslope   = (TH1F *) m_HistosList->FindObject("hslope_gd");
 	    TH1F * htmax    = (TH1F *) m_HistosList->FindObject("htmax_gd");
 	    m_tube_chamber->getFit(ml, ly, tb)->par[4]=ht0->GetMean();
-	    //				std::cout<<"CCccCC "<<m_tube_chamber->getFit(ml, ly, tb)->par[4]<<std::endl;
 	    m_tube_chamber->getFit(ml, ly, tb)->par[5]=htmax->GetMean();
-	    //				std::cout<<"CCccCC "<<m_tube_chamber->getFit(ml, ly, tb)->par[4]<<std::endl;
 	    m_tube_chamber->getFit(ml, ly, tb)->par[6]=hslope->GetMean();
-	    //				std::cout<<"CCccCC "<<m_tube_chamber->getFit(ml, ly, tb)->par[6]<<std::endl;
 	    m_tube_chamber->getCalib(ml, ly, tb)->t0=ht0->GetMean();
 	    m_tube_chamber->getFit(ml, ly, tb)->group_by="VAL_FIX";
 	    log<<MSG::INFO<< " tube ("<<ml+1<<","<<ly+1<<","<<tb+1<<") validated with flag = "<<validflag<<endmsg;
@@ -463,9 +431,8 @@ StatusCode MdtValidationAlg::ValidateChamberT0(NtupleStationId & id) {
     }      //end loop over ML
   }
   for(std::vector<int>::iterator it=validflags.begin(); it!=validflags.end(); it++) {
-    std::cout<<*it<<" ";
+    ATH_MSG_INFO(*it<<" ");
   }
-  std::cout<<std::endl;
   if( m_writeToDbEnable ) {
     if(!m_t0_op->WriteT0Chamber(id, m_tube_chamber, validflags, m_headid, m_sitename)) {
       log<<MSG::FATAL<<" Cannot write Chamber!"<<endmsg;
@@ -629,8 +596,8 @@ int MdtValidationAlg::CheckRtParameters (std::vector<SamplePoint> & points, cons
 /////////////////////////////////////////////////////////////////////////////
 void MdtValidationAlg::SummaryReport(int success) {
 /////////////////////////////////////////////////////////////////////////////
-  std::cout << "======================Validation Summary Report =================="<<std::endl;
-  std::cout << " Success in saving Calibration data is "<<success<<" (0=fail, 1=ok), chamber is " <<m_chamber<<std::endl;
+  ATH_MSG_INFO("======================Validation Summary Report ==================");
+  ATH_MSG_INFO(" Success in saving Calibration data is "<<success<<" (0=fail, 1=ok), chamber is " <<m_chamber);
 }
 
 double  MdtValidationAlg::getLeftLimit(TH1F * histo) { 
@@ -638,22 +605,16 @@ double  MdtValidationAlg::getLeftLimit(TH1F * histo) {
   double left_integral;
   double left_limit=0;
   double  histoIntegral =  histo->Integral();
-  //double  histoMean =  histo->GetMean();
-  //double  histoRMS =  histo->GetRMS();
   int nbins = histo->GetNbinsX();
 
-  //std::cout << "  DEBUG MEAN and RMS : " << histoMean <<" "<< histoRMS << std::endl ;
   double r_limit = .03;
   if (m_limitslevel==2){r_limit = .05;}
   if (m_limitslevel==3){r_limit = .1;}
-  //std::cout <<" "<<std::endl;
-  //std::cout << "histo integral = "<<histoIntegral<<std::endl;
 
   for(ibin=1;ibin<nbins;ibin++) {
     left_integral = histo->Integral(1,ibin);
     left_limit = histo->GetBinCenter(ibin);
     double r = left_integral/histoIntegral;
-    //std::cout <<"bin,left_integral,left_limit,r= "<<ibin<<" "<<left_integral<<" "<<left_limit<<" "<<r<<std::endl;
     if(r>r_limit) break;
   }
 
@@ -665,21 +626,15 @@ double  MdtValidationAlg::getRightLimit(TH1F * histo) {
   double right_integral;
   double right_limit=0;
   double  histoIntegral =  histo->Integral();
-  //double  histoMean =  histo->GetMean();
-  //double  histoRMS =  histo->GetRMS();
   int nbins = histo->GetNbinsX();
 
-  //std::cout << "  DEBUG MEAN and RMS : " << histoMean <<" "<< histoRMS << std::endl ;
   double r_limit = .03;
   if (m_limitslevel==2){r_limit = .05;}
   if (m_limitslevel==3){r_limit = .1;}
-  //std::cout <<" "<<std::endl;
-  //std::cout << "histo integral = "<<histoIntegral<<std::endl;
   for(ibin=nbins;ibin>0;ibin--) {
     right_integral = histo->Integral(ibin,nbins);
     right_limit = histo->GetBinCenter(ibin);
     double r = right_integral/histoIntegral;
-    //std::cout <<"bin,left_integral,left_limit,r= "<<ibin<<" "<<right_integral<<" "<<right_limit<<" "<<r<<std::endl;
     if(r>r_limit) break;
   }
   return right_limit ;
@@ -695,19 +650,19 @@ inline bool MdtValidationAlg::exists(NtupleStationId &id, int ml, int ly, int tb
     return false; 
   } 
 
-  if(!id.InitializeGeometry(m_muonIdHelperTool->mdtIdHelper(), MuonDetMgr)) {
+  if(!id.InitializeGeometry(m_idHelperSvc->mdtIdHelper(), MuonDetMgr)) {
     return false;
   }
   if(ml+1>id.NMultilayers()) {
-    std::cout<<ml+1<<" "<<id.NMultilayers()<<std::endl;	
+    ATH_MSG_INFO(ml+1<<" "<<id.NMultilayers());	
     return false;
   }
   if(ly+1>id.NLayers(ml)) {
-    std::cout<<ly+1<<" "<<id.NLayers(ml+1)<<std::endl;
+    ATH_MSG_INFO(ly+1<<" "<<id.NLayers(ml+1));
     return false;
   }
   if(tb+1>id.NTubes(ml)) {
-    std::cout<<tb+1<<" "<<id.NTubes(ml+1)<<std::endl;
+    ATH_MSG_INFO(tb+1<<" "<<id.NTubes(ml+1));
     return false;
   }
   return true;

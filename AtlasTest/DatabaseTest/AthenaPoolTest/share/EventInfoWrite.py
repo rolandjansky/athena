@@ -23,6 +23,13 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
 
+import os
+rdo_fname = os.path.join(os.environ['ATLASTESTDATA'],
+                         'mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root')
+os.system ('pool_insertFileToCatalog.py ' +  rdo_fname)
+os.system ('FCregisterLFN -l top_default.pool.root -p ' + rdo_fname)
+
+
 #--------------------------------------------------------------
 # Set flags and load det descr
 #--------------------------------------------------------------

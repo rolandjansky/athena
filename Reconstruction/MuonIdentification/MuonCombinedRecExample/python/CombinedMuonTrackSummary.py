@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 #
@@ -116,23 +116,4 @@ if DetFlags.haveRIO.SCT_on():
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetSCT_ConditionsSummaryTool
-
-# check configuration
-#print ToolSvc.CombinedMuonIDHoleSearch
-#print ToolSvc.CombinedMuonIDSummaryHelper
-#print ToolSvc.CombinedMuonTrackSummary
-#import sys
-#sys.exit()
-
-#class CombinedMuonTrackSummary( Trk__TrackSummaryTool ):
-
-#  # constructor
-#  def __init__(self, name = 'CombinedMuonTrackSummary'):
-#    global ToolSvc
-#    # call the base class constructor
-#    self.trackSummary = ToolSvc.CombinedMuonTrackSummary
-
-
-
-
 

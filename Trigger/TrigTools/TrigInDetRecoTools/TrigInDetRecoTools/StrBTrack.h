@@ -285,14 +285,6 @@ class StrBPattern {
 };
 
 
-struct StrBPatternCompare : public std::binary_function<StrBPattern*, StrBPattern*, bool> {
-  bool operator()(const StrBPattern *t1, const StrBPattern *t2) const {
-    return ((*(t1->track))<(*(t2->track)));
-  };
-};
-
-
-
 /****************************************************************/
 /****************************************************************/
 /** class StrBTrk                                                **/

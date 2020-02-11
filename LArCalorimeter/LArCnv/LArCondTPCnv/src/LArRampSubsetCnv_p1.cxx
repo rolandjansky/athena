@@ -2,11 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected
 
 #include "LArCondTPCnv/LArRampSubsetCnv_p1.h"
 
@@ -15,24 +11,21 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
                                   LArRampTransType* transObj, 
                                   MsgStream & log)
 {
+    transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
+
     // Copy conditions
-    unsigned int ncorrs       = persObj->m_subset.m_corrChannels.size();
     unsigned int nfebids      = persObj->m_subset.m_febIds.size();
     unsigned int nRamps       = persObj->m_vRampSize;
     unsigned int rampIndex    = 0;
     
-    // resize subset to with then number of febids
-    transObj->m_subset.resize(nfebids);
-
     // Loop over febs
-    unsigned int febid        = 0;
     unsigned int ifebWithData = 0; // counter for febs with data
 
-    for (unsigned int i = 0; i < nfebids; ++i){
+    auto subsetIt = transObj->subsetBegin();
+    for (unsigned int i = 0; i < nfebids; ++i, ++subsetIt){
         // Set febid
-        febid = transObj->m_subset[i].first = persObj->m_subset.m_febIds[i];
-        // Fill channels with empty ramp vectors
-        transObj->m_subset[i].second.resize(NCHANNELPERFEB);
+        unsigned int febid = subsetIt->first;
+
         bool hasSparseData       = false;
         unsigned int chansSet    = 0;
         unsigned int chansOffset = 0;
@@ -76,10 +69,10 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
                 }
 
                 // This channel has ramps, resize vectors
-                transObj->m_subset[i].second[j].m_vRamp.resize(nRamps);
+                subsetIt->second[j].m_vRamp.resize(nRamps);
 
                 for (unsigned int k = 0; k < persObj->m_vRampSize; ++k){
-                    transObj->m_subset[i].second[j].m_vRamp[k] = persObj->m_vRamp[rampIndex];
+                    subsetIt->second[j].m_vRamp[k] = persObj->m_vRamp[rampIndex];
                     rampIndex++;
                 }
             }
@@ -97,15 +90,16 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
 
         }
     }
-    
+
     // Copy corrections
-    
+    unsigned int ncorrs       = persObj->m_subset.m_corrChannels.size();
+    LArRampTransType::CorrectionVec corrs;
     if (ncorrs) {
         // corrs exist - resize vector
         std::vector<float> vRamp(nRamps,0.0);
         LArRampP1  larRampP1(vRamp);
 
-        transObj->m_correctionVec.resize(ncorrs, LArRampTransType::CorrectionPair(0, larRampP1));
+        corrs.resize(ncorrs, LArRampTransType::CorrectionPair(0, larRampP1));
     }
 
     // Loop over corrections
@@ -118,19 +112,18 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
                 << endmsg;
             return;
         }
-        transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
+        corrs[i].first = persObj->m_subset.m_corrChannels[i];
         // Loop over ramps per channel
         for (unsigned int k = 0; k < persObj->m_vRampSize; ++k){
-            transObj->m_correctionVec[i].second.m_vRamp[k] = persObj->m_vRamp[rampIndex];
+            corrs[i].second.m_vRamp[k] = persObj->m_vRamp[rampIndex];
             rampIndex++;
         }
     }
+    transObj->insertCorrections (std::move (corrs));
 
     // Copy the rest
-    transObj->m_gain          = persObj->m_subset.m_gain; 
-    transObj->m_channel       = persObj->m_subset.m_channel;
-    transObj->m_groupingType  = persObj->m_subset.m_groupingType;
-
+    transObj->setChannel       (persObj->m_subset.m_channel);
+    transObj->setGroupingType  (persObj->m_subset.m_groupingType);
 }
 
 
@@ -141,7 +134,6 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
                                   LArRampPersType* persObj, 
                                   MsgStream &log) 
 {
-    
     // Copy conditions
 
     // We copy all ramps into a single vector. 
@@ -174,9 +166,8 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
     //
 
     // Get the number of channels, corrections and the size of ramp 
-    unsigned int nfebs            = transObj->m_subset.size();
     unsigned int nsubsetsNotEmpty = 0;
-    unsigned int ncorrs           = transObj->m_correctionVec.size();
+    unsigned int ncorrs           = transObj->correctionVecSize();
     unsigned int nchans           = 0;
     unsigned int nRamps           = 0;
     bool foundNRamps              = false;
@@ -184,9 +175,12 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
 
     // Find the number of ramps and check for sparse conditions,
     // e.g. MC conditions
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    const auto subsetEnd = transObj->subsetEnd();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = subsetIt->second.size();
 
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
@@ -199,12 +193,12 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
         // Loop over channels and check if this subset has sparse data
         bool subsetIsSparse = false;
         for (unsigned int j = 0; j < nfebChans; ++j) {
-            const LArRampP1& ramp = transObj->m_subset[i].second[j];
+            const LArRampP1& ramp = subsetIt->second[j];
             if (ramp.m_vRamp.size() == 0) {
                 if (!subsetIsSparse) {
                     // save febids for sparse subsets
                     subsetIsSparse = true;
-                    febsWithSparseData.push_back(transObj->m_subset[i].first);
+                    febsWithSparseData.push_back(subsetIt->first);
                 }
             }
             else {
@@ -220,7 +214,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
     if (!foundNRamps && ncorrs>0) {
         // Save the number of ramps and derivatives from first
         // correct - couldn't find it from channels
-      const LArRampP1& ramp = transObj->m_correctionVec[0].second;
+      const LArRampP1& ramp = transObj->correctionVecBegin()->second;
       nRamps = ramp.m_vRamp.size();
     }
 
@@ -243,14 +237,16 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
 
     // Copy conditions in subset
     unsigned int isparse = 0;
-    for (unsigned int i = 0; i < nfebs; ++i){
-
-        unsigned int nfebChans = transObj->m_subset[i].second.size();
+    for (auto subsetIt = transObj->subsetBegin();
+         subsetIt != subsetEnd;
+         ++subsetIt)
+    {
+        unsigned int nfebChans = subsetIt->second.size();
 
         // skip subsets without any channels
         if (nfebChans == 0) continue;
         
-        unsigned int febid = transObj->m_subset[i].first;
+        unsigned int febid = subsetIt->first;
         persObj->m_subset.m_febIds.push_back(febid);
 
 
@@ -273,7 +269,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
             if (isSparse) {
                 // subset with sparse data
 
-                if (transObj->m_subset[i].second[j].m_vRamp.size() > 0) {
+                if (subsetIt->second[j].m_vRamp.size() > 0) {
                     // store the channel number in bit map
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
@@ -296,12 +292,12 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
                 // save ramps
 	        bool tooSmall=false;
                 for (unsigned int k = 0; k < nRamps; ++k){
-		  if (k>=transObj->m_subset[i].second[j].m_vRamp.size()) {
+		  if (k>=subsetIt->second[j].m_vRamp.size()) {
 		    tooSmall=true;
 		    persObj->m_vRamp.push_back(0.0);
 		  }
 		  else
-                    persObj->m_vRamp.push_back(transObj->m_subset[i].second[j].m_vRamp[k]);
+                    persObj->m_vRamp.push_back(subsetIt->second[j].m_vRamp[k]);
                 }
 		if (tooSmall)
 		  log << MSG::ERROR << "Feb 0x" << std::hex << febid << std::dec << " channel " << j <<": Ramp object too small. Expected a polynom of degree "
@@ -318,29 +314,32 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
 
         }
     }
-    
+
     // Copy corrections
-    for (unsigned int i = 0; i < ncorrs; ++i){
+    const auto corrEnd = transObj->correctionVecEnd();
+    for (auto corrIt = transObj->correctionVecBegin();
+         corrIt != corrEnd;
+         ++corrIt)
+    {
         // Save channel id in febid vector
         bool tooSmall=false;
-        persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
+        persObj->m_subset.m_corrChannels.push_back(corrIt->first);
         // Ramps
         for (unsigned int k = 0; k < nRamps; ++k){
-	  if (k>=transObj->m_correctionVec[i].second.m_vRamp.size()) {
+	  if (k>=corrIt->second.m_vRamp.size()) {
 	    tooSmall=true;
 	    persObj->m_vRamp.push_back(0.0);
 	  }
 	  else
-            persObj->m_vRamp.push_back(transObj->m_correctionVec[i].second.m_vRamp[k]);
+            persObj->m_vRamp.push_back(corrIt->second.m_vRamp[k]);
         }
 	if (tooSmall)
-	  log << MSG::ERROR << "Correction index "<< i <<"(channel 0x" << std::hex << transObj->m_correctionVec[i].first << std::dec <<  
+	  log << MSG::ERROR << "Correction (channel 0x" << std::hex << corrIt->first << std::dec <<  
 	    "): Ramp object too small. Expected a polynom of degree " << nRamps << ". Padded with 0.0" <<  endmsg;
     }
 
     // Copy the rest
-    persObj->m_subset.m_gain          = transObj->m_gain; 
-    persObj->m_subset.m_channel       = transObj->m_channel;
-    persObj->m_subset.m_groupingType  = transObj->m_groupingType;
-    
+    persObj->m_subset.m_gain          = transObj->gain(); 
+    persObj->m_subset.m_channel       = transObj->channel();
+    persObj->m_subset.m_groupingType  = transObj->groupingType();
 }

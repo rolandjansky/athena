@@ -43,7 +43,8 @@ ConfigFlags.LAr.ROD.DoOFCPileupOptimization = True
 ConfigFlags.LAr.ROD.FirstSample = 0
 ConfigFlags.LAr.ROD.UseHighestGainAutoCorr = True
 ConfigFlags.Digitization.Pileup = False
-ConfigFlags.Digitization.DoDigiTruth = False
+ConfigFlags.Digitization.DoDigiTruth = True
+ConfigFlags.Digitization.TruthOutput = True
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
 ConfigFlags.lock()
@@ -57,7 +58,7 @@ acc.merge(writeDigitizationMetadata(ConfigFlags))
 # TODO include other modules --- to be uncommented once they are made to agree
 # Inner Detector
 # acc.merge(BCM_DigitizationCfg(ConfigFlags))
-# acc.merge(PixelDigitizationCfg(ConfigFlags))
+acc.merge(PixelDigitizationCfg(ConfigFlags))
 # acc.merge(SCT_DigitizationCfg(ConfigFlags))
 # acc.merge(TRT_DigitizationCfg(ConfigFlags))
 
@@ -76,7 +77,12 @@ acc.merge(LArTriggerDigitizationCfg(ConfigFlags))
 acc.merge(MergeRecoTimingObjCfg(ConfigFlags))
 
 # FIXME hack to match to buggy behaviour in old style configuration
-acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ['EventInfo#*']
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["EventInfo#*"]
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventInfo#EventInfo")
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList.remove("xAOD::EventAuxInfo#EventInfoAux.")
+# Calorimeter truth output from DigiOutput.py#0082
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["CaloCalibrationHitContainer#*"]
+acc.getSequence("AthOutSeq").OutputStreamRDO.ItemList += ["TileHitVector#MBTSHits"]
 
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
