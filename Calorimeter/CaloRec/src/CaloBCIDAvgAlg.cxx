@@ -47,39 +47,34 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
   SG::ReadCondHandle<ILArMinBiasAverage> minBiasHdl(m_minBiasAvgKey,ctx);
   const ILArMinBiasAverage* minBiasAvg=*minBiasHdl;
 
-
   SG::ReadCondHandle<LArMCSym> mcSymHdl(m_mcSym,ctx);
   const LArMCSym* mcSym=*mcSymHdl;
 
-  std::vector<float> luminosityPerBCID;
-  const BunchCrossingCondData* bcData=nullptr;
-  if (m_isMC) {
+  std::unordered_map<unsigned,float> avgEshift;
+  const int bcid = ei->bcid();
+
+  std::vector<float> lumiVec;
+  if (m_isMC) {//MC-case
+    lumiVec.assign(m_bcidMax,0.0);
     SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bcDataKey,ctx);
-    bcData=*bcidHdl; 
-  }else {
+    const BunchCrossingCondData* bcData=*bcidHdl; 
+
+    // convert from mu/bunch to lumi in 10**30 units per bunch (for MC only)
+    // 25ns*Nbcid*71mb*10**30 = 25e-9*3564*71e-27*1e30 = 6.31 Use 1/6.31 = 0.158478605
+    const float xlumiMC = ei->averageInteractionsPerCrossing()*0.158478605;  
+
+    // Calculate Luminosity values ONLY around the places Luminosity will be needed    
+    for(int i=std::max(0,bcid-38);i<std::min(bcid+38,(int)m_bcidMax);++i) {
+      lumiVec[i]=bcData->isFilled(i)*xlumiMC; 
+    }
+  }
+  else {
+    //data-case
     SG::ReadCondHandle<LuminosityCondData> lumiData(m_lumiDataKey,ctx);
-    luminosityPerBCID = lumiData->lbLuminosityPerBCIDVector();
+    lumiVec = lumiData->lbLuminosityPerBCIDVector();
   }
 
-
-  std::unordered_map<unsigned,float> avgEshift;
-
-  const uint32_t bcid = ei->bcid();
-
-  // convert from mu/bunch to lumi in 10**30 units per bunch (for MC only)
-  // 25ns*Nbcid*71mb*10**30 = 25e-9*3564*71e-27*1e30 = 6.31 Use 1/6.31 = 0.158478605
-  const float xlumiMC = m_isMC ? ei->averageInteractionsPerCrossing()*0.158478605 : 0.0;  
-
-  // Calculate Luminosity values ONLY around the places Luminosity will be needed
-  const std::vector<float> lumiVec=accumulateLumi(luminosityPerBCID,
-                                                  bcid,xlumiMC,bcData);
-
-
-  //std::cout << " start loop over cells  bcid= " << bcid << std::endl;
-  //if (!m_isMC) std::cout << "   lumi for this bcid " << m_lumiTool->lbLuminosityPerBCID(bcid) << std::endl;
-  //size_t total = m_hwid_sym.size();
-
-  if ( (bcid > 34) && (bcid < m_bcidMax-34)) { // Not close to bcid boundary    
+  if ( (bcid > 34) && (bcid < (int)m_bcidMax-34)) { // Not close to bcid boundary    
     //Loop over symmetry cells (online IDs)
     for (const HWIdentifier hwid : mcSym->symIds()) {
 
@@ -96,28 +91,28 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
       // choice of first sample : i.e sample on the pulse shape to which first OFC sample is applied
       unsigned int ifirst= 0;
       if (nsamples==4) {
-  	    if (m_lar_on_id->isHECchannel(hwid)) {
-	        ifirst=m_firstSampleHEC;
+	if (m_lar_on_id->isHECchannel(hwid)) {
+	  ifirst=m_firstSampleHEC;
         }
       }
 
       const unsigned int nshapes = samp.size();
       if (nshapes < nsamples) {
-	      ATH_MSG_ERROR( " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples  );
-	      return StatusCode::FAILURE;
+	ATH_MSG_ERROR( " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples  );
+	return StatusCode::FAILURE;
       }
 
       unsigned int ishift = ifirst + bcid ; // correct for first sample
       for (unsigned int i=0;i<nsamples;i++) {
-	      float sumShape=0.;
-	      unsigned int k = ishift;
-	      for (unsigned int j=0;j<nshapes;j++) {
-	        const float& lumi = lumiVec[k];
-	        sumShape += samp[j]*lumi;
-	        k--;
-	        } 
-	      eOFC += sumShape*(ofc[i]);
-	      ishift++;
+	float sumShape=0.;
+	unsigned int k = ishift;
+	for (unsigned int j=0;j<nshapes;j++) {
+	  const float& lumi = lumiVec[k];
+	  sumShape += samp[j]*lumi;
+	  k--;
+	} 
+	eOFC += sumShape*(ofc[i]);
+	ishift++;
       }
       eOFC = eOFC * MinBiasAverage;
    
@@ -141,15 +136,15 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
       // choice of first sample : i.e sample on the pulse shape to which first OFC sample is applied
       unsigned int ifirst= 0;
       if (nsamples==4) {
-	      if (m_lar_on_id->isHECchannel(hwid)) {
-	        ifirst=m_firstSampleHEC;
+	if (m_lar_on_id->isHECchannel(hwid)) {
+	  ifirst=m_firstSampleHEC;
         }
       }
 
       const unsigned int nshapes = samp.size();
       if (nshapes < nsamples) {
-        ATH_MSG_ERROR( " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples  );
-	      return StatusCode::FAILURE;
+	ATH_MSG_ERROR( " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples  );
+	return StatusCode::FAILURE;
       }
 
       for (unsigned int i=0;i<nsamples;i++) {
@@ -188,56 +183,3 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
 
   return StatusCode::SUCCESS;
 }
-
-std::vector<float>
-CaloBCIDAvgAlg::accumulateLumi(const std::vector<float>& luminosity,
-                               const unsigned int bcid,
-                               const float xlumiMC,
-                               const BunchCrossingCondData* bcdata) const
-{
-  std::vector<float> lumiVec(m_bcidMax,0.0);
-
-  unsigned int keep_samples=32;
-  unsigned int keep_ofcsamples=32;
-
-  if ( (bcid > keep_samples+5) && (bcid < m_bcidMax-keep_ofcsamples-5))  {
-    unsigned int a=bcid-(keep_samples+4);
-    unsigned int b=bcid+(keep_ofcsamples+4);
-    for(unsigned int i=a;i<b;i++){
-      float lumi=0.0;
-      if (m_isMC) lumi= bcdata->isFilled(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = luminosity.at(i);  // luminosity in 10**30 units
-      lumiVec[i]=(lumi);
-      //if (m_isMC) std::cout << "bcid: " << i << ": int1=" << m_bunchCrossingTool->bcIntensity(i) <<", int2=" << lumi << std::endl; 
-    }
-  } 
-  else {
-    int a=bcid-(keep_samples+4);
-    if ( a < 0 ) a=0;
-    unsigned int b=bcid+(keep_ofcsamples+4);
-    if ( b >= m_bcidMax ) b=m_bcidMax;
-    for(unsigned int i=(unsigned int)a;i<b;i++){
-      float lumi=0.0;
-      if (m_isMC) lumi= bcdata->isFilled(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = luminosity.at(i);  // luminosity in 10**30 units
-      lumiVec[i]=(lumi);
-    }
-
-    for(unsigned int i=0;i<keep_ofcsamples+4;i++){
-      float lumi=0.0;
-      if (m_isMC) lumi= bcdata->isFilled(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = luminosity.at(i);  // luminosity in 10**30 units
-      lumiVec[i]=(lumi);
-    }
-
-    for(unsigned int i=m_bcidMax-keep_samples-5;i<m_bcidMax;i++){
-      float lumi=0.0;
-      if (m_isMC) lumi= bcdata->isFilled(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = luminosity.at(i);  // luminosity in 10**30 units
-      lumiVec[i]=(lumi);
-    }
-
-  }
-  return lumiVec;
-}
-

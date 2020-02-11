@@ -54,22 +54,13 @@ private:
 
   //Other Properties
   Gaudi::Property<bool> m_isMC{this,"isMC",false,"Real data or MC"};
-  //Gaudi::Property<unsigned> m_firstSampleEMB{this,"firstSampleEMB",0,"First sample EMB in 4 samples mode"};
-  //Gaudi::Property<unsigned> m_firstSampleEMEC{this,"firstSampleEMEC",0,"First sample EMEC in 4 samples mode"};
   Gaudi::Property<unsigned> m_firstSampleHEC{this,"firstSampleHEC",1,"First sample HEC in 4 samples mode"};
-  //Gaudi::Property<unsigned> m_firstSampleFCAL{this,"firstSampleFCAL",0,"First sample FCAL in 4 samples mode"};
 
 
   const LArOnlineID* m_lar_on_id=nullptr;
 
   //Constants: 
   const unsigned m_bcidMax=3564;
-
-  //private methods: 
-  std::vector<float> accumulateLumi(const std::vector<float>& luminosity,
-                                    const unsigned int bcid,
-                                    const float xlumiMC,
-                                    const BunchCrossingCondData* bcdata) const;
 
 };
 
