@@ -13,7 +13,7 @@
 // geometry
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h" // kazuki
-#include "InDetReadoutGeometry/PixelModuleDesign.h" // kazuki
+#include "PixelReadoutGeometry/PixelModuleDesign.h" // kazuki
 
 // ROOT
 #include "TFile.h"

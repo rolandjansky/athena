@@ -9,6 +9,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           Control/AthenaBaseComps
                           AthenaKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
@@ -42,7 +43,8 @@ atlas_add_library( ActsGeometryLib
                    AthenaKernel
                    ActsInteropLib
                    ActsGeometryInterfacesLib
-                   ActsCore)
+                   ActsCore
+		   PixelReadoutGeometry)
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx

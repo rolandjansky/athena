@@ -4,7 +4,7 @@
 
 #include "PixelDetectorElementCondAlg.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
