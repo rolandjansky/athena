@@ -151,7 +151,7 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
 	else vec_hlt_size.push_back(0);
 
 	// high-ET clusters
-	if (hlt_cluster.et > m_HLT_high_et && fabs(hlt_cluster.eta) < 1.4) {
+	if (hlt_cluster.et > m_HLT_high_et && fabs(hlt_cluster.eta) < 2.5) {
 		++n_hlt_barrel_high_et_clusters;
 		vec_hlt_barrel_high_et.push_back(1);
 	}

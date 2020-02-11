@@ -138,7 +138,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
         vec_hlt_size.push_back(hlt_cluster.parent->nCells());
 
 	// high-ET clusters
-        if (hlt_cluster.et > m_HLT_high_et && fabs(hlt_cluster.eta) < 1.4) {
+        if (hlt_cluster.et > m_HLT_high_et && fabs(hlt_cluster.eta) < 2.5) {
 
                 ++n_hlt_barrel_high_et_clusters;
 
