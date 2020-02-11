@@ -119,6 +119,8 @@ class GenericMonitoringArray:
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
 #  @param zlabels  List of x bin labels.
+#  @param merge    Merge method to use for object, if not default. Possible algorithms for offline DQM
+#                  are given in https://twiki.cern.ch/twiki/bin/view/Atlas/DQMergeAlgs
 
 def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
@@ -126,11 +128,11 @@ def defineHistogram(varname, type='TH1F', path=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None, 
                     opt='', treedef=None, labels=None, convention=None,
-                    cutmask=None):
+                    cutmask=None, merge=None):
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'cutMask', 'opt', 'convention', 'alias', 'treeDef'] 
+    'cutMask', 'opt', 'convention', 'alias', 'treeDef', 'merge'] 
     # All of these fileds default to 0
     numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
     'zmin', 'zmax']
@@ -263,6 +265,11 @@ def defineHistogram(varname, type='TH1F', path=None,
     if zlabels is not None and len(zlabels)>0:
         assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
         settings['zlabels'] = zlabels
+
+    # merge method
+    if merge is not None:
+        assert type not in ['TEfficiency', 'TTree', 'TGraph'],'only default merge defined for non-histogram objects'
+        settings['merge'] = merge
 
     # Tree branches
     if treedef is not None:
