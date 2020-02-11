@@ -15,7 +15,7 @@
 #include "xAODEgamma/Photon.h"
 
 // must be changed to not be a relative path!
-#include "ElectronPhotonShowerShapeFudgeTool/FFToolApply.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
 //
 #include "AsgTools/MessageCheck.h"
 #include "AsgTools/MsgStream.h"
@@ -101,13 +101,13 @@ int main (int argc, char* argv[])
     {
         //initialise the tool
         //converted photons
-        std::string configFilePathConverted = "ElectronPhotonShowerShapeFudgeTool/TestApplyCorrectionConvertedPhoton.conf";
-        FFToolApply CorrectConvertedPhotonTool("CorrectConvertedPhotonTool");
+        std::string configFilePathConverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleConvertedPhotonConf.conf";
+        ElectronPhotonVariableCorrectionTool CorrectConvertedPhotonTool("CorrectConvertedPhotonTool");
         ANA_CHECK(CorrectConvertedPhotonTool.setProperty("ConfigFile",configFilePathConverted));
         ANA_CHECK(CorrectConvertedPhotonTool.initialize());
         //unconverted photons
-        std::string configFilePathUnconverted = "ElectronPhotonShowerShapeFudgeTool/TestApplyCorrectionUnconvertedPhoton.conf";
-        FFToolApply CorrectUnconvertedPhotonTool("CorrectUnconvertedPhotonTool");
+        std::string configFilePathUnconverted = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleUnconvertedPhotonConf.conf";
+        ElectronPhotonVariableCorrectionTool CorrectUnconvertedPhotonTool("CorrectUnconvertedPhotonTool");
         ANA_CHECK(CorrectUnconvertedPhotonTool.setProperty("ConfigFile",configFilePathUnconverted));
         ANA_CHECK(CorrectUnconvertedPhotonTool.initialize());
 
@@ -177,8 +177,8 @@ int main (int argc, char* argv[])
     // ===============================================
     if (isElectron)
     {
-        std::string configFilePath = "/afs/desy.de/user/n/nigillwa/private/PhD/Code/FudgeFactorTool/ApplyTool/source/fftoolapply/data/TestApplyCorrectionElectron.conf";
-        FFToolApply CorrectElectronTool("CorrectElectronTool");
+        std::string configFilePath = "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleElectronConf.conf";
+        ElectronPhotonVariableCorrectionTool CorrectElectronTool("CorrectElectronTool");
         ANA_CHECK(CorrectElectronTool.setProperty("ConfigFile",configFilePath));
         ANA_CHECK(CorrectElectronTool.initialize());
 

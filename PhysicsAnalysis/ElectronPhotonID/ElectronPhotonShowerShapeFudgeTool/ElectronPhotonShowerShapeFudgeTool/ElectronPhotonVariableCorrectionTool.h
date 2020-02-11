@@ -1,5 +1,5 @@
-#ifndef FFTOOLAPPLY_H
-#define FFTOOLAPPLY_H
+#ifndef ElectronPhotonVariableCorrectionTool_H
+#define ElectronPhotonVariableCorrectionTool_H
 
 //ATLAS includes
 #include "AsgTools/AsgTool.h"
@@ -15,14 +15,14 @@ class TFile;
 class TEnv;
 
 // ===========================================================================
-// Class FFToolApply
+// Class ElectronPhotonVariableCorrectionTool
 // ===========================================================================
 
-class FFToolApply : public asg::AsgTool
+class ElectronPhotonVariableCorrectionTool : public asg::AsgTool
 {
 public:
-    FFToolApply(const std::string& myname);
-    ~FFToolApply();
+    ElectronPhotonVariableCorrectionTool(const std::string& myname);
+    ~ElectronPhotonVariableCorrectionTool();
 
     /** Gaudi Service Interface method implementations */
     StatusCode initialize();
@@ -60,9 +60,9 @@ private:
     bool m_unconvertedPhotonsOnly = false; //set to true if correction is only for unconverted photons
     bool m_retreivedEtaBinning = false; //check if already retreived eta binning
     bool m_retreivedPtBinning = false; //check if already retreived pt binning
-    FFToolApply::ParameterType StringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
+    ElectronPhotonVariableCorrectionTool::ParameterType StringToParameterType( const std::string& input ) const; //convert input string to a parameter function type
     const StatusCode PassedCorrectPhotonType(const xAOD::Photon& photon) const; //check if the correct type of photon was passed to the tool, if only (un)converted photons requested
-    const StatusCode GetParameterInformationFromConf(TEnv& env, const int& parameter_number, const FFToolApply::ParameterType& type); //depending on parameter type, get the relevant information from conf file
+    const StatusCode GetParameterInformationFromConf(TEnv& env, const int& parameter_number, const ElectronPhotonVariableCorrectionTool::ParameterType& type); //depending on parameter type, get the relevant information from conf file
     const StatusCode GetCorrectionParameters(std::vector<float>& properties, const float& pt, const float& absEta) const; //get the actual parameters entering the correction TF1
     const StatusCode Get1DBinnedParameter(float& return_parameter_value, const float& evalPoint, const std::vector<float>& binning, const int& parameter_number) const; //get the parameter if saved binned (eta or pt) in conf
     const StatusCode Get2DBinnedParameter(float& return_parameter_value, const float& etaEvalPoint, const float& ptEvalPoint, const int& parameter_number) const; //get the parameter if saved binned (eta and pt) in conf
@@ -70,6 +70,6 @@ private:
     const StatusCode GetKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const; //get photon kinematic properties which change on single event basis
     const StatusCode Correct(float& return_corrected_variable, const float &original_variable, std::vector<float>& properties) const; //actual function applying the correction to the variable
 
-}; //end class FFToolApply
+}; //end class ElectronPhotonVariableCorrectionTool
 
 #endif

@@ -8,7 +8,7 @@
 #include "xAODEgamma/Photon.h"
 
 // must be changed to not be a relative path!
-#include "ElectronPhotonShowerShapeFudgeTool/FFToolApply.h"
+#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
 //
 #include "AsgTools/MessageCheck.h"
 #include "AsgTools/MsgStream.h"
@@ -60,8 +60,8 @@ int main (int argc, char* argv[])
     }
 
     //initialise the tool
-    FFToolApply fudgeTool("fudgeTool");
-    ANA_CHECK(fudgeTool.setProperty("ConfigFile","ElectronPhotonShowerShapeFudgeTool/IsoCorrectionConfTest.conf"));
+    ElectronPhotonVariableCorrectionTool fudgeTool("fudgeTool");
+    ANA_CHECK(fudgeTool.setProperty("ConfigFile","ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool_ExampleIsoCorrectionConf.conf"));
     ANA_CHECK(fudgeTool.initialize());
 
     //crosscheck with isolationcorrectiontool
