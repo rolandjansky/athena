@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777720 2016-10-11 16:57:24Z krasznaa $
 ################################################################################
 # Package: MuonMomentumCorrections
 ################################################################################
@@ -23,6 +22,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces   
    PRIVATE
+   PhysicsAnalysis/MuonID/MuonSelectorTools
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
@@ -58,8 +58,8 @@ atlas_add_dictionary( MuonMomentumCorrectionsDict
 if( XAOD_STANDALONE )
    atlas_add_executable( MCAST_Tester
       util/MCAST_Tester.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools AsgAnalysisInterfaces
       MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib)
 endif()
