@@ -10,6 +10,7 @@
 # NtupleHandler - Utility to define and fill the per-BCID ntuple
 #
 
+from __future__ import print_function
 import os
 import array
 from ROOT import TObject, TFile, TH1D, TTree, gROOT, AddressOf
@@ -31,29 +32,29 @@ class TrigNtupleHandler:
         self.l1TrigData = True
         
     def open(self, update=True):
-        print 'NtupleHandler.open() called'
+        print('NtupleHandler.open() called')
 
         if os.path.exists(self.fileName) and update:
-            print 'Opening %s for updating' % self.fileName
+            print('Opening %s for updating' % self.fileName)
             self.updatemode = True
             self.file = TFile(self.fileName, 'update')
             self.tree = self.file.Get(self.treeName)
             
         else:
-            print 'Creating %s for writing' % self.fileName
+            print('Creating %s for writing' % self.fileName)
             self.updatemode = False
             self.file = TFile(self.fileName, 'create')
             self.tree = TTree(self.treeName, self.treeName)
             
 
     def close(self):
-        print 'ScanNtupleHandler.close() called'
+        print('ScanNtupleHandler.close() called')
         
         self.tree.Write('', TObject.kOverwrite)
         self.file.Close()
         
     def init(self):
-        print 'ScanNtupleHandler.init() called'
+        print('ScanNtupleHandler.init() called')
 
         self.initLBData()
         self.initBCIDData()

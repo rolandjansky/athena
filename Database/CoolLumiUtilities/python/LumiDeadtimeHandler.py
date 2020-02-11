@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # LumiDeadtimeHandler
 #
@@ -12,6 +12,7 @@
 #
 
 # Get our global DB handler object
+from __future__ import print_function
 from CoolLumiUtilities.LumiDBHandler import LumiDBHandler
 from CoolLumiUtilities.CoolDataReader import CoolDataReader
 
@@ -51,7 +52,7 @@ class LumiDeadtimeHandler:
         self.loadTrigCounts(run)
         
     def loadVetoData(self, run):
-        if self.verbose: print 'Loading trigger veto data'
+        if self.verbose: print('Loading trigger veto data')
 
         # Instantiate new COOL data reader if not already done
         if self.vetoReader == None:
@@ -61,12 +62,12 @@ class LumiDeadtimeHandler:
         self.vetoReader.readData()
 
         if self.verbose:
-            print 'Read %d Trig veto records' % len(self.vetoReader.data)
+            print('Read %d Trig veto records' % len(self.vetoReader.data))
 
     # Read trigger channel mappings
     # Fills self.trigChan based on values in self.trigList
     def loadTrigChannels(self, run):
-        if self.verbose: print 'Loading trigger channel data'
+        if self.verbose: print('Loading trigger channel data')
         
         self.trigChan = dict()
         for trig in self.trigList:
@@ -85,10 +86,10 @@ class LumiDeadtimeHandler:
                     
         for trig in self.trigList:
             if self.trigChan[trig] == -1:
-                print "Couldn't find", trig, "in run", run
+                print("Couldn't find", trig, "in run", run)
 
             if self.verbose:
-                print 'Found', trig, 'in channel', self.trigChan[trig] 
+                print('Found', trig, 'in channel', self.trigChan[trig]) 
 
 
     # Load all trigger counts for the given run
@@ -96,7 +97,7 @@ class LumiDeadtimeHandler:
     def loadTrigCounts(self, run):
 
         if self.verbose:
-            print 'loading Trigger Counts data'
+            print('loading Trigger Counts data')
 
         self.liveFracTrig = dict()
         
@@ -140,10 +141,10 @@ class LumiDeadtimeHandler:
                 self.liveFracTrig[ss][trig] = ratio    
 
                 if self.verbose:
-                    print obj.since()>>32, '/', obj.since()&0xFFFFFFFF, trig, ratio
+                    print(obj.since()>>32, '/', obj.since()&0xFFFFFFFF, trig, ratio)
                     
     def findBCIDDeadtime(self):
-        if self.verbose: print 'Calculating per-BCID deadtime'
+        if self.verbose: print('Calculating per-BCID deadtime')
 
         # First dictionary index is lumiblock IOV
         self.liveFracBCID = dict()
