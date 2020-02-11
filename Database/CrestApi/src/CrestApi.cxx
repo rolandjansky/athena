@@ -959,6 +959,8 @@ namespace Crest {
 
       /* always cleanup */
       curl_easy_cleanup(curl);
+      curl_formfree(formpost);
+      curl_slist_free_all (headers);
 
       return s;
     }
@@ -1027,6 +1029,9 @@ namespace Crest {
 
       /* always cleanup */
       curl_easy_cleanup(curl);
+      // curl_formfree(formpost);
+      curl_slist_free_all (headers);
+
       return s;
     }
 
@@ -1240,6 +1245,9 @@ namespace Crest {
 
       // always cleanup
       curl_easy_cleanup(curl);
+      curl_formfree(formpost);
+      curl_slist_free_all (headers);
+
       return s;
     }
     std::string mes = "CrestClient::storeBatchPayload";
