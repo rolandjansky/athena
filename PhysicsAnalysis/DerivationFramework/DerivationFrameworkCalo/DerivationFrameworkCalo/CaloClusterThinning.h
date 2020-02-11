@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORKCALO_CALOCLUSTERPARTICLETHINNING_H
@@ -80,6 +80,8 @@ namespace DerivationFramework {
       std::string m_CaloClSGKey;
       /// SG key of the topo cluster container to use
       std::string m_TopoClSGKey;
+      /// Additional topo cluster containers to set up the same thinning on
+      std::vector< std::string > m_addTopoClSGKey;
       /// Selection string to use with the expression evaluation
       std::string m_selectionString;
       /// Cone around lepton objects to keep clusters in
