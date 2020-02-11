@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/IBoundaryCheckTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkParameters/TrackParameters.h"
@@ -116,6 +117,7 @@ namespace InDet
       ToolHandle <IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
       
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
+      ToolHandle<Trk::IBoundaryCheckTool> m_boundaryCheckTool;
 
       /** Handle for IGeoModelSvc to retrieve geo model information */
       ServiceHandle<IGeoModelSvc> m_geoModelSvc;

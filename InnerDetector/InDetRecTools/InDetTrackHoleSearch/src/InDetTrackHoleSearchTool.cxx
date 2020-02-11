@@ -37,6 +37,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_atlasId(nullptr),
   m_extrapolator("Trk::Extrapolator"),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
+  m_boundaryCheckTool("InDet::InDetBoundaryCheckTool"),
   m_geoModelSvc("GeoModelSvc", n),
   m_extendedListOfHoles(false),
   m_cosmic(false),
@@ -48,6 +49,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   declareProperty("Extrapolator"         , m_extrapolator);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
   declareProperty("GeoModelService"      , m_geoModelSvc);
+  declareProperty("BoundaryCheckTool"    , m_boundaryCheckTool);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
   declareProperty("usePixel"             , m_usepix);
@@ -628,24 +630,24 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
     std::map<const Identifier, const Trk::TrackStateOnSurface*>::iterator iTSOS = mapOfHits.find(id);
       
     if (iTSOS == mapOfHits.end()) { 
-      bool isgood = true;
-      if (!isSensitive(nextParameters, isgood)) {
-        if (isgood) ATH_MSG_VERBOSE("Extrapolation not in sensitive area, ignore and continue");
-
-        if (!isgood) {
+      switch (m_boundaryCheckTool->boundaryCheck(*nextParameters)) {
+        case Trk::BoundaryCheckResult::DeadElement:
           if (m_atlasId->is_pixel(id)) {
-        
+
             ATH_MSG_VERBOSE("Found element is a dead pixel module, add it to the list and continue");
             ++PixelDead;
           } else if (m_atlasId->is_sct(id)) {
-        
+
             ATH_MSG_VERBOSE("Found element is a dead SCT module, add it to the list and continue");
             ++SctDead;
           }
-        }
-        continue;
-      }
-    
+        case Trk::BoundaryCheckResult::Insensitive:
+        case Trk::BoundaryCheckResult::Error:
+          continue;
+        case Trk::BoundaryCheckResult::Candidate:
+          break;
+      }   
+ 
       // increment tmp counters only if this detElement should be considered for a proper holesearch
       // this info is the boolean in the (mapOfPredictions->second).second
       if (((it->second).second)) {
