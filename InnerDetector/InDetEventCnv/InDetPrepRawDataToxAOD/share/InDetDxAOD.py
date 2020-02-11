@@ -605,7 +605,7 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningTool",
-                                                                 ThinningService         = "IDTRKThinningSvc",
+                                                                 StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
                                                                  SelectionString         = thinTrackSelection,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
@@ -645,10 +645,8 @@ streamName = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKVALIDStream )
 IDTRKVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDTRKVALIDStream.AcceptAlgs(["DFTSOS_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDTRKThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
