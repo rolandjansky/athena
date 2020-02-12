@@ -258,6 +258,9 @@ class ComboMaker(AlgNode):
         cval = self.Alg.getProperties()[self.prop]
         return cval
 
+    def addComboHypoTools(self, tools):
+        self.Alg.ComboHypoTools = tools
+        
 
 
 #########################################################
@@ -595,7 +598,7 @@ class StepComp(object):
 
 class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
-    def __init__(self, name,  Sequences=[], multiplicity=[1]):
+    def __init__(self, name,  Sequences=[], multiplicity=[1], comboTools=[]):
 
         self.name = name
         self.sequences=Sequences
@@ -603,14 +606,16 @@ class ChainStep(object):
         self.isCombo=sum(multiplicity)>1
         self.combo=None
         if self.isCombo:
-            self.makeCombo(Sequences )
+            self.makeCombo(Sequences, comboTools )
         self.decisions = []
 
-    def makeCombo(self, Sequences):
+    def makeCombo(self, Sequences, comboTools=[]):
         if len(Sequences)==0:
             return
         hashableMult = tuple(self.multiplicity)
         self.combo =  RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), multiplicity=hashableMult)
+        self.combo.addComboHypoTools(comboTools)
+        
 
 
     def __repr__(self):

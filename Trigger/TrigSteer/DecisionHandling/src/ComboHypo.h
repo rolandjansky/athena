@@ -11,6 +11,7 @@
 // STL includes
 #include <string>
 #include <utility>  
+#include "IComboHypoTool.h"
 
 /**
  * @class ComboHypo for combined hypotheses required only counting (multiplicity requirements)
@@ -46,6 +47,9 @@ private:
   typedef std::map<TrigCompositeUtils::DecisionID, int> MultiplicityMap;
   typedef std::map<TrigCompositeUtils::DecisionID,  std::vector<std::pair<int,int>>> CombinationMap;
   void fillDecisionsMap(  CombinationMap &  dmap, std::map<TrigCompositeUtils::DecisionID,std::map<int,int>> & featureMap, const EventContext& context) const;
+
+  // ComboHypoTools
+  ToolHandleArray< IComboHypoTool > m_hypoTools {this, "ComboHypoTools", {}, "Tools to perform selection"};
 
 };
 

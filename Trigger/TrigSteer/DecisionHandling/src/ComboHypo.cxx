@@ -18,6 +18,7 @@ ComboHypo::~ComboHypo()
 {}
 
 StatusCode ComboHypo::initialize() {
+  ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_outputs.initialize() );
   ATH_CHECK( m_inputs.initialize() );
   ATH_CHECK( m_inputs.size() == m_outputs.size() );
@@ -143,6 +144,12 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
   uint nRequiredUnique;
   fillDecisionsMap( dmap, dmapFeatures, context );
 
+    //this is added for hypocombo tools:
+  // all possible combinations
+  typedef std::vector<std::pair<int,int>> Combinations; // vector of vector of decision that satisfy the mult. requirement (for each leg)
+  // each legs contains the elements that satisfy it
+  std::map <TrigCompositeUtils::DecisionID, std::vector<Combinations>> IDCombMap;
+
   int nmaps=0;
   for ( auto m: m_multiplicitiesReqMap ) {
     nRequiredUnique=0;
@@ -172,7 +179,9 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
 	overallDecision = false;
 	break;
       }
-	
+
+      auto decisionsPerLeg  = dmap[ requiredDecisionIDLeg ];
+      IDCombMap[requiredDecisionID].push_back(decisionsPerLeg);
       
       const size_t uniqueDecisionsInLeg = dmapFeatures[requiredDecisionIDLeg].size();
       
@@ -189,7 +198,7 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     //check that the multiplicity of unique features is high enough
     ATH_MSG_DEBUG("Number of unique decisions: "<<uniqueDecisions.size()<<", number of required unique decisions: "<<nRequiredUnique);
     if (uniqueDecisions.size()<nRequiredUnique) overallDecision=false;
-
+   
     //Overall chain decision
     ATH_MSG_DEBUG( "Chain " << m.first <<  ( overallDecision ? " is accepted" : " is rejected") );
     if ( overallDecision == true ) {
@@ -199,6 +208,15 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
     nmaps++;
   }
 
+
+ 
+  DecisionIDContainer passingIds;
+  for ( auto& tool: m_hypoTools ) {
+    ATH_CHECK( tool->decide( IDCombMap, passingIds ) );
+  }
+
+ 
+  
   if (msgLvl(MSG::DEBUG)){
     for (auto p: passing)
       ATH_MSG_DEBUG("Passing "<<HLT::Identifier(p));
