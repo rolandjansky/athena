@@ -1,4 +1,11 @@
 #!/bin/bash
+# art-description: InclinedDuals sim+reco
+# art-type: grid
+# art-include: 21.9/Athena
+# art-output: *.root
+# art-output: *.xml
+# art-output: dcube*
+#
 #
 # Running art test for single muon, geometry ATLAS-P2-ITK-17-06-00
 #
@@ -7,7 +14,7 @@
 # and https://acode-browser2.usatlas.bnl.gov/lxr/source/AthAna/atlas/PhysicsAnalysis/TauID/TauCorrUncert/setup.sh
 #
 
-#SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"  >/dev/null 2>&1 && pwd )"
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../share"  >/dev/null 2>&1 && pwd )"
 
 
