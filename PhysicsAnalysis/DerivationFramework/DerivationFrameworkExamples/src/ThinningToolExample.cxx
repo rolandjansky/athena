@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,8 +10,9 @@
 // which removes all ID tracks which do not pass a user-defined cut 
 
 #include "DerivationFrameworkExamples/ThinningToolExample.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -19,14 +20,11 @@
 DerivationFramework::ThinningToolExample::ThinningToolExample( 	const std::string& t,
                                                  		const std::string& n,
                                                  		const IInterface* p ) : 
-  AthAlgTool(t,n,p),
-  m_thinningSvc("ThinningSvc",n),
+  base_class(t,n,p),
   m_ntot(0),
   m_npass(0),
   m_trackPtCut(20.0)
   {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
     declareProperty("TrackPtCut", m_trackPtCut);	
   }
   
@@ -38,6 +36,7 @@ DerivationFramework::ThinningToolExample::~ThinningToolExample() {
 StatusCode DerivationFramework::ThinningToolExample::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::ThinningToolExample::finalize()
@@ -50,13 +49,10 @@ StatusCode DerivationFramework::ThinningToolExample::finalize()
 // The thinning itself
 StatusCode DerivationFramework::ThinningToolExample::doThinning() const
 {
+      const EventContext& ctx = Gaudi::Hive::currentContext();
 
       // Get the track container
-       const xAOD::TrackParticleContainer* tracks = evtStore()->retrieve< const xAOD::TrackParticleContainer >("InDetTrackParticles");
-      if(!tracks) {
-         ATH_MSG_ERROR ("Couldn't retrieve TrackParticleContainer with key InDetTrackParticles");
-         return StatusCode::FAILURE;
-      }
+      SG::ThinningHandle<xAOD::TrackParticleContainer> tracks (m_inDetSGKey, ctx);
       m_ntot+=tracks->size();	
       // Loop over tracks, see if they pass, set mask
       std::vector<bool> mask;
@@ -64,10 +60,7 @@ StatusCode DerivationFramework::ThinningToolExample::doThinning() const
          if ( (*trackIt)->pt() > m_trackPtCut ) {++m_npass; mask.push_back(true);}
          else { mask.push_back(false); }
      }
-     if (m_thinningSvc->filter(*tracks, mask, IThinningSvc::Operator::Or).isFailure()) {
-         ATH_MSG_ERROR("Application of thinning service failed! ");
-         return StatusCode::FAILURE;
-     }
+     tracks.keep (mask);
 
      return StatusCode::SUCCESS;
 }  
