@@ -41,6 +41,14 @@ json defaultJson() {
   j["zmax"] = 0.0;
   j["zmin"] = 0.0;
   j["zvar"] = "";
+  j["Sumw2"] = false;
+  j["kLBNHistoryDepth"] = 0;
+  j["kAddBinsDynamically"] = false;
+  j["kRebinAxes"] = false;
+  j["kCanRebin"] = false;
+  j["kVec"] = false;
+  j["kVecUO"] = false;
+  j["kCumulative"] = false;
   j["merge"] = "";
   j["treeDef"] = "";
   return j;
@@ -68,7 +76,8 @@ bool parse1D_options() {
   check["xmin"] = -1.0;
   check["xmax"] = 1.0;
   check["title"] = "toptitle; xtitle; ytitle";
-  check["opt"] = "myopt";
+  check["Sumw2"] = true;
+  check["kLBNHistoryDepth"] = 99;
   check["path"] = "mypath/tohistograms";
   check["type"] = "TH1D";
   check["weight"] = "myweight";
@@ -80,7 +89,8 @@ bool parse1D_options() {
   VALUE ( def.xmin ) EXPECTED ( -1.0 );
   VALUE ( def.xmax ) EXPECTED ( 1.0 );
   VALUE ( def.title ) EXPECTED ( "toptitle; xtitle; ytitle" );
-  VALUE ( def.opt ) EXPECTED ( "myopt" );
+  VALUE ( def.Sumw2 ) EXPECTED ( true );
+  VALUE ( def.kLBNHistoryDepth ) EXPECTED ( 99 );
   VALUE ( def.path ) EXPECTED ( "mypath/tohistograms" );
   VALUE ( def.type ) EXPECTED ( "TH1D" );
   VALUE ( def.weight ) EXPECTED ( "myweight" );

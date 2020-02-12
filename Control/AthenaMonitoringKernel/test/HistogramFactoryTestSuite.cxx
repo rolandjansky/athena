@@ -118,7 +118,7 @@ class HistogramFactoryTestSuite {
     }
 
     void test_shouldRegisterAndReturnTEfficiencyHistogram() {
-      TEfficiency* const efficiency = createHistogram<TEfficiency>("TEfficiency");
+      TEfficiency* const efficiency = createEfficiency();
       VALUE(m_histSvc->existsEfficiency("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
       VALUE(efficiency) NOT_EXPECTED(nullptr);
     }
@@ -219,7 +219,7 @@ class HistogramFactoryTestSuite {
     void test_shouldSetExtendAxesWhenkCanRebinIsSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "allAxesRebinAlias";
-      histogramDef.opt = "kCanRebin";
+      histogramDef.kCanRebin = true;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->CanExtendAllAxes()) EXPECTED(true);
@@ -228,7 +228,7 @@ class HistogramFactoryTestSuite {
     void test_shouldNotSetExtendAxesWhenkCanRebinIsNotSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "noAxesRebinAlias";
-      histogramDef.opt = "";
+      histogramDef.kCanRebin = false;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->CanExtendAllAxes()) EXPECTED(false);
@@ -237,7 +237,7 @@ class HistogramFactoryTestSuite {
     void test_shouldSetSumw2WhenSumw2IsSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "Sumw2ActiveAlias";
-      histogramDef.opt = "Sumw2";
+      histogramDef.Sumw2 = true;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetSumw2N()) EXPECTED(3);
@@ -246,7 +246,7 @@ class HistogramFactoryTestSuite {
     void test_shouldNotSetSumw2WhenSumw2IsNotSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "Sumw2InactiveAlias";
-      histogramDef.opt = "";
+      histogramDef.Sumw2 = false;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetSumw2N()) EXPECTED(0);
@@ -272,6 +272,13 @@ class HistogramFactoryTestSuite {
     HistogramType* createHistogram(const string& histogramType) {
       HistogramDef histogramDef = defaultHistogramDef(histogramType);
       return dynamic_cast<HistogramType*>(m_testObj->create(histogramDef));
+    }
+
+    TEfficiency* createEfficiency() {
+      HistogramDef histogramDef = defaultHistogramDef("TEfficiency");
+      histogramDef.ybins = 0;
+      histogramDef.zbins = 0;
+      return dynamic_cast<TEfficiency*>(m_testObj->create(histogramDef));
     }
 
     void clearHistogramService() {
