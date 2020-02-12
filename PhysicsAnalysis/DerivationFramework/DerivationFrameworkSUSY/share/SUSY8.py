@@ -62,22 +62,14 @@ ToolSvc += SUSY8SkimmingTool
 #====================================================================\
 
 thinning_expression = "(InDetTrackParticles.pt > 10.0*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (abs(DFCommonInDetTrackZ0AtPV) < 10.0)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-SUSY8MetTPThinningTool = DerivationFramework__TrackParticleThinning( name               = "SUSY8MetTPThinningTool",
-                                                                ThinningService         = SUSY8ThinningHelper.ThinningSvc(),
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
-ToolSvc += SUSY8MetTPThinningTool
-thinningTools.append(SUSY8MetTPThinningTool)
 
 # TrackParticles associated with jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 SUSY8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          	= "SUSY8JetTPThinningTool",
-                                                                ThinningService         = SUSY8ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 JetKey                  = "AntiKt4EMTopoJets",
                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = True)
+                                                                TrackSelectionString    = thinning_expression)
 ToolSvc += SUSY8JetTPThinningTool
 thinningTools.append(SUSY8JetTPThinningTool)
 

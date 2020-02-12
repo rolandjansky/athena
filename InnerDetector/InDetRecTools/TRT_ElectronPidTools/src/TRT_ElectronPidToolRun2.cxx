@@ -146,11 +146,11 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
  // Get the probability calculator
  SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey};
- HTcalculator* HTcalc = const_cast<HTcalculator*>(*readHandle);
+ const HTcalculator* HTcalc = (*readHandle);
  // make sure some calibration is available
- if(HTcalc==nullptr) ATH_MSG_WARNING ("  No Pid calibration from the DB.");
- HTcalc->checkInitialization();
-
+ if(HTcalc==nullptr) {
+   ATH_MSG_WARNING ("  No Pid calibration from the DB.");
+ }
 
   //Initialize the return vector
   std::vector<float> PIDvalues(5);

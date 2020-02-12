@@ -1,10 +1,22 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 import ROOT
 import sys, os, operator
 import argparse
 import zlib
+import json
+
+def jsonfixup(instr):
+    instr = instr.Data()
+    j=json.loads(instr)
+    for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy'):
+        if badkey in j:
+            if isinstance(j[badkey], float):
+                j[badkey] = float(str(j[badkey])[:8])
+            #print(type(j["fTsumwx"]))
+    return json.dumps(j)
 
 parser=argparse.ArgumentParser()
 parser.add_argument('filename',
@@ -32,6 +44,7 @@ ROOT.gInterpreter.LoadText("UInt_t bufferhash(TKey* key) { key->SetBuffer(); key
 ROOT.gInterpreter.LoadText("void* getbuffer(TKey* key) { key->SetBuffer(); key->ReadFile(); return (void*) (key->GetBuffer()+key->GetKeylen()); }")
 ROOT.gInterpreter.LoadText("UInt_t bufferhash2(TKey* key) { TObject* obj = key->ReadObj(); TMessage msg(kMESS_OBJECT); msg.WriteObject(obj); UInt_t rv = TString::Hash(msg.Buffer(), msg.Length()); delete obj; return rv; }")
 ROOT.gInterpreter.LoadText("UInt_t bufferhash3(TKey* key) { TObject* obj = key->ReadObj(); UInt_t rv = obj->Hash(); delete obj; return rv; }")
+ROOT.gInterpreter.LoadText("TString getjson(TKey* key) { TObject* obj = key->ReadObj(); auto rv = TBufferJSON::ConvertToJSON(obj); delete obj; return rv; }")
 ROOT.gSystem.Load('libDataQualityUtils')
 
 def dumpdir(d):
@@ -47,7 +60,7 @@ def dumpdir(d):
             subdirs.append(k)
         else:
             if args.hash:
-                lhash = ROOT.bufferhash2(k)
+                lhash = zlib.adler32(jsonfixup(ROOT.getjson(k)))
             else:
                 lhash = 0
             idxname = os.path.join(thispath, k.GetName())
@@ -77,14 +90,14 @@ sortedl = sorted(accounting.items(), key=key, reverse=True)
 if args.hash:
     print('\n'.join(('%s %s: '
                      + ('%d uncompressed' % b if not args.no_inmem else '')
-                     + (', %d on file ' % c if not args.no_onfile else '')
+                     + (', %d on file ' % c if not args.no_onfile else ' ')
                      + '(hash %s)')
                     % (types[a], a, hashes[a]) for a, (b, c) in  sortedl)
           )
 else:
     print('\n'.join(('%s %s: '
                      + ('%d uncompressed' % b if not args.no_inmem else '')
-                     + (', %d on file' % c if not args.no_onfile else ''))
+                     + (', %d on file' % c if not args.no_onfile else ' '))
                     % (types[a], a) for a, (b, c) in  sortedl)
           )
 

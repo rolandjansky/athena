@@ -38,16 +38,18 @@ namespace MuonGM {
   sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 					 int zi, int fi, int mL, bool is_mirrored,
 					 MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
+    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+      m_BLinePar(0)
   {
     m_rots = 0.;
     m_rotz = 0.;
     m_rott = 0.;
 
     m_hasALines = false;
+    m_hasBLines = false;
     m_delta = NULL;
     m_ml = mL;
-
+    
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
 
@@ -525,6 +527,14 @@ namespace MuonGM {
                     HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
        m_hasALines = true;
     }
+  }
+
+  void sTgcReadoutElement::setBLinePar(BLinePar* bLine) const
+  {
+    
+      (*m_Log)<<MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
+    
+    m_BLinePar = bLine;
   }
 
 

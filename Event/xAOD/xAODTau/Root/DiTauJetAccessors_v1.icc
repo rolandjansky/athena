@@ -12,19 +12,19 @@
 // System include(s):
 #include <iostream>
 
-#define DEFINE_DITAUJETPARAMETER_ACCESSOR(TYPE, NAME )                               \
-  case xAOD::DiTauJetParameters::NAME:                                    \
+#define DEFINE_DITAUJETPARAMETER_ACCESSOR(TYPE, NAME )         \
+  case xAOD::DiTauJetParameters::NAME:                          \
 {                                                               \
-  static SG::AuxElement::Accessor< TYPE > a( #NAME );           \
+  static const SG::AuxElement::Accessor< TYPE > a( #NAME );     \
   return &a;                                                    \
 }                                                               \
 break;
 
 
-  template <class T>  SG::AuxElement::Accessor< T >* detailsAccessorV1( xAOD::DiTauJetParameters::Detail /*detail*/ ) {
+  template <class T>  const SG::AuxElement::Accessor< T >* detailsAccessorV1( xAOD::DiTauJetParameters::Detail /*detail*/ ) {
   }
 
-  template <> SG::AuxElement::Accessor< float >* detailsAccessorV1<float>( xAOD::DiTauJetParameters::Detail detail ) {
+  template <> const SG::AuxElement::Accessor< float >* detailsAccessorV1<float>( xAOD::DiTauJetParameters::Detail detail ) {
     
     switch( detail ) {
       DEFINE_DITAUJETPARAMETER_ACCESSOR( float, TauJetVtxFraction );
@@ -41,7 +41,7 @@ break;
     }
   }
 
-  template <> SG::AuxElement::Accessor< int >* detailsAccessorV1<int>( xAOD::DiTauJetParameters::Detail detail ) {
+  template <> const SG::AuxElement::Accessor< int >* detailsAccessorV1<int>( xAOD::DiTauJetParameters::Detail detail ) {
 
     switch( detail ) {
 

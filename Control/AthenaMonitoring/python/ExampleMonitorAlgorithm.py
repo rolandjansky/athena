@@ -85,6 +85,9 @@ def ExampleMonitoringConfig(inputFlags):
                             xbins=[0,.1,.2,.4,.8,1.6])
     myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
+    # specify a merge method
+    myGroup.defineHistogram('lumiPerBCID;lumiPerBCID_merge',title='Luminosity,WithCommaInTitle;L/BCID;Events',
+                            path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0, merge='weightedAverage')
     # TEfficiencies
     myGroup.defineHistogram('pT_passed,pT', type='TEfficiency', title='Test TEfficiency;x;Eff',
                             path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0)

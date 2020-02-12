@@ -1186,7 +1186,7 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
       ATH_MSG_DEBUG("no pointer to segment!!!");
       break;
     }    
-    if(segment->containedROTs().size() < m_nb_hits || segment->containedROTs().size() <= 0 || segment->fitQuality()->chiSquared() / segment->fitQuality()->doubleNumberDoF() > m_chi2_cut) {
+    if(segment->numberOfContainedROTs() < m_nb_hits || segment->numberOfContainedROTs() <= 0 || segment->fitQuality()->chiSquared() / segment->fitQuality()->doubleNumberDoF() > m_chi2_cut) {
       continue;
     }
 
@@ -1198,11 +1198,8 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
     std::vector<float> ROTs_DR;
     std::vector<float> ROTs_DRerr;
     std::vector<float> ROTs_DT;
-    const std::vector<const Trk::RIO_OnTrack*>& rots = segment->containedROTs();
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rit = rots.begin();
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rit_end = rots.end();
-    for( ; rit!=rit_end;++rit ) {
-      const Trk::RIO_OnTrack* rot = *rit;
+    for(unsigned int irot=0;irot<segment->numberOfContainedROTs();irot++){
+      const Trk::RIO_OnTrack* rot = segment->rioOnTrack(irot);
       const Muon::MdtDriftCircleOnTrack* mrot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(rot);
       if(mrot) {
     	  

@@ -42,7 +42,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 #ToolSvc += EXOT6MetTPThinningTool
 #
 #EXOT6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "EXOT6JetTPThinningTool",
-#                                                                ThinningService         = "EXOT6ThinningSvc",
+#                                                                StreamName              = streamName,
 #                                                                JetKey                  = "AntiKt4LCTopoJets",
 #                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT6JetTPThinningTool

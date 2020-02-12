@@ -17,6 +17,7 @@
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
+#include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
 #include "JetSubStructureMomentTools/SubjetMakerTool.h"
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
@@ -43,6 +44,7 @@ DECLARE_COMPONENT( JetPullTool )
 DECLARE_COMPONENT( JetChargeTool )
 DECLARE_COMPONENT( VolatilityTool )
 DECLARE_COMPONENT( ShowerDeconstructionTool )
+DECLARE_COMPONENT( SoftDropObservablesTool )
 DECLARE_COMPONENT( SubjetMakerTool )
 DECLARE_COMPONENT( SubjetFinderTool )
 DECLARE_COMPONENT( SubjetRecorderTool )
@@ -50,4 +52,3 @@ DECLARE_COMPONENT( BosonTagTool )
 DECLARE_COMPONENT( Validator )
 DECLARE_COMPONENT( QwTool )
 DECLARE_COMPONENT( BoostedXbbTagTool )
-

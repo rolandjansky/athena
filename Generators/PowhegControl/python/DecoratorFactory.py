@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl PowhegDecorators
 #  Powheg runcard decorators
@@ -6,7 +6,7 @@
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
-from decorators import *
+from .decorators import *
 
 def decorate( powheg_controller, decorator, **kwargs ) :
   ## Initialise correct decorator for Powheg configurable

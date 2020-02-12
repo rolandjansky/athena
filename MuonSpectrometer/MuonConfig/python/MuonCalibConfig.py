@@ -4,7 +4,6 @@
 
 from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-MuonCalib__CscCoolStrSvc=CompFactory.MuonCalib__CscCoolStrSvc
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg

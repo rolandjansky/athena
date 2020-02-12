@@ -134,7 +134,7 @@ thinningTools=[]
 # Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 EGAM8JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM8JetLCTPThinningTool",
-                                                                          ThinningService         = "EGAM8ThinningSvc",
+                                                                          StreamName              = streamName,
                                                                           JetKey                  = "AntiKt4EMTopoJets",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                           ApplyAnd                = True)

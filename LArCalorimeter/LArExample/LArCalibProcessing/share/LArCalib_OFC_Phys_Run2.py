@@ -106,12 +106,12 @@ if not 'IOVBegin' in dir():
    from LArCalibProcessing.extractFolderInfo import *
    folderinfo=extractFolderInfo(dbname=InputDBConnectionPhysWave,checkFolders=[LArCalib_Flags.LArPhysWaveFolder,],
                                 selection="3:7,9:13,15:19,21:25,27:31,33:37") #Exclude FCAL channels that have infinete IOV
-   print folderinfo
+   printfunc (folderinfo)
    if len(folderinfo)==1:
       IOVBegin=folderinfo[0][4]
-      print "IOVStart taken from input PhysWave:", IOVBegin
+      printfunc ("IOVStart taken from input PhysWave:", IOVBegin)
    else:
-      print "Failed to extract IOV start of input PhysWave"
+      printfunc ("Failed to extract IOV start of input PhysWave")
       pass
    pass
 

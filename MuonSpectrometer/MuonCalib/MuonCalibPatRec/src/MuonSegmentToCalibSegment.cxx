@@ -330,19 +330,15 @@ namespace MuonCalib {
   Identifier MuonSegmentToCalibSegment::getChId( const Muon::MuonSegment& seg ) const
   {
     
-    const std::vector<const Trk::RIO_OnTrack*>& rots = seg.containedROTs();
-    if( rots.empty() ) {
+    if( seg.numberOfContainedROTs()==0 ) {
       ATH_MSG_DEBUG( " Oops, segment without hits!!! "  );
       return Identifier();
     }
 
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rit = rots.begin();
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rit_end = rots.end();
-    
-    for( ; rit!=rit_end;++rit ){
+    for(unsigned int irot=0;irot<seg.numberOfContainedROTs();irot++){
       
       // use pointer to rot
-      const Trk::RIO_OnTrack* rot = *rit;
+      const Trk::RIO_OnTrack* rot = seg.rioOnTrack(irot);
       
       if( m_idHelperSvc->mdtIdHelper().is_mdt( rot->identify() ) ){
 	return rot->identify();
@@ -352,7 +348,7 @@ namespace MuonCalib {
     }
 
     // if we get here the segment did not contain any csc or mdt hits, in which case we return the identifier of the first rot
-    return rots.front()->identify();
+    return seg.rioOnTrack(0)->identify();
   }
 
   Amg::Transform3D MuonSegmentToCalibSegment::getGlobalToStation( const Identifier& id, const MuonGM::MuonDetectorManager* MuonDetMgr  ) const

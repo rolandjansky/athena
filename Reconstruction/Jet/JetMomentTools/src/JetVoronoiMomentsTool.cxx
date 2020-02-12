@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
+#include "StoreGate/WriteDecorHandle.h"
 #include "JetMomentTools/JetVoronoiMomentsTool.h"
 
 // helpers
@@ -19,24 +20,29 @@ using JetVoronoiDiagramHelpers::Diagram;
 
 
 JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
-    : JetModifierBase(name)
-      //, m_voronoitool("")
-    , m_x_min(-10.)
-    , m_x_max( 10.)
-    , m_y_min(-4. )
-    , m_y_max( 4. )
-      //, m_jetcontainer ("")
-      //, m_scaleIntFloat (1e3)
+    : asg::AsgTool(name)
 {
-    declareProperty("AreaXmin",m_x_min);
-    declareProperty("AreaXmax",m_x_max);
-    declareProperty("AreaYmin",m_y_min);
-    declareProperty("AreaYmax",m_y_max);
-    //declareProperty("JetContainerName",m_jetcontainer);
-
+  declareInterface<IJetDecorator>(this);
 }
 
-StatusCode JetVoronoiMomentsTool::modify(xAOD::JetContainer& jets) const {
+StatusCode JetVoronoiMomentsTool::initialize() {
+
+  if(m_jetContainerName.empty()){
+    ATH_MSG_ERROR("JetVoronoiMomentsTool needs to have its input jet container name configured!");
+    return StatusCode::FAILURE;
+  }
+
+  // Prepend jet collection name
+  m_voronoiAreaKey = m_jetContainerName + "." + m_voronoiAreaKey.key();
+
+  ATH_CHECK(m_voronoiAreaKey.initialize());
+  return StatusCode::SUCCESS;
+}
+
+StatusCode JetVoronoiMomentsTool::decorate(const xAOD::JetContainer& jets) const {
+
+    SG::WriteDecorHandle<xAOD::JetContainer, float> outputHandle(m_voronoiAreaKey);
+
     // setup diagram class
     Diagram voro ("VoronoiDiagram");
     voro.m_x_min = m_x_min;
@@ -52,21 +58,9 @@ StatusCode JetVoronoiMomentsTool::modify(xAOD::JetContainer& jets) const {
     if ( voro.createVoronoiDiagram().isFailure() ) {
         ATH_MSG_WARNING("Could not calculate Voronoi diagram");
     }
-    for ( xAOD::Jet *jet : jets ) modifyJet(*jet,voro);
+    // decorate the jets
+    for (const xAOD::Jet *jet : jets ){
+      outputHandle(*jet) = voro.getCellArea(jet->eta(), jet->phi());
+    }
     return StatusCode::SUCCESS;
 }
-
-int JetVoronoiMomentsTool::modifyJet(xAOD::Jet&) const {
-    ATH_MSG_WARNING("Don't use this function. We need to compare space with other jets.");
-    return 0;
-}
-
-int JetVoronoiMomentsTool::modifyJet(xAOD::Jet& jet, const Diagram & voro) const {
-    // Collate info
-    float VoronoiArea  = voro.getCellArea(jet.eta(), jet.phi() );
-    // Set info
-    jet.setAttribute( "VoronoiArea" , VoronoiArea );
-    return 0;
-}
-
-

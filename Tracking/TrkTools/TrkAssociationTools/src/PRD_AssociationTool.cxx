@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAssociationTools/PRD_AssociationTool.h"
@@ -201,7 +201,7 @@ Trk::PRD_AssociationTool::getPrdsOnTrack(const Maps& maps,
     return itvec->second;
   }
 
-  if (track.measurementsOnTrack()==0) {
+  if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING ("Track has no RoTs");
     return PRDs_t();
   }

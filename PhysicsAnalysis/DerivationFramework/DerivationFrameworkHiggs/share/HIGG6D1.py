@@ -150,25 +150,16 @@ thinningTools=[]
 # GenericTrackParticleThinning
 #====================================================================
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG6D1GenTPThinningTool = DerivationFramework__TrackParticleThinning(name = "HIGG6D1GenTPThinningTool",
-            ThinningService         = "HIGG6D1ThinningSvc",
-            SelectionString         = thinning_expression,
-            InDetTrackParticlesKey  = "InDetTrackParticles",
-            ApplyAnd = True)
-thinningTools.append(HIGG6D1GenTPThinningTool)
-ToolSvc += HIGG6D1GenTPThinningTool
 
-                                                                   
 #====================================================================
 # JetTrackParticleThinning
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG6D1JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "HIGG6D1JetTPThinningTool",
-            ThinningService         = "HIGG6D1ThinningSvc",
+            StreamName              = streamName,
             JetKey                  = "AntiKt4EMTopoJets",
             InDetTrackParticlesKey  = "InDetTrackParticles",
-            ApplyAnd = True)
+            TrackSelectionString    = thinning_expression)
 
 
 thinningTools.append(HIGG6D1JetTPThinningTool)
@@ -219,6 +210,7 @@ ToolSvc += HIGG6D1ElectronTPThinningTool
 #====================================================================
 # Tracks themselves
 #====================================================================
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 HIGG6D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG6D1TPThinningTool",
                                                                    ThinningService         = "HIGG6D1ThinningSvc",
                                                                    SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",

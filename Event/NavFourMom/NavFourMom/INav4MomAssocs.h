@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // INav4MomAssocs.h 
@@ -25,6 +25,7 @@
 #include "NavFourMom/INav4MomLinkContainer.h"
 #include "CxxUtils/checker_macros.h"
 // Forward declaration
+#include "AthContainers/ConstDataVector.h"
 
 class INav4MomAssocs : public AssociationMap< INavigable4MomentumCollection, 
                                               INavigable4MomentumCollection >
@@ -62,8 +63,8 @@ class INav4MomAssocs : public AssociationMap< INavigable4MomentumCollection,
   /** Retrieve all the associated-to objects which have been associated
    *  to the given \param object
    */
-  bool assocs ATLAS_NOT_CONST_THREAD_SAFE ( const INavigable4Momentum* object,
-               INavigable4MomentumCollection& assocs ) const;
+  bool assocs ( const INavigable4Momentum* object,
+               ConstDataVector<INavigable4MomentumCollection>& assocs ) const;
 
   /** Retrieve all the associated-to ElementLinks_to_objects which have
    *  been associated to the given \param objectLink

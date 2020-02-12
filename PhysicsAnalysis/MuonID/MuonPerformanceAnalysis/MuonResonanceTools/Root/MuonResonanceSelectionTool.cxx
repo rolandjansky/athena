@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// MuonResonanceSelectionTool.cxx
 
 #include "MuonResonanceTools/MuonResonanceSelectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -95,26 +93,10 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
       ATH_MSG_FATAL( "Unable to retrieve Event Info" );
   }
 
-//  int runNb1 = info->runNumber();
-//  int eventNb1 = info->eventNumber();
-//  int lumiBL1 = info->lumiBlock();
-
-//  std::cout << " Run1 " << runNb1 << std::endl;
-//  std::cout << " Event1 " << eventNb1 << std::endl;
-//  std::cout << " Lumi1 " << lumiBL1 << std::endl;
-
-//  std::cout << " Run2 " << runNb1 << std::endl;
-//  std::cout << " Event2 " << eventNb1 << std::endl;
-//  std::cout << " Lumi2 " << lumiBL1 << std::endl;
-
   if( !isTriggered() ){
     ATH_MSG_DEBUG("No trigger pass - rejecting event");
     return goodMuons;
   }
-
-//  std::cout << " Run3 " << runNb1 << std::endl;
-//  std::cout << " Event3 " << eventNb1 << std::endl;
-//  std::cout << " Lumi3 " << lumiBL1 << std::endl;
 
   if (m_doCalib) {      
     if( m_calibTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok ) 
@@ -128,17 +110,9 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
   
   // loop over muon container
   for(auto tag : *tags) {
-
-//    std::cout << " SELECTION " << std::endl;
-//    std::cout << " MuonType " << tag->muonType() << std::endl;
-//    std::cout << " Quality " << tag->quality() << std::endl;
-//    std::cout << " Author " << tag->author() << std::endl;
   
     // select muon type (Combined = 0)
     if(tag->muonType() != xAOD::Muon::MuonType::Combined) continue;
-
-    // select muon quality (Medium = 1) (Tight=0, Medium=1, Loose=2, VeryLoose=3)
-//    if(tag->quality() > xAOD::Muon::Quality::Medium) continue;      // Already done in the SelectorTool if Set in the JobOptions
 
     // select muon author (MuidCo = 1)
     if(tag->author() != xAOD::Muon::Author::MuidCo) continue;
@@ -161,13 +135,6 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
 	continue;
       }
     }
-   
-//    float selPtcorr=mu->pt();
-//    float selPt=tag->pt();
-//
-//    std::cout << " SELECTION " << std::endl;
-//    std::cout << " Pt " << selPt << std::endl;
-//    std::cout << " Pt corrected " << selPtcorr << std::endl;
 
     ATH_MSG_DEBUG("Selected muon TLV Pt|Eta|Phi|E :: " 
 		  << mu->p4().Pt() << " | " <<  mu->p4().Eta() << " | " << mu->p4().Phi() << " | " << mu->p4().E() );
@@ -185,7 +152,7 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
 
     // Cut on muon eta, pT, iso, IP - values defined in the JobOptions
     if(mu->pt() < m_ptCut){delete mu; continue;}
-    if(TMath::Abs(mu->eta()) > m_etaCut){delete mu; continue;}
+    if(std::abs(mu->eta()) > m_etaCut){delete mu; continue;}
     float caloiso = m_isoCaloCut * mu->pt();
     float trkiso  = m_isoTrkCut * mu->pt();
     if( !(mu->isolation(caloiso, xAOD::Iso::etcone30)) ||
@@ -228,17 +195,10 @@ bool MuonResonanceSelectionTool::IPCut(const xAOD::Muon& mu, float z0cut, float 
   if (evtStore()->retrieve(info, "EventInfo").isFailure()){
     ATH_MSG_FATAL( "Unable to retrieve Event Info" );
   }
-//  int runNb2 = info->runNumber();
-//  int eventNb2 = info->eventNumber();
-//  int lumiBL2 = info->lumiBlock();
 
-//  std::cout << " Run4 " << runNb2 << std::endl;
-//  std::cout << " Event4 " << eventNb2 << std::endl;
-//  std::cout << " Lumi4 " << lumiBL2 << std::endl;
-
-  const xAOD::TrackParticle* tp  = const_cast<xAOD::TrackParticle*>(mu.primaryTrackParticle());
+  const xAOD::TrackParticle* tp  = mu.primaryTrackParticle();
   if( mu.muonType() == xAOD::Muon::Combined && !tp )
-    tp = const_cast<xAOD::TrackParticle*>((*mu.inDetTrackParticleLink()));
+    tp = *mu.inDetTrackParticleLink();
 
   if(tp){
     float d0 = tp->d0();
@@ -252,30 +212,16 @@ bool MuonResonanceSelectionTool::IPCut(const xAOD::Muon& mu, float z0cut, float 
     else {
       vx = primVertices->at(0);
     }
-//    float x_vx = 0.;
-//    float y_vx = 0.;
-//    float z_vx = 0.;
-//    if(vx) x_vx = vx->x();
-//    if(vx) y_vx = vx->y();
-//    if(vx) z_vx = vx->z();
 
     // delta z0
     float delta_z0 = 100.0;
-    if(vx) delta_z0 = fabs(tp->z0() + tp->vz() - vx->z());
+    if(vx) delta_z0 = std::abs(tp->z0() + tp->vz() - vx->z());
 
     // d0 significance
     double d0_sig = xAOD::TrackingHelpers::d0significance( tp, info->beamPosSigmaX(), info->beamPosSigmaY(), info->beamPosSigmaXY() );  // d0 significance can be positive or negative!
 
-//    std::cout << " VERTEX " << std::endl;
-//    if(!vx) std::cout << " NO VERTEX " << std::endl;
-//    std::cout << " vertex " << x_vx << y_vx << z_vx << std::endl;
-//    std::cout << " d0 significance " << d0_sig << std::endl;
-//    std::cout << " delta z0 " << delta_z0 << std::endl;
-//    std::cout << " d0 " << d0 << std::endl;
-//    std::cout << " z0 " << z0 << std::endl;
-
-    float IP_d0 = TMath::Abs(d0_sig);
-    float IP_z0 = TMath::Abs(delta_z0*TMath::Sin(tp->theta()));
+    float IP_d0 = std::abs(d0_sig);
+    float IP_z0 = std::abs(delta_z0*std::sin(tp->theta()));
 
     ATH_MSG_DEBUG("IP:  d0 " << d0 << " z0 "<< z0 << " theta " << tp->theta() << " d0_significance "<< d0_sig );
 
@@ -291,9 +237,9 @@ bool MuonResonanceSelectionTool::IPCut(const xAOD::Muon& mu, float z0cut, float 
 // apply cut on total values of IPs
 bool MuonResonanceSelectionTool::IPCutAbs(const xAOD::Muon& mu, float Abs_z0, float Abs_d0) const{
   
-  const xAOD::TrackParticle* tp  = const_cast<xAOD::TrackParticle*>(mu.primaryTrackParticle());
+  const xAOD::TrackParticle* tp  = mu.primaryTrackParticle();
   if( mu.muonType() == xAOD::Muon::Combined && !tp )
-    tp = const_cast<xAOD::TrackParticle*>((*mu.inDetTrackParticleLink()));
+    tp = *mu.inDetTrackParticleLink();
   
   if(tp){
     const xAOD::VertexContainer* primVertices = 0;
@@ -305,7 +251,7 @@ bool MuonResonanceSelectionTool::IPCutAbs(const xAOD::Muon& mu, float Abs_z0, fl
       vx = primVertices->at(0);
     }
     float delta_z0 = 100.0;
-    if(vx) delta_z0 = fabs(tp->z0() + tp->vz() - vx->z());
+    if(vx) delta_z0 = std::abs(tp->z0() + tp->vz() - vx->z());
 
     if(tp->d0()<Abs_d0 && delta_z0<Abs_z0) return true;
     else return false;

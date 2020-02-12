@@ -48,7 +48,11 @@ int main() {
    std::map<std::string,bool> state {
       {"EM3", true},
       {"MU6", false},
-      {"MU20", true}
+      {"MU20", true},
+      {"TAU6", true},
+      {"J100", false},
+      {"BGRP0", true},
+      {"BGRP1", true}
    };
 
    bool success = true;
@@ -60,10 +64,11 @@ int main() {
    tests.emplace_back("EM3 & (!MU6 & MU20)");  // false
    tests.emplace_back("!EM3 | (MU6 & MU20)"); // true
    tests.emplace_back("!EM3 | MU6 | !MU20"); // false
+   tests.emplace_back("((EM3&MU6)|(TAU6&J100))&BGRP0&BGRP1)"); // false
 
    auto result1 = testPatterns(tests, state);
 
-   success = success && (result1 == std::vector<bool>{1,0,0,1,0,0});
+   success = success && (result1 == std::vector<bool>{1,0,0,1,0,0,0});
 
    // test 2: give multiplicity
    cout << endl;
@@ -91,6 +96,7 @@ int main() {
    multiplicityTests.emplace_back("EM3[x3]");
    multiplicityTests.emplace_back("EM3[x1] & TOPO_300INVM9999-AJ30s6-AJ20s6[x1]");
    multiplicityTests.emplace_back("EM18VHI[x1] & RNDM0");
+
 
    auto result2 = testPatterns(multiplicityTests, multiplicity);
 

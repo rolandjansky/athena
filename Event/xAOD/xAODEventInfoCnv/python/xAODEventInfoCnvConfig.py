@@ -77,7 +77,15 @@ def EventInfoOverlayCfg(flags, **kwargs):
 
     # Check if running on legacy HITS
     if "EventInfo" not in flags.Input.Collections and "EventInfo" not in flags.Input.SecondaryCollections:
-        acc.merge(EventInfoCnvAlgCfg(flags, outputKey=flags.Overlay.SigPrefix+"EventInfo", **kwargs))
+        acc.merge(EventInfoCnvAlgCfg(flags,
+                                     inputKey=flags.Overlay.SigPrefix+"McEventInfo",
+                                     outputKey=flags.Overlay.SigPrefix+"EventInfo",
+                                     **kwargs))
+        # Re-map signal address
+        from SGComps.AddressRemappingConfig import AddressRemappingCfg
+        acc.merge(AddressRemappingCfg([
+            "EventInfo#McEventInfo->" + flags.Overlay.SigPrefix + "McEventInfo",
+        ]))
 
     acc.merge(EventInfoOverlayAlgCfg(flags, **kwargs))
     acc.merge(EventInfoOverlayOutputCfg(flags, **kwargs))

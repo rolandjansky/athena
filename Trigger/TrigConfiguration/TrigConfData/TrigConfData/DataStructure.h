@@ -63,6 +63,8 @@ namespace TrigConf {
       void setData(const ptree & data);
       void setData(ptree && data);
 
+      virtual std::string className() const;
+
       /** Clearing the configuration data
        * 
        * leads to an uninitialized object
@@ -71,6 +73,9 @@ namespace TrigConf {
 
       /** Access to the underlying data, if needed */
       const ptree & data() const {
+         if( ! isInitialized() ) {
+            throw std::runtime_error("Trying to access data of uninitialized object of type " + className());
+         }
          return ownsData() ? *m_dataSPtr.get() : *m_dataPtr;
       }
 
@@ -159,6 +164,7 @@ namespace TrigConf {
       /** Access to initialized state */
       explicit operator bool() const { return m_initialized; }
       bool isValid() const { return m_initialized; }
+      bool isInitialized() const { return m_initialized; }
 
       /** Check if children exist */
       bool empty() const { return data().empty(); }

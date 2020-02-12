@@ -65,7 +65,7 @@ thinningTools.append(EXOT8ElectronTPThinningTool)
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 EXOT8Ak4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "EXOT8Ak4JetTPThinningTool",
-                                                                          ThinningService        = "EXOT8ThinningSvc",
+                                                                          StreamName              = streamName,
                                                                           JetKey                 = "AntiKt4LCTopoJets",
                                                                           SelectionString        = "AntiKt4LCTopoJets.pt > 50*GeV && AntiKt4LCTopoJets.eta > -2.7 && AntiKt4LCTopoJets.eta < 2.7",
                                                                           InDetTrackParticlesKey = "InDetTrackParticles")
@@ -76,7 +76,7 @@ thinningTools.append(EXOT8Ak4JetTPThinningTool)
 # Tracks associated with large-R jets (0.2)
 ############################################
 EXOT8Ak10r2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "EXOT8Ak10r2JetTPThinningTool",
-                                                                             ThinningService        = "EXOT8ThinningSvc",
+                                                                             StreamName              = streamName,
                                                                              JetKey                 = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                              SelectionString        = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta > -2.7 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta < 2.7",
                                                                              InDetTrackParticlesKey = "InDetTrackParticles")

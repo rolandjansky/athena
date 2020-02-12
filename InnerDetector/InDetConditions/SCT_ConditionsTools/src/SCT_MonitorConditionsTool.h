@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_MONITORCONDITIONSTOOL_SCT_MONITORCONDITIONSTOOL_H
@@ -78,13 +78,13 @@ private:
 
   bool moduleIsNoisy(const std::string& defectList) const ;
 
-  bool inRange(const int theNumber, const std::string& stringRange) const;
+  bool inRange(const int theStripNumber, const std::string& stringRange) const;
 
-  bool inList(const int theNumber, const std::string& theList) const;
+  bool inList(const int theStripNumber, const std::string& theList) const;
 
-  int  nBlock(const int theNumber, const std::string& stringRange) const;
+  int  nBlock(const int theStripNumber, const std::string& stringRange, const bool chipLevel) const;
 
-  int  nDefect(const int theNumber, const std::string& theList) const;
+  int  nDefect(const int theStripNumber, const std::string& theList, const bool chipLevel) const;
 
   int  nBlock(const std::string& stringRange) const;
 

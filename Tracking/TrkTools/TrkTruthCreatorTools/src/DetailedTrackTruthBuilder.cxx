@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTruthCreatorTools/DetailedTrackTruthBuilder.h"
@@ -76,7 +76,7 @@ namespace Trk {
 //================================================================
 DetailedTrackTruthBuilder::DetailedTrackTruthBuilder(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent)
-  , m_idHelper(0)
+  , m_idHelper(nullptr)
   , m_truthTrajBuilder("Trk::ElasticTruthTrajectoryBuilder")
 {
   declareInterface<IDetailedTrackTruthBuilder>(this);
@@ -180,7 +180,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 // (no way to reuse its private function PrepRawDataCollectionType() )
 
 SubDetHitStatistics::SubDetType 
-DetailedTrackTruthBuilder::findSubDetType(Identifier id) const {
+DetailedTrackTruthBuilder::findSubDetType(const Identifier& id) const {
   if (m_idHelper->is_pixel(id))
     return SubDetHitStatistics::Pixel;
   if (m_idHelper->is_sct(id))
@@ -272,7 +272,8 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 	    if (n == 0) {
 	      ATH_MSG_VERBOSE("--> no link, noise ? PRD-ID:"<<id<<" subdet:"<<subdet);
 	      // add barcode 0 to pairs, we like to keep track of fake fakes
-	      unsigned int BC(0),EV(0);
+	      unsigned int BC(0);
+	      unsigned int EV(0);
 	      pairStat[HepMcParticleLink(BC,EV)].subDetHits[subdet].insert(id);
 	    }
 	  } // orderedPRD_Truth[] available
@@ -420,7 +421,7 @@ void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, con
   // to allow lookup of all Identifiers produced by a given HepMcParticleLink.
   // the result is only used in countPRDsOnTruth. since that code ignores
   // geantinos, don't bother to sort the geantinos here.
-  for( auto i : rec2truth ) {
+  for( const auto& i : rec2truth ) {
     // i.first = Identifier
     // i.second = HepMcParticleLink
     const HepMC::GenParticle* pa = i.second.cptr();

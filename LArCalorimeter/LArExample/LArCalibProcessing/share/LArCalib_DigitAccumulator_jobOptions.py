@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###############################################################################
 #
@@ -58,7 +60,7 @@ if not 'GainListAccum' in dir():
    for i in GainList:
       newKey=i+KeyOutputAccum
       GainListAccum.append(newKey)
-      print "GainListAccum = ",GainListAccum
+      printfunc ("GainListAccum = ",GainListAccum)
 
 if not 'GroupingType' in dir():
    GroupingType = "ExtendedSubDetector"
@@ -135,16 +137,16 @@ if not 'DBConnectionCOOL' in dir():
    DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"   
 
 if not 'OutputPedAutoCorrRootFileDir' in dir():
-   OutputPedAutoCorrRootFileDir  = commands.getoutput("pwd")
+   OutputPedAutoCorrRootFileDir  = subprocess.getoutput("pwd")
    
 if not 'OutputPedPoolFileDir' in dir():
-   OutputPedPoolFileDir  = commands.getoutput("pwd")
+   OutputPedPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'PedLArCalibFolderTag' in dir():
    PedLArCalibFolderTag = LArCalib_Flags.tagSuffix 
    
 if not 'OutputAutoCorrPoolFileDir' in dir():
-   OutputAutoCorrPoolFileDir  = commands.getoutput("pwd")
+   OutputAutoCorrPoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
@@ -333,7 +335,7 @@ if ( WriteNtuple ) :
 
          topSequence += NtupleDSP
 
-         print NtupleDSP
+         printfunc (NtupleDSP)
 
    if Accumulator :
       from LArCalibTools.LArCalibToolsConf import LArAccumulatedDigits2Ntuple
@@ -345,7 +347,7 @@ if ( WriteNtuple ) :
 
          topSequence += NtupleOff
 
-         print NtupleOff
+         printfunc (NtupleOff)
 
    theApp.HistogramPersistency = "ROOT"
    from GaudiSvc.GaudiSvcConf import NTupleSvc
