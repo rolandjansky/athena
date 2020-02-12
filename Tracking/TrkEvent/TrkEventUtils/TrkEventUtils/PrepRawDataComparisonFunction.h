@@ -28,8 +28,7 @@ namespace Trk {
   /**
    * Class providing comparison function, or relational definition, for PrepRawData
    */
-  class PrepRawDataComparisonFunction :
-    public std::binary_function<const Trk::PrepRawData*, const Trk::PrepRawData*, bool>
+  class PrepRawDataComparisonFunction
   {
   public:
                 

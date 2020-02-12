@@ -38,8 +38,6 @@
 #include "HepMC/GenParticle.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-//#include "TrkEventUtils/PrepRawDataComparisonFunction.h"
-
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
