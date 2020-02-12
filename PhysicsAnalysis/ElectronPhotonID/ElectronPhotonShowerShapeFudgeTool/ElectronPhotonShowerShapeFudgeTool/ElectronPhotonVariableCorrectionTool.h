@@ -1,8 +1,17 @@
 #ifndef ElectronPhotonVariableCorrectionTool_H
 #define ElectronPhotonVariableCorrectionTool_H
 
+/**
+   @class ElectronPhotonVariableCorrectionTool
+   @brief Tool to correct electron and photon MC variables.
+
+   @author Nils Gillwald (DESY) nils.gillwald@desy.de
+   @date   February 2020
+*/
+
 //ATLAS includes
 #include "AsgTools/AsgTool.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonVariableCorrectionTool.h"
 
 //EDM includes
 #include "xAODEgamma/Electron.h"
@@ -18,8 +27,11 @@ class TEnv;
 // Class ElectronPhotonVariableCorrectionTool
 // ===========================================================================
 
-class ElectronPhotonVariableCorrectionTool : public asg::AsgTool
+class ElectronPhotonVariableCorrectionTool : public asg::AsgTool, virtual public IElectronPhotonVariableCorrectionTool
 {
+    /// Declare the interface that the class provides
+    ASG_TOOL_CLASS(ElectronPhotonVariableCorrectionTool, IElectronPhotonVariableCorrectionTool)
+
 public:
     ElectronPhotonVariableCorrectionTool(const std::string& myname);
     ~ElectronPhotonVariableCorrectionTool();
