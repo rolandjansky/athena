@@ -15,6 +15,23 @@ ToolSvc += MCClassifier
 # Ouput Message Level
 svcMgr.MessageSvc.OutputLevel = INFO
 
+Geometry="ATLAS-R2-2016-01-00-01"
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetGeo.set_Value_and_Lock('atlas')
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.detdescr.all_setOn()
+DetFlags.Forward_setOff()
+DetFlags.ID_setOff()
+
+from AthenaCommon.GlobalFlags import jobproperties
+jobproperties.Global.DetDescrVersion=Geometry
+
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
+include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
+include( "LArDetDescr/LArDetDescr_joboptions.py" )
+
+
 # ART File
 testFile = 'Nightly_AOD_'+particleType+'.pool.root'
 svcMgr.EventSelector.InputCollections = [testFile]

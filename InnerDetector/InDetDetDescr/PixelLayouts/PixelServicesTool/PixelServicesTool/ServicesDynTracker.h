@@ -21,7 +21,7 @@ class ServicesDynTracker : public PixelGeoBuilder {
 public:
 
   /// Construct an empty tracker, to be filled by Builder
-  ServicesDynTracker(const PixelGeoBuilderBasics* basics, bool bSvcDynAuto, bool bSvcBrlModule=false);
+  ServicesDynTracker(const PixelGeoBuilderBasics* basics, bool bSvcBrlModule=false);
   ~ServicesDynTracker();
 
   // Construct somehow (for testing)

@@ -398,12 +398,14 @@ class enableLumiAccess(JobProperty):
     StoredValue=True
 list+=[enableLumiAccess]
 
-class excludeFromCleaning(JobProperty):
-    """ Tools matching regexes in this list will not have event cleaning tool set up """
+class includeInCleaning(JobProperty):
+    """ Tools matching regexes in this list will have event cleaning tool set up """
     statusOn=True
     allowedTypes=['list']
-    StoredValue=['.*LAr.*', '.*Tile.*', '.*SCT.*', 'DQTDataFlowMon']
-list+=[excludeFromCleaning]
+    StoredValue=[ '.*JetMonitoring.*', '.*METMonTool.*', '.*tauMonTool.*',
+                  '.*DQTGlobalWZFinder.*', '.*jetTagMon.*', '.*phMonTool.*',
+                  '.*elMonTool.*', '.*fwdMonTool.*' ]
+list+=[includeInCleaning]
 
 class specialCleaningConfiguration(JobProperty):
     """ Special event cleaning configurations (no regexes) """

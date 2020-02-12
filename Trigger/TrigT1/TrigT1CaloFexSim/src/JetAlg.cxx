@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloFexSim/JetAlg.h"
@@ -330,7 +330,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, TString seed
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float /*jet_total_noise_multiplier*/, float jet_min_ET_MeV){
+StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetname, float jet_r, std::vector<float> noise, float jet_tower_noise_multiplier, float /*jet_total_noise_multiplier*/, float jet_min_ET_MeV, float rho){
 
 
   std::vector<TowerObject::Block> blocks;
@@ -377,16 +377,14 @@ StatusCode JetAlg::BuildFatJet(const xAOD::JGTowerContainer towers, TString jetn
     float pt_cone = blocks[b].Pt();
 
     float j_Et = 0;
-    float j_totalnoise = 0;
-    //std::cout << "cone pT : " << pt_cone << std::endl; 
     if(pt_cone > pt_cone_cut){
-      //std::cout << "cone pT : " << pt_cone << std::endl;
       for(unsigned int t = 0; t < towers.size(); t++){
 	const xAOD::JGTower* tower = towers.at(t);
 	if(fabs(tower->et()) < noise.at(t) * jet_tower_noise_multiplier)  continue;
 	if(!withinRadius(block_eta, tower->eta(), block_phi, tower->phi(), jet_r, false) ) continue;
 	j_Et += tower->et();
       }//looping over all towers
+      j_Et -= 64*rho;
       if(j_Et < jet_min_ET_MeV) continue;
       std::shared_ptr<JetAlg::L1Jet> j = std::make_shared<JetAlg::L1Jet>(block_eta, block_phi, j_Et);
       js.push_back(j);
@@ -533,3 +531,106 @@ StatusCode JetAlg::BuildRoundJet(const xAOD::JGTowerContainer*towers, TString se
   return StatusCode::SUCCESS;
 }
 
+StatusCode JetAlg::BuildgBlocksJets(const xAOD::JGTowerContainer* gBs, TString jetname, float rho){
+  
+  std::vector<std::shared_ptr<JetAlg::L1Jet>> gbJets;
+  if(m_JetMap.find(jetname)!=m_JetMap.end())  gbJets =  m_JetMap[jetname];
+  else m_JetMap[jetname] = gbJets;
+  std::vector<float> max_pt(6,0.0); // One entry for each eta slice
+  std::vector<float> sec_pt(6,0.0);
+  std::vector<int> max_index(6,0);
+  std::vector<int> sec_index(6,0);
+    
+  for(unsigned int b = 0; b < gBs->size(); b++){
+    const xAOD::JGTower* block = gBs->at(b);
+
+    const float eta = block->eta();
+    const float pt = block->et();
+
+    // fpga_a
+    if(eta > -2.5 && eta < -1.25){
+      if(pt>max_pt.at(0)){
+	max_pt.at(0) = pt;
+	max_index.at(0) = b;
+      }
+      else if(pt>sec_pt.at(0)){
+	sec_pt.at(0) = pt;
+	sec_index.at(0) = b;
+      }
+    }
+    if(eta > -1.25 && eta < 0){
+      if(pt>max_pt.at(1)){
+	max_pt.at(1) = pt;
+	max_index.at(1) = b;
+      }
+      else if(pt>sec_pt.at(1)){
+	sec_pt.at(1) = pt;
+	sec_index.at(1) = b;
+      } 
+    }
+    // fpga_b
+    if(eta > 0 && eta < 1.25){
+      if(pt>max_pt.at(2)){
+	max_pt.at(2) = pt;
+	max_index.at(2) = b;
+      }
+      else if(pt>sec_pt.at(2)){
+	sec_pt.at(2) = pt;
+	sec_index.at(2) = b;
+      } 
+    }
+    if(eta > 1.25 && eta < 2.5){
+      if(pt>max_pt.at(3)){
+	max_pt.at(3) = pt;
+	max_index.at(3) = b;
+      }
+      else if(pt>sec_pt.at(3)){
+	sec_pt.at(3) = pt;
+	sec_index.at(3) = b;
+      } 
+    }
+    // fpga_c
+    if(eta >= 2.5){
+      if(pt>max_pt.at(4)){
+	max_pt.at(4) = pt;
+	max_index.at(4) = b;
+      }
+      else if(pt>sec_pt.at(4)){
+	sec_pt.at(4) = pt;
+	sec_index.at(4) = b;
+      } 
+    }
+    if(eta <= -2.5){
+      if(pt>max_pt.at(5)){
+	max_pt.at(5) = pt;
+	max_index.at(5) = b;
+      }
+      else if(pt>sec_pt.at(5)){
+	sec_pt.at(5) = pt;
+	sec_index.at(5) = b;
+      } 
+    }
+  }
+
+  rho *= 9; //assuming there are ~9 towers per jet
+  for(unsigned int i=0; i<max_pt.size(); i++){
+    int i_max = max_index.at(i);
+    int i_sec = sec_index.at(i);
+
+    float eta_max = gBs->at(i_max)->eta();
+    float phi_max = gBs->at(i_max)->phi();
+    float et_max = gBs->at(i_max)->et() - rho;
+
+    float eta_sec = gBs->at(i_sec)->eta();
+    float phi_sec = gBs->at(i_sec)->phi();
+    float et_sec = gBs->at(i_sec)->et() - rho;
+
+    std::shared_ptr<JetAlg::L1Jet> gbJ_max = std::make_shared<JetAlg::L1Jet>(eta_max, phi_max, et_max);
+    std::shared_ptr<JetAlg::L1Jet> gbJ_sec = std::make_shared<JetAlg::L1Jet>(eta_sec, phi_sec, et_sec);
+
+    gbJets.push_back(gbJ_max);
+    gbJets.push_back(gbJ_sec);
+  }
+  m_JetMap[jetname] = gbJets;
+  return StatusCode::SUCCESS;
+}

@@ -1,4 +1,4 @@
-from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as InDetGeometryFlags
 from HitAnalysis.HitAnalysisConf import SiHitAnalysis
 topSequence += SiHitAnalysis('PixelHitAnalysis')
 topSequence.PixelHitAnalysis.CollectionName='PixelHits'

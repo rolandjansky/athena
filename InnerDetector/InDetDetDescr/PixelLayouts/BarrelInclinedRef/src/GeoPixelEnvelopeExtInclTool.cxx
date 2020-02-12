@@ -143,7 +143,7 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
   // Envelope interface
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
 
-  std::cout<<"GeoEnvelopeInclRef : GeoVPhysVol* GeoPixelEnvelopeAlpineTool::Build( )"<<std::endl;
+  ATH_MSG_INFO("GeoEnvelopeInclRef : GeoVPhysVol* GeoPixelEnvelopeAlpineTool::Build( )");
 
   bool barrelPresent   = genDBHelper.isBarrelPresent();
   bool endcapAPresent  = genDBHelper.isEndcapPresentA();
@@ -184,6 +184,8 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
   double rmax = genDBHelper.getEnvelopeRMax();
   double halflength = genDBHelper.getEnvelopeHalfLength();
   envelopeShape = new GeoTube(rmin,rmax,halflength);
+
+  ATH_MSG_DEBUG("Pixel barrel envelope : rMin,rMax: halflengthZ: "<<rmin<<","<<rmax <<" :"<<halflength);
   //  pixZone = new InDetDD::TubeZone("Pixel",-halflength,halflength,rmin,rmax);
 
   const GeoMaterial* air = m_matMgr->getMaterial("std::Air");
@@ -208,14 +210,6 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
     envelopePhys->add(new GeoIdentifierTag(0));
     envelopePhys->add(new GeoTransform(barrelTransform));
     envelopePhys->add(barrelPhys );
-
-//     GeoPixelBarrel brl(pixServices);
-//     GeoNameTag* tag = new GeoNameTag("Barrel");
-//     GeoVPhysVol* barrelPhys =  brl.Build() ;
-//     envelopePhys->add(tag);
-//     envelopePhys->add(new GeoIdentifierTag(0));
-//     envelopePhys->add(new GeoTransform(barrelTransform));
-//     envelopePhys->add(barrelPhys );
   }
 
 

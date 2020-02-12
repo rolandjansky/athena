@@ -120,8 +120,8 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
 
   double phiOfStaveZero = 0.;
 
-  msg(MSG::DEBUG)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
-  msg(MSG::DEBUG)<<"*****************************************************************************"<<endreq;
+  ATH_MSG_DEBUG(layerName<<" "<<staveType<<" "<<nSectors);
+  ATH_MSG_DEBUG("*****************************************************************************");
 
   double deltaPhi = 360.*CLHEP::deg/(double)nSectors;
 
@@ -173,7 +173,7 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
 
       // Now make the layer envelope
       // 
-      msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
+      ATH_MSG_DEBUG("Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax);
       const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
       std::ostringstream lname;
       lname << "Layer" << m_layer;

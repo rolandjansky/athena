@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # DetFlags : Author Tadashi Maeno
 #            Mods: David Rousseau, Paolo Calafiura, M. Gallas ( more flags and 
@@ -81,6 +81,7 @@ class DetFlags:
             self._flag_HEC   = False
             self._flag_FCal  = False
             self._flag_Tile  = False
+            self._flag_MBTS  = False
             # Muon
             self._flag_MDT   = False
             self._flag_CSC   = False
@@ -155,11 +156,13 @@ class DetFlags:
             self.HEC_setOn()
             self.FCal_setOn()
             self.Tile_setOn()
+            self.MBTS_setOn()
         def Calo_setOff (self):
             self.em_setOff()
             self.HEC_setOff()
             self.FCal_setOff()
             self.Tile_setOff()
+            self.MBTS_setOff()
         def LAr_setOn (self):
             self.em_setOn()
             self.HEC_setOn()
@@ -380,7 +383,11 @@ class DetFlags:
         cls._setAllTask('Tile','setOn')
     def Tile_setOff (cls):
         cls._setAllTask('Tile','setOff')
-
+    def MBTS_setOn  (cls):
+        cls._setAllTask('MBTS','setOn')
+    def MBTS_setOff (cls):
+        cls._setAllTask('MBTS','setOff')
+    
     def MDT_setOn (cls):
         cls._setAllTask('MDT','setOn')
     def MDT_setOff (cls):
@@ -494,6 +501,8 @@ class DetFlags:
         return cls._anyTask_on('FCal')
     def Tile_on (cls):
         return cls._anyTask_on('Tile')
+    def MBTS_on (cls):
+        return cls._anyTask_on('MBTS')
 
     def MDT_on (cls):
         return cls._anyTask_on('MDT')
@@ -539,7 +548,7 @@ class DetFlags:
     def Print (cls):
         id  =["bpipe","pixel","SCT","TRT","BCM","DBM"]
         forward=["Lucid", "ZDC", "ALFA", "AFP", "FwdRegion"]
-        calo=["em","HEC","FCal","Tile"]
+        calo=["em","HEC","FCal","Tile","MBTS"]
         muon=["MDT","CSC","TGC","RPC","sTGC","Micromegas"]
         truth=["Truth"]
         l1=["LVL1"]
@@ -605,6 +614,8 @@ class DetFlags:
     FCal_setOff  = classmethod(FCal_setOff)
     Tile_setOn   = classmethod(Tile_setOn)
     Tile_setOff  = classmethod(Tile_setOff)
+    MBTS_setOn   = classmethod(MBTS_setOn)
+    MBTS_setOff  = classmethod(MBTS_setOff)
     MDT_setOn    = classmethod(MDT_setOn)
     MDT_setOff   = classmethod(MDT_setOff)
     CSC_setOn    = classmethod(CSC_setOn)
@@ -654,6 +665,7 @@ class DetFlags:
     HEC_on       = classmethod(HEC_on)
     FCal_on      = classmethod(FCal_on)
     Tile_on      = classmethod(Tile_on)
+    MBTS_on      = classmethod(MBTS_on)
     MDT_on       = classmethod(MDT_on)
     CSC_on       = classmethod(CSC_on)
     TGC_on       = classmethod(TGC_on)

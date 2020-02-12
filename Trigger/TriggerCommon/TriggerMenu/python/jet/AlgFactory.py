@@ -255,7 +255,6 @@ class AlgFactory(object):
         factory = 'TrigHLTJetRecGroomer'
         # add factory to instance label to facilitate log file searches                      
         name = '"%s_%s"' %(factory, self.fex_params.fex_label)
-        print 'after name' #Nima!
         kwds = {
             'name': name,  # instance label                                     
             'merge_param': "'%s'" % merge_param_str,

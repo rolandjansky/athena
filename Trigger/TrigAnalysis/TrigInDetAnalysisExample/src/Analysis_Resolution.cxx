@@ -18,11 +18,11 @@ Analysis_Resolution::Analysis_Resolution(const std::string& name, double pTCut, 
   TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut) {
 
   // Create resolution histograms
-  h_res_eta   = new TH1D(std::string(mname+"-Res-eta").c_str(), std::string(mname+" eta resolution").c_str(), 100, -0.02, 0.02);
-  h_res_phi   = new TH1D(std::string(mname+"-Res-phi").c_str(), std::string(mname+" phi resolution").c_str(), 100, -0.01, 0.01);
-  h_res_z0    = new TH1D(std::string(mname+"-Res-z0").c_str(),  std::string(mname+" z0 resolution").c_str(), 100, -3.0, 3.0);
-  h_res_d0    = new TH1D(std::string(mname+"-Res-d0").c_str(),  std::string(mname+" d0 resolution").c_str(), 100, -3.0, 3.0);
-  h_res_invpT = new TH1D(std::string(mname+"-Res-pT").c_str(),  std::string(mname+" inv-pT resolution").c_str(), 100, -0.0004, 0.0004);
+  h_res_eta   = new TH1D(std::string(m_name+"-Res-eta").c_str(), std::string(m_name+" eta resolution").c_str(), 100, -0.02, 0.02);
+  h_res_phi   = new TH1D(std::string(m_name+"-Res-phi").c_str(), std::string(m_name+" phi resolution").c_str(), 100, -0.01, 0.01);
+  h_res_z0    = new TH1D(std::string(m_name+"-Res-z0").c_str(),  std::string(m_name+" z0 resolution").c_str(), 100, -3.0, 3.0);
+  h_res_d0    = new TH1D(std::string(m_name+"-Res-d0").c_str(),  std::string(m_name+" d0 resolution").c_str(), 100, -3.0, 3.0);
+  h_res_invpT = new TH1D(std::string(m_name+"-Res-pT").c_str(),  std::string(m_name+" inv-pT resolution").c_str(), 100, -0.0004, 0.0004);
   addHistogram(h_res_eta);
   addHistogram(h_res_phi);
   addHistogram(h_res_z0);
@@ -30,11 +30,11 @@ Analysis_Resolution::Analysis_Resolution(const std::string& name, double pTCut, 
   addHistogram(h_res_invpT);
   
   // Create pull histograms
-  h_pull_eta   = new TH1D(std::string(mname+"-Pull-eta").c_str(), std::string(mname+" eta pull").c_str(), 100, -20.0, 20.0);
-  h_pull_phi   = new TH1D(std::string(mname+"-Pull-phi").c_str(), std::string(mname+" phi pull").c_str(), 100, -20.0, 20.0);
-  h_pull_z0    = new TH1D(std::string(mname+"-Pull-z0").c_str(),  std::string(mname+" z0 pull").c_str(), 100, -20.0, 20.0);
-  h_pull_d0    = new TH1D(std::string(mname+"-Pull-d0").c_str(),  std::string(mname+" d0 pull").c_str(), 100, -20.0, 20.0);
-  h_pull_invpT = new TH1D(std::string(mname+"-Pull-pT").c_str(),  std::string(mname+" inv-pT pull").c_str(), 100, -20.0, 20.0);
+  h_pull_eta   = new TH1D(std::string(m_name+"-Pull-eta").c_str(), std::string(m_name+" eta pull").c_str(), 100, -20.0, 20.0);
+  h_pull_phi   = new TH1D(std::string(m_name+"-Pull-phi").c_str(), std::string(m_name+" phi pull").c_str(), 100, -20.0, 20.0);
+  h_pull_z0    = new TH1D(std::string(m_name+"-Pull-z0").c_str(),  std::string(m_name+" z0 pull").c_str(), 100, -20.0, 20.0);
+  h_pull_d0    = new TH1D(std::string(m_name+"-Pull-d0").c_str(),  std::string(m_name+" d0 pull").c_str(), 100, -20.0, 20.0);
+  h_pull_invpT = new TH1D(std::string(m_name+"-Pull-pT").c_str(),  std::string(m_name+" inv-pT pull").c_str(), 100, -20.0, 20.0);
   addHistogram(h_pull_eta);
   addHistogram(h_pull_phi);
   addHistogram(h_pull_z0);
@@ -42,18 +42,18 @@ Analysis_Resolution::Analysis_Resolution(const std::string& name, double pTCut, 
   addHistogram(h_pull_invpT);
 
   //Create more specific resolution histograms
-  h_res_d0VsPt  = new TH2D(std::string(mname+"-Res-d0VsPt").c_str(), std::string(mname+" d0VsPt resolution").c_str(), 
+  h_res_d0VsPt  = new TH2D(std::string(m_name+"-Res-d0VsPt").c_str(), std::string(m_name+" d0VsPt resolution").c_str(), 
 			   50, -3.0, 3.0, 500, -30000.0, 30000.0);
-  h_res_z0VsPt  = new TH2D(std::string(mname+"-z0VsPt").c_str(), std::string(mname+" z0VsPt resolution").c_str(), 
+  h_res_z0VsPt  = new TH2D(std::string(m_name+"-z0VsPt").c_str(), std::string(m_name+" z0VsPt resolution").c_str(), 
 			   50, -3.0, 3.0, 500, -30000.0, 30000.0);
-  h_res_d0VsD0  = new TH2D(std::string(mname+"-Res-d0VsD0").c_str(),std::string(mname+" d0VsD0 resolution").c_str(), 
+  h_res_d0VsD0  = new TH2D(std::string(m_name+"-Res-d0VsD0").c_str(),std::string(m_name+" d0VsD0 resolution").c_str(), 
 			   50, -3.0, 3.0, 500, -300.0, 300.0);
-  h_res_z0VsEta = new TH2D(std::string(mname+"-Res-z0VsEta").c_str(), std::string(mname+" z0VsEta resolution").c_str(), 
+  h_res_z0VsEta = new TH2D(std::string(m_name+"-Res-z0VsEta").c_str(), std::string(m_name+" z0VsEta resolution").c_str(), 
 			   50, -3.0, 3.0, 500, -3.0, 3.0);
-  h_res_d0VsPixelHits_withBLayer    = new TH2D(std::string(mname+"-Res-d0VsPixel-withBLayer").c_str(), 
-					       std::string(mname+" resolution vs pixelHits (w b-layer)").c_str(), 50, -3, 3, 10, 0, 10);
-  h_res_d0VsPixelHits_withoutBLayer = new TH2D(std::string(mname+"-Res-d0VsPixel-withoutBLayer").c_str(),
-					       std::string(mname+" resolution vs pixelHits (w/o b-layer)").c_str(), 50, -3, 3, 10, 0, 10);
+  h_res_d0VsPixelHits_withBLayer    = new TH2D(std::string(m_name+"-Res-d0VsPixel-withBLayer").c_str(), 
+					       std::string(m_name+" resolution vs pixelHits (w b-layer)").c_str(), 50, -3, 3, 10, 0, 10);
+  h_res_d0VsPixelHits_withoutBLayer = new TH2D(std::string(m_name+"-Res-d0VsPixel-withoutBLayer").c_str(),
+					       std::string(m_name+" resolution vs pixelHits (w/o b-layer)").c_str(), 50, -3, 3, 10, 0, 10);
   addHistogram(h_res_d0VsPt);
   addHistogram(h_res_z0VsPt);
   addHistogram(h_res_d0VsD0);
@@ -62,18 +62,18 @@ Analysis_Resolution::Analysis_Resolution(const std::string& name, double pTCut, 
   addHistogram(h_res_d0VsPixelHits_withoutBLayer);
 
   //Create more specific pull histograms
-  h_pull_d0VsEta  = new TH2D(std::string(mname+"-Pull-d0VsEta").c_str(), std::string(mname+" d0VsEta pull").c_str(), 
+  h_pull_d0VsEta  = new TH2D(std::string(m_name+"-Pull-d0VsEta").c_str(), std::string(m_name+" d0VsEta pull").c_str(), 
 			     50, -5.0, 5.0, 500, -3.0, 3.0);
-  h_pull_z0VsEta  = new TH2D(std::string(mname+"-Pull-z0VsEta").c_str(), std::string(mname+" z0VsEta pull").c_str(), 
+  h_pull_z0VsEta  = new TH2D(std::string(m_name+"-Pull-z0VsEta").c_str(), std::string(m_name+" z0VsEta pull").c_str(), 
 			     50, -5.0, 5.0, 500, -3.0, 3.0);
-  h_pull_d0VsPixelHits_withoutBLayer = new TH2D(std::string(mname+"-Pull-d0VsPixelHits_withoutBLayer").c_str(),
-						std::string(mname+" d0VsPixelHits pull (without b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
-  h_pull_z0VsPixelHits_withoutBLayer = new TH2D(std::string(mname+"-Pull-z0VsPixelHits_withoutBLayer").c_str(),
-						std::string(mname+" z0VsPixelHits pull (without b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
-  h_pull_d0VsPixelHits_withBLayer = new TH2D(std::string(mname+"-Pull-d0VsPixelHits_withBLayer").c_str(),
-					     std::string(mname+" d0VsPixelHits pull (with b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
-  h_pull_z0VsPixelHits_withBLayer = new TH2D(std::string(mname+"-Pull-z0VsPixelHits_withBLayer").c_str(),
-					     std::string(mname+" z0VsPixelHits pull (with b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
+  h_pull_d0VsPixelHits_withoutBLayer = new TH2D(std::string(m_name+"-Pull-d0VsPixelHits_withoutBLayer").c_str(),
+						std::string(m_name+" d0VsPixelHits pull (without b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
+  h_pull_z0VsPixelHits_withoutBLayer = new TH2D(std::string(m_name+"-Pull-z0VsPixelHits_withoutBLayer").c_str(),
+						std::string(m_name+" z0VsPixelHits pull (without b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
+  h_pull_d0VsPixelHits_withBLayer = new TH2D(std::string(m_name+"-Pull-d0VsPixelHits_withBLayer").c_str(),
+					     std::string(m_name+" d0VsPixelHits pull (with b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
+  h_pull_z0VsPixelHits_withBLayer = new TH2D(std::string(m_name+"-Pull-z0VsPixelHits_withBLayer").c_str(),
+					     std::string(m_name+" z0VsPixelHits pull (with b-layer)").c_str(), 50, -5.0, 5.0, 10, 0.0, 10.0);
   addHistogram(h_pull_d0VsEta);
   addHistogram(h_pull_z0VsEta);
   addHistogram(h_pull_d0VsPixelHits_withoutBLayer);

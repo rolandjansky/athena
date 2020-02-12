@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigFTK_RecAlgs.TrigFTK_RecAlgsConf import TrigFTK_VxPrimary
+from TrigFTK_RecAlgs.TrigFTK_RecAlgsConf import TrigFTKFastSim
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
@@ -84,3 +85,13 @@ class TrigFTK_VxPrimary_EF(TrigFTK_VxPrimary):
         self.AthenaMonTools = [TrigFTK_PriVxFinderOnlineMonitor(),
                                TrigFTK_PriVxFinderValidationMonitor(),
                                vxtime]
+
+
+class TrigFTKFastSim_EF(TrigFTKFastSim):
+    __slots__ = []
+    def __init__(self, name, type):
+        TrigFTKFastSim.__init__(self, name)
+        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackSummaryToolFTK
+        self.TrackSummaryTool=InDetTrigTrackSummaryToolFTK
+
+

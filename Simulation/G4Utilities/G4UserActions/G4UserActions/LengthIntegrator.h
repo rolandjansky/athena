@@ -8,6 +8,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "AthenaBaseComps/AthMessaging.h"
+
 #include "G4Pow.hh"
 #include "TString.h"
 
@@ -20,6 +22,7 @@
 // Forward declarations
 class TProfile;
 class TProfile2D;
+class TTree;
 
 
 namespace G4UA
@@ -39,13 +42,20 @@ namespace G4UA
   /// finalization of the LengthIntegratorTool.
   ///
   class LengthIntegrator final : public G4UserEventAction,
-                                 public G4UserSteppingAction
+                                 public G4UserSteppingAction,
+                                 public AthMessaging
   {
 
     public:
 
+      struct Config
+      {
+        bool isITk=false;
+        bool doElements=false;
+      };
+
       /// Constructor takes the name of the histogram service as argument.
-      LengthIntegrator(const std::string& histSvcName);
+      LengthIntegrator(const std::string& histSvcName, const Config& config);
 
       /// Called at beginning of G4 event to cache some details about the
       /// current primary vertex and particle. Also resets some measurements.
@@ -59,50 +69,50 @@ namespace G4UA
 
     private:
 
+      std::string getVolumeType(std::string s);
+      std::string getLayerName(double r, double z);
+      void fillNtuple();
+      std::string getMaterialClassification(std::string name, std::string volName);
+
+
       // Holder for G4 math tools
       G4Pow* m_g4pow;
-
-      // Add elements and values into the map
-      void addToDetThickMap(std::string, double, double);
-
-      /// Setup one set of measurement hists for a detector name.
-      void regAndFillHist(const std::string&, const std::pair<double, double>&);
-
-      /// this method checks if a histo is on THsvc already and caches a local pointer to it
-      /// if the histo is not present, it creates and registers it
-      TProfile2D* getOrCreateProfile(std::string regName, TString histoname, TString xtitle, int nbinsx, float xmin, float xmax,TString ytitle, int nbinsy,float ymin, float ymax,TString ztitle);
-
-      /// Handle to the histogram service
       ServiceHandle<ITHistSvc> m_hSvc;
+      TTree* m_tree;
+      Config m_config;
+      /// Handle to the histogram service
+      //Tree Branches
+      int   m_genNPart;
+      float m_genEta;
+      float m_genPhi;
+      float m_genZ;
+      float m_genR;
+      
+      //X0 Branches
+      float m_total_X0;
+      float m_total_L0;
 
-      /// Cached eta of the current primary
-      double m_etaPrimary;
-      /// Cached phi of the current primary
-      double m_phiPrimary;
+      std::vector<double> m_collected_X0;
+      std::vector<double> m_collected_L0;
 
-      /// Map of detector thickness measurements for current event
-      std::map<std::string, std::pair<double, double> > m_detThickMap;
+      std::vector<float> m_collected_inhitr;
+      std::vector<float> m_collected_inhitz;
 
-      /// Rad-length profile hist in R-Z
-      TProfile2D* m_rzProfRL;
-      /// Rad-length profile hist in eta
-      std::map<std::string, TProfile*> m_etaMapRL;
-      /// Rad-length profile hist in phi
-      std::map<std::string, TProfile*> m_phiMapRL;
+      std::vector<float> m_collected_outhitr;
+      std::vector<float> m_collected_outhitz;
 
-      /// Int-length profile hist in R-Z
-      TProfile2D* m_rzProfIL;
-      /// Int-length profile hist in eta
-      std::map<std::string, TProfile*> m_etaMapIL;
-      /// Int-length profile hist in phi
-      std::map<std::string, TProfile*> m_phiMapIL;
+      std::vector<float> m_collected_density;
+      std::vector<std::string> m_collected_material;
+      std::vector<std::string> m_collected_volume;
+      
+      std::vector<std::string> m_collected_groupedmaterial;
+      std::vector<std::string> m_collected_volumetype;
 
-      // 2D plots of rad-length and int-length
-      std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapRL;
-      std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapRL;
+      std::vector<std::vector<double>> m_collected_material_element_X0;
+      std::vector<std::vector<double>> m_collected_material_element_L0;
+      std::vector<std::vector<std::string>> m_collected_material_elements;
 
-      std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapIL;
-      std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapIL;
+      std::vector<std::string> m_material_not_found;
 
   }; // class LengthIntegrator
 

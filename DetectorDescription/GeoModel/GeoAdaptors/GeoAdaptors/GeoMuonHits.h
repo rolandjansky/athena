@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _GeoMuonHits_h_
@@ -32,7 +32,8 @@ class MDTSimHit;
 class RPCSimHit;
 class TGCSimHit;
 class CSCSimHit;
-class GenericMuonSimHit;
+class sTGCSimHit;
+class MMSimHit;
 
 
 
@@ -156,7 +157,7 @@ class GeoMMHit {
  public:
 
   // Constructor:
-  GeoMMHit(const GenericMuonSimHit & h);
+  GeoMMHit(const MMSimHit & h);
 
   // Get the absolute global position:
   Amg::Vector3D getGlobalPosition() const;
@@ -168,7 +169,7 @@ class GeoMMHit {
   Amg::Vector3D getTrkGlobalPosition() const;
   
   // Underlying hit.
-  const GenericMuonSimHit &data() const { return *_hit;}
+  const MMSimHit &data() const { return *_hit;}
 
   // Is this hit OK?
   operator bool () const { return _man; }
@@ -178,7 +179,7 @@ class GeoMMHit {
  private:
   static void init();
   
-  const GenericMuonSimHit *_hit;
+  const MMSimHit *_hit;
   static const MuonGM::MuonDetectorManager* _man;
   static const MmIdHelper* _mmID;
 
@@ -189,13 +190,13 @@ class GeosTGCHit {
  public:
 
   // Constructor:
-  GeosTGCHit(const GenericMuonSimHit & h);
+  GeosTGCHit(const sTGCSimHit & h);
 
   // Get the absolute global position:
   Amg::Vector3D getGlobalPosition() const;
 
   // Underlying hit.
-  const GenericMuonSimHit &data() const { return *_hit;}
+  const sTGCSimHit &data() const { return *_hit;}
 
   // Is this hit OK?
   operator bool () const { return _man; }
@@ -205,7 +206,7 @@ class GeosTGCHit {
  private:
   static void init();
   
-  const GenericMuonSimHit *_hit;
+  const sTGCSimHit *_hit;
   static const MuonGM::MuonDetectorManager* _man;
   static const sTgcIdHelper* _stgcID;
 

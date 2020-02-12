@@ -57,11 +57,11 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 	// Unfortunately get stuck in the loop if you edit the map in the loop
 	//     So make a copy!
 
-	std::map< int, std::map<int,float> > stripChargesCopy;
-	stripChargesCopy.insert(m_stripCharges.begin(), m_stripCharges.end());
+	std::map< int, std::map<int,float> > stripChargesCopy1;
+	stripChargesCopy1.insert(m_stripCharges.begin(), m_stripCharges.end());
 
 	if (crossTalk1 > 0.){
-		for (auto & stripTimeSeries : stripChargesCopy){
+		for (auto & stripTimeSeries : stripChargesCopy1){
 			int timeBin = stripTimeSeries.first;
 			for (auto & stripCharge : stripTimeSeries.second ){
 
@@ -72,10 +72,12 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
 				if (stripVal-1 > -1) (m_stripCharges[timeBin])[stripVal-1] += stripChargeVal * crossTalk1;
 				if (stripVal+1 > -1) (m_stripCharges[timeBin])[stripVal+1] += stripChargeVal * crossTalk1;
+				(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk1 * ( (stripVal-1 > -1) + (stripVal+1 > -1) );
 
 				if (crossTalk2 > 0.){
 					if (stripVal-2 > -1) (m_stripCharges[timeBin])[stripVal-2] += stripChargeVal * crossTalk2;
 					if (stripVal+2 > -1) (m_stripCharges[timeBin])[stripVal+2] += stripChargeVal * crossTalk2;
+					(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk2 * ( (stripVal-2 > -1) + (stripVal+2 > -1) );
 				}
 			}
 		}
@@ -84,40 +86,35 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
 void MM_StripResponse::calculateSummaries(float chargeThreshold) {
 
-	for (auto& Electron : m_Electrons) {
-		int stripVal = 0;
-		if(fabs(Electron->getX())>m_stripPitch/2){
-			if(Electron->getX()>0.0)
-				stripVal = m_stripID + int( (Electron->getX()-m_stripPitch/2)/m_stripPitch ) + 1 ;
-			else
-				stripVal = m_stripID + int( (Electron->getX()+m_stripPitch/2)/m_stripPitch ) - 1 ;
-		}
-		else stripVal = m_stripID;
-
-		float stripCharge = Electron->getCharge();
-		float stripTime   = Electron->getTime();
-		if(stripCharge < chargeThreshold) continue;
-
-		bool found=false;
-		for(size_t ii = 0; ii<m_v_strip.size(); ii++ ){
-			if(m_v_strip[ii]==stripVal){
-				m_v_stripTimeThreshold[ii].push_back(stripTime) ;
-				m_v_stripTotalCharge[ii].push_back(stripCharge);
-				found=true;
-				break;
+	std::map< int, std::map<int,float> > stripChargesCopy2;
+	stripChargesCopy2.insert(m_stripCharges.begin(), m_stripCharges.end());
+	for (auto & stripTimeSeries : stripChargesCopy2){
+		int timeBin = stripTimeSeries.first;
+		for (auto & stripCharge : stripTimeSeries.second ){
+			int stripVal = stripCharge.first;
+			float stripChargeVal = stripCharge.second;
+			if(stripChargeVal < chargeThreshold) continue;
+			
+			bool found=false;
+			for(size_t ii = 0; ii<m_v_strip.size(); ii++ ){
+				if(m_v_strip[ii]==stripVal){
+					m_v_stripTimeThreshold[ii].push_back(timeBin*m_timeResolution);
+					m_v_stripTotalCharge[ii].push_back(stripChargeVal);
+					found=true;
+					break;
+				}
+			}
+			if(!found){ // 	// strip not in vector, add new entry
+				m_v_strip.push_back(stripVal);
+				vector<float> qTemp;
+				qTemp.push_back(stripChargeVal);
+				m_v_stripTotalCharge.push_back(qTemp);
+				vector<float> tTemp;
+				tTemp.push_back(timeBin*m_timeResolution);
+				m_v_stripTimeThreshold.push_back(tTemp);
 			}
 		}
-if(!found){ // 	// strip not in vector, add new entry
-	m_v_strip.push_back(stripVal);
-	vector<float> qTemp;
-	qTemp.push_back(stripCharge);
-	m_v_stripTotalCharge.push_back(qTemp);
-	vector<float> tTemp;
-	tTemp.push_back(stripTime);
-	m_v_stripTimeThreshold.push_back(tTemp);
-}
-}
-
+	}
 }
 
 

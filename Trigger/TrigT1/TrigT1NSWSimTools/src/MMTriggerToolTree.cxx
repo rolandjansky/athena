@@ -123,9 +123,6 @@ namespace NSWL1 {
       m_NSWMM_hitGlobalDirectionY = new std::vector<double>;
       m_NSWMM_hitGlobalDirectionZ = new std::vector<double>;
 
-      m_NSWMM_hitLocalPositionX = new std::vector<double>;
-      m_NSWMM_hitLocalPositionY = new std::vector<double>;
-      m_NSWMM_hitLocalPositionZ = new std::vector<double>;
 
       m_NSWMM_detector_globalPositionX = new std::vector<double>;
       m_NSWMM_detector_globalPositionY = new std::vector<double>;
@@ -144,7 +141,6 @@ namespace NSWL1 {
       m_NSWMM_particleEncoding = new std::vector<int>;
       m_NSWMM_kineticEnergy = new std::vector<double>;
       m_NSWMM_depositEnergy = new std::vector<double>;
-      m_NSWMM_StepLength = new std::vector<double>;
 
 
       m_NSWMM_sim_stationName = new std::vector<std::string>;
@@ -258,10 +254,6 @@ namespace NSWL1 {
         m_tree->Branch("Hits_MM_hitGlobalDirectionY", &m_NSWMM_hitGlobalDirectionY);
         m_tree->Branch("Hits_MM_hitGlobalDirectionZ", &m_NSWMM_hitGlobalDirectionZ);
 
-        m_tree->Branch("Hits_MM_hitLocalPositionX", &m_NSWMM_hitLocalPositionX);
-        m_tree->Branch("Hits_MM_hitLocalPositionY", &m_NSWMM_hitLocalPositionY);
-        m_tree->Branch("Hits_MM_hitLocalPositionZ", &m_NSWMM_hitLocalPositionZ);
-
         m_tree->Branch("Hits_MM_detector_globalPositionX", &m_NSWMM_detector_globalPositionX);
         m_tree->Branch("Hits_MM_detector_globalPositionY", &m_NSWMM_detector_globalPositionY);
         m_tree->Branch("Hits_MM_detector_globalPositionZ", &m_NSWMM_detector_globalPositionZ);
@@ -280,7 +272,6 @@ namespace NSWL1 {
         m_tree->Branch("Hits_MM_particleEncoding", &m_NSWMM_particleEncoding);
         m_tree->Branch("Hits_MM_kineticEnergy", &m_NSWMM_kineticEnergy);
         m_tree->Branch("Hits_MM_depositEnergy", &m_NSWMM_depositEnergy);
-        m_tree->Branch("Hits_MM_StepLength", &m_NSWMM_StepLength);
 
 
         m_tree->Branch("Hits_MM_sim_stationName", &m_NSWMM_sim_stationName);
@@ -413,9 +404,6 @@ namespace NSWL1 {
       m_NSWMM_hitGlobalDirectionY->clear();
       m_NSWMM_hitGlobalDirectionZ->clear();
 
-      m_NSWMM_hitLocalPositionX->clear();
-      m_NSWMM_hitLocalPositionY->clear();
-      m_NSWMM_hitLocalPositionZ->clear();
 
       m_NSWMM_detector_globalPositionX->clear();
       m_NSWMM_detector_globalPositionY->clear();
@@ -435,7 +423,6 @@ namespace NSWL1 {
       m_NSWMM_particleEncoding->clear();
       m_NSWMM_kineticEnergy->clear();
       m_NSWMM_depositEnergy->clear();
-      m_NSWMM_StepLength->clear();
 
 
       m_NSWMM_sim_stationName->clear();
@@ -496,9 +483,6 @@ namespace NSWL1 {
       *m_NSWMM_hitGlobalDirectionX = loadedVariables.histVars.NSWMM_hitGlobalDirectionX;
       *m_NSWMM_hitGlobalDirectionY = loadedVariables.histVars.NSWMM_hitGlobalDirectionY;
       *m_NSWMM_hitGlobalDirectionZ = loadedVariables.histVars.NSWMM_hitGlobalDirectionZ;
-      *m_NSWMM_hitLocalPositionX = loadedVariables.histVars.NSWMM_hitLocalPositionX;
-      *m_NSWMM_hitLocalPositionY = loadedVariables.histVars.NSWMM_hitLocalPositionY;
-      *m_NSWMM_hitLocalPositionZ = loadedVariables.histVars.NSWMM_hitLocalPositionZ;
       *m_NSWMM_detector_globalPositionX = loadedVariables.histVars.NSWMM_detector_globalPositionX;
       *m_NSWMM_detector_globalPositionY = loadedVariables.histVars.NSWMM_detector_globalPositionY;
       *m_NSWMM_detector_globalPositionZ = loadedVariables.histVars.NSWMM_detector_globalPositionZ;

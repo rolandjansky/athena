@@ -113,7 +113,7 @@ namespace Trk{
       virtual void setVertexForConstraint(double,double,double)=0;
       virtual void setCovVrtForConstraint(double,double,double,
                                           double,double,double)=0;
-      virtual void setMassInputParticles( std::vector<double>& )=0;
+      virtual void setMassInputParticles( const std::vector<double>& )=0;
       virtual void setDefault() =0;
       virtual void setZeroCharge(int)=0;
 //

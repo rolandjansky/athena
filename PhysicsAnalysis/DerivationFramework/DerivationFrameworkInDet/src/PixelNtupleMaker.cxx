@@ -117,6 +117,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       std::vector<int> clusterIsolation20x4;
       std::vector<int> numTotalClustersPerModule;
       std::vector<int> numTotalPixelsPerModule;
+      std::vector<int>   moduleBSerr;
+      std::vector<int>   moduleDCSstate;
       std::vector<float> moduleBiasVoltage;
       std::vector<float> moduleTemperature;
       std::vector<float> moduleLorentzShift;
@@ -179,6 +181,16 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
               unbiasedResidualY.push_back(msos->unbiasedResidualY());
               unbiasedPullX.push_back(msos->auxdata<float>("unbiasedPullX"));
               unbiasedPullY.push_back(msos->auxdata<float>("unbiasedPullY"));
+
+              moduleBSerr.push_back((*clus_itr)->auxdata<int>("isBSError"));
+
+              if ((*clus_itr)->auxdata<std::string>("DCSState")=="ON" || (*clus_itr)->auxdata<std::string>("DCSState")=="READY") {
+                moduleDCSstate.push_back(0);
+              }
+              else {
+                moduleDCSstate.push_back(1);
+              }
+
               moduleBiasVoltage.push_back((*clus_itr)->auxdata<float>("BiasVoltage"));
               moduleTemperature.push_back((*clus_itr)->auxdata<float>("Temperature"));
               moduleLorentzShift.push_back((*clus_itr)->auxdata<float>("LorentzShift"));
@@ -405,6 +417,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterIsolation20x4("ClusterIsolation20x4");
       static SG::AuxElement::Decorator<std::vector<int>>   NumTotalClustersPerModule("NumTotalClustersPerModule");
       static SG::AuxElement::Decorator<std::vector<int>>   NumTotalPixelsPerModule("NumTotalPixelsPerModule");
+      static SG::AuxElement::Decorator<std::vector<int>>   ModuleBSError("ModuleBSError");
+      static SG::AuxElement::Decorator<std::vector<int>>   ModuleDCSState("ModuleDCSState");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleBiasVoltage("ModuleBiasVoltage");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleTemperature("ModuleTemperature");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleLorentzShift("ModuleLorentzShift");
@@ -421,8 +435,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<std::vector<std::vector<float>>> SiHitEndPosY("SiHitEndPosY");
       static SG::AuxElement::Decorator<std::vector<std::vector<float>>> SiHitEnergyDeposit("SiHitEnergyDeposit");
 
-      d0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(0);
-      z0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(2);
+      d0err(*tp)             = TMath::Sqrt((*trk)->definingParametersCovMatrix()(0,0));
+      z0err(*tp)             = TMath::Sqrt((*trk)->definingParametersCovMatrix()(1,1));
       qOverPerr(*tp)         = TMath::Sqrt((*trk)->definingParametersCovMatrix()(4,4));
 
       HoleIndex(*tp)         = holeIndex;
@@ -458,6 +472,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       ClusterIsolation20x4(*tp) = clusterIsolation20x4;
       NumTotalClustersPerModule(*tp) = numTotalClustersPerModule;
       NumTotalPixelsPerModule(*tp)   = numTotalPixelsPerModule;
+      ModuleBSError(*tp)      = moduleBSerr;
+      ModuleDCSState(*tp)     = moduleDCSstate;
       ModuleBiasVoltage(*tp)  = moduleBiasVoltage;
       ModuleTemperature(*tp)  = moduleTemperature;
       ModuleLorentzShift(*tp) = moduleLorentzShift;

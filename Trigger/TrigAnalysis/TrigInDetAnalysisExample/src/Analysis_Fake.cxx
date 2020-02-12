@@ -19,41 +19,41 @@ Analysis_Fake::Analysis_Fake(const std::string& name, double pTCut, double etaCu
   TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut) {                                   
 
   // Create integral efficiency histograms
-  h_integralD = new TH1D(std::string(mname+"-denominator-integral").c_str(), std::string(mname+" integral fake denominator").c_str(), 1, 0.0, 1.0);
-  h_integralN = new TH1D(std::string(mname+"-numerator-integral").c_str(),   std::string(mname+" integral fake numerator").c_str(),   1, 0.0, 1.0);
-  h_integral  = new TH1D(std::string(mname+"-integral").c_str(),             std::string(mname+" integral fake").c_str(),             1, 0.0, 1.0);
+  h_integralD = new TH1D(std::string(m_name+"-denominator-integral").c_str(), std::string(m_name+" integral fake denominator").c_str(), 1, 0.0, 1.0);
+  h_integralN = new TH1D(std::string(m_name+"-numerator-integral").c_str(),   std::string(m_name+" integral fake numerator").c_str(),   1, 0.0, 1.0);
+  h_integral  = new TH1D(std::string(m_name+"-integral").c_str(),             std::string(m_name+" integral fake").c_str(),             1, 0.0, 1.0);
   addHistogram(h_integralD);
   addHistogram(h_integralN);
   addHistogram(h_integral);
     
   // Create differential efficiency histograms
-  h_etaD = new TH1D(std::string(mname+"-denominator-eta").c_str(), std::string(mname+" eta fake denominator").c_str(), 100, -2.5, 2.5);
-  h_phiD = new TH1D(std::string(mname+"-denominator-phi").c_str(), std::string(mname+" phi fake denominator").c_str(), 100, -3.142, 3.142);
-  h_z0D  = new TH1D(std::string(mname+"-denominator-z0").c_str(),  std::string( mname+" z0 fake denominator").c_str(),  100, -200, 200);
-  h_d0D  = new TH1D(std::string(mname+"-denominator-d0").c_str(),  std::string( mname+" d0 fake denominator").c_str(),  100, -20, 20);
-  h_pTD  = new TH1D(std::string(mname+"-denominator-pT").c_str(),  std::string( mname+" pT fake denominator").c_str(),  100, -10000, 10000);
+  h_etaD = new TH1D(std::string(m_name+"-denominator-eta").c_str(), std::string(m_name+" eta fake denominator").c_str(), 100, -2.5, 2.5);
+  h_phiD = new TH1D(std::string(m_name+"-denominator-phi").c_str(), std::string(m_name+" phi fake denominator").c_str(), 100, -3.142, 3.142);
+  h_z0D  = new TH1D(std::string(m_name+"-denominator-z0").c_str(),  std::string( m_name+" z0 fake denominator").c_str(),  100, -200, 200);
+  h_d0D  = new TH1D(std::string(m_name+"-denominator-d0").c_str(),  std::string( m_name+" d0 fake denominator").c_str(),  100, -20, 20);
+  h_pTD  = new TH1D(std::string(m_name+"-denominator-pT").c_str(),  std::string( m_name+" pT fake denominator").c_str(),  100, -10000, 10000);
   addHistogram(h_etaD);
   addHistogram(h_phiD);
   addHistogram(h_z0D);
   addHistogram(h_d0D);
   addHistogram(h_pTD);
   
-  h_etaN = new TH1D(std::string(mname+"-numerator-eta").c_str(), std::string(mname+" eta fake numerator").c_str(), 100, -2.5, 2.5);
-  h_phiN = new TH1D(std::string(mname+"-numerator-phi").c_str(), std::string(mname+" phi fake numerator").c_str(), 100, -3.142, 3.142);
-  h_z0N  = new TH1D(std::string(mname+"-numerator-z0").c_str(),  std::string(mname +" z0 fake numerator").c_str(),  100, -200, 200);
-  h_d0N  = new TH1D(std::string(mname+"-numerator-d0").c_str(),  std::string(mname +" d0 fake numerator").c_str(),  100, -20, 20);
-  h_pTN  = new TH1D(std::string(mname+"-numerator-pT").c_str(),  std::string(mname +" pT fake numerator").c_str(),  100, -10000, 10000);
+  h_etaN = new TH1D(std::string(m_name+"-numerator-eta").c_str(), std::string(m_name+" eta fake numerator").c_str(), 100, -2.5, 2.5);
+  h_phiN = new TH1D(std::string(m_name+"-numerator-phi").c_str(), std::string(m_name+" phi fake numerator").c_str(), 100, -3.142, 3.142);
+  h_z0N  = new TH1D(std::string(m_name+"-numerator-z0").c_str(),  std::string(m_name +" z0 fake numerator").c_str(),  100, -200, 200);
+  h_d0N  = new TH1D(std::string(m_name+"-numerator-d0").c_str(),  std::string(m_name +" d0 fake numerator").c_str(),  100, -20, 20);
+  h_pTN  = new TH1D(std::string(m_name+"-numerator-pT").c_str(),  std::string(m_name +" pT fake numerator").c_str(),  100, -10000, 10000);
   addHistogram(h_etaN);
   addHistogram(h_phiN);
   addHistogram(h_z0N);
   addHistogram(h_d0N);
   addHistogram(h_pTN);
   
-  h_eta = new TH1D(std::string(mname+"-eta").c_str(), std::string(mname+" eta efficiency").c_str(), 100, -2.5, 2.5);
-  h_phi = new TH1D(std::string(mname+"-phi").c_str(), std::string(mname+" phi efficiency").c_str(), 100, -3.142, 3.142);
-  h_z0  = new TH1D(std::string(mname+"-z0").c_str(),  std::string(mname+" z0 efficiency").c_str(),  100, -200, 200);
-  h_d0  = new TH1D(std::string(mname+"-d0").c_str(),  std::string(mname+" d0 efficiency").c_str(),  100, -20, 20);
-  h_pT  = new TH1D(std::string(mname+"-pT").c_str(),  std::string(mname+" pT efficiency").c_str(),  100, -10000, 10000);
+  h_eta = new TH1D(std::string(m_name+"-eta").c_str(), std::string(m_name+" eta efficiency").c_str(), 100, -2.5, 2.5);
+  h_phi = new TH1D(std::string(m_name+"-phi").c_str(), std::string(m_name+" phi efficiency").c_str(), 100, -3.142, 3.142);
+  h_z0  = new TH1D(std::string(m_name+"-z0").c_str(),  std::string(m_name+" z0 efficiency").c_str(),  100, -200, 200);
+  h_d0  = new TH1D(std::string(m_name+"-d0").c_str(),  std::string(m_name+" d0 efficiency").c_str(),  100, -20, 20);
+  h_pT  = new TH1D(std::string(m_name+"-pT").c_str(),  std::string(m_name+" pT efficiency").c_str(),  100, -10000, 10000);
   addHistogram(h_eta);
   addHistogram(h_phi);
   addHistogram(h_z0);

@@ -35,6 +35,9 @@ elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-19'):
 elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17'):
    SLHC_Flags.LayoutOption="InclinedAlternative"
 
+elif globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22'):
+   SLHC_Flags.LayoutOption="InclinedAlternative"
+
 SLHC_Flags.doGMX.set_Value_and_Lock(True)
 
 

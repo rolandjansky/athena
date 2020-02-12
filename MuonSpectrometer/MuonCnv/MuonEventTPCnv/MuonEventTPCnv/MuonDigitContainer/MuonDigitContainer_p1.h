@@ -34,8 +34,10 @@ class MuonDigitContainer_p1
   std::vector<uint16_t>  m_size;
   
   std::vector<DIGIT>                           m_digits;
-   /** The delta identifiers of the PRD i.e. we only store the difference from the last one. This saves space, compared to always writing the full 32-bit word*/
-  std::vector<unsigned short>                  m_digitDeltaId;
+
+  /** The 32-bits compact identifier */
+  std::vector<unsigned int>                  m_digitDeltaId;
+
 };
 
 typedef MuonDigitContainer_p1<MM_Digit_p1> MM_DigitContainer_p1;

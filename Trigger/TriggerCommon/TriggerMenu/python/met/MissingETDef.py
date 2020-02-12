@@ -1,525 +1,316 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Missing ET slice signatures """
 
-__author__  = "E.Pianori, C.Bernius"
-__version__ = "" 
-__doc__="Implementation of Missing ET slice in new TM framework "
-##########################################################
+__author__ = "J. Burr"
+__version__ = ""
+__doc__ = "Reimplementation of MET trigger configuration code for code rewrite. """
+
+"""
+    First, a quick note. The old code used this 'L2EFChainDict' object, but the
+    only method of this that was actually used anywhere else was the
+    generateHLTChainDef function called in the generateMETChainDefs module.
+    Therefore I'm moving the code away from this older class as it just seemed
+    to obfuscate a lot of things.
+"""
+
 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.met.MissingETDef")
 
-def trace(frame, event, arg):
-    if event == "call":
-        filename = frame.f_code.co_filename
-        lineno = frame.f_lineno
-        print "%s @ %s" % (filename, lineno)
-        return trace
-        
-
-
-from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSupp,
-                                                   EFMissingET_Fex_Jets,
-                                                   EFMissingET_Fex_TrackAndJets,
-                                                   EFMissingET_Fex_FTKTrackAndJets,
-                                                   EFMissingET_Fex_TrackAndClusters,
-                                                   EFMissingET_Fex_FTKTrackAndClusters,
-                                                   EFMissingET_Fex_topoClusters,
-                                                   EFMissingET_Fex_topoClustersPS, 
-                                                   EFMissingET_Fex_topoClustersPUC,
-                                                   EFMissingET_Fex_topoClustersTracksPUC)
-
-from TrigL2MissingET.TrigL2MissingETConfig import L2MissingET_Fex
-
-from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
-                                                       EFMetHypoTrackAndJetsXE,
-                                                       EFMetHypoFTKTrackAndJetsXE,
-                                                       EFMetHypoTrackAndClustersXE,
-                                                       EFMetHypoFTKTrackAndClustersXE,
-                                                       EFMetHypoTCPSXE,
-                                                       EFMetHypoTCPUCXE, 
-                                                       EFMetHypoTCTrkPUCXE,
-                                                       EFMetHypoTCXE,
-                                                       EFMetHypoTE,
-                                                       EFMetHypoXE, 
-                                                       EFMetHypoXS_2sided)
-
-from TrigMissingETMuon.TrigMissingETMuonConfig import (EFTrigMissingETMuon_Fex,
-                                                       EFTrigMissingETMuon_Fex_Jets,
-                                                       EFTrigMissingETMuon_Fex_topocl,
-                                                       EFTrigMissingETMuon_Fex_topoclPS,
-                                                       EFTrigMissingETMuon_Fex_topoclPUC,
-                                                       L2TrigMissingETMuon_Fex)
-
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-
-from TriggerMenu.jet.JetDef import generateHLTChainDef
+import TrigEFMissingET.TrigEFMissingETConfig as FexConf
+from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__FexSum
+from TrigMissingETHypo.TrigMissingETHypoConfig import (
+        METHypo,
+        TEHypo,
+        XSHypo)
+from TriggerMenu.menu.ChainDef import ChainDef
 from TriggerMenu.menu import DictFromChainName
-from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
-from TriggerMenu.menu.MenuUtils import splitChainDict
-from TriggerMenu.muon.MuonDef import L2EFChain_mu
-from TriggerMenu.menu.SignatureDicts import METChainParts_Default
+from TriggerMenu.jet.JetDef import generateHLTChainDef as generateJetChainDef
+from TriggerMenu.bjet.generateBjetChainDefs import (
+        generateChainDefs as generateBJetChainDef)
+from TriggerMenu.muon.generateMuonChainDefs import (
+        generateChainDefs as generateMuonChainDef)
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
+from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+import re
 
-#############################################################################
-class L2EFChain_met(L2EFChainDef):
-     
+class METChainBuilder(object):
     def __init__(self, chainDict):
-        self.L2sequenceList   = []
-        self.EFsequenceList   = []
-        self.L2signatureList  = []
-        self.EFsignatureList  = []
-        self.TErenamingDict   = []
-    
-        # May as well give the methods easy access to all the input information
+        """ Create the chain def. """
         self.chainDict = chainDict
-        l1_item_name = chainDict['L1item']        
-        self.l2_input_tes = ''    ##MET is un-seeded
-        chain_counter = chainDict['chainCounter']
-        self.chainPart = chainDict['chainParts']
-        l2_name = 'L2_'+self.chainPart['chainPartName']
-        ef_name = 'EF_'+self.chainPart['chainPartName']
-        self.mult = int(self.chainPart['multiplicity'])
+        self.chainPart = chainDict["chainParts"]
+        self._dictBuilder = DictFromChainName.DictFromChainName()
 
-        chainName = chainDict['chainName']
-        sig_id = self.chainPart['chainPartName']
-        self.sig_id_noMult = sig_id[1:] if self.mult > 1 else sig_id
-               
-        self.setup_xeXX()
-            
-        L2EFChainDef.__init__(self, chainName, l2_name, chain_counter, l1_item_name, ef_name, chain_counter, self.l2_input_tes)
-        
-    def defineSequences(self):
-        for sequence in self.L2sequenceList:
-            self.addL2Sequence(*sequence)
-        for sequence in self.EFsequenceList:
-            self.addEFSequence(*sequence)
-                
-    def defineSignatures(self):       
-        for signature in self.L2signatureList:
-            self.addL2Signature(*signature)
-        for signature in self.EFsignatureList:
-            self.addEFSignature(*signature)
- 
-    def defineTErenaming(self):
-        self.TErenamingMap = self.TErenamingDict
+        log.info("Creating chain def for chain HLT_{0}".format(self.chainDict["chainName"]) )
 
+        # Create the chain def object that will be output
+        self.chain_def = ChainDef(
+                chain_name="HLT_{0}".format(self.chainDict["chainName"]),
+                level="HLT",
+                lower_chain_name=self.chainDict["L1item"],
+                chain_counter=chainDict["chainCounter"])
 
+        # Keep track of which input items we've added to our sequence
+        self._added_inputs = []
 
-############################### DEFINE GROUPS OF CHAINS HERE ##############################
+        # Add the cell preselection if we need it
+        self.add_cell_presel()
 
-    def setup_xeXX(self):
+        # Get the right fex
+        fex = FexConf.getFEXFromDict(self.chainPart)
 
-        ##EF only chain, run FEB or topo_cluster
-        ##NoAlg at L2
-        ##if at a certain point different steps are used at EF, 
-        ## we need a way to encode the information of the threshold at both the two steps
-        ##could be a dict here, or adding something to the SignatureDictionary
-        
-        threshold   = int(self.chainPart['threshold'])
-        calibration = self.chainPart['calib']
-        jetCalib    = self.chainPart['jetCalib']
-        L2recoAlg   = self.chainPart['L2recoAlg']
-        EFrecoAlg   = self.chainPart['EFrecoAlg']
-        EFmuon      = self.chainPart['EFmuonCorr']
-        addInfo     = self.chainPart["addInfo"]
+        # Work out which inputs we need
+        fex_inputs = self.assemble_fex_inputs(fex)
 
-        #--------------------------------------
-        #obtaining the muon sequences & signature:
-        #--------------------------------------
-        log.debug("Creating muon sequence")
-        
-        chain = ['mu8', 'L1_MU6',  [], ["Main"], ['RATE:SingleMuon', 'BW:Muon'], -1]
+        # Create and add the main fex
+        fex_te = self.add_fex(fex, fex_inputs)
 
-        theDictFromChainName = DictFromChainName.DictFromChainName()
-        muonChainDict = theDictFromChainName.getChainDict(chain)
-        listOfChainDicts = splitChainDict(muonChainDict)
-        muDict = listOfChainDicts[0]
-        muDict['chainCounter'] = 9150
-        muonthing = L2EFChain_mu(muDict, False, ['8GeV']) 
-        muonSeed = muonthing.EFsignatureList[-1][0][0]
+        # See if we need the muon correction
+        if self.chainPart["EFmuonCorr"]:
+            muon_fex = FexConf.MuonFex()
+            muon_fex_inputs = self.assemble_fex_inputs(muon_fex)
+            muon_fex_te = self.add_fex(muon_fex, muon_fex_inputs)
+            # We need to create a good name for this sum
+            name = fex_te + "_muon_sum"
+            if name.startswith("EF_xe_"):
+                name = name[6:]
+            # Now create the sum
+            sum_fex = HLT__MET__FexSum(
+                    "METFexSum_"+name,
+                    MissingETOutputKey="TrigEFMissingET_"+name)
+            fex_te = self.add_fex(sum_fex, [fex_te, muon_fex_te])
 
-        for seq in muonthing.L2sequenceList:
-             self.L2sequenceList += [seq]
-        for seq in muonthing.EFsequenceList:
-             self.EFsequenceList += [seq]
- 
+            # Make sure that the hypo applies to this fex
+            fex = sum_fex
 
-        ########### Imports for hypos and fexes  ###########
-        ##L1 MET 
-        theL2Fex     = L2MissingET_Fex()
-        theL2MuonFex = L2TrigMissingETMuon_Fex()
-
-        mucorr=  '_wMu' if EFmuon else ''          
-        ##MET with topo-cluster
-        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht' or EFrecoAlg=='pufittrack' or EFrecoAlg=='trktc':
-
-            ##Topo-cluster
-            if EFrecoAlg=='tc':
-                #MET fex
-                theEFMETFex     = EFMissingET_Fex_topoClusters()                         
-                #Muon correction fex
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topocl()        
-
-                #TC hypo
-                #mucorr=  '_wMu' if EFmuon else ''      
-
-                if self.chainPart['trigType'] == "xs":
-                    theEFMETHypo = EFMetHypoXS_2sided('EFMetHypo_xs_2sided_%i%s' % (threshold, mucorr),ef_thr=float(threshold)*0.1)
-                elif  self.chainPart['trigType'] == "te":
-                    theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d' % threshold,ef_thr=float(threshold)*GeV)
-                else:               
-                    theEFMETHypo = EFMetHypoTCXE('EFMetHypo_TC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)  
-                
-            if EFrecoAlg=='pufit':
-
-                doLArH11off=False
-                doLArH12off=False
-                LArTag=''
-                if "LArH11off" in addInfo: 
-                    doLArH11off = True
-                    LArTag += '_LArH11off'
-                if "LArH12off" in addInfo:
-                    doLArH12off = True
-                    LArTag += '_LArH12off'
-                if "METphi" in addInfo: 
-                    LArTag += '_METphi'
-
-                jpt_thr = '-1'
-                if len(addInfo.split('Jpt'))==2: jpt_thr = addInfo.split('Jpt')[1] 
-
-                if "Jpt" in addInfo:
-                    LArTag += '_Jpt'+jpt_thr
-
-                #MET fex
-                theEFMETFex = EFMissingET_Fex_topoClustersPUC("EFMissingET_Fex_topoClustersPUC%s"%(addInfo),doLArH11off,doLArH12off,float(jpt_thr)) 
-                #Muon correction fex
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
-                mucorr= '_wMu' if EFmuon else '' 
-
-                theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC'+LArTag+'_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV,labelMET=addInfo)
+        self.add_hypo(
+                fex=fex,
+                int_threshold=int(self.chainPart["threshold"]),
+                fex_te=fex_te,
+                hypo_type=self.chainPart["trigType"])
 
 
-            if EFrecoAlg=='pufittrack':
-                calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
-                #MET fex
-                #print "PUFITTRACK XXXXXXXXXX"
-                #print calibCorr
-                theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC("EFMissingET_Fex_topoClustersTracksPUC{0}".format(calibCorr), extraCalib=calibCorr)
-                #print "PUFITTRACK XXXXXXXXXX"
-                #print theEFMETFex
-                #Muon correction fex
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
-                #print theEFMETMuonFex
-                mucorr= '_wMu' if EFmuon else ''
-                #theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
-                theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
-
-            if EFrecoAlg=='pufittrack':
-                calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
-                #MET fex
-                theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC("EFMissingET_Fex_topoClustersTracksPUC{0}".format(calibCorr), extraCalib=calibCorr)
-                #Muon correction fex
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
-                mucorr= '_wMu' if EFmuon else ''
-                theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
-
-            ##MET based on trigger jets
-            if EFrecoAlg=='mht':
-                calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
-
-                #MET fex
-                theEFMETFex = EFMissingET_Fex_Jets("EFMissingET_Fex_Jets{0}".format(calibCorr), extraCalib=calibCorr )
-                #Muon correction fex
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets("EFTrigMissingETMuon_Fex_Jets{0}".format(calibCorr) )
-                #mucorr= '_wMu' if EFmuon else ''
-                theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
-
-
-             ##MET based on trigger jets
-            if EFrecoAlg=='trkmht':
-                #MET fex                                                                                                                                                    
-                if "FTK" in addInfo: theEFMETFex = EFMissingET_Fex_FTKTrackAndJets()
-                else: theEFMETFex = EFMissingET_Fex_TrackAndJets()                                                                                                                
-                #Muon correction fex                                                                                                                                        
-                ## this will be added later                                                                                                                                 
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets()                                                                                                            
-                #mucorr= '_wMu' if EFmuon else ''                                                                                                                           
-                if "FTK" in addInfo: theEFMETHypo = EFMetHypoFTKTrackAndJetsXE('EFMetHypo_FTKTrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
-                else: theEFMETHypo = EFMetHypoTrackAndJetsXE('EFMetHypo_TrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
-
-                
-            if EFrecoAlg=='trktc':
-                #MET fex                                                                                                                                                    
-                if "FTK" in addInfo: theEFMETFex = EFMissingET_Fex_FTKTrackAndClusters()
-                else: theEFMETFex = EFMissingET_Fex_TrackAndClusters()                                                                                                                
-                #Muon correction fex                                                                                                                                        
-                ## this will never be used                                                                                                                                 
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topocl()                                                                                                            
-                #mucorr= '_wMu' if EFmuon else ''                                                                                                                           
-                if "FTK" in addInfo: theEFMETHypo = EFMetHypoFTKTrackAndClustersXE('EFMetHypo_FTKTrackAndClusters_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
-                else: theEFMETHypo = EFMetHypoTrackAndClustersXE('EFMetHypo_TrackAndClusters_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
-
-       
-            ##Topo-cluster with Pile-up suppression
-            if EFrecoAlg=='pueta':
-                #MET fex
-                theEFMETFex = EFMissingET_Fex_topoClustersPS() 
-                #Muon correction fex
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPS()        
-
-                theEFMETHypo = EFMetHypoTCPSXE('EFMetHypo_TCPS_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
-
-
-
-        ##2-SidedNoise Cell
-        elif EFrecoAlg=='cell':
-            #MET fex
-            theEFMETFex = EFMissingET_Fex_2sidednoiseSupp()
-
-            #Muon correction fex
-            theEFMETMuonFex = EFTrigMissingETMuon_Fex()        
-            
-            #Hypo
-            if self.chainPart['trigType'] == "xs":
-                theEFMETHypo = EFMetHypoXS_2sided('EFMetHypo_xs_2sided_%d%s' % (threshold, mucorr),ef_thr=float(threshold)*0.1)                    
-            elif  self.chainPart['trigType'] == "te":
-                theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d'% threshold,ef_thr=threshold*GeV)
-            else:               
-                LArTag=''
-                if "LArH11off" in addInfo: LArTag += '_LArH11off'
-                if "LArH12off" in addInfo: LArTag += '_LArH12off'
-                if "METphi" in addInfo: LArTag += '_METphi'
-                theEFMETHypo = EFMetHypoXE('EFMetHypo'+LArTag+'_xe%s%s'%(threshold,mucorr),ef_thr=float(threshold)*GeV)  
-
-        else:
-            log.warning("MET EF algorithm not recognised")
-        
-        #----------------------------------------------------
-        # Obtaining the needed jet TEs from the jet code and b-jet code 
-        #----------------------------------------------------
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        
-        from TriggerMenu.bjet.generateBjetChainDefs import generateChainDefs as generateBjetChainDefs
-    
-        chain = ['j0_{0}_{1}'.format(calibration, jetCalib), '', [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
-
-        theDictFromChainName = DictFromChainName.DictFromChainName()
-        jetChainDict = theDictFromChainName.getChainDict(chain)
-        
-        jetChainDict['chainCounter'] = 9151
-        jetChainDef = generateHLTChainDef(jetChainDict)
-        #This is a dummy b-jet chain, with a threshold at 20 GeV at the uncalibrated scale. It computes the tracks within each jet RoI. 
-        #Change the calibration by changing 'nojcalib' to the desired calibration scale. 
-        #For pufittrack, we found that the performance was superior using uncalibrated jets. 
-        #This is a dummy b-jet chain, with a threshold at 20 GeV at the uncalibrated scale. It computes the tracks within each jet RoI.
-        #Change the calibration by changing 'nojcalib' to the desired calibration scale.
-        #For pufittrack, we found that the performance was superior using uncalibrated jets.
-        dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration, jetCalib),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
-        bjet_chain_dict = theDictFromChainName.getChainDict(dummy_bjet_chain)
-        bjet_chain_dict["chainCounter"] = 9152
-        bjet_chain_dict['topoThreshold'] = None
-        bjet_chain_def = generateBjetChainDefs(bjet_chain_dict)
-       
-        #for i in range(3):
-        #    m_input[i] = jetChainDef.sequenceList[i]['input']
-        #    m_output[i]= jetChainDef.sequenceList[i]['output']
-        #    m_algo[i] =jetChainDef.sequenceList[i]['algorithm']
-
-        #obtaining DummyUnseededAllTEAlgo/RoiCreator 
-        input0=jetChainDef.sequenceList[0]['input']
-        output0 =jetChainDef.sequenceList[0]['output']
-        algo0 =jetChainDef.sequenceList[0]['algorithm']
-        
-        #obtaing TrigCaloCellMaker/FS 
-        input1=jetChainDef.sequenceList[1]['input']
-        output1 =jetChainDef.sequenceList[1]['output']
-        algo1 =jetChainDef.sequenceList[1]['algorithm']
-        
-        #obtaining TrigCaloClusterMaker
-        input2=jetChainDef.sequenceList[2]['input']
-        output2 =jetChainDef.sequenceList[2]['output']
-        algo2 =jetChainDef.sequenceList[2]['algorithm']
-
-        #obtaining TrigHLTEnergyDensity
-        input3=jetChainDef.sequenceList[3]['input']
-        output3 =jetChainDef.sequenceList[3]['output']
-        algo3 =jetChainDef.sequenceList[3]['algorithm']
-
-        #obtaining TrigHLTJetRecFromCluster
-        input4=jetChainDef.sequenceList[4]['input']
-        output4 =jetChainDef.sequenceList[4]['output']
-        algo4 =jetChainDef.sequenceList[4]['algorithm']
-
-        #---End of obtaining jet TEs------------------------------
-                   
-        ########### Sequences ###########
-        
-        #Run L2-like algos only for l2fsperf and L2FS chains
-        if L2recoAlg=="l2fsperf" or L2recoAlg=="L2FS":
-
-            ##L1 MET
-            self.L2sequenceList += [[ self.l2_input_tes,              [theL2Fex],                      'L2_xe_step1']]
-            ##Moun Correction to L1 MET
-            self.L2sequenceList += [[ ['L2_xe_step1', muonSeed],  [theL2MuonFex],                  'L2_xe_step2']]
-
-        # --- EF ---                
-
-        # cell preselection (v7 onwards only)
-        # First check if we're in a multipart chain (for now assume that we don't apply the preselection for these)
-        isMulitpartChain = self.chainPart['chainPartName'] != self.chainDict['chainName']
-        if EFrecoAlg != 'cell' and 'v6' not in TriggerFlags.triggerMenuSetup() and 'v5' not in TriggerFlags.triggerMenuSetup() and not isMulitpartChain:
-        # if EFrecoAlg != 'cell' and TriggerFlags.run2Config() != '2016' and not isMulitpartChain:
-          # a few parameters
-          cellPresel_minL1Threshold = 50
-          cellPresel_threshold = 50
-          # work out what the L1 threshold is
-          import re
-          match = re.match("L1_XE(\d+)", self.chainDict['L1item'])
-          if match:
-            if int(match.group(1) ) >= cellPresel_minL1Threshold:
-              cellPreselectionFex = EFMissingET_Fex_2sidednoiseSupp()
-              cellPreselectionMuonFex = EFTrigMissingETMuon_Fex()
-              cellPreselectionHypo = EFMetHypoXE('EFMetHypo_xe{0}_presel'.format(cellPresel_threshold), ef_thr = float(cellPresel_threshold) * GeV)
-
-              self.EFsequenceList += [[ [''], [cellPreselectionFex], 'EF_xe{0}_step1'.format(cellPresel_threshold) ]]
-              self.EFsequenceList += [[ ['EF_xe{0}_step1'.format(cellPresel_threshold), muonSeed], [cellPreselectionMuonFex, cellPreselectionHypo], 'EF_xe{0}_step2'.format(cellPresel_threshold) ]]
-              
-              self.EFsignatureList += [ [['EF_xe{0}_step1'.format(cellPresel_threshold)]] ]
-              self.EFsignatureList += [ [['EF_xe{0}_step2'.format(cellPresel_threshold)]] ]
-          else:
+    def add_cell_presel(self):
+        """ Add the cell preselection, if necessary """
+        if self.chainPart["chainPartName"] != self.chainDict["chainName"]:
+            # Only add the preselection to single-step chains
+            return
+        if self.chainPart["EFrecoAlg"] == "cell":
+            # No sense adding a cell preselection to a cell trigger
+            return
+        if 'v5' in TriggerFlags.triggerMenuSetup() or 'v6' in TriggerFlags.triggerMenuSetup():
+            # Don't do this in old menu versions
+            return
+        # Try to figure out the L1 threshold
+        match = re.match(r"L1_XE(\d+)", self.chainDict["L1item"])
+        if not match:
             log.info("Pure MET chain doesn't have an L1_XE seed! Will not apply the cell preselection")
+            return
+        l1_threshold = int(match.group(1) )
+        if l1_threshold < 50:
+            log.info("L1 threshold below 50, will not apply cell presel")
+            return
 
+        presel_fex = FexConf.getFEX("cell")
+        presel_te = self.add_fex(presel_fex, [])
+        self.add_hypo(presel_fex, fex_te=presel_te, int_threshold=50)
 
-        #topocluster
-        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit':
-            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
-            self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
-            self.EFsequenceList +=[[ input2,algo2,  output2 ]]           
-            self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
-            self.EFsequenceList +=[[ input4,algo4,  output4 ]]
-            self.EFsequenceList +=[[ [output3,output4],          [theEFMETFex],  'EF_xe_step1' ]]            
-            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
+    def assemble_fex_inputs(self, fex):
+        """
+            Get the inputs for a fex.
 
-
-        elif EFrecoAlg=='pufittrack':
-            makelist = lambda x: x if isinstance(x, list) else [x]
-            self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
-#            for x in bjet_chain_def.sequenceList[:-2]:
-#                print x
-#            print self.EFsequenceList[4][2], "Clusters, output EF_FSTopoClusters"
-#            print self.EFsequenceList[6][2], "Jets, output EF_8389636500743033767_jetrec_a4tclcwnojcalibFS"
-#            print self.EFsequenceList[-1][2], "Tracks, output HLT_j20_eta_jsplit_IDTrig"
-#            print self.EFsequenceList[-5][2], "Vertex, output HLT_superIDTrig_prmVtx"
-#            Fill the sequence with clusters, jets, tracks, vertices 
-            self.EFsequenceList += [[ [self.EFsequenceList[4][2],self.EFsequenceList[6][2],self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]  
-            self.EFsequenceList += [[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
-
-        #trigger-jet based MET
-        elif EFrecoAlg=='mht': 
-            self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
-            self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
-            self.EFsequenceList +=[[ input2,algo2,  output2 ]]           
-            self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
-            self.EFsequenceList +=[[ input4,algo4,  output4 ]]            
-            self.EFsequenceList +=[[ [output4], [theEFMETFex], 'EF_xe_step1' ]]
-            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
-            if "FStracks" in addInfo:
-                from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-                print trk_algs[0]
-                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
-
-        elif EFrecoAlg=='trkmht':
-            self.EFsequenceList +=[[ input0,algo0,  output0 ]]
-            self.EFsequenceList +=[[ input1,algo1,  output1 ]]
-            self.EFsequenceList +=[[ input2,algo2,  output2 ]]
-            self.EFsequenceList +=[[ input3,algo3,  output3 ]]
-            self.EFsequenceList +=[[ input4,algo4,  output4 ]]
-
-            ##adding FTK tracks in the sequence,
-            ##if not, adding FullScan tracks
-            if "FTK" in addInfo:
-                from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-                trk_algs = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
-                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0]+trk_algs[1], 'EF_xe_step0' ]]
-
+            The necessary sequences will be added to the list.
+        """
+        # Figure out which inputs we need
+        full_input_list = fex.request_inputs()
+        fex_inputs = []
+        for input_type in full_input_list:
+            if input_type == "clusters":
+                fex_inputs += self._add_cluster_inputs()
+            elif input_type == "jets":
+                fex_inputs += self._add_jet_inputs()
+            elif input_type == "roi_tracks":
+                fex_inputs += self._add_jetroi_track_inputs()
+            elif input_type == "fs_tracks":
+                fex_inputs += self._add_fs_track_inputs()
+            elif input_type == "muons":
+                fex_inputs += self._add_muon_inputs()
             else:
-                from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
+                log.error("Unexpected input {0} requested - skipping!".format(input_type) )
+                log.error("This will probably break things later...")
+        return fex_inputs
 
-            self.EFsequenceList +=[[ [output4,'EF_xe_step0',muonSeed], [theEFMETFex], 'EF_xe_step1' ]]                                                                               
-            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]   
+    def add_fex(self, fex, fex_inputs):
+        """ 
+            Add a new FEX to the sequence.
 
+            Returns the output TE created for the new fex
+        """
+        # Work out what we want to call the output
+        te_name = self._te_name_from_fex(fex)
+        # Add the fex to our sequences
+        self.chain_def.addSequence(
+                [fex],
+                te_in=fex_inputs if fex_inputs else [""],
+                te_out=te_name)
+        # Add the new TE to our signatures
+        self.chain_def.addSignature(len(self.chain_def.signatureList)+1, [te_name])
+        return te_name
 
-        elif EFrecoAlg=='trktc':
-            self.EFsequenceList +=[[ input0,algo0,  output0 ]]
-            self.EFsequenceList +=[[ input1,algo1,  output1 ]]
-            self.EFsequenceList +=[[ input2,algo2,  output2 ]]
-            self.EFsequenceList +=[[ input3,algo3,  output3 ]]
-            #self.EFsequenceList +=[[ input4,algo4,  output4 ]]
+    def add_hypo(self, fex, int_threshold, fex_te=None, hypo_type="xe"):
+        """
+            Add a hypo whose decision is based on the output of the provided FEX
 
-            ##adding FTK tracks in the sequence,
-            ##if not, adding FullScan tracks
-            if "FTK" in addInfo:
-                from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-                trk_algs = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
-                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0]+trk_algs[1], 'EF_xe_step0' ]]
-
-            else:
-                from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
-
-            self.EFsequenceList +=[[ [output3,'EF_xe_step0',muonSeed], [theEFMETFex], 'EF_xe_step1' ]]                                                                               
-            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]   
-
-
-        #cell based MET
-        elif EFrecoAlg=='cell':
-            self.EFsequenceList +=[[ [''],          [theEFMETFex],  'EF_xe_step1' ]]  
-            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
-            
-            
-        ########### Signatures ###########
-        if L2recoAlg=="l2fsperf" or  L2recoAlg=="L2FS" :
-            self.L2signatureList += [ [['L2_xe_step1']] ]
-            self.L2signatureList += [ [['L2_xe_step2']] ]
-
-        if EFrecoAlg=="trkmht" or EFrecoAlg=="trktc" :
-            self.EFsignatureList += [ [['EF_xe_step0']] ]   
-
-        self.EFsignatureList += [ [['EF_xe_step1']] ]
-        self.EFsignatureList += [ [['EF_xe_step2']] ]
-        if "FStracks" in addInfo:
-            self.EFsignatureList += [ [['EF_xe_step3']] ]
-        
-
-        ########### TE renaming ###########
-        self.TErenamingDict = {}
-            
-        if L2recoAlg=="l2fsperf" or  L2recoAlg=="L2FS" :
-            self.TErenamingDict['L2_xe_step1']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step1')
-            self.TErenamingDict['L2_xe_step2']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step2')
-
-        if EFrecoAlg=='trkmht' or EFrecoAlg=='trktc':
-            self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")                                                                    
-        #if EFrecoAlg=='pufittrack':
-        #    self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")
-            
-        self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
-        if "FStracks" in addInfo:
-            self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step2")
-            self.TErenamingDict['EF_xe_step3']= mergeRemovingOverlap('EF_', self.sig_id_noMult)
+            Return the name of the hypo's TE
+        """
+        if fex_te is None:
+            # Assume we made it with the name that this class would have
+            # generated
+            fex_te = self._te_name_from_fex(fex)
+        base_name = fex_te
+        if base_name.startswith("EF_xe_"):
+            base_name = base_name[6:]
+        if hypo_type == "xe":
+            hypo_cls = METHypo
+            threshold = int_threshold * GeV
+        elif hypo_type == "te":
+            hypo_cls = TEHypo
+            threshold = int_threshold * GeV
+        elif hypo_type == "xs":
+            hypo_cls = XSHypo
+            threshold = int_threshold / 10.
         else:
-            self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult)
+            log.error("Unsupported hypo type!! No hypo will be created")
+            return
+        hypo = hypo_cls(
+                "HLT_HYPO_{0}_{1}{2}".format(base_name, hypo_type, int_threshold),
+                Threshold = threshold)
+        self._connect_hypo(hypo=hypo, fex=fex)
+        hypo_te_name = "{0}_{1}{2}".format(fex_te, hypo_type, int_threshold)
+        # Add the hypo to our sequences
+        self.chain_def.addSequence(
+                [hypo],
+                te_in=[fex_te],
+                te_out=hypo_te_name)
+        # Add the new TE to our signatures
+        self.chain_def.addSignature(len(self.chain_def.signatureList) + 1, [hypo_te_name])
+        return hypo_te_name
 
+
+
+    def _add_cluster_inputs(self):
+        """ Add the cluster inputs """
+        chain = ["j0_{calib}_{jetCalib}".format(**self.chainPart), '', [], ["Main"], ["RATE:SingleJet", "BW:Jet"], -1]
+        jet_dict = self._dictBuilder.getChainDict(chain)
+        # We also only need up to the third term
+        seq = generateJetChainDef(jet_dict).sequenceList[:3]
+        if "clusters" not in self._added_inputs:
+            self._copy_input_sequence(seq)
+            self._added_inputs.append("clusters")
+        return [seq[-1]["output"]]
+
+    def _add_jet_inputs(self):
+        """ Add the jet inputs """
+        chain = ["j0_{calib}_{jetCalib}".format(**self.chainPart), '', [], ["Main"], ["RATE:SingleJet", "BW:Jet"], -1]
+        jet_def = generateJetChainDef(self._dictBuilder.getChainDict(chain))
+        # Sequence list is
+        # - RoI creator: create a dummy unseeded RoI to work in the fullscan region
+        # - TrigCaloCellMaker: collect all the cells in a single container - maybe
+        #   this is how we should actually be doing cell...?
+        # - TrigCaloClusterMaker: Make the clusters!
+        # - TrigHLTEnergyDensity: Calculates the overall energy density (I think)
+        # - TrigHLTJetRecFromCluster: Make and calibrate the jets
+        seq = jet_def.sequenceList[:5]
+        if "clusters" not in self._added_inputs:
+            self._copy_input_sequence(seq[:3])
+            self._added_inputs.append("clusters")
+        if "jets" not in self._added_inputs:
+            self._copy_input_sequence(seq[3:])
+            self._added_inputs.append("jets")
+        return [seq[-1]["output"]]
+
+    def _add_jetroi_track_inputs(self):
+        chain = ["j20_{calib}_{jetCalib}_boffperf_split".format(**self.chainPart), '', [], ["Main"], ["RATE:SingleBJet", "BW:BJet"], -1]
+        bjet_dict = self._dictBuilder.getChainDict(chain)
+        bjet_dict["topoThreshold"] = None
+        bjet_def = generateBJetChainDef(bjet_dict)
+        seq = bjet_def.sequenceList[:-2]
+        if "clusters" not in self._added_inputs:
+            self._copy_input_sequence(seq[:3])
+            self._added_inputs.append("clusters")
+        if "jets" not in self._added_inputs:
+            self._copy_input_sequence(seq[3:5])
+            self._added_inputs.append("jets")
+        if "roi_tracks" not in self._added_inputs:
+            self._copy_input_sequence(seq[5:])
+            self._added_inputs.append("roi_tracks")
+        return [seq[-1]["output"], seq[-5]["output"]]
         
+    def _add_fs_track_inputs(self):
+        # Note, this approach explicitly disallows using both fullscan and FTK
+        # tracks in a sequence. I think this is fine though
+        # Create a dummy algorithm - I think this is to make a dummy RoI?
+        algorithms = [PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")]
+        if "FTK" in self.chainPart["addInfo"]:
+            trk_algs = TrigInDetFTKSequence(
+                    "FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
+            algorithms += trk_algs[0] + trk_algs[1]
+            te_out = "EF_xe_FTKTrk"
+        else:
+            trk_algs = TrigInDetSequence(
+                    "FullScan", "fullScan", 
+                    "IDTrig", sequenceFlavour=["FTF"]).getSequence()
+            algorithms += trk_algs[0]
+            te_out = "EF_xe_FSTrk"
+        if "fs_tracks" not in self._added_inputs:
+            self.chain_def.addSequence(
+                    algorithms,
+                    te_in=[''],
+                    te_out=te_out)
+            self._added_inputs.append("fs_tracks")
+        return [te_out]
+
+    def _add_muon_inputs(self):
+        chain = ['mu8', 'L1_MU6',  [], ["Main"], ['RATE:SingleMuon', 'BW:Muon'], -1]
+        muon_dict = self._dictBuilder.getChainDict(chain)
+        muon_dict["chainCounter"] = 9999
+        muon_def = generateMuonChainDef(muon_dict)
+        seq = muon_def.sequenceList
+        if "muons" not in self._added_inputs:
+            self._copy_input_sequence(seq)
+            self._added_inputs.append("muons")
+        return [seq[-1]["output"]]
+
+    def _copy_input_sequence(self, seq):
+        for inp in seq:
+            self.chain_def.addSequence(
+                    inp["algorithm"],
+                    inp["input"],
+                    inp["output"],
+                    inp["topo_start_from"])
+
+    def _te_name_from_fex(self, fex):
+        # Rely on the fact that all of the FEXs have to produce a unique output
+        # name for the EDM. By default this only applies to the FEXs that will
+        # write something out so we need to ensure elsewhere that it's true for
+        # the FexSum (for example)
+        
+        # Use this unique name
+        name = fex.MissingETOutputKey
+        # Remove the TrigEFMissingET part
+        if name.startswith("TrigEFMissingET"):
+            name = name[len("TrigEFMissingET"):]
+        # If this is now empty, it must have been cell so call it that
+        if name == "":
+            name = "_cell"
+        # I don't like using EF given that we haven't called the HLT the Event
+        # Filter for a very long time, however every other TE is named like
+        # 'L2_' or 'EF_' so I won't break that convention
+        return "EF_xe"+name
+
+    def _connect_hypo(self, hypo, fex):
+        hypo.METLabel = fex.MissingETOutputKey

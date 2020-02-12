@@ -21,6 +21,11 @@ atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
 muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+
+isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
+
 # load InDetHoleSearchTool
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 ToolSvc += InDet__InDetTrackHoleSearchTool( \
@@ -29,7 +34,9 @@ ToolSvc += InDet__InDetTrackHoleSearchTool( \
   usePixel                     = DetFlags.haveRIO.pixel_on(),
   useSCT                       = DetFlags.haveRIO.SCT_on(),
   checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
-  CountDeadModulesAfterLastHit = True)
+  CountDeadModulesAfterLastHit = True,
+  ITkGeometry  = isUpgrade
+)
 
 if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   # now get the InDet tools as used for InDet tracks
@@ -62,7 +69,8 @@ ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   HoleSearch      = ToolSvc.CombinedMuonIDHoleSearch,
   usePixel        = DetFlags.haveRIO.pixel_on(),
   useSCT          = DetFlags.haveRIO.SCT_on(),
-  useTRT          = DetFlags.haveRIO.TRT_on() )
+  useTRT          = DetFlags.haveRIO.TRT_on(),
+  ITkGeometry  = isUpgrade)
  
 # default CombinedMuonTrackSummary
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool

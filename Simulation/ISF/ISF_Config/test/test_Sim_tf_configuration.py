@@ -3,12 +3,13 @@
 import pickle
 import subprocess
 import unittest
-
+import os
 
 class TestATLFASTII(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ["TRF_ECHO"] = "1"
         config_picklefilename = 'ATLFASTII_config.pkl'
         command = [
             'Sim_tf.py',

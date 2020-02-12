@@ -5,6 +5,12 @@
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
+if 'd0Max' in dir():
+  from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+  InDetTrigSliceSettings[('d0SeedMax','tauCore')] = d0Max;
+  InDetTrigSliceSettings[('d0SeedMax','tauIso')] = d0Max;
+  InDetTrigSliceSettings[('d0SeedPPSMax','tauCore')] = d0Max;
+  InDetTrigSliceSettings[('d0SeedPPSMax','tauIso')] = d0Max;
 
 #if athenaCommonFlags.FilesInput()==[]:
 #  athenaCommonFlags.FilesInput=[

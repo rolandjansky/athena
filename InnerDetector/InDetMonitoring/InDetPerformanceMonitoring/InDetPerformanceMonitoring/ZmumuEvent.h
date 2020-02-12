@@ -26,7 +26,7 @@ class ZmumuEvent : public EventAnalysis
 {
  public:
   ZmumuEvent();
-  ~ZmumuEvent();
+  virtual ~ZmumuEvent();
 
   enum
   {
@@ -58,38 +58,28 @@ class ZmumuEvent : public EventAnalysis
   virtual bool Reco();
 
   // Public access methods
-  unsigned int  getNumberOfTaggedMuons()         {  return m_numberOfFullPassMuons; }
-  const std::string   getRegion() const ;
-  void setDebugMode(bool debug) { m_doDebug=debug;}
-
-  const xAOD::Muon*      getCombMuon(  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : NULL;  }
-  const xAOD::TrackParticle*  getMSTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : NULL;  }
-  const xAOD::TrackParticle*  getIDTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : NULL;  }
-  const xAOD::TrackParticle*  getLooseIDTk( unsigned int uPart );
-
-  float getPtImbalance( ZTYPE eType );
-
-  const float& getZPt(   ZTYPE eType )                  {  return m_fZPt[eType];            }
-  const float& getZEta(  ZTYPE eType )                  {  return m_fZEtaDir[eType];        }
-  const float& getZPhi(  ZTYPE eType )                  {  return m_fZPhiDir[eType];        }
-  const float& getLeptonOpeningAngle( ZTYPE eType )     {  return m_fMuonDispersion[eType]; }
-  const float& getZMass( ZTYPE eType )                  {  return m_fInvariantMass[eType];  }
-
-  int  getZCharge( ZTYPE eType );
-  bool EventPassed() {    return m_passedSelectionCuts;   }
-
-  unsigned int getPosMuon( ZTYPE eType );
-  unsigned int getNegMuon( ZTYPE eType );
-
-  void doIsoSelection(bool doIso) {
-    m_xMuonID.doIsoSelection(doIso);
-  }
-
-  void doIPSelection(bool doIPsel) {
-    m_xMuonID.doIPSelection(doIPsel);
-  }
-
-  void        OrderMuonList ();
+  inline void                        doIsoSelection (bool doIso)          { m_xMuonID.doIsoSelection(doIso);  }
+  inline void                        doIPSelection (bool doIPsel)         { m_xMuonID.doIPSelection(doIPsel); }
+  inline void                        doMCPSelection (bool doMCP)          { m_xMuonID.doMCPSelection(doMCP);  }
+  inline bool                        EventPassed()                        { return m_passedSelectionCuts;   }
+  inline int                         getAcceptedEvents ()                 { return m_acceptedEventCount; }      
+  const xAOD::Muon*                  getCombMuon(  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxRecMuon[uPart] : NULL;  }
+  const xAOD::TrackParticle*         getIDTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxIDTrack[uPart] : NULL;  }
+  const float&                       getLeptonOpeningAngle( ZTYPE eType ) { return m_fMuonDispersion[eType]; }
+  const xAOD::TrackParticle*         getLooseIDTk( unsigned int uPart );
+  const xAOD::TrackParticle*         getMSTrack (  unsigned int uPart )   { return (uPart < NUM_MUONS) ? m_pxMSTrack[uPart] : NULL;  }
+  unsigned int                       getNegMuon( ZTYPE eType );
+  inline unsigned int                getNumberOfTaggedMuons()             { return m_numberOfFullPassMuons; }
+  unsigned int                       getPosMuon( ZTYPE eType );
+  float                              getPtImbalance( ZTYPE eType );
+  const std::string                  getRegion() const ;
+  inline void                        setDebugMode(bool debug)             { m_doDebug=debug;}
+  int                                getZCharge( ZTYPE eType );
+  const float&                       getZEta(  ZTYPE eType )              { return m_fZEtaDir[eType];        }
+  const float&                       getZMass( ZTYPE eType )              { return m_fInvariantMass[eType];  }
+  const float&                       getZPhi(  ZTYPE eType )              { return m_fZPhiDir[eType];        }
+  const float&                       getZPt(   ZTYPE eType )              { return m_fZPt[eType];            }
+  void                               OrderMuonList ();
   inline void SetMuonPtCut (double newvalue) { m_xMuonID.SetPtCut(newvalue);}
 
   inline void SetMassWindowLow (double newvalue) {m_MassWindowLow = newvalue;}
@@ -136,6 +126,8 @@ class ZmumuEvent : public EventAnalysis
   // Member variables : Mostly to store relevant muon data for quick access.
   unsigned int     m_numberOfFullPassMuons;
   bool             m_passedSelectionCuts;
+  int              m_analyzedEventCount;
+  int              m_acceptedEventCount;
 
   const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS];
   const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )

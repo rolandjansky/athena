@@ -143,6 +143,7 @@ class TileRawChannelGetter ( Configured)  :
             if (jobproperties.TileRecFlags.doTileMF()
                 or (not jobproperties.TileRecFlags.OfcFromCOOL()
                     and (jobproperties.TileRecFlags.doTileOF1()
+                         or jobproperties.TileRecFlags.doTileWiener()
                          or jobproperties.TileRecFlags.doTileOpt2()
                          or jobproperties.TileRecFlags.doTileOptATLAS()))):
 
@@ -154,6 +155,7 @@ class TileRawChannelGetter ( Configured)  :
 
             if jobproperties.TileRecFlags.OfcFromCOOL():
                 if (jobproperties.TileRecFlags.doTileMF()
+                    or jobproperties.TileRecFlags.doTileWiener()
                     or jobproperties.TileRecFlags.doTileOpt2()
                     or jobproperties.TileRecFlags.doTileOptATLAS()):
 
@@ -488,6 +490,41 @@ class TileRawChannelGetter ( Configured)  :
                 ToolSvc += theTileRawChannelBuilderOptATLAS
                 
                 theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOptATLAS]
+
+            if jobproperties.TileRecFlags.doTileWiener():
+                try:
+                    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderWienerFilter
+                    theTileRawChannelBuilderWienerFilter= TileRawChannelBuilderWienerFilter()
+                except:
+                    mlog.error("could not get handle to TileRawChannelBuilderWienerFilter Quit")
+                    print traceback.format_exc()
+                    return False
+                
+                # setup COOL to get OFCs
+                if jobproperties.TileRecFlags.OfcFromCOOL():
+                    theTileRawChannelBuilderWienerFilter.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
+                    
+                #TileRawChannelBuilderWienerFilter Options:
+                jobproperties.TileRecFlags.TileRawChannelContainer           = "TileRawChannelWiener"
+                theTileRawChannelBuilderWienerFilter.TileRawChannelContainer = "TileRawChannelWiener"
+                theTileRawChannelBuilderWienerFilter.RunType                 = jobproperties.TileRecFlags.TileRunType()
+                theTileRawChannelBuilderWienerFilter.calibrateEnergy         = jobproperties.TileRecFlags.calibrateEnergy()
+                theTileRawChannelBuilderWienerFilter.correctTime             = jobproperties.TileRecFlags.correctTime()
+                theTileRawChannelBuilderWienerFilter.NoiseFilterTools        = NoiseFilterTools
+                theTileRawChannelBuilderWienerFilter.BestPhase               = False; # no point to use best phase with interations
+                theTileRawChannelBuilderWienerFilter.MC                      = False # use globalflags.DataSource()!='data'
+                theTileRawChannelBuilderWienerFilter.PedestalMode            = 1
+                theTileRawChannelBuilderWienerFilter.MaxIterations           = 5
+                theTileRawChannelBuilderWienerFilter.Minus1Iteration         = True
+                theTileRawChannelBuilderWienerFilter.AmplitudeCorrection     = False; # don't need correction after iterations
+                theTileRawChannelBuilderWienerFilter.TimeCorrection          = False; # don't need correction after iterations
+
+                ServiceMgr.TileInfoLoader.LoadWienerFilterWeights=True
+      
+                mlog.info(" adding now TileRawChannelBuilderWienerFilter to ToolSvc")   
+                ToolSvc += theTileRawChannelBuilderWienerFilter
+      
+                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderWienerFilter]
             
 
             # now add algorithm to topSequence
@@ -527,6 +564,7 @@ class TileRawChannelGetter ( Configured)  :
             jobproperties.TileRecFlags.doTileManyAmps = False
             jobproperties.TileRecFlags.doTileMF = False
             jobproperties.TileRecFlags.doTileOF1 = False
+            jobproperties.TileRecFlags.doTileWiener = False
             jobproperties.TileRecFlags.OfcFromCOOL = False
             jobproperties.TileRecFlags.print_JobProperties('tree&value')
 

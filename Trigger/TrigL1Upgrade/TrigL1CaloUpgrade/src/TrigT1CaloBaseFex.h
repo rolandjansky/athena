@@ -27,6 +27,7 @@ class TruthVertex;
 class TFile;
 class TH1F;
 class TH2F;
+class TileCell;
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
@@ -49,6 +50,7 @@ public :
 protected :
 	/** method to get the containers */
 	StatusCode getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs);
+	StatusCode getContainersTileCal(CaloCellContainer*& scells, const TileID*& m_tileIDHelper, const CaloCellContainer*& tileCellCon);
 	StatusCode getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs, float etThresholdGeV);
 	StatusCode getContainers(const xAOD::TruthParticleContainer*& truthContainer);
 	/** create all supercells list**/
@@ -88,6 +90,8 @@ protected :
 	bool IseFEXIsoTDR (const std::vector<float>& EM2allCell, const float& seedPlace, const float& Isovalue) const ;
 	/** retrieve the cell ID helper */
 	StatusCode getIDHelper(const CaloCell_SuperCell_ID*& m_idHelper);
+	/** retrieve the tile ID helper */
+	StatusCode getTileIDHelper(const TileID*& m_idHelper);
 	/** calculate the ET of an input cell */
 	float CaloCellET(CaloCell* const &inputCell, float digitScale, float digitThreshold);
 	/** SC from container is returned according to its ID */
@@ -148,12 +152,22 @@ protected :
 	double HadronicET(std::vector<CaloCell*> inputVector, const CaloCellContainer* scells, const xAOD::TriggerTowerContainer* &TTContainer, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh);
 	/** calculate the hadronic isolation of the central cell */
 	double RHad(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const xAOD::TriggerTowerContainer* &TTContainer, const CaloCell_SuperCell_ID* idHelper, float digitScale , float digitThresh, float &HadronicET);
+	/** determine if Tile cell has already been taken into account */
+	void checkTileCell(const TileCell* &inputCell, std::vector<const TileCell*> &tileCellVector, bool &isAlreadyThere);
+	/** determine transverse energy and apply noise threshold to Tile cells */
+	double tileCellEnergyCalib(float eIn, float etaIn, float tileNoiseThresh);
+	/** determine the PMT position of the Tile cell to be matched */
+	int detRelPos(const float inEta);
+	/** match all Tile cells to a given L2Cluster and determine the summed energy per Tile layer */
+	std::vector<double> EnergyPerTileLayer(std::vector<CaloCell*> &inputSCVector, const CaloCellContainer* CellCon, const TileID* tileIDHelper, bool isOW, float tileNoiseThresh);
+	/** calculate the hadronic isolation for a seed cell using TileCal cells */
+	double RHadTile(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh, const TileID* m_tileIDHelper, const CaloCellContainer* tileCellCon, float tileNoiseThresh, float &HadronicET);
 	/** calculate the lateral isolation aorund the central cell */
 	double L1Width(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale , float digitThresh );
 	/** find cluster and associated variables using a "loose" algorithm */
-	std::vector<std::vector<float>> looseAlg(const CaloCellContainer* SCs, const xAOD::TriggerTowerContainer* TTs, const CaloCell_SuperCell_ID* idHelper);
+	std::vector<std::vector<float>> looseAlg(const CaloCellContainer* SCs, const xAOD::TriggerTowerContainer* TTs, const CaloCell_SuperCell_ID* idHelper, const TileID* m_tileIDHelper, const CaloCellContainer* tileCellCon);
 	/** find cluster and associated variables using a user defined selection */
-	std::vector<std::vector<float>> baselineAlg(const CaloCellContainer* scells, const xAOD::TriggerTowerContainer* TTs, const CaloCell_SuperCell_ID* idHelper);
+	std::vector<std::vector<float>> baselineAlg(const CaloCellContainer* scells, const xAOD::TriggerTowerContainer* TTs, const CaloCell_SuperCell_ID* idHelper, const TileID* m_tileIDHelper, const CaloCellContainer* tileCellCon);
 	/** list of all supercells */
 	std::vector<CaloCell*> allSuperCells;
 	/** list of seeds */
@@ -224,6 +238,10 @@ protected :
   	float m_eta_dropL1Width;
 	/** boolean for caluclating REta using Layer 1 in addition to Layer 2 */
 	bool m_use_REtaL12;
+	/** boolean for using Tile cells instead of Tile TT */
+	bool m_use_tileCells;
+	/** TileCal cell noise threshold */
+	float m_tileNoise_tresh;
 };
 
 #endif

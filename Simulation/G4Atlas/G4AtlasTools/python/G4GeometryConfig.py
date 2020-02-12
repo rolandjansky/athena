@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import *
@@ -9,18 +9,30 @@ def getBeamPipeGeoDetectorTool(name='BeamPipe', **kwargs):
 
 def getPixelGeoDetectorTool(name='Pixel', **kwargs):
     kwargs.setdefault("DetectorName", "Pixel")
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if geoFlags.dumpInDetGDML == True:
+       kwargs.setdefault("GDMLFileOut", "Pixel.gdml") 
     return CfgMgr.GeoDetectorTool(name, **kwargs)
 
 def getSCTGeoDetectorTool(name='SCT', **kwargs):
     kwargs.setdefault("DetectorName", "SCT")
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if geoFlags.dumpInDetGDML == True:
+       kwargs.setdefault("GDMLFileOut", "SCT.gdml") 
     return CfgMgr.GeoDetectorTool(name, **kwargs)
 
 def getTRTGeoDetectorTool(name='TRT', **kwargs):
     kwargs.setdefault("DetectorName", "TRT")
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if geoFlags.dumpInDetGDML == True:
+       kwargs.setdefault("GDMLFileOut", "TRT.gdml") 
     return CfgMgr.GeoDetectorTool(name, **kwargs)
 
 def getIDetServicesMatGeoDetectorTool(name='IDetServicesMat', **kwargs):
     kwargs.setdefault("DetectorName", "InDetServMat")
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if geoFlags.dumpInDetGDML == True:
+       kwargs.setdefault("GDMLFileOut", "InDetServMat.gdml") 
     return CfgMgr.GeoDetectorTool(name, **kwargs)
 
 def getLArMgrGeoDetectorTool(name='LArMgr', **kwargs):
@@ -91,7 +103,8 @@ def getIDETEnvelope(name="IDET", **kwargs):
         SubDetectorList += ['SCT']
     if DetFlags.geometry.TRT_on() and not isUpgrade:
         SubDetectorList += ['TRT']
-    SubDetectorList += ['IDetServicesMat']
+    if not isUpgrade:
+        SubDetectorList += ['IDetServicesMat']
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.CylindricalEnvelope(name, **kwargs)
 
@@ -165,8 +178,7 @@ def generateSubDetectorList():
     SubDetectorList=[]
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-            (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if simFlags.SimulateCavern.get_Value():
         if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR"):
             SubDetectorList += ['CosmicShortCut']
     from AthenaCommon.DetFlags import DetFlags
@@ -206,8 +218,7 @@ def getATLAS(name="Atlas", **kwargs):
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
     AtlasOuterR3 =  1501.
-    if jobproperties.Beam.beamType() != 'cosmics' and not DetFlags.Muon_on() and not \
-       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if not DetFlags.Muon_on() and not simFlags.SimulateCavern.get_Value():
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
         if not DetFlags.Calo_on():

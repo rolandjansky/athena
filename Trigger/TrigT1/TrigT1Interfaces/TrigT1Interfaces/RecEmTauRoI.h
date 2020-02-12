@@ -100,7 +100,7 @@ namespace LVL1 {
       std::vector< unsigned int >* thresholdsPassed() const;
       
       /** returns bitmask of passed thresholds */
-      unsigned int thresholdPattern() const;
+      unsigned long int thresholdPattern() const;
 
       /** returns the value of the trigger threshold for the threshold passed.
           The trigger threshold is also sometimes called the cluster threshold.

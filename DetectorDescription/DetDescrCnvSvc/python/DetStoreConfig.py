@@ -16,8 +16,9 @@ def _setupDetStoreConfig():
     # now configure the Detector Description converter service
     from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
     # Create DetDescrCnvSvc and add to SvcMgr
-    # Specify primary Identifier dictionary to be used
-    svcMgr += DetDescrCnvSvc(IdDictName = "IdDictParser/ATLAS_IDS.xml")
+    # Specify primary Identifier dictionary to be used, and whether CSC/sTgc/MM muon chambers are part of the detector
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    svcMgr += DetDescrCnvSvc(IdDictName = "IdDictParser/ATLAS_IDS.xml", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
 
     #theApp.CreateSvc += [ svcMgr.DetDescrCnvSvc.getFullName() ]
     svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]

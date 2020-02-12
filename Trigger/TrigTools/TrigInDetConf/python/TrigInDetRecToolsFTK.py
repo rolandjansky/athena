@@ -44,29 +44,29 @@ from FTK_RecTools.FTK_RecToolsConf import FTK_PixelClusterOnTrackTool, FTK_SCTCl
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
  
-InDetTrigBroadPixelClusterOnTrackToolFTK = \
-                                         FTK_PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackToolFTK",
+InDetTrigPixelClusterOnTrackToolFTK = \
+                                         FTK_PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackToolFTK",
                                                                      PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                      ErrorStrategy = 2)
  
   
-ToolSvc += InDetTrigBroadPixelClusterOnTrackToolFTK
+ToolSvc += InDetTrigPixelClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigBroadPixelClusterOnTrackToolFTK
+  print InDetTrigPixelClusterOnTrackToolFTK
   
 
-InDetTrigBroadSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigBroadSCT_ClusterOnTrackToolFTK",
+InDetTrigSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigSCT_ClusterOnTrackToolFTK",
                                                                     CorrectionStrategy = 0,  # do correct position bias
-                                                                    ErrorStrategy      = 0)  # do use broad errors
-ToolSvc += InDetTrigBroadSCT_ClusterOnTrackToolFTK
+                                                                    ErrorStrategy      = 2)  
+ToolSvc += InDetTrigSCT_ClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
-  print InDetTrigBroadSCT_ClusterOnTrackToolFTK
+  print InDetTrigSCT_ClusterOnTrackToolFTK
   
   
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
 InDetTrigRotCreatorFTK = Trk__RIO_OnTrackCreator(name            = 'InDetTrigRotCreatorFTK',
-                                                 ToolPixelCluster= InDetTrigBroadPixelClusterOnTrackToolFTK,
-                                                 ToolSCT_Cluster = InDetTrigBroadSCT_ClusterOnTrackToolFTK,
+                                                 ToolPixelCluster= InDetTrigPixelClusterOnTrackToolFTK,
+                                                 ToolSCT_Cluster = InDetTrigSCT_ClusterOnTrackToolFTK,
                                                  Mode            = 'indet')
 ToolSvc += InDetTrigRotCreatorFTK
 if (InDetTrigFlags.doPrintConfigurables()):
@@ -98,7 +98,6 @@ InDetTrigTrackFitterFTK = Trk__GlobalChi2Fitter(name = "InDetTrigTrackFitterFTK"
 ToolSvc += InDetTrigTrackFitterFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigTrackFitterFTK
-
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigHoleSearchTool,InDetTrigPrdAssociationTool 
 

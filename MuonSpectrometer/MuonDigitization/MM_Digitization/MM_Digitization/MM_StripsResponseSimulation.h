@@ -95,6 +95,7 @@ public :
   inline void setCrossTalk1 (float val) { m_crossTalk1 = val; };
   inline void setCrossTalk2 (float val) { m_crossTalk2 = val; };
   inline void setDriftGapWidth (float val) {m_driftGapWidth = val;};
+  inline void setAvalancheGain(float val) {m_avalancheGain = val;}
 
   float getQThreshold    () const { return m_qThreshold;      };
   float getDriftGapWidth () const { return m_driftGapWidth;   };

@@ -54,16 +54,16 @@ def defineMenu():
         
         # 16 x EM
         'EM3', 'EM7', 'EM8VH',
-        'EM10VHI',
         'EM10VH', 'EM12', 'EM15', 'EM15VH',
         'EM15VHI',
-        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM',
+        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM', 'EM30VHI', 
         # ATR-19437
         # 4 x new EM1
         'eEM7', 'eEM8VH', 'eEM10VH', 'eEM15VH', 
         # 6 x new EM1
         'eEM15VHI', 'eEM18VHI', 'eEM20VH', 'eEM20VHI', 'eEM22', 'eEM22VHI', 
-
+        # 5 x new EM1
+        'eEM3', 'eEM8', 'eEM10', 'eEM15', 'eEM20',
         # 1 x ZB/
         'ZB_EM15',
 
@@ -72,7 +72,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100',
+        'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA15', 'HA20', 'HA20IL', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA90', 'HA100',
         # ATR-19437
         # 3 x new TAU1
         'eTAU12', 'eTAU12IM', 'eTAU20', 
@@ -86,8 +86,9 @@ def defineMenu():
 
         # 8 x JETs and central jets
         'J12', 'J12.0ETA23', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30',
-        # 2 x VBF
-        'J20.0ETA49', 'J30.0ETA49',
+        # ATR-20450
+        # 2 x Central Jets
+        'J12.0ETA25', 'J12.0ETA28',
 
 
         #----------------------
@@ -112,6 +113,12 @@ def defineMenu():
         'jJ40', 'jJ50', 'jJ85', 'jJ100',
         'jJ15.31ETA49', 'jJ20.31ETA49', 'jJ75.31ETA49', 
 
+        #large R jets from gFEX
+        'gLJ100', 'gLJ120', 'gLJ140', 'gLJ160', 'gLJ180',
+
+        'jLJ100', 'jLJ120', 'jLJ140', 'jLJ160', 'jLJ180',
+
+        #'jLJ100', 'jLJ120, jLJ140, jLJ160, jLJ180
         #---------------------
         # SLOT 8 / CON 2 (EN1)
         #---------------------
@@ -134,7 +141,8 @@ def defineMenu():
         # ATR-19437
         # 8 x new XE
         'gXERHO20', 'gXERHO30', 'gXERHO35', 'gXERHO40',   'gXERHO45', 'gXERHO50', 'gXEPUFIT20',  'gXEPUFIT50', 
-       
+        'gXE50',
+        'jXE50',
         
         # 8 x XS
         'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
@@ -230,34 +238,37 @@ def defineMenu():
         #-------------------------------------------------------------------
         
         #HT
-        'HT190-AJ15all.ETA21',
+#        'HT190-AJ15all.ETA21',
         'HT190-J15s5.ETA21',
-        'HT150-AJ20all.ETA31',
+#        'HT150-AJ20all.ETA31',
         'HT150-J20s5.ETA31',
 
         
 
         #ZH 
-        '10MINDPHI-AJ20s2-XE50', '10MINDPHI-J20s2-XE50', '10MINDPHI-J20s2-XE30', '10MINDPHI-J20ab-XE50', '10MINDPHI-CJ20ab-XE50', 
+        #'10MINDPHI-AJ20s2-XE50', 
+        '10MINDPHI-J20s2-XE50', '10MINDPHI-J20s2-XE30', 
+        #'10MINDPHI-J20ab-XE50', '10MINDPHI-CJ20ab-XE50', 
         #Jpsi T&P
-        '1INVM5-EMs1-EMs6', '1INVM5-EM7s1-EMs6', '1INVM5-EM12s1-EMs6',        
+        #'1INVM5-EMs1-EMs6', 
+        '1INVM5-EM7s1-EMs6', '1INVM5-EM12s1-EMs6',        
 
         #W T&P
-        '05MINDPHI-AJj10s6-XE0',
-        '10MINDPHI-AJj10s6-XE0',
-        '15MINDPHI-AJj10s6-XE0',
-        '05MINDPHI-EM12s6-XE0',
-        '15MINDPHI-EM12s6-XE0',
-        '05MINDPHI-EM15s6-XE0',
-        '15MINDPHI-EM15s6-XE0',
-        '05RATIO-XE0-HT0-AJj15all.ETA49',
-        '90RATIO2-XE0-HT0-AJj15all.ETA49',
-        '250RATIO2-XE0-HT0-AJj15all.ETA49',
-        'HT20-AJj15all.ETA49',
-        'NOT-02MATCH-EM10s1-AJj15all.ETA49',
-        '25MT-EM12s6-XE0',
-        '35MT-EM12s6-XE0',
-        '35MT-EM15s6-XE0',
+        #'05MINDPHI-AJj10s6-XE0',
+        #'10MINDPHI-AJj10s6-XE0',
+        #'15MINDPHI-AJj10s6-XE0',
+        #'05MINDPHI-EM12s6-XE0',
+        #'15MINDPHI-EM12s6-XE0',
+        #'05MINDPHI-EM15s6-XE0',
+        #'15MINDPHI-EM15s6-XE0',
+        #'05RATIO-XE0-HT0-AJj15all.ETA49',
+        #'90RATIO2-XE0-HT0-AJj15all.ETA49',
+        #'250RATIO2-XE0-HT0-AJj15all.ETA49',
+        #'HT20-AJj15all.ETA49',
+        #'NOT-02MATCH-EM10s1-AJj15all.ETA49',
+        #'25MT-EM12s6-XE0',
+        #'35MT-EM12s6-XE0',
+        #'35MT-EM15s6-XE0',
         #'10MINDPHI-AJj15s2-XE0',
         #'20MINDPHI-AJjs6-XE0',
         #'20MINDPHI-AJj15s2-XE0',
@@ -280,10 +291,10 @@ def defineMenu():
         'MULT-CMU6ab',
         
         #B-jet
-        '0DR04-MU4ab-CJ15ab', '0DR04-MU4ab-CJ20ab', '0DR04-MU4ab-CJ30ab', '0DR04-MU6ab-CJ20ab', '0DR04-MU6ab-CJ25ab',
+        #'0DR04-MU4ab-CJ15ab', '0DR04-MU4ab-CJ20ab', '0DR04-MU4ab-CJ30ab', '0DR04-MU6ab-CJ20ab', '0DR04-MU6ab-CJ25ab',
         #B-physics
         '0DR03-EM7ab-CJ15ab',
-        '2DR15-2MU6ab', 
+        #'2DR15-2MU6ab', 
 
         # L1 thresholds for L1Topo streamers
 #SX        '2INVM999-CMU4ab-MU4ab',
@@ -296,10 +307,10 @@ def defineMenu():
 #SX        '4INVM8-MU6ab-MU4ab',
 #SX        '4INVM8-ONEBARREL-MU6ab-MU4ab',
 #SX        '4INVM8-CMU6ab-CMU4ab',        
-        '2DR99-2MU4ab',
+        #'2DR99-2MU4ab',
         '5DETA99-5DPHI99-MU6ab-MU4ab',
         '5DETA99-5DPHI99-2MU6ab',
-        '0DR10-MU10ab-MU6ab',
+        #'0DR10-MU10ab-MU6ab',
         '0DR15-2MU6ab',
 #        '0DETA04-0DPHI03-EM8abi-MU10ab',
         '0DETA04-EM8abi-MU10ab',
@@ -307,73 +318,70 @@ def defineMenu():
 #        '0DETA04-0DPHI03-EM15abi-MUab',
         '0DETA04-EM15abi-MUab',
         '0DPHI03-EM15abi-MUab',
-        '10MINDPHI-AJ20s2-XE50',
-        '10MINDPHI-J20s2-XE50',
-        '10MINDPHI-J20ab-XE50',
-        '10MINDPHI-CJ20ab-XE50',
-        '900INVM9999-AJ30s6-AJ20s6',
-        '800INVM9999-AJ30s6-AJ20s6',
+        #'900INVM9999-AJ30s6-AJ20s6',
+        #'800INVM9999-AJ30s6-AJ20s6',
         '700INVM9999-AJ30s6-AJ20s6',
-        '500INVM9999-AJ30s6-AJ20s6',
-        '400INVM9999-AJ30s6-AJ20s6',
+        #'500INVM9999-AJ30s6-AJ20s6',
+        #'400INVM9999-AJ30s6-AJ20s6',
         #'350INVM9999-AJ30s6-AJ20s6',
         '300INVM9999-AJ30s6-AJ20s6',
-        '200INVM9999-AJ30s6-AJ20s6',
-        '100INVM9999-AJ30s6-AJ20s6',
-        '600INVM9999-J30s6-AJ20s6',
+        #'200INVM9999-AJ30s6-AJ20s6',
+        #'100INVM9999-AJ30s6-AJ20s6',
+        #'600INVM9999-J30s6-AJ20s6',
         '500INVM9999-J30s6-AJ20s6',
-        '400INVM9999-J30s6-AJ20s6',
-        '200INVM9999-J30s6-AJ20s6',
-        '63DETA127-FJ20s1-FJ20s2',
+        #'400INVM9999-J30s6-AJ20s6',
+        #'200INVM9999-J30s6-AJ20s6',
+        #'63DETA127-FJ20s1-FJ20s2',
         '0DETA20-J50s1-Js2',
         '27DPHI32-EMs1-EMs6',
         #'350INVM9999-J30s6-J20s6',
         #'300INVM9999-J30s6-J20s6',
         #'250INVM9999-J30s6-J20s6',
         #'200INVM9999-J30s6-J20s6',
-        'HT150-AJj15all.ETA49',
-        '0MATCH-4AJ20.ETA31-4AJj15.ETA31',
+#        'HT150-AJj15all.ETA49',
+        #'0MATCH-4AJ20.ETA31-4AJj15.ETA31',
         '100RATIO-0MATCH-TAU30si2-EMall',
         'NOT-0MATCH-TAU30si1-EMall',
         '0DR28-MU10ab-TAU12abi',
-        '1DISAMB-TAU12abi-J25ab',
-        '1DISAMB-EM15his2-TAU12abi-J25ab',
-        'DISAMB-0DR28-EM15his2-TAU12abi',
-        '1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',
-        '1DISAMB-TAU20abi-TAU12abi-J25ab',
+        '2DISAMB-TAU12abi-J25ab',
+        #'1DISAMB-EM15his2-TAU12abi-J25ab',
+        #'DISAMB-0DR28-EM15his2-TAU12abi',
+        '2DISAMB-J25ab-0DR28-EM15his2-TAU12abi',
+        #'1DISAMB-TAU20abi-TAU12abi-J25ab',
         '0DR25-TAU20abi-TAU12abi',
         '0DR28-TAU20abi-TAU12abi',
-        '0DETA20-0DPHI20-TAU20abi-TAU12abi',
-        '1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',
+        #'0DETA20-0DPHI20-TAU20abi-TAU12abi',
+        #'1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',
+        '2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi',
         '2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',
         'DISAMB-30INVM-EM20his2-TAU12ab',
         '400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49',
-        'LAR-EM20shi1',
-        'LAR-J100s1',
-        'ZEE-EM20shi2',
-        'FTK-EM20s1',
-        'FTK-J100s1',
-        'FTK-MU10s1',
+#        'LAR-EM20shi1',
+#        'LAR-J100s1',
+#        'ZEE-EM20shi2',
+#        'FTK-EM20s1',
+#        'FTK-J100s1',
+#        'FTK-MU10s1',
 
-        '2INVM9-2MU6ab',
-        '7INVM15-2MU4ab', 
-        '2INVM8-ONEBARREL-MU6ab-MU4ab', 
-        '0DR24-2CMU4ab', 
-        '0DR22-2MU6ab',
-        '0DR34-2MU4ab', 
-        '0DR24-2MU4ab', 
-        '0DR24-CMU4ab-MU4ab',  
-        '2INVM8-CMU4ab-MU4ab',
-        '0DR15-2MU4ab',  
-        '0DR15-MU6ab-MU4ab',  
-        '0DR22-MU6ab-MU4ab', 
-        '8INVM15-MU6ab-MU4ab',  
-        '8INVM15-2MU6ab', 
+        #'2INVM9-2MU6ab',
+        #'7INVM15-2MU4ab', 
+        #'2INVM8-ONEBARREL-MU6ab-MU4ab', 
+        #'0DR24-2CMU4ab', 
+        #'0DR22-2MU6ab',
+        #'0DR34-2MU4ab', 
+        #'0DR24-2MU4ab', 
+        #'0DR24-CMU4ab-MU4ab',  
+        #'2INVM8-CMU4ab-MU4ab',
+        #'0DR15-2MU4ab',  
+        #'0DR15-MU6ab-MU4ab',  
+        #'0DR22-MU6ab-MU4ab', 
+        #'8INVM15-MU6ab-MU4ab',  
+        #'8INVM15-2MU6ab', 
         '0INVM9-EM7ab-EMab',
-        '2INVM8-2MU4ab',  # ATR-15197 '2INVM9-2MU4ab',
-        '2INVM8-MU6ab-MU4ab', # ATR-15197 '2INVM9-MU6ab-MU4ab',
-        '2INVM9-2MU4ab',
-        '2INVM9-MU6ab-MU4ab',
+        #'2INVM8-2MU4ab',  # ATR-15197 '2INVM9-2MU4ab',
+        #'2INVM8-MU6ab-MU4ab', # ATR-15197 '2INVM9-MU6ab-MU4ab',
+        #'2INVM9-2MU4ab',
+        #'2INVM9-MU6ab-MU4ab',
 #        'KF-XE40-AJall',
 #        'KF-XE50-AJall',
 #        'KF-XE55-AJall',
@@ -384,10 +392,14 @@ def defineMenu():
         '400INVM9999-0DPHI22-J30s6-AJ20s6',
         '400INVM9999-0DPHI24-J30s6-AJ20s6',
         '400INVM9999-0DPHI26-J30s6-AJ20s6',
+        #'400INVM9999-0DPHI20-AJ30s6-AJ20s6',
+        #'400INVM9999-0DPHI22-AJ30s6-AJ20s6',
+        #'400INVM9999-0DPHI24-AJ30s6-AJ20s6',
+        #'400INVM9999-0DPHI26-AJ30s6-AJ20s6',
 
         'LATE-MU10s1',
         'SC111-CJ15ab.ETA26',
-        'SC85-CJ15ab.ETA26',
+#        'SC85-CJ15ab.ETA26',
         
         # ALFA (the replication is needed to build all the combinations in the CTPCore)
         'ALFA_B7R1L', 'ALFA_B7R1U', 'ALFA_A7R1L', 'ALFA_A7R1U', 'ALFA_A7L1L', 'ALFA_A7L1U', 'ALFA_B7L1L', 'ALFA_B7L1U',
@@ -408,9 +420,25 @@ def defineMenu():
         '60INVM9999-25DPHI32-EM15abhi-FJj15s623ETA49',
         '60INVM9999-04DPHI32-EM15abhi-FJj15s623ETA49',
         #ATR-19302
-        '0INVM70-27DPHI32-EM10his1-EM10his6',
-        '0INVM70-27DPHI32-EM10his1-EM12his6',
+#        '0INVM70-27DPHI32-EM10his1-EM10his6',
+        '0INVM70-27DPHI32-EM12his1-EM12his6',
 
+        #ATR-19720
+        '8INVM15-0DR22-2MU6ab',
+        '2INVM9-2DR15-2MU6ab',
+        '2INVM9-0DR15-MU6ab-MU4ab',
+        '8INVM15-0DR22-MU6ab-MU4ab',
+        '2INVM9-0DR15-2MU4ab',
+
+        #ATR-19510
+        '5DETA99-5DPHI99-2MU4ab',
+            
+        #ATR-17320
+        'CEP-CJ60s6',
+        'CEP-CJ50s6',
+       
+        #ATR-20174
+        '8INVM15-2CMU4ab'
         ]
 
     
@@ -423,16 +451,19 @@ def defineMenu():
 #        'L1_EM8I',
         'L1_EM10VH', 'L1_EM15',
         #ATR-19302
-        'L1_2EM10VHI',
+        'L1_EM30VHI',
         'L1_EM15VHI',
         'L1_EM24VHIM','L1_EM15VH', 'L1_EM18VHI', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM22VH','L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         #'L1_EM15_BGRP7',
+        'L1_eEM3', 'L1_eEM8', 'L1_eEM10', 'L1_eEM15', 'L1_eEM20',
         'L1_eEM22',
         'L1_eEM22VHI',
         'L1_eEM20VH',
         'L1_eEM20VHI',
+        'L1_2eEM8',
+        'L1_2eEM10',
 
         # see savannah https://savannah.cern.ch/bugs/?103935
 
@@ -459,7 +490,7 @@ def defineMenu():
 
         # single tau
         "L1_TAU5", "L1_TAU12", "L1_TAU12IM",   "L1_TAU20IM",
-        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
+        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU90", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY",
         'L1_eTAU12', 'L1_eTAU100',
 
@@ -487,6 +518,8 @@ def defineMenu():
 
         "L1_TAU20IM_2TAU12IM_J25_2J20_3J12",
         "L1_TAU20IM_2TAU12IM_4J12.0ETA23",
+        "L1_TAU20IM_2TAU12IM_4J12.0ETA25",
+        "L1_TAU20IM_2TAU12IM_4J12.0ETA28",
         "L1_TAU25IM_2TAU20IM_2J25_3J20", 
         'L1_DR-MU10TAU12I_TAU12I-J25',
         'L1_eTAU20IM_2jJ20_gXERHO45',
@@ -497,6 +530,7 @@ def defineMenu():
 
         # combined tau - xe
         "L1_TAU20IM_2J20_XE45", 
+        "L1_TAU20IM_2J20_XE50", 
 #        "L1_TAU20_2J20_XE45", 
 #        "L1_TAU20IM_2J20_XE50",   
 
@@ -536,7 +570,7 @@ def defineMenu():
         
 
         # combined mu - jet
-        'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
+        'L1_MU6_J20', 'L1_MU6_J40', 'L1_MU6_J75',
 #ATR-13743        'L1_MU4_J30',
         #'L1_MU4_J50',
         'L1_MU10_2J20','L1_MU10_3J20', 'L1_MU10_2J15_J20',
@@ -570,19 +604,28 @@ def defineMenu():
 	"L1_J45.0ETA20_3J15.0ETA25",
 	"L1_J50_2J40.0ETA25_3J15.0ETA25",
            "L1_3J50", "L1_4J15", "L1_4J20",
-        "L1_4J20.0ETA49",
         "L1_3J15.0ETA25_XE40",
         
         #"L1_3J75",
         #"L1_4J30",
         "L1_6J15",
         "L1_J85_3J30",
-        "L1_J30.0ETA49_2J20.0ETA49",
         'L1_3jJ50',
         'L1_4jJ15',
         'L1_jJ25.0ETA23_2jJ15.31ETA49',
         'L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49',
         'L1_jJ75.31ETA49',
+        #ATR-20408: gFEX
+        'L1_gLJ100',
+        'L1_gLJ120',
+        'L1_gLJ140',
+        'L1_gLJ160',
+        'L1_gLJ180',
+        'L1_jLJ100',
+        'L1_jLJ120',
+        'L1_jLJ140',
+        'L1_jLJ160',
+        'L1_jLJ180',
         'L1_jJ85_3jJ30',
        # multi jet forward
         "L1_J25.0ETA23_2J15.31ETA49",
@@ -613,6 +656,8 @@ def defineMenu():
          'L1_gXEPUFIT50',
          'L1_gXERHO20',
          'L1_gXEPUFIT20',
+         'L1_gXE50',
+         'L1_jXE50',
         
         #XS
         'L1_EM12_XS20', 'L1_EM15_XS30',
@@ -703,7 +748,7 @@ def defineMenu():
         #--------------------------------
 
         # B-jet
-        'L1_BTAG-MU4J15', 'L1_BTAG-MU6J20',
+        #'L1_BTAG-MU4J15', 'L1_BTAG-MU6J20',
         #'L1_BTAG-MU4J20',
         #'L1_3J20_BTAG-MU4J30', 'L1_3J20_BTAG-MU6J25',
 
@@ -716,9 +761,9 @@ def defineMenu():
         'L1_MU4_XE60',
 
         # HT
-        'L1_HT190-J15.ETA21',
+#        'L1_HT190-J15.ETA21',
         'L1_HT190-J15s5.ETA21',
-        'L1_HT150-J20.ETA31',
+#        'L1_HT150-J20.ETA31',
         'L1_HT150-J20s5.ETA31',   
 
         "L1_HT150-J20s5.ETA31_MJJ-400-CF",
@@ -757,7 +802,7 @@ def defineMenu():
         #'L1_EM3_W-MT20',
         #'L1_EM3_W-MT40',
 
-        'L1_DY-DR-2MU4',
+        #'L1_DY-DR-2MU4',
         #'L1_DY-BOX-MU6MU4',
         'L1_DY-BOX-2MU6',
         'L1_LFV-MU6',
@@ -770,48 +815,55 @@ def defineMenu():
 #        'L1_DPHI-CJ20XE50',
         'L1_2MU4_J20_XE30_DPHI-J20s2XE30',
         'L1_MJJ-700',
-        'L1_MJJ-800',
-        'L1_MJJ-400',
+#        'L1_MJJ-800',
+#        'L1_MJJ-400',
         #'L1_MJJ-350',
-#        'L1_MJJ-300',
+        'L1_MJJ-300',
 #        'L1_MJJ-200',
-        'L1_MJJ-100',
+#        'L1_MJJ-100',
 #        'L1_MJJ-600-NFF',
         'L1_MJJ-500-NFF',
-        'L1_MJJ-400-NFF',
+#        'L1_MJJ-400-NFF',
 #        'L1_MJJ-200-NFF',
 #        'L1_63DETA-J30J15',
         'L1_J50_DETA20-J50J',
         'L1_DPHI-2EM3',
 #        'L1_DPHI-2EM3_VTE5.24ETA49_ALFA_EINE',
-        'L1_HT150-JJ15.ETA49',
-        'L1_HT150-JJ15.ETA49_MJJ-400',
-        'L1_J4-MATCH',
+#        'L1_HT150-JJ15.ETA49',
+#        'L1_HT150-JJ15.ETA49_MJJ-400',
+#        'L1_J4-MATCH',
         'L1_LLP-RO',
         'L1_LLP-NOMATCH',
         'L1_DR-MU10TAU12I',    
 #        'L1_TAU12I-J25',    
-        'L1_EM15TAU12I-J25',
+#        'L1_EM15TAU12I-J25',
         'L1_DR-EM15TAU12I-J25',    
-        'L1_TAU20ITAU12I-J25',
+#        'L1_TAU20ITAU12I-J25',
         'L1_DR-TAU20ITAU12I',    
         'L1_DR-TAU20ITAU12I-J25',
 
         'L1_30M-EM20ITAU12',
         'L1_MJJ-400-CF',
     
-        'L1_LAR-EM',
-        'L1_LAR-J',
-        'L1_LAR-ZEE',
-        'L1_LAR-ZEE_LAR-EM',
-        'L1_FTK-EM',
-        'L1_FTK-J',
-        'L1_FTK-MU',
-        'L1_BPH-2M9-2MU4_BPH-0DR15-2MU4',
-        'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
-        'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6',
-        'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6',
-        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',
+#        'L1_LAR-EM',
+#        'L1_LAR-J',
+#        'L1_LAR-ZEE',
+#        'L1_LAR-ZEE_LAR-EM',
+#        'L1_FTK-EM',
+#        'L1_FTK-J',
+#        'L1_FTK-MU',
+#        'L1_BPH-2M9-2MU4_BPH-0DR15-2MU4',
+#        'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4',
+#        'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6',
+#        'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6',
+#        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',
+
+        #ATR-19720
+        'L1_BPH-8M15-0DR22-2MU6',
+        'L1_BPH-2M9-2DR15-2MU6',
+        'L1_BPH-2M9-0DR15-MU6MU4',
+        'L1_BPH-8M15-0DR22-MU6MU4-BO',
+        'L1_BPH-2M9-0DR15-2MU4',
 
         'L1_BPH-0M9-EM7-EM5',        
         'L1_BPH-0DR3-EM7J15',
@@ -827,6 +879,10 @@ def defineMenu():
         'L1_MJJ-400-NFF-0DPHI22',
         'L1_MJJ-400-NFF-0DPHI24',
         'L1_MJJ-400-NFF-0DPHI26',
+#        'L1_MJJ-400-0DPHI20',
+#        'L1_MJJ-400-0DPHI22',
+#        'L1_MJJ-400-0DPHI24',
+#        'L1_MJJ-400-0DPHI26',
    
         ### ATR-15062
         'L1_EM18VHI_MJJ-300',
@@ -836,7 +892,7 @@ def defineMenu():
         'L1_TAU60_DR-TAU20ITAU12I',
 
         'L1_SC111-CJ15',
-        'L1_SC85-CJ15',
+#        'L1_SC85-CJ15',
         
         ##     # Partition 1
         ##     'L1_CALREQ0_P1', 'L1_CALREQ1_P1', 'L1_CALREQ2_P1',
@@ -897,8 +953,19 @@ def defineMenu():
         'L1_ZAFB-25DPHI-EM18I',
 
         #ATR-19302: 
-        'L1_DPHI-M70-2EM10I',
+#        'L1_DPHI-M70-2EM10I',
         'L1_DPHI-M70-2EM12I',
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4',
+                
+        #ATR-17320
+        'L1_CEP-CJ60',
+        'L1_CEP-CJ50' ,
+
+        #ATR-20174
+        'L1_BPH-8M15-2MU4-BO'
+
         ]
     
 
@@ -924,6 +991,13 @@ def defineMenu():
         'L1_EM22VH' : 295,
         'L1_EM3_EMPTY' : 12,
         'L1_EM7_EMPTY' : 13,
+        'L1_eEM3': 212, 
+        'L1_eEM8': 213, 
+        'L1_eEM10': 214, 
+        'L1_eEM15': 215, 
+        'L1_eEM20': 217,
+        'L1_2eEM8': 221,         
+        'L1_2eEM10': 226,         
         'L1_eEM22' : 25,
         'L1_2eEM15VHI' : 42,
         'L1_2eEM20VH' : 49,
@@ -983,6 +1057,7 @@ def defineMenu():
         'L1_TAU30' : 53,
         'L1_TAU40' : 54,
         'L1_TAU60' : 55,
+        'L1_TAU90' : 222,
         'L1_TAU100' : 52,
         'L1_TAU8' : 56,
         'L1_TAU8_EMPTY' : 57,
@@ -1009,8 +1084,11 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
         'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
         'L1_TAU20IM_2TAU12IM_4J12.0ETA23' : 316,
+        'L1_TAU20IM_2TAU12IM_4J12.0ETA25' : 317,
+        'L1_TAU20IM_2TAU12IM_4J12.0ETA28' : 319,
         'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_TAU20IM_2J20_XE45' : 74,
+        'L1_TAU20IM_2J20_XE50' : 48,
         'L1_TAU30_UNPAIRED_ISO' :343,
         'L1_TAU60_DR-TAU20ITAU12I' : 76,
         'L1_EM15VHI_2TAU12IM_XE35' : 78,
@@ -1061,6 +1139,17 @@ def defineMenu():
         'L1_jJ25.0ETA23_2jJ15.31ETA49' : 125,
         'L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49' : 126,
         'L1_jJ75.31ETA49' : 127,
+        #ATR-20408: gFEX
+        'L1_gLJ100' : 77,
+        'L1_gLJ120' : 79,
+        'L1_gLJ140' : 129,
+        'L1_gLJ160' : 227,
+        'L1_gLJ180' : 195,
+        'L1_jLJ100' : 228,
+        'L1_jLJ120' : 238,
+        'L1_jLJ140' : 241,
+        'L1_jLJ160' : 242,
+        'L1_jLJ180' : 243,
         'L1_jJ85_3jJ30' : 128,
         'L1_J20.31ETA49' : 103,
         'L1_J30.31ETA49' : 104,
@@ -1098,7 +1187,6 @@ def defineMenu():
 #        'L1_4J30' : 134,
         'L1_6J15' : 135,
         'L1_J85_3J30' : 480,
-        'L1_J30.0ETA49_2J20.0ETA49' : 137,
 
        
         'L1_5J15.0ETA25' : 140,
@@ -1122,6 +1210,8 @@ def defineMenu():
         'L1_gXERHO50' : 30,
         'L1_gXEPUFIT20' : 174,
         'L1_gXEPUFIT50' : 31,
+        'L1_gXE50' : 218,
+        'L1_jXE50' : 219,
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
 
@@ -1200,9 +1290,9 @@ def defineMenu():
         'L1_BCM_AC_CALIB' : 235,
         'L1_BCM_CA_CALIB' : 236,
         'L1_BCM_Wide_CALIB' : 237,
-        'L1_BTAG-MU4J15' : 238,
+#        'L1_BTAG-MU4J15' : 238,
         'L1_ZB' : 240,
-        'L1_BTAG-MU6J20' : 243,
+#        'L1_BTAG-MU6J20' : 243,
 #        'L1_BTAG-MU4J20' : 245,
 #        'L1_J40_DPHI-Js2XE50' : 250,
         #'L1_J40_DPHI-J20s2XE30' : 257,
@@ -1214,9 +1304,9 @@ def defineMenu():
         'L1_MU4_J50_XE50_DPHI-J20s2XE30' : 453,
         'L1_MU4_XE60' : 454,
         
-        'L1_HT190-J15.ETA21' : 258,
+#        'L1_HT190-J15.ETA21' : 258,
         'L1_HT190-J15s5.ETA21' : 259,
-        'L1_HT150-J20.ETA31' : 260,
+#        'L1_HT150-J20.ETA31' : 260,
         'L1_HT150-J20s5.ETA31' : 261,
         'L1_JPSI-1M5-EM7' : 263,
         'L1_JPSI-1M5-EM12' : 264,
@@ -1242,19 +1332,23 @@ def defineMenu():
         'L1_MJJ-400-NFF-0DPHI22' : 267,
         'L1_MJJ-400-NFF-0DPHI24' : 268,
         'L1_MJJ-400-NFF-0DPHI26' : 269,
+#        'L1_MJJ-400-0DPHI20' : 270,
+#        'L1_MJJ-400-0DPHI22' : 272,
+#        'L1_MJJ-400-0DPHI24' : 274,
+#        'L1_MJJ-400-0DPHI26' : 276,
 
 
 
 
-        'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6' : 300,
-        'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6'  : 301,
-        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO' : 488,
+#        'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6' : 300,
+#        'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6'  : 301,
+#        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO' : 488,
 
         ### ATR-14350 - these should be replaced in 2017 with items 296 and 298
-        'L1_BPH-2M9-2MU4_BPH-0DR15-2MU4' : 426,
-        'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4' : 427,
+#        'L1_BPH-2M9-2MU4_BPH-0DR15-2MU4' : 426,
+#        'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4' : 427,
 
-        'L1_DY-DR-2MU4' : 315,
+        #'L1_DY-DR-2MU4' : 315,
         #'L1_DY-BOX-MU6MU4' : 317,
         'L1_DY-BOX-2MU6' : 318,
         'L1_LFV-MU6' : 332,
@@ -1265,28 +1359,28 @@ def defineMenu():
 #        'L1_DPHI-J20XE50' : 324,
 #        'L1_DPHI-CJ20XE50' : 325,
         'L1_MJJ-700' : 216,
-        'L1_MJJ-800' : 327,
-        'L1_MJJ-400' : 329,
+#        'L1_MJJ-800' : 327,
+#        'L1_MJJ-400' : 329,
         #'L1_MJJ-350' : 330,
-#        'L1_MJJ-300' : 331,
+        'L1_MJJ-300' : 327,
 #        'L1_MJJ-200' : 332,
-        'L1_MJJ-100' : 333,
+#        'L1_MJJ-100' : 333,
 #        'L1_MJJ-600-NFF' : 127,
         'L1_MJJ-500-NFF' : 108,
-        'L1_MJJ-400-NFF' : 129,
+#        'L1_MJJ-400-NFF' : 129,
 #        'L1_MJJ-200-NFF' : 133,
 #        'L1_63DETA-J30J15' : 257,
         'L1_J50_DETA20-J50J' : 275,
         'L1_DPHI-2EM3' : 288, 
-        'L1_HT150-JJ15.ETA49' : 334,
-        'L1_J4-MATCH' : 336,
+#        'L1_HT150-JJ15.ETA49' : 334,
+#        'L1_J4-MATCH' : 336,
         'L1_LLP-RO' : 338,
         'L1_LLP-NOMATCH' : 339,
         'L1_DR-MU10TAU12I' : 340,
 #        'L1_TAU12I-J25' : 341,
-        'L1_EM15TAU12I-J25' : 345,
+#        'L1_EM15TAU12I-J25' : 345,
         'L1_DR-EM15TAU12I-J25' : 346,
-        'L1_TAU20ITAU12I-J25' : 347,
+#        'L1_TAU20ITAU12I-J25' : 347,
         'L1_DR-TAU20ITAU12I' : 348,
         'L1_DR-TAU20ITAU12I-J25' : 350,
 
@@ -1294,18 +1388,18 @@ def defineMenu():
         'L1_30M-EM20ITAU12' : 387,
         'L1_MJJ-400-CF': 397,
 
-        'L1_LAR-EM' : 351,
-        'L1_LAR-J' : 352,
-        'L1_FTK-EM' : 48,
-        'L1_FTK-J' : 77,
-        'L1_FTK-MU' : 79,
-        'L1_LAR-ZEE' : 71,
-        'L1_LAR-ZEE_LAR-EM' : 285,
+#        'L1_LAR-EM' : 351,
+#        'L1_LAR-J' : 352,
+#        'L1_FTK-EM' : 48,
+#        'L1_FTK-J' : 77,
+#        'L1_FTK-MU' : 79,
+#        'L1_LAR-ZEE' : 71,
+#        'L1_LAR-ZEE_LAR-EM' : 285,
         'L1_LATE-MU10_XE50': 354,
         'L1_LATE-MU10_XE40': 466,
         'L1_LATE-MU10_J50' : 355,
         'L1_SC111-CJ15' : 356,
-        'L1_SC85-CJ15' : 357,
+#        'L1_SC85-CJ15' : 357,
 
         'L1_EM7_FIRSTEMPTY': 371, 
         'L1_RD0_ABORTGAPNOTCALIB':372,
@@ -1319,8 +1413,6 @@ def defineMenu():
         #'L1_XS40' : 377,
         #'L1_XS50' : 378,
         #'L1_XS60' : 379,
-        'L1_MU6_J30.0ETA49_2J20.0ETA49' : 382,
-        'L1_4J20.0ETA49' : 383,
         'L1_HT150-JJ15.ETA49_MJJ-400' : 416,
 
         ### ATR-15062
@@ -1376,7 +1468,7 @@ def defineMenu():
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
         
         #ATR-19302
-        'L1_2EM10VHI' : 188,
+        'L1_EM30VHI' : 188,
         #ATR-19355
         'L1_BPH-0M10-3MU4' : 189,
 
@@ -1390,8 +1482,25 @@ def defineMenu():
         'L1_ZAFB-25DPHI-EM18I' : 194,
 
         #ATR-19302: 
-        'L1_DPHI-M70-2EM10I' : 195,
+#        'L1_DPHI-M70-2EM10I' : 195,
         'L1_DPHI-M70-2EM12I' : 196,
+
+        #ATR-19720
+        'L1_BPH-8M15-0DR22-2MU6' : 205,
+        'L1_BPH-2M9-2DR15-2MU6' : 206,
+        'L1_BPH-2M9-0DR15-MU6MU4' : 207,
+        'L1_BPH-8M15-0DR22-MU6MU4-BO' : 208,
+        'L1_BPH-2M9-0DR15-2MU4' : 209,
+
+        #ATR-19510
+        'L1_DY-BOX-2MU4' : 199,
+        
+        #ATR-17320
+        'L1_CEP-CJ60' : 203,
+        'L1_CEP-CJ50' : 210,
+      
+        #ATR-20174
+        'L1_BPH-8M15-2MU4-BO' : 71
 
 }
 

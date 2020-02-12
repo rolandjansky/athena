@@ -111,6 +111,7 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty m_doNSWMatching;
   BooleanProperty m_doNSWMatchingMuon;
   uint m_maxStripDiff;
+  bool  m_noMatchWarning;
 };
 
 #endif // NSWPRDVALALG_H

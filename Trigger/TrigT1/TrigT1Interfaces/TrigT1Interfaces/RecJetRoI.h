@@ -109,7 +109,7 @@ namespace LVL1 {
       unsigned int windowSize( unsigned int thresh ) const;
       
       /** returns bitmask of passed thresholds */
-      unsigned int thresholdPattern() const;
+      unsigned long int thresholdPattern() const;
 
       /** returns true if thresh is a valid threshold number */
       bool isValidThreshold( unsigned int thresh ) const;

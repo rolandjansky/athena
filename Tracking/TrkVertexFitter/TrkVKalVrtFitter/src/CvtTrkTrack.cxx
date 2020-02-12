@@ -33,10 +33,10 @@ namespace Trk{
 
     std::vector<const Track*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0;
-    const  Perigee* m_mPer;
+    const  Perigee* mPer;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
-    double fx,fy,m_BMAG_FIXED;
+    double fx,fy,BMAG_FIXED;
 //
 // ----- Set reference frame to (0.,0.,0.) == ATLAS frame
 // ----- Magnetic field is taken in reference point
@@ -50,16 +50,16 @@ namespace Trk{
     Amg::Vector3D perGlobalVrt,perGlobalPos;
     m_trkControl.clear();
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
-       m_mPer = (*i_ntrk)->perigeeParameters(); if( m_mPer == 0 ){ continue; } 
-       perGlobalPos =  m_mPer->position(); //Global position of perigee point
+       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
+       perGlobalPos =  mPer->position(); //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
 //       tmp_refFrameX += perGlobalPos.x()+VectPerig[0]*sin(VectPerig[2]);   // Reference point for given perigee
 //       tmp_refFrameY += perGlobalPos.y()-VectPerig[0]*cos(VectPerig[2]);
 //       tmp_refFrameZ += perGlobalPos.z()-VectPerig[1];
 // std::cout<<" Global posVKAL="<<perGlobalPos.x()<<", "<<perGlobalPos.y()<<", "<<perGlobalPos.z()<<'\n';
-       //VK//perGlobalVrt =  m_mPer->vertex();   //Global position of reference point for perigee
-       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
+       //VK//perGlobalVrt =  mPer->vertex();   //Global position of reference point for perigee
+       perGlobalVrt =  mPer->associatedSurface().center();      //Global position of reference point
 // std::cout<<" Global vrtVKAL="<<perGlobalVrt.x()<<", "<<perGlobalVrt.y()<<", "<<perGlobalVrt.z()<<'\n';
        //tmp_refFrameX += perGlobalVrt.x() ;   // Reference point for given perigee
        //tmp_refFrameY += perGlobalVrt.y() ;   // Normally gives (0,0,
@@ -72,7 +72,7 @@ namespace Trk{
        tmpMat.rotateToField=false; if(m_useMagFieldRotation)tmpMat.rotateToField=true;
        tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
        tmpMat.extrapolationType=2;                   // Perigee point strategy
-       tmpMat.TrkPnt=m_mPer;
+       tmpMat.TrkPnt=mPer;
        tmpMat.prtMass = 139.5702;
        if(counter<(int)m_MassInputParticles.size())tmpMat.prtMass = m_MassInputParticles[counter];
        tmpMat.TrkID=counter; m_trkControl.push_back(tmpMat);
@@ -88,18 +88,18 @@ namespace Trk{
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
-       m_mPer = (*i_ntrk)->perigeeParameters(); if( m_mPer == 0 ){ continue; } 
-       VectPerig = m_mPer->parameters(); 
-       perGlobalPos =  m_mPer->position();    //Global position of perigee point
-       //VK//perGlobalVrt =  m_mPer->vertex();      //Global position of reference point
-       perGlobalVrt =  m_mPer->associatedSurface().center();      //Global position of reference point
+       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
+       VectPerig = mPer->parameters(); 
+       perGlobalPos =  mPer->position();    //Global position of perigee point
+       //VK//perGlobalVrt =  mPer->vertex();      //Global position of reference point
+       perGlobalVrt =  mPer->associatedSurface().center();      //Global position of reference point
        m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame
        m_fitField->getMagFld(  perGlobalPos.x() , perGlobalPos.y() , perGlobalPos.z() ,   // Magnetic field
-                               fx, fy, m_BMAG_FIXED);                                     // at perigee point
-       if(fabs(m_BMAG_FIXED) < 0.01) m_BMAG_FIXED=0.01;
+                               fx, fy, BMAG_FIXED);                                     // at perigee point
+       if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
  
-       if( !convertAmg5SymMtx(m_mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
-       VKalTransform( m_BMAG_FIXED, (double)VectPerig(0), (double)VectPerig(1),
+       if( !convertAmg5SymMtx(mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
+       VKalTransform( BMAG_FIXED, (double)VectPerig(0), (double)VectPerig(1),
               (double)VectPerig(2), (double)VectPerig(3), (double)VectPerig(4), CovVertTrk,
                      m_ich[ntrk],&m_apar[ntrk][0],&m_awgt[ntrk][0]);
 //
@@ -115,14 +115,14 @@ namespace Trk{
 	  double pari[5],covi[15]; double vrtini[3]={0.,0.,0.}; double vrtend[3]={dX,dY,dZ};
 	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
 	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
-          long int Charge = (long int) m_mPer->charge();  
+          long int Charge = (long int) mPer->charge();  
 //VK 17.06/2008 Wrong!!! m_fitPropagator is defined only when InDet extrapolator is provided!!!
           //m_fitPropagator->Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0]);
           myPropagator.Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0]);
        }
 
 //
-       ntrk++; if(ntrk>=m_NTrMaxVFit) return StatusCode::FAILURE;
+       ntrk++; if(ntrk>=NTrMaxVFit) return StatusCode::FAILURE;
     }
 //-------------- Finally setting new reference frame common for ALL tracks
     m_refFrameX=tmp_refFrameX;
@@ -168,12 +168,12 @@ namespace Trk{
   {
 //
 // ------  Magnetic field access
-    double fx,fy,m_BMAG_CUR;
-    m_fitField->getMagFld(vX,vY,vZ,fx,fy,m_BMAG_CUR);
-    if(fabs(m_BMAG_CUR) < 0.01) m_BMAG_CUR=0.01;  //safety
+    double fx,fy,BMAG_CUR;
+    m_fitField->getMagFld(vX,vY,vZ,fx,fy,BMAG_CUR);
+    if(fabs(BMAG_CUR) < 0.01) BMAG_CUR=0.01;  //safety
 
     double TrkP1, TrkP2, TrkP3, TrkP4, TrkP5;
-    VKalToTrkTrack(m_BMAG_CUR, VKPerigee[2], VKPerigee[3],VKPerigee[4], TrkP3, TrkP4, TrkP5);
+    VKalToTrkTrack(BMAG_CUR, VKPerigee[2], VKPerigee[3],VKPerigee[4], TrkP3, TrkP4, TrkP5);
     TrkP1=-VKPerigee[0];   /*!!!! Change of sign !!!!*/
     TrkP2= VKPerigee[1];
     TrkP5=-TrkP5;                  /*!!!! Change of sign of charge!!!!*/
@@ -186,8 +186,8 @@ namespace Trk{
     Deriv[1][1]= 1.;
     Deriv[2][3]= 1.;
     Deriv[3][2]= 1.;
-    Deriv[4][2]= (cos(VKPerigee[2])/(m_CNVMAG*m_BMAG_CUR)) * VKPerigee[4];
-    Deriv[4][4]=-(sin(VKPerigee[2])/(m_CNVMAG*m_BMAG_CUR));
+    Deriv[4][2]= (cos(VKPerigee[2])/(m_CNVMAG*BMAG_CUR)) * VKPerigee[4];
+    Deriv[4][4]=-(sin(VKPerigee[2])/(m_CNVMAG*BMAG_CUR));
 
     CovMtxOld[0][0]                =VKCov[0];
     CovMtxOld[0][1]=CovMtxOld[1][0]=VKCov[1];

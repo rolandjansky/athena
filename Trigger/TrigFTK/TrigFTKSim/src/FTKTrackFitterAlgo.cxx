@@ -287,8 +287,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     ftkouttrackmodule->setBranchFormat("FTKTracksStream%d.");
     
 
-    std::size_t replace_index = m_trackfilename.find(".root");
-
+    // std::size_t replace_index = m_trackfilename.find(".root");
     // string pre_hw_trackfilename = m_trackfilename;
     // if (replace_index != std::string::npos) pre_hw_trackfilename.insert(replace_index, "_pre_hw");  
     // ftkouttrackmodule_pre_hw->setMultiOut(false);

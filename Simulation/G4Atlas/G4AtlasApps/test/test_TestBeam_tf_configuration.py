@@ -10,6 +10,7 @@ class TestTestBeam(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ["TRF_ECHO"] = "1"
         config_picklefilename = 'TestBeam_config.pkl'
         command = [
             'TestBeam_tf.py',

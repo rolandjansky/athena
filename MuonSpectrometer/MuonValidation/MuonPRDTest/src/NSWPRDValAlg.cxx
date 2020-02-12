@@ -101,6 +101,9 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doNSWMatchingAlg",   m_doNSWMatching=true);
   declareProperty("doNSWMatchingMuonOnly",  m_doNSWMatchingMuon=false);
   declareProperty("setMaxStripDistance",  m_maxStripDiff=3);
+
+  // this property is temporarely added to be able to deactivate the "No match found!" warning when running on the grid
+  declareProperty("suppressNoMatchWarning",  m_noMatchWarning=false);
 }
 
 StatusCode NSWPRDValAlg::initialize() {
@@ -443,8 +446,16 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
            }
         }
         ATH_MSG_VERBOSE("Total Number of matches found: " << nMatch << " " << data1.getName() << " for a single " << data0.getName() );
+        static bool warningPrinted = false;
         if (nMatch == 0) {
-          ATH_MSG_WARNING("No match found!");
+          if (m_noMatchWarning) {
+            if(!warningPrinted) {
+              ATH_MSG_WARNING("No match found! Will now disable this kind of WARNING but please be aware that you are running with suppressNoMatchWarning set to true!");
+              warningPrinted = true;
+            }
+          } else {
+            ATH_MSG_WARNING("No match found!");
+          }
         }
      }
     if (msgLevel() <= MSG::DEBUG) { 
@@ -485,7 +496,7 @@ StatusCode NSWPRDValAlg::setDataAdress (EDM_object &oData, TString branch_name) 
   if (branch_name.EndsWith("stationPhi")) { m_tree->SetBranchAddress(branch_name, &oData.m_stationPhi); setBranch = true; }
   if (branch_name.EndsWith("multiplet")) { m_tree->SetBranchAddress(branch_name, &oData.m_multiplet); setBranch = true; }
   if (branch_name.EndsWith("gas_gap")) { m_tree->SetBranchAddress(branch_name, &oData.m_gas_gap); setBranch = true; }
-  if (branch_name.EndsWith("channel")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel); setBranch = true; }
+  if (branch_name.EndsWith("channel") && !branch_name.Contains("rdos")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel); setBranch = true; }
   if (branch_name.EndsWith("channel_type")) { m_tree->SetBranchAddress(branch_name, &oData.m_channel_type); setBranch = true; }
   if (setBranch) { ATH_MSG_DEBUG("Set data adress of branch " << branch_name); }
   

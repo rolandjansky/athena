@@ -230,12 +230,13 @@ extern DerivT derivt_;
 
 	deps[kt] = trk->a0()    - eps;
 	 dzp[kt] = trk->z()     - xyz[2];      // Precision
+	 dzp[kt]-= zp;
 	dtet[kt] = trk->theta() - theta_ini;
 	dphi[kt] = trk->phi()   - phi_ini;     // Precision
+	dphi[kt]-= phip;
 	drho[kt] = trk->invR()  - invR_ini;
-	       dzp[kt] -= zp; dphi[kt] -= phip;
-        zp   += xyz[2];   //To gain precision
-	phip += phi_ini;  //To gain precision
+        //zp   += xyz[2];   //To recover standard zp   definition in case of further use. Not needed
+	//phip += phi_ini;  //To recover standard phip definition in case of further use. Not needed
         while(dphi[kt] >  M_PI)dphi[kt]-=2.*M_PI;
         while(dphi[kt] < -M_PI)dphi[kt]+=2.*M_PI;
 //std::cout.precision(11);

@@ -25,6 +25,7 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   AthAlgTool(t,n,p),
   m_ntot(0),
   m_npass(0),
+  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_passAll(false),
   m_LeptonVeto(false),
   m_isolatedTrack(false),
@@ -32,11 +33,10 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_jetSGKey("AntiKt4LCTopoJets"),
   m_metSGKey("MET_RefFinal"),
   m_metTerm("Final"),
-  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_muonSGKey("Muons"),
   m_muonIDKey("Medium"),
   m_electronSGKey("ElectronCollection"),
-  m_electronIDKey("Tight"),
+  m_electronIDKey("LHTight"),
   m_metCut(-1),
   m_jetPtCuts(std::vector<float>()),
   m_jetEtaMax(3.2),
@@ -78,6 +78,7 @@ StatusCode DerivationFramework::KinkTrkSingleJetMetFilterTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
 
+  // Muon selection
   CHECK(m_muonSelectionTool.retrieve());
 
   return StatusCode::SUCCESS;
@@ -170,26 +171,10 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     // Retrieve muon container	
     const xAOD::MuonContainer* muons(0);
     ATH_CHECK( evtStore()->retrieve(muons, m_muonSGKey) );	
-    int qflag(0);
-    if (m_muonIDKey == "VeryLoose") {
-      qflag = xAOD::Muon::VeryLoose;
-    } else if (m_muonIDKey == "Loose") {
-      qflag = xAOD::Muon::Loose;
-    } else if (m_muonIDKey == "Medium") {
-      qflag = xAOD::Muon::Medium;
-    } else if (m_muonIDKey == "Tight") {
-      qflag = xAOD::Muon::Tight;
-    } else {
-      ATH_MSG_WARNING("Cannot find the muon quality flag " << m_muonIDKey << ". Use Medium instead.");
-      qflag = xAOD::Muon::Medium;
-    }
-
     for (auto muon: *muons) {
-      bool passID(false);
-      if (m_muonSelectionTool->getQuality(*muon) <= qflag) {
-        passID = true;
-      }
-      if (muon->pt() > m_leptonPtCut && fabs(muon->eta()) < m_leptonEtaMax && passID) {
+      if( !m_muonSelectionTool->passedMuonCuts(*muon) ) continue;
+      if( muon->muonType() != xAOD::Muon::Combined    ) continue;
+      if(muon->pt() > m_leptonPtCut && fabs(muon->eta()) < m_leptonEtaMax ) {
         return acceptEvent; 
       }
     }
@@ -199,8 +184,8 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));	
     for (auto ele: *electrons) {
       bool passID(false);
-      if (!ele->passSelection(passID, m_electronIDKey)) {
-        ATH_MSG_WARNING("Cannot find the electron quality flag " << m_muonIDKey);
+      if( !ele->passSelection(passID,m_electronIDKey) ){
+        ATH_MSG_WARNING("Cannot find the electron quality flag " << m_electronIDKey);
       }
       if (ele->pt() > m_leptonPtCut && fabs(ele->eta()) < m_leptonEtaMax && passID) {
         return acceptEvent; 
@@ -210,13 +195,27 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
   // at least 1 isolated pixel tracklet OR standard track
   if(m_isolatedTrack){
-    //if(true){
+
     // Find IsolatedTracklet
-    bool passIsolatedTracklet = false;
     const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
     ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetPixelPrdAssociationTrackParticles") );
-    
-    for(auto Tracklet : *pixelTrackletContainer){
+
+    const xAOD::VertexContainer* vertices(0);
+    ATH_CHECK( evtStore()->retrieve(vertices, "PrimaryVertices") );
+    const xAOD::Vertex* pv = 0;
+    for( const auto& v: *vertices ){
+      if( v->vertexType() == xAOD::VxType::PriVtx ){
+        pv = v;
+        break;
+      }
+    }
+    if( !pv ){
+      ATH_MSG_WARNING("Cannot find a PV in the event; reject it!");
+      return false;
+    }
+
+    bool passIsolatedTracklet = false;
+    for(const auto& Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
       for(unsigned int i=0;i<goodJets.size();i++){
 	double deltaPhi = (fabs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(Tracklet->phi()-goodJets.at(i)->phi()) : fabs(Tracklet->phi()-goodJets.at(i)->phi());
@@ -231,6 +230,11 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       
       if(passIsolatedTracklet==false)
 	continue;
+
+      if( Tracklet->pt() < 20000.0 ){
+        passIsolatedTracklet = false;
+        continue;
+      } 
       
       if(TMath::Abs(Tracklet->eta()) < 0.1 || TMath::Abs(Tracklet->eta()) > 1.9){
 	passIsolatedTracklet = false;
@@ -242,7 +246,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	continue;
       }
 
-      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<4){
+      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<3){
 	passIsolatedTracklet = false;
 	continue;
       }
@@ -251,8 +255,16 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	passIsolatedTracklet = false;
 	continue;
       }
+
+      double z0SinTheta = (Tracklet->z0() + Tracklet->vz() - pv->z() ) * TMath::Sin(Tracklet->p4().Theta());
+      if( fabs(z0SinTheta) > 5.0 ){
+        passIsolatedTracklet = false;
+        continue;
+      }
+
       
       if(passIsolatedTracklet)	break;
+
     }// for Tracklet
     
     if(passIsolatedTracklet==false){
@@ -262,7 +274,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
       ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles") );
       
-      for(auto StdTrack : *standardTrackContainer){
+      for(const auto& StdTrack : *standardTrackContainer){
 	if(StdTrack->pt()/1000.0 < 20.0)
 	  continue;
 

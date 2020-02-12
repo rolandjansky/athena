@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauDefs.h 796092 2017-02-08 00:14:16Z griffith $
@@ -320,7 +320,7 @@ namespace TauJetParameters
       nChargedTracks=109,
       nIsolatedTracks=110,
       nModifiedIsolationTracks=111,//no static variable for now
-
+      nChargedTracksNoMVA=112, // number of charged tracks before MVA (RNN) track classification
 
       //Tau/Ele BDTVars
 

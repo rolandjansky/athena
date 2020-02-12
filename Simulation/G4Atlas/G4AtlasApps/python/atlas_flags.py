@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 SimFlags specific to the full ATLAS simulation
@@ -182,6 +182,15 @@ class VertexTimeOffset(JobProperty):
     StoredValue = False
 
 
+class SimulateCavern(JobProperty):
+    """
+    Turns on the simulation of the ATLAS Cavern
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
 class CavernBG(JobProperty):
     """
     Flag to turn on the simulation of cavern background (and all that goes with it)
@@ -316,15 +325,6 @@ class VertexOverrideEventFile(JobProperty):
     statusOn = False
     allowedTypes = ['str']
     StoredValues = 'VertexOverrideEventFile.txt'
-
-class SimulateNewSmallWheel(JobProperty):
-    """
-    Will this job simulate the New Small Wheel in the Muon
-    Spectrometer?
-    """
-    statusOn = False
-    allowedTypes = ['bool']
-    StoredValue = False
 
 class BeamEffectOptions(JobProperty):
     """

@@ -73,7 +73,7 @@ namespace LArG4 {
 
 
     private:
-
+      bool  m_patchFindIdentifier_Barrett{false};
       //G4int    m_compartment; -> made local for FindIdentifier functions
 
       G4bool (EnergyCalculator::*m_Process_type) (const G4Step*, std::vector<LArHitData>&) const;

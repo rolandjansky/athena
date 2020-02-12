@@ -25,7 +25,7 @@
   VKalExtPropagator::VKalExtPropagator( TrkVKalVrtFitter* pnt)
   {
        m_extrapolator = 0;
-       vkalFitSvc = pnt;
+       m_vkalFitSvc = pnt;
   }
   VKalExtPropagator::~VKalExtPropagator(){}
 
@@ -40,11 +40,11 @@
 //
   double VKalExtPropagator::Protection(double *RefEnd) const
   {   
-      double Xend=RefEnd[0] + vkalFitSvc->m_refFrameX;
-      double Yend=RefEnd[1] + vkalFitSvc->m_refFrameY;
-      double Zend=RefEnd[2] + vkalFitSvc->m_refFrameZ;
-      double Rlim=sqrt(Xend*Xend+Yend*Yend) / vkalFitSvc->m_IDsizeR;
-      double Zlim=fabs(Zend)                / vkalFitSvc->m_IDsizeZ;
+      double Xend=RefEnd[0] + m_vkalFitSvc->m_refFrameX;
+      double Yend=RefEnd[1] + m_vkalFitSvc->m_refFrameY;
+      double Zend=RefEnd[2] + m_vkalFitSvc->m_refFrameZ;
+      double Rlim=sqrt(Xend*Xend+Yend*Yend) / m_vkalFitSvc->m_IDsizeR;
+      double Zlim=fabs(Zend)                / m_vkalFitSvc->m_IDsizeZ;
       double Scale = Rlim; if(Zlim>Rlim) Scale=Zlim;
       return Scale;
   }
@@ -52,24 +52,24 @@
   bool VKalExtPropagator::checkTarget( double *RefEnd) const
   {
       double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2];
-      if( vkalFitSvc->m_trkControl[0].rotateToField) {
+      if( m_vkalFitSvc->m_trkControl[0].rotateToField) {
         double fx,fy,fz, oldField, newField;
-        Amg::Vector3D step(RefEnd[0]-vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.x(),
-                           RefEnd[1]-vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.y(),
-                           RefEnd[2]-vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.z());
-        Amg::Vector3D globalRefEnd = (vkalFitSvc->m_trkControl[0].trkRotation.inverse())*step 
-                                    + vkalFitSvc->m_trkControl[0].trkRotationVertex;
+        Amg::Vector3D step(RefEnd[0]-m_vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.x(),
+                           RefEnd[1]-m_vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.y(),
+                           RefEnd[2]-m_vkalFitSvc->m_trkControl[0].trkSavedLocalVertex.z());
+        Amg::Vector3D globalRefEnd = (m_vkalFitSvc->m_trkControl[0].trkRotation.inverse())*step 
+                                    + m_vkalFitSvc->m_trkControl[0].trkRotationVertex;
 //
-        vX=vkalFitSvc->m_trkControl[0].trkRotationVertex.x()-vkalFitSvc->m_refFrameX;
-        vY=vkalFitSvc->m_trkControl[0].trkRotationVertex.y()-vkalFitSvc->m_refFrameY;
-        vZ=vkalFitSvc->m_trkControl[0].trkRotationVertex.z()-vkalFitSvc->m_refFrameZ;
-        vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
+        vX=m_vkalFitSvc->m_trkControl[0].trkRotationVertex.x()-m_vkalFitSvc->m_refFrameX;
+        vY=m_vkalFitSvc->m_trkControl[0].trkRotationVertex.y()-m_vkalFitSvc->m_refFrameY;
+        vZ=m_vkalFitSvc->m_trkControl[0].trkRotationVertex.z()-m_vkalFitSvc->m_refFrameZ;
+        m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
         oldField=sqrt(fx*fx+fy*fy+fz*fz); if(oldField<0.2) oldField=0.2;
 //
-        vX=globalRefEnd.x()-vkalFitSvc->m_refFrameX;
-        vY=globalRefEnd.y()-vkalFitSvc->m_refFrameY;
-        vZ=globalRefEnd.z()-vkalFitSvc->m_refFrameZ;
-        vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
+        vX=globalRefEnd.x()-m_vkalFitSvc->m_refFrameX;
+        vY=globalRefEnd.y()-m_vkalFitSvc->m_refFrameY;
+        vZ=globalRefEnd.z()-m_vkalFitSvc->m_refFrameZ;
+        m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
         newField=sqrt(fx*fx+fy*fy+fz*fz); if(newField<0.2) newField=0.2;
 //
         if( fabs(newField-oldField)/oldField > 1.0 ) return false;
@@ -100,19 +100,19 @@
 //           so it's rotated back using saved on given track rotation parameters 
 //-----------
       double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2];
-      if(  vkalFitSvc->m_trkControl.at(trkID_loc).rotateToField &&
-          !vkalFitSvc->m_trkControl[trkID_loc].trkRotation.isIdentity()) {
+      if(  m_vkalFitSvc->m_trkControl.at(trkID_loc).rotateToField &&
+          !m_vkalFitSvc->m_trkControl[trkID_loc].trkRotation.isIdentity()) {
 
-        Amg::Vector3D step(RefEnd[0]-vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.x(),
-                           RefEnd[1]-vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.y(),
-                           RefEnd[2]-vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.z());
-        Amg::Vector3D globalRefEnd = (vkalFitSvc->m_trkControl[trkID_loc].trkRotation.inverse())*step 
-                                    + vkalFitSvc->m_trkControl[trkID_loc].trkRotationVertex;
-        vX=globalRefEnd.x()-vkalFitSvc->m_refFrameX;
-        vY=globalRefEnd.y()-vkalFitSvc->m_refFrameY;
-        vZ=globalRefEnd.z()-vkalFitSvc->m_refFrameZ;
+        Amg::Vector3D step(RefEnd[0]-m_vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.x(),
+                           RefEnd[1]-m_vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.y(),
+                           RefEnd[2]-m_vkalFitSvc->m_trkControl[trkID_loc].trkSavedLocalVertex.z());
+        Amg::Vector3D globalRefEnd = (m_vkalFitSvc->m_trkControl[trkID_loc].trkRotation.inverse())*step 
+                                    + m_vkalFitSvc->m_trkControl[trkID_loc].trkRotationVertex;
+        vX=globalRefEnd.x()-m_vkalFitSvc->m_refFrameX;
+        vY=globalRefEnd.y()-m_vkalFitSvc->m_refFrameY;
+        vZ=globalRefEnd.z()-m_vkalFitSvc->m_refFrameZ;
       }
-      Amg::Vector3D endPoint( vX + vkalFitSvc->m_refFrameX, vY + vkalFitSvc->m_refFrameY, vZ + vkalFitSvc->m_refFrameZ);
+      Amg::Vector3D endPoint( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
 //
 // ---- Make MeasuredPerigee from input. Mag.field at start point is used here
 //
@@ -126,26 +126,26 @@
         CovPerigeeIni[0]=1.e6;CovPerigeeIni[2]=1.e6;CovPerigeeIni[5]=1.;CovPerigeeIni[9]=1.;CovPerigeeIni[14]=fabs(PerigeeIni[4]);
       }        
       const Perigee* inpPer = 
-          vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni);
+          m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni);
       const TrackParameters * inpPar= (const TrackParameters*) inpPer;
 //
 // ----- Magnetic field is taken at target point
 //
-      double fx,fy,fz,m_BMAG_FIXED;
-      vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
-      m_BMAG_FIXED=fz;  // standard when rotation to field direction is absent 
-      if(vkalFitSvc->m_trkControl[trkID_loc].rotateToField) {
-         m_BMAG_FIXED=sqrt(fx*fx+fy*fy+fz*fz);
-         vkalFitSvc->m_fitRotatedField->setAtlasMag(m_BMAG_FIXED);  //set fixed ROTATED field in corresponding VKal oblect
+      double fx,fy,fz,BMAG_FIXED;
+      m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
+      BMAG_FIXED=fz;  // standard when rotation to field direction is absent 
+      if(m_vkalFitSvc->m_trkControl[trkID_loc].rotateToField) {
+         BMAG_FIXED=sqrt(fx*fx+fy*fy+fz*fz);
+         m_vkalFitSvc->m_fitRotatedField->setAtlasMag(BMAG_FIXED);  //set fixed ROTATED field in corresponding VKal oblect
       }
 //
 // ----- Prepare line target. In case of rotation - save new rotation parameters to track object
       Amg::RotationMatrix3D magFldRot; magFldRot.setIdentity();
-      if(trkID>=0 && vkalFitSvc->m_trkControl[trkID].rotateToField){
-          magFldRot=vkalFitSvc->getMagFldRotation(fx,fy,fz,vkalFitSvc->m_refFrameX,vkalFitSvc->m_refFrameY,0.);
-          vkalFitSvc->m_trkControl[trkID].trkRotation=magFldRot;
-          vkalFitSvc->m_trkControl[trkID].trkRotationVertex   = Amg::Vector3D(endPoint.x(),endPoint.y(),endPoint.z());
-          vkalFitSvc->m_trkControl[trkID].trkSavedLocalVertex = Amg::Vector3D(RefEnd[0],RefEnd[1],RefEnd[2]);
+      if(trkID>=0 && m_vkalFitSvc->m_trkControl[trkID].rotateToField){
+          magFldRot=m_vkalFitSvc->getMagFldRotation(fx,fy,fz,m_vkalFitSvc->m_refFrameX,m_vkalFitSvc->m_refFrameY,0.);
+          m_vkalFitSvc->m_trkControl[trkID].trkRotation=magFldRot;
+          m_vkalFitSvc->m_trkControl[trkID].trkRotationVertex   = Amg::Vector3D(endPoint.x(),endPoint.y(),endPoint.z());
+          m_vkalFitSvc->m_trkControl[trkID].trkSavedLocalVertex = Amg::Vector3D(RefEnd[0],RefEnd[1],RefEnd[2]);
       }
 //
 //-------------------- Extrapolation itself
@@ -154,12 +154,12 @@
       if(trkID<0){
             endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPoint);
       }else{
-        if(vkalFitSvc->m_trkControl[trkID].rotateToField) {
-            Amg::Vector3D lineCenter( vX + vkalFitSvc->m_refFrameX, vY + vkalFitSvc->m_refFrameY, vZ + vkalFitSvc->m_refFrameZ);
+        if(m_vkalFitSvc->m_trkControl[trkID].rotateToField) {
+            Amg::Vector3D lineCenter( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
             StraightLineSurface lineTarget(new Amg::Transform3D( magFldRot.inverse() , lineCenter));
 //=Check StraightLineSurface
 //          GlobalPosition testpos(lineCenter.x()-100.*fx,lineCenter.y()-100.*fy,lineCenter.z()-100.*fz);
-//          std::cout<<" checkLineSurface="<<*(lineTarget.globalToLocal(testpos))<<" BMAG="<<m_BMAG_FIXED<<'\n';
+//          std::cout<<" checkLineSurface="<<*(lineTarget.globalToLocal(testpos))<<" BMAG="<<BMAG_FIXED<<'\n';
             endPer = myExtrapToLine(trkID,  inpPar, &endPoint, lineTarget);
         }else{	   
             endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPoint);
@@ -170,26 +170,26 @@
         ParNew[0]=0.; ParNew[1]=0.;ParNew[2]=0.;ParNew[3]=0.;ParNew[4]=0.;
         delete inpPer; return;
       }
-      const Perigee*          m_mPer = dynamic_cast<const Perigee*>(endPer);
-      const AtaStraightLine*  m_Line = dynamic_cast<const AtaStraightLine*>(endPer);
+      const Perigee*          mPer = dynamic_cast<const Perigee*>(endPer);
+      const AtaStraightLine*  Line = dynamic_cast<const AtaStraightLine*>(endPer);
       AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
       const AmgSymMatrix(5) *CovMtx=0;
-      if( m_mPer ){
-        VectPerig = m_mPer->parameters(); 
-        CovMtx    = m_mPer->covariance();
+      if( mPer ){
+        VectPerig = mPer->parameters(); 
+        CovMtx    = mPer->covariance();
       } 
-      if( m_Line ){
-        VectPerig = m_Line->parameters(); 
-        CovMtx    = m_Line->covariance();
+      if( Line ){
+        VectPerig = Line->parameters(); 
+        CovMtx    = Line->covariance();
       }      
-      if( (m_Line==0 && m_mPer==0) || CovMtx==0 ){         
+      if( (Line==0 && mPer==0) || CovMtx==0 ){         
         ParNew[0]=0.; ParNew[1]=0.;ParNew[2]=0.;ParNew[3]=0.;ParNew[4]=0.;
         delete inpPer; return;
       }
-      if(vkalFitSvc->m_trkControl[trkID_loc].rotateToField) {
+      if(m_vkalFitSvc->m_trkControl[trkID_loc].rotateToField) {
          Amg::Vector3D rotatedMomentum(0.,0.,0.);
-         if(m_mPer)rotatedMomentum=magFldRot*Amg::Vector3D(m_mPer->momentum().x(),m_mPer->momentum().y(),m_mPer->momentum().z());
-         if(m_Line)rotatedMomentum=magFldRot*Amg::Vector3D(m_Line->momentum().x(),m_Line->momentum().y(),m_Line->momentum().z());
+         if(mPer)rotatedMomentum=magFldRot*Amg::Vector3D(mPer->momentum().x(),mPer->momentum().y(),mPer->momentum().z());
+         if(Line)rotatedMomentum=magFldRot*Amg::Vector3D(Line->momentum().x(),Line->momentum().y(),Line->momentum().z());
 //         VectPerig[2] += atan2(rotatedMomentum.y(),rotatedMomentum.x()); //VK wrong 27.09.10
          VectPerig[2] = atan2(rotatedMomentum.y(),rotatedMomentum.x());
          VectPerig[3] = atan2(rotatedMomentum.perp(),rotatedMomentum.z());
@@ -222,12 +222,12 @@
 //                                          ", "<<(*CovMtx)(3,3)<<", "<<(*CovMtx)(4,4)<<'\n';          
 
       if(CovNew != 0) {
-         vkalFitSvc->VKalTransform( m_BMAG_FIXED, VectPerig(0), VectPerig(1),
+         m_vkalFitSvc->VKalTransform( BMAG_FIXED, VectPerig(0), VectPerig(1),
             VectPerig(2), VectPerig(3), VectPerig(4), CovVertTrk,
                       locCharge,  &ParNew[0] , &CovNew[0]);
       }else{
          double CovVertTrkTmp[15];
-         vkalFitSvc->VKalTransform( m_BMAG_FIXED, VectPerig(0), VectPerig(1),
+         m_vkalFitSvc->VKalTransform( BMAG_FIXED, VectPerig(0), VectPerig(1),
             VectPerig(2), VectPerig(3), VectPerig(4), CovVertTrk,
                       locCharge,  &ParNew[0] , CovVertTrkTmp);
       }
@@ -262,11 +262,11 @@
       Amg::Vector3D pmom=inpPer->momentum();
 //Track reference point ( some point on track provided initially, global frame )
       Amg::Vector3D refPoint(0.,0.,0.);
-      if(TrkID>=0)refPoint = vkalFitSvc->m_trkControl.at(TrkID).trkRefGlobPos;
+      if(TrkID>=0)refPoint = m_vkalFitSvc->m_trkControl.at(TrkID).trkRefGlobPos;
 //
       Amg::Vector3D step  = (*endPoint) - iniPoint;
 //
-      int Strategy = 0; if(TrkID>=0) Strategy = vkalFitSvc->m_trkControl[TrkID].extrapolationType;
+      int Strategy = 0; if(TrkID>=0) Strategy = m_vkalFitSvc->m_trkControl[TrkID].extrapolationType;
 //
 // Extrapolation for new track - no material at all
 //
@@ -280,9 +280,9 @@
         }
         return endPer;
       }else{
-        pntOnTrk=dynamic_cast<const TrackParameters*> (vkalFitSvc->m_trkControl.at(TrkID).TrkPnt);
+        pntOnTrk=dynamic_cast<const TrackParameters*> (m_vkalFitSvc->m_trkControl.at(TrkID).TrkPnt);
         if(pntOnTrk==0)return endPer;
-        //double inpMass=vkalFitSvc->m_trkControl[TrkID].prtMass;
+        //double inpMass=m_vkalFitSvc->m_trkControl[TrkID].prtMass;
         //if(     inpMass >  0. && inpMass< 20.) {  prtType=electron; }  //VK  Disabled according to users request
         //else if(inpMass > 20. && inpMass<120.) {  prtType=muon; }      //    May be activated in future
         //else if(inpMass >120. && inpMass<200.) {  prtType=pion; }
@@ -369,7 +369,7 @@
       Amg::Vector3D iniPoint =  inpPer->position();
       Amg::Vector3D step  = (*endPoint) - iniPoint;
 //
-      int Strategy = 0; if(TrkID>=0) Strategy = vkalFitSvc->m_trkControl[TrkID].extrapolationType;
+      int Strategy = 0; if(TrkID>=0) Strategy = m_vkalFitSvc->m_trkControl[TrkID].extrapolationType;
 //
 // Extrapolation for new track - no material at all
 //
@@ -377,9 +377,9 @@
       if(TrkID<0){  
         return endPer;
       }else{
-        pntOnTrk=dynamic_cast<const TrackParameters*> (vkalFitSvc->m_trkControl.at(TrkID).TrkPnt);
+        pntOnTrk=dynamic_cast<const TrackParameters*> (m_vkalFitSvc->m_trkControl.at(TrkID).TrkPnt);
         if(!pntOnTrk) return endPer;
-        //double inpMass=vkalFitSvc->m_trkControl[TrkID].prtMass;
+        //double inpMass=m_vkalFitSvc->m_trkControl[TrkID].prtMass;
         //if(     inpMass >  0. && inpMass< 20.) {  prtType=electron; }  //VK  Disabled according to users request
         //else if(inpMass > 20. && inpMass<120.) {  prtType=muon; }      //    May be activated in future
         //else if(inpMass >120. && inpMass<200.) {  prtType=pion; }
@@ -436,16 +436,16 @@
   {
     if(!xprt->isAvailable<float>("radiusOfFirstHit")) return 0;  // No radiusOfFirstHit on track
 
-    const Trk::Perigee*  m_mPer = &(xprt->perigeeParameters()); 
+    const Trk::Perigee*  mPer = &(xprt->perigeeParameters()); 
     Amg::Transform3D *trnsf = new Amg::Transform3D(); 
     (*trnsf).setIdentity();
     CylinderSurface surfacePntOnTrk( trnsf, xprt->radiusOfFirstHit(), 20000.);        
     ParticleHypothesis prtType = pion;
     
     const TrackParameters *hitOnTrk = 
-          m_extrapolator->extrapolate( *m_mPer, surfacePntOnTrk, alongMomentum, true, prtType, removeNoise);
+          m_extrapolator->extrapolate( *mPer, surfacePntOnTrk, alongMomentum, true, prtType, removeNoise);
 //std::cout<<" Radius="<<xprt->radiusOfFirstHit()<<" extrap="<<hitOnTrk<<'\n';
-    if(hitOnTrk==0)hitOnTrk=m_extrapolator->extrapolateDirectly( *m_mPer, surfacePntOnTrk, alongMomentum, true, prtType);
+    if(hitOnTrk==0)hitOnTrk=m_extrapolator->extrapolateDirectly( *mPer, surfacePntOnTrk, alongMomentum, true, prtType);
     if(hitOnTrk==0)return 0;
 
     //convert result to Perigee 

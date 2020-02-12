@@ -57,6 +57,7 @@ namespace G4UA
       /// Handle to the histogram service
       ServiceHandle<ITHistSvc> m_hSvc;
 
+      LengthIntegrator::Config m_config;
   }; // class LengthIntegratorTool
 
 } // namespace G4UA

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_RadiationMapsMaker_H
@@ -29,7 +29,9 @@ namespace G4UA
 	/// They can be configured to other values/ranges for other purposes.
 
 	std::string material = std::string("");
-
+	
+	bool posYOnly = false; // set to true for upper hemisphere only
+	
 	int nBinsr = 120;
 	int nBinsz = 240;
 	
@@ -61,6 +63,15 @@ namespace G4UA
 	int nBinslogEo  = 45;   
 	double logEMino = -2.; // min log10(E_kin/MeV) 
 	double logEMaxo =  7.; // max log10(E_kin/MeV) 
+
+	// time dependent TID maps
+	int nBinslogT   =  20;   
+	double logTMin  = -9.; // log10(t_cut/s); first bin for t < 1 ns 
+	double logTMax  = 11.; // log10(t_cut/s); last bin for t < 3169 a
+
+	// elements mass fraction maps
+	int elemZMin    =   1; // minimum Z to keep mass fraction
+	int elemZMax    =  92; // maximum Z to keep mass fraction
       };
 
 
@@ -177,7 +188,21 @@ namespace G4UA
 	std::vector<double> m_rz_rest_spec;
         /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_rest_spec;
-	
+
+	// time dependent maps
+
+	/// vector of time dependent TID in zoom 2d grid 
+	std::vector<double> m_rz_tid_time;
+	/// vector of time dependent TID in full 2d grid 
+	std::vector<double> m_full_rz_tid_time;
+
+	// maps of element fractions 
+
+	/// vector of element fractions in zoom 2d grid 
+	std::vector<double> m_rz_element;
+	/// vector of element fractions in full 2d grid 
+	std::vector<double> m_full_rz_element;
+
 	void merge(const Report& maps);
       };
 

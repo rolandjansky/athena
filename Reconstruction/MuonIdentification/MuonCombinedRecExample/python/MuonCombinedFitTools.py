@@ -23,6 +23,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
 from AthenaCommon.SystemOfUnits import meter
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import globalflags
@@ -188,7 +189,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     from AthenaCommon.AppMgr    import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
-    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if muonRecFlags.doCSCs() else "") )
+    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
     kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
     kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
@@ -229,7 +230,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.AppMgr    import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
-    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if muonRecFlags.doCSCs() else "") )
+    kwargs.setdefault("CscRotCreator"                 , (getPublicTool("CscClusterOnTrackCreator") if MuonGeometryFlags.hasCSC() else "") )
     kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
     kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
@@ -276,7 +277,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
                                                                                                  "MuonRefitTool",
                                                                                                  AlignmentErrors = useAlignErrs,
                                                                                                  Fitter = getPublicTool("iPatFitter"),
-                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else "")
+                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else "")
                                                                                                  )))
 
 
@@ -341,7 +342,7 @@ def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder',
                                                                                                  "MuonRefitTool",
                                                                                                  AlignmentErrors = False,
                                                                                                  Fitter = getPublicTool("MuonCombinedTrackFitter"),
-                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else "")
+                                                                                                 CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else "")
                                                                                                  )))
 
     return CfgMgr.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)

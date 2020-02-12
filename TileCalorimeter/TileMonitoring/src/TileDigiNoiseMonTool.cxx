@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -33,7 +33,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
-
+#include <algorithm>
 
 /*---------------------------------------------------------*/
 TileDigiNoiseMonTool::TileDigiNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -233,6 +233,13 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
       unsigned int nRequiredChannels(TileCalibUtils::MAX_CHAN - nBadOrDisconnectedChannels);
       if (digitsCollection->size() < nRequiredChannels) continue;
 
+      bool checkDQ = true;
+
+      int fragId = digitsCollection->identify();
+      if (std::binary_search(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end(), fragId)) {
+        checkDQ = false;
+      }
+
       for (const TileDigits* tile_digits : *digitsCollection) {
         
         adc_id = tile_digits->adc_HWID();
@@ -241,7 +248,9 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
         
         //        if (isDisconnected(ros, drawer, channel)) continue;
         
-        if ( !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc) && m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
+        if ( (checkDQ && !(m_DQstatus->isAdcDQgood(ros, drawer, channel, adc)))
+             || !(m_beamInfo->isChanDCSgood(ros, drawer, channel)) ) continue;
+
         if ( m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad() ) continue;
         
         std::vector<float> digits = tile_digits->samples();

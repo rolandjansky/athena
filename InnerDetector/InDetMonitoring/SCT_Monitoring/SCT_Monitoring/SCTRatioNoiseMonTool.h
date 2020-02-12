@@ -152,7 +152,6 @@ private:
   int m_last_reset_lb;
   
   int set_timebin;
-  int tbin;
   int modNum;
   float ratio;
   float ratioside0;

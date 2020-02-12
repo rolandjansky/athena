@@ -14,7 +14,7 @@
 //================================================================
 MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_useCSC(true),
+  m_hasCSC(true),
   m_truthTool("Trk::DetailedTrackTruthBuilder")
 {  
   declareProperty("TruthTool",               m_truthTool);
@@ -35,7 +35,7 @@ MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name
   m_trackCollectionNames.push_back("ConvertedStacoTracks");
   m_trackCollectionNames.push_back("MuGirlRefittedTracks");
 
-  declareProperty("UseCSC",          m_useCSC);
+  declareProperty("HasCSC",          m_hasCSC);
   declareProperty("PRD_TruthNames",          m_PRD_TruthNames);
 
   // Output
@@ -48,7 +48,7 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
 {
   ATH_MSG_DEBUG( "MuonDetailedTrackTruthMaker::initialize()");
 
-  if (m_useCSC) m_PRD_TruthNames.push_back("CSC_TruthMap");
+  if (m_hasCSC) m_PRD_TruthNames.push_back("CSC_TruthMap");
   m_PRD_TruthNames.push_back("RPC_TruthMap");
   m_PRD_TruthNames.push_back("TGC_TruthMap");
   m_PRD_TruthNames.push_back("MDT_TruthMap");

@@ -86,9 +86,19 @@ StatusCode TrigT1CaloEFex::execute(){
         MsgStream msg(msgSvc(), name());
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
-	if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
-		msg << MSG::WARNING << "Could not get containers" << endreq;
-		return StatusCode::FAILURE;
+	const TileID* m_tileIDHelper = nullptr;
+	const CaloCellContainer* tileCellCon(0);
+	if (!m_use_tileCells){
+		if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
+			msg << MSG::WARNING << "Could not get containers" << endreq;
+			return StatusCode::FAILURE;
+		}
+	}
+	else {
+		if ( getContainersTileCal(scells, m_tileIDHelper, tileCellCon).isFailure() ){
+			msg << MSG::WARNING << "Could not get containers and/or Tile ID" << endreq;
+			return StatusCode::FAILURE;
+		}
 	}
 	// Prepare output containers
 	xAOD::TrigEMClusterContainer* clusters = new xAOD::TrigEMClusterContainer();
@@ -111,7 +121,7 @@ StatusCode TrigT1CaloEFex::execute(){
 			msg << MSG::WARNING << "Could not get ID manager " << endreq;
 			return StatusCode::FAILURE;
 		}
-		std::vector<std::vector<float>> clustering = baselineAlg(scells, TTs, m_idHelper);
+		std::vector<std::vector<float>> clustering = baselineAlg(scells, TTs, m_idHelper, m_tileIDHelper, tileCellCon);
 		for (auto ithCluster : clustering){
 		  if ( m_enableMon ) {
 			  m_EtaSElectron->Fill( ithCluster[0] );
@@ -170,6 +180,8 @@ StatusCode TrigT1CaloEFex::execute(){
 	        /////////////////////////////////////////////////////////////////
 	        // Note that there are several additional differences 
 	        // on top of the different cluster formation:
+	        //   -- Method requires TT, if m_use_tileCells = false do not use
+	        //      energy weighted cluster formation
 	        //   -- The energy of the cluster is not given as multiples
 	        //      of the digitization scale (25 MeV)
 	        //   -- The cluster sizes differ per default (but can be adjusted)

@@ -19,12 +19,9 @@
 
 // standard stuff
 #include <string>
-#include <map>
-#include <cmath> 
 #include <algorithm>
 
 #include "TrigInterfaces/AllTEAlgo.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
 
 class TrigBphysHelperUtilsTool;
 class TrigTimer;

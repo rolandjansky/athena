@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -38,9 +38,10 @@ static const InterfaceID IID_IPixelFillCablingData("PixelFillCablingData", 1, 0)
 // constructor
 ////////////////////////
 PixelFillCablingData::PixelFillCablingData( const std::string& type, const std::string& name,const IInterface* parent)
-    : AthAlgTool(type, name, parent), m_idHelper(0)
+  : AthAlgTool(type, name, parent), m_idHelper(0),m_disableChecks(false)
 {
   declareInterface< PixelFillCablingData >( this );
+  declareProperty("DisableChecks", m_disableChecks);
 }
 
 ////////////////////////
@@ -66,6 +67,7 @@ StatusCode PixelFillCablingData::initialize()
   StatusCode sc;
   msg(MSG::DEBUG) << "PixelFillCablingData::initialize" <<endmsg;
 
+  if(m_disableChecks) ATH_MSG_DEBUG("Running without ID checking... Expected config for ITK, no guarantees on output sanity where this mapping is important!");
   // Get the PixelID Helper
   if (detStore()->retrieve(m_idHelper, "PixelID").isFailure()) {
     ATH_MSG_FATAL("Could not get Pixel ID helper");
@@ -197,33 +199,34 @@ bool PixelFillCablingData::parseAndFill(std::istream &instr, PixelCablingData* c
         IdentifierHash hashId;
 
         // Do checks to verify consistency
-        if (m_idHelper->get_hash(offlineId, hashId, &m_cntxpixel)) ATH_MSG_WARNING("Could not get hash from offlineId");
-        if (hashId > m_idHelper->wafer_hash_max()) {
-
+	if(!m_disableChecks){
+	  if (m_idHelper->get_hash(offlineId, hashId, &m_cntxpixel)) ATH_MSG_WARNING("Could not get hash from offlineId");
+	  if (hashId > m_idHelper->wafer_hash_max()) {
+	    
             ATH_MSG_ERROR("IdHash overflow! HashId is 0x" << std::hex << hashId);
             ATH_MSG_ERROR("not mapped OfflineID: " << std::hex << offlineId << std::dec << " barrel_ec: " << barrel_ec
-                            << " layer_disk: " << layer_disk << " phi_module: " << phi_module << " eta_module: " << eta_module);
+			  << " layer_disk: " << layer_disk << " phi_module: " << phi_module << " eta_module: " << eta_module);
             ATH_MSG_ERROR("to OnlineID: 0x" << std::hex << onlineId << " robid: 0x" << robid << " rodid: 0x" << rodid << std::dec
-                             << " link: 0x" << std::hex /*<< link*/ << " -> Linknumber: 0x" << linknumber << " HashId: 0x"
-                            << hashId << std::dec);
-
+			  << " link: 0x" << std::hex /*<< link*/ << " -> Linknumber: 0x" << linknumber << " HashId: 0x"
+			  << hashId << std::dec);
+	    
             // Check if offlineId fail was caused by exceeding eta_module range
             if (eta_module > m_idHelper->eta_module_max(offlineId) || eta_module < m_idHelper->eta_module_min(offlineId)) {
-                // eta_module_max == -999 indicates the module does not exist
-                if (m_idHelper->eta_module_max(offlineId) == -999 && m_idHelper->eta_module_min(offlineId) == -999) {
-                    ATH_MSG_ERROR("Module does not exist in geometry");
-                }
-                else {
+	      // eta_module_max == -999 indicates the module does not exist
+	      if (m_idHelper->eta_module_max(offlineId) == -999 && m_idHelper->eta_module_min(offlineId) == -999) {
+		ATH_MSG_ERROR("Module does not exist in geometry");
+	      }
+	      else {
                 ATH_MSG_ERROR("eta_module range exceeded: Got eta_module = " << eta_module
-                                << ", but allowed range is [" << m_idHelper->eta_module_min(offlineId)
-                                << "," << m_idHelper->eta_module_max(offlineId) << "]");
+			      << ", but allowed range is [" << m_idHelper->eta_module_min(offlineId)
+			      << "," << m_idHelper->eta_module_max(offlineId) << "]");
                 ATH_MSG_ERROR("Input geometry tag may not be compatible with mapping file");
-                }
+	      }
             }
-
+	    
             return false;
-        }
-
+	  }
+	}
         // Fill the maps
         cabling->add_entry_onoff(onlineId, offlineId);
         cabling->add_entry_offon(offlineId, onlineId);

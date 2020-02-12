@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMRDOVariables.h"
@@ -70,6 +70,10 @@ StatusCode MMRDOVariables::fillVariables()
       // get the readout element class where the RDO is recorded
       int isSmall = (stName[2] == 'S');
       const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+      if (!rdoEl) {
+        ATH_MSG_WARNING("Could not retrieve MMReadoutElement from DetectorManager for isSmall=" << isSmall << ", stationEta=" << stationEta << ", stationPhi=" << stationPhi << ", multiplet=" << multiplet << ", skipping this entry...");
+        continue;
+      }
 
       Amg::Vector2D localStripPos(0.,0.);
       if ( rdoEl->stripPosition(Id,localStripPos) )  {

@@ -35,7 +35,7 @@ job = AlgSequence()
 
 # build GeoModel
 if 'DetDescrVersion' not in dir():
-       DetDescrVersion = 'ATLAS-P2-ITK-08-00-00'
+       DetDescrVersion = 'ATLAS-P2-ITK-17-06-00'
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetDescrVersion = DetDescrVersion
 

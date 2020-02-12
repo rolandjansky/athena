@@ -47,7 +47,9 @@ if( NOT XAOD_STANDALONE )
       MuonIdHelpers/selection.xml
       LINK_LIBRARIES MuonIdHelpersLib )
 
-   atlas_add_executable( test_muon_id
-      test/test_muon_id.cxx
-      LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
+   atlas_add_test( muon_id_test
+                SOURCES
+                test/muon_id_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
 endif()

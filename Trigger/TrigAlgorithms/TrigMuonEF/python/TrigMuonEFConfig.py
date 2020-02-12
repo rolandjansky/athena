@@ -20,6 +20,7 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from MuonRecExample.MuonRecFlags import muonRecFlags
 
 #Offline calorimeter isolation tool
@@ -239,7 +240,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
                                                                                                                       "MuonRefitTool",
                                                                                                                       AlignmentErrors = False,
                                                                                                                       Fitter = CfgGetter.getPublicTool("iPatFitter"),
-                                                                                                                      CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else "")
+                                                                                                                      CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else "")
                                                                                                                       )))
 
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
@@ -407,7 +408,7 @@ def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwa
     kwargs.setdefault('MuonRecoValidationTool','')
     kwargs.setdefault('MuonPRDSelectionTool','TMEF_MuonPRDSelectionTool')
     kwargs.setdefault('MuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
-    if not muonRecFlags.doCSCs():
+    if not MuonGeometryFlags.hasCSC():
         kwargs.setdefault('Csc2DSegmentMaker', '')
         kwargs.setdefault('Csc4DSegmentMaker', '')
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
@@ -476,14 +477,14 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
     def __init__( self, name="TrigMuonEFStandaloneTrackTool", **kwargs ):
         super( TrigMuonEFStandaloneTrackToolConfig, self ).__init__( name, **kwargs )
 
-        if muonRecFlags.doCSCs(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
+        if MuonGeometryFlags.hasCSC(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
         self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
                                                                 WriteIntermediateResults = False,
                                                                 HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"),
                                                                 DoSegmentCombinations=True,
-                                                                Csc2dSegmentMaker=("Csc2dSegmentMaker/Csc2dSegmentMaker" if muonRecFlags.doCSCs() else ""),
-                                                                Csc4dSegmentMaker=("Csc4dSegmentMaker/Csc4dSegmentMaker" if muonRecFlags.doCSCs() else "")
+                                                                Csc2dSegmentMaker=("Csc2dSegmentMaker/Csc2dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""),
+                                                                Csc4dSegmentMaker=("Csc4dSegmentMaker/Csc4dSegmentMaker" if MuonGeometryFlags.hasCSC() else "")
                                                               )
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
@@ -495,7 +496,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
             self.useMdtSeededDecoding = True
             self.useRpcSeededDecoding = True
             self.useTgcSeededDecoding = True
-            if muonRecFlags.doCSCs(): self.useCscSeededDecoding = True
+            if MuonGeometryFlags.hasCSC(): self.useCscSeededDecoding = True
 
             # use ROB based seeded decoding instead of PRD based
             self.useMdtRobDecoding = True

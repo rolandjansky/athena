@@ -21,6 +21,10 @@ CaloCellClusterWeights::CaloCellClusterWeights()
   : CaloCellClusterWeights( CELLCLUSTERLOOKUP )
 { }
 
+CaloCellClusterWeights::CaloCellClusterWeights(const CaloCellClusterWeights& cellClusterWeights)
+  : _hashTable(cellClusterWeights._hashTable)
+{ }
+
 CaloCellClusterWeights::~CaloCellClusterWeights()
 { }
 

@@ -11,6 +11,7 @@ if ('doSim' in dir()) and doSim:
     doTileQIE = False
     doTileOptATLAS = False
     doTileMF = False
+    doTileWiener = False
     doTileFit  = False
     doTileFitCool = False
     TileCisRun = False
@@ -60,6 +61,11 @@ if not 'doTileMF' in dir():
     doTileMF = jobproperties.TileRecFlags.doTileMF()
 else:
     jobproperties.TileRecFlags.doTileMF = doTileMF
+
+if not 'doTileWiener' in dir():
+    doTileWiener = jobproperties.TileRecFlags.doTileWiener()
+else:
+    jobproperties.TileRecFlags.doTileWiener = doTileWiener
 
 if not 'doTileFit' in dir():
     doTileFit = jobproperties.TileRecFlags.doTileFit()

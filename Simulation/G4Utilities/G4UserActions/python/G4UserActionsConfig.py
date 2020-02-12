@@ -19,6 +19,11 @@ def getHitWrapperTool(name="G4UA::HitWrapperTool", **kwargs):
 
 
 def getFastIDKillerTool(name="G4UA::FastIDKillerTool", **kwargs):
+    # Custom configuration via SimFlags
+    from G4AtlasApps.SimFlags import simFlags
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
     return CfgMgr.G4UA__FastIDKillerTool(name, **kwargs)
 
 
@@ -136,3 +141,13 @@ def getRadLengthActionTool(name="G4UA::RadLengthActionTool", **kwargs):
 
 def getVolumeDumperTool(name="G4UA::VolumeDumperTool", **kwargs):
     return CfgMgr.G4UA__VolumeDumperTool(name, **kwargs)
+
+
+def getLengthIntegratorTool(name="G4UA::LengthIntegratorTool", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__LengthIntegratorTool(name, **kwargs)
+   

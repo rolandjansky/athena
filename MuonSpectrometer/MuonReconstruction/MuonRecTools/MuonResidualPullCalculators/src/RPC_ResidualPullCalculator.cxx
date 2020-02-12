@@ -10,7 +10,6 @@
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 
 //================ Constructor =================================================
 
@@ -22,6 +21,7 @@ Muon::RPC_ResidualPullCalculator::RPC_ResidualPullCalculator(const std::string& 
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareInterface<IResidualPullCalculator>(this);
+  declareProperty("MuonIdHelperTool", m_idHelper);
 }
 
 //================ Destructor =================================================

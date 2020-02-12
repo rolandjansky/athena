@@ -175,12 +175,10 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
   GeoLogVol * foam_logVol = new GeoLogVol(inclinedSupportLogVolName,shapeBrep,foam_material);
   m_endcapFoam  = new GeoPhysVol(foam_logVol);
 
-  //std::cout << "BEN m_endcapModule->Length() = " << m_endcapModule->Length() << " mm" << std::endl; 
 
   // build the transition foam support
   if (!m_transModule) return;
 
-  //std::cout << "BEN m_transModule->Length() = " << m_transModule->Length() << " mm" << std::endl; 
 
   double modZ_t = m_transModule->Length()*sin(m_transTiltAngle);
   double modH_t = m_transModule->Length()*cos(m_transTiltAngle);

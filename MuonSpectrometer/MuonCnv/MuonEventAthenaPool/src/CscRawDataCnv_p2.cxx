@@ -1,14 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/CscRawData.h"
 #include "CscRawDataCnv_p2.h"
 #include "GaudiKernel/GaudiException.h"
+#include "StoreGate/StoreGateSvc.h"
+#include <TString.h> // for Form
+
+bool CscRawDataCnv_p2::initialize() {
+  if (m_init) return m_init;
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
+  StoreGateSvc* detStore;
+  if (svcLocator->service("DetectorStore", detStore).isFailure()) {
+    throw std::runtime_error(Form("File: %s, Line: %d\nCscRawDataCnv_p2::initialize() - Failed to retrieve DetectorStore", __FILE__, __LINE__));
+  }  
+  if (detStore->retrieve(m_cscIdHelper, "CSCIDHELPER").isFailure()) {
+    throw std::runtime_error(Form("File: %s, Line: %d\nCscRawDataCnv_p2::initialize() - Failed to retrieve CscIdHelper (needed for channel hash conversion)", __FILE__, __LINE__));
+  }
+  m_init = true;
+  return m_init;
+}
 
 void
 CscRawDataCnv_p2::transToPers(const CscRawData* trans, CscRawData_p2* pers, MsgStream &) 
 {
+    if (!this->initialize()) throw std::runtime_error(Form("File: %s, Line: %d\nCscRawDataCnv_p2::transToPers() - Failed to initialize", __FILE__, __LINE__));
     pers->m_amps        = trans->samples();
     pers->m_address     = trans->address();
     pers->m_id          = trans->identify();
@@ -16,7 +33,17 @@ CscRawDataCnv_p2::transToPers(const CscRawData* trans, CscRawData_p2* pers, MsgS
     pers->m_rpuID       = trans->rpuID();
     pers->m_width       = trans->width();
     pers->m_isTimeComputed        = trans->isTimeComputed();
-    pers->m_hashId        = trans->hashId();
+    if (m_cscIdHelper) {
+      // translate the transient (positional) hash into a geometrical hash as expected by the p2 persistent data format
+      IdContext context = m_cscIdHelper->channel_context();
+      Identifier id;
+      IdentifierHash geoHash;
+      if (!m_cscIdHelper->get_id(trans->hashId(), id, &context)) {
+          if (!m_cscIdHelper->get_geo_channel_hash(id, geoHash)) pers->m_hashId  = geoHash;
+      }
+    } else {
+      throw std::runtime_error(Form("File: %s, Line: %d\nCscRawDataCnv_p2::transToPers() - No CscIdHelper present (needed for channel hash conversion)", __FILE__, __LINE__));
+    }
 }
 
 
@@ -27,6 +54,7 @@ CscRawDataCnv_p2::transToPers(const CscRawData* trans, CscRawData_p2* pers, MsgS
 void
 CscRawDataCnv_p2::persToTrans(const CscRawData_p2* pers, CscRawData* trans, MsgStream &) 
 {
+   if (!this->initialize()) throw std::runtime_error(Form("File: %s, Line: %d\nCscRawDataCnv_p2::persToTrans() - Failed to initialize", __FILE__, __LINE__));
    // Fix for CSC phi strip - see https://savannah.cern.ch/bugs/?56002
    int stationEta  =  ( ((pers->m_address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
    int measuresPhi   = ( (pers->m_address & 0x00000100) >>  8);
@@ -57,7 +85,15 @@ CscRawDataCnv_p2::persToTrans(const CscRawData_p2* pers, CscRawData* trans, MsgS
                         pers->m_id,
                         pers->m_rpuID,
                         pers->m_width);
-   trans->setHashID (pers->m_hashId);
+   // translate the persistent p2 (geometrical) hash into a positional hash (as expected by the transient data format)
+   IdentifierHash geoHash = pers->m_hashId;
+   IdentifierHash hash;
+   if (m_cscIdHelper) {
+     IdContext context = m_cscIdHelper->channel_context();
+     if (!m_cscIdHelper->get_hash_fromGeoHash(geoHash, hash, &context)) trans->setHashID(hash);
+   } else {
+     throw std::runtime_error(Form("File: %s, Line: %d\nCscRawDataCnv_p2::persToTrans() - No CscIdHelper present (needed for channel hash conversion)", __FILE__, __LINE__));
+   }
    if (pers->m_isTimeComputed)
      trans->setTime (pers->m_time);
 }

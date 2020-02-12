@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
 # jobOptions Fragment for ID software
@@ -666,6 +668,28 @@ else:
 
       InputCombinedInDetTracks += [ InDetKeys.ResolvedSLHCConversionFindingTracks() ]
 
+
+    if InDetFlags.doROIConv() and InDetFlags.doSLHC():
+      #
+      # --- configure cuts for ROI Conversion tracking
+      #
+      if (not 'InDetNewTrackingCutsROIConv' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsROIConv not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsROIConv = ConfiguredNewTrackingCuts("ROIConv")
+      InDetNewTrackingCutsROIConv.printInfo()
+      #
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetROIConvSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                             InDetKeys.ResolvedROIConvTracks(),
+                                                             InDetKeys.SiSpSeededROIConvTracks(),
+                                                             InDetNewTrackingCutsROIConv,
+                                                             TrackCollectionKeys,
+                                                             TrackCollectionTruthKeys)
+
+      InputCombinedInDetTracks += [ InDetKeys.ResolvedROIConvTracks() ]
+
     
     # ------------------------------------------------------------
     #
@@ -734,7 +758,7 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Stublets (3 layer tracks) on all PRDs
+    # --- Pixel Stublets (3 layer tracks) on unassociated PRDs
     #
     # ------------------------------------------------------------
     
@@ -791,8 +815,8 @@ else:
       if InDetFlags.useExistingTracksAsInput():
           InputCombinedInDetTracks += [ InDetKeys.ProcessedESDTracks() ]
       InDetDisplacedSoftPionSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
-                                                                       InDetKeys.ResolvedLargeD0Tracks(),
-                                                                       InDetKeys.SiSpSeededLargeD0Tracks(),
+                                                                       InDetKeys.ResolvedDSPTracks(), #ResolvedLargeD0Tracks(),
+                                                                       InDetKeys.SiSpSeededDSPTracks(), #SiSpSeededLargeD0Tracks(),
                                                                        InDetNewTrackingCutsDisplacedSoftPion,
                                                                        TrackCollectionKeys,
                                                                        TrackCollectionTruthKeys)    
@@ -802,8 +826,8 @@ else:
       include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
       InDetDisplacedSoftPionTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsDisplacedSoftPion,
                                                                              InDetDisplacedSoftPionSiPattern.SiTrackCollection(),
-                                                                             InDetKeys.ExtendedLargeD0Tracks(),
-                                                                             InDetKeys.ExtendedTracksMapLargeD0(),
+                                                                             InDetKeys.ExtendedDSPTracks(), #ExtendedLargeD0Tracks(),
+                                                                             InDetKeys.ExtendedTracksMapDSP(), #ExtendedTracksMapLargeD0(),
                                                                              TrackCollectionKeys,
                                                                              TrackCollectionTruthKeys,
                                                                              False)
@@ -1432,6 +1456,8 @@ else:
         cuts = InDetNewTrackingCutsLowPt
       elif InDetFlags.doSLHCConversionFinding():
         cuts = InDetNewTrackingCutsSLHCConversionFinding
+      elif InDetFlags.doROIConv():
+        cuts = InDetNewTrackingCutsROIConv
       else:
         cuts = InDetNewTrackingCuts
       include("InDetRecExample/ConfiguredInDetValidation.py")

@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 def generateFastSimulationList():
     FastSimulationList=[]
@@ -100,10 +101,16 @@ def generateCaloSensitiveDetectorList():
     if DetFlags.simulate.LAr_on():
         SensitiveDetectorList += [ 'LArEMBSensitiveDetector','LArEMECSensitiveDetector','LArFCALSensitiveDetector',\
                                    'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
+        isHGTDGeo = False
+        isMBTSGeo = False
         if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
             SensitiveDetectorList += [ 'HGTDSensorSD' ]
-        else:
+            isHGTDGeo = True
+        elif (hasattr(DetFlags.simulate, 'MBTS_on') and DetFlags.simulate.MBTS_on()):
             SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
+            isMBTSGeo = True
+        if (isHGTDGeo and isMBTSGeo):
+            raise RuntimeError( 'Both MBTS and HGTD set On - please check your configuration!' )
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
             SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetector' ]
@@ -131,20 +138,14 @@ def generateMuonSensitiveDetectorList():
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetectorCosmics' ]
             if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetectorCosmics' ]
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetectorCosmics' ]
+            if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetectorCosmics' ]
         else:
             if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetector' ]
             if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetector' ]
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetector' ]
-        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-            if DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
-            if DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
-        elif DetFlags.simulate.CSC_on():
-            # CSCs built instead of NSW
-            if jobproperties.Beam.beamType() == 'cosmics':
-                SensitiveDetectorList += [ 'CSCSensitiveDetectorCosmics' ]
-            else:
-                SensitiveDetectorList += [ 'CSCSensitiveDetector' ]
+            if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetector' ]
+        if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
+        if MuonGeometryFlags.hasMM() and DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
     return SensitiveDetectorList
 
 def generateEnvelopeSensitiveDetectorList():

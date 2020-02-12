@@ -275,7 +275,7 @@ int RoadFinder::nextEvent()
      list<FTKRoad>::const_iterator iroad = roadslist.begin();
      int rid(0);
      bool soft_limit(true), hard_limit(true);
-     FTKRoadStream *stream = m_roadoutput->getStream(m_datainput->getCurrentRegion());
+
      for (;iroad!=roadslist.end();++iroad) {
        // default case: just save the road
        if (!FTKSetup::getFTKSetup().getSCTtrkMode()) {

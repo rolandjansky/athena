@@ -48,19 +48,19 @@ namespace InDet {
     inline void setPixelCase(bool isPixel) { m_pixelCase = isPixel; }
 
     // Create disc layers
-    void createActiveLayers(unsigned int itmpl, int side, int startLayer, int endLayer, std::vector< Trk::Layer* >& v_layers) const;
+    void createActiveLayers(unsigned int itmpl, int cavernSide, int startLayer, int endLayer, std::vector< Trk::Layer* >& v_layers) const;
 
   private:
     // create discs/rings layers
-    void createActiveRingLayers(unsigned int itmpl, int side, std::vector< Trk::Layer* >& v_layers) const;
-    void createActiveDiscLayers(unsigned int itmpl, int side, std::vector< Trk::Layer* >& v_layers) const;
+    void createActiveRingLayers(unsigned int itmpl, int cavernSide, std::vector< Trk::Layer* >& v_layers) const;
+    void createActiveDiscLayers(unsigned int itmpl, int cavernSide, std::vector< Trk::Layer* >& v_layers) const;
 
     // create elements
-    void createDiscModules(int itmpl, int iring, int side, 
+    void createDiscModules(int itmpl, int iring, int cavernSide, 
 			   std::vector<Trk::TrkDetElementBase*>& cElements, 
 			   std::vector<Amg::Vector3D>& centersOnModule) const; 
 			   
-    Trk::TrkDetElementBase* createDiscDetElement(int itmpl, int iring, int isector, int side, std::vector<Amg::Vector3D>& centersOnModule) const;
+    Trk::TrkDetElementBase* createDiscDetElement(int itmpl, int iring, int isector, int cavernSide, std::vector<Amg::Vector3D>& centersOnModule) const;
 
     // utilities
     InDet::EndcapLayerTmp *getLayerTmp(unsigned int itmpl) const;

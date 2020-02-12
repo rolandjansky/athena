@@ -17,18 +17,18 @@
 Analysis_Missed::Analysis_Missed(const std::string& name) : TrackAnalysis(name) {
 
   // Create track number histograms
-  h_ntrack     = new TH1D(std::string(mname+"-ntracks").c_str(),     std::string(mname+" n tracks").c_str(),          10, -0.5, 9.5);
-  h_ntrackfrac = new TH1D(std::string(mname+"-ntracksfrac").c_str(), std::string(mname+" n tracks fraction").c_str(), 20, -0.5, 1.5);
+  h_ntrack     = new TH1D(std::string(m_name+"-ntracks").c_str(),     std::string(m_name+" n tracks").c_str(),          10, -0.5, 9.5);
+  h_ntrackfrac = new TH1D(std::string(m_name+"-ntracksfrac").c_str(), std::string(m_name+" n tracks fraction").c_str(), 20, -0.5, 1.5);
   addHistogram(h_ntrack);
   addHistogram(h_ntrackfrac);
 
   // Create track parameter histograms
-  h_eta  = new TH1D(std::string(mname+"-eta").c_str(),  std::string(mname+" eta distribution").c_str(),  100, -3, 3);
-  h_phi  = new TH1D(std::string(mname+"-phi").c_str(),  std::string(mname+" phi distribution").c_str(),  100, -3.15, 3.15);
-  h_z0   = new TH1D(std::string(mname+"-z0").c_str(),   std::string(mname+" z0 distribution").c_str(),   100, -200.0, 200.0);
-  h_d0   = new TH1D(std::string(mname+"-d0").c_str(),   std::string(mname+" d0 distribution").c_str(),   100, -5.0, 5.0);
-  h_pT   = new TH1D(std::string(mname+"-pT").c_str(),   std::string(mname+" pT distribution").c_str(),   100, -10000, 10000);
-  h_chi2 = new TH1D(std::string(mname+"-chi2").c_str(), std::string(mname+" chi2 distribution").c_str(), 1000, -10, 990);
+  h_eta  = new TH1D(std::string(m_name+"-eta").c_str(),  std::string(m_name+" eta distribution").c_str(),  100, -3, 3);
+  h_phi  = new TH1D(std::string(m_name+"-phi").c_str(),  std::string(m_name+" phi distribution").c_str(),  100, -3.15, 3.15);
+  h_z0   = new TH1D(std::string(m_name+"-z0").c_str(),   std::string(m_name+" z0 distribution").c_str(),   100, -200.0, 200.0);
+  h_d0   = new TH1D(std::string(m_name+"-d0").c_str(),   std::string(m_name+" d0 distribution").c_str(),   100, -5.0, 5.0);
+  h_pT   = new TH1D(std::string(m_name+"-pT").c_str(),   std::string(m_name+" pT distribution").c_str(),   100, -10000, 10000);
+  h_chi2 = new TH1D(std::string(m_name+"-chi2").c_str(), std::string(m_name+" chi2 distribution").c_str(), 1000, -10, 990);
   addHistogram(h_eta);
   addHistogram(h_phi);
   addHistogram(h_z0);
@@ -37,14 +37,14 @@ Analysis_Missed::Analysis_Missed(const std::string& name) : TrackAnalysis(name) 
   addHistogram(h_chi2);
   
   // Create track hit histograms
-  h_blay      = new TH1D(std::string(mname+"-blay").c_str(),         std::string(mname+" blayer").c_str(),        2, -0.5, 1.5);
-  h_pixel     = new TH1D(std::string(mname+"-pixel").c_str(),        std::string(mname+" pixel").c_str(),         10, -0.5, 9.5);
-  h_sct       = new TH1D(std::string(mname+"-sct").c_str(),          std::string(mname+" sct").c_str(),           12, -0.5, 11.5);
-  h_silicon   = new TH1D(std::string(mname+"-silicon").c_str(),      std::string(mname+" silicon").c_str(),       20, -0.5, 19.5);
-  h_straw     = new TH1D(std::string(mname+"-straw").c_str(),        std::string(mname+" straw").c_str(),         40, -0.5, 39.5);
-  h_tr        = new TH1D(std::string(mname+"-tr").c_str(),           std::string(mname+" tr").c_str(),            40, -0.5, 39.5);
-  h_patt      = new TH1D(std::string(mname+"-pattern").c_str(),      std::string(mname+" pattern").c_str(),       19, -0.5, 18.5);
-  h_firstpatt = new TH1D(std::string(mname+"-firstpattern").c_str(), std::string(mname+" first pattern").c_str(), 19, -0.5, 18.5);
+  h_blay      = new TH1D(std::string(m_name+"-blay").c_str(),         std::string(m_name+" blayer").c_str(),        2, -0.5, 1.5);
+  h_pixel     = new TH1D(std::string(m_name+"-pixel").c_str(),        std::string(m_name+" pixel").c_str(),         10, -0.5, 9.5);
+  h_sct       = new TH1D(std::string(m_name+"-sct").c_str(),          std::string(m_name+" sct").c_str(),           12, -0.5, 11.5);
+  h_silicon   = new TH1D(std::string(m_name+"-silicon").c_str(),      std::string(m_name+" silicon").c_str(),       20, -0.5, 19.5);
+  h_straw     = new TH1D(std::string(m_name+"-straw").c_str(),        std::string(m_name+" straw").c_str(),         40, -0.5, 39.5);
+  h_tr        = new TH1D(std::string(m_name+"-tr").c_str(),           std::string(m_name+" tr").c_str(),            40, -0.5, 39.5);
+  h_patt      = new TH1D(std::string(m_name+"-pattern").c_str(),      std::string(m_name+" pattern").c_str(),       19, -0.5, 18.5);
+  h_firstpatt = new TH1D(std::string(m_name+"-firstpattern").c_str(), std::string(m_name+" first pattern").c_str(), 19, -0.5, 18.5);
   addHistogram(h_blay);
   addHistogram(h_pixel);
   addHistogram(h_sct);
@@ -56,9 +56,9 @@ Analysis_Missed::Analysis_Missed(const std::string& name) : TrackAnalysis(name) 
   
   // Create 2D histograms
   
-  h_etaphi  = new TH2D(std::string(mname+"-etaphi").c_str(),  std::string(mname+" etaphi").c_str(),  100, -3.0, 3.0, 100, -3.15, 3.15);  
-  h_etapatt = new TH2D(std::string(mname+"-etapatt").c_str(), std::string(mname+" etapatt").c_str(), 19, -0.5, 18.5, 100, -3.0, 3.0);  
-  h_phipatt = new TH2D(std::string(mname+"-phipatt").c_str(), std::string(mname+" phipatt").c_str(), 19, -0.5, 18.5, 100, -3.15, 3.15);  
+  h_etaphi  = new TH2D(std::string(m_name+"-etaphi").c_str(),  std::string(m_name+" etaphi").c_str(),  100, -3.0, 3.0, 100, -3.15, 3.15);  
+  h_etapatt = new TH2D(std::string(m_name+"-etapatt").c_str(), std::string(m_name+" etapatt").c_str(), 19, -0.5, 18.5, 100, -3.0, 3.0);  
+  h_phipatt = new TH2D(std::string(m_name+"-phipatt").c_str(), std::string(m_name+" phipatt").c_str(), 19, -0.5, 18.5, 100, -3.15, 3.15);  
   addHistogram(h_etaphi);
   addHistogram(h_etapatt);
   addHistogram(h_phipatt);

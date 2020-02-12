@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h"
@@ -19,9 +19,9 @@ TFCSEnergyInterpolationLinear::TFCSEnergyInterpolationLinear(const char* name, c
 {
 }
 
-FCSReturnCode TFCSEnergyInterpolationLinear::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*)
+FCSReturnCode TFCSEnergyInterpolationLinear::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
-  float Emean=m_slope*truth->Ekin()+m_offset;
+  const float Emean=m_slope*truth->Ekin()+m_offset;
 
   ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
   simulstate.set_E(Emean);

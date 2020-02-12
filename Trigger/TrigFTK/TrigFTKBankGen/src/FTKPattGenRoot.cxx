@@ -51,12 +51,13 @@ FTKPattGenRoot::FTKPattGenRoot(int curreg, FTKSSMap* ssmap, FTKSectorSlice* slic
                                )
    : FTKLogging("FTKPattGenRoot"), m_curreg(curreg), m_ssmap(ssmap),
      m_sectorslice(slices), m_constbank(constbank),
+     m_overlap(2),
      m_RndGauss(0),
      m_RndFlat(0),
      m_output(0),
      m_patternWriter(0),
      m_keep7of8(keep7of8),m_tolerance7of8(tolerance7of8),
-     m_d0_alpha(0.)
+     m_flat_in_cot(false) 
 #ifdef DEBUG_BEAMSPOT
 ,m_propagator(propagator)
 #endif
@@ -72,7 +73,6 @@ FTKPattGenRoot::FTKPattGenRoot(int curreg, FTKSSMap* ssmap, FTKSectorSlice* slic
     *  
     ************************************************/
 
-   SetSliceParameters(); // init slice parameters
    m_constbank->prepareInvConstants();
 
    m_select = ModuleGeometry; //FTKPattGenRoot::RndSector;
@@ -372,12 +372,14 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                   <<"Selector="<<m_select<<" only implemented for HDMODEID==2\n";
             }
             // for each candidate, calculate a weight 0<w<1
+            // also, count ne number of bad modules
             vector<double> weight(found_patterns.size());
             unsigned nFound=0;
             vector<unsigned> exactMatch;
             static double const B_FACTOR=-0.3*2.083;// conversion factor 1/Mev -> 1/mm
             double rho=B_FACTOR*track.getHalfInvPt() *(2.0);
             for(unsigned ipatt=0;ipatt<found_patterns.size();ipatt++) {
+               int numBad=0;
                double w=1.0;
                bool found=true;
                int isector=found_patterns[ipatt].GetSectorID();
@@ -385,14 +387,18 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                for (int p=0; p<pmap()->getNPlanes(); ++p) {
                   int id=m_sectorbank[isector].GetHit(p);
                   map<int,RZminmax_t>::const_iterator irz;
+                  bool isBad=false;
                   if(pmap()->getDim(p,1)!=-1) {
                      // lookup geometry by module ID
                      irz=m_moduleBoundsPixel.find(id);
                      found = (irz!=m_moduleBoundsPixel.end());
+                     isBad=(m_moduleBadPixel.find(id)!=m_moduleBadPixel.end());
                   } else {
                      irz=m_moduleBoundsSCT.find(id);
                      found = (irz!=m_moduleBoundsSCT.end());
+                     isBad=(m_moduleBadSCT.find(id)!=m_moduleBadSCT.end());
                   }
+                  if(isBad) numBad++;
                   if(found) {
                      RZminmax_t const &rz=(*irz).second;
                      // rMin,rMax and zMin,zMax are the 
@@ -449,6 +455,10 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                if(found) {
                   nFound++;
                }
+               // down-weight sectors with missing modules
+               if(numBad>2)      w/=100000.;
+               else if(numBad>1) w/=  1000.;
+               else if(numBad>0) w/=    10.;
                weight[ipatt]=w;
                if(w>=1.0) exactMatch.push_back(ipatt);
             }
@@ -781,53 +791,57 @@ void FTKPattGenRoot::WriteMapsToFile() {
    m_ssmap->WriteMapToRootFile(m_output, "TSP" );
 }
 
-
 //___________________________________________________________________________________________ //
-void FTKPattGenRoot::SetSliceParameters(double phi_min,double phi_max, double c_min,double c_max, 
-					double d0_min,double d0_max, double z0_min,double z0_max, 
-					double eta_min, double eta_max){
+void FTKPattGenRoot::SetTrackParameterRange
+(std::pair<double,double> &track_phiRange,
+ std::pair<double,double> &track_cRange,
+ std::pair<double,double> &track_d0Range,
+ std::pair<double,double> &track_z0Range,
+ std::pair<double,double> &track_etaRange) {
    //! set slice parameters
    //! Use +/- 999 for autotune parameters.
    if ( !m_sectorslice ) {
       Fatal("SetSliceParameters") << "*** Sector file must be specified first."<< endl;
       exit(1);
    }
-   m_phi_min = phi_min==-999. ? m_sectorslice->getAutotunePhiMin() : phi_min;
-   m_phi_max = phi_max== 999. ? m_sectorslice->getAutotunePhiMax() : phi_max;
+   // get parameters from slice parameters
+   m_sectorslice->getSliceRanges
+      (m_phi_range,m_c_range,m_d0_range,m_z0_range,m_cot_range);
+   // transform cot(theta) to eta
+   m_eta_range.first=TMath::ASinH(m_cot_range.first);
+   m_eta_range.second=TMath::ASinH(m_cot_range.second);
 
-   m_c_min   = c_min==-999.   ? m_sectorslice->getAutotuneCMin() : c_min;//-0.000625;
-   m_c_max   = c_max== 999.   ? m_sectorslice->getAutotuneCMax() : c_max;// 0.000625;
-
-   m_d0_min  = d0_min==-999.  ? m_sectorslice->getAutotuneDMin() : d0_min;
-   m_d0_max  = d0_max== 999.  ? m_sectorslice->getAutotuneDMax() : d0_max;
-
-   m_z0_min  = z0_min==-999.  ? m_sectorslice->getAutotuneZ0Min() : z0_min;
-   m_z0_max  = z0_max== 999.  ? m_sectorslice->getAutotuneZ0Max() : z0_max;
-
-   m_eta_min = eta_min==-999. ? m_sectorslice->getAutotuneEtaMin() : eta_min;
-   m_eta_max = eta_max== 999. ? m_sectorslice->getAutotuneEtaMax() : eta_max;
-
-   // JW (2016.9.14) - Update the FTKSectorSlice object with these parameter ranges
-   if( phi_min != -999 ) m_sectorslice->setPhiMin( phi_min );
-   if( phi_max !=  999 ) m_sectorslice->setPhiMax( phi_max );
-   if( c_min != -999 ) m_sectorslice->setCMin( c_min );
-   if( c_max !=  999 ) m_sectorslice->setCMax( c_max );
-   if( d0_min != -999 ) m_sectorslice->setD0Min( d0_min );
-   if( d0_max !=  999 ) m_sectorslice->setD0Max( d0_max );
-   if( z0_min != -999 ) m_sectorslice->setZ0Min( z0_min );
-   if( z0_max !=  999 ) m_sectorslice->setZ0Max( z0_max );
-   if( eta_min != -999 ) m_sectorslice->setEtaMin( eta_min );
-   if( eta_max !=  999 ) m_sectorslice->setEtaMax( eta_max );
-   m_sectorslice->resetStepSizes();
-
-   Info("SetSliceParameters")<<"Phi: "<<m_phi_min<<" "<<m_phi_max<<"\n";
-   Info("SetSliceParameters")<<"Eta: "<<m_eta_min<<" "<<m_eta_max<<"\n";
-   Info("SetSliceParameters")<<"C:   "<<m_c_min<<" "<<m_c_max<<"\n";
-   Info("SetSliceParameters")<<"D0:  "<<m_d0_min<<" "<<m_d0_max<<"\n";
-   Info("SetSliceParameters")<<"Z0:  "<<m_z0_min<<" "<<m_z0_max<<"\n";
+   // overwrite slice parameters if selected
+   if(track_phiRange.first<track_phiRange.second) {
+      m_phi_range=track_phiRange;
+   } else {
+      track_phiRange=m_phi_range;
+   }
+   if(track_d0Range.first<track_d0Range.second) {
+      m_d0_range=track_d0Range;
+   } else {
+      track_d0Range=m_d0_range;
+   }
+   if(track_cRange.first<track_cRange.second) {
+      m_c_range=track_cRange;
+   } else {
+      track_cRange=m_c_range;
+   }
+   if(track_z0Range.first<track_z0Range.second) {
+      m_z0_range=track_z0Range;
+   } else {
+      track_z0Range=m_z0_range;
+   }
+   if(track_etaRange.first<track_etaRange.second) {
+      m_eta_range=track_etaRange;
+      // transform to cot(theta)
+      m_cot_range.first=TMath::SinH(m_eta_range.first);
+      m_cot_range.second=TMath::SinH(m_eta_range.second);
+   } else {
+      track_etaRange=m_eta_range;
+   }
 
 }
-
 
 //___________________________________________________________________________________________ //
 double FTKPattGenRoot::getRandom(){
@@ -846,48 +860,22 @@ double FTKPattGenRoot::getRandomGaus(){
 void FTKPattGenRoot::GetRandomTrack(FTKTrack& track){
    //! Get random track using the sector parameters
 
-   track.setHalfInvPt(0.5*((m_c_max - m_c_min) * getRandom() + m_c_min)); // diff!?
+   track.setHalfInvPt(0.5*((m_c_range.second - m_c_range.first)
+                           * getRandom() + m_c_range.first));
 
-   track.setPhi( getRandom() * (m_phi_max - m_phi_min) + m_phi_min, false); //ok
+   track.setPhi( getRandom() * (m_phi_range.second - m_phi_range.first) + m_phi_range.first, false); //ok
    track.setPhiRaw(track.getPhi(),false);
 
-   track.setCotTheta(TMath::SinH((m_eta_max - m_eta_min) * getRandom() + m_eta_min)); //ok
-
-   double d0;
-   if((m_d0_min!=m_d0_max)&&(m_d0_alpha!=0.)) {
-      // generate density f(r)= k*abs(r)^n
-      //  int_0^x dx' = int_r0^r f(r')dr'
-      //   x = F(r)-F(r0)
-      //   z=x+F(r0) = F(r)
-      //   F^-1(z) = r
-      //   F(r) = k*r*abs(r)^n
-      //   1/k = r1*abs(r1)^n-r0*abs(r0)^n
-      //   z/abs(z) * (abs(z)/k)^(1/(n+1)) = r
-
-      double f0=(m_d0_min!=0.) ? m_d0_min*pow(fabs(m_d0_min),m_d0_alpha) : m_d0_min;
-      double f1=(m_d0_max!=0.) ? m_d0_max*pow(fabs(m_d0_max),m_d0_alpha) : m_d0_max;
-      double k=1./(f1-f0);
-      if(k<0.0) {
-         // swap f0,f1
-         k=f0; f0=f1; f1=k;
-         k=1./(f1-f0);
-      }
-      double z=getRandom()+k*f0;
-      d0 = (z !=0.0) ? pow(fabs(z)/k,1./(1.+m_d0_alpha)) : 0.0;
-      if(z<0.0) d0= -d0;
-
-      // test: m_d0_alpha=0:
-      //    f0=m_d0_min
-      //    f1=m_d0_max
-      //    k=1./(m_d0_max-m_d0_min)
-      //    z = rnd + m_d0_min/(m_d0_max-m_d0_min)
-      //   d0 = rnd*(m_d0_max-m_d0_min) + m_d0_min   -> OK
-      //
+   if(m_flat_in_cot) {
+      track.setCotTheta((m_cot_range.second - m_cot_range.first) * getRandom() + m_cot_range.first);
    } else {
-      d0=(m_d0_max - m_d0_min) * getRandom() + m_d0_min;
+      track.setCotTheta(TMath::SinH((m_eta_range.second - m_eta_range.first) * getRandom() + m_eta_range.first)); //ok
    }
+
+   double d0=(m_d0_range.second - m_d0_range.first) * getRandom() + m_d0_range.first;
+
    track.setIP(d0);
-   track.setZ0( getRandom() * (m_z0_max - m_z0_min) + m_z0_min); //ok
+   track.setZ0( getRandom() * (m_z0_range.second - m_z0_range.first) + m_z0_range.first); //ok
 
 #ifdef DEBUG_BEAMSPOT
    m_d0BS=track.getIP();
@@ -1079,3 +1067,57 @@ void  FTKPattGenRoot::SetModuleGeometryCheck(const std::string &fileName,
       }
    }
 }
+
+void FTKPattGenRoot::SetBadModules(std::istream &badlist) {
+   // read list of bad sectors (cf FTK_CompressedAMBank::importBadModuleASCII)
+   std::string line;
+   while( getline(badlist,line) ) {
+      std::istringstream lineRead(line);
+      int tmpisPixel,tmpBEC,tmpSector,tmpPlane,tmpEtaModule,tmpPhiModule,tmpSection,tmpidhash;
+      lineRead >>tmpisPixel >>tmpBEC >>tmpSector >>tmpPlane >>tmpEtaModule
+               >>tmpPhiModule >>tmpSection;
+      if(lineRead.fail()) {
+         Error("SetBadModules")
+            <<"problem to read wildcard data from \""<<line<<"\"\n";
+         continue;
+      }
+      lineRead>>tmpidhash;
+      int hwMode=FTKSetup::getFTKSetup().getHWModeSS();
+      if(lineRead.fail() && (hwMode==2)) {
+         Error("SetBadModules")
+            <<"HWMODEID==2 but module hash code missing \""<<line<<"\"\n";
+         continue;
+      }
+      int id=-1;
+      if(hwMode==0) {
+         static FTKHit hit;
+         hit.setSector(tmpSector);
+         int phimod=hit.getPhiModule();
+         int section=hit.getSection();
+         int etacode;
+         if((tmpisPixel)&& !hit.getIsBarrel()) {
+            etacode=14+3*(hit.getASide() ? 1 : 0)+section;
+         } else {
+            etacode=hit.getEtaCode();
+         }
+         if(tmpisPixel==2) {
+            id=m_ssmap->getSSxy(tmpPlane,section,phimod,etacode,0,0);
+         } else {
+            id=m_ssmap->getSSx(tmpPlane,section,phimod,etacode,0);
+         }
+      } else {
+         id=m_ssmap->getRegionMap()
+            ->getLocalId(m_curreg,tmpPlane,tmpidhash);
+      }
+      if(id!=-1) {
+         if(tmpisPixel) {
+            Info("SetBadModules")<<"bad pixel module "<<id<<" plane="<<tmpPlane<<"\n";
+            m_moduleBadPixel.insert(id);
+         } else {
+            Info("SetBadModules")<<"bad SCT module "<<id<<" plane="<<tmpPlane<<"\n";
+            m_moduleBadSCT.insert(id);
+         }
+      }
+   }
+}
+

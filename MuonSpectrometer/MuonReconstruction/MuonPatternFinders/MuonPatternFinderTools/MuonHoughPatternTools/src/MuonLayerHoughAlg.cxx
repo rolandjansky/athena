@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHoughAlg.h"
@@ -38,6 +38,10 @@ MuonLayerHoughAlg::~MuonLayerHoughAlg()
 
 StatusCode MuonLayerHoughAlg::initialize()
 {
+  if (m_layerTool.empty()) {
+    ATH_MSG_ERROR("MuonLayerScanTool property is empty");
+    return StatusCode::FAILURE;
+  }
   ATH_CHECK( m_layerTool.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
 

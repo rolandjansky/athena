@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,6 +12,7 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 
 // For new strategy reconstruction
@@ -21,6 +22,12 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/PerigeeSurface.h" 
 #include "StoreGate/DataHandle.h"
+
+// For ROI conversion tracking
+#include "GaudiKernel/ServiceHandle.h"
+#include "IRegionSelector/IRegSelSvc.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+
 
 //class SpacePointContainer;
 namespace InDet {
@@ -72,6 +79,8 @@ namespace InDet {
       bool                           m_useZBoundaryFinding;
       bool                           m_ITKGeometry        ; // Is it ITK geometry
       bool                           m_useITKPPSseeds     ; // Use PPS seeds for ITK geometry
+      bool                           m_useConvSeeded      ;
+      bool                           m_doFastTracking     ; // Use to enable the fastTracking strategy for ITk
       int                            m_outputlevel        ; // Print level for debug
       int                            m_nprint             ; // Kind of  print    
       int                            m_nseeds             ; // Number seeds
@@ -86,6 +95,7 @@ namespace InDet {
       int                            m_maxPIXsp           ; // Max. number pixels space points
       int                            m_maxSCTsp           ; // Max. number sct    space points
       int                            m_nfreeCut           ; // Min number free clusters
+      double                         m_ClusterE           ;
 
       SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
       SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
@@ -94,6 +104,9 @@ namespace InDet {
       ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker    ;  // Space poins seed     maker
       ToolHandle< ISiZvertexMaker         > m_zvertexmaker  ;  // Space poins z-vertex maker
       ToolHandle< ISiTrackMaker           > m_trackmaker    ;  // Track                maker     
+      
+      /** service to get cut values depending on different variable */
+      ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc;
     
       // For new strategy reconstruction
       //
@@ -108,10 +121,14 @@ namespace InDet {
       double*                        m_phistogram;
 
       std::string                    m_beamconditions          ;
-      std::string                    m_fieldmode               ; 
+      std::string                    m_fieldmode               ;
+      std::string                   m_inputClusterContainerName;
       IBeamCondSvc*                                 m_beam     ;
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool ;
       Trk::MagneticFieldProperties                  m_fieldprop;
+
+      ServiceHandle<IRegSelSvc>             m_regionSelector;
+      ToolHandle<Trk::IPRD_AssociationTool>       m_assoTool;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -120,12 +137,16 @@ namespace InDet {
       bool isGoodEvent();
       double trackQuality(const Trk::Track*);
       void filterSharedTracks(std::multimap<double,Trk::Track*>&);
+      void filterSharedTracksN(std::multimap<double,Trk::Track*>&,std::list<Trk::Track*>&);
       void fillZHistogram(const Trk::Track*,Trk::PerigeeSurface&);
       void findZvertex(std::list<Trk::Vertex>&,double*); 
       StatusCode  oldStrategy();
       StatusCode  newStrategy();
       StatusCode  itkStrategy();
+      StatusCode convStrategy();
+      StatusCode  itkFastTrackingStrategy();
       void magneticFieldInit();
+      bool Quality(const Trk::Track*,int,int);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

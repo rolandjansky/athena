@@ -726,6 +726,8 @@ namespace VKalVrtAthena {
     declareProperty("CutTRTHits",                      m_jp.CutTRTHits                      = 0                             );
     declareProperty("CutTightSCTHits",                 m_jp.CutTightSCTHits                 = 7                             );
     declareProperty("CutTightTRTHits",                 m_jp.CutTightTRTHits                 = 20                            );
+ 
+    declareProperty("TrkExtrapolator",                 m_jp.trkExtrapolator                 = 2                             );
     
     declareProperty("doReassembleVertices",            m_jp.doReassembleVertices            = false                         );
     declareProperty("doMergeByShuffling",              m_jp.doMergeByShuffling              = false                         );

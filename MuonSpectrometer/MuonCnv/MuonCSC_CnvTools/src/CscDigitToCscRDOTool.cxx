@@ -197,7 +197,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
     samples.clear();
 
     /** Hash identifier of the first RDO which has offline convention*/
-    IdentifierHash cscRawDataOfflineHashId;
+    IdentifierHash cscOfflineChannelHashId;
 
     /** SPU number for this RDO
 	there 10 SPU - Sparsifier Processing Units, one for each gas layer, except
@@ -224,11 +224,10 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       // There is no difference between online and offline except wheel A(+Z) Phi strips...
       // Where address is made, onlineId should be used......
       Identifier offlineChannelId = cscDigit->identify();
-      IdentifierHash cscOfflineChannelHashId;
       IdContext cscContext = m_cscHelper->channel_context();
-      if (!m_cscHelper->get_hash(offlineChannelId, cscOfflineChannelHashId, &cscContext)) {
-        ATH_MSG_DEBUG ( "HashId for CscDigit (offline) is " << cscOfflineChannelHashId
-                        << " for " << m_cscHelper->show_to_string(offlineChannelId,&cscContext) );
+      if (m_cscHelper->get_hash(offlineChannelId, cscOfflineChannelHashId, &cscContext)) {
+        ATH_MSG_WARNING("Failed to retrieve channel hash for identifier " << offlineChannelId.get_compact() << " (" << m_cscHelper->show_to_string(offlineChannelId,&cscContext) << ")");
+        continue;
       }
 
       int currentStrip = m_cscHelper->strip(offlineChannelId);
@@ -317,7 +316,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
 
           ATH_MSG_DEBUG ( "At Creation of CscRawData, SPU ID = " << spuID );
 	  CscRawData* rawData = new CscRawData(samples, address, collId, spuID, width);
-          uint32_t hashId = static_cast<uint32_t>(cscRawDataOfflineHashId);
+          uint32_t hashId = static_cast<uint32_t>(cscOfflineChannelHashId);
 	  rawData->setHashID( hashId );
 	  cscRdoCollection->push_back(rawData);
         }
@@ -345,13 +344,6 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
 
         /** The strip online address */  // this registers the first one...
 	address = rodReadOut.address(onlineChannelId,eta,phi);
-
-        /** Strip hash identifier is from offline convention for CscRawData first strip...*/
-        IdContext cscContext = m_cscHelper->channel_context();
-        if (!m_cscHelper->get_hash(offlineChannelId, cscRawDataOfflineHashId, &cscContext)) {
-          ATH_MSG_DEBUG ( "HashId off CscRawData (still offline hashId) is " << cscRawDataOfflineHashId
-                          << " for " << m_cscHelper->show_to_string(offlineChannelId,&cscContext) );
-        }
 
         /** clear for the next CscRawData */
 	width = 0x0;
@@ -519,7 +511,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
 
 
         /** Also Create one last CscRawData on the last element */
-	uint32_t hashId = static_cast<uint32_t>(cscRawDataOfflineHashId);
+	uint32_t hashId = static_cast<uint32_t>(cscOfflineChannelHashId);
 	CscRawData* rawData = new CscRawData(samples, address, collId, spuID, width);
 	rawData->setHashID( hashId );
 	cscRdoCollection->push_back(rawData);

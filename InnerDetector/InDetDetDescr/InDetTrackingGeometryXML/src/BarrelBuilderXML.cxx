@@ -522,7 +522,7 @@ void InDet::BarrelBuilderXML::createCylinderBarrelModules(unsigned int ilayer, u
   // start loop over eta modules
   for (int iz = 0; iz < nmodules; iz++) {      
     ATH_MSG_DEBUG("Building module " <<  iz  << " for stave " << istave);
-    elem = (Trk::TrkDetElementBase*) CylinderDetElement(ilayer, staveTmp, istave+1, iz+1);
+    elem = static_cast<Trk::TrkDetElementBase*> ( CylinderDetElement(ilayer, staveTmp, istave+1, iz+1) );
     if(elem==0) {
       ATH_MSG_WARNING("Could not create module for stave " << istave << " iz=" << iz+1);
       continue;
@@ -612,8 +612,8 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
   ATH_MSG_DEBUG("Inside CylinderDetElement() --> Creating DetectorElement with " << Amg::toString(transform)
 		<< " ilayer" << ilayer << " iz=" << iz-1 << " iphi=" << iphi-1 << " z=" << zpos << " phi=" << phi);
 
-  Trk::TrkDetElementBase* planElement = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform.translation(), transform, 
-												   m_pixelCase, isBarrel, isOuterMost,debug);
+  Trk::TrkDetElementBase* planElement = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform.translation(), transform, 
+														m_pixelCase, isBarrel, isOuterMost,debug) );
   
 //   std::cout << "        -->  Barrel Cylinder Element: " << std::endl;
 //   std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
@@ -638,8 +638,8 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
 
     m_xmlReader->computeRbounds(transform_os, moduleTmp, staveTmp->rMin, staveTmp->rMax);
     m_xmlReader->computeZbounds(transform_os, moduleTmp, staveTmp->active_halflength);
-    Trk::TrkDetElementBase* planElement_os = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform_os.translation(), transform_os, 
-													m_pixelCase, isBarrel, isOuterMost,debug);
+    Trk::TrkDetElementBase* planElement_os = static_cast<Trk::TrkDetElementBase *> ( m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform_os.translation(), transform_os, 
+														     m_pixelCase, isBarrel, isOuterMost,debug) );
     
 //     std::cout << "        -->  Barrel Cylinder Element: " << std::endl;
 //     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 1" << std::endl;
@@ -754,9 +754,9 @@ void InDet::BarrelBuilderXML::setPhiNeighbors(std::vector<Trk::TrkDetElementBase
   }
 
   for(unsigned int i=0;i<cSize;i++) {
-    Trk::TrkDetElementBase* elem = (Trk::TrkDetElementBase*) cElements.at(i);
+    Trk::TrkDetElementBase* elem = static_cast<Trk::TrkDetElementBase*> ( cElements.at(i) );
     if(elem==0) continue;
-    Trk::TrkDetElementBase* prev = (Trk::TrkDetElementBase*) pElements.at(i);
+    Trk::TrkDetElementBase* prev = static_cast<Trk::TrkDetElementBase*> ( pElements.at(i) );
     if(prev==0) continue;
     
     m_moduleProvider->setPhiNeighbours(elem,prev);

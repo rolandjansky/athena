@@ -265,7 +265,7 @@ bool TSOSAssociationHelper::isBLayer(const Trk::TrackStateOnSurface *TSO){
 
       if(m_idHelper->is_pixel(Id)){
 
-        if(m_pixelId->is_blayer(Id)){
+        if(m_pixelId->is_innermost(Id)){
           return true;
         }
       }

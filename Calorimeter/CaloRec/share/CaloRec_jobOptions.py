@@ -248,14 +248,14 @@ else:
 #
 # functionality : Noise suppressed tower
 #
-if jobproperties.CaloRecFlags.doCaloTopoTower() and DetFlags.haveRIO.Calo_on():
-   try:
-       include ("CaloRec/CaloTopoTower_jobOptions.py")
-   except Exception:
-       treatException("Problem with CaloTopoTower. Switched off.")
-       jobproperties.CaloRecFlags.doCaloTopoTower=False
-else:
-   jobproperties.CaloRecFlags.doCaloTopoTower=False
+#if jobproperties.CaloRecFlags.doCaloTopoTower() and DetFlags.haveRIO.Calo_on():
+#   try:
+#       include ("CaloRec/CaloTopoTower_jobOptions.py")
+#   except Exception:
+#       treatException("Problem with CaloTopoTower. Switched off.")
+#       jobproperties.CaloRecFlags.doCaloTopoTower=False
+#else:
+#   jobproperties.CaloRecFlags.doCaloTopoTower=False
 
 #
 # functionality : muon candidates in Tile
@@ -361,3 +361,10 @@ if rec.doWritexAOD():
 #L1Calo Trigger tower decoration
 if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doTrigger():
     include("TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py")
+
+#new style CaloTopoTowers
+if jobproperties.CaloRecFlags.doCaloTopoTower():
+    include ( "CaloRec/CaloTopoTowerFragment.py" )
+#mixed topo-cluster/topo-tower 
+if jobproperties.CaloRecFlags.doCaloTopoSignal():
+    include ("CaloRec/CaloTopoSignalFragment.py" )

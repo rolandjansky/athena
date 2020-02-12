@@ -193,11 +193,6 @@ if not simFlags.ISFRun:
                                  "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-                stream1.ItemList += ["sTGCSimHitCollection#*"]
-                stream1.ItemList += ["MMSimHitCollection#*"]
-                stream1.ItemList += ["GenericMuonSimHitCollection#*"]
 
         ## Lucid
         if DetFlags.Lucid_on():

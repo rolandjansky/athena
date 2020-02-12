@@ -163,7 +163,11 @@ class TriggerGetter(Configured):
         if TF.doLVL2()==True or TF.doEF()==True or TF.doHLT() or (recAlgs.doTrigger() and TF.readBS()):
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hltouput = HLTTriggerResultGetter()
-      
+
+        # enable printout to understand setup
+        from TriggerJobOpts.JobSetupPrinter import JobSetupPrinter
+        JobSetupPrinter()
+                
         return True
 
     def configureTriggerFromDB(self):

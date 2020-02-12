@@ -10,6 +10,7 @@
 #include "GaudiKernel/Property.h"
 #include "StoreGate/DataHandle.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
@@ -97,6 +98,7 @@ namespace LVL1CTP {
       unsigned int calculateTauMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
       unsigned int calculateMETMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
       unsigned int calculateMuonMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
+      unsigned int calculateTopoMultiplicity( const TrigConf::TriggerThreshold * confThr ) const;
 
       StatusCode simulateItems();
 
@@ -112,6 +114,7 @@ namespace LVL1CTP {
       // Needed services
       ServiceHandle<ITHistSvc> m_histSvc;
       ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
+      ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
       ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool; //!< tool to create L1 ROIs from ROIBResult
 
       // Inputs from the new L1Calo
@@ -146,44 +149,40 @@ namespace LVL1CTP {
 
       // properties
       BooleanProperty m_useCTPInput { false };
+      BooleanProperty m_useROIBOutput { false };
 
       // name of input collections
 
       // new FEX collections
-      StringProperty m_gFEXMETPufitLoc {""};
-      StringProperty m_gFEXMETRhoLoc {""};
-      StringProperty m_gFEXMETJwoJLoc {""};
-      StringProperty m_gJetLoc {""};
-      StringProperty m_jJetLoc {""};
-      StringProperty m_jLJetLoc {""};
-      StringProperty m_eFEXClusterLoc {""};
-      StringProperty m_eFEXTauLoc {""};
-
-      // old ROI Collections
-      StringProperty m_muonRoILoc {""};
-      StringProperty m_lgJetRoILoc {""};
+      StringProperty m_gFEXMETPufitLoc {"gXEPUFIT_MET"};
+      StringProperty m_gFEXMETRhoLoc {"gXERHO_MET"};
+      StringProperty m_gFEXMETJwoJLoc {"gXEJWOJ_MET"};
+      StringProperty m_gJetLoc {"gL1Jets"};
+      StringProperty m_jJetLoc {"jRoundJets"};
+      StringProperty m_jLJetLoc {"jRoundLargeRJets"};
+      StringProperty m_eFEXClusterLoc {"SClusterCl"};
+      StringProperty m_eFEXTauLoc {"SClusterTau"};
 
       // name of the CTP input words
-      StringProperty m_muonCTPLoc {""};
-      StringProperty m_emtauCTPLoc { LVL1::TrigT1CaloDefs::EmTauCTPLocation };
-      StringProperty m_jetCTPLoc { LVL1::TrigT1CaloDefs::JetCTPLocation };
+      StringProperty m_muonCTPLoc   { LVL1MUCTPI::DEFAULT_MuonCTPLocation};
+      StringProperty m_emtauCTPLoc  { LVL1::TrigT1CaloDefs::EmTauCTPLocation };
+      StringProperty m_jetCTPLoc    { LVL1::TrigT1CaloDefs::JetCTPLocation };
       StringProperty m_energyCTPLoc { LVL1::TrigT1CaloDefs::EnergyCTPLocation };
-      StringProperty m_topoCTPLoc { LVL1::DEFAULT_L1TopoCTPLocation };
-
+      StringProperty m_topoCTPLoc   { LVL1::DEFAULT_L1TopoCTPLocation };
 
       // output locations and control
       BooleanProperty m_isData { false };
-      StringProperty m_roiOutputLoc {""};
-      StringProperty m_roiOutputLoc_Rerun {""};
-      StringProperty m_rdoOutputLoc {""};
-      StringProperty m_rdoOutputLoc_Rerun {""};
+      StringProperty m_roiOutputLoc { LVL1CTP::DEFAULT_CTPSLinkLocation };
+      StringProperty m_roiOutputLoc_Rerun { LVL1CTP::DEFAULT_CTPSLinkLocation_Rerun };
+      StringProperty m_rdoOutputLoc { LVL1CTP::DEFAULT_RDOOutputLocation };
+      StringProperty m_rdoOutputLoc_Rerun { LVL1CTP::DEFAULT_RDOOutputLocation_Rerun };
 
-      std::string m_histStream {""};
+      std::string m_histStream {"EXPERT"};
 
       // internal
       ThresholdMap*       m_thrMap { nullptr };
       ItemMap*            m_itemMap { nullptr };
-      InternalTriggerMap* m_internalTrigger { nullptr };
+      InternalTriggerMap  m_internalTrigger;
       ResultBuilder*      m_resultBuilder { nullptr };  
 
       // results

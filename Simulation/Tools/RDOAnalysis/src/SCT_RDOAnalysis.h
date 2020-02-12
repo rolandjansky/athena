@@ -26,6 +26,11 @@ class TTree;
 class SCT_ID;
 class SCT_RDORawData;
 
+namespace InDetDD {
+   class SCT_DetectorManager;
+}
+
+
 class SCT_RDOAnalysis : public AthAlgorithm {
 
 public:
@@ -40,6 +45,7 @@ private:
   SG::ReadHandleKey<SCT_RDO_Container> m_inputKey;
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const SCT_ID *m_sctID;
+  const InDetDD::SCT_DetectorManager *m_SCT_Manager;
   // RDO
   std::vector<unsigned long long>* m_rdoID;
   std::vector<unsigned int>* m_rdoWord;
@@ -52,6 +58,18 @@ private:
   std::vector<int>* m_strip;
   // SCT_RDORawData
   std::vector<int>* m_groupSize;
+  // Global and Local positions
+  std::vector<double>* m_globalX0;
+  std::vector<double>* m_globalY0;
+  std::vector<double>* m_globalZ0;
+  std::vector<double>* m_globalX1;
+  std::vector<double>* m_globalY1;
+  std::vector<double>* m_globalZ1;
+  std::vector<double>* m_localX;
+  std::vector<double>* m_localY;
+  std::vector<double>* m_localZ;
+
+
   // SDO
   std::vector<unsigned long long>* m_sdoID;
   std::vector<int>* m_sdoWord;
@@ -124,6 +142,12 @@ private:
   TH1* m_h_brl_strip_perLayer[4];
   TH1* m_h_ec_strip_perLayer[9];
 
+  TH2* m_h_globalZR;
+  TH1* m_h_globalX;
+  TH1* m_h_globalY;
+  TH1* m_h_globalZ;
+
+
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;
@@ -132,6 +156,7 @@ private:
   ServiceHandle<ITHistSvc> m_thistSvc;
   
   bool m_doITk;
+  bool m_doPos;
 
 };
 

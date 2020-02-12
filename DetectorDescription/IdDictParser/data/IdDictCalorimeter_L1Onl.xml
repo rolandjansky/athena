@@ -961,14 +961,14 @@
       <range field="JTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
     </region>
   <!-- From 3.1<eta<3.2 the granularity is 0.1x0.2 (eta x phi) -->
-  <!-- This region has overlap with FCAL that is not begin considered -->
+  <!-- This region has overlap with FCAL that is not considered 
     <region group="Reg_JTower" name="JTower_2"
             eta0="3.1" deta="0.1" phi0="0.0" dphi="0.2" >
       <reference subregion="JTower" />
       <range field="JTregion" value="2" />
       <range field="JTeta" minvalue="0" maxvalue="0"/>
       <range field="JTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
-    </region>
+    </region> -->
   
  <!-- FCAL region, NEEDS WORK/FIXING -\-> -->
 <!--   <region group="Reg_JTower" name="JTower_3"  
@@ -994,7 +994,7 @@
     </subregion>
   
    <!-- Up to eta=3.2 -->
-  <!-- This region has overlap with FCAL that is not begin considered -->
+  <!-- This region has overlap with FCAL that is not being considered -->
     <region group="Reg_GTower" name="GTower_0" 
             eta0="0.0" deta="0.2" phi0="0.0" dphi="0.2">
       <reference subregion="GTower" />

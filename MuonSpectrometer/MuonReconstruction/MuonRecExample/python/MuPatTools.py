@@ -14,6 +14,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.BFieldFlags import jobproperties
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from RecExConfig.RecFlags import rec
 
@@ -34,7 +35,7 @@ class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
 
     def __init__(self,name='MuPatCandidateTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
-        if not muonRecFlags.doCSCs():
+        if not MuonGeometryFlags.hasCSC():
             kwargs["CscRotCreator"] = ""
         super(MuPatCandidateTool,self).__init__(name,**kwargs)
 MuPatCandidateTool.setDefaultProperties( SegmentExtender = "" )
@@ -54,7 +55,7 @@ class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):
 
 
 MuPatHitTool.setDefaultProperties(
-    CscRotCreator = ("FixedErrorMuonClusterOnTrackCreator" if muonRecFlags.doCSCs() else ""),
+    CscRotCreator = ("FixedErrorMuonClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""),
     MdtRotCreator = "MdtDriftCircleOnTrackCreatorPreFit" )
 # end of class MuPatHitTool
 

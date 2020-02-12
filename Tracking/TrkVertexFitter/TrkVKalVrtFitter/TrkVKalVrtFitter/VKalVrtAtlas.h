@@ -37,11 +37,11 @@ namespace Trk{
     
        MagField::IMagFieldSvc*  m_VKalAthenaField;
        double m_FIXED_ATLAS_FIELD;
-       const double mm;
+       const double m_mm;
        double m_magFrameX, m_magFrameY, m_magFrameZ ;
        double m_saveXpos, m_saveYpos, m_saveZpos;
        double m_saveBX, m_saveBY, m_saveBZ;   
-       Amg::Vector3D Point;
+       Amg::Vector3D m_Point;
        
 
    };
@@ -85,7 +85,7 @@ class StraightLineSurface;
     private:
     
         const IExtrapolator     *m_extrapolator;       //!< Pointer to Extrapolator AlgTool
-        TrkVKalVrtFitter            *vkalFitSvc;        //!< Pointer to TrkVKalVrtFitter
+        TrkVKalVrtFitter            *m_vkalFitSvc;        //!< Pointer to TrkVKalVrtFitter
 
         double Protection(double *) const;
 

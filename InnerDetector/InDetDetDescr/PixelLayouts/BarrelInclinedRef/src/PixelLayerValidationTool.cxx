@@ -424,8 +424,8 @@ void PixelLayerValidationTool::printInfo(const GeoVPhysVol* vol, int iLayer) con
   zSteps.push_back(1250.);
 
   const int binArraySize = 2*int(barrelModuleNumber/2)+2*endcapModuleNumber+2;
-  //variable length array, not known at compile time, is in conflict with ISO C++ standards and causes compiler warnings! Should be fixed!!! Use e.g. fixed-bin histogram
-  Float_t bins[binArraySize];
+  if (binArraySize>1000)  msg(MSG::WARNING) << "Bin size not sufficient in layer "<<iLayer<<"  validation histogram "<<endreq;
+  Float_t bins[1000];
 
   bins[0]=-1250;
   int bIndex = -1;
@@ -449,24 +449,22 @@ void PixelLayerValidationTool::printInfo(const GeoVPhysVol* vol, int iLayer) con
 
   int svcInt = 7;
 
- 
-
   int svcBins = barrelModuleNumber+2*endcapModuleNumber+1;
-  msg(MSG::WARNING) << " This histogram uses a variable length array to define bins! Must be fixed..."<<endreq;
-  m_dInX0_svc  = new TH1F("dInX0_svc","Service material thickness ",svcBins,bins);
-  StatusCode sc = m_thistSvc->regHist("/VALID/ModRadThick", m_dInX0_svc);
+  std::ostringstream histName; 
+  histName<<"dInX0_svc_layer_"<<iLayer;
+  TH1F* dInX0_svc  = new TH1F(histName.str().c_str(),"Service material thickness ",svcBins,bins);
+  StatusCode sc = m_thistSvc->regHist("/VALID/ModRadThick", dInX0_svc);
 
  
-
   if(sc.isFailure() ){
     msg(MSG::ERROR) << "Could not register histogram for inclined svc material" << endreq;
     //return sc;
   } else {
 
-    m_dInX0_svc->SetBinContent(svcRadThick.size()+1, svcRadThick[0]);
+    dInX0_svc->SetBinContent(svcRadThick.size()+1, svcRadThick[0]);
     for (unsigned int ib=0; ib<svcRadThick.size(); ib++){
-      m_dInX0_svc->SetBinContent(svcRadThick.size()-ib, svcRadThick[ib]);
-      m_dInX0_svc->SetBinContent(svcBins-svcRadThick.size()+ib, svcRadThick[ib]);
+      dInX0_svc->SetBinContent(svcRadThick.size()-ib, svcRadThick[ib]);
+      dInX0_svc->SetBinContent(svcBins-svcRadThick.size()+ib, svcRadThick[ib]);
       m_dInX0_svc_flat->SetBinContent(30-ib, svcRadThick[ib]);
       m_dInX0_svc_flat->SetBinContent(31+ib, svcRadThick[ib]);
     }

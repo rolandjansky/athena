@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -38,6 +38,12 @@ class IModuleDistortionsTool;
 class IIncidentSvc;
 class StoreGateSvc;
 class IIBLParameterSvc;
+
+namespace InDetDD{
+  class SiLocalPosition;
+  class PixelModuleDesign;
+}
+
 
 namespace InDet {
 
@@ -121,6 +127,11 @@ public:
   
  private:
 
+
+
+  InDetDD::SiLocalPosition digitalCentroid(const InDet::PixelCluster*,const InDetDD::PixelModuleDesign*, bool doCentroid) const;
+  InDetDD::SiLocalPosition correctedDigitalCentroid(const InDet::PixelCluster*,const InDetDD::PixelModuleDesign*,bool doCentroid) const;
+  
   /** @brief parametrizes the pixel cluster position error as a function of 
       the track angle alpha and the cluster width (number of rows) deltax */
   //  double getBarrelPhiError(double& alpha, int& deltax) const;
@@ -189,6 +200,8 @@ public:
   std::string                                           m_dRMapName;  //!< dR map
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
+  bool                                                  m_correctDigitalCentroid;
+  int                                                   m_minClusterSize;
 	
 	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;

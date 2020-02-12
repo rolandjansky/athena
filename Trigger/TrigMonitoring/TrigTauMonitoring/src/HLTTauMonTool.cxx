@@ -670,6 +670,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
   std::string trig_item_L1(LowerChain( trig_item_EF ) );
   if(trig_item_L1=="") {ATH_MSG_DEBUG("L1 chain for "<< trig_item_EF << " not found");}
 
+  // protection against AODSLIM that misses HLT tau tracks and HLT clusters, for RNN monitoring
+  bool isAODFULL = evtStore()->contains<xAOD::TauTrackContainer>("HLT_xAOD__TauTrackContainer_TrigTauRecMergedTracks") 
+    && evtStore()->contains<xAOD::CaloClusterContainer>("HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker");
+
   if(trigItem=="Dump"){
 
     const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
@@ -715,8 +719,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       if(monRNN) {
 	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_1P", monRNN, monBDT);
 	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_3P", monRNN, monBDT);
-	sc = fillEFTau(*CI, trigItem, "RNN_inTrack", monRNN, monBDT);
-	sc = fillEFTau(*CI, trigItem, "RNN_inCluster", monRNN, monBDT);
+	if(isAODFULL) {
+	  sc = fillEFTau(*CI, trigItem, "RNN_inTrack", monRNN, monBDT);
+	  sc = fillEFTau(*CI, trigItem, "RNN_inCluster", monRNN, monBDT);
+	}
 	sc = fillEFTau(*CI, trigItem, "RNN_out", monRNN, monBDT);
 	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
       }
@@ -930,8 +936,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 	      if(monRNN) {
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P", monRNN, monBDT);
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P", monRNN, monBDT);
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack", monRNN, monBDT);
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster", monRNN, monBDT);
+		if(isAODFULL) {
+		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack", monRNN, monBDT);
+		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster", monRNN, monBDT);
+		}
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out", monRNN, monBDT);
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
 	      }

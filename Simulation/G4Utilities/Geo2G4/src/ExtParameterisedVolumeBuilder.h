@@ -6,6 +6,8 @@
 #define GEO2G4_ExtParameterisedVolumeBuilder_H
 
 #include "VolumeBuilder.h"
+#include "Geo2G4AssemblyFactory.h"
+
 #include "AthenaKernel/MsgStreamMember.h"
 #include <string>
 
@@ -15,11 +17,11 @@ class GeoMaterial;
 class ExtParameterisedVolumeBuilder: public VolumeBuilder
 {
 public:
-  ExtParameterisedVolumeBuilder(std::string n);
+  ExtParameterisedVolumeBuilder(std::string n, Geo2G4AssemblyFactory* G4AssemblyFactory);
   ///
-  G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const;
+  G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0);
   ///
-  Geo2G4AssemblyVolume* BuildAssembly(PVConstLink pv) const;
+  Geo2G4AssemblyVolume* BuildAssembly(PVConstLink pv);
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
@@ -35,6 +37,8 @@ public:
   mutable const GeoMaterial* m_matHypUr;
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
+  
+  Geo2G4AssemblyFactory* m_G4AssemblyFactory;
 };
 
 #endif

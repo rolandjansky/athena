@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkPrepRawData/PrepRawData.h"
@@ -23,7 +23,7 @@ namespace InDet
   /** Constructor without globCovariance */
   
   PixelSpacePoint::PixelSpacePoint(  IdentifierHash elementId, 
-				     const Trk::PrepRawData* clus ) 
+                                     const Trk::PrepRawData* clus ) 
     :
     SpacePoint()
   {
@@ -46,8 +46,8 @@ namespace InDet
   
   /** Constructor with globCovariance */
   PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId, 
-				    const Trk::PrepRawData* clus, 
-				    const Amg::MatrixX* globcov ) 
+                                    const Trk::PrepRawData* clus, 
+                                    const Amg::MatrixX* globcov ) 
     :
     SpacePoint()
   {
@@ -69,8 +69,8 @@ namespace InDet
   
   /** Constructor with globCovariance */
   PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId, 
-				    const Trk::PrepRawData* clus, 
-				    const Amg::MatrixX& globcov ) 
+                                    const Trk::PrepRawData* clus, 
+                                    const Amg::MatrixX& globcov ) 
     :
     SpacePoint()
   {
@@ -87,6 +87,22 @@ namespace InDet
     m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,0);
     m_elemIdList.first = elementId ;
     m_elemIdList.second = 0 ;
+  }
+  
+  /** Constructor with globCovariance */
+  PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId,
+                                    const Trk::PrepRawData* clus,
+                                    Amg::Vector3D& globpos,
+                                    Amg::MatrixX& globcov)
+    :
+    SpacePoint()
+  {
+    m_position         = globpos;
+    m_globalCovariance = globcov;
+    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,0);
+    m_elemIdList.first = elementId ;
+    m_elemIdList.second = 0 ;
+    
   }
   
   // ------------------------------------------------------------------

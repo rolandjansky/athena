@@ -343,6 +343,8 @@ TriggerHLTList = [
 
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl',                          'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topoclAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl_em',                          'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocl_emAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl_PS',                       'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocl_PSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_EFJetEtSum',                                      'BS ESD AODFULL AODSLIM',                'MET'),
@@ -351,6 +353,8 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_T2MissingETAux.',                              'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl_PUC',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocl_PUCAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_cell_PUC',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_cell_PUCAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_EFMissingET_Fex_2sidednoiseSupp_PUC',             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_EFMissingET_Fex_2sidednoiseSupp_PUCAux.',      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
@@ -372,19 +376,34 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmhtFTK',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtFTKAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmht_muonor',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmht_muonorAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht_em',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mht_emAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc_muonor',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktc_muonorAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktcFTK',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcFTKAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_sktc',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_sktcAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktc',                             'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trktcFTK',                             'BS ESD AODFULL AODSLIM',                'MET'),
-    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trktcFTKAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_sktc_cvf',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_sktc_cvfAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_tc_cvf',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_tc_cvfAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_tc_cvf_tst',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_tc_cvf_tstAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_tc_cvf_tstmuonor',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_tc_cvf_tstmuonorAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
+
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_muons',                             'BS ESD AODFULL AODSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_muonsAux.',                             'BS ESD AODFULL AODSLIM',                'MET'),
 
 
 
@@ -947,6 +966,45 @@ TriggerLvl1List=[
 
     ('xAOD::L1TopoRawDataContainer#L1TopoRawData'       , 'ESD AODFULL AODBLSSLIM', 'L1'),
     ('xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.', 'ESD AODFULL AODBLSSLIM', 'L1'),
+
+# Run 3 performance studies
+    # SuperCells
+    ("CaloCellContainer#SCell",                                'ESD AODFULL', 'L1'),
+    ("CaloCellContainer#SimpleSCell",                          'ESD AODFULL', 'L1'),
+    # JTowers and GTowers
+    ( 'xAOD::JGTowerContainer#JTower',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JGTowerAuxContainer#JTowerAux.',                  'ESD AODFULL', 'L1'),
+    ( 'xAOD::JGTowerContainer#GTower',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JGTowerAuxContainer#GTowerAux.',                  'ESD AODFULL', 'L1'),
+    # jFEX jets
+    ( 'xAOD::JetRoIContainer#jRoundJets',                      'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundJetsAux.',               'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIContainer#jRoundLargeRJets',                'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#jRoundLargeRJetsAux.',         'ESD AODFULL', 'L1'),
+    # gFEX jets
+    ( 'xAOD::JetRoIContainer#gL1Jets',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::JetRoIAuxContainer#gL1JetsAux.',                  'ESD AODFULL', 'L1'),
+    # gFEX MET
+    ( 'xAOD::EnergySumRoI#gXEJWOJ_MET',                        'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXEJWOJ_METAux.',             'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#gXEPUFIT_MET',                       'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXEPUFIT_METAux.',            'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#gXERHO_MET',                       'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXERHO_METAux.',                       'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#gXENOISECUT_MET',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXENOISECUT_METAux.',              'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#jNOISECUT_MET',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#jNOISECUT_METAux.',              'ESD AODFULL', 'L1'),
+
+    # eFEX electrons
+    ("xAOD::TrigEMClusterContainer#SClusterCl" ,               'ESD AODFULL', 'L1'),
+    ("xAOD::TrigEMClusterAuxContainer#SClusterClAux." ,        'ESD AODFULL', 'L1'),
+    # eFEX taus
+    ('xAOD::EmTauRoIContainer#SClusterTau',                    'ESD AODFULL', 'L1'),
+    ('xAOD::EmTauRoIAuxContainer#SClusterTauAux.',             'ESD AODFULL', 'L1'),
+    # CTP
+    ('CTP_RDO#CTP_RDO_L1Run3' ,                                'ESD', 'Steer'),
+
 
     ('DataVector<LVL1::JetElement>#JetElements' ,        'ESD', 'L1'),
     ('DataVector<LVL1::JetElement>#JetElementsOverlap' , 'ESD', 'L1'),
@@ -1523,6 +1581,13 @@ EDMDetails['xAOD::RODHeaderAuxContainer']                 = {'persistent': "", '
 
 EDMDetails['xAOD::CMXRoIContainer']                       = {'persistent': "", 'typealias':'' }                                
 EDMDetails['xAOD::CMXRoIAuxContainer']                    = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXRoIContainer' }  
+
+# objects for Run 3 L1Calo
+EDMDetails['xAOD::JGTowerContainer']                      = {'persistent': "", 'typealias':'' }
+EDMDetails['xAOD::JGTowerAuxContainer']                   = {'persistent': "", 'typealias':'', 'parent': 'xAOD::JGTowerContainer' }
+
+
+
 # =============================================================================
 
 #
@@ -1682,7 +1747,15 @@ def getLvl1AODList():
     """
     Gives back the Python dictionary  with the lvl1 trigger result content of AOD which can be inserted in OKS.
     """
-    return getTriggerObjList('AODFULL',[TriggerLvl1List])
+
+    l1list = TriggerLvl1List
+
+    from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
+    if simflags.Calo.StoreSuperCellsInAODFULL() == False:
+        #remove SuperCell containers
+        l1list = filter( lambda x : x[0] not in ["CaloCellContainer#SCell", "CaloCellContainer#SimpleSCell"], l1list )
+
+    return getTriggerObjList('AODFULL',[l1list])
  
 
 def getTriggerEDMList(key, runVersion):

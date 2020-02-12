@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -29,7 +29,7 @@ const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
 // Constructor
 
 MuonIdHelper::MuonIdHelper(): m_station_region_index(0), m_module_hash_max(0),
-  m_channel_hash_max(0), m_detectorElement_hash_max(0), m_Log(NULL) {
+  m_channel_hash_max(0), m_detectorElement_hash_max(0), m_Log(NULL), m_init(false) {
 
   m_MUON_INDEX           =  0;
   m_GROUP_INDEX           =  6500;
@@ -511,7 +511,8 @@ int MuonIdHelper::init_hashes(void) {
     m_module_vec[nids] = (*first);
     nids++;
   }
-    
+  // sort the vector of identifiers to be able to use std::lower_bound to find hashes
+  std::sort(m_module_vec.begin(), m_module_vec.end());
   return (0);
 }
 
@@ -569,7 +570,8 @@ int MuonIdHelper::init_detectorElement_hashes(void) {
     m_detectorElement_vec[nids] = (*first);
     nids++;
   }
-
+  // sort the vector of identifiers to be able to use std::lower_bound to find hashes
+  std::sort(m_detectorElement_vec.begin(), m_detectorElement_vec.end());
   return (0);
 }
 
@@ -629,6 +631,8 @@ int MuonIdHelper::init_channel_hashes(void) {
     nids++;
     }
   */
+  // sort the vector of identifiers to be able to use std::lower_bound to find hashes
+  std::sort(m_channel_vec.begin(), m_channel_vec.end());
   return (0);
 }
 
