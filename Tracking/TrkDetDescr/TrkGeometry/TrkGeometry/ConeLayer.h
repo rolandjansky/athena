@@ -118,21 +118,6 @@ namespace Trk {
       
   };
  
- 
-  /** @class ConeLayerSorterR
-      Functor for ConeLayer R-Sorting */
-  
-  class ConeLayerSorterR : public std::binary_function<const ConeLayer*, const ConeLayer*, bool> {
-  public:       
-    /** Default Constructor */
-    ConeLayerSorterR(){}
-  
-    bool operator() (const ConeLayer* one, const ConeLayer* two) const 
-    {
-      return (one->surfaceRepresentation().bounds().tanAlpha() <
-	      two->surfaceRepresentation().bounds().tanAlpha());
-    }
-  };
 } // end of namespace
 
 #endif // TRKGEOMETY_CONELAYER_H

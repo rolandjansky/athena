@@ -479,7 +479,7 @@ const Trk::Track* TRTTrackHoleSearchTool::addHolesToTrack(const Trk::Track& trac
 			if (msgLvl(MSG::DEBUG)) {
 				msg() << "sorting vector with stable_sort" << endmsg;
 			}
-			stable_sort( tsos->begin(), tsos->end(), CompFunc );
+			std::stable_sort( tsos->begin(), tsos->end(), CompFunc );
 		} else {
 			tsos->sort( CompFunc ); // respects DV object ownership
 		}

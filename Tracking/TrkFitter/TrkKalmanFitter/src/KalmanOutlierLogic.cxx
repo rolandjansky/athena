@@ -127,7 +127,6 @@ StatusCode Trk::KalmanOutlierLogic::configureWithTools(Trk::IExtrapolator* extra
   return StatusCode::SUCCESS;
 }
 
-
 // BKS-cov at 1st meas: 0.000378  0.00539  1.28e-05  1.37e-05  9.00e-10
 // 200*cov            : 0.0750    1.00000  2.56e-03  2.74e-03  1.80e-08
 

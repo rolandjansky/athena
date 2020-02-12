@@ -158,7 +158,7 @@ namespace Trk {
   /** @class DiscLayerSorterZ 
 	simple helper function to allow sorting of DiscLayers in z
   */
-  class DiscLayerSorterZ : public std::binary_function<const DiscLayer*, const DiscLayer*, bool> {
+  class DiscLayerSorterZ {
 	public:       
 	 /** Default Constructor */
 	 DiscLayerSorterZ()

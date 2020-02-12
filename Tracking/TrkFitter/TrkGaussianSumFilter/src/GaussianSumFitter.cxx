@@ -313,7 +313,7 @@ Trk::GaussianSumFitter::fit(const Trk::PrepRawDataSet& prepRawDataSet,
   if (m_doHitSorting) {
     Trk::PrepRawDataComparisonFunction* prdComparisonFunction = new Trk::PrepRawDataComparisonFunction(
       estimatedParametersNearOrigin.position(), estimatedParametersNearOrigin.momentum());
-    sort(sortedPrepRawDataSet.begin(), sortedPrepRawDataSet.end(), *prdComparisonFunction);
+    std::sort(sortedPrepRawDataSet.begin(), sortedPrepRawDataSet.end(), *prdComparisonFunction);
 
     delete prdComparisonFunction;
   }

@@ -976,7 +976,7 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
      estimatedParametersNearOrigine.momentum());
   PrepRawDataSet inputPRDColl=PrepRawDataSet(prepRDColl);
   if(!is_sorted(inputPRDColl.begin(),inputPRDColl.end(),*compareHits)) 
-    sort(inputPRDColl.begin(), inputPRDColl.end(), *compareHits);
+    std::sort(inputPRDColl.begin(), inputPRDColl.end(), *compareHits);
   delete compareHits;
   msg(MSG::VERBOSE)<<" List of sorted PRDs: "<<endmsg;      
   for(PrepRawDataSet::const_iterator prdIt=inputPRDColl.begin();prdIt!=inputPRDColl.end();prdIt++) 
