@@ -397,7 +397,9 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
 
     # OutputStream has a data dependency on xTrigDecision
     streamAlg = acc.getEventAlgo("OutputStream"+outputType)
-    streamAlg.ExtraInputs = [("xAOD::TrigDecision", "xTrigDecision")]
+    streamAlg.ExtraInputs = [
+      ("xAOD::TrigDecision", "xTrigDecision"),
+      ("xAOD::TrigConfKeys", "TrigConfKeys")]
 
     # Produce the trigger bits
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerBitsMakerToolCfg

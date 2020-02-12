@@ -44,12 +44,13 @@ StatusCode TrigDecisionMakerMT::initialize()
 
   bool resultObjectIsUsed = true;
   if (!m_bitsMakerTool.empty()) {
-    ATH_MSG_INFO("TrigDecisionMakerMT is setting up for MC to use the TriggerBitsMakerTool");
+    ATH_MSG_INFO("TrigDecisionMakerMT is setting to run after the Trigger in a job with POOL output. "
+      "The TriggerBitsMakerTool will be used directly to create the xAOD::TrigDecision.");
     ATH_CHECK( m_bitsMakerTool.retrieve() );
     resultObjectIsUsed = false;
   } else {
-    ATH_MSG_INFO("TrigDecisionMakerMT is setting up for Data to use the HLTResultMT. "
-      "If this job is for MC, make sure that the BitsMakerTool property is set instead.");
+    ATH_MSG_INFO("TrigDecisionMakerMT is setting up to read the trigger bits from trigger bytestream. "
+      "The HLTResultMT object will be used as the source of the trigger bits.");
   }
   ATH_CHECK( m_hltResultKeyIn.initialize(resultObjectIsUsed) ); // If false, this removes the ReadHandle
 
