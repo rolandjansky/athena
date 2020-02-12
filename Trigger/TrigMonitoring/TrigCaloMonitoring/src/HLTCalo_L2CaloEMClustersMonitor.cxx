@@ -8,8 +8,6 @@ template <typename T> struct clus_kin {
   double et;
   double eta;
   double phi;
-  //const xAOD::TrigEMCluster* parent;
-  //const xAOD::CaloCluster* parent;
   T parent;
 };
 
@@ -66,7 +64,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   for (const auto& hlt_cluster : *hltCluster_readHandle) {
 	auto hlt_clus_et = hlt_cluster->et();
 	if (hlt_clus_et < m_HLT_min_et) continue;
-	vec_hlt_clusters.push_back({hlt_clus_et, hlt_cluster->eta(), hlt_cluster->phi(), (xAOD::TrigEMCluster*) hlt_cluster});
+	vec_hlt_clusters.push_back({hlt_clus_et*0.001, hlt_cluster->eta(), hlt_cluster->phi(), (xAOD::TrigEMCluster*) hlt_cluster});
   }
 
   // prepare OFF clusters
@@ -83,7 +81,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 	if (!m_OFF_types.empty() && !OFF_type_match) continue;
 
-	vec_off_clusters.push_back({off_clus_et, off_cluster->eta(), off_cluster->phi(), (xAOD::CaloCluster*) off_cluster});
+	vec_off_clusters.push_back({off_clus_et*0.001, off_cluster->eta(), off_cluster->phi(), (xAOD::CaloCluster*) off_cluster});
   }
 
   //////////////////
@@ -96,13 +94,11 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   unsigned int n_hlt_clusters_with_match = 0;
 
   // All HLT clusters
-  std::vector<float> vec_hlt_et, vec_hlt_eta, vec_hlt_phi, vec_hlt_size;
-
   auto HLT_num = Monitored::Scalar<int>("HLT_num",0);
-  auto HLT_et = Monitored::Collection("HLT_et", vec_hlt_et);
-  auto HLT_eta = Monitored::Collection("HLT_eta", vec_hlt_eta);
-  auto HLT_phi = Monitored::Collection("HLT_phi", vec_hlt_phi);
-  auto HLT_size = Monitored::Collection("HLT_size", vec_hlt_size);
+  auto HLT_et = Monitored::Collection("HLT_et", vec_hlt_clusters, &clus_kin<xAOD::TrigEMCluster*>::et);
+  auto HLT_eta = Monitored::Collection("HLT_eta", vec_hlt_clusters, &clus_kin<xAOD::TrigEMCluster*>::eta);
+  auto HLT_phi = Monitored::Collection("HLT_phi", vec_hlt_clusters, &clus_kin<xAOD::TrigEMCluster*>::phi);
+  auto HLT_size = Monitored::Collection("HLT_size", vec_hlt_clusters, []( const clus_kin<xAOD::TrigEMCluster*>& clus) { return clus.parent->nCells(); } );
 
   // HLT cut masks
   std::vector<char> vec_hlt_barrel_high_et, vec_hlt_no_off_match, vec_hlt_with_off_match;
@@ -132,13 +128,8 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 	++n_hlt_clusters;
 
-        vec_hlt_et.push_back(hlt_cluster.et* 0.001);
-        vec_hlt_eta.push_back(hlt_cluster.eta);
-        vec_hlt_phi.push_back(hlt_cluster.phi);
-        vec_hlt_size.push_back(hlt_cluster.parent->nCells());
-
 	// high-ET clusters
-        if (hlt_cluster.et > m_HLT_high_et && fabs(hlt_cluster.eta) < 2.5) {
+        if (hlt_cluster.et > (m_HLT_high_et*0.001) && fabs(hlt_cluster.eta) < 2.5) {
 
                 ++n_hlt_barrel_high_et_clusters;
 
@@ -183,7 +174,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
                 ++n_hlt_clusters_with_match;
 
-		vec_off_match_et.push_back(off_match->et * 0.001);
+		vec_off_match_et.push_back(off_match->et);
 		vec_hlt_vs_off_resolution.push_back(((off_match->et - hlt_cluster.et) / off_match->et) * 100);
 		vec_hlt_vs_off_delta_eta.push_back(off_match->eta - hlt_cluster.eta);
 		vec_hlt_vs_off_delta_phi.push_back(calculateDeltaPhi(off_match->phi, hlt_cluster.phi));
@@ -209,14 +200,11 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   unsigned int n_off_clusters_with_match = 0;
 
   // OFF cluster
-  std::vector<float> vec_off_et, vec_off_eta, vec_off_phi;
-  std::vector<int> vec_off_type;
-
   auto OFF_num = Monitored::Scalar<int>("OFF_num",0);
-  auto OFF_et = Monitored::Collection("OFF_et", vec_off_et);
-  auto OFF_eta = Monitored::Collection("OFF_eta", vec_off_eta);
-  auto OFF_phi = Monitored::Collection("OFF_phi", vec_off_phi);
-  auto OFF_type = Monitored::Collection("OFF_type", vec_off_type);
+  auto OFF_et = Monitored::Collection("OFF_et", vec_off_clusters, &clus_kin<xAOD::CaloCluster*>::et);
+  auto OFF_eta = Monitored::Collection("OFF_eta", vec_off_clusters, &clus_kin<xAOD::CaloCluster*>::eta);
+  auto OFF_phi = Monitored::Collection("OFF_phi", vec_off_clusters, &clus_kin<xAOD::CaloCluster*>::phi);
+  auto OFF_type = Monitored::Collection("OFF_type", vec_off_clusters, []( const clus_kin<xAOD::CaloCluster*>& clus) { return clus.parent->clusterSize(); } );
 
   // cut masks
   std::vector<char> vec_off_no_hlt_match, vec_off_with_hlt_match;
@@ -243,11 +231,6 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   for (const auto& off_cluster : vec_off_clusters) {
 
 	++n_off_clusters;
-
-        vec_off_et.push_back(off_cluster.et*0.001);
-        vec_off_eta.push_back(off_cluster.eta);
-        vec_off_phi.push_back(off_cluster.phi);
-        vec_off_type.push_back(off_cluster.parent->clusterSize());
 
 	// matching HLT clusters to OFF clusters
 
@@ -287,7 +270,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
 		++n_off_clusters_with_match;
 
-		vec_hlt_match_et.push_back(hlt_match->et * 0.001);
+		vec_hlt_match_et.push_back(hlt_match->et);
 
 		vec_off_vs_hlt_resolution.push_back(((off_cluster.et - hlt_match->et) / off_cluster.et) * 100);
 		vec_off_vs_hlt_delta_eta.push_back(off_cluster.eta - hlt_match->eta);

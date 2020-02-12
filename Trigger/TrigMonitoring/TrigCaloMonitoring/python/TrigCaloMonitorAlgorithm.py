@@ -72,11 +72,11 @@ def TrigCaloMonConfig(inputFlags):
     L2CaloEMClustersMonGroup.defineHistogram('HLT_barrel_high_et_num',title='Number of high-E_{T} HLT Clusters; Num Clusters; Entries',
                                 path=hist_path,xbins=101,xmin=-0.5,xmax=100.5)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_eta,HLT_phi;HLT_barrel_high_et_phi_vs_HLT_barrel_high_et_eta',cutmask="HLT_barrel_high_et",title='Number of high-E_{T} HLT Clusters; #eta; #phi; ', type='TH2F',
-                                path=hist_path,xbins=50,xmin=-1.5,xmax=1.5,ybins=64,ymin=-math.pi,ymax=math.pi)
+                                path=hist_path,xbins=50,xmin=-2.6,xmax=2.6,ybins=64,ymin=-math.pi,ymax=math.pi)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_et;HLT_barrel_high_et_et',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Clusters E_{T}; E_{T} [GeV]; Entries',
                                 path=hist_path,xbins=100,xmin=0.0,xmax=100.0)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_eta;HLT_barrel_high_et_eta',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Clusters #eta; #eta; Entries',
-                                path=hist_path,xbins=50,xmin=-1.5,xmax=1.5)
+                                path=hist_path,xbins=50,xmin=-2.6,xmax=2.6)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_phi;HLT_barrel_high_et_phi',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Cluster #phi; #phi; Entries',
                                 path=hist_path,xbins=64,xmin=-math.pi,xmax=math.pi)
     L2CaloEMClustersMonGroup.defineHistogram('HLT_size;HLT_barrel_high_et_size',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Cluster Size; Number of Cells; Entries',
@@ -272,11 +272,11 @@ def TrigCaloMonConfig(inputFlags):
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_barrel_high_et_num',title='Number of high-E_{T} HLT Clusters; Num Clusters; Entries',
                                 path=path_names[i]+'/HLT_Clusters',xbins=101,xmin=-0.5,xmax=100.5)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_eta,HLT_phi;HLT_barrel_high_et_phi_vs_HLT_barrel_high_et_eta',cutmask="HLT_barrel_high_et",title='Number of high-E_{T} HLT Clusters; #eta; #phi; ', type='TH2F',
-                                path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-1.5,xmax=1.5,ybins=64,ymin=-math.pi,ymax=math.pi)
+                                path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-2.6,xmax=2.6,ybins=64,ymin=-math.pi,ymax=math.pi)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_et;HLT_barrel_high_et_et',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Clusters E_{T}; E_{T} [GeV]; Entries',
                                 path=path_names[i]+'/HLT_Clusters',xbins=100,xmin=0.0,xmax=100.0)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_eta;HLT_barrel_high_et_eta',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Clusters #eta; #eta; Entries',
-                                path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-1.5,xmax=1.5)
+                                path=path_names[i]+'/HLT_Clusters',xbins=50,xmin=-2.6,xmax=2.6)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_phi;HLT_barrel_high_et_phi',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Cluster #phi; #phi; Entries',
                                 path=path_names[i]+'/HLT_Clusters',xbins=64,xmin=-math.pi,xmax=math.pi)
         TopoCaloClustersMonGroup[i].defineHistogram('HLT_type;HLT_barrel_high_et_type',cutmask="HLT_barrel_high_et",title='high-E_{T} HLT Cluster Type; Size Enum; Entries',
