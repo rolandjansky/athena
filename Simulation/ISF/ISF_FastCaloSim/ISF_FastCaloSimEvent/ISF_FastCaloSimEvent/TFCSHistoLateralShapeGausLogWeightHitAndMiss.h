@@ -22,8 +22,4 @@ private:
   ClassDefOverride(TFCSHistoLateralShapeGausLogWeightHitAndMiss,1)  //TFCSHistoLateralShapeGausLogWeightHitAndMiss
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHistoLateralShapeGausLogWeightHitAndMiss+;
-#endif
-
 #endif

@@ -32,8 +32,4 @@ private:
   ClassDefOverride(TFCSParametrizationPDGIDSelectChain,1)  //TFCSParametrizationPDGIDSelectChain
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationPDGIDSelectChain+;
-#endif
-
 #endif

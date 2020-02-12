@@ -21,8 +21,4 @@ protected:
   ClassDefOverride(TFCSHistoLateralShapeGausLogWeight,1)  //TFCSHistoLateralShapeGausLogWeight
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHistoLateralShapeGausLogWeight+;
-#endif
-
 #endif
