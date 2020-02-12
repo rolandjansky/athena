@@ -70,11 +70,11 @@ namespace Monitored {
 	      return objcacheref.object;
       }
 
-      std::string conv = m_histDef->convention;
       std::string lbString;
-      if ( conv.find("run")!=std::string::npos ) {
+      HistogramDef::RunPeriod period = m_histDef->runperiod;
+      if ( period == HistogramDef::RunPeriod::Run ) {
         lbString = "";
-      } else if ( conv.find("lowStat")!=std::string::npos ) {
+      } else if ( period == HistogramDef::RunPeriod::LowStat ) {
         const unsigned lbBase = lumiBlock-(lumiBlock%20);
         lbString = "/lowStat_LB"+std::to_string(lbBase+1)+"-"+std::to_string(lbBase+20);
       } else {
@@ -122,14 +122,15 @@ namespace Monitored {
         std::string treePath = splitPath.first + "/metadata";
         auto &histSvc = m_gmTool->histogramService();
         std::string interval;
-        std::string conv = m_histDef->convention;
         char triggerData[] = "<none>";
         const std::string mergeDataStr = m_histDef->merge == "" ? "<default>" : m_histDef->merge;
         std::vector<char> mergeData{mergeDataStr.begin(), mergeDataStr.end()};
         mergeData.push_back('\0');
-        if (conv.find("run") != std::string::npos) {
+
+        HistogramDef::RunPeriod period = m_histDef->runperiod;
+        if (period == HistogramDef::RunPeriod::Run) {
           interval = "run";
-        } else if (conv.find("lowStat") != std::string::npos) {
+        } else if (period == HistogramDef::RunPeriod::LowStat) {
           interval = "lowStat";
         } else {
           interval = "lumiBlock";

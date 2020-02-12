@@ -147,6 +147,8 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
     } else if (def.ybins>0 && def.zbins>0) { // 3D TEfficiency
       e = new TEfficiency(def.alias.c_str(), def.title.c_str(),
         def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax, def.zbins, def.zmin, def.zmax);
+    } else {
+      throw HistogramException("Histogram >"+ fullName + "< could not be defined. Check xbins, ybins, and zbins.");
     }
     e->SetDirectory(0);
   }
@@ -155,13 +157,9 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
   }
   TH1* total ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetTotalHistogram());
-  setLabels(total->GetXaxis(), def.xlabels);
-  setLabels(total->GetYaxis(), def.ylabels);
-  setLabels(total->GetZaxis(), def.zlabels);
+  setLabels(total, def);
   TH1* passed ATLAS_THREAD_SAFE = const_cast<TH1*>(e->GetPassedHistogram());
-  setLabels(passed->GetXaxis(), def.xlabels);
-  setLabels(passed->GetYaxis(), def.ylabels);
-  setLabels(passed->GetZaxis(), def.zlabels);
+  setLabels(passed, def);
 
   return e;
 }
@@ -194,10 +192,8 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
   }
   h->GetYaxis()->SetTitleOffset(1.25); // magic shift to make histograms readable even if no post-procesing is done
 
-  setLabels(h->GetXaxis(), def.xlabels);
-  setLabels(h->GetYaxis(), def.ylabels);
-  setLabels(h->GetZaxis(), def.zlabels);
-  setOpts(h, def.opt);
+  setLabels(h, def);
+  setOpts(h, def);
 
   return h;
 }
@@ -225,24 +221,28 @@ TTree* HistogramFactory::createTree(const HistogramDef& def) {
     throw HistogramException("Tree >"+ fullName + "< can not be registered in THistSvc");
   }
   return t;
- 
 }
 
-void HistogramFactory::setOpts(TH1* hist, const std::string& opt) {
-  // try to apply an option
-  const unsigned canExtendPolicy = opt.find("kCanRebin") != std::string::npos ? TH1::kAllAxes : TH1::kNoAxis;
+void HistogramFactory::setOpts(TH1* hist, const HistogramDef& def) {
+  // apply extension policy
+  const unsigned canExtendPolicy = def.kCanRebin ? TH1::kAllAxes : TH1::kNoAxis;
   hist->SetCanExtend(canExtendPolicy);
 
-  // try to apply option to make Sumw2 in histogram
-  const bool shouldActivateSumw2 = opt.find("Sumw2") != std::string::npos;
-  hist->Sumw2(shouldActivateSumw2);
+  // apply Sumw2 option
+  hist->Sumw2(def.Sumw2);
+}
+
+void HistogramFactory::setLabels(TH1* hist, const HistogramDef& def) {
+  setLabels(hist->GetXaxis(), def.xlabels);
+  setLabels(hist->GetYaxis(), def.ylabels);
+  setLabels(hist->GetZaxis(), def.zlabels);
 }
 
 void HistogramFactory::setLabels(TAxis* axis, const std::vector<std::string>& labels) {
   if ( !labels.empty() ) {
-    const int nBinX = axis->GetNbins();
-    for ( int xbin=0; xbin<nBinX; xbin++ ) {
-      axis->SetBinLabel(xbin+1, labels[xbin].c_str());
+    const int nBin = axis->GetNbins();
+    for ( int bin=0; bin<nBin; bin++ ) {
+      axis->SetBinLabel(bin+1, labels[bin].c_str());
     }
   }
 }

@@ -17,10 +17,10 @@ namespace Monitored {
   public:
     HistogramFillerRebinable1D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller1D(definition, provider) {
-      if (definition.opt.find("kAddBinsDynamically") != std::string::npos) {
-	m_rebinMode = RebinMode::AddBins;
+      if (definition.kAddBinsDynamically) {
+        m_rebinMode = RebinMode::AddBins;
       } else {
-	m_rebinMode = RebinMode::ExtendAxes;
+        m_rebinMode = RebinMode::ExtendAxes;
       }
     }
 
@@ -31,23 +31,23 @@ namespace Monitored {
     virtual unsigned fill() override {
       if (m_monVariables.size() != 1) { return 0; }
       {
-	const auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-	std::lock_guard<std::mutex> lock(*(this->m_mutex));
+        const auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+        std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-	if (m_rebinMode == RebinMode::AddBins) {
-	  const auto max = std::max_element(begin(valuesVector), end(valuesVector));
-	  if (shouldRebinHistogram(*max)) { rebinHistogram(*max); }
-	} else {
-	  auto histogram = this->histogram<TH1>();
-	  histogram->SetCanExtend(TH1::kAllAxes);
-	  const auto max = std::max_element(begin(valuesVector), end(valuesVector));
-	  const auto min = std::min_element(begin(valuesVector), end(valuesVector));
-	  // ExtendAxis is always an extremely expensive operation; do not
-	  // invoke if not necessary
-	  auto xaxis = histogram->GetXaxis();
-	  if (*max >= xaxis->GetXmax()) histogram->ExtendAxis(*max,histogram->GetXaxis());
-	  if (*min < xaxis->GetXmin()) histogram->ExtendAxis(*min,histogram->GetXaxis());
-	}
+        if (m_rebinMode == RebinMode::AddBins) {
+          const auto max = std::max_element(begin(valuesVector), end(valuesVector));
+          if (shouldRebinHistogram(*max)) { rebinHistogram(*max); }
+        } else {
+          auto histogram = this->histogram<TH1>();
+          histogram->SetCanExtend(TH1::kAllAxes);
+          const auto max = std::max_element(begin(valuesVector), end(valuesVector));
+          const auto min = std::min_element(begin(valuesVector), end(valuesVector));
+          // ExtendAxis is always an extremely expensive operation; do not
+          // invoke if not necessary
+          auto xaxis = histogram->GetXaxis();
+          if (*max >= xaxis->GetXmax()) histogram->ExtendAxis(*max,histogram->GetXaxis());
+          if (*min < xaxis->GetXmin()) histogram->ExtendAxis(*min,histogram->GetXaxis());
+        }
       }
       return HistogramFiller1D::fill();
     }

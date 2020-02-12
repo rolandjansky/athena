@@ -17,10 +17,34 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.type = setting["type"];
   result.path = setting["path"];
   result.title = setting["title"];
-  result.opt = setting["opt"];
-  result.convention = setting["convention"];
   result.weight = setting["weight"];
   result.cutMask = setting["cutMask"];
+
+  result.convention = setting["convention"];
+  size_t offline = result.convention.find("OFFLINE");
+  if (offline != std::string::npos) {
+    result.runmode = RunMode::Offline;
+    std::string durationString = result.convention.substr(offline);
+    if (durationString.find("run") != std::string::npos) {
+      result.runperiod = RunPeriod::Run;
+    } else if (durationString.find("lowStat") != std::string::npos) {
+      result.runperiod = RunPeriod::LowStat;
+    } else {
+      result.runperiod = RunPeriod::Lumiblock;
+    }
+  } else {
+    result.runmode = RunMode::Online;
+  }
+
+  // all histogram options arising from 'opt'
+  result.Sumw2 = setting["Sumw2"];
+  result.kLBNHistoryDepth = setting["kLBNHistoryDepth"];
+  result.kAddBinsDynamically = setting["kAddBinsDynamically"];
+  result.kRebinAxes = setting["kRebinAxes"];
+  result.kCanRebin = setting["kCanRebin"];
+  result.kVec = setting["kVec"];
+  result.kVecUO = setting["kVecUO"];
+  result.kCumulative = setting["kCumulative"];
 
   result.xvar = setting["xvar"];
   result.xbins = setting["xbins"];
