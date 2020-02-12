@@ -1692,12 +1692,16 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   //the calibration array is structured as follows (hence the non intuitive numbers)
   //the first 36 parameters are for barrel, the last 168 for the endcap
   //each of these subarrays is divided into smaller subarrays of length 12 (barrel has 3 and endcap 14 layers)
+  int nBarrelLayers = 3, nEndcapLayers = 14;
   //each layer has 3 parameters (function 2nd order), so a subarray for each layer has 3 parameters
+  int nParametersPerLayer = 3;
   //this subarray for every layer exits for HT/LT hits, so 6 parameters
+  int nHTConfigurations = 2;
   //this subarray exists for shared/non-shared hits, so 12 parameters
-  int num=layer*3+isHT*(abs(HitPart)*33-24)+isShared*(abs(HitPart)*66-48)+(abs(HitPart)-1)*36;
+  int nSharedConfigurations = 2;
+  int num=layer*nParametersPerLayer+isHT*((abs(HitPart)-1)*(nEndcapLayers-nBarrelLayers)*nParametersPerLayer+nBarrelLayers*nParametersPerLayer)+isShared*((abs(HitPart)-1)*(nEndcapLayers-nBarrelLayers)*nParametersPerLayer*nHTConfigurations+nBarrelLayers*nParametersPerLayer*nHTConfigurations)+(abs(HitPart)-1)*nParametersPerLayer*nBarrelLayers*nHTConfigurations*nSharedConfigurations;
   //number for that given hit for non-shared conditions
-  int num_flat=layer*3+isHT*(abs(HitPart)*33-24)+(abs(HitPart)-1)*36;
+  int num_flat=layer*3+isHT*((abs(HitPart)-1)*(nEndcapLayers-nBarrelLayers)*nParametersPerLayer+nBarrelLayers*nParametersPerLayer)+(abs(HitPart)-1)*nParametersPerLayer*nBarrelLayers*nHTConfigurations*nSharedConfigurations;
 
   p0 = Dedxcorrection->hitOccPar[num];
   p1 = Dedxcorrection->hitOccPar[num+1];
