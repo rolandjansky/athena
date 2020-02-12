@@ -24,3 +24,8 @@ def ProjectionMMClusterBuilderTool(name="ProjectionMMClusterBuilderTool",extraFl
 def SimpleSTgcClusterBuilderTool(name="SimpleSTgcClusterBuilderTool",extraFlags=None,**kwargs):
     return CfgMgr.Muon__SimpleSTgcClusterBuilderTool(name,**kwargs)
     
+##                                                                              
+## NSWCalib Tool                                                                
+##                                                                              
+def NSWCalibTool(name="NSWCalibTool",extraFlags=None,**kwargs):
+    return CfgMgr.Muon__NSWCalibTool(name,**kwargs)
