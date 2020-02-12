@@ -22,7 +22,6 @@
 
 #include "TrkSegment/Segment.h"
 #include "TrkRoad/TrackRoad.h"
-
 #include "MuonCondInterface/ICSCConditionsSvc.h"
 
 using Muon::CscPrepDataContainer;
@@ -64,15 +63,9 @@ std::string chamber(int istation, int zsec, int phi) {
 
 Csc2dSegmentMaker::
 Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent),
-    m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool", this),
-    m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+  : AthAlgTool(type, aname, parent)
 {
   declareInterface<ICscSegmentFinder>(this);
-  declareProperty("segmentTool", m_segmentTool);
-  declareProperty("cscRotCreator", m_cscClusterOnTrackCreator);
-  declareProperty("cscdig_sg_inkey", m_cscdig_sg_inkey = "CSC_Measurements");
 }
 
 //******************************************************************************
@@ -94,6 +87,10 @@ StatusCode Csc2dSegmentMaker::initialize(){
     ATH_MSG_ERROR ( "Unable to retrieve  " << m_cscClusterOnTrackCreator );
     return StatusCode::FAILURE;
   }
+  if ( m_printer.retrieve().isFailure() ) {
+    ATH_MSG_ERROR ( "Unable to retrieve MuonEDMPrinterTool" << m_printer );
+    return StatusCode::FAILURE;
+  }  
 
   return StatusCode::SUCCESS;
 }

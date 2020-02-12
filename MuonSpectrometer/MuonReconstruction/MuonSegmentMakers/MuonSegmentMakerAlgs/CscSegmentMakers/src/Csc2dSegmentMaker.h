@@ -17,6 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h"
+
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h" 
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
@@ -50,11 +51,11 @@ private:  // data
   // Output container.
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  std::string m_cscdig_sg_inkey;
+  Gaudi::Property<std::string> m_cscdig_sg_inkey{this, "scdig_sg_inkey", "CSC_Measurements"};
 
-  ToolHandle<ICscSegmentUtilTool> m_segmentTool;  
-  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscClusterOnTrackCreator;  
-  ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
+  ToolHandle<ICscSegmentUtilTool> m_segmentTool{this, "segmentTool", "CscSegmentUtilTool/CscSegmentUtilTool"};  
+  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscClusterOnTrackCreator{this, "cscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};  
+  ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
 
 };
 
