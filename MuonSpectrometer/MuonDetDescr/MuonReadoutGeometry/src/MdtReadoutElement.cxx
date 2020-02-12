@@ -1782,7 +1782,7 @@ void MdtReadoutElement::clearBLineCache() const
 void MdtReadoutElement::clearCache() const
 {
   // clear base cache
-  MuonReadoutElement::clear();
+  // MuonReadoutElement::clear();
 
         (*m_Log) <<MSG::DEBUG<<"Clearing cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
                <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
