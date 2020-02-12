@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthHistogramAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
+#include "TrigConfData/HLTMenu.h"
 
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
@@ -44,6 +45,11 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      * @brief Retrieve tools and initialise read handles.
      */
     virtual StatusCode initialize() final;
+
+    /**
+     * @brief Retrieve menu handle
+     */
+    virtual StatusCode start();
 
     /**
      * @brief Monitor event, unless max range limit reached and event outside of all ranges.
@@ -90,6 +96,7 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<size_t> m_fullEventDumpProbability { this, "FullEventDumpProbability", 10,
       "Save a full record of one in every N events, up to MaxFullEventDumps." }; 
 
+    // TODO - deprecate this now that we have the concept of the "master slot" for monitoring multi-slot processing statistics
     Gaudi::Property<size_t> m_fullEventDumpExtraTimeSlices { this, "FullEventDumpExtraTimeSlices", 1,
       "Save also the full event record for N events before and after the chosen one" };   
 
@@ -98,6 +105,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_costDataKey { this, "CostReadHandleKey", "HLT_TrigCostContainer",
       "Trigger cost payload container for algorithms" };
+
+    SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
+      "HLT Menu"};
 
     ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasTool{this, "EnhancedBiasTool", "",
       "Enhanced bias weighting tool."};
@@ -139,8 +149,18 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
      */
     float getWeight(const EventContext& context);
 
+    /**
+     * @brief High watermark for pre-cached string hashes for the SLOT category. Corresponding to SG and View IProxyDict names.
+     * @param[in] max Pre-compute string hashes for View or Slot multiplicities up to this number.
+     */
+    StatusCode checkUpdateMaxView(const size_t max);
+
     std::unordered_map<std::string, std::unique_ptr<MonitoredRange> > m_monitoredRanges; //!< Owned storage of Ranges. Keyed on Range name.
+    std::unordered_map<uint32_t, std::string > m_algTypeMap; //!< Cache of algorithm's type, read from configuration data.
+    std::set<std::string> m_storeIdentifiers; //!< Identifiers of object stores, needed to cache STORE string-hash values
+
     mutable std::atomic<size_t> m_fullEventDumps; //!< Counter to keep track of how many events have been full-dumped
+    mutable std::atomic<size_t> m_maxViewsNumber; //!< What is the maximum number of View instances we've so far cached string hashes to cover?
 
 }; 
 
