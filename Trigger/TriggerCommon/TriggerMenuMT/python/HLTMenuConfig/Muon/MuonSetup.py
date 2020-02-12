@@ -559,6 +559,10 @@ def muEFCBRecoSequence( RoIs, name ):
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
                                                        InDetCandidateLocation="InDetCandidates_"+name, TrackSelector = InDetTrigTrackSelectorTool)
 
+  from AthenaCommon.AppMgr import ToolSvc
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
+  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
+
   #MS ID combination
   candidatesName = "MuonCandidates"
   if 'FS' in name:
@@ -651,6 +655,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
     theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
                                                          InDetCandidateLocation="InDetCandidates_"+name, TrackSelector = InDetTrigTrackSelectorTool)
+    from AthenaCommon.AppMgr import ToolSvc
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
+    ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
 
     efAlgs.append(theIndetCandidateAlg)
 
