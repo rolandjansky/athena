@@ -596,10 +596,10 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
   ATH_MSG_DEBUG("getProb():: gasTypeInStraw = "<<gasType<<"");
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" getProb: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" getProb: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -620,9 +620,9 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
     dEdx_pred= dEdx_pred/correct;
   }
 
-  double Resolution = Dedxcorrection->resolution[gasType][0]+Dedxcorrection->resolution[gasType][1]*(nUsedHits+0.5)+Dedxcorrection->resolution[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection->resolution[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
+  double Resolution = dEdxCorrection->resolution[gasType][0]+dEdxCorrection->resolution[gasType][1]*(nUsedHits+0.5)+dEdxCorrection->resolution[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+dEdxCorrection->resolution[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
   if(hypothesis==Trk::electron){
-    Resolution = Dedxcorrection->resolutionElectron[gasType][0]+Dedxcorrection->resolutionElectron[gasType][1]*(nUsedHits+0.5)+Dedxcorrection->resolutionElectron[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+Dedxcorrection->resolutionElectron[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
+    Resolution = dEdxCorrection->resolutionElectron[gasType][0]+dEdxCorrection->resolutionElectron[gasType][1]*(nUsedHits+0.5)+dEdxCorrection->resolutionElectron[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+dEdxCorrection->resolutionElectron[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
   }
 
   double prob =exp( -0.5 * ( ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) * 
@@ -677,10 +677,10 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
   ATH_MSG_DEBUG("predictdEdx(): gasTypeInStraw = "<<gasType<<"");
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" predictdEdx: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" predictdEdx: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -700,15 +700,15 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
   // do we want to throw an assertion here?
   if(pTrk<100)return 0; 
   if(divideByL){    
-    if(Dedxcorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDivideByLengthDedxP5[gasType]))<=0) return 0;
-    return Dedxcorrection->paraDivideByLengthDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDivideByLengthDedxP4[gasType])  * 
-      (Dedxcorrection->paraDivideByLengthDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDivideByLengthDedxP4[gasType] ) 
-       - log(Dedxcorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDivideByLengthDedxP5[gasType]) ) ) );
+    if(dEdxCorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDivideByLengthDedxP5[gasType]))<=0) return 0;
+    return dEdxCorrection->paraDivideByLengthDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType])  * 
+      (dEdxCorrection->paraDivideByLengthDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType] ) 
+       - log(dEdxCorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDivideByLengthDedxP5[gasType]) ) ) );
   }else {
-    if(Dedxcorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDedxP5[gasType]) )<=0)return 0; 
-    return Dedxcorrection->paraDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDedxP4[gasType])  * 
-      (Dedxcorrection->paraDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), Dedxcorrection->paraDedxP4[gasType] ) 
-       - log(Dedxcorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, Dedxcorrection->paraDedxP5[gasType]) ) ) );
+    if(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) )<=0)return 0; 
+    return dEdxCorrection->paraDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType])  * 
+      (dEdxCorrection->paraDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType] ) 
+       - log(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) ) ) );
   }
   //return 0;  
 }
@@ -722,10 +722,10 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   ATH_MSG_DEBUG("mass(): gasTypeInStraw = "<<gasType<<"");
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" mass: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" mass: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -746,8 +746,8 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   
   TF1 blumRolandi( "BR", blumRolandiFunction.c_str(), 0.7, 100000);
 
-  blumRolandi.SetParameters(Dedxcorrection->paraDedxP1[gasType],Dedxcorrection->paraDedxP2[gasType],Dedxcorrection->paraDedxP3[gasType],Dedxcorrection->paraDedxP4[gasType],Dedxcorrection->paraDedxP5[gasType], 1. ); 
-  //blumRolandi.SetParameters(&Dedxcorrection->para_dEdx_BB);
+  blumRolandi.SetParameters(dEdxCorrection->paraDedxP1[gasType],dEdxCorrection->paraDedxP2[gasType],dEdxCorrection->paraDedxP3[gasType],dEdxCorrection->paraDedxP4[gasType],dEdxCorrection->paraDedxP5[gasType], 1. ); 
+  //blumRolandi.SetParameters(&dEdxCorrection->para_dEdx_BB);
   double betaGamma = blumRolandi.GetX(dEdx, bg_min, bg_max); 
   
   ATH_MSG_DEBUG("mass():: return "<<pTrk/betaGamma<<"");
@@ -817,10 +817,10 @@ double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
 double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, double nVtx) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" correctNormalization: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" correctNormalization: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -828,16 +828,16 @@ double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, doub
   EGasType gasType = static_cast<EGasType> (m_useTrackPartWithGasType);
   if(m_useTrackPartWithGasType==kUnset)
     gasType=kXenon;
-  if(nVtx<=0)nVtx=Dedxcorrection->normNzero[gasType];
-  double slope = Dedxcorrection->normSlopeTot[gasType];
-  double offset = Dedxcorrection->normOffsetTot[gasType];
+  if(nVtx<=0)nVtx=dEdxCorrection->normNzero[gasType];
+  double slope = dEdxCorrection->normSlopeTot[gasType];
+  double offset = dEdxCorrection->normOffsetTot[gasType];
   if(divideLength){
-    slope = Dedxcorrection->normSlopeTotDivideByLength[gasType];
-    offset = Dedxcorrection->normOffsetTotDivideByLength[gasType];
+    slope = dEdxCorrection->normSlopeTotDivideByLength[gasType];
+    offset = dEdxCorrection->normOffsetTotDivideByLength[gasType];
   } 
-  double shift = Dedxcorrection->normOffsetData[gasType];
+  double shift = dEdxCorrection->normOffsetData[gasType];
   if(!scaledata)shift = 0;
-  return (slope*Dedxcorrection->normNzero[gasType]+offset)/(slope*nVtx+offset+shift);
+  return (slope*dEdxCorrection->normNzero[gasType]+offset)/(slope*nVtx+offset+shift);
 }
 
 
@@ -1155,10 +1155,10 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
 {
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" fitFuncPol_corrRZ: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" fitFuncPol_corrRZ: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
   
@@ -1176,55 +1176,55 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
       //int parId=0;
       //parId=0;
       //if(sign>0)parId=1620;  // FIXME: parId is not used
-      a = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection->paraLongCorrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = dEdxCorrection->paraLongCorrRZ[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
      
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection->paraShortCorrRZ[gasType][(6*parameter+5)*9+Layer+offset];
+      a = dEdxCorrection->paraShortCorrRZ[gasType][(6*parameter+0)*9+Layer+offset];
+      b = dEdxCorrection->paraShortCorrRZ[gasType][(6*parameter+1)*9+Layer+offset];
+      c = dEdxCorrection->paraShortCorrRZ[gasType][(6*parameter+2)*9+Layer+offset];
+      d = dEdxCorrection->paraShortCorrRZ[gasType][(6*parameter+3)*9+Layer+offset];
+      e = dEdxCorrection->paraShortCorrRZ[gasType][(6*parameter+4)*9+Layer+offset];
+      f = dEdxCorrection->paraShortCorrRZ[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection->paraEndCorrRZ[gasType][(6*parameter+5)*28+Layer];
+      a = dEdxCorrection->paraEndCorrRZ[gasType][(6*parameter+0)*28+Layer];
+      b = dEdxCorrection->paraEndCorrRZ[gasType][(6*parameter+1)*28+Layer];
+      c = dEdxCorrection->paraEndCorrRZ[gasType][(6*parameter+2)*28+Layer];
+      d = dEdxCorrection->paraEndCorrRZ[gasType][(6*parameter+3)*28+Layer];
+      e = dEdxCorrection->paraEndCorrRZ[gasType][(6*parameter+4)*28+Layer];
+      f = dEdxCorrection->paraEndCorrRZ[gasType][(6*parameter+5)*28+Layer];
     }
   }else{
     if(set==0){ // long straws in barrel
       if(sign > 0) offset=1620;
-      a = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
-      b = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
-      c = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
-      d = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
-      e = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
-      f = Dedxcorrection->paraLongCorrRZMC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
+      a = dEdxCorrection->paraLongCorrRZMC[gasType][(6*parameter+0)*30*3+Layer*30+Strawlayer+offset];
+      b = dEdxCorrection->paraLongCorrRZMC[gasType][(6*parameter+1)*30*3+Layer*30+Strawlayer+offset];
+      c = dEdxCorrection->paraLongCorrRZMC[gasType][(6*parameter+2)*30*3+Layer*30+Strawlayer+offset];
+      d = dEdxCorrection->paraLongCorrRZMC[gasType][(6*parameter+3)*30*3+Layer*30+Strawlayer+offset];
+      e = dEdxCorrection->paraLongCorrRZMC[gasType][(6*parameter+4)*30*3+Layer*30+Strawlayer+offset];
+      f = dEdxCorrection->paraLongCorrRZMC[gasType][(6*parameter+5)*30*3+Layer*30+Strawlayer+offset];
     }else if (set ==1) { // short straws in barrel
       if(sign > 0) offset+=108;
-      a = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+0)*9+Layer+offset];
-      b = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+1)*9+Layer+offset];
-      c = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+2)*9+Layer+offset];
-      d = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+3)*9+Layer+offset];
-      e = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+4)*9+Layer+offset];
-      f = Dedxcorrection->paraShortCorrRZMC[gasType][(6*parameter+5)*9+Layer+offset];
+      a = dEdxCorrection->paraShortCorrRZMC[gasType][(6*parameter+0)*9+Layer+offset];
+      b = dEdxCorrection->paraShortCorrRZMC[gasType][(6*parameter+1)*9+Layer+offset];
+      c = dEdxCorrection->paraShortCorrRZMC[gasType][(6*parameter+2)*9+Layer+offset];
+      d = dEdxCorrection->paraShortCorrRZMC[gasType][(6*parameter+3)*9+Layer+offset];
+      e = dEdxCorrection->paraShortCorrRZMC[gasType][(6*parameter+4)*9+Layer+offset];
+      f = dEdxCorrection->paraShortCorrRZMC[gasType][(6*parameter+5)*9+Layer+offset];
     }else{  // straws in endcap
       if(sign >0) Layer+=14;
-      a = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+0)*28+Layer];
-      b = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+1)*28+Layer];
-      c = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+2)*28+Layer];
-      d = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+3)*28+Layer];
-      e = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+4)*28+Layer];
-      f = Dedxcorrection->paraEndCorrRZMC[gasType][(6*parameter+5)*28+Layer];
+      a = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+0)*28+Layer];
+      b = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+1)*28+Layer];
+      c = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+2)*28+Layer];
+      d = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+3)*28+Layer];
+      e = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+4)*28+Layer];
+      f = dEdxCorrection->paraEndCorrRZMC[gasType][(6*parameter+5)*28+Layer];
     }    
   }
   return a+b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1238,10 +1238,10 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
    */
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" fitFuncEndcap_corrRZL: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" fitFuncEndcap_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -1249,25 +1249,25 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
   double a,b,c,d,e,f,g,h,i;  
   if(sign >0) Layer+=14;
   if(m_isData){
-    a = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(0)*28+Layer];
-    b = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(1)*28+Layer];
-    c = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(2)*28+Layer];
-    d = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(3)*28+Layer];
-    e = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(4)*28+Layer];
-    f = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(5)*28+Layer];  
-    g = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(6)*28+Layer];  
-    h = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(7)*28+Layer];  
-    i = Dedxcorrection->paraEndCorrRZDivideByLengthDATA[gasType][(8)*28+Layer];  
+    a = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(0)*28+Layer];
+    b = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(1)*28+Layer];
+    c = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(2)*28+Layer];
+    d = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(3)*28+Layer];
+    e = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(4)*28+Layer];
+    f = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(5)*28+Layer];  
+    g = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(6)*28+Layer];  
+    h = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(7)*28+Layer];  
+    i = dEdxCorrection->paraEndCorrRZDivideByLengthDATA[gasType][(8)*28+Layer];  
   }else{
-    a = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(0)*28+Layer];
-    b = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(1)*28+Layer];
-    c = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(2)*28+Layer];
-    d = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(3)*28+Layer];
-    e = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(4)*28+Layer];
-    f = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(5)*28+Layer];  
-    g = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(6)*28+Layer];  
-    h = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(7)*28+Layer];  
-    i = Dedxcorrection->paraEndCorrRZDivideByLengthMC[gasType][(8)*28+Layer]; 
+    a = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(0)*28+Layer];
+    b = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(1)*28+Layer];
+    c = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(2)*28+Layer];
+    d = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(3)*28+Layer];
+    e = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(4)*28+Layer];
+    f = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(5)*28+Layer];  
+    g = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(6)*28+Layer];  
+    h = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(7)*28+Layer];  
+    i = dEdxCorrection->paraEndCorrRZDivideByLengthMC[gasType][(8)*28+Layer]; 
   } 
 
   double T1    = b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
@@ -1284,10 +1284,10 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
    * T(r,z) = T0(r)+ b(r)*z*z 
    */
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" fitFuncBarrel_corrRZL: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" fitFuncBarrel_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -1295,40 +1295,40 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(m_isData){
-      a = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection->paraShortCorrRZDivideByLengthDATA[gasType][(6)*9+Strawlayer];
+      a = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(0)*9+Strawlayer];
+      b = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(1)*9+Strawlayer];
+      c = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(2)*9+Strawlayer];
+      d = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(3)*9+Strawlayer];
+      e = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(4)*9+Strawlayer];
+      f = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(5)*9+Strawlayer];
+      g = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(6)*9+Strawlayer];
     }else{
-      a = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(0)*9+Strawlayer];
-      b = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(1)*9+Strawlayer];
-      c = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(2)*9+Strawlayer];
-      d = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(3)*9+Strawlayer];
-      e = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(4)*9+Strawlayer];
-      f = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(5)*9+Strawlayer];
-      g = Dedxcorrection->paraShortCorrRZDivideByLengthMC[gasType][(6)*9+Strawlayer];
+      a = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(0)*9+Strawlayer];
+      b = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(1)*9+Strawlayer];
+      c = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(2)*9+Strawlayer];
+      d = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(3)*9+Strawlayer];
+      e = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(4)*9+Strawlayer];
+      f = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(5)*9+Strawlayer];
+      g = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(6)*9+Strawlayer];
     }
     
   }else{
     if(m_isData){
-      a = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection->paraLongCorrRZDivideByLengthDATA[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(6)*30*3+Layer*30+Strawlayer];
     }else{
-      a = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(0)*30*3+Layer*30+Strawlayer];
-      b = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(1)*30*3+Layer*30+Strawlayer];
-      c = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(2)*30*3+Layer*30+Strawlayer];
-      d = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(3)*30*3+Layer*30+Strawlayer];
-      e = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(4)*30*3+Layer*30+Strawlayer];
-      f = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(5)*30*3+Layer*30+Strawlayer];
-      g = Dedxcorrection->paraLongCorrRZDivideByLengthMC[gasType][(6)*30*3+Layer*30+Strawlayer];
+      a = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(0)*30*3+Layer*30+Strawlayer];
+      b = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(1)*30*3+Layer*30+Strawlayer];
+      c = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(2)*30*3+Layer*30+Strawlayer];
+      d = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(3)*30*3+Layer*30+Strawlayer];
+      e = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(4)*30*3+Layer*30+Strawlayer];
+      f = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(5)*30*3+Layer*30+Strawlayer];
+      g = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(6)*30*3+Layer*30+Strawlayer];
     }
   }
   double z = fabs(zPosition);
@@ -1587,10 +1587,10 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
 double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, int Layer, int sign) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" mimicToXeHit_Endcap: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" mimicToXeHit_Endcap: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -1610,9 +1610,9 @@ double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, i
   int side = 0; // A side
   if(sign <0) side =1; // C side
   if(m_isData)
-    a = Dedxcorrection->paraEndMimicToXeDATA[gasType][(side*14+Layer)*20+(rBin)];
+    a = dEdxCorrection->paraEndMimicToXeDATA[gasType][(side*14+Layer)*20+(rBin)];
   else
-    a = Dedxcorrection->paraEndMimicToXeMC[gasType][(side*14+Layer)*20+(rBin)];
+    a = dEdxCorrection->paraEndMimicToXeMC[gasType][(side*14+Layer)*20+(rBin)];
 
   ATH_MSG_DEBUG("mimicToXeHit_Endcap():: isData = " << m_isData << " gasTypeInStraw = " << gasType
                 << " side = " << side << " Layer = " << Layer << " rBin = " << rBin <<" BINPOS = " << (side*14+Layer)*20+(rBin) 
@@ -1625,10 +1625,10 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
 {
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
-  if(Dedxcorrection==nullptr)
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
+  if(dEdxCorrection==nullptr)
     {
-      ATH_MSG_ERROR(" mimicToXeHit_Barrel: Could not find any Dedxcorrection in CondStore. Return zero.");
+      ATH_MSG_ERROR(" mimicToXeHit_Barrel: Could not find any dEdxCorrection in CondStore. Return zero.");
       return 0;
     }
 
@@ -1646,14 +1646,14 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
 
   if(Layer==0 && Strawlayer<9){ // short straws
     if(m_isData)
-      a = Dedxcorrection->paraShortMimicToXeDATA[gasType][Strawlayer*20+(rBin)];
+      a = dEdxCorrection->paraShortMimicToXeDATA[gasType][Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection->paraShortMimicToXeMC[gasType][Strawlayer*20+(rBin)];
+      a = dEdxCorrection->paraShortMimicToXeMC[gasType][Strawlayer*20+(rBin)];
   }else{
     if(m_isData)
-      a = Dedxcorrection->paraLongMimicToXeDATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = dEdxCorrection->paraLongMimicToXeDATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
     else
-      a = Dedxcorrection->paraLongMimicToXeMC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
+      a = dEdxCorrection->paraLongMimicToXeMC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
   }
 
   ATH_MSG_DEBUG("mimicToXeHit_Barrel():: isData = " << m_isData << " Layer = " << Layer << " Strawlayer = " << Strawlayer << " rBin = " << rBin << " a = " << a << "" );
@@ -1664,7 +1664,7 @@ double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, i
 double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
   
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trkM);  
@@ -1703,10 +1703,10 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   //number for that given hit for non-shared conditions
   int num_flat=layer*3+isHT*((abs(HitPart)-1)*(nEndcapLayers-nBarrelLayers)*nParametersPerLayer+nBarrelLayers*nParametersPerLayer)+(abs(HitPart)-1)*nParametersPerLayer*nBarrelLayers*nHTConfigurations*nSharedConfigurations;
 
-  p0 = Dedxcorrection->hitOccPar[num];
-  p1 = Dedxcorrection->hitOccPar[num+1];
-  p2 = Dedxcorrection->hitOccPar[num+2];
-  p0_flat = Dedxcorrection->hitOccPar[num_flat];
+  p0 = dEdxCorrection->hitOccPar[num];
+  p1 = dEdxCorrection->hitOccPar[num+1];
+  p2 = dEdxCorrection->hitOccPar[num+2];
+  p0_flat = dEdxCorrection->hitOccPar[num_flat];
 
   //fitting function is a polynomial 2nd order f(x)=a+b*x+x^2
   //Hence the tot value is divided by the value of the function
@@ -1719,7 +1719,7 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
 double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* Dedxcorrection{*readHandle};
+  const TRTDedxcorrection* dEdxCorrection{*readHandle};
   
   double corr=-999.;
   int ijk;
@@ -1737,8 +1737,8 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
   }
 	
   //Function of the from f(x)=a+b*x+c*x^2 was used as a fitting function, separately for tracks with and excluding HT hits
-  if (!useHThits){corr=Dedxcorrection->trackOccPar0[ijk]+Dedxcorrection->trackOccPar1[ijk]*trackOcc+Dedxcorrection->trackOccPar2[ijk]*pow(trackOcc,2);}
-  else{corr=Dedxcorrection->trackOccPar0NoHt[ijk]+Dedxcorrection->trackOccPar1NoHt[ijk]*trackOcc+Dedxcorrection->trackOccPar2NoHt[ijk]*pow(trackOcc,2);}
+  if (!useHThits){corr=dEdxCorrection->trackOccPar0[ijk]+dEdxCorrection->trackOccPar1[ijk]*trackOcc+dEdxCorrection->trackOccPar2[ijk]*pow(trackOcc,2);}
+  else{corr=dEdxCorrection->trackOccPar0NoHt[ijk]+dEdxCorrection->trackOccPar1NoHt[ijk]*trackOcc+dEdxCorrection->trackOccPar2NoHt[ijk]*pow(trackOcc,2);}
 
   return corr;
 }
