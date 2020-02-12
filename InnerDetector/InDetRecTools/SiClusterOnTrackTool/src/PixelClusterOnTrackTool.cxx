@@ -293,7 +293,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correct
       m_applyNNcorrection = false;
   }
   
-  if (!m_applyNNcorrection || ((dynamic_cast<const InDetDD::SiDetectorElement*>(rio.detectorElement()))->isBlayer() && !m_NNIBLcorrection && !m_IBLAbsent))
+  if (!m_applyNNcorrection || ((dynamic_cast<const InDetDD::SiDetectorElement*>(rio.detectorElement()))->isInnermostPixelLayer() && !m_NNIBLcorrection && !m_IBLAbsent))
   {
     return correctDefault(rio,trackPar);
   }else{
@@ -353,7 +353,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
   // Get pointer to detector element
   const InDetDD::SiDetectorElement* element = pix->detectorElement(); 
   if(!element) return 0;
-  bool blayer = element->isBlayer();
+  bool blayer = element->isInnermostPixelLayer();
   IdentifierHash iH = element->identifyHash();
   
   double errphi = -1; 

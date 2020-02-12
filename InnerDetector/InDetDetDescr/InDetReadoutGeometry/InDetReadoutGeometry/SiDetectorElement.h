@@ -635,6 +635,11 @@ namespace InDetDD {
       bool m_isBarrel;
       bool m_isDBM;
       
+      // cached values for pixel detector elements
+      bool m_isInclined;
+      bool m_isInnermostPixel;
+      bool m_isNextToInnermostPixel;
+      
       //
       // Cached values.
       //
