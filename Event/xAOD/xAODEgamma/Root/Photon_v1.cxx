@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Photon_v1.cxx 741489 2016-04-20 01:30:34Z christos $
@@ -46,11 +46,11 @@ namespace xAOD {
    const xAOD::Vertex* Photon_v1::vertex( size_t index ) const {
 
       if( index >= nVertices() ) {
-         return 0;
+         return nullptr;
       }
       const VxELVec_t& links = vertexLinks();
       if( ! links[ index ].isValid() ) {
-         return 0;
+         return nullptr;
       }
       return *( links[ index ] );
    }

@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiClusterOnTrackTool/PixelClusterOnTrackTool.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"

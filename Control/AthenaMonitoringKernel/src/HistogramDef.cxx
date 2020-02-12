@@ -42,6 +42,8 @@ const HistogramDef HistogramDef::parse(const std::string& histogramDefinition) {
   result.zmax = setting["zmax"];
   result.zlabels = setting["zlabels"].get<std::vector<std::string>>();
 
+  result.merge = setting["merge"];
+
   result.treeDef = setting["treeDef"];
 
   result.ok = true;

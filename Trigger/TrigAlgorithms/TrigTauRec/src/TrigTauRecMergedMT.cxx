@@ -458,6 +458,10 @@ StatusCode TrigTauRecMergedMT::execute()
   firstTool = m_tools.begin();
   lastTool  = m_tools.end();
   processStatus    = StatusCode::SUCCESS;
+  
+  // dummy container passed to TauVertexVariables, not used in trigger though
+  xAOD::VertexContainer dummyVxCont;
+  
   ATH_MSG_DEBUG("Starting tool loop with seed jet");
   while ( ! processStatus.isFailure() && firstTool != lastTool ) {
     // loop stops only when Failure indicated by one of the tools
@@ -465,7 +469,11 @@ StatusCode TrigTauRecMergedMT::execute()
     // time in the various tools
     ++toolnum;
 
-    processStatus = (*firstTool)->execute( *p_tau );
+    if ( (*firstTool)->type() == "TauVertexVariables")
+      processStatus = (*firstTool)->executeVertexVariables(*p_tau, dummyVxCont);
+    else 
+      processStatus = (*firstTool)->execute( *p_tau );
+    
     if ( !processStatus.isFailure() ) {
       ATH_MSG_DEBUG(" "<< (*firstTool)->name() << " executed successfully ");
       ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()

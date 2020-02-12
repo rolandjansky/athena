@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloClusterAccessors_v1.cxx 794609 2017-01-30 15:51:25Z menke $
@@ -147,7 +147,7 @@ namespace xAOD {
       default:
          std::cerr << "xAOD::CaloCluster_v1 ERROR Unknown moment ("
                    << moment << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
 } // namespace xAOD

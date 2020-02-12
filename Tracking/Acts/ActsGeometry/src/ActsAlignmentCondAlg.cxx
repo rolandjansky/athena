@@ -11,7 +11,7 @@
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"

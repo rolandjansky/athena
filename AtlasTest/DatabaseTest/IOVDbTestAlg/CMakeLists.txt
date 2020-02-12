@@ -35,9 +35,10 @@ function (iovdbtestalg_run_test testName jo)
   cmake_parse_arguments( ARG "" "DEPENDS" "" ${ARGN} )
 
   atlas_add_test( ${testName}
-                  SCRIPT "POOL_OUTMSG_LEVEL=4 athena.py IOVDbTestAlg/${jo}.py"
+                  SCRIPT "athena.py IOVDbTestAlg/${jo}.py"
                   LOG_SELECT_PATTERN "^IOVDbTestAlg"
                   PROPERTIES TIMEOUT 300
+                  ENVIRONMENT "POOL_OUTMSG_LEVEL=4"
                   )
   if( ARG_DEPENDS )
     set_tests_properties( IOVDbTestAlg_${testName}_ctest

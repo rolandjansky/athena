@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
@@ -11,7 +11,7 @@ using fastjet::PseudoJet;
 JetSubStructureMomentToolsBase::JetSubStructureMomentToolsBase(std::string name) : 
   JetModifierBase(name)
 {
-  declareProperty("inputContainer",m_inputContainer = "");
+  declareProperty("InputContainer",m_inputContainer = "");
   declareProperty("Prefix",        m_prefix         = "");
 }
 

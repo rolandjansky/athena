@@ -16,9 +16,7 @@
 #endif
 
 void
-GSFUtils::resetDistances(floatPtrRestrict distancesIn,
-                                           const int mini,
-                                           const int n) 
+GSFUtils::resetDistances(floatPtrRestrict distancesIn, const int mini, const int n)
 {
 
   float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -36,10 +34,10 @@ GSFUtils::resetDistances(floatPtrRestrict distancesIn,
 
 void
 GSFUtils::calculateAllDistances(floatPtrRestrict qonpIn,
-                                                  floatPtrRestrict qonpCovIn,
-                                                  floatPtrRestrict qonpGIn,
-                                                  floatPtrRestrict distancesIn,
-                                                  int n) 
+                                floatPtrRestrict qonpCovIn,
+                                floatPtrRestrict qonpGIn,
+                                floatPtrRestrict distancesIn,
+                                int n)
 {
 
   float* qonp = (float*)__builtin_assume_aligned(qonpIn, alignment);
@@ -60,18 +58,19 @@ GSFUtils::calculateAllDistances(floatPtrRestrict qonpIn,
       distances[indexConst + j] =
         covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
 
-     //\log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2 \sigma_2^2} - \frac{1}{2}
+      //\log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2 \sigma_2^2} -
+      //\frac{1}{2}
     }
   }
 }
 
 int
 GSFUtils::recalculateDistances(floatPtrRestrict qonpIn,
-                                                 floatPtrRestrict qonpCovIn,
-                                                 floatPtrRestrict qonpGIn,
-                                                 floatPtrRestrict distancesIn,
-                                                 int mini,
-                                                 int n) 
+                               floatPtrRestrict qonpCovIn,
+                               floatPtrRestrict qonpGIn,
+                               floatPtrRestrict distancesIn,
+                               int mini,
+                               int n)
 {
 
   float* qonp = (float*)__builtin_assume_aligned(qonpIn, alignment);
@@ -122,7 +121,7 @@ GSFUtils::recalculateDistances(floatPtrRestrict qonpIn,
 }
 
 std::pair<int, int>
-GSFUtils::findMinimumIndex(const floatPtrRestrict distancesIn, const int n) 
+GSFUtils::findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
 
   float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -137,7 +136,7 @@ GSFUtils::findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
       minDistance2 = minDistance;
       mini = i;
       minDistance = distances[i];
-    } else if (distances[i] < minDistance2){
+    } else if (distances[i] < minDistance2) {
       mini2 = i;
       minDistance2 = distances[i];
     }
@@ -145,5 +144,3 @@ GSFUtils::findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 
   return std::make_pair(mini, mini2);
 }
-
-

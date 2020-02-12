@@ -3,6 +3,7 @@
 import GaudiConfig2.semantics
 import re
 import collections
+import copy
 
 class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     '''
@@ -56,7 +57,31 @@ class ToolHandleSemantics(GaudiConfig2.semantics.PropertySemantics):
 
     def merge(self,a,b):
         return a.merge(b)
+
+class PublicHandleSemantics(GaudiConfig2.semantics.PropertySemantics):
+    '''
+    ServiceHandles (and the deprecated PublicToolHandles) are assigned as strings
+    '''
+    __handled_types__ = ("PublicToolHandle","ServiceHandle")
+       
+    def __init__(self,cpp_type,name=None):
+        super(PublicHandleSemantics, self).__init__(cpp_type,name)
         
+    def default(self,value):
+        return value.typeAndName
+
+    def store(self,value):
+        if value.__component_type__ not in ('Service','AlgTool'):
+            raise TypeError('{} expected, got {!r} in assignemnt to {}'.\
+                            format(value.__component_type__,value, self.name))
+
+        #It would be great if at this point we could verify that the service was
+        #ineed added to the ComponentAccumulator. Latest, do that when bootstapping
+        #the application
+
+        return "{}/{}".format(value.__cpp_type__,value.name)
+
+
 class ToolHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
     '''
     Private alg-tools need recusive merging (de-duplication):
@@ -66,8 +91,7 @@ class ToolHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         super(ToolHandleArraySemantics, self).__init__(cpp_type,name)
     
     def default(self,value):
-        from GaudiKernel.GaudiHandles import PrivateToolHandleArray
-        return PrivateToolHandleArray()
+        return copy.copy(value)
 
     def merge(self,a,b):
         for bTool in b:
@@ -94,9 +118,17 @@ class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
                                 format(value, self.name))
         return value
 
+
+    #Without explicitly definig a default, calling .append or += will change the class-default, 
+    #affecting all instances of the same class. 
+    def default(self,value):
+        return []
+
+
 GaudiConfig2.semantics.SEMANTICS.append(SetSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(AppendListSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(VarHandleSematics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(ToolHandleArraySemantics)
+GaudiConfig2.semantics.SEMANTICS.append(PublicHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(SubAlgoSemantics)

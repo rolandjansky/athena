@@ -187,7 +187,7 @@ class IApproachDescriptor;
   /** @class CylinderLayerSorterR
        Functor for CylinderLayer R-Sorting */
   
-  class CylinderLayerSorterR : public std::binary_function<const CylinderLayer*, const CylinderLayer*, bool> {
+  class CylinderLayerSorterR {
      public:       
       /** Default Constructor */
       CylinderLayerSorterR(){}

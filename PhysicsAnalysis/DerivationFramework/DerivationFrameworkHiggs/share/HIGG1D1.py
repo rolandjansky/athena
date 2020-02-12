@@ -82,32 +82,23 @@ print SkimmingToolHIGG1D1
 thinningTools=[]
 # MET/Jet tracks
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG1D1MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "HIGG1D1MetTPThinningTool",
-                                                                       ThinningService         = "HIGG1D1ThinningSvc",
-                                                                       SelectionString         = thinning_expression,
-                                                                       InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                       ApplyAnd                = True)
-ToolSvc += HIGG1D1MetTPThinningTool
-print HIGG1D1MetTPThinningTool
-#thinningTools.append(HIGG1D1MetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG1D1JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG1D1JetLCTPThinningTool",
-                                                                            ThinningService         = "HIGG1D1ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             JetKey                  = "AntiKt4LCTopoJets",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                            ApplyAnd                = True)
+                                                                            TrackSelectionString    = thinning_expression)
 ToolSvc += HIGG1D1JetLCTPThinningTool
 print HIGG1D1JetLCTPThinningTool
 #thinningTools.append(HIGG1D1JetLCTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG1D1JetEMTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG1D1JetEMTPThinningTool",
-                                                                            ThinningService         = "HIGG1D1ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             JetKey                  = "AntiKt4EMTopoJets",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                            ApplyAnd                = True)
+                                                                            TrackSelectionString    = thinning_expression)
 ToolSvc += HIGG1D1JetEMTPThinningTool
 print HIGG1D1JetEMTPThinningTool
 #thinningTools.append(HIGG1D1JetEMTPThinningTool)
@@ -143,8 +134,9 @@ print HIGG1D1PhotonTPThinningTool
 #thinningTools.append(HIGG1D1PhotonTPThinningTool)
 
 # Tracks themselves
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 HIGG1D1TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "HIGG1D1TPThinningTool",
-                                                                    ThinningService         = "HIGG1D1ThinningSvc",
+                                                                    StreamName              = streamName,
                                                                     SelectionString             = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1TPThinningTool

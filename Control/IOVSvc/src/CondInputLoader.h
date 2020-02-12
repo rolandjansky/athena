@@ -76,7 +76,8 @@ class CondInputLoader
   //  void loader(Property&);
 
   /// Containers
-  DataObjIDColl m_load, m_handlesToCreate;
+  Gaudi::Property<DataObjIDColl> m_load{this,"Load",{},"List of objects to be loaded","Set<std::string>"};
+  DataObjIDColl  m_handlesToCreate;
   std::vector< SG::VarHandleKey > m_vhk;
 
   Gaudi::Property<bool> m_dumpEvt{ this, "DumpCondStore", false, 

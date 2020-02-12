@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesGroup.h"
@@ -96,7 +96,7 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
     double weightHLT_AND = 1.;
     std::unordered_map<size_t, RatesCPS> weightHLT_CPS; // Map of CPS-group-hash to RatesCPS accumulators
 
-    for (const auto& trigger : triggers) { // 
+    for (const auto& trigger : triggers) { //
       if (trigger->getPassed()) {
 
         const double trigPrescaleReciprocal = 1. / trigger->getPrescale( m_isExpressGroup );
@@ -165,8 +165,8 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
     m_rateVsTrainCachedPtr->Fill(weights.m_distanceInTrain, wOR);
   }
   if (m_dataCachedPtr != nullptr) {
-    m_dataCachedPtr->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, wOR);
-    m_dataCachedPtr->Fill(RatesBinIdentifier_t::kRATE_BIN_AND, wAND);
+    if (!isZero(wOR)) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kPASS_WEIGHTED_OR_BIN, wOR);
+    if (!isZero(wAND)) m_dataCachedPtr->Fill(RatesBinIdentifier_t::kPASS_WEIGHTED_AND_BIN, wAND);
   }
 
   if (m_uniqueTrigger != nullptr && m_uniqueTrigger->getDataHist() != nullptr) {
@@ -180,3 +180,24 @@ double RatesGroup::getUniqueWeight(const double ratesDenominator) const {
   if (isZero(diff)) return 0.;
   return diff / ratesDenominator; 
 }
+
+void RatesGroup::setExpressGroup(const bool i) { m_isExpressGroup = i; }
+
+void RatesGroup::setDoCachedWeights(const bool i) { m_doCachedWeights = i; } 
+
+void RatesGroup::setUseCachedWeights(const bool i) { m_useCachedWeights = i; }
+
+void RatesGroup::duplicateChildren(const RatesGroup* toDuplicate) { 
+  m_children = toDuplicate->getChildren(); m_masterGroup = toDuplicate;
+}
+
+double RatesGroup::getCachedWeight(const size_t l1Hash) const { return m_cachedWeights.at(l1Hash); }
+
+void RatesGroup::setUniqueTrigger(RatesTrigger* trigger) { m_uniqueTrigger = trigger; }
+
+RatesTrigger* RatesGroup::getUniqueTrigger() { return m_uniqueTrigger; }
+
+const std::unordered_map<size_t, std::set<const RatesTrigger*>>& RatesGroup::getChildren() const { 
+  return m_children;
+}
+

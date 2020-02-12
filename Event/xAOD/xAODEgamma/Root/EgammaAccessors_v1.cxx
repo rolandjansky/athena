@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: EgammaAccessors_v1.cxx 741489 2016-04-20 01:30:34Z christos $
@@ -73,7 +73,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Egamma  ERROR Unknown float ShowerShapeType ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    
    }  
@@ -92,7 +92,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Egamma ERROR Unknown char ElectronSelectionMenu ("
                    << menu << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
 
@@ -110,7 +110,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::Egamma ERROR Unknown unsigned int ElectronSelectionisEM ("
                    << isEM << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
 

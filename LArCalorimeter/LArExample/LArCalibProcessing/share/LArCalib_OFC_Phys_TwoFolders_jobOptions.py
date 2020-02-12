@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -78,7 +80,7 @@ if not 'ReadAutoCorrFromCOOL' in dir():
    ReadAutoCorrFromCOOL = True
 
 if not 'InputAutoCorrPoolDir' in dir():
-   InputAutoCorrPoolDir = commands.getoutput("pwd")
+   InputAutoCorrPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputAutoCorrPoolFileName' in dir():
    InputAutoCorrPoolFileName = "LArAutoCorr.pool.root"
@@ -89,7 +91,7 @@ if not 'ReadPhysWaveFromCOOL' in dir():
    ReadPhysWaveFromCOOL = True
 
 if not 'InputPhysWavePoolDir' in dir():
-   InputPhysWavePoolDir = commands.getoutput("pwd")
+   InputPhysWavePoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPhysWavePoolFileName' in dir():
    InputPhysWavePoolFileName = "LArPhysWave.pool.root"  
@@ -100,7 +102,7 @@ if not 'ReadPhysCaliTdiffFromCOOL' in dir():
    ReadPhysCaliTdiffFromCOOL = True
 
 if not 'InputPhysCaliTdiffPoolDir' in dir():
-   InputPhysCaliTdiffPoolDir = commands.getoutput("pwd")
+   InputPhysCaliTdiffPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPhysCaliTdiffPoolFileName' in dir():
    InputPhysCaliTdiffPoolFileName = "LArPhysCaliTdiff.pool.root"
@@ -226,10 +228,10 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
 
 if not 'OutputOFCRootFileDir' in dir():
-   OutputOFCRootFileDir = commands.getoutput("pwd")
+   OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir = commands.getoutput("pwd")
+   OutputPoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 OFCFileTag += "_"+str(Nsamples)+"samples"

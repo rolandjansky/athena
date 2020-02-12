@@ -192,7 +192,7 @@ namespace Muon {
     ToolHandle<MuonEDMPrinterTool>        m_printer
         {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects    
     ToolHandle<Trk::IExtendedTrackSummaryTool>        m_trackSummaryTool    
-        {this, "TrackSummaryTool", "MuonTrackSummaryTool"}; 
+        {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
     Gaudi::Property<double>                                 m_deta        {this, "DeltaEtaRegion", 0.05}; 

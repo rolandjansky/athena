@@ -198,7 +198,7 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
   /*
    * Calibration
    */
-  if ( m_clusterTool->contExecute(ctx, electrons , photons).isFailure() ){
+  if ( m_clusterTool->contExecute(ctx, *calodetdescrmgr,electrons , photons).isFailure() ){
     ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
     return StatusCode::FAILURE;
   }

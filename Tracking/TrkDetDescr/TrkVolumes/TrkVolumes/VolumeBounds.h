@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,8 @@
 // Trk
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkDetDescrUtils/ObjectAccessor.h"
+
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -56,7 +58,7 @@ namespace Trk {
       virtual bool inside(const Amg::Vector3D& pos, double tol=0.) const = 0;
          
       /** Method to decompose the Bounds into Surfaces, the Volume can turn them into BoundarySurfaces */
-      virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const = 0;
+      virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const = 0;
       
       /** Provide accessor for BoundarySurfaces */
       virtual ObjectAccessor boundarySurfaceAccessor(const Amg::Vector3D& gp,

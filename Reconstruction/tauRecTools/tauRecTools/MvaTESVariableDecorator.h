@@ -26,9 +26,6 @@ class MvaTESVariableDecorator
   StatusCode finalize() override;
 
  private:
-  int m_mu; //!
-  int m_nVtxPU; //!
-  bool m_emitVertexWarning=true; //!
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};

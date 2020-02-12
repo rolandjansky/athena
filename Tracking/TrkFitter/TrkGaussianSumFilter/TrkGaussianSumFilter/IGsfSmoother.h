@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -37,7 +37,7 @@ public:
   static const InterfaceID& interfaceID() { return InterfaceID_GsfSmoother; };
 
   /** Virtual destructor */
-  virtual ~IGsfSmoother()= default;
+  virtual ~IGsfSmoother() = default;
 
   /** Configure the GSF smoother
       - Configure the extrapolator

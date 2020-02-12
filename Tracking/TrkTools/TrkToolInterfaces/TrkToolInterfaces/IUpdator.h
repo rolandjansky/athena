@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -151,7 +151,7 @@ public:
 
      /** let the client tools know how the assumptions on the initial
          precision for non-measured track parameters are configured */
-    virtual const std::vector<double>       initialErrors() const = 0;
+    virtual    std::vector<double>       initialErrors() const = 0;
 
   };
 		

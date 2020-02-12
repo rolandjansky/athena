@@ -247,7 +247,8 @@ def getPixelClusterNnCondAlg(**kwargs) :
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
         # COOL binding
-        conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib",className='CondAttrListCollection')
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixelClustering/PixelClusNNCalib",
+                                    "/PIXEL/PixelClustering/PixelClusNNCalib",className='CondAttrListCollection')
 
     kwargs=setDefaults(kwargs,
                        NetworkNames = nn_names,

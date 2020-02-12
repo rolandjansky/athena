@@ -15,7 +15,7 @@
 #include "GeoPixelStaveRing.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoPara.h"

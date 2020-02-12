@@ -97,8 +97,8 @@ else:
       print(" +------------------------------------------------+ ")
       print(" ---> Command = %s" % PscConfig.optmap['PRECOMMAND'])
       try:
-         exec PscConfig.optmap['PRECOMMAND']
-      except Exception, e:
+         exec(PscConfig.optmap['PRECOMMAND'])
+      except Exception as e:
          if isinstance( e, IncludeError ):
             print(sys.exc_type, e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR
@@ -120,7 +120,7 @@ else:
    ### run user jobOptions file -------------------------------------------------
    try:
       include( "%s" % PscConfig.optmap['JOBOPTIONSPATH'] )
-   except Exception, e:
+   except Exception as e:
       if isinstance(e,SystemExit):
          raise
 
@@ -163,8 +163,8 @@ else:
       print(" +------------------------------------------------+ ")
       print(" ---> Command = ", PscConfig.optmap['POSTCOMMAND'])
       try:
-         exec PscConfig.optmap['POSTCOMMAND']
-      except Exception, e:
+         exec(PscConfig.optmap['POSTCOMMAND'])
+      except Exception as e:
          if isinstance( e, IncludeError ):
             print(sys.exc_type, e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR

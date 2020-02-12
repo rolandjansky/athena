@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GLOBALCHI2FITTER_H
@@ -261,7 +261,7 @@ namespace Trk {
       Cache &,
       GXFTrajectory &,
       const MeasurementBase *,
-      const TrackParameters * trackpar = 0,
+      const TrackParameters * trackpar = nullptr,
       bool isoutlier = false,
       int index = -1
     ) const;

@@ -48,11 +48,10 @@ STDM5ThinningHelper.AppendToStream( STDM5Stream )
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 STDM5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM5JetTPThinningTool",
-                                                                        ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt4EMTopoJets",
                                                                         SelectionString         = "AntiKt4EMTopoJets.pt > 15*GeV",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM5JetTPThinningTool
 
 

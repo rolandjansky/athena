@@ -38,12 +38,6 @@ atlas_add_component( DPDUtils
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities NavFourMom GaudiKernel UserAnalysisUtilsLib TagEvent JetEvent muonEvent Particle egammaEvent TrigDecisionToolLib DBDataModel EventBookkeeperMetaData tauEvent )
 
-atlas_add_dictionary( DPDUtilsDict
-                      DPDUtils/DPDUtilsDict.h
-                      DPDUtils/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities NavFourMom GaudiKernel UserAnalysisUtilsLib TagEvent JetEvent muonEvent Particle egammaEvent TrigDecisionToolLib DBDataModel EventBookkeeperMetaData tauEvent )
-
 # Install files from the package:
 atlas_install_headers( DPDUtils )
 atlas_install_python_modules( python/*.py )

@@ -165,7 +165,6 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_helperTools(this)
 {
    assert(pSvcLocator);
-   declareProperty("ItemList",               m_itemList);
    declareProperty("MetadataItemList",       m_metadataItemList);
    declareProperty("TransientItems",         m_transientItems);
    declareProperty("OutputFile",             m_outputName="DidNotNameOutput.root");

@@ -81,6 +81,10 @@ MdtVsTgcRawDataValAlg::DQCheckMDTSegments(vector<const Muon::MuonSegment*> (&sor
         // Loop through contained ROTs and identify used stations
         for(unsigned int iROT=0; iROT<segm->numberOfContainedROTs(); ++iROT) {
           const Trk::RIO_OnTrack* rio = segm->rioOnTrack(iROT);
+	  if(!rio){
+	    ATH_MSG_DEBUG("no RIO");
+	    continue;
+	  }
           Identifier id = rio->identify();
           stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
           int isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(id);

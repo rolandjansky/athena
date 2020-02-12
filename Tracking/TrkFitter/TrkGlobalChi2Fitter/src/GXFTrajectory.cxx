@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGlobalChi2Fitter/GXFTrajectory.h"
@@ -85,16 +85,16 @@ namespace Trk {
     m_caloelossstate = nullptr;
     
     if (rhs.m_caloelossstate != nullptr) {
-      for (int i = 0; i < (int) m_states.size(); i++) {
-        GXFMaterialEffects *meff = m_states[i]->materialEffects();
-        const TrackParameters *par = m_states[i]->trackParameters();
+      for (auto & state : m_states) {
+        GXFMaterialEffects *meff = state->materialEffects();
+        const TrackParameters *par = state->trackParameters();
         
         if (
           (meff != nullptr) && (par != nullptr) && meff->sigmaDeltaE() > 0 && 
           meff->sigmaDeltaPhi() == 0 && 
           (par->position().perp() > 1400 || std::abs(par->position().z()) > 3700)
         ) {
-          m_caloelossstate = m_states[i];
+          m_caloelossstate = state;
         }
       }
     }
@@ -107,8 +107,8 @@ namespace Trk {
       delete m_refpar;
     }
     
-    for (int i = 0; i < (int) m_states.size(); i++) {
-      delete m_states[i];
+    for (auto & state : m_states) {
+      delete state;
     }
   }
 
@@ -138,8 +138,8 @@ namespace Trk {
       delete m_refpar;
       m_refpar = rhs.m_ownrefpar ? rhs.m_refpar->clone() : rhs.m_refpar;
       
-      for (int i = 0; i < (int) m_states.size(); i++) {
-        delete m_states[i];
+      for (auto & state : m_states) {
+        delete state;
       }
       
       m_states = rhs.m_states;
@@ -161,14 +161,14 @@ namespace Trk {
       m_caloelossstate = nullptr;
       
       if (rhs.m_caloelossstate != nullptr) {
-        for (int i = 0; i < (int) m_states.size(); i++) {
-          GXFMaterialEffects *meff = m_states[i]->materialEffects();
-          const TrackParameters *par = m_states[i]->trackParameters();
+        for (auto & state : m_states) {
+          GXFMaterialEffects *meff = state->materialEffects();
+          const TrackParameters *par = state->trackParameters();
           if (
             (meff != nullptr) && (par != nullptr) && meff->sigmaDeltaE() > 0 && meff->sigmaDeltaPhi() == 0 && 
             (par->position().perp() > 1400 || std::abs(par->position().z()) > 3700)
           ) {
-            m_caloelossstate = m_states[i];
+            m_caloelossstate = state;
           }
         }
       }
@@ -255,7 +255,8 @@ namespace Trk {
       }
     } else {
       m_states.insert(m_states.begin() + index, state);
-      int previousscats = 0, previousbrems = 0;
+      int previousscats = 0;
+      int previousbrems = 0;
       
       for (int i = 0; i < index; i++) {
         if (m_states[i]->trackStateType() == TrackState::Scatterer) {
@@ -308,7 +309,8 @@ namespace Trk {
       m_refpar = per;
       m_nupstreamstates = m_nupstreamscatterers = m_nupstreamcaloscatterers = m_nupstreambrems = 0;
 
-      std::vector < GXFTrackState * >::iterator it = m_states.begin(), it2 = m_states.begin();
+      std::vector < GXFTrackState * >::iterator it = m_states.begin();
+      std::vector < GXFTrackState * >::iterator it2 = m_states.begin();
       
       while (it2 != m_states.end()) {
         double distance = 0;
@@ -544,17 +546,16 @@ namespace Trk {
       m_scatteringsigmas.clear();
       m_scatteringsigmas.reserve(numberOfScatterers());
       m_scatteringangles.reserve(numberOfScatterers());
-      for (std::vector < GXFTrackState * >::iterator it = m_states.begin();
-           it != m_states.end(); it++) {
-        if ((**it).trackStateType() == TrackState::Scatterer
-            && ((m_prefit == 0) || (**it).materialEffects()->deltaE() == 0)) {
-          double scatphi = (**it).materialEffects()->deltaPhi();
-          double scattheta = (**it).materialEffects()->deltaTheta();
-          m_scatteringangles.push_back(std::make_pair(scatphi, scattheta));
-          double sigmascatphi = (**it).materialEffects()->sigmaDeltaPhi();
-          double sigmascattheta = (**it).materialEffects()->sigmaDeltaTheta();
+      for (auto & state : m_states) {
+        if ((*state).trackStateType() == TrackState::Scatterer
+            && ((m_prefit == 0) || (*state).materialEffects()->deltaE() == 0)) {
+          double scatphi = (*state).materialEffects()->deltaPhi();
+          double scattheta = (*state).materialEffects()->deltaTheta();
+          m_scatteringangles.emplace_back(scatphi, scattheta);
+          double sigmascatphi = (*state).materialEffects()->sigmaDeltaPhi();
+          double sigmascattheta = (*state).materialEffects()->sigmaDeltaTheta();
           m_scatteringsigmas.
-            push_back(std::make_pair(sigmascatphi, sigmascattheta));
+            emplace_back(sigmascatphi, sigmascattheta);
         }
       }
     }
@@ -579,13 +580,12 @@ namespace Trk {
                                        double > >&scatteringangles) {
     m_scatteringangles = scatteringangles;
     int scatno = 0;
-    for (std::vector < GXFTrackState * >::iterator it = m_states.begin();
-         it != m_states.end(); it++) {
-      if ((**it).trackStateType() == TrackState::Scatterer
-          && ((m_prefit == 0) || (**it).materialEffects()->deltaE() == 0)) {
+    for (auto & state : m_states) {
+      if ((*state).trackStateType() == TrackState::Scatterer
+          && ((m_prefit == 0) || (*state).materialEffects()->deltaE() == 0)) {
         double scatphi = scatteringangles[scatno].first;
         double scattheta = scatteringangles[scatno].second;
-        (**it).materialEffects()->setScatteringAngles(scatphi, scattheta);
+        (*state).materialEffects()->setScatteringAngles(scatphi, scattheta);
         scatno++;
       }
     }
@@ -596,11 +596,10 @@ namespace Trk {
     // if (m_prefit==1) return;
     m_brems = brems;
     int bremno = 0;
-    for (std::vector < GXFTrackState * >::iterator it = m_states.begin();
-         it != m_states.end(); it++) {
-      if (((**it).materialEffects() != nullptr)
-          && (**it).materialEffects()->sigmaDeltaE() > 0) {
-        (**it).materialEffects()->setdelta_p(brems[bremno]);
+    for (auto & state : m_states) {
+      if (((*state).materialEffects() != nullptr)
+          && (*state).materialEffects()->sigmaDeltaE() > 0) {
+        (*state).materialEffects()->setdelta_p(brems[bremno]);
         bremno++;
       }
     }
@@ -645,8 +644,8 @@ namespace Trk {
       int nfitpar = numberOfFitParameters();
       // std::cout << "capacity: " << m_resderiv.capacity() << " nbrems: " << numberOfBrems() << " ndof: " << m_ndof <<
       // " perpars: " << m_nperpars << " noutl: " << m_nmeasoutl << std::endl;
-      for (unsigned int i = 0; i < m_weightresderiv.size(); i++) {
-        m_weightresderiv[i].resize(nfitpar);
+      for (auto & i : m_weightresderiv) {
+        i.resize(nfitpar);
       }
     }
     return m_weightresderiv;

@@ -62,6 +62,7 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
     for(unsigned int i=0;i<segm->numberOfContainedROTs();++i){
       // Get station information
       const Trk::RIO_OnTrack* rio = segm->rioOnTrack(i);
+      if(!rio) continue;
       Identifier id = rio->identify();
       stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
       // Flag Segments with ROTs in the MDT & Endcap

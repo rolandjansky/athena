@@ -298,10 +298,10 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     ATH_MSG_WARNING("Could not extract MeasurementBase from track");
     return collect;
   }
-  if (m_useClusterPosition && eg){
+  if (m_useClusterPosition && eg->caloCluster()){
     int charge(0);
     if( track->perigeeParameters() ) charge  = (int)track->perigeeParameters()->charge(); 
-    std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot (m_CCOTBuilder->buildClusterOnTrack(eg,charge));
+    std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot (m_CCOTBuilder->buildClusterOnTrack(eg->caloCluster(),charge));
     if (ccot!=nullptr){
       collect.m_trash.push_back(std::move(ccot));
       collect.m_measurements.push_back(collect.m_trash.back().get());
