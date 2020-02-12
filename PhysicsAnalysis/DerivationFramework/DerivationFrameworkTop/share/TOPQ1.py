@@ -141,7 +141,8 @@ addTCCTrimmedJetsForTop(TOPQ1Sequence, "TOPQ1")
 
 # add VR jets
 from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
-addVRJetsForTop(TOPQ1Sequence)
+addVRJetsForTop(TOPQ1Sequence,'201810')
+addVRJetsForTop(TOPQ1Sequence,'201903')
 
 # add Xbb tagger information
 from DerivationFrameworkTop.TOPQCommonJets import addXbbTaggerInformation
