@@ -552,13 +552,13 @@ void TrigSignatureMoniMT::RateHistogram::startTimer(unsigned int duration, unsig
 
 void TrigSignatureMoniMT::RateHistogram::stopTimer() {
   if (m_timer) {
-    m_timer->stop();
+    m_timer.reset();
     time_t t = time(0);
     unsigned int interval;
     unsigned int duration = m_timeDivider->forcePassed(t, interval);
     updatePublished(duration); //divide by time that really passed not by interval duration
   }
-  m_timer.reset();
+
 }
 
 void TrigSignatureMoniMT::RateHistogram::updatePublished(unsigned int duration) const {
@@ -579,5 +579,5 @@ void TrigSignatureMoniMT::RateHistogram::callback() const {
   }
 
   //schedule itself in another 1/20 of the integration period in milliseconds
-  m_timer->start(m_duration*50);
+  if ( m_timer ) m_timer->start(m_duration*50);
 }
