@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # This file is just for shared functions etc used by this package.
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -28,6 +28,7 @@ def SetupMuonStandaloneArguments():
     
 def SetupMuonStandaloneConfigFlags(args):
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    # Keeping this commented out so we can easily switch to the default for testing against that.
     # from AthenaConfiguration.TestDefaults import defaultTestFiles
     # ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
@@ -41,11 +42,6 @@ def SetupMuonStandaloneConfigFlags(args):
     ConfigFlags.Detector.GeometryRPC   = True 
     
     ConfigFlags.Output.ESDFileName=args.output
-    
-    # from AthenaCommon.Logging import log
-    # from AthenaCommon.Constants import DEBUG
-    # log.setLevel(DEBUG)
-    # log.debug('About to set up Segment Finding.')
     
     ConfigFlags.Input.isMC = True
     ConfigFlags.lock()
