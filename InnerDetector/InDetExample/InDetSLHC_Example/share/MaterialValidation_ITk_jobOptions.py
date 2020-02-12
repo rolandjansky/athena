@@ -7,6 +7,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 # the global detflags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 

@@ -126,6 +126,7 @@ class SLHC_Setup :
                 "PIXELDISCSUPPORT":"InclBrl4_InclinedAlternative_DiskSupport",
                 "MATERIAL":"InclBrl_Material",
                 "PIXELROUTINGSERVICE":"InclBrl4_InclinedAlternative_PixelRoutingService",
+                "BCMPRIME":"BCMPrime_InclinedAlternative"
                 }
         else:
             xmlFileDict["Pixel"]={
@@ -206,11 +207,19 @@ class SLHC_Setup :
         toolSvc+=geoEndcapTool
 
         print "******************************************************************************************"
+        print "PixelGeoModel - import GeoBCMPrimeTool"
+
+        from BCMPrime.BCMPrimeConf import GeoBCMPrimeTool
+        geoBCMPrimeTool = GeoBCMPrimeTool(name="GeoBCMPrimeTool")
+        toolSvc += geoBCMPrimeTool
+
+        print "******************************************************************************************"
         print "PixelGeoModel - import GeoPixelEnvelopeInclRefTool"
         from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelEnvelopeInclRefTool
         geoEnvelopeTool=GeoPixelEnvelopeInclRefTool(name="GeoPixelEnvelopeInclRefTool")
         geoEnvelopeTool.GeoPixelBarrelTool = geoBarrelTool
         geoEnvelopeTool.GeoPixelEndcapTool = geoEndcapTool
+        geoEnvelopeTool.GeoBCMPrimeTool = geoBCMPrimeTool
         geoEnvelopeTool.PixelServicesTool = serviceTool
         toolSvc+=geoEnvelopeTool
 
