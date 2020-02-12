@@ -60,6 +60,7 @@ globalflags.DetDescrVersion = myGeo
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 

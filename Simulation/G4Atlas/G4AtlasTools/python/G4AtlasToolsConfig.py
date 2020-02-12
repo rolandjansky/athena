@@ -77,6 +77,8 @@ def generateInDetSensitiveDetectorList():
     from AthenaCommon.DetFlags import DetFlags
     if (isRUN1 or isRUN2) and DetFlags.simulate.BCM_on():
         SensitiveDetectorList += [ 'BCMSensorSD' ]
+    elif isUpgrade and DetFlags.simulate.BCM_on():
+        SensitiveDetectorList += [ 'SLHC_BCMSensorSD' ]
     #if isRUN2 and DetFlags.simulation.DBM_on():
     #    SensitiveDetectorList += [ 'DBMSensorSD' ]
     if DetFlags.simulate.pixel_on():
