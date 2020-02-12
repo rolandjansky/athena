@@ -70,7 +70,7 @@ def createStepFilterNode(name, seq_list, dump=False):
     for seq in seq_list:
         filterAlg = seq.filter.Alg
         log.info("createStepFilterNode: Add  %s to filter node %s", filterAlg.name(), name)
-        if not filterAlg in filter_list:
+        if filterAlg not in filter_list:
             filter_list.append(filterAlg)
 
 
