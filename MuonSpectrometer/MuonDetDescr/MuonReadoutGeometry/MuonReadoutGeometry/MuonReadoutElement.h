@@ -166,9 +166,6 @@ public:
    virtual void fillCache() const = 0;
    virtual void refreshCache() const = 0;
 
-  /* // clean-up internal cache */
-  /*  void clear() const; */
-
    const Amg::Transform3D& defTransform(const Identifier&) const
    {return defTransform();};
  

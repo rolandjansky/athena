@@ -61,11 +61,6 @@ namespace MuonGM {
   {
   }
 
-  // void MuonReadoutElement::clear() const {
-  //   // delete m_absTransform; m_absTransform = nullptr;
-  //   // delete m_defTransform; m_defTransform = nullptr;    
-  // }
-
   const Amg::Vector3D MuonReadoutElement::globalPosition() const
   {
     Amg::Transform3D xf = absTransform();
