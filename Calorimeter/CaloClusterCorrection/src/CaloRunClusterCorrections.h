@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it is really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRunClusterCorrections.h,v 1.4 2009-05-20 20:48:51 ssnyder Exp $
@@ -310,7 +310,7 @@ private:
    * and ${BE} will be expanded to either `b' or `e', depending on the
    * setting of the @c region property.
    */
-  StatusCode clsnameFromDBConstants  (Tool& tool);
+  StatusCode clsnameFromDBConstants ATLAS_NOT_THREAD_SAFE (Tool& tool);
 
 
   /**
@@ -321,13 +321,13 @@ private:
    * exist in the @c ToolConstants structure, use instead the longest
    * matching prefix.
    */
-  StatusCode fixPrefix (Tool& tool);
+  StatusCode fixPrefix ATLAS_NOT_THREAD_SAFE (Tool& tool);
 
 
   /**
    * @brief Fill in @c m_toolorder to run corrections in the proper order.
    */
-  StatusCode orderCorrections (bool allowMissing);
+  StatusCode orderCorrections ATLAS_NOT_THREAD_SAFE (bool allowMissing);
 
 
   /**
@@ -336,9 +336,9 @@ private:
    * @param pname The constant name (without prefix).
    * @param out[out] The retrieved parameter.
    */
-  StatusCode getConstant (const Tool& tool,
-                          const std::string& pname,
-                          int& out);
+  StatusCode getConstant ATLAS_NOT_THREAD_SAFE (const Tool& tool,
+                                                const std::string& pname,
+                                                int& out);
 
   //-----------
   // Properties
