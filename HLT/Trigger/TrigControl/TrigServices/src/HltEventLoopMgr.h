@@ -7,8 +7,8 @@
 
 // Trigger includes
 #include "TrigKernel/ITrigEventLoopMgr.h"
-#include "TrigKernel/HltPscErrorCode.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -149,7 +149,7 @@ private:
   /** @brief Handle a failure to process an event
    *  @return FAILURE breaks the event loop
    **/
-  StatusCode failedEvent(hltonl::PSCErrorCode errorCode,
+  StatusCode failedEvent(HLT::OnlineErrorCode errorCode,
                          const EventContext& eventContext);
 
   /// The method executed by the event timeout monitoring thread

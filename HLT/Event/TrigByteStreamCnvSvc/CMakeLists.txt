@@ -16,6 +16,7 @@ atlas_depends_on_subdirs(
     Event/ByteStreamData
     Event/xAOD/xAODEventInfo
     HLT/Trigger/TrigControl/TrigKernel
+    Trigger/TrigEvent/TrigSteeringEvent
 )
 
 # External dependencies
@@ -30,7 +31,7 @@ atlas_add_component(
   PRIVATE_LINK_LIBRARIES
     ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps ByteStreamData
     AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib
-    GaudiKernel xAODEventInfo TrigKernel )
+    GaudiKernel xAODEventInfo TrigKernel TrigSteeringEvent )
 
 # Install files from the package
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

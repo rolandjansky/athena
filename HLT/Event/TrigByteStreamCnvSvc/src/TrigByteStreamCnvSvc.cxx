@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Trigger includes
 #include "TrigByteStreamCnvSvc.h"
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "TrigKernel/HltPscErrorCode.h"
 
 // Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
@@ -215,10 +215,10 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
 
   // Monitor error code
   if (rawEvent.nstatus() > 1) {
-    hltonl::PSCErrorCode errorCode = static_cast<hltonl::PSCErrorCode>(rawEvent.status()[1]);
+    HLT::OnlineErrorCode errorCode = static_cast<HLT::OnlineErrorCode>(rawEvent.status()[1]);
     std::ostringstream ss;
     ss << errorCode;
-    m_histPscErrorCode->Fill(ss.str().data(), 1.0);
+    m_histOnlineErrorCode->Fill(ss.str().data(), 1.0);
   }
 
   // Decode stream tags
@@ -395,10 +395,10 @@ void TrigByteStreamCnvSvc::bookHistograms() {
       ATH_MSG_WARNING("Cannot register monitoring histogram " << hist->GetName());
   };
 
-  m_histPscErrorCode = new TH1I(
-    "PscErrorCode", "PSC error codes;;Events", 1, 0, 1);
-  m_histPscErrorCode->SetCanExtend(TH1::kXaxis);
-  regHist(m_histPscErrorCode);
+  m_histOnlineErrorCode = new TH1I(
+    "OnlineErrorCode", "Online error codes;;Events", 1, 0, 1);
+  m_histOnlineErrorCode->SetCanExtend(TH1::kXaxis);
+  regHist(m_histOnlineErrorCode);
 
   m_histStreamTags = new TH1F(
     "StreamTags", "Stream Tags produced by HLT;;Events", 1, 0, 1);
