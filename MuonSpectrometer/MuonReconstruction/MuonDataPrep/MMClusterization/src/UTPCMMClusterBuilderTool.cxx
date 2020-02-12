@@ -66,7 +66,7 @@ Muon::UTPCMMClusterBuilderTool::UTPCMMClusterBuilderTool(const std::string& t,
 
 
 StatusCode Muon::UTPCMMClusterBuilderTool::initialize(){
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_MSG_INFO("Set vDrift to "<< m_vDrift <<" um/ns");
     return StatusCode::SUCCESS;
 }
@@ -76,15 +76,15 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
     std::vector<std::vector<Muon::MMPrepData>> MMprdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
     for (const auto& MMprd:MMprds){
         Identifier id = MMprd.identify();
-        int layer = 4*(m_muonIdHelperTool->mmIdHelper().multilayer(id)-1)+(m_muonIdHelperTool->mmIdHelper().gasGap(id)-1);
-        ATH_MSG_DEBUG("Sorting PRD into layer layer: "<< layer<< " gas_gap "<<m_muonIdHelperTool->mmIdHelper().gasGap(id) <<"multilayer "<<m_muonIdHelperTool->mmIdHelper().multilayer(id));
+        int layer = 4*(m_idHelperSvc->mmIdHelper().multilayer(id)-1)+(m_idHelperSvc->mmIdHelper().gasGap(id)-1);
+        ATH_MSG_DEBUG("Sorting PRD into layer layer: "<< layer<< " gas_gap "<<m_idHelperSvc->mmIdHelper().gasGap(id) <<"multilayer "<<m_idHelperSvc->mmIdHelper().multilayer(id));
         MMprdsPerLayer.at(layer).push_back(MMprd);
     }
 
     //sort MMPrds by channel
     for(unsigned int i_layer=0;i_layer<MMprdsPerLayer.size();i_layer++){
         std::sort(MMprdsPerLayer.at(i_layer).begin(),MMprdsPerLayer.at(i_layer).end(),
-                  [this](const MMPrepData &a,const MMPrepData &b){return this->m_muonIdHelperTool->mmIdHelper().channel(a.identify())<this->m_muonIdHelperTool->mmIdHelper().channel(b.identify());});
+                  [this](const MMPrepData &a,const MMPrepData &b){return this->m_idHelperSvc->mmIdHelper().channel(a.identify())<this->m_idHelperSvc->mmIdHelper().channel(b.identify());});
     }
 
 
@@ -98,7 +98,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
         for( auto MMprd: MMprdsOfLayer){
             Identifier id_prd=MMprd.identify();
             strips_id.push_back(id_prd);
-            int gasGap=m_muonIdHelperTool->mmIdHelper().gasGap(id_prd);
+            int gasGap=m_idHelperSvc->mmIdHelper().gasGap(id_prd);
             stripsLocalPosX.push_back(((gasGap%2==0 && m_digiHasNegativeAngles) ? -1:1)*MMprd.localPosition().x()); //flip local positions for even gas gaps to reduce hough space to positiv angles
             //determine time of flight from strip position
             double distToIp=MMprd.globalPosition().norm();
@@ -109,10 +109,10 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
             double angleToIp=std::atan(Tan)/toRad;
 
             stripsTime.push_back(MMprd.time()-tof+m_timeOffset); // use time minus tof minus vmm integration time as actual time
-            stripsChannel.push_back(m_muonIdHelperTool->mmIdHelper().channel(id_prd));
+            stripsChannel.push_back(m_idHelperSvc->mmIdHelper().channel(id_prd));
             stripsCharge.push_back(MMprd.charge());
             
-            ATH_MSG_DEBUG("Hit channel: "<< m_muonIdHelperTool->mmIdHelper().channel(id_prd) <<" time "<< MMprd.time()-tof+m_timeOffset << " localPosX "<< MMprd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_muonIdHelperTool->mmIdHelper().gasGap(id_prd) << " multiplet " << m_muonIdHelperTool->mmIdHelper().multilayer(id_prd) << " stationname " <<m_muonIdHelperTool->mmIdHelper().stationName(id_prd)  << " stationPhi " <<m_muonIdHelperTool->mmIdHelper().stationPhi(id_prd) << " stationEta "<<m_muonIdHelperTool->mmIdHelper().stationEta(id_prd));
+            ATH_MSG_DEBUG("Hit channel: "<< m_idHelperSvc->mmIdHelper().channel(id_prd) <<" time "<< MMprd.time()-tof+m_timeOffset << " localPosX "<< MMprd.localPosition().x() << " tof "<<tof <<" angleToIp " << angleToIp<<" gas_gap "<< m_idHelperSvc->mmIdHelper().gasGap(id_prd) << " multiplet " << m_idHelperSvc->mmIdHelper().multilayer(id_prd) << " stationname " <<m_idHelperSvc->mmIdHelper().stationName(id_prd)  << " stationPhi " <<m_idHelperSvc->mmIdHelper().stationPhi(id_prd) << " stationEta "<<m_idHelperSvc->mmIdHelper().stationEta(id_prd));
         }
         if(MMprdsOfLayer.size()<2) continue;
 
@@ -385,7 +385,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPr
     }
     lf->Eval(); 
 
-    if(m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles){
+    if(m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles){
         ffit->SetParLimits(1,-11.5,-0.15); //5 to 81 degree
     }else{
         ffit->SetParLimits(1,0.15,11.5); //5 to 81 degree
@@ -414,13 +414,13 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPr
         ATH_MSG_DEBUG("Fit angle: "<<fitAngle <<" "<<fitAngle*180./M_PI);
         ATH_MSG_DEBUG("ChisSqProb"<< chiSqProb);
         ATH_MSG_DEBUG("nStrips:"<<idxSelected.size());
-        ATH_MSG_DEBUG("gas gap:"<<m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify()));
+        ATH_MSG_DEBUG("gas gap:"<<m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify()));
     }
     if(s!=0 && s!=4000){ //4000 means fit succesfull but error optimization by minos failed; fit is still usable.
         ATH_MSG_DEBUG("Final fit failed with error code "<<s);
         return StatusCode::FAILURE;
     }
-    if((m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles) && (ffit->GetParameter(1)<=-11.49 || ffit->GetParameter(1)>=-0.151)) return StatusCode::FAILURE; // fit should have negativ slope for odd gas gaps
-    if(m_muonIdHelperTool->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==0  && m_digiHasNegativeAngles && (ffit->GetParameter(1)>=11.49 || ffit->GetParameter(1)<=0.151)) return StatusCode::FAILURE; // fit should have positiv slope for even gas gaps
+    if((m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles) && (ffit->GetParameter(1)<=-11.49 || ffit->GetParameter(1)>=-0.151)) return StatusCode::FAILURE; // fit should have negativ slope for odd gas gaps
+    if(m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==0  && m_digiHasNegativeAngles && (ffit->GetParameter(1)>=11.49 || ffit->GetParameter(1)<=0.151)) return StatusCode::FAILURE; // fit should have positiv slope for even gas gaps
     return StatusCode::SUCCESS;
 }
