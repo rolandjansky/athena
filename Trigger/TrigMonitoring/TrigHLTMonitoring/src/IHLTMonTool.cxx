@@ -45,6 +45,7 @@ IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, c
   declareProperty("CAFonly", m_cafonly);
   declareProperty("TDT", m_tdthandle);
   declareProperty("TrigConfigTool",m_configTool);
+  declareProperty("TrigConfigSvc",m_configsvc);
   declareProperty("IgnoreTruncationCheck",m_ignoreTruncationCheck=false); //Default check for truncate HLTResult
   m_log = new MsgStream(msgSvc(), name());
 }

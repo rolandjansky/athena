@@ -17,6 +17,7 @@
 
 #include "TrigDecisionMakerMT.h"
 
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteering/Lvl1ResultAccessTool.h"
 
@@ -128,9 +129,9 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
 
       const std::vector<uint32_t> errorCodes = hltResult->getErrorCodes();
       bool truncated = false;
-      size_t code = 0;
+      uint32_t code = 0;
       for (size_t i = 0; i < errorCodes.size(); ++i) {
-        truncated |= errorCodes.at(i) == 13; // == hltonl::PSCErrorCode::RESULT_TRUNCATION
+        truncated |= (errorCodes.at(i) == HLT::OnlineErrorCode::RESULT_TRUNCATION);
         if (i == 0) {
           code = errorCodes.at(i);
         }
