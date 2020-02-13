@@ -24,11 +24,6 @@ StatusCode AthMonitorAlgorithm::initialize() {
         for (size_t idx = 0; idx < m_tools.size(); ++idx) {
 	    std::string name(m_tools[idx].name());
 	    m_toolLookupMap[ name ] = idx;
-	    if ( name.find_last_of('.')  != std::string::npos ) {
-	        name = name.substr(name.find_last_of('.')+1);
-		m_toolLookupMap[ name ] = idx;
-	    }
-
         }
     }
 
