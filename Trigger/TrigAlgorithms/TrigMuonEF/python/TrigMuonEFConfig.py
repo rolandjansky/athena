@@ -464,6 +464,30 @@ def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', *
    kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
    return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
 
+def TMEF_MdtRawDataProviderTool(name="TMEF_MdtRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "MdtROD_Decoder")
+    if DetFlags.overlay.MDT_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation",overlayFlags.dataStore()+"+MDTCSM")
+    return CfgMgr.Muon__MDT_RawDataProviderTool(name,**kwargs)
+
+def TMEF_RpcRawDataProviderTool(name = "TMEF_RpcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "RpcROD_Decoder")
+    if DetFlags.overlay.RPC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+RPCPAD")
+    return CfgMgr.Muon__RPC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_TgcRawDataProviderTool(name = "TMEF_TgcRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "TgcROD_Decoder")
+    if DetFlags.overlay.TGC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+TGCRDO")
+    return CfgMgr.Muon__TGC_RawDataProviderTool(name,**kwargs)
+
+def TMEF_CscRawDataProviderTool(name = "TMEF_CscRawDataProviderTool",**kwargs):
+    kwargs.setdefault("Decoder", "CscROD_Decoder")
+    if DetFlags.overlay.CSC_on() and overlayFlags.isDataOverlay():
+      kwargs.setdefault("RdoLocation", overlayFlags.dataStore()+"+CSCRDO")
+    return CfgMgr.Muon__CSC_RawDataProviderTool(name,**kwargs)
+
 # TrigMuonEF classes
 class TrigMuonEFTrackBuilderConfig ():
     __slots__ = ()
@@ -497,9 +521,10 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
-        self.MdtRawDataProvider = "MdtRawDataProviderTool"
-        self.RpcRawDataProvider = "RpcRawDataProviderTool"
-        self.TgcRawDataProvider = "TgcRawDataProviderTool"
+        self.MdtRawDataProvider = "TMEF_MdtRawDataProviderTool"
+        self.CscRawDataProvider = "TMEF_CscRawDataProviderTool"
+        self.RpcRawDataProvider = "TMEF_RpcRawDataProviderTool"
+        self.TgcRawDataProvider = "TMEF_TgcRawDataProviderTool"
 
         #Need to run non-MT version of decoding tools
         #Need different PRD container names to run offline and trigger in same jobs
