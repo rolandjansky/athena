@@ -17,6 +17,8 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class StoreGateSvc;
 class ITRT_StrawStatusSummarySvc;
@@ -60,6 +62,8 @@ class TRT_ActiveFractionSvc : public AthService,
   std::vector<std::pair<double,double> > m_etaBins;
   std::vector<std::pair<double,double> > m_phiBins;
   std::vector<std::vector<double> > m_activeFracTable; // [etaBin,phiBin]
+
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
 
 };
 
