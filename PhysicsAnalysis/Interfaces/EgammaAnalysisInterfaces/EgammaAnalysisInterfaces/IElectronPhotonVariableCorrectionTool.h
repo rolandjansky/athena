@@ -42,4 +42,4 @@ public:
 
 }; // class IElectronPhotonVariableCorrectionTool
 
-#endif // _IASGFUDGEMCTOOL_H
+#endif // _IELECTRONPHOTONVARIABLECORRECTIONTOOL_H
