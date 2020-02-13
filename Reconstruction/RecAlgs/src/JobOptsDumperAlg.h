@@ -16,8 +16,8 @@ class JobOptsDumperAlg : public AthAlgorithm {
 public:
 
   using AthAlgorithm::AthAlgorithm;
-  StatusCode initialize() override;
-  StatusCode execute() {return StatusCode::SUCCESS;};
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override {return StatusCode::SUCCESS;};
     
 private:
   // Properties
