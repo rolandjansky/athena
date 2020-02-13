@@ -1,9 +1,9 @@
 /**
    @class ElectronPhotonVariableCorrectionTool
-   @brief Tool to correct photon and electron MC shower shapes.
+   @brief Tool to correct electron and photon MC variables.
 
    @author Nils Gillwald (DESY) nils.gillwald@desy.de
-   @date   September 2019
+   @date   February 2020
 */
 
 #include "AsgElectronPhotonCorrectionConfigHelper.h"
