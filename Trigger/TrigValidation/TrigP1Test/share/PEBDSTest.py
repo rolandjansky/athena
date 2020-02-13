@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequenceSetup
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from libpyeformat_helper import SourceIdentifier,SubDetector
+from libpyeformat_helper import SubDetector
 from AthenaCommon.AlgSequence import dumpSequence
 from AthenaCommon.Logging import logging
 log = logging.getLogger('dataScoutingTest')
@@ -147,13 +147,11 @@ TriggerFlags.EgammaSlice.setAll()
 TriggerFlags.MuonSlice.setAll()
 
 # Set up everything to run HLT
-include('TriggerJobOpts/runHLT_standalone.py')
+include('TriggerJobOpts/runHLT_standalone.py')  # noqa: F821
 
 # Generate the menu
 menu = GenerateMenuMT()
 allChainConfigs = menu.generateMT()
 
-# TODO: configure the HLT result making including the Data Scouting
-
 # Dump top sequence for debug information
-dumpSequence(topSequence)
+dumpSequence(topSequence)  # noqa: F821
