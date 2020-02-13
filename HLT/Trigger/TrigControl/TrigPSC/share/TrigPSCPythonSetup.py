@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 ## @file   TrigPSCPythonSetup.py
@@ -137,6 +137,7 @@ else:
       print('Shortened traceback (most recent user call last):')
       print(''.join( traceback.format_list( short_tb )), end=' ')
       print(''.join( traceback.format_exception_only( exc_info[0], exc_info[1] )), end= '')
+      sys.stdout.flush()
 
       # additional processing to get right error codes
       import AthenaCommon.ExitCodes as ExitCodes
