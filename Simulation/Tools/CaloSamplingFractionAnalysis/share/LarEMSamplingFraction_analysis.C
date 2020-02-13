@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 {
   TFile* file = TFile::Open("LArEM_SF.root");
   new TCanvas("Etot","Etot");
