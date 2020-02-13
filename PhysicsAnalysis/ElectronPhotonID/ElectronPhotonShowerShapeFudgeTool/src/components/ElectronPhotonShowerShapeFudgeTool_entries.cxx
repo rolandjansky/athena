@@ -7,7 +7,7 @@ DECLARE_TOOL_FACTORY( ElectronPhotonShowerShapeFudgeTool )
 DECLARE_TOOL_FACTORY( ElectronPhotonVariableCorrectionTool )
 
 
-DECLARE_FACTORY_ENTRIES( ElectronPhotonSelectorTools ) 
+DECLARE_FACTORY_ENTRIES( ElectronPhotonShowerShapeFudgeTool ) 
 {
   DECLARE_ALGTOOL( ElectronPhotonShowerShapeFudgeTool )
   DECLARE_ALGTOOL( ElectronPhotonVariableCorrectionTool )
