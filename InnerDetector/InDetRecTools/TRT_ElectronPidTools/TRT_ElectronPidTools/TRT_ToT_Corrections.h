@@ -1,30 +1,30 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTDEDXCORRECTION_H
-#define TRTDEDXCORRECTION_H
+#ifndef DEDXCORRECTIONTOOL_H
+#define DEDXCORRECTIONTOOL_H
 
 
-struct TRTDedxcorrection {
-   
+namespace Dedxcorrection {
+
   static constexpr int nParametersTrackBaseddEdx = 100;
   static constexpr int nParametersHitBaseddEdx = 204;
 
-  double hitOccPar[nParametersHitBaseddEdx] = {1};
+  double hitOccPar[nParametersHitBaseddEdx];
 
-  // TrackOccupancy calibration constants are separated in three arrays as we use a polynomial
+  // TrckOccupancy calibration constants are separated in three arrays as we use a polynomial
   // function 2nd order of the form f(x)=a+b*x+c*x^2
   
-  // TrackOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double trackOccPar0NoHt[nParametersTrackBaseddEdx] = {1};
-  double trackOccPar1NoHt[nParametersTrackBaseddEdx] = {1};
-  double trackOccPar2NoHt[nParametersTrackBaseddEdx] = {1};
+  // TrckOccupancy calibration constants, HT hits are excluded, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
+  double trackOccPar0NoHt[nParametersTrackBaseddEdx];
+  double trackOccPar1NoHt[nParametersTrackBaseddEdx];
+  double trackOccPar2NoHt[nParametersTrackBaseddEdx];
 
-  // TrackOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
-  double trackOccPar0[nParametersTrackBaseddEdx] = {1};
-  double trackOccPar1[nParametersTrackBaseddEdx] = {1};
-  double trackOccPar2[nParametersTrackBaseddEdx] = {1};
+  // TrckOccupancy calibration constants, Pt>0.4 GeV d0<0.4 mm deltaZ0sin(theta)<0.4 mm
+  double trackOccPar0[nParametersTrackBaseddEdx];
+  double trackOccPar1[nParametersTrackBaseddEdx];
+  double trackOccPar2[nParametersTrackBaseddEdx];
 
   static constexpr int nGasTypes = 3;
   
@@ -93,8 +93,6 @@ struct TRTDedxcorrection {
   //==============================================================  
   
 
-};
-CLASS_DEF(TRTDedxcorrection,105466510,1)
-CONDCONT_DEF(TRTDedxcorrection,114226988);
+}
 
-#endif  /* TRTDEDXCORRECTION_H */
+#endif  /* DEDXCORRECTIONTOOL_H */

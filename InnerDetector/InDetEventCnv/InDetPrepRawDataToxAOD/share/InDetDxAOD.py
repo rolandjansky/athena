@@ -373,8 +373,10 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    import InDetRecExample.TrackingCommon
-    TRT_dEdx_Tool = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool()
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
+    TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
+    TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 
     # to get shared hit info
