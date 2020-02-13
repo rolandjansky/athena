@@ -15,6 +15,7 @@
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/JetChargeTool.h"
+#include "JetSubStructureMomentTools/MultiplicitiesTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
 #include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
@@ -40,6 +41,7 @@ DECLARE_COMPONENT( EnergyCorrelatorTool )
 DECLARE_COMPONENT( EnergyCorrelatorRatiosTool )
 DECLARE_COMPONENT( EnergyCorrelatorGeneralizedTool )
 DECLARE_COMPONENT( EnergyCorrelatorGeneralizedRatiosTool )
+DECLARE_COMPONENT( MultiplicitiesTool )
 DECLARE_COMPONENT( JetPullTool )
 DECLARE_COMPONENT( JetChargeTool )
 DECLARE_COMPONENT( VolatilityTool )
