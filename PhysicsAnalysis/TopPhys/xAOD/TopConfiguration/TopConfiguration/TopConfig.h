@@ -316,14 +316,20 @@ namespace top {
     }
 
     inline const std::vector<std::string>& nominalWeightNames() const {return m_nominalWeightNames;}
-    inline void setDetectedNominalWeightName(const std::string& name) {
-      m_detectedNominalWeightName = name;
+    inline void setNominalWeightName(const std::string& name) {
+      m_nominalWeightName = name;
     }
-    inline void setDetectedNominalWeightIndex(size_t index) {
-      m_detectedNominalWeightIndex = index;
+    inline void setNominalWeightIndex(size_t index) {
+      m_nominalWeightIndex = index;
     }
-    inline std::string detectedNominalWeightName() const {return m_detectedNominalWeightName;}
-    inline size_t detectedNominalWeightIndex() const {return m_detectedNominalWeightIndex;}
+    inline std::string nominalWeightName() const {return m_nominalWeightName;}
+    inline size_t nominalWeightIndex() const {return m_nominalWeightIndex;}
+
+    inline void setMCweightsVectorSize(size_t weights_size) {
+      m_MCweightsSize = weights_size;
+    }
+
+    inline size_t MCweightsVectorSize() const {return m_MCweightsSize;}
 
     // Top Parton History
     inline bool doTopPartonHistory() const {return m_doTopPartonHistory;}
@@ -1849,8 +1855,9 @@ namespace top {
     // list of names of nominal weight
     // attempts to find nominal weight in the order as specified here
     std::vector<std::string> m_nominalWeightNames;
-    std::string m_detectedNominalWeightName;
-    size_t m_detectedNominalWeightIndex;
+    std::string m_nominalWeightName;
+    size_t m_nominalWeightIndex;
+    size_t m_MCweightsSize;
 
     // Top Parton History
     bool m_doTopPartonHistory;
