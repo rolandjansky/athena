@@ -37,11 +37,9 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   #Name settings for output Tracks/TrackParticles
   #This first part is for ambiguity solver tracks
   nameAmbiTrackCollection = "%s%sTrkTrack%s"         %(outputTrackPrefixName, 'AmbSol', signature)
-  nameAmbiTrackParticles  = "%s%sTrack%s"            %(outputTrackPrefixName, 'AmbSol', signature)
   
   #Tracks from TRT extension
   nameExtTrackCollection = "%s%sTrkTrack%s"         %(outputTrackPrefixName, 'TRText', signature)
-  nameExtTrackParticles  = "%s%sTrack%s"            %(outputTrackPrefixName, 'TRText', signature)
 
   #Note IDTrig suffix as a key to specify that this collection comes from precision tracking rather than fast tracking (FTF)
   outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remap_signature( whichSignature ), 'IDTrig')
@@ -53,10 +51,8 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   if whichSignature == "electron":
       doTRTextension = True
       nameExtTrackCollection = outPTTracks
-      nameExtTrackParticles  = outPTTrackParticles
   else:
       nameAmbiTrackCollection = outPTTracks
-      nameAmbiTrackParticles  = outPTTrackParticles
 
 
 
@@ -75,8 +71,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   #                        Choose track summary tool
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
   from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool,\
-    InDetTrigTrackSummaryHelperToolSharedHits,InDetTrigTRT_ElectronPidTool
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTrackSummaryHelperToolSharedHits,InDetTrigTRT_ElectronPidTool
 
   InDetTrigTrackSummaryToolSharedHitsWithTRTPid  = Trk__TrackSummaryTool(name = "%sTrackSummaryToolSharedHitsWithTRT%s"%(algNamePrefix, signature),
                           InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
@@ -191,10 +186,10 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
             #-----------------------------------------------------------------------------
             #                        TRT extension
             #Keep track that this needs to have a switch between DAF and XK
-            trkExtensionType = 'XK'
+            #trkExtensionType = 'XK'
             #if InDetTrigFlags.trtExtensionType() is 'DAF' :
 
-            from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRT_DriftFunctionTool, InDetTrigTRT_DriftCircleTool
+            from InDetTrigRecExample.InDetTrigCommonTools import  InDetTrigTRT_DriftCircleTool
  
             from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
             from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
