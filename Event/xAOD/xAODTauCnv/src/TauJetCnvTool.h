@@ -25,9 +25,6 @@
 #include "tauEvent/TauCommonDetails.h"
 #include "tauEvent/TauJetParameters.h"
 
-// //panTau EDM includes
-// #include "PanTauEvent/PanTauDetails.h"
-
 //xAOD tau EDM includes
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
