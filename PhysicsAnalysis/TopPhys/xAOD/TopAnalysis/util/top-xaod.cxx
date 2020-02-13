@@ -192,7 +192,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
 
     if (!top::readMetaData(testFile.get(), topConfig)) {
-      std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
+      std::cerr << "Unable to access FileMetaData and/or TruthMetaData in this file : " << usethisfile << std::endl;
       std::cerr << "Please report this message" << std::endl;
     }
 
@@ -212,14 +212,16 @@ int main(int argc, char** argv) {
 
     // first we need to read some metadata before we read the config
     if (isMC) {
+      // check number of MC generator weights -- we need this before start initializing PMGTruthWeightTool later
+      topConfig->setMCweightsVectorSize(top::MCweightsSize(testFile.get(), topConfig->sgKeyEventInfo()));
       ///-- Are we using a truth derivation (no reco information)? --///
       ///-- Let's find out in the first event, this could be done better --///
       bool isTruthDxAOD = top::isTruthDxAOD(testFile.get());
       topConfig->setIsTruthDxAOD(isTruthDxAOD);
 
       if (!isTruthDxAOD) {
-        unsigned int DSID = topConfig->getDSID();
-        if (DSID == ((unsigned int)-1)) {
+        unsigned int DSID {0};
+        if (!useAodMetaData) {
           if (atLeastOneFileIsValid) {
             DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
             topConfig->setDSID(DSID);
@@ -227,6 +229,8 @@ int main(int argc, char** argv) {
             std::cout << "ERROR: We could not determine DSID for this sample from either CollectionTree, or FileMetaData, or TruthMetaData. There is something seriously wrong with this sample." << std::endl;
             exit(1);
           }
+        } else {
+          DSID = topConfig->getDSID();
         }
       }
     }
@@ -520,9 +524,6 @@ int main(int argc, char** argv) {
     std::vector<float> LHE3_sumW_file;
     std::vector<std::string> LHE3_names_file;
 
-    // prefix in the bookkeeper names to remove
-    const std::string name_prefix = "AllExecutedEvents_NonNominalMCWeight_";
-
     // See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisMetadata#Event_Bookkeepers
     const xAOD::CutBookkeeperContainer* cutBookKeepers = 0;
     // Try to get the cut bookkeepers.
@@ -533,34 +534,21 @@ int main(int argc, char** argv) {
       top::check(topConfig->isTruthDxAOD(), "Failed to retrieve cut book keepers");
     } else {
       if (topConfig->isMC()) {
-        // we will need to know the MC weight names from PMGTool
-        ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
-        top::check(m_pmg_weightTool.retrieve(), "top-xaod: Failed to retrieve PMGTruthWeightTool");
-        const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
-
         // try to retrieve CutBookKeepers for LHE3Weights first
         top::parseCutBookkeepers(cutBookKeepers, LHE3_names_file, LHE3_sumW_file, topConfig->HLLHC());
 
-        // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
-        if (weight_names.size() > 0) {
-          if (LHE3_names_file.size() != weight_names.size()) {
-            // The number of AllExecutedEvents_ bookkeepers does not match the number of weights retrieved by PMGTool
-            // we cannot match the bookkeepers to weights by indices in this case
-            std::cout << "WARNING: The number of bookkeepers does not match the number of MC generator weights in metadata!";
-            std::cout << "We cannot match the nominal weight correctly!" << std::endl;
-            std::exit(1);
-          }
-
-          // rename the bookkeepers based on the weight names from PMGTool
-          // this names are then also written into the sumWeights TTree in output files
+        // here we attempt to name the CutBookkeepers based on the MC weight names
+        // but we might end up in a situation where we don't have PMGTruthWeightTool
+        // e.g. if TruthMetaData container is broken in derivation
+        // we continue without names of the MC weights, only indices will be available
+        ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
+        if (m_pmg_weightTool.retrieve()) {
+          const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
+          // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
+          top::renameCutBookkeepers(LHE3_names_file, weight_names);
+        } else {
           for (std::string &name : LHE3_names_file) {
-            if (name == "AllExecutedEvents") {
-              name = weight_names.at(0);
-            } else {
-              // erase "AllExecutedEvents_NonNominalMCWeight_" prefix
-              int index = std::stoi(name.erase(0, name_prefix.size()));
-              name = weight_names.at(index);
-            }
+            name = "?";
           }
         }
 
@@ -569,7 +557,7 @@ int main(int argc, char** argv) {
         initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
 
         // determine the nominal sum of weight -- we already found the nominal weight in ScaleFactorCalculator
-        const size_t nominalWeightIndex = topConfig->detectedNominalWeightIndex();
+        const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
         sumW_file = LHE3_sumW_file.at(nominalWeightIndex);
       } else {
         initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
