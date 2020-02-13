@@ -100,11 +100,11 @@ else:
          exec(PscConfig.optmap['PRECOMMAND'])
       except Exception as e:
          if isinstance( e, IncludeError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR
             sys.exit( theApp._exitstate )         
          elif isinstance( e, ImportError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.IMPORT_ERROR
             sys.exit( theApp._exitstate )
          raise
@@ -167,11 +167,11 @@ else:
          exec(PscConfig.optmap['POSTCOMMAND'])
       except Exception as e:
          if isinstance( e, IncludeError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR
             sys.exit( ExitCodes.INCLUDE_ERROR )
          elif isinstance( e, ImportError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.IMPORT_ERROR
             sys.exit( ExitCodes.IMPORT_ERROR )
          raise
@@ -194,10 +194,10 @@ else:
       from TrigConfIO.JsonUtils import create_joboptions_json
       ConfigurationShelve.storeJobOptionsCatalogue('HLTJobOptions.pkl')
       fname = 'HLTJobOptions'
-      with open(fname+'.pkl') as f:
-         import cPickle
-         jocat = cPickle.load(f)   # basic job properties
-         jocfg = cPickle.load(f)   # some specialized services
+      with open(fname+'.pkl', "rb") as f:
+         import pickle
+         jocat = pickle.load(f)   # basic job properties
+         jocfg = pickle.load(f)   # some specialized services
          jocat.update(jocfg)       # merge the two dictionaries
          log.info('Dumping joboptions to "%s.json"', fname)
          create_joboptions_json(jocat, fname+".json")
