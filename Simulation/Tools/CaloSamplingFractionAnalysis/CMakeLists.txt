@@ -12,12 +12,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloSimEvent
-			  Calorimeter/CaloEvent
+                          Calorimeter/CaloEvent
                           Control/AthenaBaseComps
                           DetectorDescription/GeoModel/GeoAdaptors
                           Event/EventInfo
                           LArCalorimeter/LArSimEvent
-			  LArCalorimeter/LArElecCalib
+                          LArCalorimeter/LArElecCalib
                           TileCalorimeter/TileDetDescr
                           TileCalorimeter/TileSimEvent )
 
@@ -40,4 +40,5 @@ atlas_add_component( CaloSamplingFractionAnalysis
 # Install files from the package:
 # atlas_install_headers( CaloSamplingFractionAnalysis )
 # atlas_install_joboptions( share/*.py )
+atlas_install_runtime( share/*.C )
 

@@ -33,4 +33,7 @@ do if [[ "$v" -lt 1 ]] && [[ "$v" -gt -1 ]] && [ "${v/./}" != "${v}" ]
    root -b -q "tile_sf.C(\"$v\");" > sf$v.log
 done
 
-grep SF sf*.log
+#grep SF sf*.log
+get_files TileSamplingFraction_analysis.C
+root -b -q "TileSamplingFraction_analysis.C" > TileSamplingFraction_analysis.log
+
