@@ -548,16 +548,8 @@ def muEFCBRecoSequence( RoIs, name ):
   trackParticles = PTTrackParticles[-1]
 
   #Make InDetCandidates
-  from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
-
-  InDetTrigTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool("InDetTrigTrackSelectorTool",
-                                                                     TrackSummaryTool = InDetTrigTrackSummaryTool,
-                                                                     Extrapolator = InDetTrigExtrapolator,
-                                                                    )
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
-                                                       InDetCandidateLocation="InDetCandidates_"+name, TrackSelector = InDetTrigTrackSelectorTool)
+                                                       InDetCandidateLocation="InDetCandidates_"+name)
 
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
@@ -643,18 +635,8 @@ def muEFInsideOutRecoSequence(RoIs, name):
     trackParticles = PTTrackParticles[-1]
 
     #Make InDetCandidates
-
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
-    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
-
-    InDetTrigTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool("InDetTrigTrackSelectorTool",
-                                                                       TrackSummaryTool = InDetTrigTrackSummaryTool,
-                                                                       Extrapolator = InDetTrigExtrapolator,
-                                                                      )
-
     theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles],ForwardParticleLocation=trackParticles, 
-                                                         InDetCandidateLocation="InDetCandidates_"+name, TrackSelector = InDetTrigTrackSelectorTool)
+                                                         InDetCandidateLocation="InDetCandidates_"+name)
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
     ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
