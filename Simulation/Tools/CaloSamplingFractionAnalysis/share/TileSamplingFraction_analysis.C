@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 void TileSamplingFraction_analysis()
 {
   std::vector< std::string > thetalist={"-00","-05","+05","-10","+10","-15","+15","-20","+20","-25","+25","-30","+30","-35","+35",
